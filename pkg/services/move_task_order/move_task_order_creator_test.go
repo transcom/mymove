@@ -1,15 +1,14 @@
-package movetaskorder
+package movetaskorder_test
 
 import (
 	"testing"
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/services/query"
-
-	"github.com/transcom/mymove/pkg/testdatagen"
-
 	"github.com/transcom/mymove/pkg/models"
+	. "github.com/transcom/mymove/pkg/services/move_task_order"
+	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {

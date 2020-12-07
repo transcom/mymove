@@ -1,4 +1,4 @@
-package movetaskorder
+package movetaskorder_test
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
+	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -129,7 +130,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 			BackupMailingAddress: &address2,
 		}},
 	)
-	result, err := isValidFakeModelServiceMember(sm)
+	result, err := IsValidFakeModelServiceMember(sm)
 	suite.NoError(err)
 	suite.Equal(true, result)
 
@@ -155,7 +156,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 	for idx, invalidData := range invalidFakeData {
 		suite.T().Run(fmt.Sprintf("invalid fake Service Member data %d", idx), func(t *testing.T) {
 			sm := testdatagen.MakeServiceMember(suite.DB(), invalidData)
-			result, err := isValidFakeModelServiceMember(sm)
+			result, err := IsValidFakeModelServiceMember(sm)
 			suite.NoError(err)
 			suite.Equal(false, result)
 		})
@@ -171,7 +172,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 			Email:     swag.String("peyton@example.com"),
 		},
 	})
-	result, err := isValidFakeModelMTOAgent(agent)
+	result, err := IsValidFakeModelMTOAgent(agent)
 	suite.NoError(err)
 	suite.Equal(true, result)
 
@@ -184,7 +185,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 	for idx, badData := range badFakeData {
 		suite.T().Run(fmt.Sprintf("invalid fake MTOAgent data %d", idx), func(t *testing.T) {
 			agent := testdatagen.MakeMTOAgent(suite.DB(), badData)
-			result, err := isValidFakeModelMTOAgent(agent)
+			result, err := IsValidFakeModelMTOAgent(agent)
 			suite.NoError(err)
 			suite.Equal(false, result)
 		})
@@ -198,7 +199,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelA
 				StreetAddress1: "3373 NW Martin Luther King Jr Blvd",
 			},
 		})
-		result, err := isValidFakeModelAddress(&address)
+		result, err := IsValidFakeModelAddress(&address)
 		suite.NoError(err)
 		suite.Equal(true, result)
 	})
@@ -209,7 +210,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelA
 				StreetAddress1: "1600 pennsylvania ave",
 			},
 		})
-		result, err := isValidFakeModelAddress(&address)
+		result, err := IsValidFakeModelAddress(&address)
 		suite.NoError(err)
 		suite.Equal(false, result)
 	})
@@ -244,7 +245,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 			SecondaryDeliveryAddress: &validSecondaryDeliveryAddress,
 		},
 	})
-	result, err := isValidFakeModelMTOShipment(shipment)
+	result, err := IsValidFakeModelMTOShipment(shipment)
 	suite.NoError(err)
 	suite.Equal(true, result)
 
@@ -277,7 +278,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 	for idx, invalidData := range invalidFakeData {
 		suite.T().Run(fmt.Sprintf("invalid fake MTOShipment data %d", idx), func(t *testing.T) {
 			shipment := testdatagen.MakeMTOShipment(suite.DB(), invalidData)
-			result, err := isValidFakeModelMTOShipment(shipment)
+			result, err := IsValidFakeModelMTOShipment(shipment)
 			suite.NoError(err)
 			suite.Equal(false, result)
 		})
@@ -318,7 +319,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 			},
 		})
 		shipments = append(shipments, shipment)
-		result, err := isValidFakeModelMTOShipments(shipments)
+		result, err := IsValidFakeModelMTOShipments(shipments)
 		suite.NoError(err)
 		suite.Equal(true, result)
 	})
@@ -355,7 +356,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 			shipment := testdatagen.MakeMTOShipment(suite.DB(), invalidData)
 			shipments = append(shipments, shipment)
 		}
-		result, err := isValidFakeModelMTOShipments(shipments)
+		result, err := IsValidFakeModelMTOShipments(shipments)
 		suite.NoError(err)
 		suite.Equal(false, result)
 	})

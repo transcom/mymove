@@ -1,10 +1,11 @@
-package movetaskorder
+package movetaskorder_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
+	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
