@@ -15,7 +15,7 @@ import (
 // initRootFlags initializes flags relating to the prime api
 func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitCACFlags(flag)
-	cli.InitVerboseFlags(flag)
+	cli.InitLoggingFlags(flag)
 
 	flag.String(utils.CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
 	flag.String(utils.KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")

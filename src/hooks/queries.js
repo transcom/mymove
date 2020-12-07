@@ -10,6 +10,7 @@ import {
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
+  getMovePaymentRequests,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getQueriesStatus } from 'utils/api';
@@ -18,6 +19,7 @@ import {
   MTO_SHIPMENTS,
   MTO_SERVICE_ITEMS,
   MOVE_ORDERS,
+  MOVE_PAYMENT_REQUESTS,
   MOVE_TASK_ORDERS,
   ORDERS_DOCUMENTS,
   MOVES_QUEUE,
@@ -191,6 +193,19 @@ export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], curre
   const { queuePaymentRequests, ...dataProps } = data;
   return {
     queueResult: { data: queuePaymentRequests, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useMovePaymentRequestsQueries = (locator) => {
+  const { data = {}, ...movePaymentRequestsQuery } = useQuery([MOVE_PAYMENT_REQUESTS, locator], getMovePaymentRequests);
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery]);
+
+  return {
+    paymentRequests: data,
     isLoading,
     isError,
     isSuccess,
