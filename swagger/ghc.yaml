@@ -919,6 +919,44 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
+  '/moves/{locator}/payment-requests':
+    parameters:
+      - description: move code to identify a move for payment requests
+        format: string
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: '#/definitions/PaymentRequests'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+      description: Fetches payment requests for a move
+      operationId: getPaymentRequestsForMove
+      summary: Fetches payment requests using the move code (locator).
   '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
@@ -1801,6 +1839,9 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      createdAt:
+        format: date-time
+        type: string
     type: object
   PaymentRequests:
     items:

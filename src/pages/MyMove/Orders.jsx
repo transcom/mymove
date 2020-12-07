@@ -22,6 +22,7 @@ import { formatYesNoInputValue, formatYesNoAPIValue } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 export class Orders extends Component {
   constructor(props) {
@@ -165,11 +166,15 @@ Orders.defaultProps = {
   pageKey: '',
 };
 
-const mapStateToProps = (state) => ({
-  serviceMemberId: state.serviceMember?.currentServiceMember?.id,
-  currentOrders: selectActiveOrLatestOrders(state),
-  currentStation: state.serviceMember?.currentServiceMember?.current_station || {},
-});
+const mapStateToProps = (state) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
+  return {
+    serviceMemberId: serviceMember?.id,
+    currentOrders: selectActiveOrLatestOrders(state),
+    currentStation: serviceMember?.current_station || {},
+  };
+};
 
 const mapDispatchToProps = {
   fetchLatestOrders: fetchLatestOrdersAction,

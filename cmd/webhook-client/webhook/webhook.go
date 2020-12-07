@@ -266,3 +266,17 @@ func (eng *Engine) Start() error {
 
 	return nil
 }
+
+// GetSeverity is a function that returns the severity level of a single attempt given an array of severity thresholds
+func (eng *Engine) GetSeverity(currentTime time.Time, firstAttempt time.Time, thresholds []int) int {
+	timeSinceFirstAttempt := int(currentTime.Sub(firstAttempt).Seconds())
+	levels := len(thresholds) + 1
+	sev := 1 //if the loop condition is not met, then the severity is 1
+	for index, threshold := range thresholds {
+		if timeSinceFirstAttempt < threshold {
+			sev = levels - index
+			break
+		}
+	}
+	return sev
+}

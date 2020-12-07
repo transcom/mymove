@@ -132,9 +132,7 @@ function SMSubmitsMove() {
   });
 
   cy.get('.usa-alert--success').within(() => {
-    cy.contains('Congrats - your move is submitted!');
-    cy.contains('Next, wait for approval. Once approved:');
-    cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
+    cy.contains('You’ve submitted your move request.');
   });
 }
 
@@ -193,9 +191,7 @@ function SMCompletesMove() {
   });
 
   cy.get('.usa-alert--success').within(() => {
-    cy.contains('Congrats - your move is submitted!');
-    cy.contains('Next, wait for approval. Once approved:');
-    cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
+    cy.contains('You’ve submitted your move request.');
   });
 
   cy.visit('/ppm');

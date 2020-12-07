@@ -33,6 +33,7 @@ import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipment
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -298,7 +299,7 @@ function mapStateToProps(state, ownProps) {
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
     mtoShipments: selectMTOShipmentsByMoveId(state, moveID),
-    serviceMember: state.serviceMember.currentServiceMember,
+    serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove: selectMove(state, moveID),
     currentOrders,
     uploads: selectUploadsForActiveOrders(state),
