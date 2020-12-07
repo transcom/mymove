@@ -246,6 +246,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/UpdateMTOServiceItem"
             }
@@ -2576,6 +2577,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/UpdateMTOServiceItem"
             }

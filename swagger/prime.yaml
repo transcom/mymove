@@ -439,6 +439,7 @@ paths:
           name: body
           schema: # we use an update specific definition for the request
             $ref: '#/definitions/UpdateMTOServiceItem'
+          required: true
         - in: path
           name: mtoServiceItemID
           type: string
