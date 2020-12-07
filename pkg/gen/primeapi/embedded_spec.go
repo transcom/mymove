@@ -242,6 +242,30 @@ func init() {
         ],
         "summary": "updateMTOServiceItem",
         "operationId": "updateMTOServiceItem",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItem"
+            }
+          },
+          {
+            "type": "string",
+            "description": "UUID of service item to update.",
+            "name": "mtoServiceItemID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully updated the MTO service item.",
@@ -274,31 +298,7 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         }
-      },
-      "parameters": [
-        {
-          "name": "body",
-          "in": "body",
-          "required": true,
-          "schema": {
-            "$ref": "#/definitions/UpdateMTOServiceItem"
-          }
-        },
-        {
-          "type": "string",
-          "description": "UUID of service item to update.",
-          "name": "mtoServiceItemID",
-          "in": "path",
-          "required": true
-        },
-        {
-          "type": "string",
-          "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-          "name": "If-Match",
-          "in": "header",
-          "required": true
-        }
-      ]
+      }
     },
     "/mto-shipments": {
       "post": {
@@ -2573,6 +2573,30 @@ func init() {
         ],
         "summary": "updateMTOServiceItem",
         "operationId": "updateMTOServiceItem",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItem"
+            }
+          },
+          {
+            "type": "string",
+            "description": "UUID of service item to update.",
+            "name": "mtoServiceItemID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully updated the MTO service item.",
@@ -2629,31 +2653,7 @@ func init() {
             }
           }
         }
-      },
-      "parameters": [
-        {
-          "name": "body",
-          "in": "body",
-          "required": true,
-          "schema": {
-            "$ref": "#/definitions/UpdateMTOServiceItem"
-          }
-        },
-        {
-          "type": "string",
-          "description": "UUID of service item to update.",
-          "name": "mtoServiceItemID",
-          "in": "path",
-          "required": true
-        },
-        {
-          "type": "string",
-          "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-          "name": "If-Match",
-          "in": "header",
-          "required": true
-        }
-      ]
+      }
     },
     "/mto-shipments": {
       "post": {
