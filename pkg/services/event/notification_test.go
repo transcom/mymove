@@ -110,7 +110,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 	})
 
 	suite.T().Run("Success with MTOServiceItemDOFSIT", func(t *testing.T) {
-		data := &primemessages.MTOServiceItemDOFSIT{}
+		data := &primemessages.MTOServiceItemOriginSIT{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.DB(), mtoServiceItemDOFSIT.ID)
 
@@ -125,7 +125,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 	})
 
 	suite.T().Run("Success with MTOServiceItemDDFSIT", func(t *testing.T) {
-		data := &primemessages.MTOServiceItemDDFSIT{}
+		data := &primemessages.MTOServiceItemDestSIT{}
 
 		payload, assemblePayloadErr := assembleMTOServiceItemPayload(suite.DB(), mtoServiceItemDDFSIT.ID)
 
