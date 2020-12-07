@@ -15,7 +15,7 @@ const info = {
 };
 
 export default {
-  title: 'TOO/TIO Components|AllowancesTable',
+  title: 'TOO/TIO Components/AllowancesTable',
   decorator: withKnobs,
 };
 

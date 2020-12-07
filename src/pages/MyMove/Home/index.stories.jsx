@@ -7,7 +7,7 @@ import Home from '.';
 import { store } from 'shared/store';
 
 export default {
-  title: 'Customer Components | Home',
+  title: 'Customer Components / Home',
 };
 
 const defaultProps = {

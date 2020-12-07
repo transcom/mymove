@@ -6,7 +6,7 @@ import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
 export default {
-  title: 'TOO/TIO Components|RequestedServiceItemsTable',
+  title: 'TOO/TIO Components/RequestedServiceItemsTable',
   component: RequestedServiceItemsTable,
 };
 

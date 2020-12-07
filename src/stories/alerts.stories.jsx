@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert } from '@trussworks/react-uswds';
 
 export default {
-  title: 'Components|Alerts',
+  title: 'Components/Alerts',
   parameters: {
     abstract: {
       url: 'https://share.goabstract.com/1be53210-d556-4f7d-9141-db2944f2e058?mode=design',

@@ -160,7 +160,7 @@ const agents = [
   },
 ];
 
-storiesOf('TOO/TIO Components|ShipmentApprovalPreview', module)
+storiesOf('TOO/TIO Components/ShipmentApprovalPreview', module)
   .add('Shipment Approval Preview Modal', () => (
     <ShipmentApprovalPreview
       customerInfo={customerInfo}

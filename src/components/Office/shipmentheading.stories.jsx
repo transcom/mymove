@@ -4,7 +4,7 @@ import { withKnobs, object, text } from '@storybook/addon-knobs';
 
 import ShipmentHeading from './ShipmentHeading';
 
-storiesOf('TOO/TIO Components|ShipmentHeading', module)
+storiesOf('TOO/TIO Components/ShipmentHeading', module)
   .addDecorator(withKnobs)
   .add('Shipment Heading', () => (
     <ShipmentHeading

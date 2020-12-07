@@ -142,6 +142,6 @@ export const MoveSubmitted = () => (
 );
 
 export default {
-  title: 'Customer Components | Step',
+  title: 'Customer Components / Step',
   decorators: [withKnobs],
 };

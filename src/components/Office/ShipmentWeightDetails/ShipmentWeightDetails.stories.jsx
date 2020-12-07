@@ -4,7 +4,7 @@ import { withKnobs } from '@storybook/addon-knobs';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 export default {
-  title: 'TOO/TIO Components|ShipmentWeightDetails',
+  title: 'TOO/TIO Components/ShipmentWeightDetails',
   decorators: [
     withKnobs,
     (storyFn) => (

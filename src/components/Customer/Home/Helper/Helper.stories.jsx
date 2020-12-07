@@ -17,7 +17,7 @@ const title = 'Next step: Add your orders';
 const separator = '\n';
 
 export default {
-  title: 'Customer Components | Helper',
+  title: 'Customer Components / Helper',
   decorators: [withKnobs],
 };
 

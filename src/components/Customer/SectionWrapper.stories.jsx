@@ -4,7 +4,7 @@ import React from 'react';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
 export default {
-  title: 'Customer Components | Section Wrapper',
+  title: 'Customer Components / Section Wrapper',
 };
 
 export const Component = () => (

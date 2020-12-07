@@ -22,7 +22,7 @@ const info = {
 };
 
 export default {
-  title: 'TOO/TIO Components|CustomerInfoTable',
+  title: 'TOO/TIO Components/CustomerInfoTable',
   decorator: withKnobs,
 };
 

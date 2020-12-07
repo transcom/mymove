@@ -76,7 +76,7 @@ InlineForm.propTypes = {
   initialValues: PropTypes.any.isRequired,
 };
 
-storiesOf('Samples|Form', module)
+storiesOf('Samples/Form', module)
   .add('personal info', () => (
     <div id="samples-orders-container" style={{ padding: '20px' }}>
       <div className="container container--accent--hhg">

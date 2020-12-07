@@ -13,7 +13,7 @@ const StatusTimelineCodes = {
 };
 
 export default {
-  title: 'scenes|Landing',
+  title: 'scenes/Landing',
   decorators: [withKnobs, (storyFn) => <div className="shipment_box_contents">{storyFn()}</div>],
 };
 

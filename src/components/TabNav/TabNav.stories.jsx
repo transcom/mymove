@@ -5,7 +5,7 @@ import { Tag } from '@trussworks/react-uswds';
 import TabNav from './index';
 
 export default {
-  title: 'Components|Tab Navigation',
+  title: 'Components/Tab Navigation',
   decorators: [withKnobs],
   parameters: {
     abstract: {

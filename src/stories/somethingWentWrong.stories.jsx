@@ -4,7 +4,7 @@ import { withKnobs, text } from '@storybook/addon-knobs';
 import SomethingWentWrong from '../shared/SomethingWentWrong';
 
 export default {
-  title: 'Components|Something Went Wrong',
+  title: 'Components/Something Went Wrong',
   decorator: withKnobs,
 };
 

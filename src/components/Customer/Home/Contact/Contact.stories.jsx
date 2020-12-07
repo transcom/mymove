@@ -32,7 +32,7 @@ export const missingPhone = () => (
 );
 
 export default {
-  title: 'Customer Components | Contact',
+  title: 'Customer Components / Contact',
   decorators: [
     withKnobs,
     (Story) => (

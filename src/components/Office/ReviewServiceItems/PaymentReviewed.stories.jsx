@@ -3,7 +3,7 @@ import React from 'react';
 import PaymentReviewed from './PaymentReviewed';
 
 export default {
-  title: 'TOO/TIO Components|ReviewServiceItems/ReviewDetails',
+  title: 'TOO/TIO Components/ReviewServiceItems/ReviewDetails',
   component: PaymentReviewed,
 };
 

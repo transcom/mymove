@@ -5,7 +5,7 @@ import ServiceItemCard from './ServiceItemCard';
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 export default {
-  title: 'TOO/TIO Components|ReviewServiceItems/ServiceItemCards',
+  title: 'TOO/TIO Components/ReviewServiceItems/ServiceItemCards',
   component: ServiceItemCard,
 };
 

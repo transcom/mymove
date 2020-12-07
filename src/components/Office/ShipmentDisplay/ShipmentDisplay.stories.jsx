@@ -5,7 +5,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
-  title: 'TOO/TIO Components|Shipment Display',
+  title: 'TOO/TIO Components/Shipment Display',
   component: ShipmentDisplay,
   decorators: [withKnobs],
 };

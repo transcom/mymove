@@ -288,7 +288,7 @@ const serviceItems = [
 ];
 
 export default {
-  title: 'TOO/TIO Components|RequestedShipments',
+  title: 'TOO/TIO Components/RequestedShipments',
 };
 
 export const withOneShipment = () => (

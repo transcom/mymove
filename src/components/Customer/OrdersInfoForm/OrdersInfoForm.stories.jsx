@@ -30,7 +30,7 @@ const testInitialValues = {
 };
 
 export default {
-  title: 'Customer Components | Forms / OrdersInfoForm',
+  title: 'Customer Components / Forms / OrdersInfoForm',
   component: OrdersInfoForm,
   // TODO - Story-level decorators not working, maybe after we update Storybook?
   /* decorators: [

@@ -3,7 +3,7 @@ import React from 'react';
 import ImportantShipmentDates from './ImportantShipmentDates';
 
 export default {
-  title: 'TOO/TIO Components|ImportantShipmentDate',
+  title: 'TOO/TIO Components/ImportantShipmentDate',
 };
 
 export const Default = () => (

@@ -6,7 +6,7 @@ import LeftNav from './index';
 
 // Left Nav
 export default {
-  title: 'Components|Left Nav',
+  title: 'Components/Left Nav',
   component: LeftNav,
   parameters: {
     abstract: {

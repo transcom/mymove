@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 import RejectRequestComponent from './RejectRequest';
 
 export default {
-  title: 'TOO/TIO Components|ReviewServiceItems/ReviewDetails',
+  title: 'TOO/TIO Components/ReviewServiceItems/ReviewDetails',
   component: RejectRequestComponent,
 };
 
