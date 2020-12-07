@@ -1038,12 +1038,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		responsePayload := okResponse.Payload
 
 		suite.Equal(1, len(responsePayload.MtoServiceItems()))
-		var serviceItemDDFSIT *primemessages.MTOServiceItemDDFSIT
+		var serviceItemDDFSIT *primemessages.MTOServiceItemDestSIT
 		var serviceItemDDFSITCode string
 
 		for _, item := range responsePayload.MtoServiceItems() {
-			if item.ModelType() == primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT {
-				serviceItemDDFSIT = item.(*primemessages.MTOServiceItemDDFSIT)
+			if item.ModelType() == primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT {
+				serviceItemDDFSIT = item.(*primemessages.MTOServiceItemDestSIT)
 				serviceItemDDFSITCode = *serviceItemDDFSIT.ReServiceCode
 				break
 			}

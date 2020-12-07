@@ -380,6 +380,48 @@ paths:
 
         To update a service item, please use [updateMTOServiceItem](#operation/updateMTOServiceItem) endpoint.
 
+        ---
+
+        **`MTOServiceItemOriginSIT`**
+
+        MTOServiceItemOriginSIT is a subtype of MTOServiceItem.
+
+        This model type describes a domestic origin SIT service item. Items can be created using this
+        model type with the following codes:
+
+        **DOFSIT**
+
+        **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
+          * DOFSIT - Domestic origin 1st day SIT
+          * DOASIT - Domestic origin Additional day SIT
+          * DOPSIT - Domestic origin SIT pickup
+
+        **DOASIT**
+
+        **Addt'l days origin SIT service item**. This represents an additional day of storage for the same item.
+        Additional DOASIT service items can be created and added to an existing shipment that **includes a DOFSIT service item**.
+
+        ---
+
+        **`MTOServiceItemDestSIT`**
+
+        MTOServiceItemDestSIT is a subtype of MTOServiceItem.
+
+        This model type describes a domestic destination SIT service item. Items can be created using this
+        model type with the following codes:
+
+        **DDFSIT**
+
+        **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
+          * DDFSIT - Domestic destination 1st day SIT
+          * DDASIT - Domestic destination Additional day SIT
+          * DDDSIT - Domestic destination SIT delivery
+
+        **DDASIT**
+
+        **Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
+        Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
+
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1107,8 +1149,8 @@ definitions:
             $ref: '#/definitions/ReServiceCode'
         required:
           - reServiceCode
-  MTOServiceItemDDFSIT: # spectral oas2-unused-definition is OK here due to polymorphism
-    description: Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
+  MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -1145,6 +1187,7 @@ definitions:
             format: date
             type: string
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+            x-nullable: true
         required:
           - reServiceCode
           - timeMilitary1
@@ -1181,46 +1224,6 @@ definitions:
       - length
       - width
       - height
-  MTOServiceItemDOFSIT: # spectral oas2-unused-definition is OK here due to polymorphism
-    description: Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
-    allOf:
-      - $ref: '#/definitions/MTOServiceItem'
-      - type: object
-        properties:
-          reServiceCode:
-            type: string
-            description: Service code allowed for this model type.
-            enum:
-              - DOFSIT # Domestic Origin First Day SIT
-              - DOASIT # Domestic Origin Additional SIT
-          reason:
-            type: string
-            example: Storage items need to be picked up
-            description: Explanation of why Prime is picking up SIT item.
-          pickupPostalCode:
-            type: string
-            format: zip
-            example: "90210"
-            pattern: '^(\d{5}([\-]\d{4})?)$'
-          sitPostalCode:
-            type: string
-            format: zip
-            example: "90210"
-            pattern: '^(\d{5}([\-]\d{4})?)$'
-          sitEntryDate:
-            format: date
-            type: string
-            description: Entry date for the SIT
-          sitDepartureDate:
-            format: date
-            type: string
-            description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
-        required:
-          - reServiceCode
-          - reason
-          - sitPostalCode
-          - pickupPostalCode
-          - sitEntryDate
   MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
     allOf:
@@ -1251,8 +1254,8 @@ definitions:
       Describes all model sub-types for a MTOServiceItem model.
 
       Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
-        * DOFSIT - MTOServiceItemDOFSIT
-        * DDFSIT - MTOServiceItemDDFSIT
+        * DOFSIT, DOASIT - MTOServiceItemOriginSIT
+        * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
 
@@ -1261,11 +1264,46 @@ definitions:
     type: string
     enum:
       - MTOServiceItemBasic
-      - MTOServiceItemDOFSIT
-      - MTOServiceItemDDFSIT
+      - MTOServiceItemOriginSIT
+      - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemSITDeparture
+  MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DOFSIT # Domestic Origin First Day SIT
+              - DOASIT # Domestic Origin Additional SIT
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: Explanation of why Prime is picking up SIT item.
+          sitPostalCode:
+            type: string
+            format: zip
+            example: "90210"
+            pattern: '^(\d{5}([\-]\d{4})?)$'
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            x-nullable: true
+            description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+        required:
+          - reServiceCode
+          - reason
+          - sitPostalCode
+          - sitEntryDate
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a shuttle service item.
     allOf:
