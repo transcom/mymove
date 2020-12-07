@@ -93,7 +93,9 @@ func UpdateMTOServiceItem(cmd *cobra.Command, args []string) error {
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		var params sITParams
 		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
+		mtoServiceItemReqParams.SetMtoServiceItemID(params.MtoServiceItemID)
 		mtoServiceItemReqParams.SetBody(&params.Body)
+		mtoServiceItemReqParams.SetIfMatch(params.IfMatch)
 	default:
 		err = fmt.Errorf("allowed modelType(): %v", []primemessages.UpdateMTOServiceItemModelType{
 			primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT,

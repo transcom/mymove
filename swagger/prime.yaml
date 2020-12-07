@@ -414,6 +414,24 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   '/mto-service-items/{mtoServiceItemID}':
+    parameters:
+      - in: body
+        name: body
+        schema: # we use an update specific definition for the request
+          $ref: '#/definitions/UpdateMTOServiceItem'
+        required: true
+      - in: path
+        name: mtoServiceItemID
+        type: string
+        description: UUID of service item to update.
+        required: true
+      - in: header
+        name: If-Match
+        type: string
+        required: true
+        description: >
+          Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+          the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
     patch:
       summary: updateMTOServiceItem
       description: |
@@ -434,23 +452,6 @@ paths:
         - application/json
       produces:
         - application/json
-      parameters:
-        - in: body
-          name: body
-          schema: # we use an update specific definition for the request
-            $ref: '#/definitions/UpdateMTOServiceItem'
-        - in: path
-          name: mtoServiceItemID
-          type: string
-          description: UUID of service item to update.
-          required: true
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
         '200':
           description: Successfully updated the MTO service item.
