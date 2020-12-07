@@ -68,7 +68,7 @@ const PaymentRequestCard = ({ paymentRequest }) => {
             <>
               {approvedAmount > 0 && (
                 <div className={styles.amountAccepted}>
-                  <FontAwesomeIcon className="success" icon={['far', 'check-circle']} />
+                  <FontAwesomeIcon icon="check" />
                   <div>
                     <h2>{toDollarString(formatCents(approvedAmount))}</h2>
                     <span>Accepted</span>
@@ -77,11 +77,7 @@ const PaymentRequestCard = ({ paymentRequest }) => {
               )}
               {rejectedAmount > 0 && (
                 <div className={styles.amountRejected}>
-                  {approvedAmount === 0 ? (
-                    <FontAwesomeIcon className="" icon="times" />
-                  ) : (
-                    <FontAwesomeIcon icon={['far', 'times-circle']} />
-                  )}
+                  <FontAwesomeIcon icon="times" />
                   <div>
                     <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
                     <span>Rejected</span>
