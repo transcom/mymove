@@ -50,7 +50,8 @@ describe('TIO user', () => {
 
     // Payment Requests page
     cy.url().should('include', `/payment-requests`);
-    cy.get('[data-testid="PaymentRequests"]');
+    cy.get('[data-testid="MovePaymentRequests"]');
+    cy.contains('Review service items').click();
 
     // Retaining these tests as comments so that they can be reactivated for service item review flow
     // Payment Request detail page

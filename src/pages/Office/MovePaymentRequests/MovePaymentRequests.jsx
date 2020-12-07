@@ -11,14 +11,16 @@ import { useMovePaymentRequestsQueries } from 'hooks/queries';
 
 const MovePaymentRequests = () => {
   const { locator } = useParams();
-
   const { paymentRequests, isLoading, isError } = useMovePaymentRequestsQueries(locator);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <div className={classnames(styles.MovePaymentRequests, 'grid-container-widescreen')} data-testid="PaymentRequests">
+    <div
+      className={classnames(styles.MovePaymentRequests, 'grid-container-widescreen')}
+      data-testid="MovePaymentRequests"
+    >
       <h2>Payment Requests</h2>
       {paymentRequests.map((paymentRequest) => (
         <PaymentRequestCard paymentRequest={paymentRequest} key={paymentRequest.id} />
