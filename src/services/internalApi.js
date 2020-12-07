@@ -44,6 +44,8 @@ export async function getMTOShipmentsForMove(moveTaskOrderID, normalize = true) 
 }
 
 /** BELOW API CALLS ARE STILL USING DUCKS, NOT NORMALIZED BY DEFAULT */
+
+/** SERVICE MEMBERS */
 export async function createServiceMember(serviceMember = {}) {
   return makeInternalRequest(
     'service_members.createServiceMember',
@@ -77,6 +79,7 @@ export async function patchServiceMember(serviceMember) {
   );
 }
 
+/** BACKUP CONTACTS */
 export async function createBackupContactForServiceMember(serviceMemberId, backupContact) {
   return makeInternalRequest(
     'backup_contacts.createServiceMemberBackupContact',
@@ -96,6 +99,47 @@ export async function patchBackupContact(backupContact) {
     {
       backupContactId: backupContact.id,
       updateServiceMemberBackupContactPayload: backupContact,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+/** MOVES */
+export async function getMove(moveId) {
+  return makeInternalRequest(
+    'moves.showMove',
+    {
+      moveId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchMove(move) {
+  return makeInternalRequest(
+    'moves.patchMove',
+    {
+      moveId: move.id,
+      patchMovePayload: move,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function submitMoveForApproval(moveId, certificate) {
+  return makeInternalRequest(
+    'moves.submitMoveForApproval',
+    {
+      moveId,
+      submitMoveForApprovalPayload: {
+        certificate,
+      },
     },
     {
       normalize: false,
