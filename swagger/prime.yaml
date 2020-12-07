@@ -414,7 +414,7 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   '/mto-service-items/{mtoServiceItemID}':
-    post:
+    patch:
       summary: updateMTOServiceItem
       description: |
         Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.
@@ -455,9 +455,7 @@ paths:
         '200':
           description: Successfully updated the MTO service item.
           schema:
-            type: array
-            items: # we return the same definition as the create function for the response
-              $ref: '#/definitions/MTOServiceItem'
+            $ref: '#/definitions/MTOServiceItem'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -468,12 +466,12 @@ paths:
           $ref: '#/responses/NotFound'
         '409':
           $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-        '501':
-          $ref: '#/responses/NotImplemented'
   /payment-requests:
     post:
       summary: createPaymentRequest

@@ -7,8 +7,12 @@ import { ConnectedRouter } from 'connected-react-router';
 
 import { configureStore } from 'shared/store';
 
-export const MockProviders = ({ children, initialState, initialEntries }) => {
-  const mockHistory = createMemoryHistory({ initialEntries });
+export const createMockHistory = (initialEntries) => {
+  return createMemoryHistory({ initialEntries });
+};
+
+export const MockProviders = ({ children, initialState, initialEntries, history }) => {
+  const mockHistory = history || createMockHistory(initialEntries);
   const mockStore = configureStore(mockHistory, initialState);
 
   return (
@@ -23,9 +27,12 @@ MockProviders.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   initialState: PropTypes.object,
   initialEntries: PropTypes.arrayOf(PropTypes.string),
+  // eslint-disable-next-line react/forbid-prop-types
+  history: PropTypes.object,
 };
 
 MockProviders.defaultProps = {
   initialState: {},
   initialEntries: ['/'],
+  history: null,
 };

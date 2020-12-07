@@ -29,7 +29,7 @@ func NewUpdateMTOServiceItem(ctx *middleware.Context, handler UpdateMTOServiceIt
 	return &UpdateMTOServiceItem{Context: ctx, Handler: handler}
 }
 
-/*UpdateMTOServiceItem swagger:route POST /mto-service-items/{mtoServiceItemID} mtoServiceItem updateMTOServiceItem
+/*UpdateMTOServiceItem swagger:route PATCH /mto-service-items/{mtoServiceItemID} mtoServiceItem updateMTOServiceItem
 
 updateMTOServiceItem
 
