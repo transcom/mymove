@@ -16,7 +16,6 @@ const ReviewSection = ({ fieldData, title, editLink, useH4, datatestid }) => {
     ));
   };
 
-  // eslint-disable no-console
   return (
     <div>
       {title && (
