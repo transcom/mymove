@@ -40,5 +40,5 @@ fi
 mkdir -p "${dest}"
 for date in "${dates[@]}"; do
   #aws s3 sync --quiet "s3://transcom-ppp-aws-logs/alb/app-${environment}/AWSLogs/923914045601/elasticloadbalancing/us-west-2/${date}/" "$dest"
-  aws s3 sync --quiet "s3://transcom-gov-milmove-${environment}-aws-logs/alb/app-${environment}/AWSLogs/${accountid}/elasticloadbalancing/us-gov-west-1/${date}/" "dest"
+  aws s3 sync --quiet "s3://transcom-gov-milmove-${environment}-aws-logs/alb/app-${environment}/AWSLogs/${accountid}/elasticloadbalancing/us-gov-west-1/${date}/" "$dest"
 done
