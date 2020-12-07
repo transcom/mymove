@@ -8,9 +8,9 @@
 
 # This line grabs any available secrets in app-devlocal and adds them to the environment.
 # Lines that begin with `require ...` should still run to verify the secret is set.
-if ! chamber list app-devlocal --retries=1 > /dev/null ; then
+if ! AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber list app-devlocal --retries=1 > /dev/null ; then
   log_error "Unable to access app-devlocal variables with chamber."
-  log_error "Login to chamber with 'chamber list app-devlocal'."
+  log_error "Login to chamber with 'AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber list app-devlocal'."
 else
-  eval "$(chamber env app-devlocal --retries=1)"
+  eval "$(AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber env app-devlocal --retries=1)"
 fi
