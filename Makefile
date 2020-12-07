@@ -318,7 +318,7 @@ server_build: bin/milmove ## Build the server
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
 server_run_standalone: check_log_dir server_build client_build db_dev_run redis_run
-	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
+	LOGGING_LEVEL=debug ./bin/milmove serve 2>&1 | tee -a log/dev.log
 
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
@@ -327,7 +327,7 @@ server_run:
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
 server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run redis_run
-	INTERFACE=localhost DEBUG_LOGGING=true \
+	INTERFACE=localhost LOGGING_LEVEL=debug \
 		./bin/gin \
 		--build ./cmd/milmove \
 		--bin /bin/milmove_gin \

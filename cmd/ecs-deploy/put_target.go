@@ -60,8 +60,8 @@ func initPutTargetFlags(flag *pflag.FlagSet) {
 	flag.String(nameFlag, "", fmt.Sprintf("The name of the rule"))
 	flag.String(taskDefARNFlag, "", fmt.Sprintf("The Task Definition ARN"))
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	// Dry Run or Put target
 	flag.Bool(dryRunFlag, false, "Execute as a dry-run without modifying AWS.")
@@ -150,7 +150,7 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	verbose := v.GetBool(cli.VerboseFlag)
+	verbose := cli.LogLevelIsDebug(v)
 	if !verbose {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
 		log.SetOutput(ioutil.Discard)
