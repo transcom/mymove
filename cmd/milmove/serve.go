@@ -130,9 +130,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Logging
 	cli.InitLoggingFlags(flag)
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
-
 	// Feature Flags
 	cli.InitFeatureFlags(flag)
 
@@ -233,10 +230,6 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckLogging(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckVerbose(v); err != nil {
 		return err
 	}
 
@@ -373,7 +366,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err = logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
+	logger, err = logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

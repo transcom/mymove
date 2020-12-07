@@ -74,7 +74,7 @@ func main() {
 	v.AutomaticEnv()
 
 	// Create logger
-	logger, err := logging.Config(v.GetString(cli.DbEnvFlag), v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(v.GetString(cli.DbEnvFlag), v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

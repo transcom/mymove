@@ -30,7 +30,7 @@ type WebhookClientTestingSuite struct {
 }
 
 func TestWebhookClientTestingSuite(t *testing.T) {
-	logger, _ := logging.Config("development", true)
+	logger, _ := logging.Config("development", "debug")
 
 	ts := &WebhookClientTestingSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),

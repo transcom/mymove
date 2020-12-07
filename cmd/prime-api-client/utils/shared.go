@@ -71,7 +71,7 @@ func CheckRootConfig(v *viper.Viper) error {
 		return err
 	}
 
-	err = cli.CheckVerbose(v)
+	err = cli.CheckLogging(v)
 	if err != nil {
 		return err
 	}
