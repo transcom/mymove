@@ -17,6 +17,10 @@ import (
 // swagger:model PaymentRequest
 type PaymentRequest struct {
 
+	// created at
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
@@ -57,6 +61,10 @@ type PaymentRequest struct {
 func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -84,6 +92,19 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PaymentRequest) validateCreatedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
