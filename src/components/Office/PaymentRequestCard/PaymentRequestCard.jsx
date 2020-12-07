@@ -114,7 +114,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
             <dd>1234567890987654</dd>
           </dl>
           {paymentRequest.status === 'PENDING' ? (
-            <a href="moves/MOVE_CODE/orders">View orders</a>
+            <a href="orders">View orders</a>
           ) : (
             <a href={`payment-requests/${paymentRequest.id}`}>
               <FontAwesomeIcon icon="copy" />
