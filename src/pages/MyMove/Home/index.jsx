@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import React, { Component } from 'react';
 import { arrayOf, bool, shape, string, node, func } from 'prop-types';
 import moment from 'moment';
@@ -17,8 +16,6 @@ import {
 
 import { withContext } from 'shared/AppContext';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
-import Alert from 'shared/Alert';
-import PpmAlert from 'scenes/PpmLanding/PpmAlert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Step from 'components/Customer/Home/Step';
@@ -37,13 +34,9 @@ import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { selectMTOShipmentsByMoveId, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-import {
-  selectCurrentUser,
-  selectGetCurrentUserIsError,
-  selectGetCurrentUserIsLoading,
-  selectGetCurrentUserIsSuccess,
-} from 'shared/Data/users';
+import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { formatCustomerDate } from 'utils/formatters';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -242,29 +235,6 @@ class Home extends Component {
     history.push(path);
   };
 
-  renderAlert = (loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm) => {
-    return (
-      <div>
-        {moveSubmitSuccess && !currentPpm && (
-          <Alert type="success" heading="Success">
-            You&apos;ve submitted your move
-          </Alert>
-        )}
-        {currentPpm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
-        {loggedInUserError && (
-          <Alert type="error" heading="An error occurred">
-            There was an error loading your user information.
-          </Alert>
-        )}
-        {createdServiceMemberError && (
-          <Alert type="error" heading="An error occurred">
-            There was an error creating your profile information.
-          </Alert>
-        )}
-      </div>
-    );
-  };
-
   sortAllShipments = (mtoShipments, currentPpm) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     if (Object.keys(currentPpm).length) {
@@ -288,15 +258,12 @@ class Home extends Component {
 
   render() {
     const {
-      createdServiceMemberError,
       currentPpm,
       isLoggedIn,
       isProfileComplete,
       location,
-      loggedInUserError,
       loggedInUserIsLoading,
       move,
-      moveSubmitSuccess,
       mtoShipments,
       serviceMember,
       signedCertification,
@@ -327,6 +294,7 @@ class Home extends Component {
       );
     }
 
+    // eslint-disable-next-line camelcase
     const { current_station } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
     const shipmentSelectionPath = this.hasAnyShipments
@@ -349,9 +317,10 @@ class Home extends Component {
             </div>
           </header>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+            {isLoggedIn && <ConnectedFlashMessage />}
+
             {isProfileComplete && (
               <>
-                {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm)}
                 {this.renderHelper()}
                 <SectionWrapper>
                   <Step
@@ -481,10 +450,7 @@ Home.propTypes = {
   isLoggedIn: bool.isRequired,
   loggedInUserIsLoading: bool.isRequired,
   loggedInUserSuccess: bool.isRequired,
-  loggedInUserError: bool.isRequired,
   isProfileComplete: bool.isRequired,
-  createdServiceMemberError: string,
-  moveSubmitSuccess: bool.isRequired,
   location: shape({}).isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
@@ -505,7 +471,6 @@ Home.propTypes = {
 
 Home.defaultProps = {
   serviceMember: null,
-  createdServiceMemberError: '',
   selectedMoveType: '',
   lastMoveIsCanceled: false,
   backupContacts: [],
@@ -528,10 +493,7 @@ const mapStateToProps = (state) => {
     isLoggedIn: user.isLoggedIn,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
-    loggedInUserError: selectGetCurrentUserIsError(state),
-    createdServiceMemberError: state.serviceMember.error, // TODO - migrate to flash message reducer
     isProfileComplete: selectIsProfileComplete(state),
-    moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     orders: selectActiveOrLatestOrdersFromEntities(state),
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,

@@ -229,7 +229,7 @@ func init() {
       }
     },
     "/mto-service-items/{mtoServiceItemID}": {
-      "post": {
+      "patch": {
         "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\n\nCurrently this is not implemented and will generated the NotImplemented error.\n",
         "consumes": [
           "application/json"
@@ -269,10 +269,7 @@ func init() {
           "200": {
             "description": "Successfully updated the MTO service item.",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/MTOServiceItem"
-              }
+              "$ref": "#/definitions/MTOServiceItem"
             }
           },
           "400": {
@@ -290,14 +287,14 @@ func init() {
           "409": {
             "$ref": "#/responses/Conflict"
           },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "$ref": "#/responses/ServerError"
-          },
-          "501": {
-            "$ref": "#/responses/NotImplemented"
           }
         }
       }
@@ -2562,7 +2559,7 @@ func init() {
       }
     },
     "/mto-service-items/{mtoServiceItemID}": {
-      "post": {
+      "patch": {
         "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\n\nCurrently this is not implemented and will generated the NotImplemented error.\n",
         "consumes": [
           "application/json"
@@ -2602,10 +2599,7 @@ func init() {
           "200": {
             "description": "Successfully updated the MTO service item.",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/MTOServiceItem"
-              }
+              "$ref": "#/definitions/MTOServiceItem"
             }
           },
           "400": {
@@ -2638,6 +2632,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
           "422": {
             "description": "The payload was unprocessable.",
             "schema": {
@@ -2646,12 +2646,6 @@ func init() {
           },
           "500": {
             "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "501": {
-            "description": "The requested feature is still in development.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
