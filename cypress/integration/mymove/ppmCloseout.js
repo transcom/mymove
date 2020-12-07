@@ -190,6 +190,7 @@ function serviceMemberAddsWeightTicketSetWithMissingDocuments(hasAnother = false
   cy.get('input[name="full_weight"]').type('5000');
   cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
   // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
+  cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
@@ -206,6 +207,7 @@ function serviceMemberAddsWeightTicketSetWithMissingDocuments(hasAnother = false
     cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
   }
 }
+
 function serviceMemberViewsExpensesLandingPage() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-expenses-intro/);
@@ -333,6 +335,8 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   cy.get('input[name="full_weight"]').type('2000');
   cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
   // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
+  cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
+
   cy.get('input[name="isValidTrailer"][value="Yes"]+label').click();
   cy.get('input[name="missingDocumentation"]+label').click();
   cy.get('[data-testid=trailer-warning]').contains(
@@ -341,6 +345,7 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   cy.get('input[name="missingDocumentation"]+label').click({ force: false });
   cy.upload_file('[data-testid=trailer-upload] .filepond--root', 'top-secret.png');
   // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
+  cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
 
   cy.get('input[name="missingEmptyWeightTicket"]+label').click();
   cy.get('[data-testid=empty-warning]').contains(
@@ -351,7 +356,7 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
 
   cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
-  cy.get('button').contains('Save & Add Another').click();
+  cy.contains('Save & Add Another').should('not.be.disabled').click();
   cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
 }
 
