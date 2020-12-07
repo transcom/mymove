@@ -5,4 +5,4 @@ COPY bin/webhook-client /bin/webhook-client
 
 ENTRYPOINT ["/bin/webhook-client"]
 
-CMD ["db-webhook-notify", "--debug-logging"]
+CMD ["db-webhook-notify"]

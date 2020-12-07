@@ -24,4 +24,4 @@ COPY --from=builder --chown=root:root /home/circleci/project/bin/webhook-client 
 
 ENTRYPOINT ["/bin/webhook-client"]
 
-CMD ["db-webhook-notify", "--debug-logging"]
+CMD ["db-webhook-notify"]
