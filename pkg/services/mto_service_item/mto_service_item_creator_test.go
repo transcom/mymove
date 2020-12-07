@@ -769,6 +769,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDASIT)
+
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)

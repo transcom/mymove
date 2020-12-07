@@ -407,33 +407,35 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	// here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT:
-		sitDepartureDate := strfmt.Date(time.Time{}) // Set to empty/zero time
+		var sitDepartureDate time.Time
 		if mtoServiceItem.SITDepartureDate != nil {
-			sitDepartureDate = strfmt.Date(*mtoServiceItem.SITDepartureDate)
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
-		payload = &primemessages.MTOServiceItemDOFSIT{
+		payload = &primemessages.MTOServiceItemOriginSIT{
 			ReServiceCode:    handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			PickupPostalCode: mtoServiceItem.PickupPostalCode,
 			Reason:           mtoServiceItem.Reason,
-			SitDepartureDate: sitDepartureDate,
+			SitDepartureDate: handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:    mtoServiceItem.SITPostalCode,
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
-		sitDepartureDate := strfmt.Date(time.Time{}) // Set to empty/zero time
+		var sitDepartureDate time.Time
 		if mtoServiceItem.SITDepartureDate != nil {
-			sitDepartureDate = strfmt.Date(*mtoServiceItem.SITDepartureDate)
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
 		firstContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
 		secondContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
-		payload = &primemessages.MTOServiceItemDDFSIT{
+
+		payload = &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
-			SitDepartureDate:            sitDepartureDate,
+			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 		}
+
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
 		item := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
