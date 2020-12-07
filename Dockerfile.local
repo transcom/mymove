@@ -38,6 +38,6 @@ COPY build /build
 
 ENTRYPOINT ["/bin/milmove"]
 
-CMD ["serve", "--debug-logging"]
+CMD ["serve", "--logging-level=debug"]
 
 EXPOSE 8080

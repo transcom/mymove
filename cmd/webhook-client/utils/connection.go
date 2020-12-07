@@ -151,7 +151,7 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 	var store *pksigner.Store
 
 	insecure := v.GetBool(utils.InsecureFlag)
-	verbose := v.GetBool(cli.VerboseFlag)
+	verbose := cli.LogLevelIsDebug(v)
 	contentType := "application/json; charset=utf-8"
 
 	// Get the tls certificate

@@ -35,7 +35,7 @@ func TestWebServerSuite(t *testing.T) {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err := logging.Config(v.GetString(cli.DbEnvFlag), v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(v.GetString(cli.DbEnvFlag), v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
