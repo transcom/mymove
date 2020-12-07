@@ -1,6 +1,5 @@
 FROM gcr.io/distroless/static:latest
 
-COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
 COPY bin/webhook-client /bin/webhook-client
 
