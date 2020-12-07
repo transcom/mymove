@@ -1133,7 +1133,7 @@ jobs:
           image_name: webhook_client
           tag: dev
           working_dir: ~/transcom/mymove
-      # - announce_failure # TODO(carter): uncomment this once things look like they are working
+      - announce_failure
 
   # `push_webhook_client_exp` pushes the webhook client container to the exp container repository
   push_webhook_client_exp:
@@ -1147,7 +1147,7 @@ jobs:
           image_name: webhook_client
           tag: dev
           repo: app-webhook-client
-      # - announce_failure # TODO(carter): uncomment this once things look like they are working
+      - announce_failure
 
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
