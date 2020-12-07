@@ -1372,6 +1372,61 @@ func init() {
         }
       ]
     },
+    "/moves/{locator}/payment-requests": {
+      "get": {
+        "description": "Fetches payment requests for a move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Fetches payment requests using the move code (locator).",
+        "operationId": "getPaymentRequestsForMove",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequests"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "string",
+          "description": "move code to identify a move for payment requests",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -2852,6 +2907,10 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "eTag": {
           "type": "string"
         },
@@ -5196,6 +5255,70 @@ func init() {
         }
       ]
     },
+    "/moves/{locator}/payment-requests": {
+      "get": {
+        "description": "Fetches payment requests for a move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Fetches payment requests using the move code (locator).",
+        "operationId": "getPaymentRequestsForMove",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequests"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "string",
+          "description": "move code to identify a move for payment requests",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -6721,6 +6844,10 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "eTag": {
           "type": "string"
         },

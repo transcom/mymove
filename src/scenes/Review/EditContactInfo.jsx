@@ -12,6 +12,7 @@ import { updateServiceMember as updateServiceMemberAction } from 'store/entities
 import Alert from 'shared/Alert';
 import AddressForm from 'shared/AddressForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import './Review.css';
@@ -125,7 +126,7 @@ class EditContact extends Component {
   }
 
   render() {
-    const { error, serviceMemberSchema, addressSchema, serviceMember } = this.props;
+    const { serviceMemberSchema, addressSchema, serviceMember } = this.props;
     const { errorMessage } = this.state;
 
     let initialValues = null;
@@ -138,10 +139,10 @@ class EditContact extends Component {
 
     return (
       <div className="usa-grid">
-        {(error || errorMessage) && (
+        {errorMessage && (
           <div className="usa-width-one-whole error-message">
             <Alert type="error" heading="An error occurred">
-              {error?.message || errorMessage}
+              {errorMessage}
             </Alert>
           </div>
         )}
@@ -159,10 +160,10 @@ class EditContact extends Component {
 }
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
-    serviceMember: state.serviceMember.currentServiceMember,
-    error: get(state, 'serviceMember.error'),
-    hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
+    serviceMember,
     serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
   };

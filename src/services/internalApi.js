@@ -52,6 +52,18 @@ export async function createServiceMember(serviceMember = {}) {
   );
 }
 
+export async function getServiceMember(serviceMemberId) {
+  return makeInternalRequest(
+    'service_members.showServiceMember',
+    {
+      serviceMemberId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchServiceMember(serviceMember) {
   return makeInternalRequest(
     'service_members.patchServiceMember',

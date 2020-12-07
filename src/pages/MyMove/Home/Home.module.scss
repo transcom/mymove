@@ -12,6 +12,11 @@
   .secondaryBtn {
     box-shadow: inset 0 0 0 2px $primary;
   }
+
+  > :global(.usa-alert) {
+    @include u-margin-top('205');
+    @include u-margin-bottom(2);
+  }
 }
 
 .customer-header {

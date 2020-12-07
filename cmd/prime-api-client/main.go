@@ -258,9 +258,9 @@ func main() {
 		Use:   "update-mto-service-item",
 		Short: "Update service item",
 		Long: `
-  	This command updates an agent associated with an MTO service item.
-  	It requires the caller to pass in a file using the --filename arg.
-  	The file should contain path parameters, headers and a body for the payload.
+  	This command updates an MTO service item. It requires the caller to pass in
+	a file using the --filename arg. The file should contain path parameters,
+	headers and a body for the payload.
 
 	Endpoint path: /mto-service-items/{mtoServiceItemID}
   	The file should contain json as follows:

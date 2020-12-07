@@ -6,6 +6,7 @@ import {
   initOnboardingFailed,
   initOnboardingComplete,
 } from 'store/onboarding/actions';
+import { setFlashMessage } from 'store/flash/actions';
 import {
   getLoggedInUser,
   getMTOShipmentsForMove,
@@ -49,6 +50,7 @@ export function* watchUpdateServiceMember() {
 }
 
 export function* createServiceMember() {
+  // TODO - delete legacy actions after service member reducer is deleted
   try {
     yield put({ type: CREATE_SERVICE_MEMBER.start });
     const serviceMember = yield call(createServiceMemberApi);
@@ -56,6 +58,14 @@ export function* createServiceMember() {
     yield call(fetchCustomerData);
   } catch (e) {
     yield put({ type: CREATE_SERVICE_MEMBER.failure, error: e });
+    yield put(
+      setFlashMessage(
+        'SERVICE_MEMBER_CREATE_ERROR',
+        'error',
+        'There was an error creating your profile information.',
+        'An error occurred',
+      ),
+    );
   }
 }
 
