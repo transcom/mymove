@@ -16,13 +16,29 @@ set -eu -o pipefail
 # Note: Each date must be specified, not a date range!
 #
 
-[[ $# -ne 3 ]] && echo "Usage: download-alb-logs <dest> <environment:prod|staging|experimental> [<day:YYYY/mm/dd>[,<day:YYYY/mm/dd>]]" && exit 1
+[[ $# -ne 3 ]] && echo "Usage: download-alb-logs <dest> <environment:prd|stg|exp> [<day:YYYY/mm/dd>[,<day:YYYY/mm/dd>]]" && exit 1
 
 readonly dest=$1
 readonly environment=$2
 IFS=', ' read -r -a dates <<< "$3"
 
+if [[ $2 = "exp" ]]
+then
+  accountid="015681133840"
+elif [[ $2 = "stg" ]]
+then
+  accountid="015932076428"
+elif [[ $2 = "prd" ]]
+then
+  accountid="015533997236"
+else
+  echo "I need, 'exp', 'stg' or 'prd'."
+  exit 1
+fi
+
+
 mkdir -p "${dest}"
 for date in "${dates[@]}"; do
-  aws s3 sync --quiet "s3://transcom-ppp-aws-logs/alb/app-${environment}/AWSLogs/923914045601/elasticloadbalancing/us-west-2/${date}/" "$dest"
+  #aws s3 sync --quiet "s3://transcom-ppp-aws-logs/alb/app-${environment}/AWSLogs/923914045601/elasticloadbalancing/us-west-2/${date}/" "$dest"
+  aws s3 sync --quiet "s3://transcom-gov-milmove-${environment}-aws-logs/alb/app-${environment}/AWSLogs/${accountid}/elasticloadbalancing/us-gov-west-1/${date}/" "dest"
 done
