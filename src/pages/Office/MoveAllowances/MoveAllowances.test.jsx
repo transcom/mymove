@@ -104,7 +104,7 @@ jest.mock('hooks/queries', () => ({
 
 describe('MoveAllowances page', () => {
   const wrapper = mount(
-    <MockProviders initialEntries={['moves/1000/orders']}>
+    <MockProviders initialEntries={['moves/1000/allowances']}>
       <MoveAllowances />
     </MockProviders>,
   );
