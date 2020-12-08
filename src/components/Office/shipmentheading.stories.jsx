@@ -1,10 +1,9 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { object, text } from '@storybook/addon-knobs';
 
 import ShipmentHeading from './ShipmentHeading';
 
-storiesOf('TOO/TIO Components/ShipmentHeading', module).add('Shipment Heading', () => (
+export const shipmentHeading = () => (
   <ShipmentHeading
     shipmentInfo={{
       shipmentType: text('ShipmentInfo.shipmentType', 'Household Goods'),
@@ -20,4 +19,6 @@ storiesOf('TOO/TIO Components/ShipmentHeading', module).add('Shipment Heading', 
       scheduledPickupDate: text('ShipmentInfo.scheduledPickupDate', '27 Mar 2020'),
     }}
   />
-));
+);
+
+export default { title: 'TOO/TIO Components/ShipmentHeading' };

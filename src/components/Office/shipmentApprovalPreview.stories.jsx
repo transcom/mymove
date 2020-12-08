@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 
@@ -160,26 +159,28 @@ const agents = [
   },
 ];
 
-storiesOf('TOO/TIO Components/ShipmentApprovalPreview', module)
-  .add('Shipment Approval Preview Modal', () => (
-    <ShipmentApprovalPreview
-      customerInfo={customerInfo}
-      setIsModalVisible={() => {
-        return true;
-      }}
-      mtoShipments={[shipments[0]]}
-      allowancesInfo={allowancesInfo}
-      mtoAgents={agents}
-    />
-  ))
-  .add('Shipment Approval Preview Modal with two shipments', () => (
-    <ShipmentApprovalPreview
-      customerInfo={customerInfo}
-      setIsModalVisible={() => {
-        return true;
-      }}
-      mtoShipments={shipments}
-      allowancesInfo={allowancesInfo}
-      mtoAgents={agents}
-    />
-  ));
+export const shipmentApprovalPreviewModal = () => (
+  <ShipmentApprovalPreview
+    customerInfo={customerInfo}
+    setIsModalVisible={() => {
+      return true;
+    }}
+    mtoShipments={[shipments[0]]}
+    allowancesInfo={allowancesInfo}
+    mtoAgents={agents}
+  />
+);
+
+export const approvalPreviewWithShipments = () => (
+  <ShipmentApprovalPreview
+    customerInfo={customerInfo}
+    setIsModalVisible={() => {
+      return true;
+    }}
+    mtoShipments={shipments}
+    allowancesInfo={allowancesInfo}
+    mtoAgents={agents}
+  />
+);
+
+export default { title: 'TOO/TIO Components/ShipmentApprovalPreview' };

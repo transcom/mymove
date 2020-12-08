@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withState } from '@dump247/storybook-state';
 import classNames from 'classnames';
@@ -76,93 +75,92 @@ InlineForm.propTypes = {
   initialValues: PropTypes.any.isRequired,
 };
 
-storiesOf('Samples/Form', module)
-  .add('personal info', () => (
-    <div id="samples-orders-container" style={{ padding: '20px' }}>
-      <div className="container container--accent--hhg">
-        <Formik
-          initialValues={{ firstName: '', lastName: '', email: '' }}
-          validationSchema={Yup.object({
-            firstName: Yup.string().max(15, 'Must be 15 characters or less').required('Required'),
-            lastName: Yup.string().max(20, 'Must be 20 characters or less').required('Required'),
-            email: Yup.string().email('Invalid email address').required('Required'),
-          })}
-          onSubmit={action('Form Submit')}
-          onReset={action('Form Canceled')}
-        >
-          <Form>
-            <TextInput name="firstName" label="First Name" type="text" />
-            <TextInput name="lastName" label="Last Name" type="text" />
-            <TextInput name="email" label="Email Address" type="email" />
-            <div className="display-flex">
-              <Button type="submit">Submit</Button>
-              <Button type="reset" secondary>
-                Cancel
-              </Button>
-            </div>
-          </Form>
-        </Formik>
-      </div>
+export const personalInfo = () => (
+  <div id="samples-orders-container" style={{ padding: '20px' }}>
+    <div className="container container--accent--hhg">
+      <Formik
+        initialValues={{ firstName: '', lastName: '', email: '' }}
+        validationSchema={Yup.object({
+          firstName: Yup.string().max(15, 'Must be 15 characters or less').required('Required'),
+          lastName: Yup.string().max(20, 'Must be 20 characters or less').required('Required'),
+          email: Yup.string().email('Invalid email address').required('Required'),
+        })}
+        onSubmit={action('Form Submit')}
+        onReset={action('Form Canceled')}
+      >
+        <Form>
+          <TextInput name="firstName" label="First Name" type="text" />
+          <TextInput name="lastName" label="Last Name" type="text" />
+          <TextInput name="email" label="Email Address" type="email" />
+          <div className="display-flex">
+            <Button type="submit">Submit</Button>
+            <Button type="reset" secondary>
+              Cancel
+            </Button>
+          </div>
+        </Form>
+      </Formik>
     </div>
-  ))
-  .add(
-    'inline first name',
-    withState({ firstName: 'James', lastName: '' })(({ store }) => {
-      const firstName = (
-        <InlineForm
-          initialValues={{ firstName: store.state.firstName }}
-          validationSchema={Yup.object({
-            firstName: Yup.string().max(15, 'Must be 15 characters or less').required('Required'),
-          })}
-          onSubmit={(formData) => {
-            store.set(formData);
-            action('First Name Form Submit')(formData);
-          }}
-          onReset={(formData) => {
-            store.set(formData);
-            action('First Name Form Canceled')(formData);
-          }}
-          name="firstName"
-          type="text"
-          label="First Name"
-        />
-      );
-      const lastName = (
-        <InlineForm
-          initialValues={{ lastName: store.state.lastName }}
-          validationSchema={Yup.object({
-            lastName: Yup.string().max(20, 'Must be 20 characters or less').required('Required'),
-          })}
-          onSubmit={(formData) => {
-            store.set(formData);
-            action('Last Name Form Submit')(formData);
-          }}
-          onReset={(formData) => {
-            store.set(formData);
-            action('Last Name Form Canceled')(formData);
-          }}
-          name="lastName"
-          type="text"
-          label="Last Name"
-        />
-      );
+  </div>
+);
 
-      return (
-        <div id="samples-orders-container" style={{ padding: '20px' }}>
-          <div className="table--stacked table--stacked-wbuttons">
-            <div className="display-flex">
-              <div>
-                <h4>Releasing Agent Info</h4>
-              </div>
-            </div>
-            <table className="default-table-classes">
-              <tbody>
-                {firstName}
-                {lastName}
-              </tbody>
-            </table>
+export const inlineFirstName = withState({ firstName: 'James', lastName: '' })(({ store }) => {
+  const firstName = (
+    <InlineForm
+      initialValues={{ firstName: store.state.firstName }}
+      validationSchema={Yup.object({
+        firstName: Yup.string().max(15, 'Must be 15 characters or less').required('Required'),
+      })}
+      onSubmit={(formData) => {
+        store.set(formData);
+        action('First Name Form Submit')(formData);
+      }}
+      onReset={(formData) => {
+        store.set(formData);
+        action('First Name Form Canceled')(formData);
+      }}
+      name="firstName"
+      type="text"
+      label="First Name"
+    />
+  );
+  const lastName = (
+    <InlineForm
+      initialValues={{ lastName: store.state.lastName }}
+      validationSchema={Yup.object({
+        lastName: Yup.string().max(20, 'Must be 20 characters or less').required('Required'),
+      })}
+      onSubmit={(formData) => {
+        store.set(formData);
+        action('Last Name Form Submit')(formData);
+      }}
+      onReset={(formData) => {
+        store.set(formData);
+        action('Last Name Form Canceled')(formData);
+      }}
+      name="lastName"
+      type="text"
+      label="Last Name"
+    />
+  );
+
+  return (
+    <div id="samples-orders-container" style={{ padding: '20px' }}>
+      <div className="table--stacked table--stacked-wbuttons">
+        <div className="display-flex">
+          <div>
+            <h4>Releasing Agent Info</h4>
           </div>
         </div>
-      );
-    }),
+        <table className="default-table-classes">
+          <tbody>
+            {firstName}
+            {lastName}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
+});
+
+export default { title: 'Samples/Form' };
