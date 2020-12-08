@@ -53,6 +53,11 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_request.GetPaymentRequestEDI has not yet been implemented")
 		})
 	}
+	if api.MoveTaskOrderHideNonFakeMoveTaskOrdersHandler == nil {
+		api.MoveTaskOrderHideNonFakeMoveTaskOrdersHandler = move_task_order.HideNonFakeMoveTaskOrdersHandlerFunc(func(params move_task_order.HideNonFakeMoveTaskOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.HideNonFakeMoveTaskOrders has not yet been implemented")
+		})
+	}
 	if api.PaymentRequestListMTOPaymentRequestsHandler == nil {
 		api.PaymentRequestListMTOPaymentRequestsHandler = payment_request.ListMTOPaymentRequestsHandlerFunc(func(params payment_request.ListMTOPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.ListMTOPaymentRequests has not yet been implemented")
