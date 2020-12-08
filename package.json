@@ -9,6 +9,7 @@
     "@storybook/preset-create-react-app": "^3.1.5",
     "@trussworks/react-file-viewer": "https://github.com/trussworks/react-file-viewer#ds-enable-image-file-type-support",
     "@trussworks/react-uswds": "^1.9.3",
+    "a11y": "^0.5.1",
     "babel-loader": "^8.2.2",
     "bytes": "^3.0.0",
     "classnames": "^2.2.5",
