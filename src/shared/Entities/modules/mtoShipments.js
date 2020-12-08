@@ -5,6 +5,8 @@ import { filter } from 'lodash';
 import { denormalize } from 'normalizr';
 import { mtoShipments } from '../schema';
 
+/** REMAINING EXPORTS ARE USED BY OFFICE */
+
 const mtoShipmentsSchemaKey = 'mtoShipments';
 const getMTOShipmentsOperation = 'mtoShipment.listMTOShipments';
 export function getMTOShipments(moveTaskOrderID, label = getMTOShipmentsOperation, schemaKey = mtoShipmentsSchemaKey) {
