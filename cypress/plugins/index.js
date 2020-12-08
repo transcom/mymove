@@ -14,9 +14,11 @@
 const { lighthouse, pa11y, prepareAudit } = require('cypress-audit');
 const fs = require('fs');
 const path = require('path');
+const mkdirp = require('mkdirp');
 
-const storeData = (data, filepath) => {
+const storeData = async (data, filepath) => {
   try {
+    await mkdirp(path.dirname(filepath));
     fs.writeFile(filepath, JSON.stringify(data));
   } catch (err) {
     console.error(err);
@@ -33,11 +35,11 @@ module.exports = (on, config) => {
 
   on('task', {
     lighthouse: lighthouse((report) => {
-      const filepath = path.resolve('cypress', 'results/lighthouse_report.json');
+      const filepath = path.resolve('cypress', 'reports/lighthouse_report.json');
       storeData(report, filepath);
     }),
     pa11y: pa11y((report) => {
-      const filepath = path.resolve('cypress', 'results/pa11y_report.json');
+      const filepath = path.resolve('cypress', 'reports/pa11y_report.json');
       storeData(report, filepath);
     }),
   });
