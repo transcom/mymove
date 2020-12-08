@@ -2,7 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import MoveOrders from './MoveAllowances';
+import MoveAllowances from './MoveAllowances';
 
 import { MockProviders } from 'testUtils';
 
@@ -102,10 +102,10 @@ jest.mock('hooks/queries', () => ({
   },
 }));
 
-describe('MoveOrders page', () => {
+describe('MoveAllowances page', () => {
   const wrapper = mount(
     <MockProviders initialEntries={['moves/1000/orders']}>
-      <MoveOrders />
+      <MoveAllowances />
     </MockProviders>,
   );
 

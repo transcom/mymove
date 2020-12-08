@@ -28,7 +28,7 @@ const AllowancesTable = ({ showEditBtn, info }) => {
     <div className={styles.MoveDetailTable}>
       <div className="stackedtable-header">
         <div>
-          <h4 s>Allowances</h4>
+          <h4>Allowances</h4>
         </div>
         {showEditBtn && (
           <div>
