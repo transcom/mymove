@@ -20,21 +20,19 @@ describe('TIO user', () => {
   });
 
   beforeEach(() => {
-    cy.removeFetch();
-    cy.server();
-    cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.route('GET', '/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
-    cy.route('GET', '/ghc/v1/queues/payment-requests?sort=age&order=desc&page=1&perPage=20').as(
+    cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
+    cy.intercept('**/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
+    cy.intercept('**/ghc/v1/queues/payment-requests?sort=age&order=desc&page=1&perPage=20').as(
       'getSortedPaymentRequests',
     );
-    cy.route('GET', '/ghc/v1/payment-requests/**').as('getPaymentRequest');
-    cy.route('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
-    cy.route('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
+    cy.intercept('**/ghc/v1/payment-requests/**').as('getPaymentRequest');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
 
-    cy.route('PATCH', '/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
+    cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
       'patchPaymentServiceItemStatus',
     );
-    cy.route('PATCH', '/ghc/v1/payment-requests/**/status').as('patchPaymentRequestStatus');
+    cy.intercept('PATCH', '**/ghc/v1/payment-requests/**/status').as('patchPaymentRequestStatus');
 
     const userId = '3b2cc1b0-31a2-4d1b-874f-0591f9127374';
     cy.apiSignInAsUser(userId, TIOOfficeUserType);
@@ -50,7 +48,8 @@ describe('TIO user', () => {
 
     // Payment Requests page
     cy.url().should('include', `/payment-requests`);
-    cy.get('[data-testid="PaymentRequests"]');
+    cy.get('[data-testid="MovePaymentRequests"]');
+    cy.contains('Review service items').click();
 
     // Retaining these tests as comments so that they can be reactivated for service item review flow
     // Payment Request detail page

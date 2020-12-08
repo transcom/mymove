@@ -3,6 +3,8 @@ import { mount } from 'enzyme';
 
 import PaymentRequestCard from './PaymentRequestCard';
 
+import { MockProviders } from 'testUtils';
+
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: () => {
     return {
@@ -60,6 +62,8 @@ jest.mock('hooks/queries', () => ({
   },
 }));
 
+const testMoveLocator = 'AF7K1P';
+
 describe('PaymentRequestCard', () => {
   describe('pending payment request', () => {
     const pendingPaymentRequest = {
@@ -85,7 +89,11 @@ describe('PaymentRequestCard', () => {
         },
       ],
     };
-    const wrapper = mount(<PaymentRequestCard paymentRequest={pendingPaymentRequest} />);
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <PaymentRequestCard paymentRequest={pendingPaymentRequest} />
+      </MockProviders>,
+    );
 
     it('renders the needs review status tag', () => {
       expect(wrapper.find({ 'data-testid': 'tag' }).contains('Needs Review')).toBe(true);
@@ -154,7 +162,11 @@ describe('PaymentRequestCard', () => {
       ],
     };
 
-    const wrapper = mount(<PaymentRequestCard paymentRequest={reviewedPaymentRequest} />);
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <PaymentRequestCard paymentRequest={reviewedPaymentRequest} />
+      </MockProviders>,
+    );
 
     it('renders the reviewed status tag', () => {
       expect(wrapper.find({ 'data-testid': 'tag' }).contains('REVIEWED')).toBe(true);
@@ -176,7 +188,11 @@ describe('PaymentRequestCard', () => {
     });
 
     it('shows only rejected if no service items are approved', () => {
-      const rejected = mount(<PaymentRequestCard paymentRequest={rejectedPaymentRequest} />);
+      const rejected = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+          <PaymentRequestCard paymentRequest={rejectedPaymentRequest} />
+        </MockProviders>,
+      );
 
       expect(rejected.find('.amountRejected h2').contains('$60,000.02')).toBe(true);
       expect(rejected.find('.amountAccepted').exists()).toBe(false);

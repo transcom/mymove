@@ -104,7 +104,7 @@ For example, given the two endpoints:
         - in: body
           name: body
           schema:
-            description: This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.
+            description: This may be a MTOServiceItemBasic, MTOServiceItemOriginSIT or etc.
             $ref: '#/definitions/MTOServiceItem'
       responses:
         [...]

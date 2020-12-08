@@ -8,13 +8,14 @@ describe('allows a SM to request a payment', function () {
   });
 
   beforeEach(() => {
-    cy.removeFetch();
-    cy.server();
-    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-    cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
-    cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
-    cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
-    cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
+    // TODO - commenting this out for now because cy.intercept has an open bug related to file upload endpoints
+    // https://github.com/cypress-io/cypress/issues/9534
+    // cy.intercept('POST', '**/internal/uploads').as('postUploadDocument');
+
+    cy.intercept('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
+    cy.intercept('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
+    cy.intercept('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
+    cy.intercept('POST', '**/moves/**/signed_certifications').as('signedCertifications');
   });
 
   const moveID = 'f9f10492-587e-43b3-af2a-9f67d2ac8757';
@@ -188,7 +189,8 @@ function serviceMemberAddsWeightTicketSetWithMissingDocuments(hasAnother = false
 
   cy.get('input[name="full_weight"]').type('5000');
   cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
+  cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
@@ -198,13 +200,14 @@ function serviceMemberAddsWeightTicketSetWithMissingDocuments(hasAnother = false
     cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
     cy.get('button').contains('Save & Add Another').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
     cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
     cy.get('button').contains('Save & Continue').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
   }
 }
+
 function serviceMemberViewsExpensesLandingPage() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-expenses-intro/);
@@ -243,7 +246,7 @@ function serviceMemberUploadsExpenses(hasAnother = true, expenseNumber = null) {
   cy.get('input[name="requested_amount_cents"]').type('1000');
 
   cy.upload_file('.filepond--root:first', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="missingReceipt"]').should('not.be.checked');
@@ -254,13 +257,13 @@ function serviceMemberUploadsExpenses(hasAnother = true, expenseNumber = null) {
   cy.get('input[name="haveMoreExpenses"][value="Yes"]+label').click();
   if (hasAnother) {
     cy.get('button').contains('Save & Add Another').click();
-    cy.wait('@postMovingExpense').its('status').should('eq', 200);
+    cy.wait('@postMovingExpense').its('response.statusCode').should('eq', 200);
     cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
     cy.get('input[name="haveMoreExpenses"][value="No"]+label').click();
     cy.get('input[name="haveMoreExpenses"][value="No"]').should('be.checked');
     cy.get('button').contains('Save & Continue').click();
-    cy.wait('@postMovingExpense').its('status').should('eq', 200);
+    cy.wait('@postMovingExpense').its('response.statusCode').should('eq', 200);
   }
 }
 
@@ -277,7 +280,7 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.get('input[name="isValidTrailer"][value="Yes"]+label').click();
 
   cy.upload_file('[data-testid=trailer-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="missingDocumentation"]').check({ force: true });
@@ -287,7 +290,7 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
 
   cy.get('input[name="full_weight"]').type('5000');
   cy.upload_file('.filepond--root:last', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
 
@@ -306,12 +309,12 @@ function serviceMemberCanFinishWeightTicketLater(vehicleType) {
 
   cy.get('input[name="empty_weight"]').type('1000');
   cy.upload_file('[data-testid=empty-weight-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
   cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
 
@@ -331,7 +334,9 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   cy.get('input[name="empty_weight"]').type('1000');
   cy.get('input[name="full_weight"]').type('2000');
   cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
+  cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
+
   cy.get('input[name="isValidTrailer"][value="Yes"]+label').click();
   cy.get('input[name="missingDocumentation"]+label').click();
   cy.get('[data-testid=trailer-warning]').contains(
@@ -339,7 +344,8 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   );
   cy.get('input[name="missingDocumentation"]+label').click({ force: false });
   cy.upload_file('[data-testid=trailer-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
+  cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
 
   cy.get('input[name="missingEmptyWeightTicket"]+label').click();
   cy.get('[data-testid=empty-warning]').contains(
@@ -350,8 +356,8 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
 
   cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
-  cy.get('button').contains('Save & Add Another').click();
-  cy.wait('@postWeightTicket');
+  cy.contains('Save & Add Another').should('not.be.disabled').click();
+  cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
 }
 
 function serviceMemberStartsPPMPaymentRequest() {
@@ -378,12 +384,12 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
   cy.get('input[name="empty_weight"]').type('1000');
 
   cy.upload_file('[data-testid=empty-weight-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
   cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
@@ -392,10 +398,10 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
     cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
     cy.get('button').contains('Save & Add Another').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
     cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
     cy.get('button').contains('Save & Continue').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
   }
 }

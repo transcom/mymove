@@ -29,16 +29,6 @@ Cypress.Commands.add('prepareOfficeApp', () => {
   Cypress.config('baseUrl', officeBaseURL);
 });
 
-// Call this in your before or beforeEach hook when using cy.route / cy.wait
-// https://github.com/cypress-io/cypress/issues/95#issuecomment-347607198
-// deletes window.fetch to force fallback to supported XHR
-// https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
-Cypress.Commands.add('removeFetch', () => {
-  cy.on('window:before:load', (win) => {
-    delete win.fetch;
-  });
-});
-
 Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
   cy.visit(`${url}?flag:${flagVal}`);
 });
@@ -223,16 +213,14 @@ Cypress.Commands.add('upload_file', (selector, fileUrl) => {
   // mime returns false if lookup fails
   const type = rawType ? rawType : '';
   return cy.window().then((win) => {
-    return cy
-      .fixture(fileUrl, 'base64')
-      .then(Cypress.Blob.base64StringToBlob)
-      .then((blob) => {
-        const testFile = new win.File([blob], name, { type });
-        const event = {};
-        event.dataTransfer = new win.DataTransfer();
-        event.dataTransfer.items.add(testFile);
-        return cy.get(selector).trigger('drop', event);
-      });
+    return cy.fixture(fileUrl, 'base64').then((file) => {
+      const blob = Cypress.Blob.base64StringToBlob(file, type);
+      const testFile = new win.File([blob], name, { type });
+      const event = {};
+      event.dataTransfer = new win.DataTransfer();
+      event.dataTransfer.items.add(testFile);
+      return cy.get(selector).trigger('drop', event);
+    });
   });
 });
 
