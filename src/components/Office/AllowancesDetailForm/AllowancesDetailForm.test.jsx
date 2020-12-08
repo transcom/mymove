@@ -34,7 +34,22 @@ describe('AllowancesDetailForm', () => {
   });
 
   it('formats days in transit', () => {
-    // Weight allowance
+    // Storage in-transit
     expect(wrapper.find('dd').at(3).text()).toBe('90 days');
+  });
+
+  it('uses defaults for undefined values', () => {
+    const wrapperNoProps = mount(<AllowancesDetailForm entitlements={{}} />);
+    // Weight allowance
+    expect(wrapperNoProps.find('dd').at(0).text()).toBe('0 lbs');
+
+    // Pro-gear
+    expect(wrapperNoProps.find('dd').at(1).text()).toBe('0 lbs');
+
+    // Spouse Pro-gear
+    expect(wrapperNoProps.find('dd').at(2).text()).toBe('0 lbs');
+
+    // Storage in-transit
+    expect(wrapperNoProps.find('dd').at(3).text()).toBe('0 days');
   });
 });

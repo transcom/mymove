@@ -10,13 +10,13 @@ const AllowancesDetailForm = ({ entitlements }) => {
     <div className={styles.AllowancesDetailForm}>
       <dl>
         <dt>Weight allowance</dt>
-        <dd>{formatWeight(entitlements.totalWeight)}</dd>
+        <dd data-testid="weightAllowance">{formatWeight(entitlements.totalWeight)}</dd>
         <dt>Pro-gear</dt>
-        <dd>{formatWeight(entitlements.proGearWeight)}</dd>
+        <dd data-testid="proGearWeight">{formatWeight(entitlements.proGearWeight)}</dd>
         <dt>Spouse pro-gear</dt>
-        <dd>{formatWeight(entitlements.proGearWeightSpouse)}</dd>
+        <dd data-testid="spouseProGearWeight">{formatWeight(entitlements.proGearWeightSpouse)}</dd>
         <dt>Storage in-transit</dt>
-        <dd>{formatDaysInTransit(entitlements.storageInTransit)}</dd>
+        <dd data-testid="storageInTransit">{formatDaysInTransit(entitlements.storageInTransit)}</dd>
       </dl>
     </div>
   );
