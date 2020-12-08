@@ -36,6 +36,12 @@ type MoveTaskOrderUpdater interface {
 	UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error)
 }
 
+//MoveTaskOrderHider is the service object interface for hiding MoveTaskOrders not using fake data
+//go:generate mockery -name MoveTaskOrderHider
+type MoveTaskOrderHider interface {
+	Hide() (models.Moves, error)
+}
+
 //MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state
 //go:generate mockery -name MoveTaskOrderChecker
 type MoveTaskOrderChecker interface {

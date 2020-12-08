@@ -42,8 +42,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("comparison", "size", "Comparison used against files, either 'size' or 'md5'")
 	flag.Int64("max-object-size", 10, "The maximum size of files to download in MB for use with md5 comparison")
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -128,7 +128,7 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	verbose := v.GetBool(cli.VerboseFlag)
+	verbose := cli.LogLevelIsDebug(v)
 	if !verbose {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
 		log.SetOutput(ioutil.Discard)

@@ -4,12 +4,10 @@ describe('A customer following HHG Setup flow', function () {
   });
 
   beforeEach(() => {
-    cy.removeFetch();
-    cy.server();
-    cy.route('POST', '/internal/service_members').as('createServiceMember');
-    cy.route('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
-    cy.route('GET', '/internal/moves/**/mto_shipments').as('getMTOShipments');
-    cy.route('GET', '/internal/users/logged_in').as('getLoggedInUser');
+    cy.intercept('POST', '**/internal/service_members').as('createServiceMember');
+    cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.intercept('**/internal/moves/**/mto_shipments').as('getMTOShipments');
+    cy.intercept('**/internal/users/logged_in').as('getLoggedInUser');
   });
 
   it('can create an HHG shipment, review and edit details, and submit their move', function () {
@@ -157,8 +155,6 @@ function customerSubmitsMove() {
   cy.get('input[name="signature"]').type('Signature');
   cy.get('button').contains('Complete').click();
   cy.get('.usa-alert--success').within(() => {
-    cy.contains('Congrats - your move is submitted!');
-    cy.contains('Next, wait for approval. Once approved:');
-    cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
+    cy.contains('You’ve submitted your move request.');
   });
 }

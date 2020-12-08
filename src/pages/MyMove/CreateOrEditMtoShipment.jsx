@@ -12,7 +12,7 @@ import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/a
 import { HhgShipmentShape, HistoryShape, MatchShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
-import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 
 export class CreateOrEditMtoShipment extends Component {

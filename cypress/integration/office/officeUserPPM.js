@@ -138,7 +138,7 @@ function officeUserVerifiesOrders(moveLocator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy.contains('GBL#').should('not.be.visible');
+  cy.contains('GBL#').should('not.exist');
 
   // Click on Orders document link, check that link matches
   cy.get('.panel-field')

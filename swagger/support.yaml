@@ -1165,13 +1165,13 @@ definitions:
     description: >
       Describes all model sub-types for a MTOServiceItem model.
       Prime can only request the following service codes for which they will use the corresponding modelType
-        * DOFSIT - MTOServiceItemDOFSIT
+        * DOFSIT - MTOServiceItemOriginSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
     type: string
     enum:
       - MTOServiceItemBasic
-      - MTOServiceItemDOFSIT
+      - MTOServiceItemOriginSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
   MTOServiceItemStatus:

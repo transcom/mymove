@@ -15,10 +15,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDDFSIT Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
+// MTOServiceItemDestSIT Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.
 //
-// swagger:model MTOServiceItemDDFSIT
-type MTOServiceItemDDFSIT struct {
+// swagger:model MTOServiceItemDestSIT
+type MTOServiceItemDestSIT struct {
 	eTagField string
 
 	idField strfmt.UUID
@@ -50,7 +50,7 @@ type MTOServiceItemDDFSIT struct {
 
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 	// Format: date
-	SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
 
 	// Entry date for the SIT
 	// Required: true
@@ -69,86 +69,86 @@ type MTOServiceItemDDFSIT struct {
 }
 
 // ETag gets the e tag of this subtype
-func (m *MTOServiceItemDDFSIT) ETag() string {
+func (m *MTOServiceItemDestSIT) ETag() string {
 	return m.eTagField
 }
 
 // SetETag sets the e tag of this subtype
-func (m *MTOServiceItemDDFSIT) SetETag(val string) {
+func (m *MTOServiceItemDestSIT) SetETag(val string) {
 	m.eTagField = val
 }
 
 // ID gets the id of this subtype
-func (m *MTOServiceItemDDFSIT) ID() strfmt.UUID {
+func (m *MTOServiceItemDestSIT) ID() strfmt.UUID {
 	return m.idField
 }
 
 // SetID sets the id of this subtype
-func (m *MTOServiceItemDDFSIT) SetID(val strfmt.UUID) {
+func (m *MTOServiceItemDestSIT) SetID(val strfmt.UUID) {
 	m.idField = val
 }
 
 // ModelType gets the model type of this subtype
-func (m *MTOServiceItemDDFSIT) ModelType() MTOServiceItemModelType {
-	return "MTOServiceItemDDFSIT"
+func (m *MTOServiceItemDestSIT) ModelType() MTOServiceItemModelType {
+	return "MTOServiceItemDestSIT"
 }
 
 // SetModelType sets the model type of this subtype
-func (m *MTOServiceItemDDFSIT) SetModelType(val MTOServiceItemModelType) {
+func (m *MTOServiceItemDestSIT) SetModelType(val MTOServiceItemModelType) {
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
-func (m *MTOServiceItemDDFSIT) MoveTaskOrderID() *strfmt.UUID {
+func (m *MTOServiceItemDestSIT) MoveTaskOrderID() *strfmt.UUID {
 	return m.moveTaskOrderIdField
 }
 
 // SetMoveTaskOrderID sets the move task order ID of this subtype
-func (m *MTOServiceItemDDFSIT) SetMoveTaskOrderID(val *strfmt.UUID) {
+func (m *MTOServiceItemDestSIT) SetMoveTaskOrderID(val *strfmt.UUID) {
 	m.moveTaskOrderIdField = val
 }
 
 // MtoShipmentID gets the mto shipment ID of this subtype
-func (m *MTOServiceItemDDFSIT) MtoShipmentID() strfmt.UUID {
+func (m *MTOServiceItemDestSIT) MtoShipmentID() strfmt.UUID {
 	return m.mtoShipmentIdField
 }
 
 // SetMtoShipmentID sets the mto shipment ID of this subtype
-func (m *MTOServiceItemDDFSIT) SetMtoShipmentID(val strfmt.UUID) {
+func (m *MTOServiceItemDestSIT) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
 }
 
 // ReServiceName gets the re service name of this subtype
-func (m *MTOServiceItemDDFSIT) ReServiceName() string {
+func (m *MTOServiceItemDestSIT) ReServiceName() string {
 	return m.reServiceNameField
 }
 
 // SetReServiceName sets the re service name of this subtype
-func (m *MTOServiceItemDDFSIT) SetReServiceName(val string) {
+func (m *MTOServiceItemDestSIT) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
 // RejectionReason gets the rejection reason of this subtype
-func (m *MTOServiceItemDDFSIT) RejectionReason() *string {
+func (m *MTOServiceItemDestSIT) RejectionReason() *string {
 	return m.rejectionReasonField
 }
 
 // SetRejectionReason sets the rejection reason of this subtype
-func (m *MTOServiceItemDDFSIT) SetRejectionReason(val *string) {
+func (m *MTOServiceItemDestSIT) SetRejectionReason(val *string) {
 	m.rejectionReasonField = val
 }
 
 // Status gets the status of this subtype
-func (m *MTOServiceItemDDFSIT) Status() MTOServiceItemStatus {
+func (m *MTOServiceItemDestSIT) Status() MTOServiceItemStatus {
 	return m.statusField
 }
 
 // SetStatus sets the status of this subtype
-func (m *MTOServiceItemDDFSIT) SetStatus(val MTOServiceItemStatus) {
+func (m *MTOServiceItemDestSIT) SetStatus(val MTOServiceItemStatus) {
 	m.statusField = val
 }
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
-func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
+func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
 		// First available date that Prime can deliver SIT service item.
@@ -168,7 +168,7 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
-		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
 
 		// Entry date for the SIT
 		// Required: true
@@ -220,7 +220,7 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 
-	var result MTOServiceItemDDFSIT
+	var result MTOServiceItemDestSIT
 
 	result.eTagField = base.ETag
 
@@ -254,7 +254,7 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 }
 
 // MarshalJSON marshals this object with a polymorphic type to a JSON structure
-func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
+func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
@@ -276,7 +276,7 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
-		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
 
 		// Entry date for the SIT
 		// Required: true
@@ -352,8 +352,8 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
-// Validate validates this m t o service item d d f s i t
-func (m *MTOServiceItemDDFSIT) Validate(formats strfmt.Registry) error {
+// Validate validates this m t o service item dest s i t
+func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
@@ -406,7 +406,7 @@ func (m *MTOServiceItemDDFSIT) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateID(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID()) { // not required
 		return nil
@@ -419,7 +419,7 @@ func (m *MTOServiceItemDDFSIT) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateMoveTaskOrderID(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID()); err != nil {
 		return err
@@ -432,7 +432,7 @@ func (m *MTOServiceItemDDFSIT) validateMoveTaskOrderID(formats strfmt.Registry) 
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateMtoShipmentID(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateMtoShipmentID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MtoShipmentID()) { // not required
 		return nil
@@ -445,7 +445,7 @@ func (m *MTOServiceItemDDFSIT) validateMtoShipmentID(formats strfmt.Registry) er
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateStatus(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status()) { // not required
 		return nil
@@ -461,7 +461,7 @@ func (m *MTOServiceItemDDFSIT) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateFirstAvailableDeliveryDate1(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateFirstAvailableDeliveryDate1(formats strfmt.Registry) error {
 
 	if err := validate.Required("firstAvailableDeliveryDate1", "body", m.FirstAvailableDeliveryDate1); err != nil {
 		return err
@@ -474,7 +474,7 @@ func (m *MTOServiceItemDDFSIT) validateFirstAvailableDeliveryDate1(formats strfm
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateFirstAvailableDeliveryDate2(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateFirstAvailableDeliveryDate2(formats strfmt.Registry) error {
 
 	if err := validate.Required("firstAvailableDeliveryDate2", "body", m.FirstAvailableDeliveryDate2); err != nil {
 		return err
@@ -487,7 +487,7 @@ func (m *MTOServiceItemDDFSIT) validateFirstAvailableDeliveryDate2(formats strfm
 	return nil
 }
 
-var mTOServiceItemDDFSITTypeReServiceCodePropEnum []interface{}
+var mTOServiceItemDestSITTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -495,19 +495,19 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		mTOServiceItemDDFSITTypeReServiceCodePropEnum = append(mTOServiceItemDDFSITTypeReServiceCodePropEnum, v)
+		mTOServiceItemDestSITTypeReServiceCodePropEnum = append(mTOServiceItemDestSITTypeReServiceCodePropEnum, v)
 	}
 }
 
 // property enum
-func (m *MTOServiceItemDDFSIT) validateReServiceCodeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, mTOServiceItemDDFSITTypeReServiceCodePropEnum, true); err != nil {
+func (m *MTOServiceItemDestSIT) validateReServiceCodeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemDestSITTypeReServiceCodePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateReServiceCode(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateReServiceCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
 		return err
@@ -521,7 +521,7 @@ func (m *MTOServiceItemDDFSIT) validateReServiceCode(formats strfmt.Registry) er
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateSitDepartureDate(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateSitDepartureDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.SitDepartureDate) { // not required
 		return nil
@@ -534,7 +534,7 @@ func (m *MTOServiceItemDDFSIT) validateSitDepartureDate(formats strfmt.Registry)
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateSitEntryDate(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateSitEntryDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("sitEntryDate", "body", m.SitEntryDate); err != nil {
 		return err
@@ -547,7 +547,7 @@ func (m *MTOServiceItemDDFSIT) validateSitEntryDate(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateTimeMilitary1(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateTimeMilitary1(formats strfmt.Registry) error {
 
 	if err := validate.Required("timeMilitary1", "body", m.TimeMilitary1); err != nil {
 		return err
@@ -560,7 +560,7 @@ func (m *MTOServiceItemDDFSIT) validateTimeMilitary1(formats strfmt.Registry) er
 	return nil
 }
 
-func (m *MTOServiceItemDDFSIT) validateTimeMilitary2(formats strfmt.Registry) error {
+func (m *MTOServiceItemDestSIT) validateTimeMilitary2(formats strfmt.Registry) error {
 
 	if err := validate.Required("timeMilitary2", "body", m.TimeMilitary2); err != nil {
 		return err
@@ -574,7 +574,7 @@ func (m *MTOServiceItemDDFSIT) validateTimeMilitary2(formats strfmt.Registry) er
 }
 
 // MarshalBinary interface implementation
-func (m *MTOServiceItemDDFSIT) MarshalBinary() ([]byte, error) {
+func (m *MTOServiceItemDestSIT) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -582,8 +582,8 @@ func (m *MTOServiceItemDDFSIT) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *MTOServiceItemDDFSIT) UnmarshalBinary(b []byte) error {
-	var res MTOServiceItemDDFSIT
+func (m *MTOServiceItemDestSIT) UnmarshalBinary(b []byte) error {
+	var res MTOServiceItemDestSIT
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

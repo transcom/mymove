@@ -24,6 +24,7 @@ import {
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 
@@ -237,6 +238,8 @@ EditDateAndLocation.propTypes = {
 };
 function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     move: get(state, 'moves.currentMove'),
@@ -253,7 +256,9 @@ function mapStateToProps(state) {
       '',
     ),
   };
-  const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
+
+  const defaultPickupZip = serviceMember?.residential_address?.postal_code;
+
   props.initialValues = props.currentPPM
     ? props.currentPPM
     : defaultPickupZip
@@ -263,6 +268,7 @@ function mapStateToProps(state) {
     : null;
   return props;
 }
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {

@@ -9,6 +9,7 @@ import { updateServiceMember as updateServiceMemberAction } from 'store/entities
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 const subsetOfFields = ['affiliation', 'edipi', 'rank'];
 
@@ -54,7 +55,7 @@ export class DodInfo extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, currentServiceMember, schema } = this.props;
+    const { pages, pageKey, currentServiceMember, schema } = this.props;
     const { errorMessage } = this.state;
 
     const initialValues = currentServiceMember ? pick(currentServiceMember, subsetOfFields) : null;
@@ -65,7 +66,7 @@ export class DodInfo extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        serverError={error || errorMessage}
+        serverError={errorMessage}
         initialValues={initialValues}
       >
         <h1>Create your profile</h1>
@@ -86,7 +87,6 @@ DodInfo.propTypes = {
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
-  error: PropTypes.object,
 };
 
 const mapDispatchToProps = {
@@ -94,10 +94,12 @@ const mapDispatchToProps = {
 };
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     values: getFormValues(formName)(state),
-    ...state.serviceMember,
+    currentServiceMember: serviceMember,
   };
   return props;
 }

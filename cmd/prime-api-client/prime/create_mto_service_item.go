@@ -28,10 +28,10 @@ type getType struct {
 }
 
 type dOFSITParams struct {
-	Body primemessages.MTOServiceItemDOFSIT `json:"body"`
+	Body primemessages.MTOServiceItemOriginSIT `json:"body"`
 }
 type dDFSITParams struct {
-	Body primemessages.MTOServiceItemDDFSIT `json:"body"`
+	Body primemessages.MTOServiceItemDestSIT `json:"body"`
 }
 type domesticCratingParams struct {
 	Body primemessages.MTOServiceItemDomesticCrating `json:"body"`
@@ -127,11 +127,11 @@ func CreateMTOServiceItem(cmd *cobra.Command, args []string) error {
 	// then decode a second time into subtype
 	var serviceItemParams mtoServiceItem.CreateMTOServiceItemParams
 	switch gt.Body.ModelType {
-	case primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemOriginSIT:
 		var params dOFSITParams
 		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
 		serviceItemParams.SetBody(&params.Body)
-	case primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:
 		var params dDFSITParams
 		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
 		serviceItemParams.SetBody(&params.Body)
@@ -145,8 +145,8 @@ func CreateMTOServiceItem(cmd *cobra.Command, args []string) error {
 		serviceItemParams.SetBody(&params.Body)
 	default:
 		err = fmt.Errorf("allowed modelType(): %v", []primemessages.MTOServiceItemModelType{
-			primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT,
-			primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT,
+			primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT,
+			primemessages.MTOServiceItemModelTypeMTOServiceItemOriginSIT,
 			primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating,
 			primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle,
 		})

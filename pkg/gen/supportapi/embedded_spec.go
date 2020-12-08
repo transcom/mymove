@@ -1250,11 +1250,11 @@ func init() {
       "discriminator": "modelType"
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemOriginSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT",
+        "MTOServiceItemOriginSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
       ]
@@ -3401,11 +3401,11 @@ func init() {
       "discriminator": "modelType"
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemOriginSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT",
+        "MTOServiceItemOriginSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
       ]

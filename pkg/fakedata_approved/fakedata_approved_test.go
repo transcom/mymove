@@ -124,6 +124,11 @@ func (suite *FakeDataSuite) TestPricersTestCases() {
 			fmt.Printf("Failure on IsValidFakeDataFullNameStrict test case %d (0 indexed)\n", i)
 		}
 		suite.NoError(err)
+		result, err = IsValidFakeDataName(fmt.Sprintf("%s %s", testCase.firstName, testCase.lastName))
+		if !suite.Equal(testCase.expected, result) {
+			fmt.Printf("Failure on IsValidFakeDataName test case %d (0 indexed)\n", i)
+		}
+		suite.NoError(err)
 		result, err = IsValidFakeDataAddress(testCase.address)
 		if !suite.Equal(testCase.expected, result) {
 			fmt.Printf("Failure on IsValidFakeDataAddress test case %d (0 indexed)\n", i)

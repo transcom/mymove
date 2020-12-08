@@ -111,7 +111,7 @@ func main() {
 
 	logger.Println(ediString)
 
-	certLogger, err := logging.Config("development", true)
+	certLogger, err := logging.Config("development", v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
