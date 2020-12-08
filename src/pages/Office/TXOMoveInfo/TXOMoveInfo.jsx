@@ -9,6 +9,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrder'));
 const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
+const MoveAllowances = lazy(() => import('pages/Office/MoveAllowances/MoveAllowances'));
 const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
@@ -63,8 +64,13 @@ const TXOMoveInfo = () => {
           <Route path="/moves/:moveOrderId/details" exact>
             <MoveDetails />
           </Route>
+
           <Route path="/moves/:moveOrderId/orders" exact>
             <MoveOrders />
+          </Route>
+
+          <Route path="/moves/:moveOrderId/allowances" exact>
+            <MoveAllowances />
           </Route>
 
           <Route path="/moves/:moveOrderId/mto" exact>
