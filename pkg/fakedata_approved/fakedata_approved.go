@@ -9,6 +9,7 @@ https://docs.google.com/spreadsheets/d/1u1NO_ZWvKJc2ylOSF5-4mcm6Eg5X2zu7c_P-X4lD
 package fakedata
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -269,6 +270,37 @@ func IsValidFakeDataFullName(firstName string, lastName string) (bool, error) {
 			if strings.EqualFold(processedFakeLast, processedLast) {
 				return true, nil
 			}
+		}
+	}
+	return false, nil
+}
+
+/*
+IsValidFakeDataName checks the name can be found in the fake data.
+If the name is found true is returned, if not found, false is returned.
+Name is assumed to be `firstName lastName`
+
+This function will compare using case insensitive comparison, but spaces and all characters
+not in the range a-z, A-Z, 0-9 will be removed and not used in the comparison. This will allow
+forgiveness of use of spaces, ',', '#' etc and other non alphabet characters.
+*/
+func IsValidFakeDataName(name string) (bool, error) {
+	// Make a Regex to say we only want letters and numbers
+	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+	if err != nil {
+		return false, err
+	}
+
+	name = strings.TrimSpace(name)
+
+	processed := reg.ReplaceAllString(name, "")
+
+	for _, fake := range fakeNames {
+		processedFakeFirst := reg.ReplaceAllString(fake.first, "")
+		processedFakeLast := reg.ReplaceAllString(fake.last, "")
+		processedFake := fmt.Sprintf("%s%s", processedFakeFirst, processedFakeLast)
+		if strings.EqualFold(processedFake, processed) {
+			return true, nil
 		}
 	}
 	return false, nil
