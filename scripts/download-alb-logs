@@ -39,6 +39,5 @@ fi
 
 mkdir -p "${dest}"
 for date in "${dates[@]}"; do
-  #aws s3 sync --quiet "s3://transcom-ppp-aws-logs/alb/app-${environment}/AWSLogs/923914045601/elasticloadbalancing/us-west-2/${date}/" "$dest"
-  aws s3 sync --quiet "s3://transcom-gov-milmove-${environment}-aws-logs/alb/app-${environment}/AWSLogs/${accountid}/elasticloadbalancing/us-gov-west-1/${date}/" "$dest"
+  DISABLE_AWS_VAULT_WRAPPER=1 AWS_PROFILE=transcom-gov-milmove-"${environment}" AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-milmove-"${environment}" -- aws s3 sync --quiet "s3://transcom-gov-milmove-${environment}-aws-logs/alb/app-${environment}/AWSLogs/${accountid}/elasticloadbalancing/us-gov-west-1/${date}/" "$dest"
 done
