@@ -1,5 +1,5 @@
 import React from 'react';
-import { withKnobs } from '@storybook/addon-knobs';
+import { withKnobs, object } from '@storybook/addon-knobs';
 
 import AllowancesDetailForm from './AllowancesDetailForm';
 
@@ -29,5 +29,5 @@ const entitlement = {
 };
 
 export const Basic = () => {
-  return <AllowancesDetailForm entitlements={entitlement} />;
+  return <AllowancesDetailForm entitlements={object('entitlement', entitlement)} />;
 };
