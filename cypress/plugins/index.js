@@ -12,6 +12,15 @@
 // the project's config changing)
 
 const { lighthouse, pa11y, prepareAudit } = require('cypress-audit');
+const fs = require('fs');
+
+const storeData = (data, path) => {
+  try {
+    fs.writeFileSync(path, JSON.stringify(data));
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
@@ -22,7 +31,11 @@ module.exports = (on, config) => {
   });
 
   on('task', {
-    lighthouse: lighthouse(), // calling the function is important
-    pa11y: pa11y(), // calling the function is important
+    lighthouse: lighthouse((report) => {
+      storeData(report, 'lighthouse_report.json');
+    }),
+    pa11y: pa11y((report) => {
+      storeData(report, 'pa11y_report.json');
+    }),
   });
 };

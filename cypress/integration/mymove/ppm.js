@@ -57,11 +57,6 @@ describe('the PPM flow', function () {
     cy.apiSignInAsPpmUser(userId);
     SMContinueRequestPayment();
   });
-
-  it('should pass the lightouse & pa11y audits', function () {
-    cy.lighthouse();
-    cy.pa11y();
-  });
 });
 
 function SMSubmitsMove() {
