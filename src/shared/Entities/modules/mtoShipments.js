@@ -5,8 +5,6 @@ import { filter } from 'lodash';
 import { denormalize } from 'normalizr';
 import { mtoShipments } from '../schema';
 
-/** REMAINING EXPORTS ARE USED BY OFFICE */
-
 const mtoShipmentsSchemaKey = 'mtoShipments';
 const getMTOShipmentsOperation = 'mtoShipment.listMTOShipments';
 export function getMTOShipments(moveTaskOrderID, label = getMTOShipmentsOperation, schemaKey = mtoShipmentsSchemaKey) {
@@ -33,27 +31,6 @@ export function patchMTOShipmentStatus(
       'If-Match': ifMatchETag,
       body: { status: shipmentStatus, rejectionReason },
     },
-    { label, schemaKey },
-  );
-}
-
-const createMTOShipmentOperation = 'mtoShipment.createMTOShipment';
-export function createMTOShipment(mtoShipment, label = createMTOShipmentOperation, schemaKey = mtoShipmentSchemaKey) {
-  return swaggerRequest(getClient, createMTOShipmentOperation, { body: mtoShipment }, { label, schemaKey });
-}
-
-const updateMTOShipmentOperation = 'mtoShipment.updateMTOShipment';
-export function updateMTOShipment(
-  mtoShipmentId,
-  mtoShipment,
-  ifMatchETag,
-  label = updateMTOShipmentOperation,
-  schemaKey = mtoShipmentSchemaKey,
-) {
-  return swaggerRequest(
-    getClient,
-    updateMTOShipmentOperation,
-    { mtoShipmentId, 'If-Match': ifMatchETag, body: mtoShipment },
     { label, schemaKey },
   );
 }

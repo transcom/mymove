@@ -11,8 +11,6 @@ import { getGHCClient } from 'shared/Swagger/api';
 import { filter } from 'lodash';
 import { fetchActive } from 'shared/utils';
 
-/** REMAINING EXPORTS ARE USED BY OFFICE */
-
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
 const cancelMoveLabel = 'Moves.CancelMove';

@@ -1,5 +1,5 @@
 import { get, head, pick } from 'lodash';
-import { GetMove, SubmitMoveForApproval } from './api.js';
+import { GetMove } from './api.js';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
 
@@ -14,9 +14,6 @@ export const GET_MOVE = ReduxHelpers.generateAsyncActionTypes(getMoveType);
 
 export const createOrUpdateMoveType = 'CREATE_OR_UPDATE_MOVE';
 export const CREATE_OR_UPDATE_MOVE = ReduxHelpers.generateAsyncActionTypes(createOrUpdateMoveType);
-
-export const submitForApprovalType = 'SUBMIT_FOR_APPROVAL';
-export const SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(submitForApprovalType);
 
 // Action creation
 export function setConusStatus(moveType) {
@@ -42,7 +39,6 @@ export function loadMove(moveId) {
   };
 }
 
-export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(submitForApprovalType, SubmitMoveForApproval);
 //selector
 export const moveIsApproved = (state) => get(state, 'moves.currentMove.status') === 'APPROVED';
 
@@ -116,20 +112,6 @@ export function moveReducer(state = initialState, action) {
         latestMove: null,
         hasLoadSuccess: false,
         hasLoadError: true,
-        error: action.error,
-      });
-    case SUBMIT_FOR_APPROVAL.start:
-      return Object.assign({}, state, {
-        submittedForApproval: false,
-      });
-    case SUBMIT_FOR_APPROVAL.success:
-      return Object.assign({}, state, {
-        currentMove: reshapeMove(action.payload),
-        submittedForApproval: true,
-      });
-    case SUBMIT_FOR_APPROVAL.failure:
-      return Object.assign({}, state, {
-        submittedForApproval: false,
         error: action.error,
       });
     case SET_CONUS_STATUS:
