@@ -1,7 +1,9 @@
 import React from 'react';
-import { withKnobs, object } from '@storybook/addon-knobs';
+import { withKnobs, object, boolean } from '@storybook/addon-knobs';
 
 import AllowancesTable from './AllowancesTable';
+
+import { MockProviders } from 'testUtils';
 
 const info = {
   branch: 'NAVY',
@@ -16,7 +18,20 @@ const info = {
 
 export default {
   title: 'TOO/TIO Components|AllowancesTable',
-  decorator: withKnobs,
+  decorators: [
+    withKnobs,
+    (Story) => (
+      <div style={{ 'max-width': '800px' }}>
+        <MockProviders initialEntries={[`/moves/1000/details`]}>
+          <Story />
+        </MockProviders>
+      </div>
+    ),
+  ],
 };
 
 export const Default = () => <AllowancesTable info={object('info', info)} />;
+
+export const HasEditBtn = () => (
+  <AllowancesTable info={object('info', info)} showEditBtn={boolean('Show Edit Btn', true)} />
+);
