@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/services"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
-
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

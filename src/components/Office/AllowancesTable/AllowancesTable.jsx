@@ -1,7 +1,10 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
-const AllowancesTable = ({ info }) => {
+import styles from '../MoveDetailTable.module.scss';
+
+const AllowancesTable = ({ showEditBtn, info }) => {
   const titleCase = (input) => {
     if (input && input.length > 0) {
       const friendlyInput = input.toLowerCase().replace('_', ' ').split(' ');
@@ -22,11 +25,18 @@ const AllowancesTable = ({ info }) => {
   };
 
   return (
-    <div>
+    <div className={styles.MoveDetailTable}>
       <div className="stackedtable-header">
         <div>
           <h4>Allowances</h4>
         </div>
+        {showEditBtn && (
+          <div>
+            <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+              Edit Allowances
+            </Link>
+          </div>
+        )}
       </div>
       <table className="table--stacked">
         <colgroup>
@@ -83,6 +93,7 @@ const AllowancesTable = ({ info }) => {
 };
 
 AllowancesTable.propTypes = {
+  showEditBtn: PropTypes.bool,
   info: PropTypes.shape({
     branch: PropTypes.string,
     rank: PropTypes.string,
@@ -93,6 +104,10 @@ AllowancesTable.propTypes = {
     storageInTransit: PropTypes.number,
     dependents: PropTypes.bool,
   }).isRequired,
+};
+
+AllowancesTable.defaultProps = {
+  showEditBtn: false,
 };
 
 export default AllowancesTable;
