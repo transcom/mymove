@@ -55,9 +55,16 @@ const MoveAllowances = ({ history, match }) => {
                   >
                     <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                   </Button>
-                  <h2 className={moveOrdersStyles.header}>View Allowances</h2>
+                  <h2 className={moveOrdersStyles.header} data-testid="allowances-header">
+                    View Allowances
+                  </h2>
                   <div>
-                    <Button type="button" className={moveOrdersStyles.viewAllowances} unstyled>
+                    <Button
+                      type="button"
+                      className={moveOrdersStyles.viewAllowances}
+                      data-testid="view-orders-btn"
+                      unstyled
+                    >
                       View Orders
                     </Button>
                   </div>

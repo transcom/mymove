@@ -32,7 +32,7 @@ const AllowancesTable = ({ showEditBtn, info }) => {
         </div>
         {showEditBtn && (
           <div>
-            <Link className="usa-button usa-button--secondary" to="allowances">
+            <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
               Edit Allowances
             </Link>
           </div>
