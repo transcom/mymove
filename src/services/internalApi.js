@@ -146,3 +146,30 @@ export async function submitMoveForApproval(moveId, certificate) {
     },
   );
 }
+
+/** MTO SHIPMENTS */
+export async function createMTOShipment(mtoShipment) {
+  return makeInternalRequest(
+    'mtoShipment.createMTOShipment',
+    {
+      body: mtoShipment,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchMTOShipment(mtoShipmentId, mtoShipment, ifMatchETag) {
+  return makeInternalRequest(
+    'mtoShipment.updateMTOShipment',
+    {
+      mtoShipmentId,
+      'If-Match': ifMatchETag,
+      body: mtoShipment,
+    },
+    {
+      normalize: false,
+    },
+  );
+}

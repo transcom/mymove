@@ -1,6 +1,6 @@
 import { all, takeLatest, put, call } from 'redux-saga/effects';
 
-import { UPDATE_SERVICE_MEMBER, UPDATE_BACKUP_CONTACT, UPDATE_MOVE } from 'store/entities/actions';
+import { UPDATE_SERVICE_MEMBER, UPDATE_BACKUP_CONTACT, UPDATE_MOVE, UPDATE_MTO_SHIPMENT } from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { addEntities } from 'shared/Entities/actions';
 
@@ -37,10 +37,17 @@ export function* updateMove(action) {
   });
 }
 
+export function* updateMTOShipment(action) {
+  const { payload } = action;
+  const normalizedData = yield call(normalizeResponse, payload, 'mtoShipment');
+  yield put(addEntities(normalizedData));
+}
+
 export function* watchUpdateEntities() {
   yield all([
     takeLatest(UPDATE_SERVICE_MEMBER, updateServiceMember),
     takeLatest(UPDATE_BACKUP_CONTACT, updateBackupContact),
     takeLatest(UPDATE_MOVE, updateMove),
+    takeLatest(UPDATE_MTO_SHIPMENT, updateMTOShipment),
   ]);
 }
