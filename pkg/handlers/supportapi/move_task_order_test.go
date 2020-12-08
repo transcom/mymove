@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
@@ -73,18 +74,16 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		testdatagen.MakeAvailableMove(suite.DB()),
 		testdatagen.MakeAvailableMove(suite.DB()),
 	}
-	mockHider := supportMocks.MoveTaskOrderHider{}
+	mockHider := &mocks.MoveTaskOrderHider{}
 	handler := HideNonFakeMoveTaskOrdersHandlerFunc{
 		context,
-		&mockHider,
+		mockHider,
 	}
 	mockHider.On("Hide").Return(moves, nil)
 
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-	hideMoveTaskOrdersResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
-	suite.Assertions.IsType(&move_task_order.NewHideNonFakeMoveTaskOrdersOK{}, response)
-	suite.Equal(len(hideMoveTaskOrdersResponse.Payload), 2)
+	suite.IsType(move_task_order.NewHideNonFakeMoveTaskOrdersOK, response)
 }
 
 func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSuccess() {

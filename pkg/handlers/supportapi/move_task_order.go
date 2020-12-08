@@ -80,7 +80,7 @@ type HideNonFakeMoveTaskOrdersHandlerFunc struct {
 	services.MoveTaskOrderHider
 }
 
-// Handle updates the prime availability of a MoveTaskOrder
+// Handle hides any mto that doesnt have valid fake data
 func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.HideNonFakeMoveTaskOrdersParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
