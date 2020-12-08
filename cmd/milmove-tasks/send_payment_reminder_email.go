@@ -42,8 +42,8 @@ func initPaymentReminderFlags(flag *pflag.FlagSet) {
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	// Email
 	cli.InitEmailFlags(flag)
@@ -70,7 +70,7 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(dbEnv, v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -83,7 +83,8 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") {
-		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+		verbose := cli.LogLevelIsDebug(v)
+		c, errorConfig := cli.GetAWSConfig(v, verbose)
 		if errorConfig != nil {
 			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
 		}

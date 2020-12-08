@@ -9,7 +9,7 @@ import { MTOAgentShape, MTOShipmentShape, OrdersInfoShape } from '../../types/mo
 import { formatAddress } from '../../utils/shipmentDisplay';
 
 import styles from './shipmentApprovalPreview.module.scss';
-import AllowancesTable from './AllowancesTable';
+import AllowancesTable from './AllowancesTable/AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';

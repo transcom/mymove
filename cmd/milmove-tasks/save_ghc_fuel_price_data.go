@@ -44,8 +44,8 @@ func initSaveGHCFuelPriceFlags(flag *pflag.FlagSet) {
 	// EIA Open Data API
 	cli.InitEIAFlags(flag)
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -69,7 +69,7 @@ func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(dbEnv, v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -82,7 +82,8 @@ func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) {
-		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+		verbose := cli.LogLevelIsDebug(v)
+		c, errorConfig := cli.GetAWSConfig(v, verbose)
 		if errorConfig != nil {
 			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
 		}

@@ -81,7 +81,7 @@ func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (
 		}
 	}
 
-	verbose := v.GetBool(cli.VerboseFlag)
+	verbose := cli.LogLevelIsDebug(v)
 	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
 	myRuntime := runtimeClient.NewWithClient(hostWithPort, primeClient.DefaultBasePath, []string{"https"}, httpClient)
 	myRuntime.EnableConnectionReuse()
@@ -155,7 +155,7 @@ func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, er
 		}
 	}
 
-	verbose := v.GetBool(cli.VerboseFlag)
+	verbose := cli.LogLevelIsDebug(v)
 	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
 	myRuntime := runtimeClient.NewWithClient(hostWithPort, primeClient.DefaultBasePath, []string{"https"}, httpClient)
 	myRuntime.EnableConnectionReuse()
@@ -229,7 +229,7 @@ func CreateSupportClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store
 		}
 	}
 
-	verbose := v.GetBool(cli.VerboseFlag)
+	verbose := cli.LogLevelIsDebug(v)
 	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
 	myRuntime := runtimeClient.NewWithClient(hostWithPort, supportClient.DefaultBasePath, []string{"https"}, httpClient)
 	myRuntime.EnableConnectionReuse()

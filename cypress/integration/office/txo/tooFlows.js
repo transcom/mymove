@@ -6,17 +6,15 @@ describe('TOO user', () => {
   });
 
   beforeEach(() => {
-    cy.removeFetch();
-    cy.server();
-    cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.route('GET', '/ghc/v1/queues/moves?**').as('getMoveOrders');
-    cy.route('GET', '/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedMoveOrders');
-    cy.route('GET', '/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
-    cy.route('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
-    cy.route('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
-    cy.route('PATCH', '/ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
-    cy.route('PATCH', '/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
-    cy.route('PATCH', '/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
+    cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
+    cy.intercept('**/ghc/v1/queues/moves?**').as('getMoveOrders');
+    cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedMoveOrders');
+    cy.intercept('**/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
+    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
+    cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
+    cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
 
     const userId = 'dcf86235-53d3-43dd-8ee8-54212ae3078f';
     cy.apiSignInAsUser(userId, TOOOfficeUserType);
@@ -71,9 +69,9 @@ describe('TOO user', () => {
 
       // Page refresh
       cy.url().should('include', `/moves/${moveOrderId}/details`);
-      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
+      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
       cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
-      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
+      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
       cy.get('#approved-shipments');
       cy.get('#requested-shipments').should('not.exist');
       cy.contains('Approve selected shipments').should('not.exist');
@@ -100,7 +98,7 @@ describe('TOO user', () => {
     cy.contains('Rejected service items').should('not.exist');
     cy.contains('Approved service items').should('not.exist');
 
-    cy.get('[data-testid="modal"]').should('not.be.visible');
+    cy.get('[data-testid="modal"]').should('not.exist');
 
     // Approve a requested service item
     cy.get('[data-testid="RequestedServiceItemsTable"]').within(($table) => {
@@ -124,7 +122,7 @@ describe('TOO user', () => {
       cy.get('button[type="submit"]').click();
     });
 
-    cy.get('[data-testid="modal"]').should('not.be.visible');
+    cy.get('[data-testid="modal"]').should('not.exist');
 
     cy.contains('Rejected service items (1 item)');
     cy.get('[data-testid="RejectedServiceItemsTable"] tbody tr').should('have.length', 1);
@@ -146,7 +144,7 @@ describe('TOO user', () => {
       cy.get('button[type="submit"]').click();
     });
 
-    cy.get('[data-testid="modal"]').should('not.be.visible');
+    cy.get('[data-testid="modal"]').should('not.exist');
 
     cy.contains('Rejected service items (1 item)');
     cy.get('[data-testid="RejectedServiceItemsTable"] tbody tr').should('have.length', 1);
@@ -159,5 +157,29 @@ describe('TOO user', () => {
     cy.contains('Requested service items').should('not.exist');
     cy.contains('Approved service items (7 items)');
     cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
+  });
+
+  it('is able to edit allowances', () => {
+    const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
+    const moveLocator = 'TEST12';
+
+    // TOO Moves queue
+    cy.wait(['@getSortedMoveOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveOrderId}/details`);
+
+    // Move Details page
+    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // Edit allowances page | Save
+    cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+    cy.url().should('include', `/moves/${moveOrderId}/allowances`);
+    cy.get('button').contains('Save').click();
+    cy.url().should('include', `/moves/${moveOrderId}/details`);
+
+    // Edit allowances page | Cancel
+    cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+    cy.get('button').contains('Cancel').click();
+    cy.url().should('include', `/moves/${moveOrderId}/details`);
   });
 });

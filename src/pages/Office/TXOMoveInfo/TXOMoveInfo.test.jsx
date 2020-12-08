@@ -90,7 +90,7 @@ describe('TXO Move Info Container', () => {
 
       const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/payment-requests');
+      expect(renderedRoute.prop('path')).toEqual('/moves/:locator/payment-requests');
     });
 
     it('should handle the Move History route', () => {

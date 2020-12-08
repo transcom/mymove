@@ -35,8 +35,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	flag.String("local-file-path", "", "The path where the file to be sent is located")
 	flag.String("syncada-file-name", "", "The name of the file to be stored in Syncada")
@@ -63,7 +63,7 @@ func main() {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(dbEnv, v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		log.Fatalf("failed to initialize Zap logging due to %v", err)
 	}

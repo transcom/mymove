@@ -25,6 +25,17 @@ describe('Allowances Table', () => {
     expect(wrapper.find({ 'data-testid': 'storageInTransit' }).text()).toMatch(`${info.storageInTransit} days`);
     expect(wrapper.find({ 'data-testid': 'dependents' }).text()).toMatch('Authorized');
   });
+
+  it('should be able to show edit btn', () => {
+    const wrapper = shallow(<AllowancesTable info={info} showEditBtn />);
+    expect(wrapper.find('Link').text()).toMatch('Edit Allowances');
+    expect(wrapper.find('Link').prop('to')).toBe('allowances');
+  });
+
+  it('should be able to hide edit btn', () => {
+    const wrapper = shallow(<AllowancesTable info={info} />);
+    expect(wrapper.find('Link').exists()).toBe(false);
+  });
 });
 
 describe('Allowances Table when SIT is 0', () => {

@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import ShipmentContainer from './ShipmentContainer';
-import AllowancesTable from './AllowancesTable';
+import AllowancesTable from './AllowancesTable/AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 
 const shipments = [

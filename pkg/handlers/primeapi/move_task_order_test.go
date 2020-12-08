@@ -156,10 +156,10 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 		suite.Equal(2, len(moveTaskOrdersPayload[0].MtoServiceItems()))
 
 		// get ddfsit service item
-		var serviceItemDDFSIT *primemessages.MTOServiceItemDDFSIT
+		var serviceItemDDFSIT *primemessages.MTOServiceItemDestSIT
 		for _, item := range moveTaskOrdersPayload[0].MtoServiceItems() {
-			if item.ModelType() == primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT {
-				serviceItemDDFSIT = item.(*primemessages.MTOServiceItemDDFSIT)
+			if item.ModelType() == primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT {
+				serviceItemDDFSIT = item.(*primemessages.MTOServiceItemDestSIT)
 				break
 			}
 		}

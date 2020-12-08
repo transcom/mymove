@@ -3,6 +3,7 @@ export const MTO_SHIPMENTS = 'mtoShipments';
 export const MTO_SERVICE_ITEMS = 'mtoServiceItems';
 export const MOVE_TASK_ORDERS = 'moveTaskOrders';
 export const MOVE_ORDERS = 'moveOrders';
+export const MOVE_PAYMENT_REQUESTS = 'movePaymentRequests';
 export const ORDERS_DOCUMENTS = 'documents';
 export const MOVES_QUEUE = 'movesQueue';
 export const PAYMENT_REQUESTS_QUEUE = 'paymentRequestsQueue';
