@@ -5,7 +5,7 @@ import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import styles from '../MoveOrders/MoveOrders.module.scss';
+import moveOrdersStyles from '../MoveOrders/MoveOrders.module.scss';
 
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -34,20 +34,20 @@ const MoveAllowances = ({ history, match }) => {
   const documentsForViewer = Object.values(upload);
 
   return (
-    <div className={styles.MoveOrders}>
+    <div className={moveOrdersStyles.MoveOrders}>
       {documentsForViewer && (
-        <div className={styles.embed}>
+        <div className={moveOrdersStyles.embed}>
           <DocumentViewer files={documentsForViewer} />
         </div>
       )}
-      <div className={styles.sidebar}>
+      <div className={moveOrdersStyles.sidebar}>
         <Formik initialValues={initialValues} onSubmit={onSubmit}>
           {(formik) => (
             <form onSubmit={formik.handleSubmit}>
-              <div className={styles.orderDetails}>
-                <div className={styles.top}>
+              <div className={moveOrdersStyles.orderDetails}>
+                <div className={moveOrdersStyles.top}>
                   <Button
-                    className={styles.closeButton}
+                    className={moveOrdersStyles.closeButton}
                     data-testid="closeSidebar"
                     type="button"
                     onClick={handleClose}
@@ -55,16 +55,16 @@ const MoveAllowances = ({ history, match }) => {
                   >
                     <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                   </Button>
-                  <h2 className={styles.header}>View Allowances</h2>
+                  <h2 className={moveOrdersStyles.header}>View Allowances</h2>
                   <div>
-                    <Button type="button" className={styles.viewAllowances} unstyled>
+                    <Button type="button" className={moveOrdersStyles.viewAllowances} unstyled>
                       View Orders
                     </Button>
                   </div>
                 </div>
 
-                <div className={styles.bottom}>
-                  <div className={styles.buttonGroup}>
+                <div className={moveOrdersStyles.bottom}>
+                  <div className={moveOrdersStyles.buttonGroup}>
                     <Button type="submit" disabled={formik.isSubmitting}>
                       Save
                     </Button>
