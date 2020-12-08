@@ -1,5 +1,5 @@
 import React from 'react';
-import { withKnobs, text, object } from '@storybook/addon-knobs';
+import { text, object } from '@storybook/addon-knobs';
 
 import OrdersTable from './OrdersTable';
 
@@ -9,7 +9,6 @@ export default {
   title: 'TOO/TIO Components/OrdersTable',
   component: OrdersTable,
   decorators: [
-    withKnobs,
     (Story) => (
       <div style={{ 'max-width': '800px' }}>
         <MockProviders initialEntries={[`/moves/1000/details`]}>

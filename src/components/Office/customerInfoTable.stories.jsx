@@ -1,5 +1,5 @@
 import React from 'react';
-import { withKnobs, object } from '@storybook/addon-knobs';
+import { object } from '@storybook/addon-knobs';
 
 import CustomerInfoTable from './CustomerInfoTable';
 
@@ -23,7 +23,6 @@ const info = {
 
 export default {
   title: 'TOO/TIO Components/CustomerInfoTable',
-  decorator: withKnobs,
 };
 
 export const Default = () => <CustomerInfoTable customerInfo={object('customerInfo', info)} />;

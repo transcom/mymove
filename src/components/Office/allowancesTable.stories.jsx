@@ -1,5 +1,5 @@
 import React from 'react';
-import { withKnobs, object } from '@storybook/addon-knobs';
+import { object } from '@storybook/addon-knobs';
 
 import AllowancesTable from './AllowancesTable';
 
@@ -16,7 +16,6 @@ const info = {
 
 export default {
   title: 'TOO/TIO Components/AllowancesTable',
-  decorator: withKnobs,
 };
 
 export const Default = () => <AllowancesTable info={object('info', info)} />;

@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { withKnobs, text } from '@storybook/addon-knobs';
+import { text } from '@storybook/addon-knobs';
 
 import Contact from './index';
 
@@ -34,7 +34,6 @@ export const missingPhone = () => (
 export default {
   title: 'Customer Components / Contact',
   decorators: [
-    withKnobs,
     (Story) => (
       <div className="grid-container">
         <Story />

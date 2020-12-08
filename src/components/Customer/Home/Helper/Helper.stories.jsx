@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { withKnobs, text, array } from '@storybook/addon-knobs';
+import { text, array } from '@storybook/addon-knobs';
 
 import Helper from './index';
 
@@ -18,7 +18,6 @@ const separator = '\n';
 
 export default {
   title: 'Customer Components / Helper',
-  decorators: [withKnobs],
 };
 
 export const Basic = () => (

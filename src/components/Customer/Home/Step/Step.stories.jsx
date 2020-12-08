@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { withKnobs, text, boolean } from '@storybook/addon-knobs';
+import { text, boolean } from '@storybook/addon-knobs';
 
 import DocsUploaded from '../DocsUploaded/index';
 import ShipmentList from '../ShipmentList/index';
@@ -143,5 +143,4 @@ export const MoveSubmitted = () => (
 
 export default {
   title: 'Customer Components / Step',
-  decorators: [withKnobs],
 };

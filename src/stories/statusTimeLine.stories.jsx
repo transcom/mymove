@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { withKnobs, boolean, text, date } from '@storybook/addon-knobs';
+import { boolean, text, date } from '@storybook/addon-knobs';
 
 import { StatusTimeline } from '../scenes/PpmLanding/StatusTimeline';
 
@@ -14,7 +14,7 @@ const StatusTimelineCodes = {
 
 export default {
   title: 'scenes/Landing',
-  decorators: [withKnobs, (storyFn) => <div className="shipment_box_contents">{storyFn()}</div>],
+  decorators: [(storyFn) => <div className="shipment_box_contents">{storyFn()}</div>],
 };
 
 export const StatusTimeLine = () => (

@@ -1,5 +1,4 @@
 import React from 'react';
-import { withKnobs } from '@storybook/addon-knobs';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 
@@ -47,7 +46,6 @@ export default {
   title: 'TOO/TIO Components/OrdersDetailForm',
   component: OrdersDetailForm,
   decorators: [
-    withKnobs,
     (Story) => (
       <div style={{ padding: `20px`, background: `#f0f0f0` }}>
         <Story />
