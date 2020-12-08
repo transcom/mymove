@@ -347,10 +347,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}/edi"] = payment_request.NewGetPaymentRequestEDI(o.context, o.PaymentRequestGetPaymentRequestEDIHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-task-orders/hide"] = move_task_order.NewHideNonFakeMoveTaskOrders(o.context, o.MoveTaskOrderHideNonFakeMoveTaskOrdersHandler)
+	o.handlers["PATCH"]["/move-task-orders/hide"] = move_task_order.NewHideNonFakeMoveTaskOrders(o.context, o.MoveTaskOrderHideNonFakeMoveTaskOrdersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

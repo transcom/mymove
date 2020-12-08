@@ -91,7 +91,7 @@ type HideNonFakeMoveTaskOrdersOK struct {
 }
 
 func (o *HideNonFakeMoveTaskOrdersOK) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersOK  %+v", 200, o.Payload)
 }
 
 func (o *HideNonFakeMoveTaskOrdersOK) GetPayload() supportmessages.MoveTaskOrders {
@@ -122,7 +122,7 @@ type HideNonFakeMoveTaskOrdersBadRequest struct {
 }
 
 func (o *HideNonFakeMoveTaskOrdersBadRequest) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *HideNonFakeMoveTaskOrdersBadRequest) GetPayload() *supportmessages.ClientError {
@@ -155,7 +155,7 @@ type HideNonFakeMoveTaskOrdersUnauthorized struct {
 }
 
 func (o *HideNonFakeMoveTaskOrdersUnauthorized) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *HideNonFakeMoveTaskOrdersUnauthorized) GetPayload() *supportmessages.ClientError {
@@ -188,7 +188,7 @@ type HideNonFakeMoveTaskOrdersForbidden struct {
 }
 
 func (o *HideNonFakeMoveTaskOrdersForbidden) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersForbidden  %+v", 403, o.Payload)
 }
 
 func (o *HideNonFakeMoveTaskOrdersForbidden) GetPayload() *supportmessages.ClientError {
@@ -221,7 +221,7 @@ type HideNonFakeMoveTaskOrdersNotFound struct {
 }
 
 func (o *HideNonFakeMoveTaskOrdersNotFound) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersNotFound  %+v", 404, o.Payload)
 }
 
 func (o *HideNonFakeMoveTaskOrdersNotFound) GetPayload() *supportmessages.ClientError {
@@ -254,7 +254,7 @@ type HideNonFakeMoveTaskOrdersPreconditionFailed struct {
 }
 
 func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersPreconditionFailed  %+v", 412, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersPreconditionFailed  %+v", 412, o.Payload)
 }
 
 func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) GetPayload() *supportmessages.ClientError {
@@ -287,7 +287,7 @@ type HideNonFakeMoveTaskOrdersUnprocessableEntity struct {
 }
 
 func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnprocessableEntity  %+v", 422, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnprocessableEntity  %+v", 422, o.Payload)
 }
 
 func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
@@ -320,7 +320,7 @@ type HideNonFakeMoveTaskOrdersInternalServerError struct {
 }
 
 func (o *HideNonFakeMoveTaskOrdersInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *HideNonFakeMoveTaskOrdersInternalServerError) GetPayload() *supportmessages.Error {

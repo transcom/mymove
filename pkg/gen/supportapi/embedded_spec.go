@@ -132,7 +132,7 @@ func init() {
       }
     },
     "/move-task-orders/hide": {
-      "get": {
+      "patch": {
         "description": "Updates move task order without fake user data ` + "`" + `show` + "`" + ` to false. No request body required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
@@ -2106,7 +2106,7 @@ func init() {
       }
     },
     "/move-task-orders/hide": {
-      "get": {
+      "patch": {
         "description": "Updates move task order without fake user data ` + "`" + `show` + "`" + ` to false. No request body required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"

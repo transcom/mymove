@@ -66,29 +66,37 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 }
 
 func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
-	request := httptest.NewRequest("GET", "/move-task-orders/hide", nil)
+	request := httptest.NewRequest("PATCH", "/move-task-orders/hide", nil)
 	params := move_task_order.HideNonFakeMoveTaskOrdersParams{
 		HTTPRequest: request,
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	var moves models.Moves
-	moves = append(moves, testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{}))
 
 	suite.T().Run("successfully hide fake moves", func(t *testing.T) {
-		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
 			context,
-			mockHider,
+			movetaskorder.NewMoveTaskOrderHider(suite.DB()),
 		}
-		mockHider.On("Hide").Return(moves, nil)
+		var moves models.Moves
+
+		mto1 := testdatagen.MakeDefaultMove(suite.DB())
+		mto2 := testdatagen.MakeDefaultMove(suite.DB())
+		moves = append(moves, mto1, mto2)
 
 		response := handler.Handle(params)
-
+		mtoRequestsResponse := response.(*movetaskorderops.HideNonFakeMoveTaskOrdersOK)
+		mtoRequestsPayload := mtoRequestsResponse.Payload
 		suite.IsNotErrResponse(response)
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersOK(), response)
+
+		for idx, mto := range mtoRequestsPayload {
+			suite.Equal(strfmt.UUID(moves[idx].ID.String()), mto.ID)
+		}
 	})
 
 	suite.T().Run("unsuccessfully hide fake moves", func(t *testing.T) {
+		var moves models.Moves
+		moves = append(moves, testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{}))
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
 			context,

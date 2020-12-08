@@ -29,7 +29,7 @@ func NewHideNonFakeMoveTaskOrders(ctx *middleware.Context, handler HideNonFakeMo
 	return &HideNonFakeMoveTaskOrders{Context: ctx, Handler: handler}
 }
 
-/*HideNonFakeMoveTaskOrders swagger:route GET /move-task-orders/hide moveTaskOrder hideNonFakeMoveTaskOrders
+/*HideNonFakeMoveTaskOrders swagger:route PATCH /move-task-orders/hide moveTaskOrder hideNonFakeMoveTaskOrders
 
 hideNonFakeMoveTaskOrders
 

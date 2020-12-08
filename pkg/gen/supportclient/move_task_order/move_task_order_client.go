@@ -147,7 +147,7 @@ func (a *Client) HideNonFakeMoveTaskOrders(params *HideNonFakeMoveTaskOrdersPara
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "hideNonFakeMoveTaskOrders",
-		Method:             "GET",
+		Method:             "PATCH",
 		PathPattern:        "/move-task-orders/hide",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

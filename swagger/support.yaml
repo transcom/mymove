@@ -190,7 +190,7 @@ paths:
           $ref: '#/responses/ServerError'
   '/move-task-orders/hide':
     parameters: []
-    get:
+    patch:
       summary: hideNonFakeMoveTaskOrders
       description: |
         Updates move task order without fake user data `show` to false. No request body required. <br />
