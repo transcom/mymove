@@ -26,6 +26,10 @@ const TXOMoveInfo = () => {
     matchPath(pathname, {
       path: '/moves/:moveOrderId/orders',
       exact: true,
+    }) ||
+    matchPath(pathname, {
+      path: '/moves/:moveOrderId/allowances',
+      exact: true,
     });
 
   return (
