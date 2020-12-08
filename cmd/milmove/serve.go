@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/redisstore"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -126,14 +127,8 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Middleware
 	cli.InitMiddlewareFlags(flag)
 
-	// aws-vault
-	cli.InitVaultFlags(flag)
-
 	// Logging
 	cli.InitLoggingFlags(flag)
-
-	// Verbose
-	cli.InitVerboseFlags(flag)
 
 	// Feature Flags
 	cli.InitFeatureFlags(flag)
@@ -234,15 +229,7 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
-	if err := cli.CheckVault(v); err != nil {
-		return err
-	}
-
 	if err := cli.CheckLogging(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckVerbose(v); err != nil {
 		return err
 	}
 
@@ -379,7 +366,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err = logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
+	logger, err = logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -461,9 +448,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") || (v.GetString(cli.StorageBackendFlag) == "cdn") {
-		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
-		if errorConfig != nil {
-			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+		c := &aws.Config{
+			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
 		}
 		s, errorSession := awssession.NewSession(c)
 		if errorSession != nil {

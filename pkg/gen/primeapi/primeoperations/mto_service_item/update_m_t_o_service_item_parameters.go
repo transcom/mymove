@@ -6,6 +6,7 @@ package mto_service_item
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -40,6 +41,7 @@ type UpdateMTOServiceItemParams struct {
 	*/
 	IfMatch string
 	/*
+	  Required: true
 	  In: body
 	*/
 	Body primemessages.UpdateMTOServiceItem
@@ -67,6 +69,9 @@ func (o *UpdateMTOServiceItemParams) BindRequest(r *http.Request, route *middlew
 		defer r.Body.Close()
 		body, err := primemessages.UnmarshalUpdateMTOServiceItem(r.Body, route.Consumer)
 		if err != nil {
+			if err == io.EOF {
+				err = errors.Required("body", "body", "")
+			}
 			res = append(res, err)
 		} else {
 			// validate body object
@@ -78,6 +83,8 @@ func (o *UpdateMTOServiceItemParams) BindRequest(r *http.Request, route *middlew
 				o.Body = body
 			}
 		}
+	} else {
+		res = append(res, errors.Required("body", "body", ""))
 	}
 	rMtoServiceItemID, rhkMtoServiceItemID, _ := route.Params.GetOK("mtoServiceItemID")
 	if err := o.bindMtoServiceItemID(rMtoServiceItemID, rhkMtoServiceItemID, route.Formats); err != nil {

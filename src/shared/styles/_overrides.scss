@@ -147,13 +147,17 @@
     border-radius: 100%;
     width: 24px;
     height: 24px;
-    display: inline-block;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
     svg {
-      width: 100%;
       vertical-align: sub;
       path {
         fill: #fff;
       }
+    }
+    .svg-inline--fa.fa-w-6 {
+      width: .5rem;
     }
     &--small {
       width: 20px;

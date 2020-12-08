@@ -1437,9 +1437,11 @@ func createTXO(db *pop.Connection) {
 // }
 
 func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *uploader.UserUploader) {
+
 	mtoWithTaskOrderServices := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
+			Locator:            "RDY4PY",
 			AvailableToPrimeAt: swag.Time(time.Now()),
 			Status:             models.MoveStatusSUBMITTED,
 			SelectedMoveType:   &hhgMoveType,

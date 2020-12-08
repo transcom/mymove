@@ -24,7 +24,6 @@ describe('PpmSummaryComponent', () => {
         move={moveObj}
         ppm={ppmObj}
         editMove={editMoveFn}
-        moveSubmitSuccess={moveObj.moveSubmitSuccess}
         resumeMove={resumeMoveFn}
         getMoveDocumentsForMove={getMoveDocumentsForMove}
         getPpmWeightEstimate={getPpmWeightEstimate}

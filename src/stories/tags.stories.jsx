@@ -1,7 +1,6 @@
 import React from 'react';
 import { Tag } from '@trussworks/react-uswds';
-
-import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default {
   title: 'Components|Tags',
@@ -21,7 +20,7 @@ export const all = () => (
     <Tag className="usa-tag--red">Rejected</Tag>
     <Tag className="usa-tag--yellow">Pending</Tag>
     <Tag className="usa-tag--alert">
-      <AlertIcon />
+      <FontAwesomeIcon icon="exclamation" />
     </Tag>
     <Tag className="usa-tag--teal">INTL</Tag>
     <Tag>3</Tag>

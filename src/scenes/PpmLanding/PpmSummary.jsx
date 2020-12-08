@@ -14,6 +14,7 @@ import CanceledMoveSummary from 'scenes/PpmLanding/MoveSummary/CanceledMoveSumma
 import DraftMoveSummary from 'scenes/PpmLanding/MoveSummary/DraftMoveSummary';
 import PaymentRequestedSummary from 'scenes/PpmLanding/MoveSummary/PaymentRequestedSummary';
 import SubmittedPpmMoveSummary from 'scenes/PpmLanding/MoveSummary/SubmittedPpmMoveSummary';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import './PpmSummary.css';
 
@@ -177,13 +178,14 @@ export class PpmSummaryComponent extends React.Component {
 }
 
 function mapStateToProps(state, ownProps) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.move.id, [
     'WEIGHT_TICKET_SET',
   ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
 
   return {
     isMissingWeightTicketDocuments,
-    originDutyStationZip: get(state, 'serviceMember.currentServiceMember.current_station.address.postal_code'),
+    originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
   };
 }
 

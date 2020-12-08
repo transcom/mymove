@@ -42,8 +42,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -67,7 +67,7 @@ func main() {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(dbEnv, v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		log.Fatalf("failed to initialize Zap logging due to %v", err)
 	}

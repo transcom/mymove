@@ -46,22 +46,22 @@ describe('the PPM flow', function () {
     // ppm@continue.requestingpayment
     const userId = '4ebc03b7-c801-4c0d-806c-a95aed242102';
 
-    cy.removeFetch();
-    cy.server();
-    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-    cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
-    cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
-    cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
-    cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
+    // TODO - commenting this out for now because cy.intercept has an open bug related to file upload endpoints
+    // https://github.com/cypress-io/cypress/issues/9534
+    // cy.intercept('POST', '**/internal/uploads').as('postUploadDocument');
+
+    cy.intercept('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
+    cy.intercept('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
+    cy.intercept('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
+    cy.intercept('POST', '**/moves/**/signed_certifications').as('signedCertifications');
     cy.apiSignInAsPpmUser(userId);
     SMContinueRequestPayment();
   });
 
-    it("should pass the lightouse & pa11y audits", function () {
-      cy.lighthouse();
-      cy.pa11y();
-    });
-
+  it('should pass the lightouse & pa11y audits', function () {
+    cy.lighthouse();
+    cy.pa11y();
+  });
 });
 
 function SMSubmitsMove() {
@@ -137,9 +137,7 @@ function SMSubmitsMove() {
   });
 
   cy.get('.usa-alert--success').within(() => {
-    cy.contains('Congrats - your move is submitted!');
-    cy.contains('Next, wait for approval. Once approved:');
-    cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
+    cy.contains('You’ve submitted your move request.');
   });
 }
 
@@ -198,9 +196,7 @@ function SMCompletesMove() {
   });
 
   cy.get('.usa-alert--success').within(() => {
-    cy.contains('Congrats - your move is submitted!');
-    cy.contains('Next, wait for approval. Once approved:');
-    cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
+    cy.contains('You’ve submitted your move request.');
   });
 
   cy.visit('/ppm');
@@ -312,12 +308,12 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
   cy.get('input[name="empty_weight"]').type('1000');
 
   cy.upload_file('[data-testid=empty-weight-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
   cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
@@ -326,12 +322,10 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
     cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
     cy.get('button').contains('Save & Add Another').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
     cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
     cy.get('button').contains('Save & Continue').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
   }
 }
-
-

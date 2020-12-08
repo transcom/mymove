@@ -1,0 +1,142 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.PaymentRequestCard {
+  @include u-margin-x(0);
+}
+
+.summary {
+}
+
+.header {
+  @include u-display(flex);
+  h6 {
+    @include u-display(flex);
+    @include u-margin-top(0);
+    @include u-margin-bottom(0);
+    color: $base;
+    align-items: center;
+  }
+
+  :global .usa-tag {
+    @include u-margin-left(1);
+    @include u-font-size('body', '3xs');
+
+    &.reviewed,
+    &.paid {
+      background-color: $base-lighter;
+    }
+  }
+}
+
+.prNumber {
+  text-transform: uppercase;
+  margin-right: 1em;
+}
+
+.dateSubmitted {
+  @include u-font-size('body', '3xs');
+  color: $base;
+  flex: 1;
+  text-align: right;
+}
+
+.totalReviewed {
+  @include u-display(flex);
+  @include u-padding-bottom(3);
+  border-bottom: 1px solid #dcdee0;
+
+  h2 {
+    @include u-margin-bottom(0.5);
+  }
+
+  .amountAccepted {
+    @include u-display(flex);
+    align-items: center;
+    margin-right: 6em;
+
+    svg {
+      @include u-margin-right(2);
+      height: 24px;
+      width: 24px;
+      path {
+        fill: $success;
+      }
+    }
+  }
+
+  .amountRejected {
+    @include u-display(flex);
+    align-items: center;
+
+    svg {
+      @include u-margin-right(2);
+      height: 24px;
+      width: 24px;
+      path {
+        fill: $error;
+      }
+    }
+  }
+
+  .reviewButton {
+    flex-grow: 1;
+  }
+
+  .reviewButton {
+    @include u-display(flex);
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+}
+
+.footer {
+  @include u-display(flex);
+  @include u-margin-top(2);
+  align-items: center;
+
+  dl {
+    @include u-margin-right(4);
+    @include u-margin-y(0);
+  }
+
+  dt {
+    display: inline;
+    font-weight: bold;
+
+    &:not(:first-of-type) {
+      @include u-margin-left(4);
+    }
+  }
+
+  dd {
+    display: inline;
+    @include u-margin-left(0.5);
+  }
+
+  a svg {
+    @include u-margin-right(1);
+  }
+
+  a:visited {
+    color: #0050d8;
+  }
+}
+
+.toggleDrawer {
+  @include u-display(flex);
+  flex: 1;
+  justify-content: flex-end;
+
+  svg {
+    margin-right: 0.5em;
+  }
+}
+
+.drawer {
+}
+
+.docs-icon {
+  margin-right: 12px;
+}

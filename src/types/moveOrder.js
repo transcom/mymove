@@ -142,10 +142,11 @@ export const PaymentServiceItemShape = PropTypes.shape({
 
 export const PaymentRequestShape = PropTypes.shape({
   id: PropTypes.string,
+  createdAt: PropTypes.string,
   moveTaskOrderID: PropTypes.string,
   paymentRequestNumber: PropTypes.string,
   status: PropTypes.string,
   eTag: PropTypes.string,
-  serviceItems: PropTypes.arrayOf(PropTypes.string),
+  serviceItems: PropTypes.arrayOf(PaymentServiceItemShape),
   reviewedAt: PropTypes.string,
 });

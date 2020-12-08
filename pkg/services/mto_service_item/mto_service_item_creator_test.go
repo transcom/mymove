@@ -19,26 +19,26 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type testMTOServiceItemQueryBuilder struct {
+type testCreateMTOServiceItemQueryBuilder struct {
 	fakeCreateOne   func(model interface{}) (*validate.Errors, error)
 	fakeFetchOne    func(model interface{}, filters []services.QueryFilter) error
 	fakeTransaction func(func(tx *pop.Connection) error) error
 	fakeUpdateOne   func(models interface{}, eTag *string) (*validate.Errors, error)
 }
 
-func (t *testMTOServiceItemQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
+func (t *testCreateMTOServiceItemQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
 	return t.fakeCreateOne(model)
 }
 
-func (t *testMTOServiceItemQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
+func (t *testCreateMTOServiceItemQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
 	return t.fakeUpdateOne(model, eTag)
 }
 
-func (t *testMTOServiceItemQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
+func (t *testCreateMTOServiceItemQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
 	return t.fakeFetchOne(model, filters)
 }
 
-func (t *testMTOServiceItemQueryBuilder) Transaction(fn func(tx *pop.Connection) error) error {
+func (t *testCreateMTOServiceItemQueryBuilder) Transaction(fn func(tx *pop.Connection) error) error {
 	return t.fakeTransaction(fn)
 }
 
@@ -68,7 +68,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			return nil, nil
 		}
 
-		builder := &testMTOServiceItemQueryBuilder{
+		builder := &testCreateMTOServiceItemQueryBuilder{
 			fakeCreateOne:   fakeCreateOne,
 			fakeFetchOne:    fakeFetchOne,
 			fakeTransaction: fakeTx,
@@ -110,7 +110,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			return fn(&pop.Connection{})
 		}
 
-		builder := &testMTOServiceItemQueryBuilder{
+		builder := &testCreateMTOServiceItemQueryBuilder{
 			fakeCreateOne:   fakeCreateOne,
 			fakeFetchOne:    fakeFetchOne,
 			fakeTransaction: fakeTx,
@@ -242,7 +242,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			return nil
 		}
 
-		builder := &testMTOServiceItemQueryBuilder{
+		builder := &testCreateMTOServiceItemQueryBuilder{
 			fakeCreateOne: fakeCreateOne,
 			fakeFetchOne:  fakeFetchOne,
 		}
@@ -280,7 +280,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		fakeTx := func(fn func(tx *pop.Connection) error) error {
 			return fn(&pop.Connection{})
 		}
-		builder := &testMTOServiceItemQueryBuilder{
+		builder := &testCreateMTOServiceItemQueryBuilder{
 			fakeCreateOne:   fakeCreateOne,
 			fakeFetchOne:    fakeFetchOne,
 			fakeTransaction: fakeTx,
@@ -769,6 +769,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDASIT)
+
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)

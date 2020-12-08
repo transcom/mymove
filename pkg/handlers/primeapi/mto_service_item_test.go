@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+	"github.com/transcom/mymove/pkg/unit"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
@@ -18,6 +19,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/stretchr/testify/mock"
@@ -48,16 +50,19 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-service-items", nil)
+	reason := "lorem ipsum"
+	sitEntryDate := time.Now()
+	sitPostalCode := "00000"
 
 	mtoServiceItem := models.MTOServiceItem{
-		MoveTaskOrderID:  mto.ID,
-		MTOShipmentID:    &mtoShipment.ID,
-		ReService:        models.ReService{Code: models.ReServiceCodeDOFSIT},
-		Reason:           nil,
-		PickupPostalCode: nil,
-		CreatedAt:        time.Now(),
-		UpdatedAt:        time.Now(),
+		MoveTaskOrderID: mto.ID,
+		MTOShipmentID:   &mtoShipment.ID,
+		ReService:       models.ReService{Code: models.ReServiceCodeDOFSIT},
+		Reason:          &reason,
+		SITEntryDate:    &sitEntryDate,
+		SITPostalCode:   &sitPostalCode,
 	}
+
 	params := mtoserviceitemops.CreateMTOServiceItemParams{
 		HTTPRequest: req,
 		Body:        payloads.MTOServiceItem(&mtoServiceItem),
@@ -71,6 +76,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mtoChecker,
 		}
 
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
@@ -234,13 +240,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		).Return(nil, nil, err)
 
 		mtoServiceItem := models.MTOServiceItem{
-			MoveTaskOrderID:  mto.ID,
-			MTOShipmentID:    &mtoShipment.ID,
-			ReService:        models.ReService{Code: models.ReServiceCodeMS},
-			Reason:           nil,
-			PickupPostalCode: nil,
-			CreatedAt:        time.Now(),
-			UpdatedAt:        time.Now(),
+			MoveTaskOrderID: mto.ID,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       models.ReService{Code: models.ReServiceCodeMS},
+			Reason:          nil,
+			CreatedAt:       time.Now(),
+			UpdatedAt:       time.Now(),
 		}
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
@@ -312,6 +317,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
@@ -333,6 +339,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
@@ -354,6 +361,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
@@ -387,7 +395,134 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
+func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
+	// Under test: createMTOServiceItemHandler function,
+	// - no DOPSIT standalone
+	// -  DOASIT standalone with DOFSIT
+
+	mto := testdatagen.MakeAvailableMove(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+	})
+	testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
+	builder := query.NewQueryBuilder(suite.DB())
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+
+	reason := "lorem ipsum"
+	sitEntryDate := time.Now()
+	sitPostalCode := "00000"
+
+	mtoServiceItem := models.MTOServiceItem{
+		MoveTaskOrderID: mto.ID,
+		MTOShipmentID:   &mtoShipment.ID,
+		ReService:       models.ReService{},
+		Reason:          &reason,
+		SITEntryDate:    &sitEntryDate,
+		SITPostalCode:   &sitPostalCode,
+	}
+
+	suite.T().Run("POST failure - 422 Cannot create DOPSIT standalone", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a DOPSIT MTOServiceItem
+		// Expected outcome:
+		//             Receive a 422 - Unprocessable Entity
+		// SETUP
+		// Create the payload
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDOPSIT
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		// CHECK RESULTS
+		suite.Error(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+
+	})
+
+	suite.T().Run("POST Failure - Cannot create DOASIT without DOFSIT", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a standalone DOASIT MTOServiceItem, no DOFSIT
+		// Expected outcome:
+		//             Receive a 404 - Not Found
+		// SETUP
+		// Create the payload
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		// CHECK RESULTS
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+
+	})
+
+	suite.T().Run("Sucessful POST - Create DOASIT with DOFSIT", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a standalone DOASIT MTOServiceItem
+		// Expected outcome:
+		//             Receive a 404 - Not Found
+		// SETUP
+		// Create the payload
+		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+			Move:        mto,
+			MTOShipment: mtoShipment,
+		})
+
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		// CHECK RESULTS
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+	})
+
+}
+
+func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
+
 	mto := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -397,7 +532,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-service-items", nil)
-
+	sitEntryDate := time.Now()
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID: mto.ID,
 		MTOShipmentID:   &mtoShipment.ID,
@@ -415,8 +550,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 				FirstAvailableDeliveryDate: time.Now(),
 			},
 		},
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+		SITEntryDate: &sitEntryDate,
 	}
 	params := mtoserviceitemops.CreateMTOServiceItemParams{
 		HTTPRequest: req,
@@ -431,44 +567,339 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 			mtoChecker,
 		}
 
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
+
+	suite.T().Run("Successful POST - Create DDASIT standalone", func(t *testing.T) {
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDDASIT
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		suite.NotZero(okResponse.Payload[0].ID())
+
+	})
+
+	suite.T().Run("POST Failure - Cannot create DDASIT without DDFSIT", func(t *testing.T) {
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDDASIT
+		mtoServiceItem.MTOShipment = mtoShipment
+		mtoServiceItem.MTOShipmentID = &mtoShipment.ID
+
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CHECK RESULTS
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+
+	})
+
+	suite.T().Run("POST failure - 422 Cannot create DDDSIT standalone", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a DDDSIT MTOServiceItem
+		// Expected outcome:
+		//             Receive a 422 - Unprocessable Entity
+		// SETUP
+		// Create the payload
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDDDSIT
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		// CHECK RESULTS
+		suite.Error(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+
+	})
 }
 
-func (suite *HandlerSuite) TestUpdateMTOServiceItemHandler() {
+func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 
-	// Under test: updateMTOServiceItemHandler function
-	// Set up:     We hit the endpoint with any data really
-	// Expected outcome:
-	//             Receive a 501 - Not Implemented Error
+	// Under test: updateMTOServiceItemHandler.Handle function
+	//             MTOServiceItemUpdater.Update service object function
 	// SETUP
-	// Create the payload
-	id := uuid.Must(uuid.NewV4())
-	payload := &primemessages.UpdateMTOServiceItemSIT{
-		ReServiceCode:    "DDFSIT",
-		SitDepartureDate: *handlers.FmtDate(time.Now()),
+	// Create the service item in the db for dofsit and dddsit
+	timeNow := time.Now()
+	dddsit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &timeNow,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate: swag.Time(time.Now()),
+		},
+		ReService: models.ReService{
+			Code: "DDDSIT",
+		},
+	})
+
+	// Create the payload with the desired update
+	reqPayload := &primemessages.UpdateMTOServiceItemSIT{
+		ReServiceCode:    "DDDSIT",
+		SitDepartureDate: *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
 	}
-	payload.SetID(strfmt.UUID(id.String()))
+	reqPayload.SetID(strfmt.UUID(dddsit.ID.String()))
 
 	// Create the handler
+	queryBuilder := query.NewQueryBuilder(suite.DB())
 	handler := UpdateMTOServiceItemHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
 	}
 
-	// CALL FUNCTION UNDER TEST
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", payload.ID()), nil)
-	eTag := etag.GenerateEtag(time.Now())
+	// create the params struct
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", dddsit.ID), nil)
+	eTag := etag.GenerateEtag(dddsit.UpdatedAt)
 	params := mtoserviceitemops.UpdateMTOServiceItemParams{
 		HTTPRequest: req,
-		Body:        payload,
+		Body:        reqPayload,
 		IfMatch:     eTag,
 	}
-	response := handler.Handle(params)
 
-	// CHECK RESULTS
-	suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotImplemented{}, response)
+	suite.T().Run("Successful PATCH - Updated SITDepartureDate on DOPSIT", func(t *testing.T) {
+		// Under test: updateMTOServiceItemHandler.Handle function
+		//             MTOServiceItemUpdater.Update service object function
+		// Set up:     We create an mto service item using DOFSIT (which was created above)
+		//             And send an update to the sit entry date
+		// Expected outcome:
+		//             Receive a success response with the SitDepartureDate updated
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemOK{}, response)
+		r := response.(*mtoserviceitemops.UpdateMTOServiceItemOK)
+		resp1 := r.Payload
+
+		respPayload := resp1.(*primemessages.MTOServiceItemDestSIT)
+		suite.Equal(reqPayload.ID(), respPayload.ID())
+		suite.Equal(reqPayload.SitDepartureDate.String(), respPayload.SitDepartureDate.String())
+
+		// Return to good state for next test
+		params.IfMatch = respPayload.ETag()
+
+	})
+
+	suite.T().Run("Failed PATCH - No DDDSIT found", func(t *testing.T) {
+		// Under test: updateMTOServiceItemHandler.Handle function
+		//             MTOServiceItemUpdater.Update service object function
+		// Set up:     We use a non existent DDDSIT item
+		//             And send an update to DOPSIT to the SitDepartureDate
+		// Expected outcome:
+		//             Receive a NotFound error response
+
+		// SETUP
+		// Replace the request path with a bad id that won't be found
+		badUUID := uuid.Must(uuid.NewV4())
+		badReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", badUUID), nil)
+		params.HTTPRequest = badReq
+		reqPayload.SetID(strfmt.UUID(badUUID.String()))
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotFound{}, response)
+
+		// return to good state for next test
+		params.HTTPRequest = req
+		reqPayload.SetID(strfmt.UUID(dddsit.ID.String()))
+	})
+
+	suite.T().Run("Failed PATCH - Payment request created", func(t *testing.T) {
+		// Under test: updateMTOServiceItemHandler.Handle function
+		//             MTOServiceItemUpdater.Update service object function
+		// Set up:     We use a DDDSIT that already has a payment request associated
+		//             Then try to update the SitDepartureDate on that
+		// Expected outcome:
+		//             Receive a ConflictError response
+
+		// SETUP
+		// Make a payment request and link to the dddsit service item
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		cost := unit.Cents(20000)
+		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &cost,
+			},
+			PaymentRequest: paymentRequest,
+			MTOServiceItem: dddsit,
+		})
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
+	})
+
+}
+
+func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
+
+	// Under test: updateMTOServiceItemHandler.Handle function
+	//             MTOServiceItemUpdater.Update service object function
+	// SETUP
+	// Create the service item in the db for dofsit and DOPSIT
+	timeNow := time.Now()
+	dopsit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &timeNow,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate: swag.Time(time.Now()),
+		},
+		ReService: models.ReService{
+			Code: "DOPSIT",
+		},
+	})
+
+	// Create the payload with the desired update
+	reqPayload := &primemessages.UpdateMTOServiceItemSIT{
+		ReServiceCode:    "DOPSIT",
+		SitDepartureDate: *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
+	}
+	reqPayload.SetID(strfmt.UUID(dopsit.ID.String()))
+
+	// Create the handler
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	handler := UpdateMTOServiceItemHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+	}
+
+	// create the params struct
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", dopsit.ID), nil)
+	eTag := etag.GenerateEtag(dopsit.UpdatedAt)
+	params := mtoserviceitemops.UpdateMTOServiceItemParams{
+		HTTPRequest: req,
+		Body:        reqPayload,
+		IfMatch:     eTag,
+	}
+
+	suite.T().Run("Successful PATCH - Updated SITDepartureDate on DOPSIT", func(t *testing.T) {
+		// Under test: updateMTOServiceItemHandler.Handle function
+		//             MTOServiceItemUpdater.Update service object function
+		// Set up:     We create an mto service item using DOFSIT (which was created above)
+		//             And send an update to the sit entry date
+		// Expected outcome:
+		//             Receive a success response with the SitDepartureDate updated
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemOK{}, response)
+		r := response.(*mtoserviceitemops.UpdateMTOServiceItemOK)
+		resp1 := r.Payload
+
+		respPayload := resp1.(*primemessages.MTOServiceItemOriginSIT)
+		suite.Equal(reqPayload.ID(), respPayload.ID())
+		suite.Equal(reqPayload.SitDepartureDate.String(), respPayload.SitDepartureDate.String())
+
+		// Return to good state for next test
+		params.IfMatch = respPayload.ETag()
+
+	})
+
+	suite.T().Run("Failed PATCH - No DOPSIT found", func(t *testing.T) {
+		// Under test: updateMTOServiceItemHandler.Handle function
+		//             MTOServiceItemUpdater.Update service object function
+		// Set up:     We use a non existent DOPSIT item
+		//             And send an update to DOPSIT to the SitDepartureDate
+		// Expected outcome:
+		//             Receive a NotFound error response
+
+		// SETUP
+		// Replace the request path with a bad id that won't be found
+		badUUID := uuid.Must(uuid.NewV4())
+		badReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", badUUID), nil)
+		params.HTTPRequest = badReq
+		reqPayload.SetID(strfmt.UUID(badUUID.String()))
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotFound{}, response)
+
+		// return to good state for next test
+		params.HTTPRequest = req
+		reqPayload.SetID(strfmt.UUID(dopsit.ID.String()))
+	})
+
+	suite.T().Run("Failed PATCH - Payment request created", func(t *testing.T) {
+		// Under test: updateMTOServiceItemHandler.Handle function
+		//             MTOServiceItemUpdater.Update service object function
+		// Set up:     We use a DOPSIT that already has a payment request associated
+		//             Then try to update the SitDepartureDate on that
+		// Expected outcome:
+		//             Receive a ConflictError response
+
+		// SETUP
+		// Make a payment request and link to the DOPSIT service item
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		cost := unit.Cents(20000)
+		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &cost,
+			},
+			PaymentRequest: paymentRequest,
+			MTOServiceItem: dopsit,
+		})
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
+	})
+
 }

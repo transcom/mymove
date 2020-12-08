@@ -49,6 +49,48 @@ will be returned in the response.
 
 To update a service item, please use [updateMTOServiceItem](#operation/updateMTOServiceItem) endpoint.
 
+---
+
+**`MTOServiceItemOriginSIT`**
+
+MTOServiceItemOriginSIT is a subtype of MTOServiceItem.
+
+This model type describes a domestic origin SIT service item. Items can be created using this
+model type with the following codes:
+
+**DOFSIT**
+
+**1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
+  * DOFSIT - Domestic origin 1st day SIT
+  * DOASIT - Domestic origin Additional day SIT
+  * DOPSIT - Domestic origin SIT pickup
+
+**DOASIT**
+
+**Addt'l days origin SIT service item**. This represents an additional day of storage for the same item.
+Additional DOASIT service items can be created and added to an existing shipment that **includes a DOFSIT service item**.
+
+---
+
+**`MTOServiceItemDestSIT`**
+
+MTOServiceItemDestSIT is a subtype of MTOServiceItem.
+
+This model type describes a domestic destination SIT service item. Items can be created using this
+model type with the following codes:
+
+**DDFSIT**
+
+**1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
+  * DDFSIT - Domestic destination 1st day SIT
+  * DDASIT - Domestic destination Additional day SIT
+  * DDDSIT - Domestic destination SIT delivery
+
+**DDASIT**
+
+**Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
+Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
+
 */
 func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams) (*CreateMTOServiceItemOK, error) {
 	// TODO: Validate the params before sending
@@ -104,7 +146,7 @@ func (a *Client) UpdateMTOServiceItem(params *UpdateMTOServiceItemParams) (*Upda
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "updateMTOServiceItem",
-		Method:             "POST",
+		Method:             "PATCH",
 		PathPattern:        "/mto-service-items/{mtoServiceItemID}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
