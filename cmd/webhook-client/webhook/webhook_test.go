@@ -479,7 +479,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 	// Mocked:     Client object that sends the HTTP request
 	// Set up:     We provide a PENDING webhook notification with an ACTIVE subscription.
 	//             Client returns failure repeatedly
-	//			   We update the firstAttemptedAt time to mimic a notification that's been failing
+	//             We update the firstAttemptedAt time to mimic a notification that's been failing
 	//             for a while to test the severity thresholds
 	// Expected outcome:
 	//             After first failure - notif marked as failing, subscription severity = 3
@@ -493,16 +493,11 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 	mockClient := engine.Client.(*mocks.WebhookRuntimeClient)
 	defer teardownEngineRun(suite)
 
-	// Delete 2 of the notifications
-	err := suite.DB().Destroy(&notifications[1])
-	suite.Nil(err)
-	err = suite.DB().Destroy(&notifications[2])
-	suite.Nil(err)
+	// We only need 1st notification, delete the others
+	suite.DB().Destroy(&notifications[1])
+	suite.DB().Destroy(&notifications[2])
 
-	// var responseSuccess = http.Response{
-	// 	Status:     "200 Success",
-	// 	StatusCode: 200,
-	// }
+	// Create a fail response for the mocked client to return
 	var responseFail = http.Response{
 		Status:     "400 Not Found Error",
 		StatusCode: 400,
@@ -517,11 +512,11 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// SETUP MOCKED OBJECT EXPECTATIONS
 		// Expectation: Client.Post will be called and will return failure
-		mockClient.On("Post", mock.Anything, subscriptions[0].CallbackURL).Return(&responseFail, nil, errors.New("webhook client fail"))
+		mockClient.On("Post", mock.Anything, subscriptions[0].CallbackURL).Return(&responseFail, nil, errors.New("Mocked webhook client fails to send"))
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err = engine.run()
+		err := engine.run()
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -530,7 +525,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 		// Check that the set expectations were met (the mockClient.On call)
 		numExpectedPosts += engine.MaxImmediateRetries
 		mockClient.AssertExpectations(suite.T())
-		mockClient.AssertNumberOfCalls(suite.T(), "Post", numExpectedPosts) // 3 calls expected for max immediate retries
+		mockClient.AssertNumberOfCalls(suite.T(), "Post", numExpectedPosts)
 
 		// Check that notification is marked as FAILING
 		suite.DB().Find(&notifications[0], notifications[0].ID)
@@ -555,7 +550,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err = engine.run()
+		err := engine.run()
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -592,7 +587,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err = engine.run()
+		err := engine.run()
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -629,7 +624,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err = engine.run()
+		err := engine.run()
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -651,7 +646,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 	})
 
-	suite.T().Run("Notification skipped", func(t *testing.T) {
+	suite.T().Run("Notification not tried again", func(t *testing.T) {
 
 		// Set up:     Notification has FAILED, subscription has been DISABLED
 		// Expected outcome:
@@ -659,7 +654,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
-		err = engine.run()
+		err := engine.run()
 
 		// VERIFY RESULTS
 		// Check that there was no error
@@ -669,6 +664,15 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 		// numExpectedPosts should have no change from previous run, because client was not called.
 		mockClient.AssertExpectations(suite.T())
 		mockClient.AssertNumberOfCalls(suite.T(), "Post", numExpectedPosts)
+
+		// Check that notification is marked as FAILING
+		suite.DB().Find(&notifications[0], notifications[0].ID)
+		suite.Equal(models.WebhookNotificationFailed, notifications[0].Status)
+
+		// Check that subscription is marked as DISABLED, with severity 1
+		suite.DB().Find(&subscriptions[0], subscriptions[0].ID)
+		suite.Equal(models.WebhookSubscriptionStatusDisabled, subscriptions[0].Status)
+		suite.Equal(1, subscriptions[0].Severity)
 
 	})
 
@@ -707,7 +711,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingRecovery() {
 		//             After failure - notif marked as FAILING, sub severity = 3, subscription status FAILING
 
 		// Make mockClient fail to send
-		mockClient.On("Post", mock.Anything, subscriptions[0].CallbackURL).Return(&responseFail, nil, errors.New("webhook client fail"))
+		mockClient.On("Post", mock.Anything, subscriptions[0].CallbackURL).Return(&responseFail, nil, errors.New("Mocked webhook client fails to send"))
 
 		// RUN TEST
 		// Call the engine function. Internally it should call the mocked client
