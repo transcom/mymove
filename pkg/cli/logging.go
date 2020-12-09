@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -91,6 +92,11 @@ func CheckLogging(v *viper.Viper) error {
 	if str := strings.ToLower(v.GetString(LoggingLevelFlag)); !stringSliceContains(allLoggingLevels, str) {
 		return &errInvalidLoggingLevel{Value: str, LoggingLevels: allLoggingLevels}
 	}
+
+	if err := ValidateStacktraceLength(v, StacktraceLengthFlag); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -99,4 +105,15 @@ func CheckLogging(v *viper.Viper) error {
 func LogLevelIsDebug(v *viper.Viper) bool {
 	logLevel := strings.ToLower(v.GetString(LoggingLevelFlag))
 	return logLevel == LoggingLevelDebug
+}
+
+// ValidateStacktraceLength validates STACKTRACE_LENGTH is an integer between 1 and 50
+func ValidateStacktraceLength(v *viper.Viper, flagname string) error {
+	stacktraceLength := v.GetInt(flagname)
+
+	if stacktraceLength <= 0 || stacktraceLength > 50 {
+		return errors.Errorf("%s must be an integer between 1 and 50, got %d", StacktraceLengthFlag, stacktraceLength)
+	}
+
+	return nil
 }
