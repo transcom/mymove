@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/services/invoice"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
@@ -46,9 +47,9 @@ func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 }
 
 // InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
-func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, sendToSyncada bool) services.PaymentRequestReviewedProcessor {
+func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, sendToSyncada bool, icnSequencer sequence.Sequencer) services.PaymentRequestReviewedProcessor {
 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(db)
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(db)
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(db, icnSequencer)
 	var sftpSession services.SyncadaSFTPSender
 	sftpSession, err := invoice.InitNewSyncadaSFTPSession()
 	if err != nil {

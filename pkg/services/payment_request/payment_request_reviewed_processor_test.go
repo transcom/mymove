@@ -153,7 +153,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 	suite.T().Run("process reviewed payment request successfully (0 Payments to review)", func(t *testing.T) {
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
 		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
 		var gexSender services.GexSender
 		gexSender = nil
@@ -183,7 +183,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		})
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
 		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
 		var gexSender services.GexSender
 		gexSender = nil
@@ -249,7 +249,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		prs := suite.createPaymentRequest(4)
 
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
 		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
 		var gexSender services.GexSender
 		gexSender = nil
@@ -286,7 +286,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		prs := suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
@@ -322,7 +322,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		_ = suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
@@ -350,6 +350,6 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 	suite.T().Run("process reviewed payment request, successfully test init function", func(t *testing.T) {
 		// Run init with no issues
-		_ = InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false)
+		_ = InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false, suite.icnSequencer)
 	})
 }
