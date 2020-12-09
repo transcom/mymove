@@ -8,6 +8,7 @@ module.exports = {
     '@storybook/addon-knobs',
     '@storybook/addon-links',
     '@storybook/addon-viewport',
+    'storybook-addons-abstract',
     {
       name: '@storybook/addon-docs',
       options: {
