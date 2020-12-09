@@ -5,7 +5,7 @@ import { SHIPMENT_OPTIONS } from '../../../shared/constants';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable';
 
 export default {
-  title: 'TOO/TIO Components/Shipment Service Items Table',
+  title: 'Office Components/Shipment Service Items Table',
   component: ShipmentServiceItemsTable,
 };
 

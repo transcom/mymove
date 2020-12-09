@@ -6,7 +6,7 @@ import OrdersTable from './OrdersTable';
 import { MockProviders } from 'testUtils';
 
 export default {
-  title: 'TOO/TIO Components/OrdersTable',
+  title: 'Office Components/OrdersTable',
   component: OrdersTable,
   decorators: [
     (Story) => (

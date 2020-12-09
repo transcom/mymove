@@ -4,7 +4,7 @@ import { text, object } from '@storybook/addon-knobs';
 import CustomerRemarksAgentsDetails from 'components/CustomerRemarksAgentsDetails';
 
 export default {
-  title: 'TOO/TIO Components/CustomerRemarksAgentsDetails',
+  title: 'Office Components/CustomerRemarksAgentsDetails',
 };
 
 export const WithNoDetails = () => (

@@ -15,7 +15,7 @@ const info = {
 };
 
 export default {
-  title: 'TOO/TIO Components/AllowancesTable',
+  title: 'Office Components/AllowancesTable',
 };
 
 export const Default = () => <AllowancesTable info={object('info', info)} />;

@@ -21,4 +21,4 @@ export const shipmentHeading = () => (
   />
 );
 
-export default { title: 'TOO/TIO Components/ShipmentHeading' };
+export default { title: 'Office Components/ShipmentHeading' };

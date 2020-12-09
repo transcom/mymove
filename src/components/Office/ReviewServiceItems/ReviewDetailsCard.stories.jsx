@@ -6,7 +6,7 @@ import RejectRequest from './RejectRequest';
 import AuthorizePayment from './AuthorizePayment';
 
 export default {
-  title: 'TOO/TIO Components/ReviewServiceItems/ReviewDetails',
+  title: 'Office Components/ReviewServiceItems/ReviewDetails',
   component: ReviewDetailsCard,
 };
 

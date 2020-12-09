@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 import AuthorizePaymentComponent from './AuthorizePayment';
 
 export default {
-  title: 'TOO/TIO Components/ReviewServiceItems/ReviewDetails',
+  title: 'Office Components/ReviewServiceItems/ReviewDetails',
   component: AuthorizePaymentComponent,
 };
 

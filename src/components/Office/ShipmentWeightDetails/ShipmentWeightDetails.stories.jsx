@@ -3,7 +3,7 @@ import React from 'react';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 export default {
-  title: 'TOO/TIO Components/ShipmentWeightDetails',
+  title: 'Office Components/ShipmentWeightDetails',
   decorators: [
     (storyFn) => (
       <div id="containers" style={{ padding: '20px' }}>

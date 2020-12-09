@@ -22,7 +22,7 @@ const info = {
 };
 
 export default {
-  title: 'TOO/TIO Components/CustomerInfoTable',
+  title: 'Office Components/CustomerInfoTable',
 };
 
 export const Default = () => <CustomerInfoTable customerInfo={object('customerInfo', info)} />;

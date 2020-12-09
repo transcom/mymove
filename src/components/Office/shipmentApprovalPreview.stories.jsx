@@ -183,4 +183,4 @@ export const approvalPreviewWithShipments = () => (
   />
 );
 
-export default { title: 'TOO/TIO Components/ShipmentApprovalPreview' };
+export default { title: 'Office Components/ShipmentApprovalPreview' };

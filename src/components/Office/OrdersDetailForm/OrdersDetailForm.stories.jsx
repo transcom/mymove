@@ -43,7 +43,7 @@ const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 
 export default {
-  title: 'TOO/TIO Components/OrdersDetailForm',
+  title: 'Office Components/OrdersDetailForm',
   component: OrdersDetailForm,
   decorators: [
     (Story) => (

@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 import NeedsReviewComponent from './NeedsReview';
 
 export default {
-  title: 'TOO/TIO Components/ReviewServiceItems/ReviewDetails',
+  title: 'Office Components/ReviewServiceItems/ReviewDetails',
   component: NeedsReviewComponent,
 };
 

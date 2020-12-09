@@ -12,7 +12,7 @@ import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddre
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 export default {
-  title: 'TOO/TIO Components/ShipmentContainer',
+  title: 'Office Components/ShipmentContainer',
   component: ShipmentContainer,
 };
 
