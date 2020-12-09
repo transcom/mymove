@@ -224,7 +224,6 @@ describe('TextMaskedInput', () => {
     // caveat here is that the prop value will stay unmasked
     // but we can test the html element value to get the display masked value
     it('render a IMaskInput with expected unmasked prop value', () => {
-      // const textInput = wrapper.find(FormGroup).find(IMaskInput);
       const textInput = wrapper.find(FormGroup).find(IMaskInput).getDOMNode();
       expect(textInput.value).toBe('800 lbs');
     });
