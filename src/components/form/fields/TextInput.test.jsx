@@ -200,7 +200,6 @@ describe('TextMaskedInput', () => {
   });
 
   describe('with masking', () => {
-    const mockOnAccept = jest.fn();
     const wrapper = mount(
       <TextMaskedInput
         // value={"8000"}
@@ -218,7 +217,6 @@ describe('TextMaskedInput', () => {
             signed: false, // positive numbers
           },
         }}
-        onAccept={mockOnAccept}
         value="800"
       />,
     );
