@@ -43,6 +43,11 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
 	}
 
+	supportAPI.MoveTaskOrderHideNonFakeMoveTaskOrdersHandler = HideNonFakeMoveTaskOrdersHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderHider(context.DB()),
+	}
+
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
 		context,
 		movetaskorder.NewMoveTaskOrderFetcher(context.DB())}

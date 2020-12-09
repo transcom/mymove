@@ -582,3 +582,4 @@
 20201117222119_alter_users_login_gov_uuid_nullable.up.sql
 20201117222339_create_user_records_for_office_and_admin_users_without.up.sql
 20201120174609_add_indexes_for_move_selected_type.up.sql
+20201207223002_create_zip3_distances.up.sql

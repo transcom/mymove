@@ -131,6 +131,51 @@ func init() {
         }
       }
     },
+    "/move-task-orders/hide": {
+      "patch": {
+        "description": "Updates move task order without fake user data ` + "`" + `show` + "`" + ` to false. No request body required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "hideNonFakeMoveTaskOrders",
+        "operationId": "hideNonFakeMoveTaskOrders",
+        "responses": {
+          "200": {
+            "description": "Successfully hid MTOs.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n\nThis is a support endpoint and is not available in production.\n",
@@ -2041,6 +2086,72 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/move-task-orders/hide": {
+      "patch": {
+        "description": "Updates move task order without fake user data ` + "`" + `show` + "`" + ` to false. No request body required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "hideNonFakeMoveTaskOrders",
+        "operationId": "hideNonFakeMoveTaskOrders",
+        "responses": {
+          "200": {
+            "description": "Successfully hid MTOs.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
