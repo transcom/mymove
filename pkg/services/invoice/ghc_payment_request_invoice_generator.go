@@ -50,7 +50,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	// check or load orders
 	if moveTaskOrder.ReferenceID == nil {
-		return ediinvoice.Invoice858C{}, services.NewBadDataError("Invalid move taskorder. Must have a ReferenceID value")
+		return ediinvoice.Invoice858C{}, services.NewConflictError(moveTaskOrder.ID, "Invalid move taskorder. Must have a ReferenceID value")
 	}
 
 	if moveTaskOrder.Orders.ID == uuid.Nil {
@@ -247,7 +247,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// rank
 	rank := serviceMember.Rank
 	if rank == nil {
-		return []edisegment.Segment{}, services.NewBadDataError(fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+		return []edisegment.Segment{}, services.NewConflictError(serviceMember.ID, fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
 	}
 	serviceMemberRank := edisegment.N9{
 		ReferenceIdentificationQualifier: "ML",
@@ -258,7 +258,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// branch
 	branch := serviceMember.Affiliation
 	if branch == nil {
-		return []edisegment.Segment{}, services.NewBadDataError(fmt.Sprintf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+		return []edisegment.Segment{}, services.NewConflictError(serviceMember.ID, fmt.Sprintf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
 	}
 	serviceMemberBranch := edisegment.N9{
 		ReferenceIdentificationQualifier: "3L",
@@ -337,7 +337,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 			return []edisegment.Segment{}, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
+		return []edisegment.Segment{}, services.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
@@ -377,7 +377,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 			return []edisegment.Segment{}, services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
 		}
 	} else {
-		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have NewDutyStation")
+		return []edisegment.Segment{}, services.NewConflictError(orders.ID, "Invalid Order, must have NewDutyStation")
 	}
 
 	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, destinationDutyStation.ID)
@@ -448,7 +448,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 			return []edisegment.Segment{}, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
+		return []edisegment.Segment{}, services.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
@@ -599,7 +599,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 	// Iterate over payment service items
 	for idx, serviceItem := range paymentServiceItems {
 		if serviceItem.PriceCents == nil {
-			return segments, services.NewBadDataError("Invalid service item. Must have a PriceCents value")
+			return segments, services.NewConflictError(serviceItem.ID, "Invalid service item. Must have a PriceCents value")
 		}
 		hierarchicalIDNumber := idx + 1
 		// Build and put together the segments
