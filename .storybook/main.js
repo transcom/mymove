@@ -3,12 +3,11 @@ module.exports = {
   addons: [
     '@storybook/preset-create-react-app',
     '@storybook/addon-a11y',
-    '@storybook/addon-actions',
     '@storybook/addon-essentials',
     '@storybook/addon-knobs',
     '@storybook/addon-links',
-    '@storybook/addon-viewport',
     'storybook-addons-abstract',
+    '@dump247/storybook-state',
     {
       name: '@storybook/addon-docs',
       options: {
