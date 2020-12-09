@@ -130,12 +130,12 @@ func (fje *filteredJSONEncoder) Clone() zapcore.Encoder {
 
 func (fce *filteredConsoleEncoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (*buffer.Buffer, error) {
 	ent = filteredAndLimitedStackTrace(ent, fce.stacktraceLength)
-	return fce.consoleEncoder.EncodeEntry(ent, fields)
+	return fce.Encoder.EncodeEntry(ent, fields)
 }
 
 func (fje *filteredJSONEncoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (*buffer.Buffer, error) {
 	ent = filteredAndLimitedStackTrace(ent, fje.stacktraceLength)
-	return fje.jsonEncoder.EncodeEntry(ent, fields)
+	return fje.Encoder.EncodeEntry(ent, fields)
 }
 
 // Filter the stack trace to only return lines from the mymove codebase
