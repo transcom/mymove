@@ -224,11 +224,11 @@ describe('TextMaskedInput', () => {
     );
 
     // caveat here is that the prop value will stay unmasked
-    // will leave the masked value capture up to happo
+    // but we can test the html element value to get the display masked value
     it('render a IMaskInput with expected unmasked prop value', () => {
-      const textInput = wrapper.find(FormGroup).find(IMaskInput);
-      expect(textInput.length).toBe(1);
-      expect(textInput.prop('value')).toBe('800');
+      // const textInput = wrapper.find(FormGroup).find(IMaskInput);
+      const textInput = wrapper.find(FormGroup).find(IMaskInput).getDOMNode();
+      expect(textInput.value).toBe('800 lbs');
     });
   });
 
