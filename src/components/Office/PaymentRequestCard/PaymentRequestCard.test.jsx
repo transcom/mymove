@@ -169,7 +169,7 @@ describe('PaymentRequestCard', () => {
     );
 
     it('renders the reviewed status tag', () => {
-      expect(wrapper.find({ 'data-testid': 'tag' }).contains('REVIEWED')).toBe(true);
+      expect(wrapper.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
     });
 
     it('sums the approved service items total', () => {
@@ -196,6 +196,107 @@ describe('PaymentRequestCard', () => {
 
       expect(rejected.find('.amountRejected h2').contains('$60,000.02')).toBe(true);
       expect(rejected.find('.amountAccepted').exists()).toBe(false);
+    });
+  });
+
+  describe('payment request gex statuses', () => {
+    it('renders the reviewed status tag for sent_to_gex', () => {
+      const sentToGexPaymentRequest = {
+        id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+        paymentRequestNumber: '1843-9061-2',
+        status: 'SENT_TO_GEX',
+        serviceItems: [
+          {
+            id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+            createdAt: '2020-12-01T00:00:00.000Z',
+            mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+            priceCents: 2000001,
+            status: 'DENIED',
+          },
+          {
+            id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+            createdAt: '2020-12-01T00:00:00.000Z',
+            mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+            priceCents: 4000001,
+            status: 'DENIED',
+            rejectionReason: 'duplicate charge',
+          },
+        ],
+      };
+      const sentToGex = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+          <PaymentRequestCard paymentRequest={sentToGexPaymentRequest} />
+        </MockProviders>,
+      );
+      expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
+    });
+
+    it('renders the reviewed status tag for received_by_gex', () => {
+      const receivedByGexPaymentRequest = {
+        id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+        paymentRequestNumber: '1843-9061-2',
+        status: 'RECEIVED_BY_GEX',
+        serviceItems: [
+          {
+            id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+            createdAt: '2020-12-01T00:00:00.000Z',
+            mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+            priceCents: 2000001,
+            status: 'DENIED',
+          },
+          {
+            id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+            createdAt: '2020-12-01T00:00:00.000Z',
+            mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+            priceCents: 4000001,
+            status: 'DENIED',
+            rejectionReason: 'duplicate charge',
+          },
+        ],
+      };
+      const receivedByGex = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+          <PaymentRequestCard paymentRequest={receivedByGexPaymentRequest} />
+        </MockProviders>,
+      );
+      expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
+    });
+
+    it('renders the paid status tag for paid request', () => {
+      const paidPaymentRequest = {
+        id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+        paymentRequestNumber: '1843-9061-2',
+        status: 'PAID',
+        serviceItems: [
+          {
+            id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+            createdAt: '2020-12-01T00:00:00.000Z',
+            mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+            priceCents: 2000001,
+            status: 'DENIED',
+          },
+          {
+            id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+            createdAt: '2020-12-01T00:00:00.000Z',
+            mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+            priceCents: 4000001,
+            status: 'DENIED',
+            rejectionReason: 'duplicate charge',
+          },
+        ],
+      };
+      const paid = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+          <PaymentRequestCard paymentRequest={paidPaymentRequest} />
+        </MockProviders>,
+      );
+      expect(paid.find({ 'data-testid': 'tag' }).contains('Paid')).toBe(true);
     });
   });
 });
