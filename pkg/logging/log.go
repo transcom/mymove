@@ -147,7 +147,7 @@ func filteredAndLimitedStackTrace(ent zapcore.Entry, stacktraceLength int) zapco
 	}
 
 	var matchingLines []string
-	searchTerm := "mymove/pkg"
+	searchTerm := "mymove"
 
 	stacktraceLines := strings.Split(ent.Stack, "\n")
 
