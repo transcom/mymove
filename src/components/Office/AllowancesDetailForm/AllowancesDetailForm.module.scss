@@ -1,0 +1,15 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+@import 'shared/styles/_custom';
+
+.AllowancesDetailForm {
+  label {
+    @include u-margin-bottom(1);
+    color: $base-darker;
+  }
+
+  :global .DayPickerInput {
+    display: block;
+  }
+}
