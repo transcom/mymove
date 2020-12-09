@@ -96,7 +96,7 @@
     "start": "rescripts start",
     "test": "rescripts test --env=jsdom",
     "test:debug": "rescripts --inspect-brk test --runInBand --env=jsdom",
-    "test:coverage": "rescripts test --coverage --env=jsdom --watchAll=false --coverageDirectory=coverage",
+    "test:coverage": "rescripts test --coverage --env=jsdom --watchAll=false --coverageDirectory=coverage --runInBand",
     "test:e2e": "cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-clean": "make db_dev_e2e_populate; yarn test:e2e",
     "test:e2e-debug": "DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
