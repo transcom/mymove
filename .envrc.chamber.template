@@ -4,7 +4,7 @@
 # Load Secrets from Chamber #
 #############################
 
-# Secrets should also be added to chamber with `chamber write app-devlocal lower_case_version secret_key`
+# Secrets should also be added to chamber with `DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber write app-devlocal lower_case_version secret_key`
 
 # This line grabs any available secrets in app-devlocal and adds them to the environment.
 # Lines that begin with `require ...` should still run to verify the secret is set.
