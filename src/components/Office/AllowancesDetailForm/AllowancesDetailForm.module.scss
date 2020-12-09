@@ -4,10 +4,15 @@
 @import 'shared/styles/_custom';
 
 .AllowancesDetailForm {
+  :global .usa-form-group {
+    @include u-margin-bottom(3);
+  }
+
   label {
     @include u-margin-bottom(1);
     color: $base-darker;
   }
+
   dt {
     @include u-font-size('base', 2);
     @include u-font-weight(bold);
