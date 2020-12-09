@@ -8,8 +8,4 @@
     @include u-margin-bottom(1);
     color: $base-darker;
   }
-
-  :global .DayPickerInput {
-    display: block;
-  }
 }
