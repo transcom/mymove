@@ -158,4 +158,28 @@ describe('TOO user', () => {
     cy.contains('Approved service items (7 items)');
     cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
   });
+
+  it('is able to edit allowances', () => {
+    const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
+    const moveLocator = 'TEST12';
+
+    // TOO Moves queue
+    cy.wait(['@getSortedMoveOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveOrderId}/details`);
+
+    // Move Details page
+    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // Edit allowances page | Save
+    cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+    cy.url().should('include', `/moves/${moveOrderId}/allowances`);
+    cy.get('button').contains('Save').click();
+    cy.url().should('include', `/moves/${moveOrderId}/details`);
+
+    // Edit allowances page | Cancel
+    cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+    cy.get('button').contains('Cancel').click();
+    cy.url().should('include', `/moves/${moveOrderId}/details`);
+  });
 });

@@ -8,4 +8,14 @@
     @include u-margin-bottom(1);
     color: $base-darker;
   }
+  dt {
+    @include u-font-size('base', 2);
+    @include u-font-weight(bold);
+    color: $base-darker;
+  }
+
+  dd {
+    @include u-margin-left(0);
+    @include u-margin-bottom(3);
+  }
 }

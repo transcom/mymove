@@ -1,9 +1,8 @@
 import React from 'react';
-import { withKnobs } from '@storybook/addon-knobs';
-import * as Yup from 'yup';
+import { withKnobs, object } from '@storybook/addon-knobs';
 import { Formik } from 'formik';
 
-import AllowancesDetailForm from 'components/Office/AllowancesDetailForm/AllowancesDetailForm';
+import AllowancesDetailForm from './AllowancesDetailForm';
 
 export default {
   title: 'TOO/TIO Components|AllowancesDetailForm',
@@ -18,33 +17,29 @@ export default {
   ],
 };
 
-export const EmptyValues = () => (
-  <Formik
-    initialValues={{
-      authorizedWeight: '0',
-    }}
-  >
-    <form>
-      <AllowancesDetailForm />
-    </form>
-  </Formik>
-);
+const entitlement = {
+  authorizedWeight: 1950,
+  dependentsAuthorized: true,
+  nonTemporaryStorage: true,
+  privatelyOwnedVehicle: false,
+  proGearWeight: 1500,
+  proGearWeightSpouse: 1000,
+  storageInTransit: 90,
+  totalWeight: 12875,
+  totalDependents: 2,
+};
 
-export const InitialValues = () => {
+export const Basic = () => {
   return (
-    <>
-      <Formik
-        initialValues={{
-          authorizedWeight: '8000',
-        }}
-        validationSchema={Yup.object({
-          authorizedWeight: Yup.number().required('Required'),
-        })}
-      >
-        <form>
-          <AllowancesDetailForm />
-        </form>
-      </Formik>
-    </>
+    <Formik
+      initialValues={{
+        authorizedWeight: '8000',
+      }}
+      onSubmit={() => {}}
+    >
+      <form>
+        <AllowancesDetailForm entitlements={object('entitlement', entitlement)} />
+      </form>
+    </Formik>
   );
 };

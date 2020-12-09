@@ -3,11 +3,12 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/_custom';
 
-.OrdersTable {
+.MoveDetailTable {
   @include u-padding-y(2);
   :global .stackedtable-header {
     max-width: unset;
     h4 {
+      @include u-font-weight(bold);
       color: $base-darkest;
     }
 
