@@ -1,0 +1,16 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+@import 'shared/styles/_custom';
+
+.AllowancesDetailForm {
+  dt {
+    @include u-font-weight(bold);
+    color: $base-darker;
+  }
+
+  dd {
+    @include u-margin-left(0);
+    @include u-margin-bottom(3);
+  }
+}
