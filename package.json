@@ -46,6 +46,7 @@
     "react-form": "^4.0.1",
     "react-highlight-words": "^0.16.0",
     "react-idle-timer": "^4.5.0",
+    "react-imask": "^6.0.5",
     "react-loadable": "^5.3.1",
     "react-numeric-input": "^2.2.3",
     "react-query": "^2.26.3",
@@ -173,6 +174,7 @@
         "lines": 40,
         "statements": 40
       }
-    }
+    },
+    "transformIgnorePatterns": ["node_modules/(?!(imask)/)/"]
   }
 }
