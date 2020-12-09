@@ -217,7 +217,7 @@ describe('TextMaskedInput', () => {
             signed: false, // positive numbers
           },
         }}
-        value="800"
+        value="8000"
       />,
     );
 
@@ -225,7 +225,7 @@ describe('TextMaskedInput', () => {
     // but we can test the html element value to get the display masked value
     it('render a IMaskInput with expected unmasked prop value', () => {
       const textInput = wrapper.find(FormGroup).find(IMaskInput).getDOMNode();
-      expect(textInput.value).toBe('800 lbs');
+      expect(textInput.value).toBe('8,000 lbs');
     });
   });
 
