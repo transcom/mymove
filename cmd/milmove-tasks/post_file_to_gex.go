@@ -79,7 +79,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	// Create the logger
 	v := viper.New()
 
-	logger, err := logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetString(cli.LoggingLevelFlag))
+	logger, err := logging.Config(logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
 	}
@@ -111,7 +111,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	// make sure edi ends in new line
 	ediString = strings.TrimSpace(ediString) + "\n"
 
-	certLogger, err := logging.Config("development", v.GetString(cli.LoggingLevelFlag))
+	certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		logger.Fatal("Failed to initialize Zap loggingv", zap.Error(err))
 	}

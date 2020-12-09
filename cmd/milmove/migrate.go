@@ -118,7 +118,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	loggingEnv := v.GetString(cli.LoggingEnvFlag)
 
-	logger, errLogging := logging.Config(loggingEnv, v.GetString(cli.LoggingLevelFlag))
+	logger, errLogging := logging.Config(logging.WithEnvironment(loggingEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if errLogging != nil {
 		return errors.Wrapf(errLogging, "failed to initialize zap logging")
 	}

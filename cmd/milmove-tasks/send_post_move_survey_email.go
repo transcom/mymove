@@ -78,7 +78,7 @@ func sendPostMoveSurvey(cmd *cobra.Command, args []string) error {
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	offsetDays := v.GetInt(offsetFlag)
 
-	logger, err := logging.Config(dbEnv, v.GetString(cli.LoggingLevelFlag))
+	logger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
