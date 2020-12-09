@@ -1,4 +1,6 @@
 import React from 'react';
+import moment from 'moment';
+import { isHappoRun } from 'happo-plugin-storybook/register';
 
 import PaymentRequestCard from './PaymentRequestCard';
 
@@ -18,9 +20,12 @@ export default {
   ],
 };
 
+// Makes Happo diff consistently show PR submitted 7 days ago
+const itsBeenOneWeek = moment().subtract(7, 'days').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+
 const pendingPaymentRequest = {
   id: '09474c6a-69b6-4501-8e08-670a12512e5f',
-  createdAt: '2020-12-01T00:00:00.000Z',
+  createdAt: isHappoRun() ? itsBeenOneWeek : '2020-12-01T00:00:00.000Z',
   moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
   paymentRequestNumber: '1843-9061-1',
   status: 'PENDING',
@@ -38,7 +43,7 @@ const pendingPaymentRequest = {
 
 const reviewedPaymentRequest = {
   id: '09474c6a-69b6-4501-8e08-670a12512e5f',
-  createdAt: '2020-12-01T00:00:00.000Z',
+  createdAt: isHappoRun() ? itsBeenOneWeek : '2020-12-01T00:00:00.000Z',
   moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
   paymentRequestNumber: '1843-9061-1',
   status: 'REVIEWED',
@@ -64,7 +69,7 @@ const reviewedPaymentRequest = {
 
 const rejectedPaymentRequest = {
   id: '09474c6a-69b6-4501-8e08-670a12512e5f',
-  createdAt: '2020-12-01T00:00:00.000Z',
+  createdAt: isHappoRun() ? itsBeenOneWeek : '2020-12-01T00:00:00.000Z',
   moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
   paymentRequestNumber: '1843-9061-1',
   status: 'REVIEWED',
