@@ -2054,6 +2054,13 @@
   dependencies:
     ramda "^0.26.0"
 
+"@rescripts/utilities@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.8.tgz#7f7c0269e1046fa5162328c813102da9b85ba823"
+  integrity sha512-4SA7rQpawKumDDWhUfDZ/Er8+Maup7d1nv3AcyVxqdUd6RRuR0x5W5npYjefnTaSUUDV3+okhPFTDWkiSOAWNg==
+  dependencies:
+    ramda "^0.26.0"
+
 "@samverschueren/stream-to-observable@^0.3.0":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@samverschueren/stream-to-observable/-/stream-to-observable-0.3.1.tgz#a21117b19ee9be70c379ec1877537ef2e1c63301"
