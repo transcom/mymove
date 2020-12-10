@@ -43,17 +43,7 @@ func WithStacktraceLength(length int) ZapConfigOption {
 
 // Config configures a Zap logger based on the environment string and debugLevel
 func Config(opts ...ZapConfigOption) (*zap.Logger, error) {
-	const (
-		defaultEnvironment      = "development"
-		defaultLoggingLevel     = "info"
-		defaultStacktraceLength = 6
-	)
-
-	config := &ZapConfig{
-		Environment:      defaultEnvironment,
-		LoggingLevel:     defaultLoggingLevel,
-		StacktraceLength: defaultStacktraceLength,
-	}
+	config := &ZapConfig{}
 
 	for _, opt := range opts {
 		opt(config)
