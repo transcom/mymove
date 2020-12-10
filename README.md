@@ -234,7 +234,7 @@ Run `direnv allow` to load up the `.envrc` file. It should complain that you hav
 
 You can add a `.envrc.local` file. One way to do this is using the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault. To use the AWS vault you will need to follow the [instructions to set up AWS first](#setup-aws-services-optional).
 
-Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
+Then run `DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
 
 If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`. **Note also** if you have a very poor internet connection, this method may be problematic to you. We still strongly recommend the `.envrc.chamber` route over the `.envrc.local` one, but if necessary you may follow the `.envrc.local` steps instead.
 
@@ -496,8 +496,8 @@ In development, we use [direnv](https://direnv.net/) to setup environment variab
     ```
 
 Required variables should be placed in google docs and linked in `.envrc`. The value should also be placed in `chamber`
-with `chamber write app-devlocal <key> <value>`. For long blocks of text like certificates you can write them with
-`echo "$LONG_VALUE" | chamber write app-devlocal <key> -`.
+with `DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber write app-devlocal <key> <value>`. For long blocks of text like certificates you can write them with
+`echo "$LONG_VALUE" | DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber write app-devlocal <key> -`.
 
 For per-tier environment variables (that are not secret), simply add the variables to the relevant `config/env/[experimental|staging|prod].env` file with the format `NAME=VALUE` on each line.  Then add the relevant section to `config/app.container-definition.json`.  The deploy process uses Go's [template package](https://golang.org/pkg/text/template/) for rendering the container definition.  For example,
 
