@@ -10,6 +10,7 @@ const AllowancesDetailForm = ({ entitlements }) => {
   return (
     <div className={styles.AllowancesDetailForm}>
       <TextMaskedInput
+        defaultValue="0"
         name="authorizedWeight"
         label="Authorized weight"
         id="authorizedWeightInput"

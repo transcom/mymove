@@ -54,7 +54,7 @@ describe('AllowancesDetailForm', () => {
 
   it('uses defaults for undefined values', () => {
     const wrapperNoProps = mount(
-      <Formik initialValues={{ authorizedWeight: '0' }} onSubmit={jest.fn()}>
+      <Formik initialValues={{ authorizedWeight: null }} onSubmit={jest.fn()}>
         <form>
           <AllowancesDetailForm entitlements={{}} />
         </form>
