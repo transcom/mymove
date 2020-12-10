@@ -40,7 +40,7 @@ const MoveAllowances = ({ history, match }) => {
   const initialValues = { authorizedWeight: `${authorizedWeight}` };
 
   const validationSchema = Yup.object({
-    authorizedWeight: Yup.number().required('Required'),
+    authorizedWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
   });
 
   return (
