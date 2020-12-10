@@ -11,18 +11,20 @@ import { WizardPage } from 'shared/WizardPage/index';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MatchShape, HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
+import { createMTOShipment, patchMTOShipment, getResponseError } from 'services/internalApi';
+import Alert from 'shared/Alert';
 
 class MtoShipmentForm extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      errorMessage: null,
+    };
+  }
+
   submitMTOShipment = ({ shipmentType, pickup, hasDeliveryAddress, delivery, customerRemarks }) => {
-    const {
-      createMTOShipment,
-      updateMTOShipment,
-      history,
-      match,
-      selectedMoveType,
-      isCreatePage,
-      mtoShipment,
-    } = this.props;
+    const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
 
     const deliveryDetails = delivery;
@@ -39,11 +41,28 @@ class MtoShipmentForm extends Component {
     });
 
     if (isCreatePage) {
-      createMTOShipment(pendingMtoShipment);
+      createMTOShipment(pendingMtoShipment)
+        .then((response) => {
+          updateMTOShipment(response);
+        })
+        .catch((e) => {
+          const { response } = e;
+          const errorMessage = getResponseError(response, 'failed to create MTO shipment due to server error');
+
+          this.setState({ errorMessage });
+        });
     } else {
-      updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag).then(() => {
-        history.push(`/moves/${moveId}/review`);
-      });
+      patchMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag)
+        .then((response) => {
+          updateMTOShipment(response);
+          history.push(`/moves/${moveId}/review`);
+        })
+        .catch((e) => {
+          const { response } = e;
+          const errorMessage = getResponseError(response, 'failed to update MTO shipment due to server error');
+
+          this.setState({ errorMessage });
+        });
     }
   };
 
@@ -69,6 +88,7 @@ class MtoShipmentForm extends Component {
       serviceMember,
       currentResidence,
     } = this.props;
+    const { errorMessage } = this.state;
 
     const shipmentType = selectedMoveType || mtoShipment.shipmentType;
     const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType);
@@ -146,6 +166,7 @@ class MtoShipmentForm extends Component {
                 pageList={pageList}
                 push={history.push}
                 handleSubmit={() => this.submitMTOShipment(values, dirty)}
+                error={errorMessage}
               >
                 <MtoShipmentFormFields
                   {...commonFormProps}
@@ -161,6 +182,13 @@ class MtoShipmentForm extends Component {
             <div className="grid-container usa-prose">
               <div className="grid-row">
                 <div className="grid-col">
+                  {errorMessage && (
+                    <div className="usa-width-one-whole error-message">
+                      <Alert type="error" heading="An error occurred">
+                        {errorMessage}
+                      </Alert>
+                    </div>
+                  )}
                   <MtoShipmentFormFields
                     {...commonFormProps}
                     values={values}
@@ -185,7 +213,6 @@ MtoShipmentForm.propTypes = {
   history: HistoryShape,
   pageList: PageListShape,
   pageKey: PageKeyShape,
-  createMTOShipment: func.isRequired,
   updateMTOShipment: func.isRequired,
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,

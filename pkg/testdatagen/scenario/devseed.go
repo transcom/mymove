@@ -98,6 +98,18 @@ func createPPMWithAdvance(db *pop.Connection, userUploader *uploader.UserUploade
 		},
 		UserUploader: userUploader,
 	})
+	testdatagen.MakeMoveDocument(db, testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm0.Move.ID,
+			Move:                     ppm0.Move,
+			PersonallyProcuredMoveID: &ppm0.ID,
+		},
+		Document: models.Document{
+			ID:              uuid.FromStringOrNil("c26421b0-e4c3-446b-88f3-493bb25c1756"),
+			ServiceMemberID: ppm0.Move.Orders.ServiceMember.ID,
+			ServiceMember:   ppm0.Move.Orders.ServiceMember,
+		},
+	})
 	ppm0.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppm0.Move)
 }

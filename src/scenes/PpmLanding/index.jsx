@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
-import { bindActionCreators } from 'redux';
-import PropTypes from 'prop-types';
 import { withLastLocation } from 'react-router-last-location';
-import { withContext } from 'shared/AppContext';
 
+import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
-import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
+import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
@@ -108,7 +107,6 @@ export class PpmLanding extends Component {
       move,
       ppm,
       requestPaymentSuccess,
-      updateMove,
       location,
     } = this.props;
 
@@ -145,7 +143,6 @@ export class PpmLanding extends Component {
             resumeMove={this.resumeMove}
             reviewProfile={this.reviewProfile}
             requestPaymentSuccess={requestPaymentSuccess}
-            updateMove={updateMove}
           />
         )}
       </div>
@@ -197,11 +194,11 @@ const mapStateToProps = (state) => {
   return props;
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { push, updateMove, loadPPMs, loadMTOShipments, showLoggedInUser: showLoggedInUserAction },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  loadPPMs,
+  loadMTOShipments,
+  showLoggedInUser: showLoggedInUserAction,
+};
 
 export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(PpmLanding)));
