@@ -202,7 +202,6 @@ describe('TextMaskedInput', () => {
   describe('with masking', () => {
     const wrapper = mount(
       <TextMaskedInput
-        // value={"8000"}
         name="authorizedWeight"
         label="Authorized weight"
         id="authorizedWeightInput"
