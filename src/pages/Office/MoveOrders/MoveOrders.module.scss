@@ -73,11 +73,11 @@
     flex: 1 1 0;
     flex-basis: 0;
 
-    :global .usa-form-group:first-of-type label {
+    :global .usa-form-group:first-child label {
       @include u-margin-top(0);
     }
 
-    :global .usa-form-group:last-of-type {
+    :global .usa-form-group:last-child {
       @include u-padding-bottom(4);
     }
   }
