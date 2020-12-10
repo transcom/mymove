@@ -1,0 +1,49 @@
+@import 'shared/styles/colors.scss';
+
+// This file is for exporting SASS color variables into JS files (such as colors.stories.jsx)
+// It has to be named like a CSS module because of this bug introduced in CRA 4:
+//  https://github.com/facebook/create-react-app/issues/10047
+
+:export {
+  brand: {
+    mmblue: $mm-blue;
+    mmgold: $mm-gold;
+    mmperiwinkle: $mm-periwinkle;
+  }
+  background: {
+    bgwhite: $bg-white;
+    bggray: $bg-gray;
+  }
+  base: {
+    baselightest: $base-lightest;
+    baselighter: $base-lighter;
+    baselight: $base-light;
+    base: $base;
+    basedark: $base-dark;
+    basedarker: $base-darker;
+    basedarkest: $base-darkest;
+  }
+  alert: {
+    error: $error;
+    errorlight: $error-light;
+    warning: $warning;
+    warninglight: $warning-light;
+    success: $success;
+    successlight: $success-light;
+  }
+  primary: {
+    primary: $primary;
+    primarydark: $primary-dark;
+    primarydarker: $primary-darker;
+  }
+  accent: {
+    link: $link;
+    linklight: $link-light;
+    accenteal: $accent-teal;
+    accenthhg: $accent-hhg;
+    accentppm: $accent-ppm;
+    accentub: $accent-ub;
+    accentnts: $accent-nts;
+    accentntsr: $accent-ntsr;
+  }
+}
