@@ -46,6 +46,7 @@
     "react-form": "^4.0.1",
     "react-highlight-words": "^0.16.0",
     "react-idle-timer": "^4.5.0",
+    "react-imask": "^6.0.5",
     "react-loadable": "^5.3.1",
     "react-numeric-input": "^2.2.3",
     "react-query": "^2.26.3",
@@ -95,7 +96,7 @@
     "start": "react-scripts start",
     "test": "react-scripts test --env=jsdom",
     "test:debug": "react-scripts --inspect-brk test --runInBand --env=jsdom",
-    "test:coverage": "react-scripts test --coverage --env=jsdom --watchAll=false --coverageDirectory=coverage",
+    "test:coverage": "react-scripts test --coverage --env=jsdom --watchAll=false --coverageDirectory=coverage --runInBand",
     "test:e2e": "cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-clean": "make db_dev_e2e_populate; yarn test:e2e",
     "test:e2e-debug": "DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
@@ -124,6 +125,7 @@
     "@storybook/react": "^5.3.19",
     "@testing-library/react-hooks": "^3.7.0",
     "cypress": "^6.0.0",
+    "cypress-audit": "^0.2.3",
     "cypress-wait-until": "^1.7.1",
     "danger": "^10.5.4",
     "danger-plugin-jira-issue": "^1.4.1",
@@ -168,6 +170,7 @@
         "lines": 40,
         "statements": 40
       }
-    }
+    },
+    "transformIgnorePatterns": ["node_modules/(?!(imask)/)/"]
   }
 }

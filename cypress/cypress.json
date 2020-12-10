@@ -6,5 +6,12 @@
   },
   "viewportWidth": 1440,
   "viewportHeight": 900,
-  "videoUploadOnPasses": false
+  "videoUploadOnPasses": false,
+  "lighthouse": {
+    "performance": 85,
+    "accessibility": 50,
+    "best-practices": 85,
+    "seo": 85,
+    "pwa": 50
+  }
 }
