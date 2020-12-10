@@ -115,7 +115,7 @@
     "@dump247/storybook-state": "^1.6.1",
     "@rescripts/cli": "^0.0.14",
     "@rescripts/rescript-env": "^0.0.12",
-    "@rescripts/utilities": "^0.0.7",
+    "@rescripts/utilities": "^0.0.8",
     "@stoplight/spectral": "^5.7.1",
     "@storybook/addon-a11y": "^6.1.10",
     "@storybook/addon-actions": "^6.1.5",
