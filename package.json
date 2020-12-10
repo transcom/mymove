@@ -113,7 +113,7 @@
   "devDependencies": {
     "@babel/core": "~7.12.9",
     "@dump247/storybook-state": "^1.6.1",
-    "@rescripts/cli": "^0.0.14",
+    "@rescripts/cli": "^0.0.15",
     "@rescripts/rescript-env": "^0.0.12",
     "@rescripts/utilities": "^0.0.8",
     "@stoplight/spectral": "^5.7.1",
