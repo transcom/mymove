@@ -2,11 +2,13 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import { get } from 'lodash';
 
+import styles from './MoveDetailTable.module.scss';
+
 import { BackupContactShape } from 'types/backupContact';
 
 const CustomerInfoTable = ({ customerInfo }) => {
   return (
-    <div>
+    <div className={styles.MoveDetailTable}>
       <div className="stackedtable-header">
         <div>
           <h4>Customer info</h4>

@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "devDependencies": {
-    "cypress": "^6.0.0",
+    "cypress": "^6.1.0",
     "cypress-audit": "^0.2.3",
     "cypress-multi-reporters": "^1.2.3",
     "cypress-wait-until": "^1.7.1",

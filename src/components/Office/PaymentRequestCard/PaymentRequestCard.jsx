@@ -17,10 +17,12 @@ const paymentRequestStatusLabel = (status) => {
   switch (status) {
     case 'PENDING':
       return 'Needs Review';
-    case ('REVIEWED', 'SENT_TO_GEX', 'RECEIVED_BY_GEX'):
+    case 'REVIEWED':
+    case 'SENT_TO_GEX':
+    case 'RECEIVED_BY_GEX':
       return 'Reviewed';
     case 'PAID':
-      return 'PAID';
+      return 'Paid';
     default:
       return status;
   }

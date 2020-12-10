@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
@@ -274,10 +275,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	paymentRequestID := paymentServiceItem.PaymentRequestID
 	strfmtPaymentRequestID := strfmt.UUID(paymentRequestID.String())
 
+	icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
 	handler := GetPaymentRequestEDIHandler{
 		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), icnSequencer),
 	}
 
 	urlFormat := "/payment-requests/%s/edi"
@@ -485,6 +487,8 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
 		PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
 	}
+
+	handler.SetICNSequencer(sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName))
 
 	urlFormat := "/payment-requests/process-reviewed"
 
