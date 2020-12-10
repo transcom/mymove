@@ -64,7 +64,9 @@ describe('TextInputMinimal', () => {
     });
   });
 
-  describe('with no id or name prop', () => {
+  // SKIP FOR NOW, we don't typically test component propTypes & if we are going to we should do it in a way that's more scalable
+  // perhaps https://github.com/ratehub/check-prop-types
+  describe.skip('with no id or name prop', () => {
     it('should render console error', () => {
       const spy = jest.spyOn(global.console, 'error');
       shallow(<TextInputMinimal className="sample-class" type="text" />);
@@ -132,7 +134,9 @@ describe('TextInput', () => {
     });
   });
 
-  describe('with no id or name prop', () => {
+  // SKIP FOR NOW, we don't typically test component propTypes & if we are going to we should do it in a way that's more scalable
+  // perhaps https://github.com/ratehub/check-prop-types
+  describe.skip('with no id or name prop', () => {
     it('should render console error', () => {
       const spy = jest.spyOn(global.console, 'error');
       shallow(<TextInput className="sample-class" label="Some Name" type="text" />);

@@ -158,6 +158,7 @@
     "not op_mini all"
   ],
   "jest": {
+    "resetMocks": false,
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
       "!src/**/*.stories.{jsx,tsx}",
