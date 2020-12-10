@@ -6339,7 +6339,7 @@ capture-exit@^2.0.0:
   dependencies:
     rsvp "^4.8.4"
 
-case-sensitive-paths-webpack-plugin@2.3.0, case-sensitive-paths-webpack-plugin@^2.2.0, case-sensitive-paths-webpack-plugin@^2.3.0:
+case-sensitive-paths-webpack-plugin@2.3.0, case-sensitive-paths-webpack-plugin@^2.2.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/case-sensitive-paths-webpack-plugin/-/case-sensitive-paths-webpack-plugin-2.3.0.tgz#23ac613cc9a856e4f88ff8bb73bbb5e989825cf7"
   integrity sha512-/4YgnZS8y1UXXmC02xD5rRrBEu6T5ub+mQHLNRj0fzTRbgdBYhsNo2V5EqwgqrExjxsjtF/OpAKAMkKsxbD5XQ==
@@ -12075,7 +12075,7 @@ jest-worker@^26.5.0:
     merge-stream "^2.0.0"
     supports-color "^7.0.0"
 
-jest-worker@^26.6.1, jest-worker@^26.6.2:
+jest-worker@^26.6.2:
   version "26.6.2"
   resolved "https://registry.yarnpkg.com/jest-worker/-/jest-worker-26.6.2.tgz#7f72cbc4d643c365e27b9fd775f9d0eaa9c7a8ed"
   integrity sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==
@@ -12717,13 +12717,6 @@ lodash-es@^4.17.11, lodash-es@^4.17.14:
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.15.tgz#21bd96839354412f23d7a10340e5eac6ee455d78"
   integrity sha512-rlrc3yU3+JNOpZ9zj5pQtxnx2THmvRykwL4Xlxoa8I9lHBlVbbyPhgyPMioxVZ4NqyxaVVtaJnzsyOidQIhyyQ==
 
-lodash-webpack-plugin@^0.11.5:
-  version "0.11.5"
-  resolved "https://registry.yarnpkg.com/lodash-webpack-plugin/-/lodash-webpack-plugin-0.11.5.tgz#c4bd064b4f561c3f823fa5982bdeb12c475390b9"
-  integrity sha512-QWfEIYxpixOdbd6KBe5g6MDWcyTgP3trDXwKHFqTlXrWiLcs/67fGQ0IWeRyhWlTITQIgMpJAYd2oeIztuV5VA==
-  dependencies:
-    lodash "^4.17.4"
-
 lodash._reinterpolate@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/lodash._reinterpolate/-/lodash._reinterpolate-3.0.0.tgz#0ccf2d89166af03b3663c796538b75ac6e114d9d"
@@ -12884,7 +12877,7 @@ lodash@4.17.19:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
   integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
 
-"lodash@>=3.5 <5", lodash@^4.0.0, lodash@^4.0.1, lodash@^4.15.0, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0, lodash@~4.17.10, lodash@~4.17.5:
+"lodash@>=3.5 <5", lodash@^4.0.0, lodash@^4.0.1, lodash@^4.15.0, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.5, lodash@^4.3.0, lodash@~4.17.10, lodash@~4.17.5:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
@@ -18762,18 +18755,6 @@ terser-webpack-plugin@^2.1.2:
     terser "^4.6.12"
     webpack-sources "^1.4.3"
 
-terser-webpack-plugin@^5.0.3:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/terser-webpack-plugin/-/terser-webpack-plugin-5.0.3.tgz#ec60542db2421f45735c719d2e17dabfbb2e3e42"
-  integrity sha512-zFdGk8Lh9ZJGPxxPE6jwysOlATWB8GMW8HcfGULWA/nPal+3VdATflQvSBSLQJRCmYZnfFJl6vkRTiwJGNgPiQ==
-  dependencies:
-    jest-worker "^26.6.1"
-    p-limit "^3.0.2"
-    schema-utils "^3.0.0"
-    serialize-javascript "^5.0.1"
-    source-map "^0.6.1"
-    terser "^5.3.8"
-
 terser@^4.1.2, terser@^4.6.12, terser@^4.6.2, terser@^4.6.3:
   version "4.8.0"
   resolved "https://registry.yarnpkg.com/terser/-/terser-4.8.0.tgz#63056343d7c70bb29f3af665865a46fe03a0df17"
@@ -18787,15 +18768,6 @@ terser@^5.3.4:
   version "5.3.4"
   resolved "https://registry.yarnpkg.com/terser/-/terser-5.3.4.tgz#e510e05f86e0bd87f01835c3238839193f77a60c"
   integrity sha512-dxuB8KQo8Gt6OVOeLg/rxfcxdNZI/V1G6ze1czFUzPeCFWZRtvZMgSzlZZ5OYBZ4HoG607F6pFPNLekJyV+yVw==
-  dependencies:
-    commander "^2.20.0"
-    source-map "~0.7.2"
-    source-map-support "~0.5.19"
-
-terser@^5.3.8:
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-5.5.1.tgz#540caa25139d6f496fdea056e414284886fb2289"
-  integrity sha512-6VGWZNVP2KTUcltUQJ25TtNjx/XgdDsBDKGt8nN0MpydU36LmbPPcMBd2kmtZNNGVVDLg44k7GKeHHj+4zPIBQ==
   dependencies:
     commander "^2.20.0"
     source-map "~0.7.2"
