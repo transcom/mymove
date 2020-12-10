@@ -108,6 +108,23 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		response := handler.Handle(params)
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError(), response)
 	})
+
+	suite.T().Run("409 conflict error when mto missing contractor id", func(t *testing.T) {
+		var moves models.Moves
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto.ContractorID = nil
+		moves = append(moves, mto)
+
+		mockHider := &mocks.MoveTaskOrderHider{}
+		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
+			context,
+			mockHider,
+		}
+		mockHider.On("Hide").Return(moves, nil)
+
+		response := handler.Handle(params)
+		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersConflict(), response)
+	})
 }
 
 func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSuccess() {
