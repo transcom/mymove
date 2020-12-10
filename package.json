@@ -128,6 +128,7 @@
     "@testing-library/react-hooks": "^3.4.2",
     "case-sensitive-paths-webpack-plugin": "^2.3.0",
     "cypress": "^6.0.0",
+    "cypress-audit": "^0.2.3",
     "cypress-wait-until": "^1.7.1",
     "danger": "^10.5.4",
     "danger-plugin-jira-issue": "^1.4.1",

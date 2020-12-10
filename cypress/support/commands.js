@@ -1,5 +1,6 @@
 import * as mime from 'mime-types';
 import 'cypress-wait-until';
+import 'cypress-audit/commands';
 
 import {
   milmoveBaseURL,

@@ -745,6 +745,9 @@ jobs:
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
           when: always
       - store_artifacts:
+          path: cypress/reports
+          destination: reports
+      - store_artifacts:
           path: cypress/videos
           destination: videos
       - store_artifacts:
