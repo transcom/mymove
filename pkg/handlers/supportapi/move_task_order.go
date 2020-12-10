@@ -91,6 +91,12 @@ func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.Hid
 		return movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 	}
 
+	for _, mto := range mtos {
+		if mto.ContractorID == nil {
+			return movetaskorderops.NewHideNonFakeMoveTaskOrdersConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, "ContractorID must be present on the MTO", h.GetTraceID()))
+		}
+	}
+
 	payload := payloads.MoveTaskOrders(&mtos)
 
 	return movetaskorderops.NewHideNonFakeMoveTaskOrdersOK().WithPayload(payload)
