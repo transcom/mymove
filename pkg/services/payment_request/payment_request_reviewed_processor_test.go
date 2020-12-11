@@ -184,7 +184,9 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
-		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
+
+		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := false
@@ -346,6 +348,39 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.NoError(err)
 
+	})
+
+	suite.T().Run("process reviewed payment request, failed due to both senders being nil", func(t *testing.T) {
+
+		prs := suite.createPaymentRequest(4)
+
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+		var sftpSender services.SyncadaSFTPSender
+		sftpSender = nil
+		var gexSender services.GexSender
+		gexSender = nil
+		sendToSyncada := true
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			ediGenerator,
+			sendToSyncada,
+			gexSender,
+			sftpSender)
+
+		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.Contains(err.Error(), "senders are nil")
+
+		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.Nil(paymentRequest.SentToGexAt)
+		}
 	})
 
 	suite.T().Run("process reviewed payment request, successfully test init function", func(t *testing.T) {
