@@ -111,8 +111,8 @@ func LogLevelIsDebug(v *viper.Viper) bool {
 func ValidateStacktraceLength(v *viper.Viper, flagname string) error {
 	stacktraceLength := v.GetInt(flagname)
 
-	if stacktraceLength <= 0 || stacktraceLength > 50 {
-		return errors.Errorf("%s must be an integer between 1 and 50, got %d", StacktraceLengthFlag, stacktraceLength)
+	if stacktraceLength < 6 {
+		return errors.Errorf("%s must be an integer greater than 6, got %d", StacktraceLengthFlag, stacktraceLength)
 	}
 
 	return nil
