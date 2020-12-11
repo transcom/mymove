@@ -154,7 +154,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 	suite.T().Run("process reviewed payment request successfully (0 Payments to review)", func(t *testing.T) {
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
-		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
+		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := false
@@ -217,7 +218,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		prs := suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
+		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := false
@@ -252,7 +254,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		prs := suite.createPaymentRequest(4)
 
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
-		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
+		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := false
