@@ -171,6 +171,8 @@
         "statements": 40
       }
     },
-    "transformIgnorePatterns": ["node_modules/(?!(imask)/)/"]
+    "transformIgnorePatterns": [
+      "node_modules/(?!(imask)/)/"
+    ]
   }
 }
