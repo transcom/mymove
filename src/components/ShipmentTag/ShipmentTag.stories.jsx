@@ -5,7 +5,7 @@ import ShipmentTag from './ShipmentTag';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
-  title: 'Components | Shipment Tag',
+  title: 'Components / Shipment Tag',
   component: ShipmentTag,
 };
 

@@ -5,7 +5,7 @@ import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 
 // Icons
 export default {
-  title: 'Global|Icons',
+  title: 'Global/Icons',
   parameters: {
     abstract: {
       url: 'https://share.goabstract.com/eabef4a2-603e-4c3d-b249-0e580f1c8306?mode=design',

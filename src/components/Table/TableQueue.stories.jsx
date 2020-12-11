@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { withKnobs } from '@storybook/addon-knobs';
 
 import { createHeader } from './utils';
 import TableQueue from './TableQueue';
@@ -11,9 +10,8 @@ import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 
 export default {
-  title: 'TOO/TIO Components|Table',
+  title: 'Office Components/Table',
   decorators: [
-    withKnobs,
     (storyFn) => (
       <div style={{ margin: '10px', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
         {storyFn()}

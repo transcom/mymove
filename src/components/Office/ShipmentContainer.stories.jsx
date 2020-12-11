@@ -1,5 +1,5 @@
 import React from 'react';
-import { withKnobs, text, object, number } from '@storybook/addon-knobs';
+import { text, object, number } from '@storybook/addon-knobs';
 
 import { SERVICE_ITEM_STATUS } from '../../shared/constants';
 
@@ -12,9 +12,8 @@ import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddre
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 export default {
-  title: 'TOO/TIO Components|ShipmentContainer',
+  title: 'Office Components/ShipmentContainer',
   component: ShipmentContainer,
-  decorators: [withKnobs],
 };
 
 export const HHG = () => (

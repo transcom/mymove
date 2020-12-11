@@ -4,7 +4,7 @@ import { StorageInfoModal } from './StorageInfoModal/StorageInfoModal';
 import { MoveInfoModal } from './MoveInfoModal/MoveInfoModal';
 
 export default {
-  title: 'Customer Components|Modals',
+  title: 'Customer Components/Modals',
 };
 
 export const StorageInfoModalStory = () => <StorageInfoModal />;
