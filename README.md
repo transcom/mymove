@@ -319,7 +319,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 This step is only necessary if you are running migrations after a reset and do not see any sample users in the database.
 
-1. Run `make db_dev_e2e_populate`. This will load the seed data into your local database.
+1. Run `make db_dev_e2e_populate`. This will load the `devseed` data into your local database.
 
 2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and a list of seeded users should be visible.
 
