@@ -315,10 +315,19 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 1. `make admin_client_run`
 
-### Setup: DPS user
+### Setup: Customer user
+
+This step is only necessary if you are running migrations after a reset and do not see any sample users in the database.
+
+1. Run `make db_dev_e2e_populate`. This will load the seed data into your local database.
+
+2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and a list of seeded users should be visible.
+
+If you would like to create a new single test user:
 
 1. Ensure that you have a login.gov test account
-2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and create a new DPS user from the interface.
+2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and click "Create a New milmove User" from the interface.
+3. Create the test user with sample data. Look in either `pkg/testdatagen/scenario/e2ebasic.go` or `devseed.go` to see some different examples of test users.
 
 ### Setup: Orders Gateway
 
