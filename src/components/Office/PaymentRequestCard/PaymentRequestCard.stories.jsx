@@ -5,7 +5,7 @@ import PaymentRequestCard from './PaymentRequestCard';
 import { MockProviders } from 'testUtils';
 
 export default {
-  title: 'TOO/TIO Components|PaymentRequestCard',
+  title: 'Office Components/PaymentRequestCard',
   component: PaymentRequestCard,
   decorators: [
     (Story) => (

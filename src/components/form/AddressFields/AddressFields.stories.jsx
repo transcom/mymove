@@ -4,7 +4,7 @@ import { Formik } from 'formik';
 import { AddressFields } from './AddressFields';
 
 export default {
-  title: 'Components|AddressFields',
+  title: 'Components/AddressFields',
 };
 
 export const Basic = () => (

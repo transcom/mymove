@@ -3,7 +3,7 @@ import { Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default {
-  title: 'Components|Tags',
+  title: 'Components/Tags',
   parameters: {
     abstract: {
       url: 'https://share.goabstract.com/c5a114cc-845b-48ea-9b28-70f3b1110746?mode=design',

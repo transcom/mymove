@@ -10,7 +10,7 @@ import { Form } from 'components/form';
 import { TextInput } from 'components/form/fields';
 
 export default {
-  title: 'Components|Modals',
+  title: 'Components/Modals',
   parameters: {
     abstract: {
       url: 'https://share.goabstract.com/e6db2b1a-4d3e-40e7-89a8-39a25ab28b9a?mode=design',

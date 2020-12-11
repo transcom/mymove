@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 import { DocsButton, EditButton } from '../components/form';
 
 export default {
-  title: 'Components|Icon Button',
+  title: 'Components/Icon Button',
 };
 
 export const docs = () => (
