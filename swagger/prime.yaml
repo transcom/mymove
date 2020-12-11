@@ -1268,7 +1268,6 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
-      - MTOServiceItemSITDeparture
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
