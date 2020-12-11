@@ -53,6 +53,12 @@ func (o *GetPaymentRequestEDIReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
+	case 409:
+		result := NewGetPaymentRequestEDIConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 422:
 		result := NewGetPaymentRequestEDIUnprocessableEntity()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -225,6 +231,39 @@ func (o *GetPaymentRequestEDINotFound) GetPayload() *supportmessages.ClientError
 }
 
 func (o *GetPaymentRequestEDINotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(supportmessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetPaymentRequestEDIConflict creates a GetPaymentRequestEDIConflict with default headers values
+func NewGetPaymentRequestEDIConflict() *GetPaymentRequestEDIConflict {
+	return &GetPaymentRequestEDIConflict{}
+}
+
+/*GetPaymentRequestEDIConflict handles this case with default header values.
+
+There was a conflict with the request.
+*/
+type GetPaymentRequestEDIConflict struct {
+	Payload *supportmessages.ClientError
+}
+
+func (o *GetPaymentRequestEDIConflict) Error() string {
+	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIConflict  %+v", 409, o.Payload)
+}
+
+func (o *GetPaymentRequestEDIConflict) GetPayload() *supportmessages.ClientError {
+	return o.Payload
+}
+
+func (o *GetPaymentRequestEDIConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(supportmessages.ClientError)
 
