@@ -9,5 +9,8 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import './index.scss';
 
+// eslint-disable-next-line no-console
+console.log('RENDER APP');
+
 ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();
