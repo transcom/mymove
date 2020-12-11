@@ -344,6 +344,28 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity(), response)
 	})
 
+	suite.T().Run("failure due to a conflict error", func(t *testing.T) {
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+
+		params := paymentrequestop.GetPaymentRequestEDIParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmtPaymentRequestID,
+		}
+
+		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
+		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, services.NewConflictError(paymentRequestID, "conflict error"))
+
+		mockGeneratorHandler := GetPaymentRequestEDIHandler{
+			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
+			GHCPaymentRequestInvoiceGenerator: mockGenerator,
+		}
+
+		response := mockGeneratorHandler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIConflict(), response)
+	})
+
 	suite.T().Run("failure due to payment request ID not found", func(t *testing.T) {
 		notFoundID := uuid.Must(uuid.NewV4())
 		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, notFoundID), nil)
