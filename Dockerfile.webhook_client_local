@@ -1,0 +1,27 @@
+###########
+# BUILDER #
+###########
+
+FROM milmove/circleci-docker:milmove-app as builder
+
+ENV CIRCLECI=true
+
+COPY --chown=circleci:circleci . /home/circleci/project
+WORKDIR /home/circleci/project
+
+RUN make clean
+RUN make bin/rds-ca-us-gov-west-1-2017-root.pem
+RUN make bin/webhook-client
+
+#########
+# FINAL #
+#########
+
+FROM gcr.io/distroless/static:latest
+
+COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
+COPY --from=builder --chown=root:root /home/circleci/project/bin/webhook-client /bin/webhook-client
+
+ENTRYPOINT ["/bin/webhook-client"]
+
+CMD ["db-webhook-notify"]
