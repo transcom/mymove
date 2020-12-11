@@ -128,7 +128,7 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err := logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetString(cli.LoggingLevelFlag))
+	logger, err := logging.Config(logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		return err
 	}

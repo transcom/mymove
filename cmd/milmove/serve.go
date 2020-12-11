@@ -366,7 +366,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err = logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetString(cli.LoggingLevelFlag))
+	logger, err = logging.Config(
+		logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
+		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
+		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
+	)
+
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

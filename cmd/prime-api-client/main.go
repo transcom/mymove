@@ -419,6 +419,20 @@ func main() {
 	support.InitGetPaymentRequestEDIFlags(processReviewedPaymentRequests.Flags())
 	root.AddCommand(processReviewedPaymentRequests)
 
+	hideNonFakeMoveTaskOrdersCommand := &cobra.Command{
+		Use:   "support-hide-non-fake-mtos",
+		Short: "Hide moves not in the fake data spreadsheet",
+		Long: `This command will trigger finding all of the moves in stg and env environments
+		that do not use fake data from the fake names and addresses spreadsheet.
+		To do this, all of the moves that do not match the data in the fake data spreadsheet
+		will set the moves.show field to false.
+		This will cause the move to not appear in the office applications.`,
+		RunE:         support.HideNonFakeMoveTaskOrders,
+		SilenceUsage: true,
+	}
+	support.InitHideNonFakeMoveTaskOrdersFlags(hideNonFakeMoveTaskOrdersCommand.Flags())
+	root.AddCommand(hideNonFakeMoveTaskOrdersCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",

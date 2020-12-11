@@ -324,7 +324,7 @@ export const ServiceItemTables = () => (
             description: "Here's the description",
             itemDimensions: { length: 8400, width: 2600, height: 4200 },
             crateDimensions: { length: 110000, width: 36000, height: 54000 },
-            imgURL: isHappoRun ? null : 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
+            imgURL: isHappoRun() ? null : 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
           },
         },
       ]}
