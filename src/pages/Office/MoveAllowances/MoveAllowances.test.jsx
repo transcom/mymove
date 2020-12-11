@@ -118,4 +118,11 @@ describe('MoveAllowances page', () => {
     // There is only 1 button, but mount-rendering react-uswds Button component has inner buttons
     expect(wrapper.find({ 'data-testid': 'view-orders-btn' }).at(0).text()).toBe('View Orders');
   });
+
+  it('renders displays the allowances in the sidebar form', () => {
+    expect(wrapper.find({ 'data-testid': 'weightAllowance' }).text()).toBe('5,000 lbs');
+    expect(wrapper.find({ 'data-testid': 'proGearWeight' }).text()).toBe('2,000 lbs');
+    expect(wrapper.find({ 'data-testid': 'spouseProGearWeight' }).text()).toBe('500 lbs');
+    expect(wrapper.find({ 'data-testid': 'storageInTransit' }).text()).toBe('2 days');
+  });
 });
