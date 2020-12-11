@@ -338,7 +338,7 @@ The API that the Prime will use is authenticated via mutual TSL so there are a f
 
 If you want to develop against AWS services you will need an AWS user account with `engineering` privileges. You will also need to follow these steps when using Chamber and AWS vault to [set up direnv](#setup-direnv).
 
-AWS credentials are managed via `aws-vault`. Once you have received AWS credentials (which are provided by the infrastructure team), you can follow these instructions to [finish setting up AWS](https://github.com/transcom/transcom-infrasec-com/blob/master/docs/runbook/0003-creating-new-iam-user.md).
+AWS credentials are managed via `aws-vault`. Once you have received AWS credentials (which are provided by the infrastructure team), you can follow these instructions to [finish setting up AWS](https://github.com/transcom/transcom-infrasec-gov/blob/master/docs/runbook/0001-aws-organization-authentication.md).
 
 ## Development
 
