@@ -9,7 +9,6 @@ describe('React table', () => {
       <SelectFilter
         column={{
           filterValue: '',
-          preFilteredRows: [],
           setFilter: jest.fn(),
         }}
         options={[

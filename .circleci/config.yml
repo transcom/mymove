@@ -641,71 +641,6 @@ jobs:
           destination: test-results
       - announce_failure
 
-  # `acceptance_tests` runs acceptance tests for the webserver against the local, experimental, and staging environments.
-  acceptance_tests:
-    executor: mymove_medium
-    steps:
-      - aws_vars_legacy
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run:
-          name: Run Local acceptance tests
-          command: |
-            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
-            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
-            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
-            source $BASH_ENV
-            make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DB_REGION: us-west-2
-            DB_RETRY_INTERVAL: 5s
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: test
-            ENVIRONMENT: test
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-      - run:
-          name: Run Experimental acceptance tests
-          command: make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DB_REGION: us-west-2
-            DB_RETRY_INTERVAL: 5s
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: test
-            ENVIRONMENT: experimental
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: experimental
-      - run:
-          name: Run Staging acceptance tests
-          command: make acceptance_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DB_REGION: us-west-2
-            DB_RETRY_INTERVAL: 5s
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: test
-            ENVIRONMENT: staging
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: staging
-      - run: echo "Prod acceptance tests are prohibited in CircleCI"
-      - announce_failure
-
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
     parallelism: 5
@@ -1280,10 +1215,6 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - acceptance_tests:
-          requires:
-            - pre_deps_golang
-
       - pre_deps_cypress
 
       - integration_tests:
@@ -1296,7 +1227,6 @@ workflows:
             - push_app_stg
             - push_migrations_legacy
             - push_migrations_stg
-            - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
@@ -1310,7 +1240,6 @@ workflows:
             - push_app_stg
             - push_migrations_legacy
             - push_migrations_stg
-            - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
@@ -1337,7 +1266,6 @@ workflows:
             - anti_virus
             - pre_deps_golang
             - pre_deps_yarn
-            - acceptance_tests # don't bother building and pushing the application if it won't even start properly
 
       - push_app_legacy:
           requires:
@@ -1388,10 +1316,10 @@ workflows:
 
       - deploy_exp_migrations:
           requires:
+            - pre_deps_golang
             - pre_test
             - client_test
             - server_test
-            - acceptance_tests
             - push_app_exp
             - build_tools
             - push_tasks_exp
@@ -1444,6 +1372,7 @@ workflows:
 
       - check_circle_against_stg_sha:
           requires:
+            - pre_deps_golang
             - pre_test
             - client_test
             - server_test
@@ -1451,7 +1380,6 @@ workflows:
             - build_tools
             - push_migrations_stg
             - push_tasks_stg
-            - acceptance_tests
             - integration_tests
             - integration_tests_mtls
           filters:
