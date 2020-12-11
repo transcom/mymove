@@ -1,5 +1,6 @@
 import React from 'react';
 import { withKnobs, object } from '@storybook/addon-knobs';
+import { Formik } from 'formik';
 
 import AllowancesDetailForm from './AllowancesDetailForm';
 
@@ -29,5 +30,16 @@ const entitlement = {
 };
 
 export const Basic = () => {
-  return <AllowancesDetailForm entitlements={object('entitlement', entitlement)} />;
+  return (
+    <Formik
+      initialValues={{
+        authorizedWeight: '8000',
+      }}
+      onSubmit={() => {}}
+    >
+      <form>
+        <AllowancesDetailForm entitlements={object('entitlement', entitlement)} />
+      </form>
+    </Formik>
+  );
 };

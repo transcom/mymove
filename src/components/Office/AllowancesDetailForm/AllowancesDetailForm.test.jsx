@@ -1,7 +1,13 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { Formik } from 'formik';
+import { IMaskInput } from 'react-imask';
 
 import AllowancesDetailForm from './AllowancesDetailForm';
+
+const initialValues = {
+  authorizedWeight: '11000',
+};
 
 const entitlements = {
   authorizedWeight: 11000,
@@ -16,13 +22,21 @@ const entitlements = {
 };
 
 describe('AllowancesDetailForm', () => {
-  const wrapper = mount(<AllowancesDetailForm entitlements={entitlements} />);
+  const wrapper = mount(
+    <Formik initialValues={initialValues} onSubmit={jest.fn()}>
+      <form>
+        <AllowancesDetailForm entitlements={entitlements} />
+      </form>
+    </Formik>,
+  );
 
   it('renders the form', () => {
     expect(wrapper.find(AllowancesDetailForm).exists()).toBe(true);
   });
 
   it('formats weights', () => {
+    expect(wrapper.find(IMaskInput).getDOMNode().value).toBe('11,000 lbs');
+
     // Weight allowance
     expect(wrapper.find('dd').at(0).text()).toBe('11,000 lbs');
 
@@ -39,7 +53,17 @@ describe('AllowancesDetailForm', () => {
   });
 
   it('uses defaults for undefined values', () => {
-    const wrapperNoProps = mount(<AllowancesDetailForm entitlements={{}} />);
+    const wrapperNoProps = mount(
+      <Formik initialValues={{ authorizedWeight: null }} onSubmit={jest.fn()}>
+        <form>
+          <AllowancesDetailForm entitlements={{}} />
+        </form>
+      </Formik>,
+    );
+
+    // Authorized weight input
+    expect(wrapperNoProps.find(IMaskInput).getDOMNode().value).toBe('0 lbs');
+
     // Weight allowance
     expect(wrapperNoProps.find('dd').at(0).text()).toBe('0 lbs');
 
