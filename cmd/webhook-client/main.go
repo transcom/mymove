@@ -38,7 +38,11 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
 	// LOGGER SETUP
 	// Get the db env to configure the logger level
 	dbEnv := v.GetString(cli.DbEnvFlag)
-	logger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	logger, err := logging.Config(
+		logging.WithEnvironment(dbEnv),
+		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
+		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
+	)
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
