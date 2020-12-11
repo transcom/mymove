@@ -2,6 +2,7 @@ package paymentrequest
 
 import (
 	"errors"
+	"os"
 	"testing"
 	"time"
 
@@ -150,6 +151,15 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 }
 
 func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
+
+	os.Setenv("SYNCADA_SFTP_PORT", "1234")
+	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	// generated fake host key to pass parser used following command and only saved the pub key
+	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
+	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
 
 	suite.T().Run("process reviewed payment request successfully (0 Payments to review)", func(t *testing.T) {
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
