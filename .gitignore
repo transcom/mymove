@@ -41,6 +41,7 @@ cypress/cypress
 .vscode
 *.swp
 *.sublime-*
+.eslintcache
 
 # In case somebody accidentally runs npm install instead of using yarn
 package-lock.json
@@ -63,6 +64,7 @@ public/swagger-ui/*
 cypress/videos
 cypress/screenshots
 cypress/results
+cypress/reports
 
 # XLSX backup files
 ~$*.xlsx

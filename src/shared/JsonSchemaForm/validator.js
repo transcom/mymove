@@ -81,7 +81,7 @@ const maxDateValidation = memoize((maxDate = null, message) => {
   };
 });
 
-export default {
+const validators = {
   maxLength,
   minLength,
   maximum,
@@ -94,3 +94,5 @@ export default {
   maxDateValidation,
   patternMatches,
 };
+
+export default validators;

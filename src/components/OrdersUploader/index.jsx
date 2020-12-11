@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable react/destructuring-assignment */
-// eslint-disable-next-line no-unused-vars
 import React, { Component } from 'react';
 import 'filepond-polyfill/dist/filepond-polyfill';
 import { FilePond, registerPlugin } from 'react-filepond';
@@ -42,6 +41,34 @@ export class OrdersUploader extends Component {
   componentWillUnmount() {
     if (this.props.onRef) {
       this.props.onRef(undefined);
+    }
+  }
+
+  handlePondInit() {
+    // If this component is unloaded quickly, this function can be called after the ref is deleted,
+    // so check that the ref still exists before continuing
+    if (!this.pond) {
+      return;
+    }
+    this.setPondOptions();
+
+    this.pond._pond.on('processfile', () => {
+      if (this.props.onChange) {
+        this.props.onChange(this.state.files, this.isIdle());
+      }
+    });
+
+    this.pond._pond.on('addfilestart', () => {
+      if (this.props.onAddFile) {
+        this.props.onAddFile();
+      }
+    });
+
+    // Don't mention drag and drop if on mobile device
+    if (isMobile()) {
+      this.pond._pond.setOptions({
+        labelIdle: '<span class="filepond--label-action">Upload</span>',
+      });
     }
   }
 
@@ -124,34 +151,6 @@ export class OrdersUploader extends Component {
     const isIdle = existingFiles.every((f) => idleStatuses.indexOf(f.status) > -1);
     // eslint-disable-next-line consistent-return
     return isIdle;
-  }
-
-  handlePondInit() {
-    // If this component is unloaded quickly, this function can be called after the ref is deleted,
-    // so check that the ref still exists before continuing
-    if (!this.pond) {
-      return;
-    }
-    this.setPondOptions();
-
-    this.pond._pond.on('processfile', () => {
-      if (this.props.onChange) {
-        this.props.onChange(this.state.files, this.isIdle());
-      }
-    });
-
-    this.pond._pond.on('addfilestart', () => {
-      if (this.props.onAddFile) {
-        this.props.onAddFile();
-      }
-    });
-
-    // Don't mention drag and drop if on mobile device
-    if (isMobile()) {
-      this.pond._pond.setOptions({
-        labelIdle: '<span class="filepond--label-action">Upload</span>',
-      });
-    }
   }
 
   clearFiles() {

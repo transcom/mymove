@@ -35,27 +35,6 @@ export function patchMTOShipmentStatus(
   );
 }
 
-const createMTOShipmentOperation = 'mtoShipment.createMTOShipment';
-export function createMTOShipment(mtoShipment, label = createMTOShipmentOperation, schemaKey = mtoShipmentSchemaKey) {
-  return swaggerRequest(getClient, createMTOShipmentOperation, { body: mtoShipment }, { label, schemaKey });
-}
-
-const updateMTOShipmentOperation = 'mtoShipment.updateMTOShipment';
-export function updateMTOShipment(
-  mtoShipmentId,
-  mtoShipment,
-  ifMatchETag,
-  label = updateMTOShipmentOperation,
-  schemaKey = mtoShipmentSchemaKey,
-) {
-  return swaggerRequest(
-    getClient,
-    updateMTOShipmentOperation,
-    { mtoShipmentId, 'If-Match': ifMatchETag, body: mtoShipment },
-    { label, schemaKey },
-  );
-}
-
 const loadMTOShipmentsOperation = 'mtoShipment.listMTOShipments';
 export function loadMTOShipments(
   moveTaskOrderID,

@@ -2,9 +2,9 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { Dropdown } from '@trussworks/react-uswds';
 
-import { DropdownInput } from './DropdownInput';
+import { ErrorMessage } from '../index';
 
-import { ErrorMessage } from '..';
+import { DropdownInput } from './DropdownInput';
 
 const mockOnChange = jest.fn();
 const formik = require('formik');

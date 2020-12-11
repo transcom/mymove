@@ -4,8 +4,10 @@ import { withRouter } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import * as Yup from 'yup';
 
 import moveOrdersStyles from '../MoveOrders/MoveOrders.module.scss';
+import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -16,7 +18,7 @@ import { useOrdersDocumentQueries } from 'hooks/queries';
 const MoveAllowances = ({ history, match }) => {
   const { moveOrderId } = match.params;
 
-  const { upload, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
+  const { moveOrders, upload, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
 
   const handleClose = () => {
     history.push(`/moves/${moveOrderId}/details`);
@@ -29,9 +31,17 @@ const MoveAllowances = ({ history, match }) => {
     handleClose();
   };
 
-  const initialValues = {};
-
   const documentsForViewer = Object.values(upload);
+
+  const moveOrder = Object.values(moveOrders)?.[0];
+
+  const { authorizedWeight } = moveOrder.entitlement;
+
+  const initialValues = { authorizedWeight: `${authorizedWeight}` };
+
+  const validationSchema = Yup.object({
+    authorizedWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
+  });
 
   return (
     <div className={moveOrdersStyles.MoveOrders}>
@@ -41,7 +51,7 @@ const MoveAllowances = ({ history, match }) => {
         </div>
       )}
       <div className={moveOrdersStyles.sidebar}>
-        <Formik initialValues={initialValues} onSubmit={onSubmit}>
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
           {(formik) => (
             <form onSubmit={formik.handleSubmit}>
               <div className={moveOrdersStyles.orderDetails}>
@@ -69,7 +79,9 @@ const MoveAllowances = ({ history, match }) => {
                     </Button>
                   </div>
                 </div>
-
+                <div className={moveOrdersStyles.body}>
+                  <AllowancesDetailForm entitlements={moveOrder.entitlement} />
+                </div>
                 <div className={moveOrdersStyles.bottom}>
                   <div className={moveOrdersStyles.buttonGroup}>
                     <Button type="submit" disabled={formik.isSubmitting}>
