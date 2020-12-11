@@ -79,7 +79,11 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	// Create the logger
 	v := viper.New()
 
-	logger, err := logging.Config(logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	logger, err := logging.Config(
+		logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
+		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
+		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
+	)
 	if err != nil {
 		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
 	}
