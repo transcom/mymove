@@ -27,7 +27,7 @@ import {
  * CREATE       => POST http://my.api.url/posts
  * DELETE       => DELETE http://my.api.url/posts/123
  */
-export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
+const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
   /**
    * @param {String} type One of the constants appearing at the top if this file, e.g. 'UPDATE'
    * @param {String} resource Name of the resource to fetch, e.g. 'posts'
@@ -194,3 +194,5 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
     return httpClient(url, options).then((response) => convertHTTPResponse(response, type, resource, params));
   };
 };
+
+export default restProvider;
