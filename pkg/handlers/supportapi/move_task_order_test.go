@@ -123,7 +123,14 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		mockHider.On("Hide").Return(moves, nil)
 
 		response := handler.Handle(params)
-		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersConflict(), response)
+		moveTaskOrdersResponse := response.(*movetaskorderops.HideNonFakeMoveTaskOrdersOK)
+		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+		// Ensure that mto without a contractorID is NOT included in the payload
+		for _, mto := range moveTaskOrdersPayload {
+			suite.NotEqual(mto.ID, moves[0].ID)
+		}
+		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersOK(), response)
 	})
 }
 
