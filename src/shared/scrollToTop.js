@@ -1,4 +1,7 @@
 import { isTest } from './constants.js';
-export default function () {
+
+const scrollToTop = function () {
   if (!isTest) window.scrollTo(0, 0);
-}
+};
+
+export default scrollToTop;

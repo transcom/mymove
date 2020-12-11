@@ -157,7 +157,7 @@
       }
     }
     .svg-inline--fa.fa-w-6 {
-      width: .5rem;
+      width: 0.5rem;
     }
     &--small {
       width: 20px;
@@ -248,8 +248,8 @@
     background: white;
     @include u-font-size('body', 'sm');
   }
+
   &:hover {
-    background-image: url('/static/media/arrow-both.0bfe2193.svg'), linear-gradient(transparent, transparent);
     background-color: $link-light;
   }
 }

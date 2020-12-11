@@ -31,7 +31,7 @@ import { loadOrders } from 'shared/Entities/modules/orders';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
-import AllowancesTable from 'components/Office/AllowancesTable';
+import AllowancesTable from 'components/Office/AllowancesTable/AllowancesTable';
 import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import {
   MoveOrderShape,
@@ -237,7 +237,7 @@ export class MoveDetails extends Component {
               <GridContainer>
                 <Grid row gap>
                   <Grid col>
-                    <AllowancesTable info={allowancesInfo} />
+                    <AllowancesTable info={allowancesInfo} showEditBtn />
                   </Grid>
                 </Grid>
               </GridContainer>

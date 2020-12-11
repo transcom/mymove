@@ -1,8 +1,14 @@
 import { all, takeLatest, put, call } from 'redux-saga/effects';
 
-import { watchUpdateEntities, updateServiceMember, updateBackupContact } from './entities';
+import {
+  watchUpdateEntities,
+  updateServiceMember,
+  updateBackupContact,
+  updateMove,
+  updateMTOShipment,
+} from './entities';
 
-import { UPDATE_SERVICE_MEMBER, UPDATE_BACKUP_CONTACT } from 'store/entities/actions';
+import { UPDATE_SERVICE_MEMBER, UPDATE_BACKUP_CONTACT, UPDATE_MOVE, UPDATE_MTO_SHIPMENT } from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { addEntities } from 'shared/Entities/actions';
 
@@ -14,6 +20,8 @@ describe('watchUpdateEntities', () => {
       all([
         takeLatest(UPDATE_SERVICE_MEMBER, updateServiceMember),
         takeLatest(UPDATE_BACKUP_CONTACT, updateBackupContact),
+        takeLatest(UPDATE_MOVE, updateMove),
+        takeLatest(UPDATE_MTO_SHIPMENT, updateMTOShipment),
       ]),
     );
   });
@@ -92,6 +100,86 @@ describe('updateBackupContact', () => {
         payload: testAction.payload,
       }),
     );
+  });
+
+  it('is done', () => {
+    expect(generator.next().done).toEqual(true);
+  });
+});
+
+describe('updateMove', () => {
+  const testAction = {
+    payload: {
+      created_at: '2020-12-07T17:03:58.767Z',
+      id: '3a8c9f4f-7344-4f18-9ab5-0de3ef57b901',
+      locator: 'ONEHHG',
+      orders_id: 'a413144b-137f-4400-85c2-a99c437ef85e',
+      selected_move_type: 'HHG',
+      service_member_id: '1d06ab96-cb72-4013-b159-321d6d29c6eb',
+      status: 'DRAFT',
+      updated_at: '2020-12-07T22:41:08.999Z',
+    },
+  };
+
+  const normalizedMove = normalizeResponse(testAction.payload, 'move');
+
+  const generator = updateMove(testAction);
+
+  it('normalizes the payload', () => {
+    expect(generator.next().value).toEqual(call(normalizeResponse, testAction.payload, 'move'));
+  });
+
+  it('stores the normalized data in entities', () => {
+    expect(generator.next(normalizedMove).value).toEqual(put(addEntities(normalizedMove)));
+  });
+
+  it('calls the legacy CREATE_OR_UPDATE_MOVE_SUCCESS action with the raw payload', () => {
+    expect(generator.next().value).toEqual(
+      put({
+        type: 'CREATE_OR_UPDATE_MOVE_SUCCESS',
+        payload: testAction.payload,
+      }),
+    );
+  });
+
+  it('is done', () => {
+    expect(generator.next().done).toEqual(true);
+  });
+});
+
+describe('updateMTOShipment', () => {
+  const testAction = {
+    payload: {
+      createdAt: '2020-12-08T17:39:05.051Z',
+      customerRemarks: '',
+      eTag: 'MjAyMC0xMi0wOFQxNzozOTowNS4wNTE0Mzha',
+      id: 'dfb950b2-075f-4595-b3cd-a56bb7293ca1',
+      moveTaskOrderID: 'c7621194-ed1e-4ead-9033-761715f179f3',
+      pickupAddress: {
+        city: 'New York',
+        id: '3eedb9b9-fbbb-47c0-93c7-50daaae84cb4',
+        postal_code: '10002',
+        state: 'NY',
+        street_address_1: '415 Grand St, #E306, #E306',
+        street_address_2: '#E306',
+      },
+      requestedPickupDate: '2020-12-22',
+      shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+      status: 'SUBMITTED',
+      updatedAt: '2020-12-08T17:39:05.051Z',
+    },
+  };
+
+  const normalizedMove = normalizeResponse(testAction.payload, 'mtoShipment');
+
+  const generator = updateMTOShipment(testAction);
+
+  it('normalizes the payload', () => {
+    expect(generator.next().value).toEqual(call(normalizeResponse, testAction.payload, 'mtoShipment'));
+  });
+
+  it('stores the normalized data in entities', () => {
+    expect(generator.next(normalizedMove).value).toEqual(put(addEntities(normalizedMove)));
   });
 
   it('is done', () => {
