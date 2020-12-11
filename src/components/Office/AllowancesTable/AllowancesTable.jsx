@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 
 import styles from '../MoveDetailTable.module.scss';
 
+import { formatWeight, formatDaysInTransit } from 'shared/formatters';
+
 const AllowancesTable = ({ showEditBtn, info }) => {
   const titleCase = (input) => {
     if (input && input.length > 0) {
@@ -45,45 +47,33 @@ const AllowancesTable = ({ showEditBtn, info }) => {
         </colgroup>
         <tbody>
           <tr>
-            <th scope="row" className="text-bold">
-              Branch, rank
-            </th>
+            <th scope="row">Branch, rank</th>
             <td data-testid="branchRank">{`${titleCase(info.branch)}, ${friendlyRankDisplay(info.rank)}`}</td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Weight allowance
-            </th>
-            <td data-testid="weightAllowance">{`${info.weightAllowance} lbs`}</td>
+            <th scope="row">Weight allowance</th>
+            <td data-testid="weightAllowance">{formatWeight(info.weightAllowance)}</td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Authorized weight
-            </th>
-            <td data-testid="authorizedWeight">{`${info.authorizedWeight} lbs`}</td>
+            <th scope="row">Authorized weight</th>
+            <td data-testid="authorizedWeight">{formatWeight(info.authorizedWeight)}</td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Pro-gear
-            </th>
-            <td data-testid="progear">{`${info.progear} lbs`}</td>
+            <th scope="row">Pro-gear</th>
+            <td data-testid="progear">{formatWeight(info.progear)}</td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Spouse pro-gear
-            </th>
-            <td data-testid="spouseProgear">{`${info.spouseProgear} lbs`}</td>
+            <th scope="row">Spouse pro-gear</th>
+            <td data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Storage in transit
-            </th>
-            <td data-testid="storageInTransit">{info.storageInTransit ? `${info.storageInTransit} days` : ''}</td>
+            <th scope="row">Storage in transit</th>
+            <td data-testid="storageInTransit">
+              {info.storageInTransit ? formatDaysInTransit(info.storageInTransit) : ''}
+            </td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Dependents
-            </th>
+            <th scope="row">Dependents</th>
             <td data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</td>
           </tr>
         </tbody>

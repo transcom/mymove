@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
 import { getFormValues } from 'redux-form';
+
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import CertificationText from './CertificationText';
@@ -15,7 +16,8 @@ import './index.scss';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
-import { submitMoveForApproval } from 'shared/Entities/modules/moves';
+import { submitMoveForApproval } from 'services/internalApi';
+import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { completeCertificationText } from './legaleseText';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
@@ -45,9 +47,10 @@ export class SignedCertification extends Component {
     };
 
     if (values) {
-      this.props
-        .submitMoveForApproval(moveId, certificate)
-        .then(() => {
+      submitMoveForApproval(moveId, certificate)
+        .then((response) => {
+          // Update Redux with new data
+          this.props.updateMove(response);
           this.props.setFlashMessage('MOVE_SUBMIT_SUCCESS', 'success', 'You’ve submitted your move request.');
           this.props.push(landingPath);
         })
@@ -91,7 +94,7 @@ export class SignedCertification extends Component {
               <div className="usa-width-one-whole">
                 <div>
                   <h1>Now for the official part...</h1>
-                  <p className="instructions">{instructionsText}</p>
+                  <div className="instructions">{instructionsText}</div>
                   <SectionWrapper>
                     <span className="box_top">
                       <a className="usa-link pdf" onClick={this.print}>
@@ -167,9 +170,9 @@ function mapStateToProps(state, ownProps) {
 const mapDispatchToProps = {
   createSignedCertification,
   loadPPMs,
-  submitMoveForApproval,
   push,
   setFlashMessage: setFlashMessageAction,
+  updateMove: updateMoveAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignedCertification);

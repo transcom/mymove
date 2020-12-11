@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -16,13 +17,15 @@ import (
 )
 
 type ghcPaymentRequestInvoiceGenerator struct {
-	db *pop.Connection
+	db           *pop.Connection
+	icnSequencer sequence.Sequencer
 }
 
 // NewGHCPaymentRequestInvoiceGenerator returns an implementation of the GHCPaymentRequestInvoiceGenerator interface
-func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection) services.GHCPaymentRequestInvoiceGenerator {
+func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection, icnSequencer sequence.Sequencer) services.GHCPaymentRequestInvoiceGenerator {
 	return &ghcPaymentRequestInvoiceGenerator{
-		db: db,
+		db:           db,
+		icnSequencer: icnSequencer,
 	}
 }
 
@@ -79,10 +82,11 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	currentTime := time.Now()
 
-	// TODO: interchangeControlNumber, err := icnSequencer.NextVal()
-	// if err != nil {
-	// 	return Invoice858C{}, errors.Wrap(err, fmt.Sprintf("Failed to get next Interchange Control Number"))
-	// }
+	interchangeControlNumber, err := g.icnSequencer.NextVal()
+	if err != nil {
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to get next Interchange Control Number: %w", err)
+	}
+
 	var usageIndicator string
 	if sendProductionInvoice {
 		usageIndicator = "P"
@@ -104,7 +108,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		InterchangeTime:                   currentTime.Format(timeFormat),
 		InterchangeControlStandards:       "U",
 		InterchangeControlVersionNumber:   "00401",
-		InterchangeControlNumber:          100001272,
+		InterchangeControlNumber:          interchangeControlNumber,
 		AcknowledgementRequested:          0,
 		UsageIndicator:                    usageIndicator, // T for test, P for production
 		ComponentElementSeparator:         "|",
@@ -145,7 +149,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	// contract code to header
 	var contractCodeServiceItemParam models.PaymentServiceItemParam
-	err := g.db.Q().
+	err = g.db.Q().
 		Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
 		Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
 		Join("payment_requests pr", "psi.payment_request_id = pr.id").
@@ -228,7 +232,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.IEA = edisegment.IEA{
 		NumberOfIncludedFunctionalGroups: 1,
-		InterchangeControlNumber:         100001272,
+		InterchangeControlNumber:         interchangeControlNumber,
 	}
 
 	return edi858, nil

@@ -3,11 +3,8 @@ import { connect } from 'react-redux';
 import { bool, string, func, shape, number } from 'prop-types';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
-import {
-  selectMTOShipmentById,
-  createMTOShipment as createMTOShipmentAction,
-  updateMTOShipment as updateMTOShipmentAction,
-} from 'shared/Entities/modules/mtoShipments';
+import { selectMTOShipmentById } from 'shared/Entities/modules/mtoShipments';
+import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/actions';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { HhgShipmentShape, HistoryShape, MatchShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -31,7 +28,6 @@ export class CreateOrEditMtoShipment extends Component {
       selectedMoveType,
       currentResidence,
       newDutyStationAddress,
-      createMTOShipment,
       updateMTOShipment,
       serviceMember,
       isCreate,
@@ -50,7 +46,6 @@ export class CreateOrEditMtoShipment extends Component {
           isCreatePage={isCreate}
           currentResidence={currentResidence}
           newDutyStationAddress={newDutyStationAddress}
-          createMTOShipment={createMTOShipment}
           updateMTOShipment={updateMTOShipment}
           serviceMember={serviceMember}
         />
@@ -73,7 +68,6 @@ CreateOrEditMtoShipment.propTypes = {
   mtoShipment: HhgShipmentShape,
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
-  createMTOShipment: func.isRequired,
   updateMTOShipment: func.isRequired,
   serviceMember: shape({
     weight_allotment: shape({
@@ -122,7 +116,6 @@ function mapStateToProps(state, ownProps) {
 
 const mapDispatchToProps = {
   fetchCustomerData: fetchCustomerDataAction,
-  createMTOShipment: createMTOShipmentAction,
   updateMTOShipment: updateMTOShipmentAction,
 };
 

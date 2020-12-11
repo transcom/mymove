@@ -1,1 +1,9 @@
-{}
+{
+  "lighthouse": {
+    "performance": 85,
+    "accessibility": 50,
+    "best-practices": 85,
+    "seo": 85,
+    "pwa": 50
+  }
+}

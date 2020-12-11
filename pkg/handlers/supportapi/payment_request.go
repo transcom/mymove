@@ -262,7 +262,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, sendToSyncada flag required", h.GetTraceID()))
 	}
 	if *sendToSyncada {
-		reviewedPaymentRequestProcessor := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true)
+		reviewedPaymentRequestProcessor := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, h.ICNSequencer())
 		err := reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 		if err != nil {
 			msg := fmt.Sprintf("Error processing reviewed payment requests")

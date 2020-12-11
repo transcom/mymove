@@ -7,7 +7,7 @@ const info = {
   branch: 'Navy',
   rank: 'E-6',
   weightAllowance: 11000,
-  authorizedWeight: 11000,
+  authorizedWeight: 12000,
   progear: 2000,
   spouseProgear: 500,
   storageInTransit: 90,
@@ -18,11 +18,11 @@ describe('Allowances Table', () => {
   it('should render the data passed to its props', () => {
     const wrapper = shallow(<AllowancesTable info={info} />);
     expect(wrapper.find({ 'data-testid': 'branchRank' }).text()).toMatch(`${info.branch}, ${info.rank}`);
-    expect(wrapper.find({ 'data-testid': 'weightAllowance' }).text()).toMatch(`${info.weightAllowance} lbs`);
-    expect(wrapper.find({ 'data-testid': 'authorizedWeight' }).text()).toMatch(`${info.authorizedWeight} lbs`);
-    expect(wrapper.find({ 'data-testid': 'progear' }).text()).toMatch(`${info.progear} lbs`);
-    expect(wrapper.find({ 'data-testid': 'spouseProgear' }).text()).toMatch(`${info.spouseProgear} lbs`);
-    expect(wrapper.find({ 'data-testid': 'storageInTransit' }).text()).toMatch(`${info.storageInTransit} days`);
+    expect(wrapper.find({ 'data-testid': 'weightAllowance' }).text()).toMatch('11,000 lbs');
+    expect(wrapper.find({ 'data-testid': 'authorizedWeight' }).text()).toMatch('12,000 lbs');
+    expect(wrapper.find({ 'data-testid': 'progear' }).text()).toMatch('2,000 lbs');
+    expect(wrapper.find({ 'data-testid': 'spouseProgear' }).text()).toMatch('500 lbs');
+    expect(wrapper.find({ 'data-testid': 'storageInTransit' }).text()).toMatch('90 days');
     expect(wrapper.find({ 'data-testid': 'dependents' }).text()).toMatch('Authorized');
   });
 

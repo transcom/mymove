@@ -17,7 +17,6 @@ const cancelMoveLabel = 'Moves.CancelMove';
 export const loadMoveLabel = 'Moves.loadMove';
 export const getMoveDatesSummaryLabel = 'Moves.getMoveDatesSummary';
 export const getMoveByLocatorOperation = 'move.getMove';
-export const submitMoveForApprovalLabel = 'move.submitMoveForApproval';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
@@ -95,19 +94,6 @@ export function selectActiveMoveByOrdersId(state, ordersId) {
 export function selectMoveStatus(state, moveId) {
   const move = selectMove(state, moveId);
   return move.status;
-}
-
-export function submitMoveForApproval(moveId, certificate, label = submitMoveForApprovalLabel) {
-  const swaggerTag = 'moves.submitMoveForApproval';
-  const submitMoveForApprovalPayload = { certificate: certificate };
-  return swaggerRequest(
-    getClient,
-    swaggerTag,
-    { moveId, submitMoveForApprovalPayload },
-    {
-      label,
-    },
-  );
 }
 
 export function selectActiveOrLatestMove(state) {

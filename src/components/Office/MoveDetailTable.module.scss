@@ -8,6 +8,7 @@
   :global .stackedtable-header {
     max-width: unset;
     h4 {
+      @include u-font-weight(bold);
       color: $base-darkest;
     }
 
