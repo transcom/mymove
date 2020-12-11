@@ -1695,6 +1695,11 @@ definitions:
         x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
+      authorizedWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
