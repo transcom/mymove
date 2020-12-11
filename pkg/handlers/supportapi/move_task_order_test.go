@@ -108,6 +108,30 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		response := handler.Handle(params)
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError(), response)
 	})
+
+	suite.T().Run("Do not include mto in payload when it's missing a contractor id", func(t *testing.T) {
+		var moves models.Moves
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		mto.ContractorID = nil
+		moves = append(moves, mto)
+
+		mockHider := &mocks.MoveTaskOrderHider{}
+		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
+			context,
+			mockHider,
+		}
+		mockHider.On("Hide").Return(moves, nil)
+
+		response := handler.Handle(params)
+		moveTaskOrdersResponse := response.(*movetaskorderops.HideNonFakeMoveTaskOrdersOK)
+		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+		// Ensure that mto without a contractorID is NOT included in the payload
+		for _, mto := range moveTaskOrdersPayload {
+			suite.NotEqual(mto.ID, moves[0].ID)
+		}
+		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersOK(), response)
+	})
 }
 
 func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSuccess() {

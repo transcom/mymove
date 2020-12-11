@@ -236,6 +236,50 @@ func (o *HideNonFakeMoveTaskOrdersNotFound) WriteResponse(rw http.ResponseWriter
 	}
 }
 
+// HideNonFakeMoveTaskOrdersConflictCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersConflict
+const HideNonFakeMoveTaskOrdersConflictCode int = 409
+
+/*HideNonFakeMoveTaskOrdersConflict There was a conflict with the request.
+
+swagger:response hideNonFakeMoveTaskOrdersConflict
+*/
+type HideNonFakeMoveTaskOrdersConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewHideNonFakeMoveTaskOrdersConflict creates HideNonFakeMoveTaskOrdersConflict with default headers values
+func NewHideNonFakeMoveTaskOrdersConflict() *HideNonFakeMoveTaskOrdersConflict {
+
+	return &HideNonFakeMoveTaskOrdersConflict{}
+}
+
+// WithPayload adds the payload to the hide non fake move task orders conflict response
+func (o *HideNonFakeMoveTaskOrdersConflict) WithPayload(payload *supportmessages.ClientError) *HideNonFakeMoveTaskOrdersConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the hide non fake move task orders conflict response
+func (o *HideNonFakeMoveTaskOrdersConflict) SetPayload(payload *supportmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *HideNonFakeMoveTaskOrdersConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // HideNonFakeMoveTaskOrdersPreconditionFailedCode is the HTTP code returned for type HideNonFakeMoveTaskOrdersPreconditionFailed
 const HideNonFakeMoveTaskOrdersPreconditionFailedCode int = 412
 

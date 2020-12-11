@@ -53,6 +53,12 @@ func (o *HideNonFakeMoveTaskOrdersReader) ReadResponse(response runtime.ClientRe
 			return nil, err
 		}
 		return nil, result
+	case 409:
+		result := NewHideNonFakeMoveTaskOrdersConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 412:
 		result := NewHideNonFakeMoveTaskOrdersPreconditionFailed()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -229,6 +235,39 @@ func (o *HideNonFakeMoveTaskOrdersNotFound) GetPayload() *supportmessages.Client
 }
 
 func (o *HideNonFakeMoveTaskOrdersNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(supportmessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewHideNonFakeMoveTaskOrdersConflict creates a HideNonFakeMoveTaskOrdersConflict with default headers values
+func NewHideNonFakeMoveTaskOrdersConflict() *HideNonFakeMoveTaskOrdersConflict {
+	return &HideNonFakeMoveTaskOrdersConflict{}
+}
+
+/*HideNonFakeMoveTaskOrdersConflict handles this case with default header values.
+
+There was a conflict with the request.
+*/
+type HideNonFakeMoveTaskOrdersConflict struct {
+	Payload *supportmessages.ClientError
+}
+
+func (o *HideNonFakeMoveTaskOrdersConflict) Error() string {
+	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersConflict  %+v", 409, o.Payload)
+}
+
+func (o *HideNonFakeMoveTaskOrdersConflict) GetPayload() *supportmessages.ClientError {
+	return o.Payload
+}
+
+func (o *HideNonFakeMoveTaskOrdersConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(supportmessages.ClientError)
 

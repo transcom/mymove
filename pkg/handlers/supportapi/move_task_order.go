@@ -1,9 +1,12 @@
 package supportapi
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/support"
 
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
@@ -84,14 +87,22 @@ type HideNonFakeMoveTaskOrdersHandlerFunc struct {
 func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.HideNonFakeMoveTaskOrdersParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	mtos, err := h.Hide()
+	hiddenMTOs, err := h.Hide()
 
 	if err != nil {
 		logger.Error("supportapi.HideNonFakeMoveTaskOrdersHandlerFunc error", zap.Error(err))
 		return movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 	}
+	var mtosPayload models.Moves
+	for _, mto := range hiddenMTOs {
+		if mto.ContractorID == nil {
+			logger.Warn(fmt.Sprintf("MTO with id %s is missing a ContractorID. It has been hidden but will not appear in the array of returned MTOs", mto.ID))
+		} else {
+			mtosPayload = append(mtosPayload, mto)
+		}
+	}
 
-	payload := payloads.MoveTaskOrders(&mtos)
+	payload := payloads.MoveTaskOrders(&mtosPayload)
 
 	return movetaskorderops.NewHideNonFakeMoveTaskOrdersOK().WithPayload(payload)
 }
