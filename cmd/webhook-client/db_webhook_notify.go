@@ -66,6 +66,7 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 		Client:              runtime,
 		PeriodInSeconds:     v.GetInt(PeriodFlag),
 		MaxImmediateRetries: v.GetInt(MaxRetriesFlag),
+		SeverityThresholds:  []int{60},
 	}
 
 	// Start polling the db for changes
