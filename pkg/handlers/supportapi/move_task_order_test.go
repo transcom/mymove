@@ -109,7 +109,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError(), response)
 	})
 
-	suite.T().Run("409 conflict error when mto missing contractor id", func(t *testing.T) {
+	suite.T().Run("Do not include mto in payload when it's missing a contractor id", func(t *testing.T) {
 		var moves models.Moves
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 		mto.ContractorID = nil
