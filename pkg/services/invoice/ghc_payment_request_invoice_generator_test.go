@@ -10,6 +10,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -21,7 +23,8 @@ import (
 
 type GHCInvoiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger       Logger
+	icnSequencer sequence.Sequencer
 }
 
 func (suite *GHCInvoiceSuite) SetupTest() {
@@ -36,6 +39,8 @@ func TestGHCInvoiceSuite(t *testing.T) {
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("ghcinvoice")),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
+	ts.icnSequencer = sequence.NewDatabaseSequencer(ts.DB(), ediinvoice.ICNSequenceName)
+
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
 }
@@ -46,7 +51,7 @@ const testTimeFormat = "1504"
 
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	currentTime := time.Now()
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -168,13 +173,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		},
 	})
 
+	// setup known next value
+	suite.icnSequencer.SetVal(122)
+
 	// Proceed with full EDI Generation tests
 	result, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
 
 	// Test Invoice Start and End Segments
 	suite.T().Run("adds isa start segment", func(t *testing.T) {
-
 		suite.Equal("00", result.ISA.AuthorizationInformationQualifier)
 		suite.Equal("0084182369", result.ISA.AuthorizationInformation)
 		suite.Equal("00", result.ISA.SecurityInformationQualifier)
@@ -187,7 +194,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal(currentTime.Format(testTimeFormat), result.ISA.InterchangeTime)
 		suite.Equal("U", result.ISA.InterchangeControlStandards)
 		suite.Equal("00401", result.ISA.InterchangeControlVersionNumber)
-		suite.Equal(int64(100001272), result.ISA.InterchangeControlNumber)
+		suite.Equal(int64(123), result.ISA.InterchangeControlNumber)
 		suite.Equal(0, result.ISA.AcknowledgementRequested)
 		suite.Equal("T", result.ISA.UsageIndicator)
 		suite.Equal("|", result.ISA.ComponentElementSeparator)
@@ -222,7 +229,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds iea end segment", func(t *testing.T) {
 		suite.Equal(1, result.IEA.NumberOfIncludedFunctionalGroups)
-		suite.Equal(int64(100001272), result.IEA.InterchangeControlNumber)
+		suite.Equal(int64(123), result.IEA.InterchangeControlNumber)
 	})
 
 	// Test Header Generation
@@ -483,7 +490,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 }
 
 func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -548,7 +555,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		},
 	}
 
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
 	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{

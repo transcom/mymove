@@ -1,8 +1,7 @@
-/* eslint-disable import/prefer-default-export */
-
 import PropTypes from 'prop-types';
 
 export const MatchShape = PropTypes.shape({
+  // eslint-disable-next-line react/forbid-prop-types
   params: PropTypes.object,
   isExact: PropTypes.bool,
   path: PropTypes.string,
@@ -14,6 +13,7 @@ export const LocationShape = PropTypes.shape({
   pathname: PropTypes.string,
   search: PropTypes.string,
   hash: PropTypes.string,
+  // eslint-disable-next-line react/forbid-prop-types
   state: PropTypes.object,
 });
 

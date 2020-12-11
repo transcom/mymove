@@ -87,7 +87,6 @@ MultiSelectCheckBoxFilter.propTypes = {
   options: PropTypes.arrayOf(PropTypes.object).isRequired,
   column: PropTypes.shape({
     filterValue: PropTypes.node,
-    preFilteredRows: PropTypes.array,
     setFilter: PropTypes.func,
   }).isRequired,
 };

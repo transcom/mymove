@@ -8,7 +8,8 @@ export const emptyPayload = {
     updated_at: '2018-05-20T14:38:57.353Z',
   },
 };
-export default {
+
+const samplePayload = {
   type: 'GET_LOGGED_IN_USER_SUCCESS',
   payload: {
     created_at: '2018-05-20T14:38:57.353Z',
@@ -225,3 +226,5 @@ export default {
     updated_at: '2018-05-20T14:38:57.353Z',
   },
 };
+
+export default samplePayload;

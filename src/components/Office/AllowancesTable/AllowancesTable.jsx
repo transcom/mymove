@@ -1,7 +1,12 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
-const AllowancesTable = ({ info }) => {
+import styles from '../MoveDetailTable.module.scss';
+
+import { formatWeight, formatDaysInTransit } from 'shared/formatters';
+
+const AllowancesTable = ({ showEditBtn, info }) => {
   const titleCase = (input) => {
     if (input && input.length > 0) {
       const friendlyInput = input.toLowerCase().replace('_', ' ').split(' ');
@@ -22,11 +27,18 @@ const AllowancesTable = ({ info }) => {
   };
 
   return (
-    <div>
+    <div className={styles.MoveDetailTable}>
       <div className="stackedtable-header">
         <div>
           <h4>Allowances</h4>
         </div>
+        {showEditBtn && (
+          <div>
+            <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+              Edit Allowances
+            </Link>
+          </div>
+        )}
       </div>
       <table className="table--stacked">
         <colgroup>
@@ -35,45 +47,33 @@ const AllowancesTable = ({ info }) => {
         </colgroup>
         <tbody>
           <tr>
-            <th scope="row" className="text-bold">
-              Branch, rank
-            </th>
+            <th scope="row">Branch, rank</th>
             <td data-testid="branchRank">{`${titleCase(info.branch)}, ${friendlyRankDisplay(info.rank)}`}</td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Weight allowance
-            </th>
-            <td data-testid="weightAllowance">{`${info.weightAllowance} lbs`}</td>
+            <th scope="row">Weight allowance</th>
+            <td data-testid="weightAllowance">{formatWeight(info.weightAllowance)}</td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Authorized weight
-            </th>
-            <td data-testid="authorizedWeight">{`${info.authorizedWeight} lbs`}</td>
+            <th scope="row">Authorized weight</th>
+            <td data-testid="authorizedWeight">{formatWeight(info.authorizedWeight)}</td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Pro-gear
-            </th>
-            <td data-testid="progear">{`${info.progear} lbs`}</td>
+            <th scope="row">Pro-gear</th>
+            <td data-testid="progear">{formatWeight(info.progear)}</td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Spouse pro-gear
-            </th>
-            <td data-testid="spouseProgear">{`${info.spouseProgear} lbs`}</td>
+            <th scope="row">Spouse pro-gear</th>
+            <td data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Storage in transit
-            </th>
-            <td data-testid="storageInTransit">{info.storageInTransit ? `${info.storageInTransit} days` : ''}</td>
+            <th scope="row">Storage in transit</th>
+            <td data-testid="storageInTransit">
+              {info.storageInTransit ? formatDaysInTransit(info.storageInTransit) : ''}
+            </td>
           </tr>
           <tr>
-            <th scope="row" className="text-bold">
-              Dependents
-            </th>
+            <th scope="row">Dependents</th>
             <td data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</td>
           </tr>
         </tbody>
@@ -83,6 +83,7 @@ const AllowancesTable = ({ info }) => {
 };
 
 AllowancesTable.propTypes = {
+  showEditBtn: PropTypes.bool,
   info: PropTypes.shape({
     branch: PropTypes.string,
     rank: PropTypes.string,
@@ -93,6 +94,10 @@ AllowancesTable.propTypes = {
     storageInTransit: PropTypes.number,
     dependents: PropTypes.bool,
   }).isRequired,
+};
+
+AllowancesTable.defaultProps = {
+  showEditBtn: false,
 };
 
 export default AllowancesTable;

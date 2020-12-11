@@ -74,6 +74,28 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 	return movetaskorderops.NewMakeMoveTaskOrderAvailableOK().WithPayload(moveTaskOrderPayload)
 }
 
+// HideNonFakeMoveTaskOrdersHandlerFunc calls service to hide MTOs that are not using fake data
+type HideNonFakeMoveTaskOrdersHandlerFunc struct {
+	handlers.HandlerContext
+	services.MoveTaskOrderHider
+}
+
+// Handle hides any mto that doesnt have valid fake data
+func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.HideNonFakeMoveTaskOrdersParams) middleware.Responder {
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	mtos, err := h.Hide()
+
+	if err != nil {
+		logger.Error("supportapi.HideNonFakeMoveTaskOrdersHandlerFunc error", zap.Error(err))
+		return movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+	}
+
+	payload := payloads.MoveTaskOrders(&mtos)
+
+	return movetaskorderops.NewHideNonFakeMoveTaskOrdersOK().WithPayload(payload)
+}
+
 // GetMoveTaskOrderHandlerFunc updates the status of a Move Task Order
 type GetMoveTaskOrderHandlerFunc struct {
 	handlers.HandlerContext

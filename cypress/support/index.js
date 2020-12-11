@@ -25,3 +25,9 @@ Cypress.on('window:load', (win) => {
   node.innerHTML = 'html { scroll-behavior: inherit !important; }';
   document.body.appendChild(node);
 });
+
+Cypress.on('fail', (error, runnable) => {
+  // don't throw on a11y errors
+  const isPa11yFailure = error.message.indexOf('cy.pa11y') > -1;
+  if (!isPa11yFailure) throw error; // throw error to have test still fail
+});

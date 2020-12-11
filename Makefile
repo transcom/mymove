@@ -707,6 +707,7 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	rm -rf cypress/results
 	rm -rf cypress/screenshots
 	rm -rf cypress/videos
+	rm -rf cypress/reports
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up

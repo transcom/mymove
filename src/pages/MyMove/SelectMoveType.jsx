@@ -1,12 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { string, bool, func, arrayOf, shape } from 'prop-types';
 
 import styles from './SelectMoveType.module.scss';
 
-import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { WizardPage } from 'shared/WizardPage';
@@ -15,6 +13,8 @@ import {
   selectMTOShipmentsByMoveId,
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
+import { patchMove, getResponseError } from 'services/internalApi';
+import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
@@ -25,6 +25,7 @@ export class SelectMoveType extends Component {
     this.state = {
       showStorageInfoModal: false,
       showMoveInfoModal: false,
+      errorMessage: null,
     };
   }
 
@@ -52,12 +53,27 @@ export class SelectMoveType extends Component {
   handleSubmit = () => {
     const { match, updateMove } = this.props;
     const { moveType } = this.state;
-    return updateMove(match.params.moveId, moveType);
+
+    return patchMove({
+      id: match.params.moveId,
+      selected_move_type: moveType,
+    })
+      .then((response) => {
+        // Update Redux with new data
+        updateMove(response);
+      })
+      .catch((e) => {
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to update move due to server error');
+        this.setState({
+          errorMessage,
+        });
+      });
   };
 
   render() {
     const { pageKey, pageList, match, push, move, mtoShipments } = this.props;
-    const { moveType, showStorageInfoModal, showMoveInfoModal } = this.state;
+    const { moveType, showStorageInfoModal, showMoveInfoModal, errorMessage } = this.state;
     const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
     const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
     const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
@@ -159,6 +175,7 @@ export class SelectMoveType extends Component {
           push={push}
           footerText={footerText}
           canMoveNext={canMoveNext}
+          error={errorMessage}
         >
           <h6 data-testid="number-eyebrow" className="sm-heading">
             Shipment {shipmentNumber}
@@ -237,9 +254,10 @@ function mapStateToProps(state) {
   return props;
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateMove: updateMoveAction, loadMTOShipments: loadMTOShipmentsAction }, dispatch);
-}
+const mapDispatchToProps = {
+  updateMove: updateMoveAction,
+  loadMTOShipments: loadMTOShipmentsAction,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectMoveType);
 export { mapStateToProps as _mapStateToProps };
