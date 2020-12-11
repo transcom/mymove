@@ -34,6 +34,7 @@ type Engine struct {
 	Cmd                 *cobra.Command
 	PeriodInSeconds     int
 	MaxImmediateRetries int
+	SeverityThresholds  []int
 }
 
 // processNotifications reads all the notifications and all the subscriptions and processes them one by one
@@ -47,18 +48,37 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 			sub := sub
 			if sub.EventKey == notif.EventKey {
 				foundSub = true
+				stopLoop := false
+				var sev int
 				// If found, send  to subscription
-				// #nosec G601 TODO needs review
 				err := eng.sendOneNotification(&notif, &sub)
-				errDB := eng.updateSubscriptionStatus(&notif, &sub)
+				// If notification send failed, we need to log the severity
+				if err != nil {
+					eng.Logger.Error("Webhook Notification send failed", zap.Error(err))
+					sev = eng.GetSeverity(time.Now(), notif.FirstAttemptedAt)
+					if sev != sub.Severity {
+						eng.Logger.Error("Raising severity of failure",
+							zap.String("subscriptionEvent", sub.EventKey),
+							zap.Int("severityFrom", sub.Severity),
+							zap.Int("severityTo", sev))
+						if sev == 1 {
+							notif.Status = models.WebhookNotificationFailed
+							err = eng.updateNotification(&notif)
+							if err != nil {
+								eng.Logger.Error("Webhook Notification update failed", zap.Error(err))
+							}
+						}
+					}
+					stopLoop = true
+				}
+				// Update subscription, needs to be done on success sometimes, hence it's out of the previous if
+				errDB := eng.updateSubscriptionStatus(&notif, &sub, sev)
 				if errDB != nil {
 					eng.Logger.Error("Webhook Subscription update failed", zap.Error(err))
 				}
-				if err != nil {
-					eng.Logger.Error("Webhook Notification send failed", zap.Error(err))
+				if stopLoop {
 					return
 				}
-				continue
 			}
 		}
 		if foundSub == false {
@@ -76,19 +96,31 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 
 // updateSubscriptionStatus updates the subscription based on the status of the last notification.
 // Returns nil if nothing to update or update succeeds, returns error if error found
-func (eng *Engine) updateSubscriptionStatus(notif *models.WebhookNotification, sub *models.WebhookSubscription) error {
+func (eng *Engine) updateSubscriptionStatus(notif *models.WebhookNotification, sub *models.WebhookSubscription,
+	newSeverity int) error {
 	// Update subscription status if it has changed
-	// Eventually we will use the severity to make these decisions too
+
 	var doUpdate = false
 	switch notif.Status {
+	case models.WebhookNotificationFailed:
+		// If the notification is set to failed, then we need to deactivate the subscription
+		if sub.Status != models.WebhookSubscriptionStatusDisabled {
+			sub.Status = models.WebhookSubscriptionStatusDisabled
+			sub.Severity = newSeverity
+			doUpdate = true
+		}
 	case models.WebhookNotificationFailing:
-		if sub.Status != models.WebhookSubscriptionStatusFailing {
+		// If the notification is failing, then we may need to update the status and/or severity
+		if sub.Status != models.WebhookSubscriptionStatusFailing || sub.Severity != newSeverity {
 			sub.Status = models.WebhookSubscriptionStatusFailing
+			sub.Severity = newSeverity
 			doUpdate = true
 		}
 	case models.WebhookNotificationSent:
-		if sub.Status != models.WebhookSubscriptionStatusActive {
+		// If the notification sent, we may need to recover the status and severity back to a-ok
+		if sub.Status != models.WebhookSubscriptionStatusActive || sub.Severity != 0 {
 			sub.Status = models.WebhookSubscriptionStatusActive
+			sub.Severity = 0
 			doUpdate = true
 		}
 	}
@@ -125,7 +157,8 @@ func (eng *Engine) updateNotification(notif *models.WebhookNotification) error {
 	return nil
 }
 
-// sendOneNotification sends the notification and marks the notification as sent or failed
+// sendOneNotification sends the notification the max immediate retries. It updates the notification's status
+// and stores it in the DB.
 func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *models.WebhookSubscription) error {
 	logger := eng.Logger
 
@@ -178,7 +211,7 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		}
 		// If there was an error sending, log error and continue
 		if err2 != nil {
-			logger.Error("Failed to send, error sending webhook:", zap.Error(err2),
+			logger.Debug("Failed to send, error sending webhook:", zap.Error(err2),
 				zap.String("notificationID", notif.ID.String()),
 				zap.Int("Retry #", try))
 			continue
@@ -186,7 +219,7 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		// If there was an error response from server, log error and continue
 		if resp.StatusCode != 200 {
 			errmsg := fmt.Sprintf("Failed to send. Response Status: %s. Body: %s", resp.Status, string(body))
-			logger.Error("Received error on sending webhook", zap.String("Error", errmsg),
+			logger.Debug("Received error on sending webhook", zap.String("Error", errmsg),
 				zap.String("notificationID", notif.ID.String()),
 				zap.Int("Retry #", try))
 		}
@@ -268,11 +301,11 @@ func (eng *Engine) Start() error {
 }
 
 // GetSeverity is a function that returns the severity level of a single attempt given an array of severity thresholds
-func (eng *Engine) GetSeverity(currentTime time.Time, firstAttempt time.Time, thresholds []int) int {
+func (eng *Engine) GetSeverity(currentTime time.Time, firstAttempt time.Time) int {
 	timeSinceFirstAttempt := int(currentTime.Sub(firstAttempt).Seconds())
-	levels := len(thresholds) + 1
+	levels := len(eng.SeverityThresholds) + 1
 	sev := 1 //if the loop condition is not met, then the severity is 1
-	for index, threshold := range thresholds {
+	for index, threshold := range eng.SeverityThresholds {
 		if timeSinceFirstAttempt < threshold {
 			sev = levels - index
 			break
