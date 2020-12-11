@@ -47,14 +47,15 @@ func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 }
 
 // InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
-func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, sendToSyncada bool, icnSequencer sequence.Sequencer) services.PaymentRequestReviewedProcessor {
+func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, sendToSyncada bool, icnSequencer sequence.Sequencer) (services.PaymentRequestReviewedProcessor, error) {
 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(db)
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(db, icnSequencer)
 	var sftpSession services.SyncadaSFTPSender
 	sftpSession, err := invoice.InitNewSyncadaSFTPSession()
 	if err != nil {
 		// just log the error, sftpSession is set to nil if there is an error
-		logger.Error(fmt.Errorf("Configuration of SyncadaSFTPSession failed: %w", err).Error())
+		logger.Error(fmt.Errorf("configuration of SyncadaSFTPSession failed: %w", err).Error())
+		return nil, err
 	}
 	var gexSender services.GexSender
 	gexSender = nil
@@ -66,7 +67,7 @@ func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, s
 		generator,
 		sendToSyncada,
 		gexSender,
-		sftpSession)
+		sftpSession), nil
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {

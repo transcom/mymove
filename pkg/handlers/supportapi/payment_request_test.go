@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -458,6 +459,16 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 	return prs
 }
 func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
+
+	os.Setenv("SYNCADA_SFTP_PORT", "1234")
+	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	// generated fake host key to pass parser used following command and only saved the pub key
+	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
+	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+
 	reviewedPRs := suite.createPaymentRequest(4)
 
 	sentToGEXTime := time.Now()
@@ -496,7 +507,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
 
-		sendToSyncada := true
+		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
