@@ -147,7 +147,7 @@
     "prettier": "2.2.1",
     "react-test-renderer": "^16.14.0",
     "source-map-explorer": "^2.5.1",
-    "storybook-addons-abstract": "^5.0.6"
+    "storybook-addons-abstract": "^6.0.3"
   },
   "browserslist": [
     ">0.2%",
@@ -170,6 +170,8 @@
         "statements": 40
       }
     },
-    "transformIgnorePatterns": ["node_modules/(?!(imask)/)/"]
+    "transformIgnorePatterns": [
+      "node_modules/(?!(imask)/)/"
+    ]
   }
 }
