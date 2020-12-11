@@ -80,6 +80,7 @@
     "yup": "^0.31.0"
   },
   "resolutions": {
+    "babel-loader": "8.1.0",
     "bl": "^4.0.3",
     "kind-of": "^6.0.2",
     "node-forge": "^0.10.0",
@@ -124,6 +125,7 @@
     "@storybook/addons": "^6.1.5",
     "@storybook/react": "^5.3.19",
     "@testing-library/react-hooks": "^3.7.0",
+    "babel-loader": "8.1.0",
     "cypress": "^6.0.0",
     "cypress-audit": "^0.2.3",
     "cypress-wait-until": "^1.7.1",
@@ -171,6 +173,8 @@
         "statements": 40
       }
     },
-    "transformIgnorePatterns": ["node_modules/(?!(imask)/)/"]
+    "transformIgnorePatterns": [
+      "node_modules/(?!(imask)/)/"
+    ]
   }
 }
