@@ -17,6 +17,9 @@ import (
 // swagger:model UpdateMoveOrderPayload
 type UpdateMoveOrderPayload struct {
 
+	// authorized weight
+	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
+
 	// department indicator
 	// Required: true
 	DepartmentIndicator DeptIndicator `json:"departmentIndicator"`

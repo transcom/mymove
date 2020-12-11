@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -159,8 +161,14 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 	}
 
 	departmentIndicator := string(payload.DepartmentIndicator)
+	var entitlement models.Entitlement
+
+	if payload.AuthorizedWeight != nil {
+		entitlement.DBAuthorizedWeight = swag.Int(int(*payload.AuthorizedWeight))
+	}
 
 	return models.Order{
+		Entitlement:         &entitlement,
 		IssueDate:           time.Time(*payload.IssueDate),
 		ReportByDate:        time.Time(*payload.ReportByDate),
 		OrdersType:          internalmessages.OrdersType(payload.OrdersType),

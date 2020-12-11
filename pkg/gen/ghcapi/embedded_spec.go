@@ -3406,6 +3406,12 @@ func init() {
         "departmentIndicator"
       ],
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
@@ -7346,6 +7352,12 @@ func init() {
         "departmentIndicator"
       ],
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
         },

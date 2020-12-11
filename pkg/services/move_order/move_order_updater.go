@@ -41,13 +41,15 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 			return query.StaleIdentifierError{StaleIdentifier: eTag}
 		}
 
-		//if moveOrder.Entitlement.Au
-		//existingOrder.Entitlement.DBAuthorizedWeight = &weight
-		//err = tx.Save(existingOrder.Entitlement)
-		if err != nil {
-			return err
-		}
+		if moveOrder.Entitlement.DBAuthorizedWeight != nil &&
+			moveOrder.Entitlement.DBAuthorizedWeight != existingOrder.Entitlement.AuthorizedWeight() {
 
+			existingOrder.Entitlement.DBAuthorizedWeight = moveOrder.Entitlement.DBAuthorizedWeight
+			err = tx.Save(existingOrder.Entitlement)
+			if err != nil {
+				return err
+			}
+		}
 
 		if moveOrder.OriginDutyStationID != existingOrder.OriginDutyStationID {
 			originDutyStation, fetchErr := models.FetchDutyStation(s.db, *moveOrder.OriginDutyStationID)
@@ -76,14 +78,14 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 		existingOrder.SAC = moveOrder.SAC
 		existingOrder.DepartmentIndicator = moveOrder.DepartmentIndicator
 
-		verrs, err := s.builder.UpdateOne(existingOrder, &eTag)
+		verrs, updateErr := s.builder.UpdateOne(existingOrder, &eTag)
 
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidInputError(moveOrder.ID, err, verrs, "")
 		}
 
-		if err != nil {
-			switch err.(type) {
+		if updateErr != nil {
+			switch updateErr.(type) {
 			case query.StaleIdentifierError:
 				return services.NewPreconditionFailedError(moveOrder.ID, err)
 			}
@@ -91,8 +93,6 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 
 		return nil
 	})
-
-
 
 	if transactionError != nil {
 		if t, ok := transactionError.(query.StaleIdentifierError); ok {
