@@ -232,11 +232,11 @@ For managing local environment variables, we're using [direnv](https://direnv.ne
 
 Run `direnv allow` to load up the `.envrc` file. It should complain that you have missing variables which you will rectify in one of the following ways.
 
-You can add a `.envrc.local` file. One way to do this is using the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault. To use the AWS vault you will need to follow the [instructions to set up AWS first](#setup-aws-services-optional).
+The first and recommended way is to use the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault. We suggest installing chamber with `brew install chamber`. To use the AWS vault you will need to follow the [instructions to set up AWS first](#setup-aws-services-optional).
 
-Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
+Once you've installed, run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`. **Note also** if you have a very poor internet connection, this method may be problematic to you.
 
-If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`. **Note also** if you have a very poor internet connection, this method may be problematic to you. We still strongly recommend the `.envrc.chamber` route over the `.envrc.local` one, but if necessary you may follow the `.envrc.local` steps instead.
+The alternative is to add a `.envrc.local` file. Then run `DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber, you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
 
 #### Helpful variables for `.envrc.local`
 
@@ -253,11 +253,11 @@ Run `make prereqs` and install everything it tells you to. Most of the prerequis
 
 Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than `brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.  Next install the pre-commit hook libraries with `pre-commit install-hooks`.
 
-Before running `pre-commit run -a` you will need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this is by running `make pre_commit_tests` or `make server_generate client_deps && pre-commit run -a`. But it's early to do this so you can feel free to skip running the pre-commit checks at this time.
+You can feel free to skip running the pre-commit checks at this time. Before you do run `pre-commit run -a`, you will need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this is by running `make pre_commit_tests` or `make server_generate client_deps && pre-commit run -a`.
 
 #### Troubleshooting install issues (process hanging on install hooks)
 
-Since pre-commit uses node to hook things up in both your local repo and its cache folder (located at `~/.cache/pre-commit`),it requires a global node install. If you are using nodenv to manage multiple installed nodes, you'll need to set a global version to proceed (eg `nodenv global 12.16.3`). You can find the current supported node version [here (in `.node-version`)](./.node-version).
+Since pre-commit uses node to hook things up in both your local repo and its cache folder (located at `~/.cache/pre-commit`),it requires a global node install. If you are using nodenv to manage multiple installed nodes, you'll need to set a global version to proceed (eg `nodenv global 12.16.3`). You can find the current supported node version [here (in `.node-version`)](./.node-version). Make sure you run `nodenv install` to install the current supported version.
 
 ### Setup: Dependencies
 
@@ -338,7 +338,7 @@ The API that the Prime will use is authenticated via mutual TSL so there are a f
 
 If you want to develop against AWS services you will need an AWS user account with `engineering` privileges. You will also need to follow these steps when using Chamber and AWS vault to [set up direnv](#setup-direnv).
 
-AWS credentials are managed via `aws-vault`. Once you have received AWS credentials (which are provided by the infrastructure team), you can follow these instructions to [finish setting up AWS](https://github.com/transcom/transcom-infrasec-com/blob/master/docs/runbook/0003-creating-new-iam-user.md).
+AWS credentials are managed via `aws-vault`. Once you have received AWS credentials (which are provided by the infrastructure team), you can follow these instructions to [finish setting up AWS](https://github.com/transcom/transcom-infrasec-gov/blob/master/docs/runbook/0001-aws-organization-authentication.md).
 
 ## Development
 
@@ -496,8 +496,8 @@ In development, we use [direnv](https://direnv.net/) to setup environment variab
     ```
 
 Required variables should be placed in google docs and linked in `.envrc`. The value should also be placed in `chamber`
-with `chamber write app-devlocal <key> <value>`. For long blocks of text like certificates you can write them with
-`echo "$LONG_VALUE" | chamber write app-devlocal <key> -`.
+with `DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber write app-devlocal <key> <value>`. For long blocks of text like certificates you can write them with
+`echo "$LONG_VALUE" | DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber write app-devlocal <key> -`.
 
 For per-tier environment variables (that are not secret), simply add the variables to the relevant `config/env/[experimental|staging|prod].env` file with the format `NAME=VALUE` on each line.  Then add the relevant section to `config/app.container-definition.json`.  The deploy process uses Go's [template package](https://golang.org/pkg/text/template/) for rendering the container definition.  For example,
 
