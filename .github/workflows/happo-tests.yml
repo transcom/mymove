@@ -7,7 +7,24 @@ on:
     branches: [master]
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'src/**'
+              - '.storybook/**'
+              - '.happo.js'
+              - 'yarn.lock'
+
   happo:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
