@@ -208,6 +208,11 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 			return paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity().
 				WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 
+		// ConflictError -> Conflict Error reponse
+		case services.ConflictError:
+			return paymentrequestop.NewGetPaymentRequestEDIConflict().
+				WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+
 		// QueryError -> Internal Server error
 		case services.QueryError:
 			if e.Unwrap() != nil {
