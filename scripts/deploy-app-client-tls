@@ -11,41 +11,38 @@ usage() {
   exit 1
 }
 
-readonly environment="${1:-experimental}"
+readonly environment="${1:-exp}"
 
 [[ -z "${environment}" ]] && usage
 
 case "${environment}" in
-  experimental)
-    compare_host=gex.experimental.move.mil
-    health_check_hosts=gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
+  exp)
+    compare_host=gex.exp.move.mil
+    health_check_hosts=gex.exp.move.mil,dps.exp.move.mil,orders.exp.move.mil
+    AWS_ACCOUNT_ID=015681133840
     ;;
-  staging)
-    compare_host=gex.staging.move.mil
-    health_check_hosts=gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
+  stg)
+    compare_host=gex.stg.move.mil
+    health_check_hosts=gex.stg.move.mil,dps.stg.move.mil,orders.stg.move.mil
+    AWS_ACCOUNT_ID=015932076428
     ;;
-  prod)
+  prd)
     compare_host=gex.move.mil
     health_check_hosts=gex.move.mil,dps.move.mil,orders.move.mil
+    AWS_ACCOUNT_ID=015533997236
     ;;
   *)
-    echo "<environment> must be one of experimental, staging, or prod"
+    echo "<environment> must be one of exp, stg, or prd"
     exit 1
     ;;
 esac
 
-if [ -z "${AWS_ACCOUNT_ID}" ]; then
-  echo "AWS_ACCOUNT_ID not found!"
-  echo "Please add 'AWS_ACCOUNT_ID' to your .envrc.local"
-  exit 1
-fi
-
 APP_ENVIRONMENT="${environment}"
-AWS_DEFAULT_REGION=us-west-2
+AWS_DEFAULT_REGION=us-gov-west-1
 
-KEY=$(chamber read app-experimental move_mil_dod_tls_key -q | base64 -i -)
-CERT=$(chamber read app-experimental move_mil_dod_tls_cert -q | base64 -i -)
-CA=$(chamber read app-experimental move_mil_dod_ca_cert -q | base64 -i -)
+KEY=$(DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-milmove-exp -- chamber read app-exp move_mil_dod_tls_key -q | base64 -i -)
+CERT=$(DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-milmove-exp -- chamber read app-exp move_mil_dod_tls_cert -q | base64 -i -)
+CA=$(DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-milmove-exp -- chamber read app-exp move_mil_dod_ca_cert -q | base64 -i -)
 
 CIRCLE_SHA1=$(curl -sk --key <(echo "${KEY}" | base64 --decode) --cert <(echo "${CERT}" | base64 --decode) --cacert <(echo "${CA}" | base64 --decode) "https://${compare_host}/health"  | jq -r .gitCommit)
 
@@ -54,7 +51,7 @@ scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}" "${KEY}" "${C
 readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}"
 scripts/ecs-deploy-service-container app-client-tls "${image}" "${APP_ENVIRONMENT}"
 
-# NOTE: The health checker in all environments ought to work with the values from experimental for the key, cert, and ca.
+# NOTE: The health checker in all environments ought to work with the values from exp for the key, cert, and ca.
 bin/health-checker --schemes https --hosts "${health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --tries 10 --backoff 3 --log-level info --timeout 15m
 bin/tls-checker --schemes https --hosts "${health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --log-level info --timeout 15m
 
