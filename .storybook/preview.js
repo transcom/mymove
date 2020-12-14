@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import 'happo-plugin-storybook/register';
 
 import './storybook.scss';
