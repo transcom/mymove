@@ -295,7 +295,7 @@ commands:
           at: /tmp/storybook
       - checkout
       - deploy:
-          name: Push StoryBook build to S3
+          name: Push Storybook build to S3
           command: scripts/push-storybook-assets "<< parameters.s3_bucket>>"
 
   build_image:
@@ -873,8 +873,8 @@ jobs:
           repo: app
       - announce_failure
 
-  # `storybook_tests` triggers visual regression tests in Happo and builds static storybook assets for deploy
-  storybook_tests:
+  # `build_storybook` builds static storybook assets for deploy
+  build_storybook:
     executor: mymove_medium
     steps:
       - checkout
@@ -894,8 +894,8 @@ jobs:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
       - run:
-          name: Happo tests
-          command: yarn happo-ci
+          name: Build Storybook
+          command: yarn build-storybook
       - run:
           name: Output maximum memory usage in Bytes
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
@@ -1481,12 +1481,12 @@ workflows:
 
       - deploy_storybook_dp3:
           requires:
-            - storybook_tests
+            - build_storybook
           filters:
             branches:
               only: master
 
-      - storybook_tests:
+      - build_storybook:
           requires:
             - anti_virus
             - pre_deps_yarn
