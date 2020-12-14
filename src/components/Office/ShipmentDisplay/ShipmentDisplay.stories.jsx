@@ -1,13 +1,12 @@
 import React from 'react';
-import { withKnobs, object } from '@storybook/addon-knobs';
+import { object } from '@storybook/addon-knobs';
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
-  title: 'TOO/TIO Components|Shipment Display',
+  title: 'Office Components/Shipment Display',
   component: ShipmentDisplay,
-  decorators: [withKnobs],
 };
 
 const hhgInfo = {

@@ -11,7 +11,7 @@ import { MockProviders } from 'testUtils';
 const mockedDate = '2020-12-08T00:00:00.000Z';
 
 export default {
-  title: 'TOO/TIO Components|PaymentRequestCard',
+  title: 'Office Components/PaymentRequestCard',
   component: PaymentRequestCard,
   decorators: [
     (Story) => {

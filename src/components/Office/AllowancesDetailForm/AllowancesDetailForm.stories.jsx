@@ -5,7 +5,7 @@ import { Formik } from 'formik';
 import AllowancesDetailForm from './AllowancesDetailForm';
 
 export default {
-  title: 'TOO/TIO Components|AllowancesDetailForm',
+  title: 'Office Components/AllowancesDetailForm',
   component: AllowancesDetailForm,
   decorators: [
     withKnobs,

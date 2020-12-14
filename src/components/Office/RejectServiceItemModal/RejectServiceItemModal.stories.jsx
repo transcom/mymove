@@ -5,7 +5,7 @@ import { isHappoRun } from 'happo-plugin-storybook/register';
 import RejectServiceItemModal from './RejectServiceItemModal';
 
 export default {
-  title: 'TOO/TIO Components|RejectServiceItemModal',
+  title: 'Office Components/RejectServiceItemModal',
   component: RejectServiceItemModal,
 };
 
