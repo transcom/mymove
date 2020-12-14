@@ -17,7 +17,7 @@ const info = {
 };
 
 export default {
-  title: 'TOO/TIO Components|AllowancesTable',
+  title: 'Office Components/AllowancesTable',
   decorators: [
     (Story) => (
       <div style={{ 'max-width': '800px' }}>
