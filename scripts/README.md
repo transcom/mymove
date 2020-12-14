@@ -42,14 +42,22 @@ These scripts are used to operate the system.
 
 | Script Name             | Description                                                             |
 | ----------------------- | ----------------------------------------------------------------------- |
-| `deploy-app`            | Deploy the app                                                          |
-| `deploy-app-client-tls` | Deploy the app client-tls                                               |
-| `deploy-app-migrations` | Deploy the app migrations                                               |
-| `deploy-app-tasks`      | Deploy the app tasks                                                    |
 | `download-alb-logs`     | Download alb logs for the given environment and dates to a local folder |
 | `dupe-secrets`          | Dupes experimental secrets to target params                             |
 | `health-tls-check`      | Run health and TLS version checks.                                      |
 | `scan-alb-logs`         | Scan alb logs for specific http codes.                                  |
+
+## Deployment Scripts
+
+This series of scripts allows you to quickly deploy the app manually (for example, should CircleCI be down).
+Run the scripts in this order with the environment you're deploying to (`exp`, `stg`, `prd`).
+
+| Script Name             | Description                                                             |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `deploy-app-migrations` | Deploy the app migrations                                               |
+| `deploy-app`            | Deploy the app                                                          |
+| `deploy-app-client-tls` | Deploy the app client-tls                                               |
+| `deploy-app-tasks`      | Deploy the app tasks                                                    |
 
 ## Pre-commit Scripts
 
