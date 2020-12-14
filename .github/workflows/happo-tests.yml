@@ -12,7 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
-      - run: npm ci
       - run: npm run happo-ci-github-actions
         env:
           HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
