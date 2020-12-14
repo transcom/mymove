@@ -10,7 +10,6 @@ module.exports = {
     chrome: new RemoteBrowserTarget('chrome', {
       viewport: '1024x768',
     }),
-    // HERE IS A TEST COMMENT TO TRIGGER A HAPPO RUN!
     // TODO - IE is failing because Storybook causes syntax error. Need to investigate
     /*
     'internet explorer': new RemoteBrowserTarget('internet explorer', {

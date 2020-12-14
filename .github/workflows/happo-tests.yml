@@ -12,6 +12,10 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
+      - name: Print GH vars
+        run: |
+          echo ${{ github.ref }}
+          echo ${ github.base_ref }}
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -24,7 +28,7 @@ jobs:
 
   happo:
     needs: changes
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    if: ${{ needs.changes.outputs.frontend == 'true' || github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
