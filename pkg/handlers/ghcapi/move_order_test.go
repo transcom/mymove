@@ -365,5 +365,5 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderBadRequest{}, response)
+	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderPreconditionFailed{}, response)
 }
