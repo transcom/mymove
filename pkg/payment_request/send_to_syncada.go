@@ -11,6 +11,10 @@ import (
 // SendToSyncada send EDI file to Syncada for processing
 func SendToSyncada(edi string, gexSender services.GexSender, sftpSender services.SyncadaSFTPSender, sendEDIFile bool, logger Logger) error {
 	var err error
+
+	if (gexSender == nil) && (sftpSender == nil) {
+		return fmt.Errorf("cannot send to Syncada, SendToSyncada() senders are nil")
+	}
 	if gexSender != nil {
 		//TODO: Send to Syncada via GEX needs to be implemented
 		logger.Warn("func SendToSyncada() -- GEX Sender NOT IMPLEMENTED")
