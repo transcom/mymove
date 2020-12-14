@@ -15,7 +15,7 @@ jobs:
       - name: Print GH vars
         run: |
           echo ${{ github.ref }}
-          echo ${ github.base_ref }}
+          echo ${{ github.base_ref }}
       - uses: dorny/paths-filter@v2
         id: filter
         with:
