@@ -1,5 +1,7 @@
 import { getQueriesStatus } from './api';
 
+// THIS SHOULD TRIGGER A HAPPO RUN!
+
 describe('getQueriesStatus', () => {
   it('returns isLoading true if any queries are loading', () => {
     const testQueries = [
