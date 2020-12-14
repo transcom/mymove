@@ -1117,5 +1117,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		os.Exit(1)
 	}
 
+	// THIS SHOULD NOT TRIGGER A HAPPO RUN
 	return nil
 }
