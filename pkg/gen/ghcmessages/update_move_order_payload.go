@@ -25,6 +25,9 @@ type UpdateMoveOrderPayload struct {
 	// Required: true
 	DepartmentIndicator DeptIndicator `json:"departmentIndicator"`
 
+	// grade
+	Grade *Grade `json:"grade,omitempty"`
+
 	// Orders date
 	//
 	// The date and time that these orders were cut.
@@ -79,6 +82,10 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDepartmentIndicator(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateGrade(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -144,6 +151,24 @@ func (m *UpdateMoveOrderPayload) validateDepartmentIndicator(formats strfmt.Regi
 			return ve.ValidateName("departmentIndicator")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMoveOrderPayload) validateGrade(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Grade) { // not required
+		return nil
+	}
+
+	if m.Grade != nil {
+		if err := m.Grade.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grade")
+			}
+			return err
+		}
 	}
 
 	return nil

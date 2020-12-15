@@ -1763,6 +1763,8 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
+      grade:
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
