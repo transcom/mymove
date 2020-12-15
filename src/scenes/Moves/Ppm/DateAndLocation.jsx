@@ -16,12 +16,12 @@ import {
   updatePPM,
   updatePPMEstimate,
 } from 'shared/Entities/modules/ppms';
-import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
+import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import { setInitialFormValues } from './ducks';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 
 import './DateAndLocation.css';
 
@@ -213,7 +213,7 @@ function mapStateToProps(state) {
     serviceMemberId,
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     currentPPM: selectActivePPMForMove(state, moveID),
-    currentOrders: selectActiveOrLatestOrders(state),
+    currentOrders: selectCurrentOrders(state),
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,

@@ -1,14 +1,16 @@
-import { isNull, get, isEmpty } from 'lodash';
+import { isNull, get, isEmpty, filter } from 'lodash';
+import { denormalize } from 'normalizr';
+
 import { moves } from '../schema';
 import { ADD_ENTITIES } from '../actions';
-import { denormalize } from 'normalizr';
+
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { selectEntitlements } from 'shared/entitlements.js';
-import { selectOrdersForMove, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
+import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
+import { selectCurrentOrders } from 'store/entities/selectors';
 import { getGHCClient } from 'shared/Swagger/api';
-import { filter } from 'lodash';
 import { fetchActive } from 'shared/utils';
 
 export const STATE_KEY = 'moves';
@@ -98,7 +100,7 @@ export function selectMoveStatus(state, moveId) {
 
 export function selectActiveOrLatestMove(state) {
   // temp until full redux refactor: gets active (or latest move) from entities if it exists.  If not, gets it from currentMove
-  let activeOrLatestOrders = selectActiveOrLatestOrders(state);
+  let activeOrLatestOrders = selectCurrentOrders(state);
   if (isEmpty(activeOrLatestOrders)) {
     return {};
   }

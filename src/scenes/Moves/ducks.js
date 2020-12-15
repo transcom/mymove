@@ -1,5 +1,4 @@
 import { get, head, pick } from 'lodash';
-import { GetMove } from './api.js';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
 
@@ -16,6 +15,8 @@ export const createOrUpdateMoveType = 'CREATE_OR_UPDATE_MOVE';
 export const CREATE_OR_UPDATE_MOVE = ReduxHelpers.generateAsyncActionTypes(createOrUpdateMoveType);
 
 // Action creation
+
+// TODO - deprecate CONUS status state & use required field in form instead
 export function setConusStatus(moveType) {
   return { type: SET_CONUS_STATUS, moveType };
 }
@@ -25,18 +26,9 @@ export function setPendingMoveType(value) {
   return { type: SET_PENDING_MOVE_TYPE, payload: value };
 }
 
+// TODO - deprecate this action & field
 export function setSelectedMoveType(moveType) {
   return { type: SET_SELECTED_MOVE_TYPE, moveType };
-}
-
-export function loadMove(moveId) {
-  return function (dispatch, getState) {
-    const action = ReduxHelpers.generateAsyncActions(getMoveType);
-    dispatch(action.start());
-    return GetMove(moveId)
-      .then((item) => dispatch(action.success(item)))
-      .catch((error) => dispatch(action.error(error)));
-  };
 }
 
 //selector

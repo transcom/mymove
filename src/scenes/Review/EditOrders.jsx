@@ -6,7 +6,7 @@ import { get, includes, reject } from 'lodash';
 import { push } from 'connected-react-router';
 import { getFormValues, reduxForm, Field } from 'redux-form';
 
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -16,19 +16,14 @@ import UploadsTable from 'shared/Uploader/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
 
-import {
-  updateOrders,
-  fetchLatestOrders,
-  selectActiveOrLatestOrders,
-  selectUploadsForActiveOrders,
-} from 'shared/Entities/modules/orders';
+import { updateOrders, fetchLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -213,7 +208,7 @@ class EditOrders extends Component {
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
-  const currentOrders = selectActiveOrLatestOrders(state);
+  const currentOrders = selectCurrentOrders(state);
   const uploads = selectUploadsForActiveOrders(state);
 
   const props = {

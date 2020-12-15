@@ -50,3 +50,36 @@ export const selectBackupContacts = (state) => {
   const backupContactIds = serviceMember?.backup_contacts || [];
   return backupContactIds.map((id) => state.entities.backupContacts?.[`${id}`]);
 };
+
+/** Orders */
+export const selectOrdersForLoggedInUser = (state) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const ordersIds = serviceMember?.orders || [];
+  return ordersIds.map((id) => state.entities.orders?.[`${id}`]);
+};
+
+export const selectCurrentOrders = (state) => {
+  const orders = selectOrdersForLoggedInUser(state);
+  const [activeOrders] = orders.filter(
+    (o) => ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'].indexOf(o?.status) > -1,
+  );
+
+  return activeOrders || orders[0] || null;
+};
+
+/** Moves */
+export const selectMovesForCurrentOrders = (state) => {
+  const activeOrders = selectCurrentOrders(state);
+  const moveIds = activeOrders?.moves || [];
+  return moveIds.map((id) => state.entities.moves?.[`${id}`]);
+};
+
+export const selectCurrentMove = (state) => {
+  const moves = selectMovesForCurrentOrders(state);
+  const [activeMove] = moves.filter(
+    (m) => ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'].indexOf(m?.status) > -1,
+  );
+  return activeMove || null;
+};
+
+/** MTO Shipments */

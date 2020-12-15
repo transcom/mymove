@@ -1,7 +1,6 @@
 import { get, isNull, sum, isEmpty } from 'lodash';
 
-import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 
 export function selectEntitlements(rankEntitlement, hasDependents = false, spouseHasProGear = false) {
   if (!rankEntitlement) {
@@ -21,7 +20,7 @@ export function selectEntitlements(rankEntitlement, hasDependents = false, spous
 
 export function loadEntitlementsFromState(state) {
   // Temp fix until redux refactor finished - get orders from either entities or orders.currentOrders
-  let orders = selectActiveOrLatestOrders(state);
+  let orders = selectCurrentOrders(state);
   if (isEmpty(orders)) {
     return {};
   }

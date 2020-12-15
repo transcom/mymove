@@ -1,5 +1,3 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
@@ -11,18 +9,18 @@ import {
   createOrders as createOrdersAction,
   updateOrders as updateOrdersAction,
   fetchLatestOrders as fetchLatestOrdersAction,
-  selectActiveOrLatestOrders,
 } from 'shared/Entities/modules/orders';
 import { withContext } from 'shared/AppContext';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 import { WizardPage } from 'shared/WizardPage/index';
-import { HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
+import { HistoryShape, PageKeyShape, PageListShape, OrdersShape, MatchShape } from 'types/customerShapes';
 import { formatYesNoInputValue, formatYesNoAPIValue } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { DutyStationShape } from 'types';
 
 export class Orders extends Component {
   constructor(props) {
@@ -143,14 +141,12 @@ Orders.propTypes = {
     }).isRequired,
   }).isRequired,
   serviceMemberId: PropTypes.string.isRequired,
-  currentOrders: PropTypes.object,
+  currentOrders: OrdersShape,
   fetchLatestOrders: PropTypes.func,
   createOrders: PropTypes.func,
   updateOrders: PropTypes.func,
-  currentStation: PropTypes.object,
-  match: PropTypes.shape({
-    params: PropTypes.object,
-  }).isRequired,
+  currentStation: DutyStationShape,
+  match: MatchShape.isRequired,
   history: HistoryShape.isRequired,
   pages: PageListShape,
   pageKey: PageKeyShape,
@@ -171,7 +167,7 @@ const mapStateToProps = (state) => {
 
   return {
     serviceMemberId: serviceMember?.id,
-    currentOrders: selectActiveOrLatestOrders(state),
+    currentOrders: selectCurrentOrders(state),
     currentStation: serviceMember?.current_station || {},
   };
 };

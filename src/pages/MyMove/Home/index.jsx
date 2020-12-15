@@ -24,8 +24,12 @@ import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
-import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
-import { selectUploadedOrders, selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectIsProfileComplete,
+  selectCurrentOrders,
+} from 'store/entities/selectors';
+import { selectUploadedOrders } from 'shared/Entities/modules/orders';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
@@ -37,6 +41,7 @@ import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { MtoShipmentShape, UploadShape, HistoryShape, MoveShape, OrdersShape } from 'types/customerShapes';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -425,28 +430,19 @@ class Home extends Component {
 }
 
 Home.propTypes = {
-  orders: shape({}).isRequired,
+  orders: OrdersShape.isRequired,
   serviceMember: shape({
     first_name: string,
     last_name: string,
   }),
-  mtoShipments: arrayOf(
-    shape({
-      id: string,
-      shipmentType: string,
-    }),
-  ).isRequired,
+  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   currentPpm: shape({
     id: string,
     shipmentType: string,
   }).isRequired,
-  uploadedOrderDocuments: arrayOf(
-    shape({
-      filename: string.isRequired,
-    }),
-  ).isRequired,
-  history: shape({}).isRequired,
-  move: shape({}).isRequired,
+  uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
+  history: HistoryShape.isRequired,
+  move: MoveShape.isRequired,
   isLoggedIn: bool.isRequired,
   loggedInUserIsLoading: bool.isRequired,
   loggedInUserSuccess: bool.isRequired,
@@ -461,7 +457,7 @@ Home.propTypes = {
       ghcFlow: bool,
     }),
   }),
-  mtoShipment: shape({}).isRequired,
+  mtoShipment: MtoShipmentShape.isRequired,
   signedCertification: shape({
     signature: string,
     created_at: string,
@@ -494,7 +490,7 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     isProfileComplete: selectIsProfileComplete(state),
-    orders: selectActiveOrLatestOrdersFromEntities(state),
+    orders: selectCurrentOrders(state),
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],

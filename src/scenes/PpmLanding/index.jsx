@@ -8,7 +8,11 @@ import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectIsProfileComplete,
+  selectCurrentOrders,
+} from 'store/entities/selectors';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
@@ -18,7 +22,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
+import { selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { loadMTOShipments, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
@@ -181,7 +185,7 @@ const mapStateToProps = (state) => {
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
-    orders: selectActiveOrLatestOrders(state),
+    orders: selectCurrentOrders(state),
     uploads: selectUploadsForActiveOrders(state),
     move: move,
     ppm: getPPM(state),

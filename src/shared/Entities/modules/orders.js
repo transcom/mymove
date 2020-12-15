@@ -8,7 +8,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { formatDateForSwagger } from 'shared/dates';
 import { getClient } from 'shared/Swagger/api';
 import { fetchActive } from 'shared/utils';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 
 export const STATE_KEY = 'orders';
 export const loadOrdersLabel = 'Orders.loadOrders';
@@ -72,8 +72,8 @@ export function selectOrdersForMove(state, moveId) {
 }
 
 export function selectUploadsForActiveOrders(state) {
-  const orders = selectActiveOrLatestOrders(state);
-  const uploadedOrders = get(state, `entities.documents.${orders.uploaded_orders}`);
+  const orders = selectCurrentOrders(state);
+  const uploadedOrders = get(state, `entities.documents.${orders?.uploaded_orders}`);
   if (uploadedOrders) {
     return uploadedOrders.uploads
       .map((uploadId) => get(state, `entities.uploads.${uploadId}`))

@@ -1,6 +1,47 @@
-import { arrayOf, bool, func, string, shape } from 'prop-types';
+import { arrayOf, bool, func, string, shape, object, number } from 'prop-types';
 
 import { AddressShape } from 'types/address';
+import { DutyStationShape } from 'types/dutyStation';
+
+export const MoveShape = shape({
+  id: string,
+  locator: string,
+  selected_move_type: string,
+  status: string,
+});
+
+export const UploadShape = shape({
+  filename: string,
+  content_type: string,
+  id: string,
+  status: string,
+  bytes: number,
+  created_at: string,
+  updated_at: string,
+  url: string,
+});
+
+export const UploadsShape = arrayOf(UploadShape);
+
+export const OrdersShape = shape({
+  has_dependents: bool,
+  id: string,
+  issue_date: string,
+  moves: arrayOf(MoveShape),
+  new_duty_station: DutyStationShape,
+  orders_type: string,
+  report_by_date: string,
+  service_member_id: string,
+  spouse_has_pro_gear: bool,
+  status: string,
+  updated_at: string,
+  uploaded_orders: shape({
+    id: string,
+    uploads: UploadsShape,
+  }),
+});
+
+export const DocumentShape = shape({});
 
 export const MtoAgentShape = shape({
   firstName: string,
@@ -68,6 +109,8 @@ export const PageListShape = arrayOf(string);
 
 export const PageKeyShape = string;
 
+export const AdditionalParamsShape = object;
+
 export const WizardPageShape = shape({
   pageList: PageListShape.isRequired,
   pageKey: PageKeyShape.isRequired,
@@ -87,4 +130,5 @@ export default {
   HhgShipmentShape,
   NtsShipmentShape,
   NtsrShipmentShape,
+  AdditionalParamsShape,
 };

@@ -9,12 +9,10 @@ import { Button } from '@trussworks/react-uswds';
 import styles from './Summary.module.scss';
 
 import { checkEntitlement } from 'scenes/Review/ducks';
-// eslint-disable-next-line import/no-named-as-default
-import PPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
+import ConnectedPPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import { selectActiveOrLatestOrdersFromEntities, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
 import {
   moveIsApproved as selectMoveIsApproved,
@@ -33,7 +31,8 @@ import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipment
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { OrdersShape, MoveShape, MtoShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -240,7 +239,11 @@ export class Summary extends Component {
           {showMoveSetup && <h2 className={styles.moveSetup}>Move setup</h2>}
           {isReviewPage && this.renderShipments()}
           {showPPMShipmentSummary && (
-            <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
+            <ConnectedPPMShipmentSummary
+              ppm={currentPPM}
+              movePath={rootReviewAddressWithMoveId}
+              orders={currentOrders}
+            />
           )}
           <div className="grid-col-row margin-top-5">
             <span className="float-right">Optional</span>
@@ -269,13 +272,13 @@ export class Summary extends Component {
 }
 
 Summary.propTypes = {
-  currentMove: shape({ id: string.isRequired, status: string.isRequired }).isRequired,
-  currentOrders: shape({}).isRequired,
+  currentMove: MoveShape.isRequired,
+  currentOrders: OrdersShape.isRequired,
   currentPPM: shape({}).isRequired,
-  history: shape({ push: func.isRequired }).isRequired,
-  match: shape({ params: shape({ moveId: string.isRequired }) }).isRequired,
+  history: HistoryShape.isRequired,
+  match: MatchShape.isRequired,
   moveIsApproved: bool.isRequired,
-  mtoShipments: arrayOf(shape({})).isRequired,
+  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   onCheckEntitlement: func.isRequired,
   onDidMount: func.isRequired,
   selectedMoveType: string.isRequired,
@@ -294,7 +297,7 @@ Summary.defaultProps = {
 
 function mapStateToProps(state, ownProps) {
   const moveID = ownProps.match.params.moveId;
-  const currentOrders = selectActiveOrLatestOrdersFromEntities(state);
+  const currentOrders = selectCurrentOrders(state) || {};
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
@@ -302,7 +305,6 @@ function mapStateToProps(state, ownProps) {
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove: selectMove(state, moveID),
     currentOrders,
-    uploads: selectUploadsForActiveOrders(state),
     selectedMoveType: selectMoveType(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
@@ -313,6 +315,7 @@ function mapStateToProps(state, ownProps) {
     entitlement: loadEntitlementsFromState(state),
   };
 }
+
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     onDidMount() {
@@ -326,4 +329,5 @@ function mapDispatchToProps(dispatch, ownProps) {
     showLoggedInUser: showLoggedInUserAction,
   };
 }
+
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));
