@@ -200,13 +200,13 @@ AppWrapper.defaultProps = {
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
-  const move = selectCurrentMove(state);
+  const move = selectCurrentMove(state) || {};
 
   return {
     currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
-    moveId: move.id,
+    moveId: move?.id,
     selectedMoveType: selectedMoveType(state),
     conusStatus: selectedConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,

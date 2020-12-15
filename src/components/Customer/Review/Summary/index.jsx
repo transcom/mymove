@@ -303,7 +303,7 @@ function mapStateToProps(state, ownProps) {
     currentPPM: selectActivePPMForMove(state, moveID),
     mtoShipments: selectMTOShipmentsByMoveId(state, moveID),
     serviceMember: selectServiceMemberFromLoggedInUser(state),
-    currentMove: selectCurrentMove(state),
+    currentMove: selectCurrentMove(state) || {},
     currentOrders,
     selectedMoveType: selectMoveType(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),

@@ -27,7 +27,7 @@ export const OrdersShape = shape({
   has_dependents: bool,
   id: string,
   issue_date: string,
-  moves: arrayOf(MoveShape),
+  moves: arrayOf(string),
   new_duty_station: DutyStationShape,
   orders_type: string,
   report_by_date: string,

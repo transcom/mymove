@@ -344,7 +344,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
-    orders: selectCurrentOrders(state),
+    orders: selectCurrentOrders(state) || {},
   };
 }
 

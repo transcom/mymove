@@ -244,7 +244,7 @@ SelectMoveType.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-  const move = selectCurrentMove(state);
+  const move = selectCurrentMove(state) || {};
   const mtoShipments = selectMTOShipmentsByMoveId(state, move.id);
 
   return {

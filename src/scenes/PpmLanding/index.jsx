@@ -175,7 +175,7 @@ PpmLanding.defaultProps = {
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const move = selectCurrentMove(state);
+  const move = selectCurrentMove(state) || {};
 
   const props = {
     mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
@@ -185,7 +185,7 @@ const mapStateToProps = (state) => {
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
-    orders: selectCurrentOrders(state),
+    orders: selectCurrentOrders(state) || {},
     uploads: selectUploadsForActiveOrders(state),
     move: move,
     ppm: getPPM(state),

@@ -208,7 +208,7 @@ class EditOrders extends Component {
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
-  const currentOrders = selectCurrentOrders(state);
+  const currentOrders = selectCurrentOrders(state) || {};
   const uploads = selectUploadsForActiveOrders(state);
 
   const props = {

@@ -430,7 +430,7 @@ class Home extends Component {
 }
 
 Home.propTypes = {
-  orders: OrdersShape.isRequired,
+  orders: OrdersShape,
   serviceMember: shape({
     first_name: string,
     last_name: string,
@@ -466,6 +466,7 @@ Home.propTypes = {
 };
 
 Home.defaultProps = {
+  orders: null,
   serviceMember: null,
   selectedMoveType: '',
   lastMoveIsCanceled: false,
@@ -490,7 +491,7 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     isProfileComplete: selectIsProfileComplete(state),
-    orders: selectCurrentOrders(state),
+    orders: selectCurrentOrders(state) || {},
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],

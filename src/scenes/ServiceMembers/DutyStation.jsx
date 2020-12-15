@@ -121,7 +121,7 @@ function mapStateToProps(state) {
     existingStation: serviceMember?.current_station || {},
     currentServiceMember: serviceMember,
     currentStation: get(formValues, 'current_station', {}),
-    newDutyStation: get(orders, 'new_duty_station', {}),
+    newDutyStation: orders?.new_duty_station || {},
   };
 }
 
