@@ -1696,6 +1696,8 @@ definitions:
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       authorizedWeight:
+        minimum: 1
+        description: unit is in lbs
         example: 2000
         type: integer
         x-formatting: weight

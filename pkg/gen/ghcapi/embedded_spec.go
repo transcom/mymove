@@ -3407,7 +3407,9 @@ func init() {
       ],
       "properties": {
         "authorizedWeight": {
+          "description": "unit is in lbs",
           "type": "integer",
+          "minimum": 1,
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
@@ -7353,7 +7355,9 @@ func init() {
       ],
       "properties": {
         "authorizedWeight": {
+          "description": "unit is in lbs",
           "type": "integer",
+          "minimum": 1,
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000

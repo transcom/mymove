@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -35,15 +36,14 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 		return nil, services.NewNotFoundError(moveOrder.ID, "while looking for moveOrder")
 	}
 
+	existingETag := etag.GenerateEtag(existingOrder.UpdatedAt)
+	if existingETag != eTag {
+		return nil, query.StaleIdentifierError{StaleIdentifier: eTag}
+	}
+
 	transactionError := s.db.Transaction(func(tx *pop.Connection) error {
-		existingETag := etag.GenerateEtag(existingOrder.UpdatedAt)
-		if existingETag != eTag {
-			return query.StaleIdentifierError{StaleIdentifier: eTag}
-		}
 
-		if moveOrder.Entitlement.DBAuthorizedWeight != nil &&
-			moveOrder.Entitlement.DBAuthorizedWeight != existingOrder.Entitlement.AuthorizedWeight() {
-
+		if moveOrder.Entitlement.DBAuthorizedWeight != nil {
 			existingOrder.Entitlement.DBAuthorizedWeight = moveOrder.Entitlement.DBAuthorizedWeight
 			err = tx.Save(existingOrder.Entitlement)
 			if err != nil {
@@ -61,7 +61,7 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 		}
 
 		if moveOrder.NewDutyStationID != existingOrder.NewDutyStationID {
-			newDutyStation, fetchErr := models.FetchDutyStation(s.db, *&moveOrder.NewDutyStationID)
+			newDutyStation, fetchErr := models.FetchDutyStation(s.db, moveOrder.NewDutyStationID)
 			if fetchErr != nil {
 				return services.NewInvalidInputError(moveOrder.ID, fetchErr, nil, "unable to find destination duty station")
 			}
@@ -95,10 +95,7 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 	})
 
 	if transactionError != nil {
-		if t, ok := transactionError.(query.StaleIdentifierError); ok {
-			return nil, services.NewPreconditionFailedError(existingOrder.ID, t)
-		}
-		return nil, services.NewQueryError("moveOrder", transactionError, "")
+		return nil, services.InvalidInputError{}
 	}
 
 	return existingOrder, err
