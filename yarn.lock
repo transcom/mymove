@@ -16210,10 +16210,10 @@ querystringify@^2.1.1:
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.1.1.tgz#60e5a5fd64a7f8bfa4d2ab2ed6fdf4c85bad154e"
   integrity sha512-w7fLxIRCRT7U8Qu53jQnJyPkYZIaR4n5151KMfcJlO/A9397Wxb1amJvROTK6TOnp7PfoAmg/qXiNHI+08jRfA==
 
-ra-core@^3.10.4:
-  version "3.10.4"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.10.4.tgz#b91c305248765f83c1f728fa7a15028887476d39"
-  integrity sha512-bEbeJBUzxl46q+rIOPGZWlnJFo6I9Z5NI4zN0fVX1Kn5w3/Z2iLr5GYadv8jA74oQmBoxBig1tMsC7lLiFoXGw==
+ra-core@^3.10.4, ra-core@^3.11.0:
+  version "3.11.0"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.11.0.tgz#0320a2acd4f37788f8768b1999b9e593dbb61230"
+  integrity sha512-kJkAWWY3i/GFX8pCIGGPMpZReYd3QMafUch3i1WLcgHSJT42NrWCmTXW4LFWPOjR0HKc/JjuNPAwkeQMtxuc5g==
   dependencies:
     "@testing-library/react" "^8.0.7"
     classnames "~2.2.5"
@@ -16240,12 +16240,12 @@ ra-i18n-polyglot@^3.10.4:
     node-polyglot "^2.2.2"
     ra-core "^3.10.4"
 
-ra-language-english@^3.10.4:
-  version "3.10.4"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.10.4.tgz#3a08faee07d82616ba041c341804b50eb87de75b"
-  integrity sha512-gItBTr3JC7CIYIszto7JvzqnA+dzywk/FPj+lDZuHUaIkgHcG18UMQJDLnvl7O0eDbmyeIsDRHCmu40UGA/Sag==
+ra-language-english@^3.10.4, ra-language-english@^3.11.0:
+  version "3.11.0"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.11.0.tgz#d4266820594c25d02b4e273af2bef539643163bc"
+  integrity sha512-4hyN9C5YmEf3+nkX5lAQehttwQ7CkOpqJzQ1xTQEC+9b6L9ahGmr/o3fcbsO9dIxX5V0ZMHQzfIDe/qtgaBfkA==
   dependencies:
-    ra-core "^3.10.4"
+    ra-core "^3.11.0"
 
 ra-ui-materialui@^3.10.4:
   version "3.10.4"
