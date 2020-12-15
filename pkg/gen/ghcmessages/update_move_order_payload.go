@@ -65,8 +65,7 @@ type UpdateMoveOrderPayload struct {
 	ReportByDate *strfmt.Date `json:"reportByDate"`
 
 	// SAC
-	// Required: true
-	Sac *string `json:"sac"`
+	Sac *string `json:"sac,omitempty"`
 
 	// TAC
 	// Required: true
@@ -114,10 +113,6 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -253,15 +248,6 @@ func (m *UpdateMoveOrderPayload) validateReportByDate(formats strfmt.Registry) e
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMoveOrderPayload) validateSac(formats strfmt.Registry) error {
-
-	if err := validate.Required("sac", "body", m.Sac); err != nil {
 		return err
 	}
 

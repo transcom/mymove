@@ -159,7 +159,7 @@ describe('TOO user', () => {
     cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
   });
 
-  it('is able to edit allowances', () => {
+  it.only('is able to edit allowances', () => {
     const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
     const moveLocator = 'TEST12';
 
@@ -174,10 +174,17 @@ describe('TOO user', () => {
     // Edit allowances page | Save
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
     cy.url().should('include', `/moves/${moveOrderId}/allowances`);
+    // Edit grade and authorized weight
+    cy.get('select[name="grade"]').contains('E_1');
+    cy.get('select[name="grade"]').select('W_2');
+    cy.get('input[name="authorizedWeight"]').clear().type('11111');
     cy.get('button').contains('Save').click();
+    // Verify editted values are saved
     cy.url().should('include', `/moves/${moveOrderId}/details`);
+    cy.get('[data-testid="authorizedWeight"]').contains('11,111 lbs');
+    cy.get('[data-testid="branchRank"]').contains('W_2');
 
-    // Edit allowances page | Cancel
+    // // Edit allowances page | Cancel
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
     cy.get('button').contains('Cancel').click();
     cy.url().should('include', `/moves/${moveOrderId}/details`);

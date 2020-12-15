@@ -3466,7 +3466,6 @@ func init() {
         "originDutyStationId",
         "ordersNumber",
         "tac",
-        "sac",
         "departmentIndicator"
       ],
       "properties": {
@@ -7481,7 +7480,6 @@ func init() {
         "originDutyStationId",
         "ordersNumber",
         "tac",
-        "sac",
         "departmentIndicator"
       ],
       "properties": {
