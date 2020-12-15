@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
 import { LastLocationProvider } from 'react-router-last-location';
 
 import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
@@ -210,7 +209,6 @@ const mapStateToProps = (state) => {
   return {
     currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: selectHasCanceledMove(state),
-    latestMove: get(state, 'moves.latestMove'),
     moveId: move?.id,
     selectedMoveType: selectMoveType(state),
     conusStatus: selectConusStatus(state),

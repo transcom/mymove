@@ -28,7 +28,7 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -416,9 +416,10 @@ PpmWeight.propTypes = {
 };
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const currentMove = selectCurrentMove(state);
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
   const originDutyStationZip = serviceMember?.current_station?.address?.postal_code;
-  const moveID = state.moves.currentMove.id;
+  const moveID = currentMove?.id;
   const serviceMemberId = serviceMember?.id;
 
   const props = {

@@ -21,7 +21,7 @@ import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import { setInitialFormValues } from './ducks';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
 
 import './DateAndLocation.css';
 
@@ -202,7 +202,7 @@ DateAndLocation.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const moveID = state.moves.currentMove.id;
+  const currentMove = selectCurrentMove(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   const defaultPickupZip = serviceMember?.residential_address?.postal_code;
@@ -212,7 +212,7 @@ function mapStateToProps(state) {
   const props = {
     serviceMemberId,
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    currentPPM: selectActivePPMForMove(state, moveID),
+    currentPPM: selectActivePPMForMove(state, currentMove?.id),
     currentOrders: selectCurrentOrders(state),
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),

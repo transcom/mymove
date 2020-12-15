@@ -16,7 +16,7 @@ import { isPpm } from 'scenes/Moves/ducks';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
-import { selectServiceMemberFromLoggedInUser, selectMoveIsApproved } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectMoveIsApproved, selectCurrentMove } from 'store/entities/selectors';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -181,7 +181,7 @@ function mapStateToProps(state) {
 
   return {
     serviceMember,
-    move: get(state, 'moves.currentMove'),
+    move: selectCurrentMove(state) || {},
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     moveIsApproved: selectMoveIsApproved(state),
     isPpm: isPpm(state),

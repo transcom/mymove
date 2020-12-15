@@ -299,14 +299,13 @@ Summary.defaultProps = {
 
 function mapStateToProps(state, ownProps) {
   const moveID = ownProps.match.params.moveId;
-  const currentOrders = selectCurrentOrders(state) || {};
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
     mtoShipments: selectMTOShipmentsForCurrentMove(state),
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove: selectCurrentMove(state) || {},
-    currentOrders,
+    currentOrders: selectCurrentOrders(state) || {},
     selectedMoveType: selectMoveType(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
