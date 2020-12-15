@@ -3,12 +3,15 @@ import { connect } from 'react-redux';
 import { bool, string, func, shape, number } from 'prop-types';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
-import { selectMTOShipmentById } from 'shared/Entities/modules/mtoShipments';
 import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/actions';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { HhgShipmentShape, HistoryShape, MatchShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectMTOShipmentById,
+} from 'store/entities/selectors';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 
 export class CreateOrEditMtoShipment extends Component {
@@ -105,7 +108,7 @@ function mapStateToProps(state, ownProps) {
 
   const props = {
     serviceMember,
-    mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId),
+    mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
     newDutyStationAddress: selectCurrentOrders(state)?.new_duty_station?.address || {},
   };

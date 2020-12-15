@@ -68,6 +68,15 @@ export const selectCurrentOrders = (state) => {
 };
 
 /** Moves */
+export const selectMovesForLoggedInUser = (state) => {
+  const orders = selectOrdersForLoggedInUser(state);
+  const moves = orders?.reduce((prev, cur) => {
+    return prev.concat(cur.moves?.map((id) => state.entities.moves?.[`${id}`]) || []);
+  }, []);
+
+  return moves;
+};
+
 export const selectMovesForCurrentOrders = (state) => {
   const activeOrders = selectCurrentOrders(state);
   const moveIds = activeOrders?.moves || [];
@@ -82,4 +91,22 @@ export const selectCurrentMove = (state) => {
   return activeMove || null;
 };
 
+export const selectMoveIsApproved = createSelector(selectCurrentMove, (move) => move?.status === 'APPROVED');
+
+export const selectHasCanceledMove = createSelector(selectMovesForLoggedInUser, (moves) =>
+  moves.some((m) => m.status === 'CANCELED'),
+);
+
+export const selectMoveType = createSelector(selectCurrentMove, (move) => move?.selected_move_type);
+
+export const selectConusStatus = createSelector(selectCurrentMove, (move) => move?.conus_status);
+
 /** MTO Shipments */
+export const selectMTOShipmentsForCurrentMove = (state) => {
+  const currentMove = selectCurrentMove(state);
+  return Object.values(state.entities.mtoShipments)?.filter((m) => m.moveTaskOrderID === currentMove?.id);
+};
+
+export function selectMTOShipmentById(state, id) {
+  return state.entities?.mtoShipments?.[`${id}`] || null;
+}

@@ -32,14 +32,6 @@ export function setSelectedMoveType(moveType) {
 }
 
 //selector
-export const moveIsApproved = (state) => get(state, 'moves.currentMove.status') === 'APPROVED';
-
-export const lastMoveIsCanceled = (state) => get(state, 'moves.latestMove.status') === 'CANCELED';
-
-export const selectedMoveType = (state) => get(state, 'moves.currentMove.selected_move_type');
-
-export const selectedConusStatus = (state) => get(state, 'moves.currentMove.conus_status');
-
 export const isPpm = (state) => Boolean(get(state, 'ppm.currentPpm', false));
 
 // Reducer

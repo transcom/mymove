@@ -29,13 +29,14 @@ import {
   selectIsProfileComplete,
   selectCurrentOrders,
   selectCurrentMove,
+  selectMTOShipmentsForCurrentMove,
 } from 'store/entities/selectors';
 import { selectUploadedOrders } from 'shared/Entities/modules/orders';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { selectMTOShipmentsByMoveId, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
@@ -497,9 +498,10 @@ const mapStateToProps = (state) => {
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),
     // TODO: change when we support PPM shipments as well
-    mtoShipments: selectMTOShipmentsByMoveId(state, move.id),
+    mtoShipments: selectMTOShipmentsForCurrentMove(state),
     // TODO: change when we support multiple moves
     move,
+    // TODO - deprecate this prop (need to refactor wizard flow)
     mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
   };
 };

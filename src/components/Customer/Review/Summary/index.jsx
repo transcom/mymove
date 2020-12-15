@@ -14,11 +14,6 @@ import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove } from 'shared/Entities/modules/moves';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
-import {
-  moveIsApproved as selectMoveIsApproved,
-  lastMoveIsCanceled,
-  selectedMoveType as selectMoveType,
-} from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatOrderType } from 'utils/formatters';
 import Alert from 'shared/Alert';
@@ -30,8 +25,15 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard';
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectCurrentMove,
+  selectMoveIsApproved,
+  selectHasCanceledMove,
+  selectMoveType,
+  selectMTOShipmentsForCurrentMove,
+} from 'store/entities/selectors';
 import { OrdersShape, MoveShape, MtoShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 
 export class Summary extends Component {
@@ -301,7 +303,7 @@ function mapStateToProps(state, ownProps) {
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
-    mtoShipments: selectMTOShipmentsByMoveId(state, moveID),
+    mtoShipments: selectMTOShipmentsForCurrentMove(state),
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove: selectCurrentMove(state) || {},
     currentOrders,
@@ -310,7 +312,7 @@ function mapStateToProps(state, ownProps) {
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
     moveIsApproved: selectMoveIsApproved(state),
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    lastMoveIsCanceled: selectHasCanceledMove(state),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
   };

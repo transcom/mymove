@@ -6,6 +6,7 @@ import {
   selectCurrentDutyStation,
   selectOrdersForLoggedInUser,
   selectCurrentOrders,
+  selectMovesForLoggedInUser,
   selectMovesForCurrentOrders,
   selectCurrentMove,
 } from './selectors';
@@ -506,6 +507,89 @@ describe('selectCurrentOrders', () => {
     };
 
     expect(selectCurrentOrders(testState)).toEqual(null);
+  });
+});
+
+describe('selectMovesForLoggedInUser', () => {
+  it('returns the moves associated with the logged in user', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+            status: 'CANCELED',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'SUBMITTED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectMovesForLoggedInUser(testState)).toEqual([
+      testState.entities.moves.move1029,
+      testState.entities.moves.move2938,
+    ]);
+  });
+
+  it('returns an empty array if the logged in user has no moves', () => {
+    const testState = {
+      entities: {
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: [],
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            status: 'SUBMITTED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectMovesForLoggedInUser(testState)).toEqual([]);
   });
 });
 

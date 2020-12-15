@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { withLastLocation } from 'react-router-last-location';
 
 import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
-import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import {
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
   selectCurrentOrders,
   selectCurrentMove,
+  selectHasCanceledMove,
+  selectMoveType,
 } from 'store/entities/selectors';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
@@ -24,7 +24,7 @@ import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
-import { loadMTOShipments, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
 
 export class PpmLanding extends Component {
   componentDidMount() {
@@ -178,9 +178,8 @@ const mapStateToProps = (state) => {
   const move = selectCurrentMove(state) || {};
 
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
-    selectedMoveType: selectedMoveType(state),
+    lastMoveIsCanceled: selectHasCanceledMove(state),
+    selectedMoveType: selectMoveType(state),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember,

@@ -18,12 +18,16 @@ import SaveCancelButtons from './SaveCancelButtons';
 
 import { updateOrders, fetchLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
-import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
+import { isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectMoveIsApproved,
+} from 'store/entities/selectors';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -219,7 +223,7 @@ function mapStateToProps(state) {
     error: get(state, 'orders.error'),
     formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
-    moveIsApproved: moveIsApproved(state),
+    moveIsApproved: selectMoveIsApproved(state),
     isPpm: isPpm(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
   };

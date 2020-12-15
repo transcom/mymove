@@ -37,7 +37,6 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { lastMoveIsCanceled, selectedConusStatus, selectedMoveType } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -51,7 +50,13 @@ import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipme
 import Home from 'pages/MyMove/Home';
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
-import { selectServiceMemberFromLoggedInUser, selectCurrentMove } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentMove,
+  selectHasCanceledMove,
+  selectMoveType,
+  selectConusStatus,
+} from 'store/entities/selectors';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -204,11 +209,11 @@ const mapStateToProps = (state) => {
 
   return {
     currentServiceMemberId: serviceMemberId,
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    lastMoveIsCanceled: selectHasCanceledMove(state),
     latestMove: get(state, 'moves.latestMove'),
     moveId: move?.id,
-    selectedMoveType: selectedMoveType(state),
-    conusStatus: selectedConusStatus(state),
+    selectedMoveType: selectMoveType(state),
+    conusStatus: selectConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,
   };
 };
