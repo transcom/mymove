@@ -14,6 +14,10 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { HistoryShape, MatchShape } from 'types/router';
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import { ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { dropdownInputOptions } from 'shared/formatters';
+
+const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
 const MoveAllowances = ({ history, match }) => {
   const { moveOrderId } = match.params;
@@ -80,7 +84,7 @@ const MoveAllowances = ({ history, match }) => {
                   </div>
                 </div>
                 <div className={moveOrdersStyles.body}>
-                  <AllowancesDetailForm entitlements={moveOrder.entitlement} />
+                  <AllowancesDetailForm entitlements={moveOrder.entitlement} rankOptions={rankDropdownOptions} />
                 </div>
                 <div className={moveOrdersStyles.bottom}>
                   <div className={moveOrdersStyles.buttonGroup}>

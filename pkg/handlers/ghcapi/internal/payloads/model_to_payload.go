@@ -94,9 +94,15 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		orderTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
 	}
 
+	var grade ghcmessages.Grade
+	if moveOrder.Grade != nil {
+		grade = ghcmessages.Grade(*moveOrder.Grade)
+	}
+
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
+		Grade:                  &grade,
 		OrderNumber:            moveOrder.OrdersNumber,
 		OrderTypeDetail:        orderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
@@ -115,9 +121,6 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		UploadedOrderID:        strfmt.UUID(moveOrder.UploadedOrdersID.String()),
 	}
 
-	if moveOrder.Grade != nil {
-		payload.Grade = *moveOrder.Grade
-	}
 	if moveOrder.ConfirmationNumber != nil {
 		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
 	}
