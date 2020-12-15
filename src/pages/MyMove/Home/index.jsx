@@ -28,13 +28,13 @@ import {
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
   selectCurrentOrders,
+  selectCurrentMove,
 } from 'store/entities/selectors';
 import { selectUploadedOrders } from 'shared/Entities/modules/orders';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { selectMTOShipmentsByMoveId, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
@@ -482,7 +482,7 @@ Home.defaultProps = {
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const move = selectActiveOrLatestMove(state);
+  const move = selectCurrentMove(state) || {};
 
   return {
     currentPpm: selectActivePPMForMove(state, move.id),

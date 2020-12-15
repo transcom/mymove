@@ -12,7 +12,7 @@ import { checkEntitlement } from 'scenes/Review/ducks';
 import ConnectedPPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
-import { loadMove, selectMove } from 'shared/Entities/modules/moves';
+import { loadMove } from 'shared/Entities/modules/moves';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
 import {
   moveIsApproved as selectMoveIsApproved,
@@ -31,7 +31,7 @@ import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipment
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
 import { OrdersShape, MoveShape, MtoShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 
 export class Summary extends Component {
@@ -303,7 +303,7 @@ function mapStateToProps(state, ownProps) {
     currentPPM: selectActivePPMForMove(state, moveID),
     mtoShipments: selectMTOShipmentsByMoveId(state, moveID),
     serviceMember: selectServiceMemberFromLoggedInUser(state),
-    currentMove: selectMove(state, moveID),
+    currentMove: selectCurrentMove(state),
     currentOrders,
     selectedMoveType: selectMoveType(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),

@@ -47,13 +47,11 @@ import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import Home from 'pages/MyMove/Home';
-
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentMove } from 'store/entities/selectors';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -202,7 +200,7 @@ AppWrapper.defaultProps = {
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
-  const move = selectActiveOrLatestMove(state);
+  const move = selectCurrentMove(state);
 
   return {
     currentServiceMemberId: serviceMemberId,

@@ -12,6 +12,7 @@ import {
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
   selectCurrentOrders,
+  selectCurrentMove,
 } from 'store/entities/selectors';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
@@ -24,7 +25,6 @@ import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { loadMTOShipments, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class PpmLanding extends Component {
   componentDidMount() {
@@ -175,7 +175,7 @@ PpmLanding.defaultProps = {
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const move = selectActiveOrLatestMove(state);
+  const move = selectCurrentMove(state);
 
   const props = {
     mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),

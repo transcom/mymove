@@ -1,14 +1,11 @@
-import { denormalize } from 'normalizr';
-import { get, filter, isEmpty, isNull, head } from 'lodash';
+import { get } from 'lodash';
 
-import { orders } from '../schema';
 import { ADD_ENTITIES } from '../actions';
 
 import { swaggerRequest } from 'shared/Swagger/request';
 import { formatDateForSwagger } from 'shared/dates';
 import { getClient } from 'shared/Swagger/api';
-import { fetchActive } from 'shared/utils';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { selectCurrentOrders } from 'store/entities/selectors';
 
 export const STATE_KEY = 'orders';
 export const loadOrdersLabel = 'Orders.loadOrders';
@@ -54,10 +51,6 @@ export function createOrders(orders, label = createOrdersLabel) {
 }
 
 // Selectors
-export const selectUpload = (state, id) => {
-  return denormalize([id], orders, state.entities)[0];
-};
-
 export function selectOrders(state, ordersId) {
   return get(state, `entities.orders.${ordersId}`) || {};
 }
@@ -71,6 +64,7 @@ export function selectOrdersForMove(state, moveId) {
   }
 }
 
+// TODO - migrate to selectors
 export function selectUploadsForActiveOrders(state) {
   const orders = selectCurrentOrders(state);
   const uploadedOrders = get(state, `entities.documents.${orders?.uploaded_orders}`);
@@ -89,39 +83,8 @@ export function selectUploadsForActiveOrders(state) {
   }
 }
 
-export function selectOrdersForServiceMemberId(state, serviceMemberId) {
-  const orders = Object.values(state.entities.orders);
-  filter(orders, (order) => order.service_member_id === serviceMemberId);
-  return orders || [];
-}
-
-export function selectActiveOrLatestOrders(state) {
-  // temp until full redux refactor: gets active or latest orders from entities if exist. If not, gets from orders.currentOrders.
-  const serviceMember = get(state, 'user.userInfo.service_member', {});
-  if (isNull(serviceMember)) {
-    return {};
-  }
-  const orders = selectOrdersForServiceMemberId(state, serviceMember.id);
-  let activeOrLatestOrders = fetchActive(orders) || head(orders);
-  if (isEmpty(activeOrLatestOrders)) {
-    const orders = get(state, 'user.userInfo.service_member.orders', {});
-    activeOrLatestOrders = fetchActive(orders) || head(orders);
-  }
-  return activeOrLatestOrders || {};
-}
-
-// use this for redux refactored parts where we've loaded orders into entities
-export function selectActiveOrLatestOrdersFromEntities(state) {
-  const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  if (isNull(serviceMember)) {
-    return {};
-  }
-  const orders = selectOrdersForServiceMemberId(state, serviceMember.id);
-  let activeOrLatestOrders = fetchActive(orders) || head(orders);
-  return activeOrLatestOrders || {};
-}
-
+// TODO - migrate to selectors
 export function selectUploadedOrders(state) {
-  const orders = selectActiveOrLatestOrdersFromEntities(state);
-  return Object.keys(orders).length ? orders['uploaded_orders'].uploads : [];
+  const orders = selectCurrentOrders(state);
+  return orders ? orders.uploaded_orders.uploads : [];
 }

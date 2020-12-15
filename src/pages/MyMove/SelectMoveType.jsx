@@ -6,7 +6,7 @@ import { string, bool, func, arrayOf, shape } from 'prop-types';
 import styles from './SelectMoveType.module.scss';
 
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
+import { selectCurrentMove } from 'store/entities/selectors';
 import { WizardPage } from 'shared/WizardPage';
 import SelectableCard from 'components/Customer/SelectableCard';
 import {
@@ -243,16 +243,15 @@ SelectMoveType.propTypes = {
   mtoShipments: arrayOf(MTOShipmentShape).isRequired,
 };
 
-function mapStateToProps(state) {
-  const move = selectActiveOrLatestMove(state);
+const mapStateToProps = (state) => {
+  const move = selectCurrentMove(state);
   const mtoShipments = selectMTOShipmentsByMoveId(state, move.id);
 
-  const props = {
+  return {
     move,
     mtoShipments,
   };
-  return props;
-}
+};
 
 const mapDispatchToProps = {
   updateMove: updateMoveAction,
