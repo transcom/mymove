@@ -1,8 +1,10 @@
 package logging
 
 import (
+	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
@@ -19,6 +21,10 @@ type ZapConfig struct {
 // ZapConfigOption is the type for the possible options you can pass in
 // to logging.Config
 type ZapConfigOption func(*ZapConfig)
+
+type stackTracer interface {
+	StackTrace() errors.StackTrace
+}
 
 // WithEnvironment provides an option to pass in the environment
 func WithEnvironment(environment string) ZapConfigOption {
@@ -62,6 +68,7 @@ func Config(opts ...ZapConfigOption) (*zap.Logger, error) {
 		loggerConfig = zap.NewProductionConfig()
 		loggerConfig.Encoding = "filtered-json"
 	} else {
+
 		loggerConfig = devConfig
 		loggerConfig.Encoding = "filtered-console"
 	}
@@ -119,13 +126,58 @@ func (fje *filteredJSONEncoder) Clone() zapcore.Encoder {
 }
 
 func (fce *filteredConsoleEncoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (*buffer.Buffer, error) {
+	modifiedFields := filterErrorFields(fields, fce.stacktraceLength)
 	ent = filteredAndLimitedStackTrace(ent, fce.stacktraceLength)
-	return fce.Encoder.EncodeEntry(ent, fields)
+	return fce.Encoder.EncodeEntry(ent, modifiedFields)
 }
 
 func (fje *filteredJSONEncoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (*buffer.Buffer, error) {
+	modifiedFields := filterErrorFields(fields, fje.stacktraceLength)
 	ent = filteredAndLimitedStackTrace(ent, fje.stacktraceLength)
-	return fje.Encoder.EncodeEntry(ent, fields)
+	return fje.Encoder.EncodeEntry(ent, modifiedFields)
+}
+
+func filterErrorFields(fields []zapcore.Field, lineLimit int) []zapcore.Field {
+	var modifiedFields []zapcore.Field
+
+	for _, field := range fields {
+		if field.Type == zapcore.ErrorType {
+			fieldError := field.Interface.(error)
+			stacktraceError := fieldError.(stackTracer) // error implements the stackTracer interface
+			stacktrace := stacktraceError.StackTrace()
+
+			filteredStacktrace := filterStacktraceFrames(stacktrace, lineLimit)
+
+			// converts the error field to a string field with the same key (defaults to "error" if not named)
+			// TODO: how are slices of errors handled?
+			modifiedFields = append(modifiedFields, zap.String(field.Key, fieldError.Error()))
+			// preserve the stacktrace in the keyVerbose field
+			modifiedFields = append(modifiedFields, zap.String(field.Key+"Verbose", fmt.Sprintf("%+v", filteredStacktrace)))
+		} else {
+			modifiedFields = append(modifiedFields, field)
+		}
+	}
+
+	return modifiedFields
+}
+
+func filterStacktraceFrames(frames []errors.Frame, lineLimit int) []errors.Frame {
+	if frames == nil || len(frames) <= lineLimit {
+		return frames
+	}
+
+	var filteredFrames []errors.Frame
+	for _, frame := range frames {
+		// %+s will return the path and filename of the frame with the value of frame.line()
+		if strings.Contains(fmt.Sprintf("%+s", frame), "mymove") {
+			filteredFrames = append(filteredFrames, frame)
+			if len(filteredFrames) == lineLimit {
+				break
+			}
+		}
+	}
+
+	return filteredFrames
 }
 
 // Filter the stack trace to only return lines from the mymove codebase
@@ -136,10 +188,15 @@ func filteredAndLimitedStackTrace(ent zapcore.Entry, stacktraceLength int) zapco
 		return ent
 	}
 
+	stacktraceLines := strings.Split(ent.Stack, "\n")
+
+	// We don't need to filter if the stacktrace is beneath than the limit
+	if len(stacktraceLines) <= stacktraceLength {
+		return ent
+	}
+
 	var matchingLines []string
 	searchTerm := "mymove"
-
-	stacktraceLines := strings.Split(ent.Stack, "\n")
 
 	for _, line := range stacktraceLines {
 		if strings.Contains(line, searchTerm) {
