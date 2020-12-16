@@ -38,7 +38,7 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 
 	existingETag := etag.GenerateEtag(existingOrder.UpdatedAt)
 	if existingETag != eTag {
-		return nil, query.StaleIdentifierError{StaleIdentifier: eTag}
+		return nil, services.NewPreconditionFailedError(moveOrder.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	transactionError := s.db.Transaction(func(tx *pop.Connection) error {
@@ -88,6 +88,8 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 			switch updateErr.(type) {
 			case query.StaleIdentifierError:
 				return services.NewPreconditionFailedError(moveOrder.ID, err)
+			default:
+				return updateErr
 			}
 		}
 
@@ -95,7 +97,7 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 	})
 
 	if transactionError != nil {
-		return nil, services.InvalidInputError{}
+		return nil, transactionError
 	}
 
 	return existingOrder, err

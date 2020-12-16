@@ -161,8 +161,8 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 	}
 
 	departmentIndicator := string(payload.DepartmentIndicator)
-	var entitlement models.Entitlement
 
+	var entitlement models.Entitlement
 	if payload.AuthorizedWeight != nil {
 		entitlement.DBAuthorizedWeight = swag.Int(int(*payload.AuthorizedWeight))
 	}
