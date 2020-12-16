@@ -130,7 +130,7 @@ const MoveOrders = () => {
                   </Button>
                   <h2 className={styles.header}>View Orders</h2>
                   <div>
-                    <Link className={styles.viewAllowances} to="allowances">
+                    <Link className={styles.viewAllowances} data-testid="view-allowances" to="allowances">
                       View Allowances
                     </Link>
                   </div>

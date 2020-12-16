@@ -171,9 +171,16 @@ describe('TOO user', () => {
     // Move Details page
     cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
-    // Edit allowances page | Save
+    // Navigate to Edit allowances page
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+
+    // Toggle between Edit Allowances and Edit Orders page
+    cy.get('[data-testid="view-orders"]').click();
+    cy.url().should('include', `/moves/${moveOrderId}/orders`);
+    cy.get('[data-testid="view-allowances"]').click();
     cy.url().should('include', `/moves/${moveOrderId}/allowances`);
+
+    // Edit allowances page | Save
     cy.get('button').contains('Save').click();
     cy.url().should('include', `/moves/${moveOrderId}/details`);
 

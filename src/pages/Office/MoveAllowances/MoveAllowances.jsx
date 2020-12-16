@@ -69,7 +69,7 @@ const MoveAllowances = () => {
                     View Allowances
                   </h2>
                   <div>
-                    <Link className={moveOrdersStyles.viewAllowances} data-testid="view-orders-btn" to="orders">
+                    <Link className={moveOrdersStyles.viewAllowances} data-testid="view-orders" to="orders">
                       View Orders
                     </Link>
                   </div>
