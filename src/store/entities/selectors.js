@@ -67,6 +67,11 @@ export const selectCurrentOrders = (state) => {
   return activeOrders || orders[0] || null;
 };
 
+export const selectUploadsForCurrentOrders = (state) => {
+  const orders = selectCurrentOrders(state);
+  return orders ? orders.uploaded_orders?.uploads : [];
+};
+
 /** Moves */
 export const selectMovesForLoggedInUser = (state) => {
   const orders = selectOrdersForLoggedInUser(state);

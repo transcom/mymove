@@ -16,7 +16,7 @@ import UploadsTable from 'shared/Uploader/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
 
-import { updateOrders, fetchLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
+import { updateOrders, fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
@@ -27,6 +27,7 @@ import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
   selectMoveIsApproved,
+  selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
 
 import './Review.css';
@@ -213,7 +214,7 @@ function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
   const currentOrders = selectCurrentOrders(state) || {};
-  const uploads = selectUploadsForActiveOrders(state);
+  const uploads = selectUploadsForCurrentOrders(state);
 
   const props = {
     currentOrders,

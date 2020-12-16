@@ -30,8 +30,8 @@ import {
   selectCurrentOrders,
   selectCurrentMove,
   selectMTOShipmentsForCurrentMove,
+  selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
-import { selectUploadedOrders } from 'shared/Entities/modules/orders';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
@@ -493,7 +493,7 @@ const mapStateToProps = (state) => {
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     isProfileComplete: selectIsProfileComplete(state),
     orders: selectCurrentOrders(state) || {},
-    uploadedOrderDocuments: selectUploadedOrders(state),
+    uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),

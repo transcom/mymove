@@ -82,9 +82,3 @@ export function selectUploadsForActiveOrders(state) {
     return [];
   }
 }
-
-// TODO - migrate to selectors
-export function selectUploadedOrders(state) {
-  const orders = selectCurrentOrders(state);
-  return orders ? orders.uploaded_orders.uploads : [];
-}

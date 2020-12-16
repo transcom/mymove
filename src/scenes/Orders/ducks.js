@@ -1,5 +1,5 @@
 import { pick, get } from 'lodash';
-import { GetOrders } from './api.js';
+
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
@@ -10,8 +10,6 @@ export const GET_ORDERS = ReduxHelpers.generateAsyncActionTypes(getOrdersType);
 
 const showCurrentOrdersType = 'SHOW_CURRENT_ORDERS';
 export const SHOW_CURRENT_ORDERS = ReduxHelpers.generateAsyncActionTypes(showCurrentOrdersType);
-
-export const loadOrders = ReduxHelpers.generateAsyncActionCreator(getOrdersType, GetOrders);
 
 // Reducer
 const initialState = {

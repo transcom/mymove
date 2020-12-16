@@ -238,14 +238,13 @@ EditDateAndLocation.propTypes = {
 };
 function mapStateToProps(state) {
   const currentMove = selectCurrentMove(state) || {};
-  const currentOrders = selectCurrentOrders(state);
   const moveID = currentMove?.id;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     move: currentMove,
-    currentOrders,
+    currentOrders: selectCurrentOrders(state) || {},
     currentPPM: selectActivePPMForMove(state, moveID),
     formValues: getFormValues(editDateAndLocationFormName)(state),
     entitlement: loadEntitlementsFromState(state),
