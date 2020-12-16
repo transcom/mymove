@@ -23,7 +23,6 @@ import scrollToTop from 'shared/scrollToTop';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
 
 export class PpmLanding extends Component {
@@ -80,7 +79,6 @@ export class PpmLanding extends Component {
       lastMoveIsCanceled,
       serviceMember,
       orders,
-      uploads,
       move,
       ppm,
       backupContacts,
@@ -91,7 +89,6 @@ export class PpmLanding extends Component {
       lastMoveIsCanceled,
       serviceMember,
       orders,
-      uploads,
       move,
       ppm,
       backupContacts,
@@ -185,7 +182,6 @@ const mapStateToProps = (state) => {
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     orders: selectCurrentOrders(state) || {},
-    uploads: selectUploadsForActiveOrders(state),
     move: move,
     ppm: getPPM(state),
     loggedInUser: user,
