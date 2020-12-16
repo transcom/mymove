@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,11 +12,11 @@ import AllowancesDetailForm from '../../../components/Office/AllowancesDetailFor
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { HistoryShape, MatchShape } from 'types/router';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 
-const MoveAllowances = ({ history, match }) => {
-  const { moveOrderId } = match.params;
+const MoveAllowances = () => {
+  const { moveOrderId } = useParams();
+  const history = useHistory();
 
   const { moveOrders, upload, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
 
@@ -69,14 +69,9 @@ const MoveAllowances = ({ history, match }) => {
                     View Allowances
                   </h2>
                   <div>
-                    <Button
-                      type="button"
-                      className={moveOrdersStyles.viewAllowances}
-                      data-testid="view-orders-btn"
-                      unstyled
-                    >
+                    <Link className={moveOrdersStyles.viewAllowances} data-testid="view-orders-btn" to="orders">
                       View Orders
-                    </Button>
+                    </Link>
                   </div>
                 </div>
                 <div className={moveOrdersStyles.body}>
@@ -101,9 +96,4 @@ const MoveAllowances = ({ history, match }) => {
   );
 };
 
-MoveAllowances.propTypes = {
-  history: HistoryShape.isRequired,
-  match: MatchShape.isRequired,
-};
-
-export default withRouter(MoveAllowances);
+export default MoveAllowances;
