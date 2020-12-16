@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import { func, PropTypes } from 'prop-types';
 
 import SelectableCard from 'components/Customer/SelectableCard';
-import { setConusStatus } from 'scenes/Moves/ducks';
-import { selectConusStatus } from 'store/entities/selectors';
+import { setConusStatus } from 'store/onboarding/actions';
+import { selectConusStatus } from 'store/onboarding/selectors';
 import { CONUS_STATUS } from 'shared/constants';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 

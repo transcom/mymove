@@ -1,4 +1,15 @@
-import { setConusStatus, SET_CONUS_STATUS } from './actions';
+import {
+  setConusStatus,
+  SET_CONUS_STATUS,
+  initOnboarding,
+  INIT_ONBOARDING,
+  initOnboardingFailed,
+  INIT_ONBOARDING_FAILED,
+  initOnboardingComplete,
+  INIT_ONBOARDING_COMPLETE,
+  fetchCustomerData,
+  FETCH_CUSTOMER_DATA,
+} from './actions';
 
 describe('Onboarding actions', () => {
   it('setConusStatus returns the expected action', () => {
@@ -8,5 +19,38 @@ describe('Onboarding actions', () => {
     };
 
     expect(setConusStatus('CONUS')).toEqual(expectedAction);
+  });
+
+  it('initOnboarding returns the expected action', () => {
+    const expectedAction = {
+      type: INIT_ONBOARDING,
+    };
+
+    expect(initOnboarding()).toEqual(expectedAction);
+  });
+
+  it('initOnboardingFailed returns the expected action', () => {
+    const expectedAction = {
+      type: INIT_ONBOARDING_FAILED,
+      error: 'Test Error',
+    };
+
+    expect(initOnboardingFailed('Test Error')).toEqual(expectedAction);
+  });
+
+  it('initOnboardingComplete returns the expected action', () => {
+    const expectedAction = {
+      type: INIT_ONBOARDING_COMPLETE,
+    };
+
+    expect(initOnboardingComplete()).toEqual(expectedAction);
+  });
+
+  it('fetchCustomerData returns the expected action', () => {
+    const expectedAction = {
+      type: FETCH_CUSTOMER_DATA,
+    };
+
+    expect(fetchCustomerData()).toEqual(expectedAction);
   });
 });

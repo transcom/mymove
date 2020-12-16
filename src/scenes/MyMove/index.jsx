@@ -49,12 +49,12 @@ import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipme
 import Home from 'pages/MyMove/Home';
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
+import { selectConusStatus } from 'store/onboarding/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentMove,
   selectHasCanceledMove,
   selectMoveType,
-  selectConusStatus,
 } from 'store/entities/selectors';
 
 export class AppWrapper extends Component {

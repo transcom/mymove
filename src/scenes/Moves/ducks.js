@@ -15,13 +15,6 @@ export const createOrUpdateMoveType = 'CREATE_OR_UPDATE_MOVE';
 export const CREATE_OR_UPDATE_MOVE = ReduxHelpers.generateAsyncActionTypes(createOrUpdateMoveType);
 
 // Action creation
-
-// TODO - deprecate CONUS status state & use required field in form instead
-export function setConusStatus(moveType) {
-  return { type: SET_CONUS_STATUS, moveType };
-}
-
-// Action creation
 export function setPendingMoveType(value) {
   return { type: SET_PENDING_MOVE_TYPE, payload: value };
 }

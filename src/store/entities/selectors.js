@@ -104,8 +104,6 @@ export const selectHasCanceledMove = createSelector(selectMovesForLoggedInUser, 
 
 export const selectMoveType = createSelector(selectCurrentMove, (move) => move?.selected_move_type);
 
-export const selectConusStatus = createSelector(selectCurrentMove, (move) => move?.conus_status);
-
 /** MTO Shipments */
 export const selectMTOShipmentsForCurrentMove = (state) => {
   const currentMove = selectCurrentMove(state);

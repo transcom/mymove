@@ -11,12 +11,8 @@ import WizardPage from 'shared/WizardPage';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import scrollToTop from 'shared/scrollToTop';
-import {
-  selectServiceMemberFromLoggedInUser,
-  selectHasCanceledMove,
-  selectMoveType,
-  selectConusStatus,
-} from 'store/entities/selectors';
+import { selectConusStatus } from 'store/onboarding/selectors';
+import { selectServiceMemberFromLoggedInUser, selectHasCanceledMove, selectMoveType } from 'store/entities/selectors';
 
 class ProfileReview extends Component {
   componentDidMount() {
