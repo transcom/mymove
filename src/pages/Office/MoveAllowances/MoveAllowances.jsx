@@ -132,7 +132,9 @@ const MoveAllowances = ({ history, match }) => {
                 </div>
                 <div className={moveOrdersStyles.bottom}>
                   <div className={moveOrdersStyles.buttonGroup}>
-                    <Button type="submit">Save</Button>
+                    <Button disabled={formik.isSubmitting} type="submit">
+                      Save
+                    </Button>
                     <Button type="button" secondary onClick={handleClose}>
                       Cancel
                     </Button>
