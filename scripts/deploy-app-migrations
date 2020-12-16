@@ -19,14 +19,17 @@ case "${environment}" in
   exp)
     compare_host=my.exp.move.mil
     AWS_ACCOUNT_ID=015681133840
+    export AWS_PROFILE=transcom-gov-milmove-exp
     ;;
   stg)
     compare_host=my.stg.move.mil
     AWS_ACCOUNT_ID=015932076428
+    export AWS_PROFILE=transcom-gov-milmove-stg
     ;;
   prd)
     compare_host=my.move.mil
     AWS_ACCOUNT_ID=015533997236
+    export AWS_PROFILE=transcom-gov-milmove-prd
     ;;
   *)
     echo "<environment> must be one of exp, stg, or prd"
@@ -35,7 +38,7 @@ case "${environment}" in
 esac
 
 APP_ENVIRONMENT="${environment}"
-AWS_DEFAULT_REGION=us-west-2
+AWS_DEFAULT_REGION=us-gov-west-1
 CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"

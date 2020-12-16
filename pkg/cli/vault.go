@@ -30,10 +30,16 @@ const (
 
 	// VaultAWSKeychainNameDefault is the aws-vault default keychain name
 	VaultAWSKeychainNameDefault string = "login"
-	// VaultAWSProfileDefault is the aws-vault default profile name
-	VaultAWSProfileDefault string = "transcom-ppp"
+	// VaultAWSProfileTranscomPPP is the aws-vault profile name for transcom-ppp
+	VaultAWSProfileTranscomPPP string = "transcom-ppp"
 	// VaultAWSProfileTranscomComLegacy is the aws-vault profile name for transcom-com-legacy
 	VaultAWSProfileTranscomComLegacy string = "transcom-com-legacy"
+	// VaultAWSProfileTranscomGovMilMoveExp is the aws-vault profile name for transcom-gov-milmove-exp
+	VaultAWSProfileTranscomGovMilMoveExp string = "transcom-gov-milmove-exp"
+	// VaultAWSProfileTranscomGovMilMoveStg is the aws-vault profile name for transcom-gov-milmove-stg
+	VaultAWSProfileTranscomGovMilMoveStg string = "transcom-gov-milmove-stg"
+	// VaultAWSProfileTranscomGovMilMovePrd is the aws-vault profile name for transcom-gov-milmove-prd
+	VaultAWSProfileTranscomGovMilMovePrd string = "transcom-gov-milmove-prd"
 )
 
 type errInvalidKeychainName struct {
@@ -89,8 +95,11 @@ func CheckVault(v *viper.Viper) error {
 
 		awsProfile := v.GetString(VaultAWSProfileFlag)
 		awsProfiles := []string{
-			VaultAWSProfileDefault,
+			VaultAWSProfileTranscomPPP,
 			VaultAWSProfileTranscomComLegacy,
+			VaultAWSProfileTranscomGovMilMoveExp,
+			VaultAWSProfileTranscomGovMilMoveStg,
+			VaultAWSProfileTranscomGovMilMovePrd,
 		}
 		if len(awsProfile) > 0 && !stringSliceContains(awsProfiles, awsProfile) {
 			return errors.Wrap(&errInvalidAWSProfile{Profile: awsProfile},
