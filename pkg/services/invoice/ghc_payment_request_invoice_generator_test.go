@@ -234,8 +234,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	// Test Header Generation
 	suite.T().Run("adds bx header segment", func(t *testing.T) {
-		suite.IsType(&edisegment.BX{}, result.Header[0])
-		bx := result.Header[0].(*edisegment.BX)
+		suite.IsType(&edisegment.BX{}, result.Header["BX_ShipmentInformation"])
+		bx := result.Header["BX_ShipmentInformation"].(*edisegment.BX)
 		suite.Equal("00", bx.TransactionSetPurposeCode)
 		suite.Equal("J", bx.TransactionMethodTypeCode)
 		suite.Equal("PP", bx.ShipmentMethodOfPayment)
@@ -253,36 +253,37 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		TestName      string
 		Qualifier     string
 		ExpectedValue string
+		Key           string
 	}{
-		{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber},
-		{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST"},
-		{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat()},
-		{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank)},
-		{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation)},
+		{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, Key: "N9_PaymentRequestNumber"},
+		{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", Key: "N9_ContractCode"},
+		{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), Key: "N9_ServiceMemberName"},
+		{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank), Key: "N9_ServiceMemberRank"},
+		{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), Key: "N9_ServiceMemberBranch"},
 	}
 
-	for idx, data := range testData {
+	for _, data := range testData {
 		suite.T().Run(fmt.Sprintf("adds %s to header", data.TestName), func(t *testing.T) {
-			suite.IsType(&edisegment.N9{}, result.Header[idx+1])
-			n9 := result.Header[idx+1].(*edisegment.N9)
+			suite.IsType(&edisegment.N9{}, result.Header[data.Key])
+			n9 := result.Header[data.Key].(*edisegment.N9)
 			suite.Equal(data.Qualifier, n9.ReferenceIdentificationQualifier)
 			suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
 		})
 	}
 
 	suite.T().Run("adds actual pickup date to header", func(t *testing.T) {
-		suite.IsType(&edisegment.G62{}, result.Header[6])
-		g62Requested := result.Header[6].(*edisegment.G62)
+		suite.IsType(&edisegment.G62{}, result.Header["G62_RequestedPickupDate"])
+		g62Requested := result.Header["G62_RequestedPickupDate"].(*edisegment.G62)
 		suite.Equal(10, g62Requested.DateQualifier)
 		suite.Equal(requestedPickupDate.Format(testDateFormat), g62Requested.Date)
 
-		suite.IsType(&edisegment.G62{}, result.Header[7])
-		g62Scheduled := result.Header[7].(*edisegment.G62)
+		suite.IsType(&edisegment.G62{}, result.Header["G62_ScheduledPickupDate"])
+		g62Scheduled := result.Header["G62_ScheduledPickupDate"].(*edisegment.G62)
 		suite.Equal(76, g62Scheduled.DateQualifier)
 		suite.Equal(scheduledPickupDate.Format(testDateFormat), g62Scheduled.Date)
 
-		suite.IsType(&edisegment.G62{}, result.Header[8])
-		g62Actual := result.Header[8].(*edisegment.G62)
+		suite.IsType(&edisegment.G62{}, result.Header["G62_ActualPickupDate"])
+		g62Actual := result.Header["G62_ActualPickupDate"].(*edisegment.G62)
 		suite.Equal(86, g62Actual.DateQualifier)
 		suite.Equal(actualPickupDate.Format(testDateFormat), g62Actual.Date)
 	})
@@ -292,14 +293,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		originDutyStation := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation
 		transportationOffice, err := models.FetchDutyStationTransportationOffice(suite.DB(), originDutyStation.ID)
 		suite.FatalNoError(err)
-		suite.IsType(&edisegment.N1{}, result.Header[9])
-		n1 := result.Header[9].(*edisegment.N1)
+		suite.IsType(&edisegment.N1{}, result.Header["N1_BuyerOrganizationName"])
+		n1 := result.Header["N1_BuyerOrganizationName"].(*edisegment.N1)
 		suite.Equal("BY", n1.EntityIdentifierCode)
 		suite.Equal(transportationOffice.Name, n1.Name)
 		suite.Equal("92", n1.IdentificationCodeQualifier)
 		suite.Equal(transportationOffice.Gbloc, n1.IdentificationCode)
-		suite.IsType(&edisegment.N1{}, result.Header[10])
-		n1 = result.Header[10].(*edisegment.N1)
+		suite.IsType(&edisegment.N1{}, result.Header["N1_SellerOrganizationName"])
+		n1 = result.Header["N1_SellerOrganizationName"].(*edisegment.N1)
 		suite.Equal("SE", n1.EntityIdentifierCode)
 		suite.Equal("Prime", n1.Name)
 		suite.Equal("2", n1.IdentificationCodeQualifier)
@@ -311,21 +312,21 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		transportationOffice, err := models.FetchDutyStationTransportationOffice(suite.DB(), expectedDutyStation.ID)
 		suite.FatalNoError(err)
 		// name
-		suite.IsType(&edisegment.N1{}, result.Header[11])
-		n1 := result.Header[11].(*edisegment.N1)
+		suite.IsType(&edisegment.N1{}, result.Header["N1_DestinationName"])
+		n1 := result.Header["N1_DestinationName"].(*edisegment.N1)
 		suite.Equal("ST", n1.EntityIdentifierCode)
 		suite.Equal(expectedDutyStation.Name, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
 		suite.Equal(transportationOffice.Gbloc, n1.IdentificationCode)
 		// street address
 		address := expectedDutyStation.Address
-		suite.IsType(&edisegment.N3{}, result.Header[12])
-		n3 := result.Header[12].(*edisegment.N3)
+		suite.IsType(&edisegment.N3{}, result.Header["N3_DestinationStreetAddress"])
+		n3 := result.Header["N3_DestinationStreetAddress"].(*edisegment.N3)
 		suite.Equal(address.StreetAddress1, n3.AddressInformation1)
 		suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
 		// city state info
-		suite.IsType(&edisegment.N4{}, result.Header[13])
-		n4 := result.Header[13].(*edisegment.N4)
+		suite.IsType(&edisegment.N4{}, result.Header["N4_DestinationPostalDetails"])
+		n4 := result.Header["N4_DestinationPostalDetails"].(*edisegment.N4)
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
@@ -340,8 +341,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				destPhoneLines = append(destPhoneLines, phoneLine.Number)
 			}
 		}
-		suite.IsType(&edisegment.PER{}, result.Header[14])
-		per := result.Header[14].(*edisegment.PER)
+		suite.IsType(&edisegment.PER{}, result.Header["PER_DestinationPhone"])
+		per := result.Header["PER_DestinationPhone"].(*edisegment.PER)
 		suite.Equal("CN", per.ContactFunctionCode)
 		suite.Equal("TE", per.CommunicationNumberQualifier)
 		suite.Equal(destPhoneLines[0], per.CommunicationNumber)
@@ -350,21 +351,21 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.T().Run("adds orders origin address", func(t *testing.T) {
 		// name
 		expectedDutyStation := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation
-		suite.IsType(&edisegment.N1{}, result.Header[15])
-		n1 := result.Header[15].(*edisegment.N1)
+		suite.IsType(&edisegment.N1{}, result.Header["N1_OriginName"])
+		n1 := result.Header["N1_OriginName"].(*edisegment.N1)
 		suite.Equal("SF", n1.EntityIdentifierCode)
 		suite.Equal(expectedDutyStation.Name, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
 		suite.Equal(expectedDutyStation.TransportationOffice.Gbloc, n1.IdentificationCode)
 		// street address
 		address := expectedDutyStation.Address
-		suite.IsType(&edisegment.N3{}, result.Header[16])
-		n3 := result.Header[16].(*edisegment.N3)
+		suite.IsType(&edisegment.N3{}, result.Header["N3_OriginStreetAddress"])
+		n3 := result.Header["N3_OriginStreetAddress"].(*edisegment.N3)
 		suite.Equal(address.StreetAddress1, n3.AddressInformation1)
 		suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
 		// city state info
-		suite.IsType(&edisegment.N4{}, result.Header[17])
-		n4 := result.Header[17].(*edisegment.N4)
+		suite.IsType(&edisegment.N4{}, result.Header["N4_OriginStreetAddress"])
+		n4 := result.Header["N4_OriginStreetAddress"].(*edisegment.N4)
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
@@ -379,8 +380,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				originPhoneLines = append(originPhoneLines, phoneLine.Number)
 			}
 		}
-		per := result.Header[18].(*edisegment.PER)
-		suite.IsType(&edisegment.PER{}, result.Header[18])
+		per := result.Header["PER_OriginPhone"].(*edisegment.PER)
+		suite.IsType(&edisegment.PER{}, result.Header["PER_OriginPhone"])
 		suite.Equal("CN", per.ContactFunctionCode)
 		suite.Equal("TE", per.CommunicationNumberQualifier)
 		suite.Equal(originPhoneLines[0], per.CommunicationNumber)

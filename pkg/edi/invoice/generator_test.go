@@ -81,6 +81,9 @@ func MakeValidEdi() Invoice858C {
 		DateQualifier: 10,
 		Date:          "20200909",
 	}
+	ediHeader := make(map[string]edisegment.Segment)
+	ediHeader["G62_RequestedPickupDate"] = &date
+
 	n4 := edisegment.N4{
 		CityName:            "San Francisco",
 		StateOrProvinceCode: "CA",
@@ -126,9 +129,7 @@ func MakeValidEdi() Invoice858C {
 			TransactionSetIdentifierCode: "858",
 			TransactionSetControlNumber:  "ABCDE",
 		},
-		Header: []edisegment.Segment{
-			&date,
-		},
+		Header: ediHeader,
 		ServiceItems: []edisegment.Segment{
 			&l3total,
 			&n4,

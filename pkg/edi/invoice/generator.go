@@ -20,13 +20,35 @@ const ICNRandomMin int64 = 100000000
 // ICNRandomMax is the largest allowed random-number based ICN (we use random ICN numbers in development)
 const ICNRandomMax int64 = 999999999
 
+var headerKeyOrdering = []string{
+	"BX_ShipmentInformation",
+	"N9_PaymentRequestNumber",
+	"N9_ContractCode",
+	"N9_ServiceMemberName",
+	"N9_ServiceMemberRank",
+	"N9_ServiceMemberBranch",
+	"N1_BuyerOrganizationName",
+	"N1_SellerOrganizationName",
+	"N1_DestinationName",
+	"N3_DestinationStreetAddress",
+	"N4_DestinationPostalDetails",
+	"PER_DestinationPhone",
+	"N1_OriginName",
+	"N3_OriginStreetAddress",
+	"N4_OriginStreetAddress",
+	"PER_OriginPhone",
+	"G62_RequestedPickupDate",
+	"G62_ScheduledPickupDate",
+	"G62_ActualPickupDate",
+}
+
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
 	ISA          edisegment.ISA
 	GS           edisegment.GS
 	ST           edisegment.ST
-	Header       []edisegment.Segment `validate:"min=1,dive"`
-	ServiceItems []edisegment.Segment `validate:"min=1,dive"`
+	Header       map[string]edisegment.Segment `validate:"min=1,dive"`
+	ServiceItems []edisegment.Segment          `validate:"min=1,dive"`
 	SE           edisegment.SE
 	GE           edisegment.GE
 	IEA          edisegment.IEA
@@ -47,8 +69,11 @@ func (invoice Invoice858C) Segments() [][]string {
 		invoice.ST.StringArray(),
 	}
 
-	for _, line := range invoice.Header {
-		records = append(records, line.StringArray())
+	for _, key := range headerKeyOrdering {
+		line, keyExists := invoice.Header[key]
+		if keyExists {
+			records = append(records, line.StringArray())
+		}
 	}
 	for _, line := range invoice.ServiceItems {
 		records = append(records, line.StringArray())
