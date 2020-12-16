@@ -1,11 +1,10 @@
 import React from 'react';
-import { withKnobs, text, object } from '@storybook/addon-knobs';
+import { text, object } from '@storybook/addon-knobs';
 
 import CustomerRemarksAgentsDetails from 'components/CustomerRemarksAgentsDetails';
 
 export default {
-  title: 'TOO/TIO Components|CustomerRemarksAgentsDetails',
-  decorator: withKnobs,
+  title: 'Office Components/CustomerRemarksAgentsDetails',
 };
 
 export const WithNoDetails = () => (

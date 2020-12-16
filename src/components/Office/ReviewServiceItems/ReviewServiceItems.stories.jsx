@@ -11,7 +11,7 @@ import {
 } from 'shared/constants';
 
 export default {
-  title: 'TOO/TIO Components|ReviewServiceItems',
+  title: 'Office Components/ReviewServiceItems',
   component: ReviewServiceItems,
   decorators: [
     (storyFn) => (

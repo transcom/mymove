@@ -1,5 +1,5 @@
 import React from 'react';
-import { withKnobs, object, boolean } from '@storybook/addon-knobs';
+import { object, boolean } from '@storybook/addon-knobs';
 
 import AllowancesTable from './AllowancesTable';
 
@@ -17,9 +17,8 @@ const info = {
 };
 
 export default {
-  title: 'TOO/TIO Components|AllowancesTable',
+  title: 'Office Components/AllowancesTable',
   decorators: [
-    withKnobs,
     (Story) => (
       <div style={{ 'max-width': '800px' }}>
         <MockProviders initialEntries={[`/moves/1000/details`]}>

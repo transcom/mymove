@@ -3,7 +3,7 @@ import React from 'react';
 import Hint from './index';
 
 export default {
-  title: 'Components|Hint',
+  title: 'Components/Hint',
   component: Hint,
 };
 

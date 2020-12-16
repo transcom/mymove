@@ -5,7 +5,7 @@ import * as Yup from 'yup';
 import { StackedTableRowForm, DocsButton } from '../components/form';
 
 export default {
-  title: 'Components|Stacked Table',
+  title: 'Components/Stacked Table',
   parameters: {
     abstract: {
       url: 'https://share.goabstract.com/55411d0f-417d-48d0-9964-2d575ba4b390?mode=design',

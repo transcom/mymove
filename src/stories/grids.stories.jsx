@@ -10,7 +10,7 @@ const exampleStyles = {
 const testContent = <div style={exampleStyles}>Content</div>;
 
 export default {
-  title: 'Global|Grid',
+  title: 'Global/Grid',
 };
 
 export const DefualtContainer = () => (
