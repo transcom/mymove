@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Fieldset, Checkbox } from '@trussworks/react-uswds';
 
 import styles from './AllowancesDetailForm.module.scss';
@@ -42,7 +43,12 @@ const AllowancesDetailForm = ({ entitlements, rankOptions, branchOptions }) => {
         <dd data-testid="storageInTransit">{formatDaysInTransit(entitlements.storageInTransit)}</dd>
       </dl>
       <Fieldset>
-        <Checkbox data-testid="dependentsAuthorized" />
+        <Checkbox
+          name="dependentsAuthorized"
+          label="Dependents authorized"
+          checked={entitlements.dependentsAuthorized}
+          onChange={onCheckboxChange}
+        />
       </Fieldset>
     </div>
   );
