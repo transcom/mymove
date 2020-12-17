@@ -24,6 +24,5 @@
 # Require team Pamplemoose to review changes to configs that may affect cATO static analysis compliancy
 .golangci.yaml @transcom/Truss-Pamplemoose
 .pre-commit-config.yaml @transcom/Truss-Pamplemoose
-.circleci/config.yml @transcom/Truss-Pamplemoose
 
 
