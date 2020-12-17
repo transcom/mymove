@@ -183,7 +183,7 @@ class EditDateAndLocation extends Component {
         currentPPM.original_move_date,
         currentPPM.days_in_storage,
         currentPPM.pickup_postal_code,
-        this.currentOrders.id,
+        this.props.currentOrders.id,
         currentPPM.weight_estimate,
       );
     }
