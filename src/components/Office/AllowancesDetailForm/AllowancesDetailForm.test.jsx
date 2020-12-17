@@ -75,5 +75,8 @@ describe('AllowancesDetailForm', () => {
 
     // Storage in-transit
     expect(wrapperNoProps.find('dd').at(3).text()).toBe('0 days');
+
+    // Dependents authorized
+    expect(wrapperNoProps.exists('dependentsAuthorized')).to.equal(true);
   });
 });

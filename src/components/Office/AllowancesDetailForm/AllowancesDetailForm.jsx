@@ -1,4 +1,5 @@
 import React from 'react';
+import { Fieldset, Checkbox } from '@trussworks/react-uswds';
 
 import styles from './AllowancesDetailForm.module.scss';
 
@@ -39,6 +40,9 @@ const AllowancesDetailForm = ({ entitlements, rankOptions }) => {
         <dt>Storage in-transit</dt>
         <dd data-testid="storageInTransit">{formatDaysInTransit(entitlements.storageInTransit)}</dd>
       </dl>
+      <Fieldset>
+        <Checkbox data-testid="dependentsAuthorized" />
+      </Fieldset>
     </div>
   );
 };

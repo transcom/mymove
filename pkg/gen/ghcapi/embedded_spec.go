@@ -3479,6 +3479,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
+        "entitlements": {
+          "$ref": "#/definitions/Entitlements"
+        },
         "grade": {
           "$ref": "#/definitions/Grade"
         },
@@ -7491,6 +7494,9 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "entitlements": {
+          "$ref": "#/definitions/Entitlements"
         },
         "grade": {
           "$ref": "#/definitions/Grade"
