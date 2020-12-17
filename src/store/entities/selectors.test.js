@@ -778,7 +778,7 @@ describe('selectCurrentMove', () => {
     expect(selectCurrentMove(testState)).toEqual(testState.entities.moves.move1029);
   });
 
-  it('returns null if there are no active moves', () => {
+  it('returns the first move if there are no active moves', () => {
     const testState = {
       entities: {
         moves: {
@@ -822,6 +822,6 @@ describe('selectCurrentMove', () => {
       },
     };
 
-    expect(selectCurrentMove(testState)).toEqual(null);
+    expect(selectCurrentMove(testState)).toEqual(testState.entities.moves.move1029);
   });
 });

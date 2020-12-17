@@ -97,7 +97,7 @@ export const selectCurrentMove = (state) => {
   const [activeMove] = moves.filter(
     (m) => ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'].indexOf(m?.status) > -1,
   );
-  return activeMove || null;
+  return activeMove || moves[0] || null;
 };
 
 export const selectMoveIsApproved = createSelector(selectCurrentMove, (move) => move?.status === 'APPROVED');
