@@ -10,9 +10,10 @@ import DocumentContent from 'shared/DocumentViewer/DocumentContent';
 import OrdersViewerPanel from './OrdersViewerPanel';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import { loadOrders, loadOrdersLabel, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
+import { loadOrders, loadOrdersLabel } from 'shared/Entities/modules/orders';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
+import { selectOrdersById } from 'store/entities/selectors';
 
 import './office.scss';
 
@@ -80,7 +81,8 @@ const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
   const move = selectMove(state, moveId);
   const ordersId = move.orders_id;
-  const uploads = selectUploadsForActiveOrders(state);
+  const orders = selectOrdersById(state, ordersId);
+  const uploads = orders?.uploaded_orders?.uploads || [];
   const serviceMemberId = move.service_member_id;
   const serviceMember = selectServiceMember(state, serviceMemberId);
   const loadOrdersRequest = getRequestStatus(state, loadOrdersLabel);

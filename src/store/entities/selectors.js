@@ -67,6 +67,10 @@ export const selectCurrentOrders = (state) => {
   return activeOrders || orders[0] || null;
 };
 
+export const selectOrdersById = (state, id) => {
+  return state.entities.orders?.[`${id}`] || null;
+};
+
 export const selectUploadsForCurrentOrders = (state) => {
   const orders = selectCurrentOrders(state);
   return orders ? orders.uploaded_orders?.uploads : [];
