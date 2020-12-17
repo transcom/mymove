@@ -142,7 +142,15 @@ func filterErrorFields(fields []zapcore.Field, lineLimit int) []zapcore.Field {
 	for _, field := range fields {
 		if field.Type == zapcore.ErrorType {
 			fieldError := field.Interface.(error)
-			stacktraceError := fieldError.(stackTracer) // error implements the stackTracer interface
+			stacktraceError, ok := fieldError.(stackTracer) // error implements the stackTracer interface
+
+			// error may be of type errorString without a stacktrace so will
+			// only create error message key value
+			if !ok {
+				modifiedFields = append(modifiedFields, field)
+				continue
+			}
+
 			stacktrace := stacktraceError.StackTrace()
 
 			filteredStacktrace := filterStacktraceFrames(stacktrace, lineLimit)
