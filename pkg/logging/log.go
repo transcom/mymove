@@ -161,7 +161,7 @@ func filterErrorFields(fields []zapcore.Field, lineLimit int) []zapcore.Field {
 }
 
 func filterStacktraceFrames(frames []errors.Frame, lineLimit int) []errors.Frame {
-	if frames == nil || len(frames) <= lineLimit {
+	if frames == nil || (len(frames)*2) <= lineLimit {
 		return frames
 	}
 
@@ -171,6 +171,7 @@ func filterStacktraceFrames(frames []errors.Frame, lineLimit int) []errors.Frame
 		// number seperated by a newline
 		if strings.Contains(fmt.Sprintf("%+v", frame), "mymove") {
 			filteredFrames = append(filteredFrames, frame)
+
 			// a frame is a pair of 2 lines
 			if len(filteredFrames)*2 == lineLimit {
 				break
@@ -202,7 +203,7 @@ func filteredAndLimitedStackTrace(ent zapcore.Entry, stacktraceLength int) zapco
 	for _, line := range stacktraceLines {
 		if strings.Contains(line, searchTerm) {
 			matchingLines = append(matchingLines, line)
-			if len(matchingLines) == stacktraceLength {
+			if len(matchingLines) >= stacktraceLength {
 				break
 			}
 		}
