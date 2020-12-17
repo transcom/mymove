@@ -175,8 +175,8 @@ describe('TOO user', () => {
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
     cy.url().should('include', `/moves/${moveOrderId}/allowances`);
     // Edit grade and authorized weight
-    cy.get('select[name="grade"]').contains('E_1');
-    cy.get('select[name="grade"]').select('W_2');
+    cy.get('select[name="grade"]').contains('E-1');
+    cy.get('select[name="grade"]').select('W-2');
     cy.get('input[name="authorizedWeight"]').clear().type('11111');
     cy.get('button').contains('Save').click();
     // Verify edited values are saved
