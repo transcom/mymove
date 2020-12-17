@@ -119,7 +119,11 @@ const MoveAllowances = () => {
                   </div>
                 </div>
                 <div className={moveOrdersStyles.body}>
-                  <AllowancesDetailForm entitlements={moveOrder.entitlement} rankOptions={rankDropdownOptions} />
+                  <AllowancesDetailForm
+                    entitlements={moveOrder.entitlement}
+                    rankOptions={rankDropdownOptions}
+                    onCheckboxChange={formik.handleChange}
+                  />
                 </div>
                 <div className={moveOrdersStyles.bottom}>
                   <div className={moveOrdersStyles.buttonGroup}>
