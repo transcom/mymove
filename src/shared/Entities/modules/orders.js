@@ -10,7 +10,6 @@ import { selectCurrentOrders } from 'store/entities/selectors';
 export const STATE_KEY = 'orders';
 export const loadOrdersLabel = 'Orders.loadOrders';
 const updateOrdersLabel = 'Orders.updateOrders';
-const createOrdersLabel = 'Orders.createOrders';
 export const getLatestOrdersLabel = 'Orders.showServiceMemberOrders';
 
 export default function reducer(state = {}, action) {
@@ -41,13 +40,6 @@ export function updateOrders(ordersId, orders, label = updateOrdersLabel) {
   orders.report_by_date = formatDateForSwagger(orders.report_by_date);
   orders.issue_date = formatDateForSwagger(orders.issue_date);
   return swaggerRequest(getClient, swaggerTag, { ordersId, updateOrders: orders }, { label });
-}
-
-export function createOrders(orders, label = createOrdersLabel) {
-  const swaggerTag = 'orders.createOrders';
-  orders.report_by_date = formatDateForSwagger(orders.report_by_date);
-  orders.issue_date = formatDateForSwagger(orders.issue_date);
-  return swaggerRequest(getClient, swaggerTag, { createOrders: orders }, { label });
 }
 
 // Selectors

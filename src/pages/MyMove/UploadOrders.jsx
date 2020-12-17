@@ -4,10 +4,7 @@ import { connect } from 'react-redux';
 
 import './UploadOrders.css';
 
-import {
-  fetchLatestOrders as fetchLatestOrdersAction,
-  selectUploadsForActiveOrders,
-} from 'shared/Entities/modules/orders';
+import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
 import {
   createUpload as createUploadAction,
   deleteUpload as deleteUploadAction,
@@ -17,7 +14,11 @@ import OrdersUploader from 'components/OrdersUploader/index';
 import ConnectedUploadsTable from 'shared/Uploader/UploadsTable';
 import ConnectedWizardPage from 'shared/WizardPage/index';
 import { documentSizeLimitMsg } from 'shared/constants';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectUploadsForCurrentOrders,
+} from 'store/entities/selectors';
 // eslint-disable-next-line camelcase
 import { no_op as noop } from 'shared/utils';
 import {
@@ -146,7 +147,7 @@ function mapStateToProps(state) {
   const props = {
     serviceMemberId,
     currentOrders,
-    uploads: selectUploadsForActiveOrders(state),
+    uploads: selectUploadsForCurrentOrders(state),
     document: selectDocument(state, currentOrders?.uploaded_orders),
   };
 
