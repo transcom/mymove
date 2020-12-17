@@ -63,6 +63,14 @@
 
     .viewAllowances {
       @include u-padding-left(0);
+
+      &:hover {
+        text-decoration: none;
+      }
+
+      &:visited {
+        color: $primary;
+      }
     }
   }
 
