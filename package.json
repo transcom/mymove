@@ -113,7 +113,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.12.9",
+    "@babel/core": "~7.12.10",
     "@dump247/storybook-state": "^1.6.1",
     "@stoplight/spectral": "^5.7.1",
     "@storybook/addon-a11y": "^6.1.10",
