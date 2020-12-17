@@ -179,7 +179,7 @@ AppWrapper.propTypes = {
   loadInternalSchema: PropTypes.func,
   loadUser: PropTypes.func,
   initOnboarding: PropTypes.func,
-  conusStatus: PropTypes.string.isRequired,
+  conusStatus: PropTypes.string,
   context: PropTypes.shape({
     flags: PropTypes.shape({
       hhgFlow: PropTypes.bool,

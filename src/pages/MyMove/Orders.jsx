@@ -5,12 +5,13 @@ import { connect } from 'react-redux';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
+import { getServiceMember, getOrdersForServiceMember, createOrders, patchOrders } from 'services/internalApi';
 import {
-  createOrders as createOrdersAction,
   updateOrders as updateOrdersAction,
-  fetchLatestOrders as fetchLatestOrdersAction,
-} from 'shared/Entities/modules/orders';
+  updateServiceMember as updateServiceMemberAction,
+} from 'store/entities/actions';
 import { withContext } from 'shared/AppContext';
+import { formatDateForSwagger } from 'shared/dates';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 import { WizardPage } from 'shared/WizardPage/index';
@@ -32,13 +33,13 @@ export class Orders extends Component {
   }
 
   componentDidMount() {
-    // TODO - migrate to saga pattern
-    const { serviceMemberId, currentOrders, fetchLatestOrders } = this.props;
+    const { serviceMemberId, currentOrders, updateOrders } = this.props;
 
     if (isEmpty(currentOrders)) {
       this.setState({ isLoading: false });
     } else {
-      fetchLatestOrders(serviceMemberId).then(() => {
+      getOrdersForServiceMember(serviceMemberId).then((response) => {
+        updateOrders(response);
         this.setState({ isLoading: false });
       });
     }
@@ -54,8 +55,8 @@ export class Orders extends Component {
       history,
       serviceMemberId,
       currentOrders,
-      createOrders,
       updateOrders,
+      updateServiceMember,
     } = this.props;
     const { isLoading } = this.state;
 
@@ -67,14 +68,26 @@ export class Orders extends Component {
         service_member_id: serviceMemberId,
         new_duty_station_id: values.new_duty_station.id,
         has_dependents: formatYesNoAPIValue(values.has_dependents),
+        report_by_date: formatDateForSwagger(values.report_by_date),
+        issue_date: formatDateForSwagger(values.issue_date),
         spouse_has_pro_gear: false, // TODO - this input seems to be deprecated?
       };
 
       if (currentOrders?.id) {
-        return updateOrders(currentOrders.id, pendingValues);
+        pendingValues.id = currentOrders.id;
+        return patchOrders(pendingValues).then((response) => {
+          updateOrders(response);
+        });
       }
 
-      return createOrders(pendingValues);
+      return createOrders(pendingValues)
+        .then((response) => {
+          updateOrders(response);
+        })
+        .then(() => getServiceMember(serviceMemberId))
+        .then((response) => {
+          updateServiceMember(response);
+        });
     };
 
     const initialValues = {
@@ -113,14 +126,14 @@ export class Orders extends Component {
 
     return (
       <Formik initialValues={initialValues} validateOnMount validationSchema={ordersInfoSchema} onSubmit={submitOrders}>
-        {({ isValid, dirty, handleSubmit }) => (
+        {({ isValid, dirty, values }) => (
           <WizardPage
             canMoveNext={isValid}
             match={match}
             pageKey={pageKey}
             pageList={pages}
             push={history.push}
-            handleSubmit={handleSubmit}
+            handleSubmit={() => submitOrders(values)}
             dirty={dirty}
           >
             <h1>Tell us about your move orders</h1>
@@ -142,9 +155,8 @@ Orders.propTypes = {
   }).isRequired,
   serviceMemberId: PropTypes.string.isRequired,
   currentOrders: OrdersShape,
-  fetchLatestOrders: PropTypes.func,
-  createOrders: PropTypes.func,
   updateOrders: PropTypes.func,
+  updateServiceMember: PropTypes.func,
   currentStation: DutyStationShape,
   match: MatchShape.isRequired,
   history: HistoryShape.isRequired,
@@ -154,9 +166,8 @@ Orders.propTypes = {
 
 Orders.defaultProps = {
   currentOrders: null,
-  fetchLatestOrders: () => {},
-  createOrders: () => {},
   updateOrders: () => {},
+  updateServiceMember: () => {},
   currentStation: {},
   pages: [],
   pageKey: '',
@@ -173,9 +184,8 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = {
-  fetchLatestOrders: fetchLatestOrdersAction,
   updateOrders: updateOrdersAction,
-  createOrders: createOrdersAction,
+  updateServiceMember: updateServiceMemberAction,
 };
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(Orders));
