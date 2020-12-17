@@ -893,9 +893,31 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 webhook_client_docker:
 	docker build -f Dockerfile.webhook_client_local -t $(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest .
 
+.PHONY: webhook_client_start
+webhook_client_start: db_dev_e2e_populate webhook_client_start_standalone
+
+.PHONY: webhook_client_start_standalone
+webhook_client_start_standalone:
+	@echo "Starting the webhook client..."
+	# More environment variables can be added here that correlate with the command line options for
+	# the webhook-client binary.
+	docker run \
+		-e LOGGING_LEVEL=debug \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		-e PERIOD \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
+
 .PHONY: webhook_client_test
-webhook_client_test:
-	echo "This is a placeholder for webhook-client tests"
+webhook_client_test: db_test_e2e_populate webhook_client_test_standalone
+
+.PHONY: webhook_client_test
+webhook_client_test_standalone:
+	go test -v -count 1 -short ./cmd/webhook-client/webhook
 
 #
 # ----- END WEBHOOK CLIENT TARGETS -----

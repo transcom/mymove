@@ -26,7 +26,7 @@
     "js-yaml": "^3.14.0",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.20",
-    "marked": "^1.2.5",
+    "marked": "^1.2.6",
     "moment": "^2.29.1",
     "node-sass": "^4.14.1",
     "normalizr": "^3.6.1",
@@ -77,7 +77,7 @@
     "swagger-ui-dist": "^3.37.0",
     "uswds": "2.9.0",
     "uuid": "^8.3.2",
-    "yup": "^0.31.0"
+    "yup": "^0.32.8"
   },
   "resolutions": {
     "babel-loader": "8.1.0",
@@ -113,7 +113,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.12.9",
+    "@babel/core": "~7.12.10",
     "@dump247/storybook-state": "^1.6.1",
     "@stoplight/spectral": "^5.7.1",
     "@storybook/addon-a11y": "^6.1.10",
