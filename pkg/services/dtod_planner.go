@@ -1,11 +1,7 @@
 package services
 
-import "github.com/transcom/mymove/pkg/models"
-
-// PaymentRequestListFetcher is the exported interface for fetching a list of payment requests
-//go:generate mockery -name PaymentRequestListFetcher
-type DTODPlannerMileageFetcher interface {
-	FetchPaymentRequestList(officeUserID uuid.UUID, params *FetchPaymentRequestListParams) (*models.PaymentRequests, int, error)
-	FetchPaymentRequestListByMove(officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error)
+// DTODPlannerMileage is the exported interface for connecting to DTOD Planner and get
+//go:generate mockery -name DTODPlannerMileage
+type DTODPlannerMileage interface {
+	DTODZip5Distance(pickup string, destination string) (int, error)
 }
-
