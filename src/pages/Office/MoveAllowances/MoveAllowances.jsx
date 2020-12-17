@@ -3,16 +3,27 @@ import React from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
+import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as Yup from 'yup';
 
 import moveOrdersStyles from '../MoveOrders/MoveOrders.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
+import { updateMoveOrder } from 'services/ghcApi';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import { ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { dropdownInputOptions } from 'shared/formatters';
+import { MOVE_ORDERS } from 'constants/queryKeys';
+
+const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
+
+const validationSchema = Yup.object({
+  authorizedWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
+});
 
 const MoveAllowances = () => {
   const { moveOrderId } = useParams();
@@ -24,25 +35,62 @@ const MoveAllowances = () => {
     history.push(`/moves/${moveOrderId}/details`);
   };
 
+  const [mutateOrders] = useMutation(updateMoveOrder, {
+    onSuccess: (data, variables) => {
+      const updatedOrder = data.moveOrders[variables.moveOrderID];
+      queryCache.setQueryData([MOVE_ORDERS, variables.moveOrderID], {
+        moveOrders: {
+          [`${variables.moveOrderID}`]: updatedOrder,
+        },
+      });
+      queryCache.invalidateQueries(MOVE_ORDERS);
+      handleClose();
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      // TODO: Handle error some how
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message from unsuccessful mutation.
+      // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
+      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // RA Modified Severity: CAT II
+      // eslint-disable-next-line no-console
+      console.log(errorMsg);
+    },
+  });
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const onSubmit = () => {
-    handleClose();
+  const moveOrder = Object.values(moveOrders)?.[0];
+  const onSubmit = (values) => {
+    const { grade, authorizedWeight } = values;
+    const body = {
+      departmentIndicator: moveOrder.department_indicator,
+      issueDate: moveOrder.date_issued,
+      newDutyStationId: moveOrder.destinationDutyStation.id,
+      ordersNumber: moveOrder.order_number,
+      ordersType: moveOrder.order_type,
+      ordersTypeDetail: moveOrder.order_type_detail,
+      originDutyStationId: moveOrder.originDutyStation.id,
+      reportByDate: moveOrder.report_by_date,
+      sac: moveOrder.sac,
+      tac: moveOrder.tac,
+      grade,
+      authorizedWeight: Number(authorizedWeight),
+    };
+    mutateOrders({ moveOrderID: moveOrderId, ifMatchETag: moveOrder.eTag, body });
   };
 
   const documentsForViewer = Object.values(upload);
 
-  const moveOrder = Object.values(moveOrders)?.[0];
+  const { entitlement, grade } = moveOrder;
+  const { authorizedWeight } = entitlement;
 
-  const { authorizedWeight } = moveOrder.entitlement;
-
-  const initialValues = { authorizedWeight: `${authorizedWeight}` };
-
-  const validationSchema = Yup.object({
-    authorizedWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
-  });
-
+  const initialValues = { authorizedWeight: `${authorizedWeight}`, grade };
   return (
     <div className={moveOrdersStyles.MoveOrders}>
       {documentsForViewer && (
@@ -75,11 +123,11 @@ const MoveAllowances = () => {
                   </div>
                 </div>
                 <div className={moveOrdersStyles.body}>
-                  <AllowancesDetailForm entitlements={moveOrder.entitlement} />
+                  <AllowancesDetailForm entitlements={moveOrder.entitlement} rankOptions={rankDropdownOptions} />
                 </div>
                 <div className={moveOrdersStyles.bottom}>
                   <div className={moveOrdersStyles.buttonGroup}>
-                    <Button type="submit" disabled={formik.isSubmitting}>
+                    <Button disabled={formik.isSubmitting} type="submit">
                       Save
                     </Button>
                     <Button type="button" secondary onClick={handleClose}>

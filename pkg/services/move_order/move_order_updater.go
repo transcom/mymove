@@ -69,6 +69,10 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 			existingOrder.NewDutyStation = newDutyStation
 		}
 
+		if moveOrder.Grade != nil {
+			existingOrder.Grade = moveOrder.Grade
+		}
+
 		existingOrder.IssueDate = moveOrder.IssueDate
 		existingOrder.ReportByDate = moveOrder.ReportByDate
 		existingOrder.OrdersType = moveOrder.OrdersType
