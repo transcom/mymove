@@ -1815,6 +1815,8 @@ definitions:
       agency:
         description: the branch that the service member belongs to
         $ref: '#/definitions/Branch'
+      entitlements:
+        $ref: '#/definitions/Entitlements'
     required:
       - issueDate
       - reportByDate
