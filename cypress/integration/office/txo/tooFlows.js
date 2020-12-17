@@ -184,7 +184,7 @@ describe('TOO user', () => {
     cy.get('select[name="grade"]').contains('E-1');
     cy.get('select[name="grade"]').select('W-2');
     cy.get('input[name="authorizedWeight"]').clear().type('11111');
-    
+
     // Edit allowances page | Save
     cy.get('button').contains('Save').click();
     // Verify edited values are saved
