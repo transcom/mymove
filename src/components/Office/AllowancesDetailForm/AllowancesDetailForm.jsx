@@ -3,12 +3,15 @@ import React from 'react';
 import styles from './AllowancesDetailForm.module.scss';
 
 import { TextMaskedInput } from 'components/form/fields/TextInput';
+import { DropdownInput } from 'components/form/fields';
+import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/moveOrder';
 import { formatWeight, formatDaysInTransit } from 'shared/formatters';
 
-const AllowancesDetailForm = ({ entitlements }) => {
+const AllowancesDetailForm = ({ entitlements, rankOptions }) => {
   return (
     <div className={styles.AllowancesDetailForm}>
+      <DropdownInput name="grade" label="Rank" options={rankOptions} showDropdownPlaceholderText={false} />
       <TextMaskedInput
         defaultValue="0"
         name="authorizedWeight"
@@ -42,6 +45,7 @@ const AllowancesDetailForm = ({ entitlements }) => {
 
 AllowancesDetailForm.propTypes = {
   entitlements: EntitlementShape.isRequired,
+  rankOptions: DropdownArrayOf.isRequired,
 };
 
 export default AllowancesDetailForm;
