@@ -110,7 +110,7 @@ var fakeDataTestCases = []fakeDataTestCase{
 	},
 }
 
-func (suite *FakeDataSuite) TestPricersTestCases() {
+func (suite *FakeDataSuite) TestFakeDataTestCases() {
 	var result bool
 	var err error
 	for i, testCase := range fakeDataTestCases {

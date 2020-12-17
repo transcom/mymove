@@ -759,13 +759,47 @@ jobs:
 
   # `webhook_client_test` runs the webhook client Go tests
   webhook_client_test:
-    executor: mymove_large
+    executor: mymove_and_postgres_large
     steps:
       - checkout
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run: make webhook_client_test
+      - run: make db_test_reset
+      - run:
+          command: make db_test_migrate
+          environment:
+            APPLICATION: app
+            DB_HOST: localhost
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            DB_PASSWORD: mysecretpassword
+            DB_PORT: 5432
+            DB_PORT_TEST: 5432
+            DB_USER: postgres
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+      - run:
+          command: make db_e2e_up
+          environment:
+            APPLICATION: app
+            DB_HOST: localhost
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            DB_PASSWORD: mysecretpassword
+            DB_PORT: 5432
+            DB_PORT_TEST: 5432
+            DB_USER: postgres
+      - run:
+          command: make webhook_client_test_standalone
+          environment:
+            DB_HOST: localhost
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            DB_PASSWORD: mysecretpassword
+            DB_PORT: 5432
+            DB_PORT_TEST: 5432
+            DB_USER: postgres
       - announce_failure
 
   # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
@@ -1304,7 +1338,7 @@ workflows:
 
       - webhook_client_test:
           requires:
-            - pre_deps_golang
+            - build_tools
 
       - build_app:
           requires:
@@ -1341,7 +1375,6 @@ workflows:
       - build_webhook_client:
           requires:
             - anti_virus
-            - pre_deps_golang
             - webhook_client_test
 
       - push_app_exp:

@@ -24,7 +24,7 @@ func NewMoveTaskOrderHider(db *pop.Connection) services.MoveTaskOrderHider {
 func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 	var mtos models.Moves
 	err := o.db.Q().
-		// Note: We may be able to same some queries if we load on demand, but we'll need to
+		// Note: We may be able to save some queries if we load on demand, but we'll need to
 		// refactor the methods that check for valid fake data to pass in the DB connection.
 		Eager(
 			"Orders.ServiceMember.ResidentialAddress",
