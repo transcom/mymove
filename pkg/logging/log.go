@@ -68,7 +68,6 @@ func Config(opts ...ZapConfigOption) (*zap.Logger, error) {
 		loggerConfig = zap.NewProductionConfig()
 		loggerConfig.Encoding = "filtered-json"
 	} else {
-
 		loggerConfig = devConfig
 		loggerConfig.Encoding = "filtered-console"
 	}
@@ -168,10 +167,12 @@ func filterStacktraceFrames(frames []errors.Frame, lineLimit int) []errors.Frame
 
 	var filteredFrames []errors.Frame
 	for _, frame := range frames {
-		// %+s will return the path and filename of the frame with the value of frame.line()
-		if strings.Contains(fmt.Sprintf("%+s", frame), "mymove") {
+		// %+v will return the package function and a filename path with line
+		// number seperated by a newline
+		if strings.Contains(fmt.Sprintf("%+v", frame), "mymove") {
 			filteredFrames = append(filteredFrames, frame)
-			if len(filteredFrames) == lineLimit {
+			// a frame is a pair of 2 lines
+			if len(filteredFrames)*2 == lineLimit {
 				break
 			}
 		}
