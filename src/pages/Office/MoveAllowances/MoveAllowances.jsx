@@ -28,7 +28,6 @@ const validationSchema = Yup.object({
 
 const MoveAllowances = ({ history, match }) => {
   const { moveOrderId } = match.params;
-
   const { moveOrders, upload, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
 
   const handleClose = () => {

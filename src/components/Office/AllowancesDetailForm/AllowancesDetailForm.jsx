@@ -11,7 +11,7 @@ import { formatWeight, formatDaysInTransit } from 'shared/formatters';
 const AllowancesDetailForm = ({ entitlements, rankOptions }) => {
   return (
     <div className={styles.AllowancesDetailForm}>
-      <DropdownInput name="grade" label="Rank" options={rankOptions} />
+      <DropdownInput name="grade" label="Rank" options={rankOptions} showDropdownPlaceholderText={false} />
       <TextMaskedInput
         defaultValue="0"
         name="authorizedWeight"
