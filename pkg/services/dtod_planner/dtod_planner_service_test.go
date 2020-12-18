@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-// DTODPlannerServiceSuite is a suite for testing payment requests
+// DTODPlannerServiceSuite is a suite for testing DTOD planner
 type DTODPlannerServiceSuite struct {
 	testingsuite.PopTestSuite
 	logger Logger
