@@ -61,7 +61,7 @@
     "react-select": "^3.1.0",
     "react-table": "^7.6.2",
     "react-table-6": "^6.11.0",
-    "react-tabs": "^3.1.1",
+    "react-tabs": "^3.1.2",
     "reduce-reducers": "^1.0.4",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.2",
