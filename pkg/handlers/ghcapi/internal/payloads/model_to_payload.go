@@ -89,9 +89,9 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		deptIndicator = ghcmessages.DeptIndicator(*moveOrder.DepartmentIndicator)
 	}
 
-	var orderTypeDetail ghcmessages.OrdersTypeDetail
+	var ordersTypeDetail ghcmessages.OrdersTypeDetail
 	if moveOrder.OrdersTypeDetail != nil {
-		orderTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
+		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
 	}
 
 	var grade ghcmessages.Grade
@@ -104,7 +104,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		Entitlement:            entitlements,
 		Grade:                  &grade,
 		OrderNumber:            moveOrder.OrdersNumber,
-		OrderTypeDetail:        orderTypeDetail,
+		OrderTypeDetail:        &ordersTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
@@ -115,7 +115,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
 		DateIssued:             strfmt.Date(moveOrder.IssueDate),
 		OrderType:              ghcmessages.OrdersType(moveOrder.OrdersType),
-		DepartmentIndicator:    deptIndicator,
+		DepartmentIndicator:    &deptIndicator,
 		Tac:                    handlers.FmtStringPtr(moveOrder.TAC),
 		Sac:                    handlers.FmtStringPtr(moveOrder.SAC),
 		UploadedOrderID:        strfmt.UUID(moveOrder.UploadedOrdersID.String()),
@@ -499,9 +499,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			}
 		}
 
-		deptIndicator := ""
+		var deptIndicator ghcmessages.DeptIndicator
 		if move.Orders.DepartmentIndicator != nil {
-			deptIndicator = *move.Orders.DepartmentIndicator
+			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
 		}
 
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
@@ -509,7 +509,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
 			ID:                     *handlers.FmtUUID(move.Orders.ID),
 			Locator:                move.Locator,
-			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
+			DepartmentIndicator:    &deptIndicator,
 			ShipmentsCount:         int64(len(validMTOShipments)),
 			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
 			OriginGBLOC:            ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
@@ -563,8 +563,9 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			OriginGBLOC: ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),
 		}
 
-		if deptIndicator := orders.DepartmentIndicator; deptIndicator != nil {
-			queuePaymentRequests[i].DepartmentIndicator = ghcmessages.DeptIndicator(*deptIndicator)
+		if orders.DepartmentIndicator != nil {
+			deptIndicator := ghcmessages.DeptIndicator(*orders.DepartmentIndicator)
+			queuePaymentRequests[i].DepartmentIndicator = &deptIndicator
 		}
 	}
 

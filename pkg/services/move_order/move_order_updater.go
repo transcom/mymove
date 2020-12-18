@@ -73,14 +73,29 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 			existingOrder.Grade = moveOrder.Grade
 		}
 
+		if moveOrder.OrdersTypeDetail != nil {
+			existingOrder.OrdersTypeDetail = moveOrder.OrdersTypeDetail
+		}
+
+		if moveOrder.TAC != nil {
+			existingOrder.TAC = moveOrder.TAC
+		}
+
+		if moveOrder.SAC != nil {
+			existingOrder.SAC = moveOrder.SAC
+		}
+
+		if moveOrder.OrdersNumber != nil {
+			existingOrder.OrdersNumber = moveOrder.OrdersNumber
+		}
+
+		if moveOrder.DepartmentIndicator != nil {
+			existingOrder.DepartmentIndicator = moveOrder.DepartmentIndicator
+		}
+
 		existingOrder.IssueDate = moveOrder.IssueDate
 		existingOrder.ReportByDate = moveOrder.ReportByDate
 		existingOrder.OrdersType = moveOrder.OrdersType
-		existingOrder.OrdersTypeDetail = moveOrder.OrdersTypeDetail
-		existingOrder.OrdersNumber = moveOrder.OrdersNumber
-		existingOrder.TAC = moveOrder.TAC
-		existingOrder.SAC = moveOrder.SAC
-		existingOrder.DepartmentIndicator = moveOrder.DepartmentIndicator
 
 		verrs, updateErr := s.builder.UpdateOne(existingOrder, &eTag)
 
