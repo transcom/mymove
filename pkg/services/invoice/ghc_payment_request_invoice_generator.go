@@ -198,21 +198,15 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	// Add buyer and seller organization names
-	buyerNameSegment, sellerNameSegment, err := g.createBuyerAndSellerOrganizationNamesSegments(paymentRequest.ID, moveTaskOrder.Orders)
+	err = g.createBuyerAndSellerOrganizationNamesSegments(paymentRequest.ID, moveTaskOrder.Orders, edi858.Header)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
 	}
-	edi858.Header.Put("N1_BuyerOrganizationName", buyerNameSegment)
-	edi858.Header.Put("N1_SellerOrganizationName", sellerNameSegment)
 
 	// Add origin and destination details to header
-	var originDestinationSegments map[string]edisegment.Segment
-	originDestinationSegments, err = g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders)
+	err = g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders, edi858.Header)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
-	}
-	for k, v := range originDestinationSegments {
-		edi858.Header.Put(k, v)
 	}
 
 	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems, moveTaskOrder.Orders)
@@ -240,14 +234,14 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	return edi858, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(paymentRequestID uuid.UUID, serviceMember models.ServiceMember, headerSegments *linkedhashmap.Map) error {
+func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(paymentRequestID uuid.UUID, serviceMember models.ServiceMember, header *linkedhashmap.Map) error {
 
 	// name
 	serviceMemberName := edisegment.N9{
 		ReferenceIdentificationQualifier: "1W",
 		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
 	}
-	headerSegments.Put("N9_ServiceMemberName", &serviceMemberName)
+	header.Put("N9_ServiceMemberName", &serviceMemberName)
 
 	// rank
 	rank := serviceMember.Rank
@@ -258,7 +252,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentificationQualifier: "ML",
 		ReferenceIdentification:          string(*rank),
 	}
-	headerSegments.Put("N9_ServiceMemberRank", &serviceMemberRank)
+	header.Put("N9_ServiceMemberRank", &serviceMemberRank)
 
 	// branch
 	branch := serviceMember.Affiliation
@@ -269,12 +263,12 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentificationQualifier: "3L",
 		ReferenceIdentification:          string(*branch),
 	}
-	headerSegments.Put("N9_ServiceMemberBranch", &serviceMemberBranch)
+	header.Put("N9_ServiceMemberBranch", &serviceMemberBranch)
 
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uuid.UUID, headerSegments *linkedhashmap.Map) ([]edisegment.Segment, error) {
+func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uuid.UUID, header *linkedhashmap.Map) ([]edisegment.Segment, error) {
 	var g62Segments []edisegment.Segment
 
 	// Get all the shipments associated with this payment request's service items, ordered by shipment creation date.
@@ -306,7 +300,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 			DateQualifier: 10,
 			Date:          shipment.RequestedPickupDate.Format(dateFormat),
 		}
-		headerSegments.Put("G62_RequestedPickupDate", &requestedPickupDateSegment)
+		header.Put("G62_RequestedPickupDate", &requestedPickupDateSegment)
 	}
 
 	// Insert expected pickup date, if available.
@@ -315,7 +309,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 			DateQualifier: 76,
 			Date:          shipment.ScheduledPickupDate.Format(dateFormat),
 		}
-		headerSegments.Put("G62_ScheduledPickupDate", &scheduledPickupDateSegment)
+		header.Put("G62_ScheduledPickupDate", &scheduledPickupDateSegment)
 	}
 
 	// Insert expected pickup date, if available.
@@ -324,13 +318,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 			DateQualifier: 86,
 			Date:          shipment.ActualPickupDate.Format(dateFormat),
 		}
-		headerSegments.Put("G62_ActualPickupDate", &actualPickupDateSegment)
+		header.Put("G62_ActualPickupDate", &actualPickupDateSegment)
 	}
 
 	return g62Segments, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(paymentRequestID uuid.UUID, orders models.Order) (edisegment.Segment, edisegment.Segment, error) {
+func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(paymentRequestID uuid.UUID, orders models.Order, header *linkedhashmap.Map) error {
 
 	var err error
 	var originDutyStation models.DutyStation
@@ -338,15 +332,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
 		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
-			return nil, nil, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+			return services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		return nil, nil, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
+		return services.NewBadDataError("Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
 	if err != nil {
-		return nil, nil, services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find origin duty station")
+		return services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find origin duty station")
 	}
 
 	// buyer organization name
@@ -365,26 +359,27 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		IdentificationCode:          "PRME",
 	}
 
-	return &buyerOrganizationName, &sellerOrganizationName, nil
+	header.Put("N1_BuyerOrganizationName", buyerOrganizationName)
+	header.Put("N1_SellerOrganizationName", sellerOrganizationName)
+
+	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequestID uuid.UUID, orders models.Order) (map[string]edisegment.Segment, error) {
-	originAndDestinationSegments := make(map[string]edisegment.Segment)
-
+func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequestID uuid.UUID, orders models.Order, header *linkedhashmap.Map) error {
 	var err error
 	var destinationDutyStation models.DutyStation
 	if orders.NewDutyStationID != uuid.Nil {
 		destinationDutyStation, err = models.FetchDutyStation(g.db, orders.NewDutyStationID)
 		if err != nil {
-			return nil, services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
+			return services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
 		}
 	} else {
-		return nil, services.NewBadDataError("Invalid Order, must have NewDutyStation")
+		return services.NewBadDataError("Invalid Order, must have NewDutyStation")
 	}
 
 	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, destinationDutyStation.ID)
 	if err != nil {
-		return nil, services.NewInvalidInputError(destinationDutyStation.ID, err, nil, "unable to find destination duty station")
+		return services.NewInvalidInputError(destinationDutyStation.ID, err, nil, "unable to find destination duty station")
 	}
 
 	// destination name
@@ -394,7 +389,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		IdentificationCodeQualifier: "10",
 		IdentificationCode:          destTransportationOffice.Gbloc,
 	}
-	originAndDestinationSegments["N1_DestinationName"] = &destinationName
+	header.Put("N1_DestinationName", &destinationName)
 
 	// destination address
 	if len(destinationDutyStation.Address.StreetAddress1) > 0 {
@@ -404,7 +399,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		if destinationDutyStation.Address.StreetAddress2 != nil {
 			destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
 		}
-		originAndDestinationSegments["N3_DestinationStreetAddress"] = &destinationStreetAddress
+		header.Put("N3_DestinationStreetAddress", &destinationStreetAddress)
 	}
 
 	// destination city/state/postal
@@ -416,11 +411,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	if destinationDutyStation.Address.Country != nil {
 		countryCode, ccErr := destinationDutyStation.Address.CountryCode()
 		if ccErr != nil {
-			return nil, ccErr
+			return ccErr
 		}
 		destinationPostalDetails.CountryCode = string(*countryCode)
 	}
-	originAndDestinationSegments["N4_DestinationPostalDetails"] = &destinationPostalDetails
+	header.Put("N4_DestinationPostalDetails", &destinationPostalDetails)
 
 	// Destination PER
 	destinationStationPhoneLines := destTransportationOffice.PhoneLines
@@ -437,7 +432,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 			CommunicationNumberQualifier: "TE",
 			CommunicationNumber:          destPhoneLines[0],
 		}
-		originAndDestinationSegments["PER_DestinationPhone"] = &destinationPhone
+		header.Put("PER_DestinationPhone", &destinationPhone)
 	}
 
 	// ========  ORIGIN ========= //
@@ -447,15 +442,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
 		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
-			return nil, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+			return services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		return nil, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
+		return services.NewBadDataError("Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
 	if err != nil {
-		return nil, services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find transportation office of origin duty station")
+		return services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find transportation office of origin duty station")
 	}
 
 	originName := edisegment.N1{
@@ -464,7 +459,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		IdentificationCodeQualifier: "10",
 		IdentificationCode:          originTransportationOffice.Gbloc,
 	}
-	originAndDestinationSegments["N1_OriginName"] = &originName
+	header.Put("N1_OriginName", &originName)
 
 	// origin address
 	if len(originDutyStation.Address.StreetAddress1) > 0 {
@@ -474,7 +469,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		if originDutyStation.Address.StreetAddress2 != nil {
 			originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
 		}
-		originAndDestinationSegments["N3_OriginStreetAddress"] = &originStreetAddress
+		header.Put("N3_OriginStreetAddress", &originStreetAddress)
 	}
 
 	// origin city/state/postal
@@ -486,12 +481,12 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	if originDutyStation.Address.Country != nil {
 		countryCode, ccErr := originDutyStation.Address.CountryCode()
 		if ccErr != nil {
-			return nil, ccErr
+			return ccErr
 		}
 		originPostalDetails.CountryCode = string(*countryCode)
 	}
 
-	originAndDestinationSegments["N4_OriginStreetAddress"] = &originPostalDetails
+	header.Put("N4_OriginStreetAddress", &originPostalDetails)
 
 	// Origin Station Phone
 	originStationPhoneLines := originTransportationOffice.PhoneLines
@@ -508,10 +503,10 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 			CommunicationNumberQualifier: "TE",
 			CommunicationNumber:          originPhoneLines[0],
 		}
-		originAndDestinationSegments["PER_OriginPhone"] = &originPhone
+		header.Put("PER_OriginPhone", &originPhone)
 	}
 
-	return originAndDestinationSegments, nil
+	return nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order) ([]edisegment.Segment, error) {
