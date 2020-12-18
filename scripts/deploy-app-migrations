@@ -38,7 +38,7 @@ case "${environment}" in
 esac
 
 APP_ENVIRONMENT="${environment}"
-AWS_DEFAULT_REGION=us-gov-west-1
+export AWS_DEFAULT_REGION=us-gov-west-1
 CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"

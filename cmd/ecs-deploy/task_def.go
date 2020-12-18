@@ -217,9 +217,6 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	// AWS Flags
 	cli.InitAWSFlags(flag)
 
-	// Vault Flags
-	cli.InitVaultFlags(flag)
-
 	// Task Definition Settings
 	flag.String(serviceFlag, "app", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
@@ -270,10 +267,6 @@ func checkTaskDefConfig(v *viper.Viper) error {
 
 	if err := cli.CheckAWSRegionForService(region, ssm.ServiceName); err != nil {
 		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, ssm.ServiceName, err)
-	}
-
-	if err := cli.CheckVault(v); err != nil {
-		return err
 	}
 
 	serviceName := v.GetString(serviceFlag)
@@ -467,23 +460,17 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		quit(logger, flag, checkConfigErr)
 	}
 
-	// Get the AWS configuration so we can build a session
-	awsConfig, err := cli.GetAWSConfig(v, verbose)
-	if err != nil {
-		quit(logger, nil, err)
-	}
+	awsConfig := createAwsConfig(v.GetString(cli.AWSRegionFlag))
 	sess, err := awssession.NewSession(awsConfig)
 	if err != nil {
 		quit(logger, nil, fmt.Errorf("failed to create AWS session: %w", err))
 	}
-
 	// Create the Services
 	serviceCloudWatchEvents := cloudwatchevents.New(sess)
 	serviceECS := ecs.New(sess)
 	serviceECR := ecr.New(sess)
 	serviceRDS := rds.New(sess)
 	serviceSSM := ssm.New(sess)
-
 	// ===== Limit the variables required =====
 	awsAccountID := v.GetString(awsAccountIDFlag)
 	awsRegion := v.GetString(cli.AWSRegionFlag)
@@ -636,4 +623,11 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func createAwsConfig(awsRegionFlag string) *aws.Config {
+	awsConfig := &aws.Config{
+		Region: aws.String(awsRegionFlag),
+	}
+	return awsConfig
 }
