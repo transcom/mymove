@@ -16,8 +16,10 @@ describe('The document viewer', function () {
 
   describe('When user is logged in', function () {
     beforeEach(() => {
+      cy.clearAllCookies();
       cy.signIntoOffice();
     });
+
     it('produces error when move cannot be found', () => {
       cy.patientVisit('/moves/9bfa91d2-7a0c-4de0-ae02-b90988cf8b4b858b/documents');
       cy.contains('An error occurred'); //todo: we want better messages when we are making custom call
