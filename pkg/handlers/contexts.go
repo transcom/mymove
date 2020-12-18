@@ -35,6 +35,8 @@ type HandlerContext interface {
 	SetNotificationSender(sender notifications.NotificationSender)
 	Planner() route.Planner
 	SetPlanner(planner route.Planner)
+	GHCPlanner() route.Planner
+	SetGHCPlanner(planner route.Planner)
 	CookieSecret() string
 	SetCookieSecret(secret string)
 	IWSPersonLookup() iws.PersonLookup
@@ -72,6 +74,7 @@ type handlerContext struct {
 	logger                Logger
 	cookieSecret          string
 	planner               route.Planner
+	ghcPlanner            route.Planner
 	storage               storage.FileStorer
 	notificationSender    notifications.NotificationSender
 	iwsPersonLookup       iws.PersonLookup
@@ -164,6 +167,16 @@ func (hctx *handlerContext) Planner() route.Planner {
 // SetPlanner is a simple setter for the route.Planner private field
 func (hctx *handlerContext) SetPlanner(planner route.Planner) {
 	hctx.planner = planner
+}
+
+// GHCPlanner returns the GHC planner for the current context
+func (hctx *handlerContext) GHCPlanner() route.Planner {
+	return hctx.ghcPlanner
+}
+
+// SetGHCPlanner is a simple setter for the route.Planner private field
+func (hctx *handlerContext) SetGHCPlanner(ghcPlanner route.Planner) {
+	hctx.ghcPlanner = ghcPlanner
 }
 
 // CookieSecret returns the secret key to use when signing cookies
