@@ -41,8 +41,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
-
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
@@ -79,7 +77,6 @@ var (
 )
 
 type dtodZip5DistanceInfo struct {
-	db        *pop.Connection
 	logger    Logger
 	tlsConfig *tls.Config
 	username  string
@@ -154,9 +151,8 @@ func GetDTODFlags(v *viper.Viper) (string, string, string, string, error) {
 }
 
 // NewDTODZip5Distance returns a new DTOD Planner Mileage interface
-func NewDTODZip5Distance(db *pop.Connection, logger Logger, tlsConfig *tls.Config, username string, password string, url string, wsdl string) services.DTODPlannerMileage {
+func NewDTODZip5Distance(logger Logger, tlsConfig *tls.Config, username string, password string, url string, wsdl string) services.DTODPlannerMileage {
 	return &dtodZip5DistanceInfo{
-		db:        db,
 		logger:    logger,
 		tlsConfig: tlsConfig,
 		username:  username,

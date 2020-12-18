@@ -1,6 +1,7 @@
 package dtod
 
 import (
+	"log"
 	"testing"
 
 	"go.uber.org/zap"
@@ -12,19 +13,19 @@ import (
 
 // DTODPlannerServiceSuite is a suite for testing DTOD planner
 type DTODPlannerServiceSuite struct {
-	testingsuite.PopTestSuite
+	testingsuite.BaseTestSuite
 	logger Logger
 }
 
 func (suite *DTODPlannerServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
 }
 
 func TestDTODPlannerServiceSuite(t *testing.T) {
-	ts := &DTODPlannerServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       zap.NewNop(),
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Panic(err)
 	}
-	suite.Run(t, ts)
-	ts.PopTestSuite.TearDown()
+
+	testSuite := &DTODPlannerServiceSuite{logger: logger}
+	suite.Run(t, testSuite)
 }
