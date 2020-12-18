@@ -21,7 +21,7 @@ type QueueMove struct {
 	Customer *Customer `json:"customer,omitempty"`
 
 	// department indicator
-	DepartmentIndicator DeptIndicator `json:"departmentIndicator,omitempty"`
+	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
@@ -101,11 +101,13 @@ func (m *QueueMove) validateDepartmentIndicator(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.DepartmentIndicator.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("departmentIndicator")
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("departmentIndicator")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

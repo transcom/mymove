@@ -1591,6 +1591,7 @@ definitions:
   DeptIndicator:
     type: string
     title: Dept. indicator
+    x-nullable: true
     enum:
       - NAVY_AND_MARINES
       - ARMY
@@ -1615,6 +1616,7 @@ definitions:
   OrdersTypeDetail:
     type: string
     title: Orders type detail
+    x-nullable: true
     enum:
       - HHG_PERMITTED
       - PCS_TDY
@@ -1756,6 +1758,7 @@ definitions:
         x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
+        x-nullable: true
       authorizedWeight:
         minimum: 1
         description: unit is in lbs
@@ -1769,12 +1772,8 @@ definitions:
       - issueDate
       - reportByDate
       - ordersType
-      - ordersTypeDetail
       - newDutyStationId
       - originDutyStationId
-      - ordersNumber
-      - tac
-      - departmentIndicator
   MoveTaskOrder:
     properties:
       id:
