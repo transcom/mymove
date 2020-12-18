@@ -46,8 +46,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"go.uber.org/zap"
-
 	"github.com/tiaguinho/gosoap"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -90,6 +88,30 @@ type dtodZip5DistanceInfo struct {
 	wsdl      string
 }
 
+/*  TODO might be used for parsing the response
+    delete if not needed
+type location struct {
+}
+
+type processRequestResponse struct {
+	processRequestResult string `xml:"ProcessRequestResult"`
+}
+
+type processRequestResult struct {
+	date        string   `xml:Date`
+	version     string   `xml:Version`
+	function    string   `xml:Function`
+	region      string   `xml:Region`
+	routeType   string   `xml:RouteType`
+	units       string   `xml:Units`
+	origin      location `xml:Origin`
+	destination location `xml:Destination`
+	distance    float64  `xml:Distance`
+	time        float64  `xml:Time`
+}
+
+*/
+
 // InitDTODFlags initializes DTOD command line flags
 func InitDTODFlags(flag *pflag.FlagSet) {
 	flag.String(UsernameFlag["cli"], "", "DTOD api auth username")
@@ -131,7 +153,7 @@ func GetDTODFlags(v *viper.Viper) (string, string, string, string, error) {
 	return username, password, url, wsdl, nil
 }
 
-// NewDTODZip5Distance returns a new payment request creator
+// NewDTODZip5Distance returns a new DTOD Planner Mileage interface
 func NewDTODZip5Distance(db *pop.Connection, logger Logger, tlsConfig *tls.Config, username string, password string, url string, wsdl string) services.DTODPlannerMileage {
 	return &dtodZip5DistanceInfo{
 		db:        db,
@@ -144,31 +166,9 @@ func NewDTODZip5Distance(db *pop.Connection, logger Logger, tlsConfig *tls.Confi
 	}
 }
 
-/*  TODO might be used for parsing the response
-    delete if not needed
-type location struct {
-}
-
-type processRequestResponse struct {
-	processRequestResult string `xml:"ProcessRequestResult"`
-}
-
-type processRequestResult struct {
-	date        string   `xml:Date`
-	version     string   `xml:Version`
-	function    string   `xml:Function`
-	region      string   `xml:Region`
-	routeType   string   `xml:RouteType`
-	units       string   `xml:Units`
-	origin      location `xml:Origin`
-	destination location `xml:Destination`
-	distance    float64  `xml:Distance`
-	time        float64  `xml:Time`
-}
-
-*/
-
 func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip string) (int, error) {
+
+	distance := 0
 
 	tr := &http.Transport{TLSClientConfig: d.tlsConfig}
 	httpClient := &http.Client{Transport: tr, Timeout: dtodRequestTimeout}
@@ -189,10 +189,7 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 
 	soap, err := gosoap.SoapClient(d.wsdl, httpClient)
 	if err != nil {
-		fmt.Printf("resp %v\n\n", soap)
-		fmt.Printf("SoapClient error: %s", err.Error())
-		d.logger.Fatal("SoapClient error: ", zap.Error(err))
-
+		return distance, fmt.Errorf("SoapClient error: %s", err.Error())
 	}
 
 	params := gosoap.Params{
@@ -214,14 +211,10 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 	}
 
 	soap.URL = d.url
-	res, err := soap.Call("ProcessRequest", params)
+	//res, err := soap.Call("ProcessRequest", params)
+	_, err = soap.Call("ProcessRequest", params)
 	if err != nil {
-		//payload := gosoap.GetPayloadFromError(err)
-		//payloadString := string(payload)
-		//fmt.Printf("payload %s\n\n", payloadString)
-		fmt.Printf("resp %v\n\n", res)
-		fmt.Printf("Call error: %s\n\n", err.Error())
-		d.logger.Fatal("Call error: ", zap.Error(err))
+		return distance, fmt.Errorf("call error: %s", err.Error())
 	}
 
 	/* TODO unmarshall the response from DTOD do this next sprint
@@ -242,5 +235,5 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 
 	*/
 
-	return 0, nil
+	return distance, nil
 }
