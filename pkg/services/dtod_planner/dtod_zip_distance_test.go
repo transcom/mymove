@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"testing"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -65,15 +64,17 @@ func (suite *DTODPlannerServiceSuite) TestDTODZip5Distance() {
 
 	// For local testing, run `go test ./pkg/services/dtod_planner -v` to trigger the call
 	// to the real DTOD test SOAP service. We DO NOT WANT TO RUN in regular UT/CircleCI cycle
-	suite.T().Run("real call to DTOD uncomment locally to test", func(t *testing.T) {
-		v := suite.initFlags()
-		tlsConfig := suite.getTLSConfig(v)
+	/*
+		suite.T().Run("real call to DTOD uncomment locally to test", func(t *testing.T) {
+			v := suite.initFlags()
+			tlsConfig := suite.getTLSConfig(v)
 
-		dtodUsername, dtodPassword, dtodURL, dtodWSDL, err := GetDTODFlags(v)
-		suite.NoError(err)
+			dtodUsername, dtodPassword, dtodURL, dtodWSDL, err := GetDTODFlags(v)
+			suite.NoError(err)
 
-		dtod := NewDTODZip5Distance(suite.DB(), suite.logger, tlsConfig, dtodUsername, dtodPassword, dtodURL, dtodWSDL)
-		dtod.DTODZip5Distance("05030", "05091") // actual distance is 22.195 miles
-	})
+			dtod := NewDTODZip5Distance(suite.DB(), suite.logger, tlsConfig, dtodUsername, dtodPassword, dtodURL, dtodWSDL)
+			dtod.DTODZip5Distance("05030", "05091") // actual distance is 22.195 miles
+		})
+	*/
 
 }

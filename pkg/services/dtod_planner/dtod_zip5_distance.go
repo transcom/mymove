@@ -144,7 +144,7 @@ func NewDTODZip5Distance(db *pop.Connection, logger Logger, tlsConfig *tls.Confi
 	}
 }
 
-/*  might be used for parsing the response
+/*  TODO might be used for parsing the response
     delete if not needed
 type location struct {
 }
@@ -180,12 +180,14 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 	})
 
 	//TODO: for dev uncomment and use  SoapClientWithConfig to see both request and response
-	config := gosoap.Config{
-		Dump: true,
-	}
-	soap, err := gosoap.SoapClientWithConfig(d.wsdl, httpClient, &config)
+	/*
+		config := gosoap.Config{
+			Dump: true,
+		}
+		soap, err := gosoap.SoapClientWithConfig(d.wsdl, httpClient, &config)
+	*/
 
-	//soap, err := gosoap.SoapClient(d.wsdl, httpClient)
+	soap, err := gosoap.SoapClient(d.wsdl, httpClient)
 	if err != nil {
 		fmt.Printf("resp %v\n\n", soap)
 		fmt.Printf("SoapClient error: %s", err.Error())
