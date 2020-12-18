@@ -72,7 +72,7 @@ type MoveOrder struct {
 	OrderType OrdersType `json:"order_type,omitempty"`
 
 	// order type detail
-	OrderTypeDetail OrdersTypeDetail `json:"order_type_detail,omitempty"`
+	OrderTypeDetail *OrdersTypeDetail `json:"order_type_detail,omitempty"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
@@ -303,11 +303,13 @@ func (m *MoveOrder) validateOrderTypeDetail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.OrderTypeDetail.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("order_type_detail")
+	if m.OrderTypeDetail != nil {
+		if err := m.OrderTypeDetail.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("order_type_detail")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

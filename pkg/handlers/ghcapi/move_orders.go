@@ -148,8 +148,6 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 // MoveOrder transforms UpdateMoveOrderPayload to Order model
 func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error) {
 
-	ordersTypeDetail := internalmessages.OrdersTypeDetail(payload.OrdersTypeDetail)
-
 	var originDutyStationID uuid.UUID
 	if payload.OriginDutyStationID != nil {
 		originDutyStationID = uuid.FromStringOrNil(payload.OriginDutyStationID.String())
@@ -175,6 +173,12 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 		entitlement.DBAuthorizedWeight = swag.Int(int(*payload.AuthorizedWeight))
 	}
 
+	var ordersTypeDetail *internalmessages.OrdersTypeDetail
+	if payload.OrdersTypeDetail != nil {
+		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)
+		ordersTypeDetail = &orderTypeDetail
+	}
+
 	return models.Order{
 		DepartmentIndicator: departmentIndicator,
 		Entitlement:         &entitlement,
@@ -183,7 +187,7 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 		NewDutyStationID:    newDutyStationID,
 		OrdersNumber:        payload.OrdersNumber,
 		OrdersType:          internalmessages.OrdersType(payload.OrdersType),
-		OrdersTypeDetail:    &ordersTypeDetail,
+		OrdersTypeDetail:    ordersTypeDetail,
 		OriginDutyStationID: &originDutyStationID,
 		ReportByDate:        time.Time(*payload.ReportByDate),
 		SAC:                 payload.Sac,

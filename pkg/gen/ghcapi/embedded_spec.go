@@ -2931,7 +2931,8 @@ func init() {
         "HHG_RESTRICTED_PROHIBITED": "Shipment of HHG Restricted or Prohibited",
         "INSTRUCTION_20_WEEKS": "Course of Instruction 20 Weeks or More",
         "PCS_TDY": "PCS with TDY Enroute"
-      }
+      },
+      "x-nullable": true
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
@@ -6940,7 +6941,8 @@ func init() {
         "HHG_RESTRICTED_PROHIBITED": "Shipment of HHG Restricted or Prohibited",
         "INSTRUCTION_20_WEEKS": "Course of Instruction 20 Weeks or More",
         "PCS_TDY": "PCS with TDY Enroute"
-      }
+      },
+      "x-nullable": true
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {

@@ -47,7 +47,7 @@ type UpdateMoveOrderPayload struct {
 	OrdersType OrdersType `json:"ordersType"`
 
 	// orders type detail
-	OrdersTypeDetail OrdersTypeDetail `json:"ordersTypeDetail,omitempty"`
+	OrdersTypeDetail *OrdersTypeDetail `json:"ordersTypeDetail,omitempty"`
 
 	// origin duty station Id
 	// Required: true
@@ -207,11 +207,13 @@ func (m *UpdateMoveOrderPayload) validateOrdersTypeDetail(formats strfmt.Registr
 		return nil
 	}
 
-	if err := m.OrdersTypeDetail.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("ordersTypeDetail")
+	if m.OrdersTypeDetail != nil {
+		if err := m.OrdersTypeDetail.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ordersTypeDetail")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

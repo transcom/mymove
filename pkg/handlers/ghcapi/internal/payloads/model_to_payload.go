@@ -89,9 +89,9 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		deptIndicator = ghcmessages.DeptIndicator(*moveOrder.DepartmentIndicator)
 	}
 
-	var orderTypeDetail ghcmessages.OrdersTypeDetail
+	var ordersTypeDetail ghcmessages.OrdersTypeDetail
 	if moveOrder.OrdersTypeDetail != nil {
-		orderTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
+		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
 	}
 
 	var grade ghcmessages.Grade
@@ -104,7 +104,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		Entitlement:            entitlements,
 		Grade:                  &grade,
 		OrderNumber:            moveOrder.OrdersNumber,
-		OrderTypeDetail:        orderTypeDetail,
+		OrderTypeDetail:        &ordersTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),

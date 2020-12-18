@@ -1616,6 +1616,7 @@ definitions:
   OrdersTypeDetail:
     type: string
     title: Orders type detail
+    x-nullable: true
     enum:
       - HHG_PERMITTED
       - PCS_TDY
