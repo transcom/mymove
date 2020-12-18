@@ -179,14 +179,13 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 		"xmlns:ser":     "https://dtod.sddc.army.mil/service/",
 	})
 
-	/*
-		//TODO: for dev uncomment and use  SoapClientWithConfig to see both request and response
-		config := gosoap.Config{
-			Dump:   true,
-		}
-		soap, err := gosoap.SoapClientWithConfig(wsdl, httpClient, &config) // TODO change to d.wsdl
-	*/
-	soap, err := gosoap.SoapClient(d.wsdl, httpClient)
+	//TODO: for dev uncomment and use  SoapClientWithConfig to see both request and response
+	config := gosoap.Config{
+		Dump: true,
+	}
+	soap, err := gosoap.SoapClientWithConfig(d.wsdl, httpClient, &config)
+
+	//soap, err := gosoap.SoapClient(d.wsdl, httpClient)
 	if err != nil {
 		fmt.Printf("resp %v\n\n", soap)
 		fmt.Printf("SoapClient error: %s", err.Error())
