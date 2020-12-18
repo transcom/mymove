@@ -168,6 +168,12 @@ function officeUserVerifiesOrders(moveLocator) {
   // was ultimately saved when the page is refreshed (L190).
   // cy.get('span').contains('666666');
 
+  // Refresh browser and make sure changes persist
+  cy.patientReload();
+
+  cy.get('span').contains('666666');
+  cy.get('span').contains('Delayed Approval 20 Weeks or More');
+
   // Enter SAC
   cy.get('.combo-button button').should('be.disabled');
 
