@@ -161,7 +161,7 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 	}
 
 	var departmentIndicator *string
-	if departmentIndicator != nil {
+	if payload.DepartmentIndicator != nil {
 		departmentIndicator = (*string)(payload.DepartmentIndicator)
 	}
 
