@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -14,7 +14,6 @@ import { updateMoveOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
-import { HistoryShape, MatchShape } from 'types/router';
 import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
@@ -38,8 +37,9 @@ const validationSchema = Yup.object({
   sac: Yup.string().required('Required'),
 });
 
-const MoveOrders = ({ history, match }) => {
-  const { moveOrderId } = match.params;
+const MoveOrders = () => {
+  const history = useHistory();
+  const { moveOrderId } = useParams();
 
   const { moveOrders, upload, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
 
@@ -130,9 +130,9 @@ const MoveOrders = ({ history, match }) => {
                   </Button>
                   <h2 className={styles.header}>View Orders</h2>
                   <div>
-                    <Button type="button" className={styles.viewAllowances} unstyled>
+                    <Link className={styles.viewAllowances} data-testid="view-allowances" to="allowances">
                       View Allowances
-                    </Button>
+                    </Link>
                   </div>
                 </div>
                 <div className={styles.body}>
@@ -161,9 +161,4 @@ const MoveOrders = ({ history, match }) => {
   );
 };
 
-MoveOrders.propTypes = {
-  history: HistoryShape.isRequired,
-  match: MatchShape.isRequired,
-};
-
-export default withRouter(MoveOrders);
+export default MoveOrders;

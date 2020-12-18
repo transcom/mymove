@@ -2091,7 +2091,8 @@ func init() {
         "ARMY": "21 Army",
         "COAST_GUARD": "70 Coast Guard",
         "NAVY_AND_MARINES": "17 Navy and Marine Corps"
-      }
+      },
+      "x-nullable": true
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -2247,6 +2248,71 @@ func init() {
         "MLNQ",
         "XXXX"
       ]
+    },
+    "Grade": {
+      "type": "string",
+      "title": "grade",
+      "enum": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6",
+        "E_7",
+        "E_8",
+        "E_9",
+        "O_1_ACADEMY_GRADUATE",
+        "O_2",
+        "O_3",
+        "O_4",
+        "O_5",
+        "O_6",
+        "O_7",
+        "O_8",
+        "O_9",
+        "O_10",
+        "W_1",
+        "W_2",
+        "W_3",
+        "W_4",
+        "W_5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1/Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true
     },
     "MTOAgent": {
       "type": "object",
@@ -2691,8 +2757,7 @@ func init() {
           "example": "John"
         },
         "grade": {
-          "type": "string",
-          "example": "E_1"
+          "$ref": "#/definitions/Grade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -2866,7 +2931,8 @@ func init() {
         "HHG_RESTRICTED_PROHIBITED": "Shipment of HHG Restricted or Prohibited",
         "INSTRUCTION_20_WEEKS": "Course of Instruction 20 Weeks or More",
         "PCS_TDY": "PCS with TDY Enroute"
-      }
+      },
+      "x-nullable": true
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
@@ -3397,13 +3463,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "ordersTypeDetail",
         "newDutyStationId",
-        "originDutyStationId",
-        "ordersNumber",
-        "tac",
-        "sac",
-        "departmentIndicator"
+        "originDutyStationId"
       ],
       "properties": {
         "authorizedWeight": {
@@ -3415,7 +3476,11 @@ func init() {
           "example": 2000
         },
         "departmentIndicator": {
+          "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -6036,7 +6101,8 @@ func init() {
         "ARMY": "21 Army",
         "COAST_GUARD": "70 Coast Guard",
         "NAVY_AND_MARINES": "17 Navy and Marine Corps"
-      }
+      },
+      "x-nullable": true
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -6192,6 +6258,71 @@ func init() {
         "MLNQ",
         "XXXX"
       ]
+    },
+    "Grade": {
+      "type": "string",
+      "title": "grade",
+      "enum": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6",
+        "E_7",
+        "E_8",
+        "E_9",
+        "O_1_ACADEMY_GRADUATE",
+        "O_2",
+        "O_3",
+        "O_4",
+        "O_5",
+        "O_6",
+        "O_7",
+        "O_8",
+        "O_9",
+        "O_10",
+        "W_1",
+        "W_2",
+        "W_3",
+        "W_4",
+        "W_5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ],
+      "x-display-value": {
+        "ACADEMY_CADET": "Service Academy Cadet",
+        "AVIATION_CADET": "Aviation Cadet",
+        "CIVILIAN_EMPLOYEE": "Civilian Employee",
+        "E_1": "E-1",
+        "E_2": "E-2",
+        "E_3": "E-3",
+        "E_4": "E-4",
+        "E_5": "E-5",
+        "E_6": "E-6",
+        "E_7": "E-7",
+        "E_8": "E-8",
+        "E_9": "E-9",
+        "MIDSHIPMAN": "Midshipman",
+        "O_10": "O-10",
+        "O_1_ACADEMY_GRADUATE": "O-1/Service Academy Graduate",
+        "O_2": "O-2",
+        "O_3": "O-3",
+        "O_4": "O-4",
+        "O_5": "O-5",
+        "O_6": "O-6",
+        "O_7": "O-7",
+        "O_8": "O-8",
+        "O_9": "O-9",
+        "W_1": "W-1",
+        "W_2": "W-2",
+        "W_3": "W-3",
+        "W_4": "W-4",
+        "W_5": "W-5"
+      },
+      "x-nullable": true
     },
     "MTOAgent": {
       "type": "object",
@@ -6636,8 +6767,7 @@ func init() {
           "example": "John"
         },
         "grade": {
-          "type": "string",
-          "example": "E_1"
+          "$ref": "#/definitions/Grade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -6811,7 +6941,8 @@ func init() {
         "HHG_RESTRICTED_PROHIBITED": "Shipment of HHG Restricted or Prohibited",
         "INSTRUCTION_20_WEEKS": "Course of Instruction 20 Weeks or More",
         "PCS_TDY": "PCS with TDY Enroute"
-      }
+      },
+      "x-nullable": true
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
@@ -7345,13 +7476,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "ordersTypeDetail",
         "newDutyStationId",
-        "originDutyStationId",
-        "ordersNumber",
-        "tac",
-        "sac",
-        "departmentIndicator"
+        "originDutyStationId"
       ],
       "properties": {
         "authorizedWeight": {
@@ -7363,7 +7489,11 @@ func init() {
           "example": 2000
         },
         "departmentIndicator": {
+          "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
