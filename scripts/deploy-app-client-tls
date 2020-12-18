@@ -18,17 +18,17 @@ readonly environment="${1:-exp}"
 case "${environment}" in
   exp)
     compare_host=gex.exp.move.mil
-    health_check_hosts=gex.exp.move.mil,dps.exp.move.mil,orders.exp.move.mil
+    health_check_hosts=gex.exp.move.mil,my.exp.move.mil,orders.exp.move.mil
     AWS_ACCOUNT_ID=015681133840
     ;;
   stg)
     compare_host=gex.stg.move.mil
-    health_check_hosts=gex.stg.move.mil,dps.stg.move.mil,orders.stg.move.mil
+    health_check_hosts=gex.stg.move.mil,my.stg.move.mil,orders.stg.move.mil
     AWS_ACCOUNT_ID=015932076428
     ;;
   prd)
     compare_host=gex.move.mil
-    health_check_hosts=gex.move.mil,dps.move.mil,orders.move.mil
+    health_check_hosts=gex.move.mil,my.move.mil,orders.move.mil
     AWS_ACCOUNT_ID=015533997236
     ;;
   *)
@@ -40,9 +40,9 @@ esac
 APP_ENVIRONMENT="${environment}"
 AWS_DEFAULT_REGION=us-gov-west-1
 
-KEY=$(DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-milmove-exp -- chamber read app-exp move_mil_dod_tls_key -q | base64 -i -)
-CERT=$(DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-milmove-exp -- chamber read app-exp move_mil_dod_tls_cert -q | base64 -i -)
-CA=$(DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-milmove-exp -- chamber read app-exp move_mil_dod_ca_cert -q | base64 -i -)
+KEY=$(chamber read app-"${APP_ENVIRONMENT}" move_mil_dod_tls_key -q | base64 -i -)
+CERT=$(chamber read app-"${APP_ENVIRONMENT}" move_mil_dod_tls_cert -q | base64 -i -)
+CA=$(chamber read app-"${APP_ENVIRONMENT}" move_mil_dod_ca_cert -q | base64 -i -)
 
 CIRCLE_SHA1=$(curl -sk --key <(echo "${KEY}" | base64 --decode) --cert <(echo "${CERT}" | base64 --decode) --cacert <(echo "${CA}" | base64 --decode) "https://${compare_host}/health"  | jq -r .gitCommit)
 
