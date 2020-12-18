@@ -9184,10 +9184,10 @@ filepond@^3.0.2:
   resolved "https://registry.yarnpkg.com/filepond/-/filepond-3.9.0.tgz#a11457ea432420585406b2511f67f2516246add8"
   integrity sha512-6XqRwzdpCOHYvnp7hqPpYbOH03zweOcGkgv5ixQlihbRxLFUw2AJId4lHwLdbKW7LX9EaQPqZ6qRF+3T0dkDVw==
 
-filepond@^4.23.1:
-  version "4.23.1"
-  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.23.1.tgz#fb6b9f09732ca524586765aee040edd5c5d453d9"
-  integrity sha512-OHMiVucJXCC5SXZPlwbDm7lgH4hJKvlXjkKNH6fZWVoh3IAhdUDMKh18JJGpO9PC3cCl1UYi8Aa1Le96SyXHYg==
+filepond@^4.25.1:
+  version "4.25.1"
+  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.25.1.tgz#426e7cce3d0cdccb2d5623bedc5a8db772ae167b"
+  integrity sha512-8UPPTzfpHZRUtJl3dEcGMLYOygg8taJZpYTv1WaEkvzeI+X0JX9+agMJ+5Lu1EKtdt9dGq/9Gud+EnNRBaGl1A==
 
 filesize@6.0.1:
   version "6.0.1"
