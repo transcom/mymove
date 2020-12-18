@@ -72,7 +72,7 @@ func (suite *DTODPlannerServiceSuite) TestDTODZip5Distance() {
 			dtodUsername, dtodPassword, dtodURL, dtodWSDL, err := GetDTODFlags(v)
 			suite.NoError(err)
 
-			dtod := NewDTODZip5Distance(suite.DB(), suite.logger, tlsConfig, dtodUsername, dtodPassword, dtodURL, dtodWSDL)
+			dtod := NewDTODZip5Distance(suite.logger, tlsConfig, dtodUsername, dtodPassword, dtodURL, dtodWSDL)
 			dtod.DTODZip5Distance("05030", "05091") // actual distance is 22.195 miles
 		})
 	*/
