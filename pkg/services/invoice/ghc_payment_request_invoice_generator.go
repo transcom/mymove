@@ -359,8 +359,8 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		IdentificationCode:          "PRME",
 	}
 
-	header.Put("N1_BuyerOrganizationName", buyerOrganizationName)
-	header.Put("N1_SellerOrganizationName", sellerOrganizationName)
+	header.Put("N1_BuyerOrganizationName", &buyerOrganizationName)
+	header.Put("N1_SellerOrganizationName", &sellerOrganizationName)
 
 	return nil
 }
