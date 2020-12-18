@@ -144,7 +144,11 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 
+	newAuthorizedWeight := int64(10000)
+	grade := ghcmessages.GradeO5
 	body := &ghcmessages.UpdateMoveOrderPayload{
+		AuthorizedWeight:    &newAuthorizedWeight,
+		Grade:               &grade,
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
@@ -188,6 +192,8 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	suite.Equal(body.DepartmentIndicator, moveOrdersPayload.DepartmentIndicator)
 	suite.Equal(body.Tac, moveOrdersPayload.Tac)
 	suite.Equal(body.Sac, moveOrdersPayload.Sac)
+	suite.Equal(body.AuthorizedWeight, moveOrdersPayload.Entitlement.AuthorizedWeight)
+	suite.Equal(body.Grade, moveOrdersPayload.Grade)
 }
 
 // Test that a move order notification got stored Successfully
@@ -362,5 +368,5 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderBadRequest{}, response)
+	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderPreconditionFailed{}, response)
 }

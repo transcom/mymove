@@ -17,9 +17,16 @@ import (
 // swagger:model UpdateMoveOrderPayload
 type UpdateMoveOrderPayload struct {
 
+	// unit is in lbs
+	// Minimum: 1
+	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
+
 	// department indicator
 	// Required: true
 	DepartmentIndicator DeptIndicator `json:"departmentIndicator"`
+
+	// grade
+	Grade *Grade `json:"grade,omitempty"`
 
 	// Orders date
 	//
@@ -58,8 +65,7 @@ type UpdateMoveOrderPayload struct {
 	ReportByDate *strfmt.Date `json:"reportByDate"`
 
 	// SAC
-	// Required: true
-	Sac *string `json:"sac"`
+	Sac *string `json:"sac,omitempty"`
 
 	// TAC
 	// Required: true
@@ -70,7 +76,15 @@ type UpdateMoveOrderPayload struct {
 func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAuthorizedWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDepartmentIndicator(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateGrade(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -102,10 +116,6 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSac(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateTac(formats); err != nil {
 		res = append(res, err)
 	}
@@ -116,6 +126,19 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdateMoveOrderPayload) validateAuthorizedWeight(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AuthorizedWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("authorizedWeight", "body", int64(*m.AuthorizedWeight), 1, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdateMoveOrderPayload) validateDepartmentIndicator(formats strfmt.Registry) error {
 
 	if err := m.DepartmentIndicator.Validate(formats); err != nil {
@@ -123,6 +146,24 @@ func (m *UpdateMoveOrderPayload) validateDepartmentIndicator(formats strfmt.Regi
 			return ve.ValidateName("departmentIndicator")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMoveOrderPayload) validateGrade(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Grade) { // not required
+		return nil
+	}
+
+	if m.Grade != nil {
+		if err := m.Grade.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grade")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -207,15 +248,6 @@ func (m *UpdateMoveOrderPayload) validateReportByDate(formats strfmt.Registry) e
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMoveOrderPayload) validateSac(formats strfmt.Registry) error {
-
-	if err := validate.Required("sac", "body", m.Sac); err != nil {
 		return err
 	}
 
