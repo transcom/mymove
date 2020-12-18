@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
 import { LastLocationProvider } from 'react-router-last-location';
 
 import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
@@ -37,7 +36,6 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { lastMoveIsCanceled, selectedConusStatus, selectedMoveType } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -47,13 +45,17 @@ import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import Home from 'pages/MyMove/Home';
-
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectConusStatus } from 'store/onboarding/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentMove,
+  selectHasCanceledMove,
+  selectMoveType,
+} from 'store/entities/selectors';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -177,7 +179,7 @@ AppWrapper.propTypes = {
   loadInternalSchema: PropTypes.func,
   loadUser: PropTypes.func,
   initOnboarding: PropTypes.func,
-  conusStatus: PropTypes.string.isRequired,
+  conusStatus: PropTypes.string,
   context: PropTypes.shape({
     flags: PropTypes.shape({
       hhgFlow: PropTypes.bool,
@@ -202,15 +204,14 @@ AppWrapper.defaultProps = {
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
-  const move = selectActiveOrLatestMove(state);
+  const move = selectCurrentMove(state) || {};
 
   return {
     currentServiceMemberId: serviceMemberId,
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
-    latestMove: get(state, 'moves.latestMove'),
-    moveId: move.id,
-    selectedMoveType: selectedMoveType(state),
-    conusStatus: selectedConusStatus(state),
+    lastMoveIsCanceled: selectHasCanceledMove(state),
+    moveId: move?.id,
+    selectedMoveType: selectMoveType(state),
+    conusStatus: selectConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,
   };
 };

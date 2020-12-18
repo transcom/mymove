@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { get, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import moment from 'moment';
 
 import Alert from 'shared/Alert';
@@ -16,7 +16,7 @@ import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 
 import { submitExpenseDocs } from '../ducks';
 import DocumentsUploaded from './DocumentsUploaded';
@@ -212,7 +212,7 @@ const mapStateToProps = (state, props) => {
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
     entitlement: loadEntitlementsFromState(state),
-    orders: get(state, 'orders.currentOrders', {}),
+    orders: selectCurrentOrders(state) || {},
   };
 };
 
