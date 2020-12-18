@@ -78,10 +78,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 
 	order := hhgMove.Orders
 	result := payload.QueueMoves[0]
-
+	deptIndicator := *result.DepartmentIndicator
 	suite.Len(payload.QueueMoves, 1)
 	suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
-	suite.Equal(*order.DepartmentIndicator, string(result.DepartmentIndicator))
+	suite.Equal(*order.DepartmentIndicator, string(deptIndicator))
 	suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
 	suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
@@ -819,12 +819,13 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 
 	createdAt := actualPaymentRequest.CreatedAt
 	age := int64(2)
+	deptIndicator := *paymentRequest.DepartmentIndicator
 
 	suite.Equal(age, paymentRequest.Age)
 	suite.Equal(createdAt.Format("2006-01-02T15:04:05.000Z07:00"), paymentRequest.SubmittedAt.String()) // swagger formats to milliseconds
 	suite.Equal(hhgMove.Locator, paymentRequest.Locator)
 
-	suite.Equal(*hhgMove.Orders.DepartmentIndicator, string(paymentRequest.DepartmentIndicator))
+	suite.Equal(*hhgMove.Orders.DepartmentIndicator, string(deptIndicator))
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {

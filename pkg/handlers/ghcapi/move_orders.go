@@ -160,7 +160,10 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 		return models.Order{}, err
 	}
 
-	departmentIndicator := string(payload.DepartmentIndicator)
+	var departmentIndicator *string
+	if departmentIndicator != nil {
+		departmentIndicator = (*string)(payload.DepartmentIndicator)
+	}
 
 	var grade *string
 	if payload.Grade != nil {
@@ -173,7 +176,7 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 	}
 
 	return models.Order{
-		DepartmentIndicator: &departmentIndicator,
+		DepartmentIndicator: departmentIndicator,
 		Entitlement:         &entitlement,
 		Grade:               grade,
 		IssueDate:           time.Time(*payload.IssueDate),

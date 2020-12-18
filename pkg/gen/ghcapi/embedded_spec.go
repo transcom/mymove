@@ -2091,7 +2091,8 @@ func init() {
         "ARMY": "21 Army",
         "COAST_GUARD": "70 Coast Guard",
         "NAVY_AND_MARINES": "17 Navy and Marine Corps"
-      }
+      },
+      "x-nullable": true
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -3461,12 +3462,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "ordersTypeDetail",
         "newDutyStationId",
-        "originDutyStationId",
-        "ordersNumber",
-        "tac",
-        "departmentIndicator"
+        "originDutyStationId"
       ],
       "properties": {
         "authorizedWeight": {
@@ -3478,6 +3475,7 @@ func init() {
           "example": 2000
         },
         "departmentIndicator": {
+          "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
         "grade": {
@@ -6102,7 +6100,8 @@ func init() {
         "ARMY": "21 Army",
         "COAST_GUARD": "70 Coast Guard",
         "NAVY_AND_MARINES": "17 Navy and Marine Corps"
-      }
+      },
+      "x-nullable": true
     },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
@@ -7475,12 +7474,8 @@ func init() {
         "issueDate",
         "reportByDate",
         "ordersType",
-        "ordersTypeDetail",
         "newDutyStationId",
-        "originDutyStationId",
-        "ordersNumber",
-        "tac",
-        "departmentIndicator"
+        "originDutyStationId"
       ],
       "properties": {
         "authorizedWeight": {
@@ -7492,6 +7487,7 @@ func init() {
           "example": 2000
         },
         "departmentIndicator": {
+          "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
         "grade": {
