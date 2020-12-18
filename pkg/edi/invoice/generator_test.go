@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/emirpasic/gods/maps/linkedhashmap"
+
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -81,8 +83,8 @@ func MakeValidEdi() Invoice858C {
 		DateQualifier: 10,
 		Date:          "20200909",
 	}
-	ediHeader := make(map[string]edisegment.Segment)
-	ediHeader["G62_RequestedPickupDate"] = &date
+	ediHeader := linkedhashmap.New()
+	ediHeader.Put("G62_RequestedPickupDate", &date)
 
 	n4 := edisegment.N4{
 		CityName:            "San Francisco",

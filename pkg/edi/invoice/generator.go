@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/emirpasic/gods/maps/linkedhashmap"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 
@@ -20,35 +21,13 @@ const ICNRandomMin int64 = 100000000
 // ICNRandomMax is the largest allowed random-number based ICN (we use random ICN numbers in development)
 const ICNRandomMax int64 = 999999999
 
-var headerKeyOrdering = []string{
-	"BX_ShipmentInformation",
-	"N9_PaymentRequestNumber",
-	"N9_ContractCode",
-	"N9_ServiceMemberName",
-	"N9_ServiceMemberRank",
-	"N9_ServiceMemberBranch",
-	"N1_BuyerOrganizationName",
-	"N1_SellerOrganizationName",
-	"N1_DestinationName",
-	"N3_DestinationStreetAddress",
-	"N4_DestinationPostalDetails",
-	"PER_DestinationPhone",
-	"N1_OriginName",
-	"N3_OriginStreetAddress",
-	"N4_OriginStreetAddress",
-	"PER_OriginPhone",
-	"G62_RequestedPickupDate",
-	"G62_ScheduledPickupDate",
-	"G62_ActualPickupDate",
-}
-
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
 	ISA          edisegment.ISA
 	GS           edisegment.GS
 	ST           edisegment.ST
-	Header       map[string]edisegment.Segment `validate:"min=1,dive"`
-	ServiceItems []edisegment.Segment          `validate:"min=1,dive"`
+	Header       *linkedhashmap.Map
+	ServiceItems []edisegment.Segment `validate:"min=1,dive"`
 	SE           edisegment.SE
 	GE           edisegment.GE
 	IEA          edisegment.IEA
@@ -58,6 +37,11 @@ var validate *validator.Validate
 
 func init() {
 	validate = validator.New()
+
+	// When validate.Struct() is called on a struct containing a field of type
+	// linkedhashmap.Map, this struct validation function will be used to run
+	// validations on all of the items contained in the linkedhashmap.Map
+	validate.RegisterStructValidation(validateLinkedHashMapElements, linkedhashmap.Map{})
 }
 
 // Segments returns the invoice as an array of rows (string arrays),
@@ -69,11 +53,10 @@ func (invoice Invoice858C) Segments() [][]string {
 		invoice.ST.StringArray(),
 	}
 
-	for _, key := range headerKeyOrdering {
-		line, keyExists := invoice.Header[key]
-		if keyExists {
-			records = append(records, line.StringArray())
-		}
+	it := invoice.Header.Iterator()
+	for it.Next() {
+		line := it.Value().(edisegment.Segment)
+		records = append(records, line.StringArray())
 	}
 	for _, line := range invoice.ServiceItems {
 		records = append(records, line.StringArray())
@@ -126,4 +109,18 @@ func (invoice Invoice858C) EDIString(logger Logger) (string, error) {
 // errors to be introspected individually.
 func (invoice Invoice858C) Validate() error {
 	return validate.Struct(invoice)
+}
+
+// validateLinkedHashMapElements will run validations on all of the elements of a linkedhashmap.Map
+func validateLinkedHashMapElements(sl validator.StructLevel) {
+	linkedHashMap := sl.Current().Interface().(linkedhashmap.Map)
+	it := linkedHashMap.Iterator()
+	for it.Next() {
+		key, value := it.Key(), it.Value()
+		err := validate.Struct(value)
+		if err != nil {
+			validationErrors := err.(validator.ValidationErrors)
+			sl.ReportValidationErrors("["+key.(string)+"].", "", validationErrors)
+		}
+	}
 }

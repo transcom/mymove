@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/emirpasic/gods/maps/linkedhashmap"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -95,7 +97,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	var edi858 ediinvoice.Invoice858C
-	edi858.Header = make(map[string]edisegment.Segment)
+	edi858.Header = linkedhashmap.New()
 	edi858.ISA = edisegment.ISA{
 		AuthorizationInformationQualifier: "00", // No authorization information
 		AuthorizationInformation:          "0084182369",
@@ -140,13 +142,13 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		ShipmentQualifier:            "4",
 	}
 
-	edi858.Header["BX_ShipmentInformation"] = &bx
+	edi858.Header.Put("BX_ShipmentInformation", &bx)
 
 	paymentRequestNumberSegment := edisegment.N9{
 		ReferenceIdentificationQualifier: "CN",
 		ReferenceIdentification:          paymentRequest.PaymentRequestNumber,
 	}
-	edi858.Header["N9_PaymentRequestNumber"] = &paymentRequestNumberSegment
+	edi858.Header.Put("N9_PaymentRequestNumber", &paymentRequestNumberSegment)
 
 	// contract code to header
 	var contractCodeServiceItemParam models.PaymentServiceItemParam
@@ -168,7 +170,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		ReferenceIdentificationQualifier: "CT",
 		ReferenceIdentification:          contractCodeServiceItemParam.Value,
 	}
-	edi858.Header["N9_ContractCode"] = &contractCodeSegment
+	edi858.Header.Put("N9_ContractCode", &contractCodeSegment)
 
 	// Add service member details to header
 	err = g.createServiceMemberDetailSegments(paymentRequest.ID, moveTaskOrder.Orders.ServiceMember, edi858.Header)
@@ -200,8 +202,8 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
 	}
-	edi858.Header["N1_BuyerOrganizationName"] = buyerNameSegment
-	edi858.Header["N1_SellerOrganizationName"] = sellerNameSegment
+	edi858.Header.Put("N1_BuyerOrganizationName", buyerNameSegment)
+	edi858.Header.Put("N1_SellerOrganizationName", sellerNameSegment)
 
 	// Add origin and destination details to header
 	var originDestinationSegments map[string]edisegment.Segment
@@ -210,7 +212,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		return ediinvoice.Invoice858C{}, err
 	}
 	for k, v := range originDestinationSegments {
-		edi858.Header[k] = v
+		edi858.Header.Put(k, v)
 	}
 
 	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems, moveTaskOrder.Orders)
@@ -221,7 +223,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	// the total NumberOfIncludedSegments is ST + SE + all segments other than GS, GE, ISA, and IEA
 	edi858.SE = edisegment.SE{
-		NumberOfIncludedSegments:    2 + len(edi858.Header) + len(edi858.ServiceItems),
+		NumberOfIncludedSegments:    2 + edi858.Header.Size() + len(edi858.ServiceItems),
 		TransactionSetControlNumber: "0001",
 	}
 
@@ -238,14 +240,14 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	return edi858, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(paymentRequestID uuid.UUID, serviceMember models.ServiceMember, headerSegments map[string]edisegment.Segment) error {
+func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(paymentRequestID uuid.UUID, serviceMember models.ServiceMember, headerSegments *linkedhashmap.Map) error {
 
 	// name
 	serviceMemberName := edisegment.N9{
 		ReferenceIdentificationQualifier: "1W",
 		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
 	}
-	headerSegments["N9_ServiceMemberName"] = &serviceMemberName
+	headerSegments.Put("N9_ServiceMemberName", &serviceMemberName)
 
 	// rank
 	rank := serviceMember.Rank
@@ -256,7 +258,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentificationQualifier: "ML",
 		ReferenceIdentification:          string(*rank),
 	}
-	headerSegments["N9_ServiceMemberRank"] = &serviceMemberRank
+	headerSegments.Put("N9_ServiceMemberRank", &serviceMemberRank)
 
 	// branch
 	branch := serviceMember.Affiliation
@@ -267,12 +269,12 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentificationQualifier: "3L",
 		ReferenceIdentification:          string(*branch),
 	}
-	headerSegments["N9_ServiceMemberBranch"] = &serviceMemberBranch
+	headerSegments.Put("N9_ServiceMemberBranch", &serviceMemberBranch)
 
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uuid.UUID, headerSegments map[string]edisegment.Segment) ([]edisegment.Segment, error) {
+func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uuid.UUID, headerSegments *linkedhashmap.Map) ([]edisegment.Segment, error) {
 	var g62Segments []edisegment.Segment
 
 	// Get all the shipments associated with this payment request's service items, ordered by shipment creation date.
@@ -304,7 +306,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 			DateQualifier: 10,
 			Date:          shipment.RequestedPickupDate.Format(dateFormat),
 		}
-		headerSegments["G62_RequestedPickupDate"] = &requestedPickupDateSegment
+		headerSegments.Put("G62_RequestedPickupDate", &requestedPickupDateSegment)
 	}
 
 	// Insert expected pickup date, if available.
@@ -313,7 +315,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 			DateQualifier: 76,
 			Date:          shipment.ScheduledPickupDate.Format(dateFormat),
 		}
-		headerSegments["G62_ScheduledPickupDate"] = &scheduledPickupDateSegment
+		headerSegments.Put("G62_ScheduledPickupDate", &scheduledPickupDateSegment)
 	}
 
 	// Insert expected pickup date, if available.
@@ -322,7 +324,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 			DateQualifier: 86,
 			Date:          shipment.ActualPickupDate.Format(dateFormat),
 		}
-		headerSegments["G62_ActualPickupDate"] = &actualPickupDateSegment
+		headerSegments.Put("G62_ActualPickupDate", &actualPickupDateSegment)
 	}
 
 	return g62Segments, nil
