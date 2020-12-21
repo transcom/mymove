@@ -50,7 +50,7 @@ These scripts are used to operate the system.
 ## Deployment Scripts
 
 This series of scripts allows you to quickly deploy the app manually (for example, should CircleCI be down).
-Run the scripts in this order with the environment you're deploying to (`exp`, `stg`, `prd`).
+Run the scripts in this order with the environment you're deploying to (`exp`, `stg`, `prd`) passed in as a variable.
 
 | Script Name             | Description                                                             |
 | ----------------------- | ----------------------------------------------------------------------- |

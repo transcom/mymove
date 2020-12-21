@@ -72,6 +72,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
     * [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
     * [Yarn install markdown-spell (aka mdspell)](#yarn-install-markdown-spell-aka-mdspell)
+  * [Manual Redeploys and Other Helpful Information in an Emergency](#manual-redeploys-and-other-helpful-information-in-an-emergency)
   * [PII Best Practices](#pii-best-practices)
     * [More about content dispositions](#more-about-content-dispositions)
     * [More about browser settings](#more-about-browser-settings)
@@ -605,6 +606,12 @@ cd ~/.config/yarn/global
 yarn cache clean
 yarn global add markdown-spellcheck
 ```
+
+### Manual Redeploys and Other Helpful Information in an Emergency
+
+Like many modern software developers, we rely on a number of external services to be responsible for certain repeatable processes. One obvious example is CircleCI, which we use for deployment. It's a great tool in many ways, and reduces the surface area of what we ourselves have to manage, ideally transferring associated risk. However, it opens us up to a different risk: namely, what happens if CircleCI goes down and we need to deploy our app? For this circumstance, we have a series of scripts that can be run manually. They live in the script directory, and you can find information about how to run them [in this README under the Deployment Scripts heading](scripts/README.md#deployment-scripts).
+
+Please add any other fear-inducing scenarios and our mitigation attempts here.
 
 ### PII Best Practices
 
