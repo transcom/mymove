@@ -24,6 +24,7 @@ import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 export class PpmLanding extends Component {
   componentDidMount() {
@@ -133,6 +134,8 @@ export class PpmLanding extends Component {
 
     return (
       <div className="grid-container">
+        <ConnectedFlashMessage />
+
         {isProfileComplete && (
           <PpmSummary
             entitlement={entitlement}

@@ -17,8 +17,9 @@ import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { setFlashMessage } from 'store/flash/actions';
+import { requestPayment } from 'services/internalApi';
 
-import { submitExpenseDocs } from '../ducks';
 import DocumentsUploaded from './DocumentsUploaded';
 import { calcNetWeight } from '../utility';
 import WizardHeader from '../../WizardHeader';
@@ -103,8 +104,10 @@ class PaymentReview extends Component {
 
   applyClickHandlers = () => {
     this.setState({ moveSubmissionError: false }, () =>
-      Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
+      Promise.all([this.submitCertificate(), requestPayment(this.props.currentPPM.id)])
         .then(() => {
+          this.props.setFlashMessage('REQUEST_PAYMENT_SUCCESS', 'success', '', 'Payment request submitted');
+
           // TODO: path may change to home after ppm integration with new home page
           this.props.history.push('/ppm');
         })
@@ -217,12 +220,12 @@ const mapStateToProps = (state, props) => {
 };
 
 const mapDispatchToProps = {
-  submitExpenseDocs,
   createSignedCertification,
   getMoveDocumentsForMove,
   getPpmWeightEstimate,
   loadPPMs,
   updatePPM,
+  setFlashMessage,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentReview);

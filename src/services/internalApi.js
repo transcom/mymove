@@ -211,3 +211,16 @@ export async function patchMTOShipment(mtoShipmentId, mtoShipment, ifMatchETag) 
     },
   );
 }
+
+/** PPMS */
+export async function requestPayment(ppmId) {
+  return makeInternalRequest(
+    'ppm.requestPPMPayment',
+    {
+      personallyProcuredMoveId: ppmId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
