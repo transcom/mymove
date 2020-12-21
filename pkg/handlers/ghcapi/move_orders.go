@@ -179,6 +179,11 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 		ordersTypeDetail = &orderTypeDetail
 	}
 
+	var branch *string
+	if payload.Branch != nil {
+		branch = (*string)(payload.Branch)
+	}
+
 	return models.Order{
 		DepartmentIndicator: departmentIndicator,
 		Entitlement:         &entitlement,

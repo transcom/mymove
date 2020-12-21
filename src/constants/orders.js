@@ -60,3 +60,12 @@ export const ORDERS_RANK_OPTIONS = {
   ACADEMY_CADET: 'Service Academy Cadet',
   MIDSHIPMAN: 'Midshipman',
 };
+
+export const ORDERS_BRANCH_OPTIONS = {
+  ARMY: 'Army',
+  NAVY: 'Navy',
+  MARINES: 'Marines',
+  AIR_FORCE: 'Air Force',
+  COAST_GUARD: 'Coast Guard',
+  OTHER: 'Other',
+};
