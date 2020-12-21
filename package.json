@@ -80,7 +80,7 @@
     "yup": "^0.32.8"
   },
   "resolutions": {
-    "babel-loader": "8.1.0",
+    "babel-loader": "8.2.2",
     "bl": "^4.0.3",
     "kind-of": "^6.0.2",
     "node-forge": "^0.10.0",
@@ -124,7 +124,7 @@
     "@storybook/preset-create-react-app": "^3.1.5",
     "@storybook/react": "^6.1.10",
     "@testing-library/react-hooks": "^3.7.0",
-    "babel-loader": "8.1.0",
+    "babel-loader": "8.2.2",
     "cypress": "^6.1.0",
     "cypress-audit": "^0.2.4",
     "cypress-wait-until": "^1.7.1",
