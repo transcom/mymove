@@ -6,6 +6,7 @@ import {
   UPDATE_MOVE,
   UPDATE_MTO_SHIPMENT,
   UPDATE_ORDERS,
+  UPDATE_PPM,
 } from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { addEntities } from 'shared/Entities/actions';
@@ -55,6 +56,16 @@ export function* updateMTOShipment(action) {
   yield put(addEntities(normalizedData));
 }
 
+export function* updatePPM(action) {
+  const { payload } = action;
+  const normalizedData = yield call(normalizeResponse, payload, 'personallyProcuredMove');
+  yield put(addEntities(normalizedData));
+  yield put({
+    type: 'CREATE_OR_UPDATE_PPM_SUCCESS',
+    payload,
+  });
+}
+
 export function* watchUpdateEntities() {
   yield all([
     takeLatest(UPDATE_SERVICE_MEMBER, updateServiceMember),
@@ -62,5 +73,6 @@ export function* watchUpdateEntities() {
     takeLatest(UPDATE_ORDERS, updateOrders),
     takeLatest(UPDATE_MOVE, updateMove),
     takeLatest(UPDATE_MTO_SHIPMENT, updateMTOShipment),
+    takeLatest(UPDATE_PPM, updatePPM),
   ]);
 }
