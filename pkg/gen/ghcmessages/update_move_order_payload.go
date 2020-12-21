@@ -22,8 +22,7 @@ type UpdateMoveOrderPayload struct {
 	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
 
 	// department indicator
-	// Required: true
-	DepartmentIndicator DeptIndicator `json:"departmentIndicator"`
+	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
 	// grade
 	Grade *Grade `json:"grade,omitempty"`
@@ -41,16 +40,14 @@ type UpdateMoveOrderPayload struct {
 	NewDutyStationID *strfmt.UUID `json:"newDutyStationId"`
 
 	// Orders Number
-	// Required: true
-	OrdersNumber *string `json:"ordersNumber"`
+	OrdersNumber *string `json:"ordersNumber,omitempty"`
 
 	// orders type
 	// Required: true
 	OrdersType OrdersType `json:"ordersType"`
 
 	// orders type detail
-	// Required: true
-	OrdersTypeDetail OrdersTypeDetail `json:"ordersTypeDetail"`
+	OrdersTypeDetail *OrdersTypeDetail `json:"ordersTypeDetail,omitempty"`
 
 	// origin duty station Id
 	// Required: true
@@ -68,8 +65,7 @@ type UpdateMoveOrderPayload struct {
 	Sac *string `json:"sac,omitempty"`
 
 	// TAC
-	// Required: true
-	Tac *string `json:"tac"`
+	Tac *string `json:"tac,omitempty"`
 }
 
 // Validate validates this update move order payload
@@ -96,10 +92,6 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateOrdersNumber(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateOrdersType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -113,10 +105,6 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateTac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -141,11 +129,17 @@ func (m *UpdateMoveOrderPayload) validateAuthorizedWeight(formats strfmt.Registr
 
 func (m *UpdateMoveOrderPayload) validateDepartmentIndicator(formats strfmt.Registry) error {
 
-	if err := m.DepartmentIndicator.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("departmentIndicator")
+	if swag.IsZero(m.DepartmentIndicator) { // not required
+		return nil
+	}
+
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("departmentIndicator")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -195,15 +189,6 @@ func (m *UpdateMoveOrderPayload) validateNewDutyStationID(formats strfmt.Registr
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateOrdersNumber(formats strfmt.Registry) error {
-
-	if err := validate.Required("ordersNumber", "body", m.OrdersNumber); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *UpdateMoveOrderPayload) validateOrdersType(formats strfmt.Registry) error {
 
 	if err := m.OrdersType.Validate(formats); err != nil {
@@ -218,11 +203,17 @@ func (m *UpdateMoveOrderPayload) validateOrdersType(formats strfmt.Registry) err
 
 func (m *UpdateMoveOrderPayload) validateOrdersTypeDetail(formats strfmt.Registry) error {
 
-	if err := m.OrdersTypeDetail.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("ordersTypeDetail")
+	if swag.IsZero(m.OrdersTypeDetail) { // not required
+		return nil
+	}
+
+	if m.OrdersTypeDetail != nil {
+		if err := m.OrdersTypeDetail.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ordersTypeDetail")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -248,15 +239,6 @@ func (m *UpdateMoveOrderPayload) validateReportByDate(formats strfmt.Registry) e
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMoveOrderPayload) validateTac(formats strfmt.Registry) error {
-
-	if err := validate.Required("tac", "body", m.Tac); err != nil {
 		return err
 	}
 

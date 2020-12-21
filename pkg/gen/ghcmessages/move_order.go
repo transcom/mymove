@@ -32,7 +32,7 @@ type MoveOrder struct {
 	DateIssued strfmt.Date `json:"date_issued,omitempty"`
 
 	// department indicator
-	DepartmentIndicator DeptIndicator `json:"department_indicator,omitempty"`
+	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
@@ -72,7 +72,7 @@ type MoveOrder struct {
 	OrderType OrdersType `json:"order_type,omitempty"`
 
 	// order type detail
-	OrderTypeDetail OrdersTypeDetail `json:"order_type_detail,omitempty"`
+	OrderTypeDetail *OrdersTypeDetail `json:"order_type_detail,omitempty"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
@@ -189,11 +189,13 @@ func (m *MoveOrder) validateDepartmentIndicator(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.DepartmentIndicator.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("department_indicator")
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("department_indicator")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -301,11 +303,13 @@ func (m *MoveOrder) validateOrderTypeDetail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.OrderTypeDetail.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("order_type_detail")
+	if m.OrderTypeDetail != nil {
+		if err := m.OrderTypeDetail.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("order_type_detail")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

@@ -2,6 +2,7 @@ export const UPDATE_SERVICE_MEMBER = 'UPDATE_SERVICE_MEMBER';
 export const UPDATE_BACKUP_CONTACT = 'UPDATE_BACKUP_CONTACT';
 export const UPDATE_MOVE = 'UPDATE_MOVE';
 export const UPDATE_MTO_SHIPMENT = 'UPDATE_MTO_SHIPMENT';
+export const UPDATE_ORDERS = 'UPDATE_ORDERS';
 
 export const updateServiceMember = (payload) => ({
   type: UPDATE_SERVICE_MEMBER,
@@ -20,5 +21,10 @@ export const updateMove = (payload) => ({
 
 export const updateMTOShipment = (payload) => ({
   type: UPDATE_MTO_SHIPMENT,
+  payload,
+});
+
+export const updateOrders = (payload) => ({
+  type: UPDATE_ORDERS,
   payload,
 });

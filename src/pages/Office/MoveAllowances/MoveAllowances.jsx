@@ -69,16 +69,12 @@ const MoveAllowances = () => {
   const onSubmit = (values) => {
     const { grade, authorizedWeight } = values;
     const body = {
-      departmentIndicator: moveOrder.department_indicator,
       issueDate: moveOrder.date_issued,
       newDutyStationId: moveOrder.destinationDutyStation.id,
       ordersNumber: moveOrder.order_number,
       ordersType: moveOrder.order_type,
-      ordersTypeDetail: moveOrder.order_type_detail,
       originDutyStationId: moveOrder.originDutyStation.id,
       reportByDate: moveOrder.report_by_date,
-      sac: moveOrder.sac,
-      tac: moveOrder.tac,
       grade,
       authorizedWeight: Number(authorizedWeight),
     };

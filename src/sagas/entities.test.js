@@ -6,9 +6,16 @@ import {
   updateBackupContact,
   updateMove,
   updateMTOShipment,
+  updateOrders,
 } from './entities';
 
-import { UPDATE_SERVICE_MEMBER, UPDATE_BACKUP_CONTACT, UPDATE_MOVE, UPDATE_MTO_SHIPMENT } from 'store/entities/actions';
+import {
+  UPDATE_SERVICE_MEMBER,
+  UPDATE_BACKUP_CONTACT,
+  UPDATE_MOVE,
+  UPDATE_MTO_SHIPMENT,
+  UPDATE_ORDERS,
+} from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { addEntities } from 'shared/Entities/actions';
 
@@ -20,6 +27,7 @@ describe('watchUpdateEntities', () => {
       all([
         takeLatest(UPDATE_SERVICE_MEMBER, updateServiceMember),
         takeLatest(UPDATE_BACKUP_CONTACT, updateBackupContact),
+        takeLatest(UPDATE_ORDERS, updateOrders),
         takeLatest(UPDATE_MOVE, updateMove),
         takeLatest(UPDATE_MTO_SHIPMENT, updateMTOShipment),
       ]),
@@ -180,6 +188,72 @@ describe('updateMTOShipment', () => {
 
   it('stores the normalized data in entities', () => {
     expect(generator.next(normalizedMove).value).toEqual(put(addEntities(normalizedMove)));
+  });
+
+  it('is done', () => {
+    expect(generator.next().done).toEqual(true);
+  });
+});
+
+describe('updateOrders', () => {
+  const testAction = {
+    payload: {
+      created_at: '2020-12-17T15:54:48.853Z',
+      has_dependents: false,
+      id: 'ef45eb5a-c1bf-4c60-9c22-990500b6badc',
+      issue_date: '2020-12-22',
+      moves: [
+        {
+          created_at: '2020-12-17T15:54:48.873Z',
+          id: '0ff5ec27-57be-4760-a87f-42998aa94caf',
+          locator: 'C8PFDW',
+          orders_id: 'ef45eb5a-c1bf-4c60-9c22-990500b6badc',
+          selected_move_type: '',
+          service_member_id: '15a17300-e1c6-4b3a-8e5d-9c47782a3961',
+          status: 'DRAFT',
+          updated_at: '2020-12-17T15:54:48.873Z',
+        },
+      ],
+      new_duty_station: {
+        address: {
+          city: 'Glendale Luke AFB',
+          country: 'United States',
+          id: 'ce6ec9a4-1bad-4fb3-8b3c-89ebee54e8cf',
+          postal_code: '85309',
+          state: 'AZ',
+          street_address_1: 'n/a',
+        },
+        address_id: 'ce6ec9a4-1bad-4fb3-8b3c-89ebee54e8cf',
+        affiliation: 'AIR_FORCE',
+        created_at: '2020-12-07T17:02:33.987Z',
+        id: '9e1b519e-6daa-4c3f-8cfe-413c582b6366',
+        name: 'Luke AFB',
+        updated_at: '2020-12-07T17:02:33.987Z',
+      },
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      report_by_date: '2020-12-28',
+      service_member_id: '15a17300-e1c6-4b3a-8e5d-9c47782a3961',
+      spouse_has_pro_gear: false,
+      status: 'DRAFT',
+      updated_at: '2020-12-17T15:54:48.853Z',
+      uploaded_orders: {
+        id: '251ea83d-4295-4105-9780-3ae2d6549872',
+        service_member_id: '15a17300-e1c6-4b3a-8e5d-9c47782a3961',
+        uploads: [],
+      },
+    },
+  };
+
+  const normalizedOrders = normalizeResponse(testAction.payload, 'orders');
+
+  const generator = updateOrders(testAction);
+
+  it('normalizes the payload', () => {
+    expect(generator.next().value).toEqual(call(normalizeResponse, testAction.payload, 'orders'));
+  });
+
+  it('stores the normalized data in entities', () => {
+    expect(generator.next(normalizedOrders).value).toEqual(put(addEntities(normalizedOrders)));
   });
 
   it('is done', () => {

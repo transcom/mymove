@@ -71,9 +71,8 @@ describe('Orders page', () => {
     };
 
     const testProps = {
-      fetchLatestOrders: jest.fn(),
       updateOrders: jest.fn(),
-      createOrders: jest.fn(),
+      updateServiceMember: jest.fn(),
       history: mockHistory,
       pages: [],
       pageKey: '',
@@ -91,7 +90,7 @@ describe('Orders page', () => {
     });
 
     it('does not fetch latest orders on mount', () => {
-      expect(testProps.fetchLatestOrders).not.toHaveBeenCalled();
+      expect(testProps.updateOrders).not.toHaveBeenCalled();
     });
   });
 

@@ -106,6 +106,44 @@ export async function patchBackupContact(backupContact) {
   );
 }
 
+/** ORDERS */
+export async function getOrdersForServiceMember(serviceMemberId) {
+  return makeInternalRequest(
+    'service_members.showServiceMemberOrders',
+    {
+      serviceMemberId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createOrders(orders) {
+  return makeInternalRequest(
+    'orders.createOrders',
+    {
+      createOrders: orders,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchOrders(orders) {
+  return makeInternalRequest(
+    'orders.updateOrders',
+    {
+      ordersId: orders.id,
+      updateOrders: orders,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 /** MOVES */
 export async function getMove(moveId) {
   return makeInternalRequest(

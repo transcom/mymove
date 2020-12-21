@@ -23,7 +23,7 @@ registerPlugin(FilePondImagePreview);
 
 const idleStatuses = [FileStatus.PROCESSING_COMPLETE, FileStatus.PROCESSING_ERROR];
 
-export class OrdersUploader extends Component {
+class OrdersUploader extends Component {
   constructor(props) {
     super(props);
 

@@ -24,7 +24,7 @@ type QueuePaymentRequest struct {
 	Customer *Customer `json:"customer,omitempty"`
 
 	// department indicator
-	DepartmentIndicator DeptIndicator `json:"departmentIndicator,omitempty"`
+	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
 	// id
 	// Format: uuid
@@ -110,11 +110,13 @@ func (m *QueuePaymentRequest) validateDepartmentIndicator(formats strfmt.Registr
 		return nil
 	}
 
-	if err := m.DepartmentIndicator.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("departmentIndicator")
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("departmentIndicator")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
