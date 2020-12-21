@@ -513,23 +513,6 @@ jobs:
             - ~/.cache/yarn/v3
       - announce_failure
 
-  pre_deps_cypress:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
-      - run:
-          name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile
-      # `v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}` is used to cache yarn sources
-      - save_cache:
-          key: v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
-          paths:
-            - ~/.cache/cypress/yarn/v1
-      - announce_failure
-
   # `check_generated_code` is used to ensure generated code doesn't change
   check_generated_code:
     executor: mymove_medium
@@ -656,9 +639,6 @@ jobs:
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run:
@@ -692,7 +672,7 @@ jobs:
           path: cypress/results
       - announce_failure
 
-  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
+  # `integration_tests_mtls` runs integration tests using prime-api-client
   integration_tests_mtls:
     executor: mymove_medium_plus
     steps:
@@ -1290,13 +1270,10 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - pre_deps_cypress
-
       - integration_tests:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-            - pre_deps_cypress
             - check_generated_code
             - push_app_legacy
             - push_app_stg
