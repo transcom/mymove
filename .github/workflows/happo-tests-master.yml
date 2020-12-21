@@ -2,7 +2,7 @@ name: Happo CI (master)
 
 on:
   push:
-    branches: [master, sr-happo-fix-gh]
+    branches: [master]
 
 jobs:
   happo:
