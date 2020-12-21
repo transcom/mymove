@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './SelectableCard.module.scss';
 
 const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, checked, onHelpClick }) => {
-  // no op
   return (
     <div className={classnames(styles.cardContainer, { [styles.selected]: checked })}>
       <div className={styles.cardTitle}>
