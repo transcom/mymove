@@ -184,23 +184,32 @@ const cypressUpdateChecks = async () => {
   // check if relevant package.jsons have changed
   const rootPackageFile = 'package.json';
   const rootPackageChanged = allFiles.includes(rootPackageFile);
-  const cypressPackageName = '"cypress":';
+  const cypressPackageNames = [
+    '"cypress":',
+    '"cypress-audit":',
+    '"cypress-multi-reporters":',
+    '"cypress-wait-until":',
+    '"mocha":',
+    '"mocha-junit-reporter":',
+    '"moment":',
+  ];
 
   let hasRootCypressDepChanged = false;
 
   // if root changed, check for cypress in diff
   if (rootPackageChanged) {
     const rootPackageDiff = await danger.git.diffForFile(rootPackageFile);
-    if (rootPackageDiff && rootPackageDiff.diff.includes(cypressPackageName)) {
-      hasRootCypressDepChanged = true;
-    }
+    cypressPackageNames.forEach((cypressPackageName) => {
+      if (hasRootCypressDepChanged || (rootPackageDiff && rootPackageDiff.diff.includes(cypressPackageName))) {
+        hasRootCypressDepChanged = true;
+      }
+    });
   }
 
   if (hasRootCypressDepChanged) {
     warn(
-      `It looks like you updated the Cypress package dependency in one of two
-required places. Please update it in both the root package.json and the cirlcleci-docker/milmove-cypress/
-folder's separate package.json`,
+      `It looks like you updated the Cypress package dependency in one of two required places.
+Please update it in both the root package.json and the [cirlcleci-docker/milmove-cypress/](https://github.com/transcom/circleci-docker) folder's separate package.json`,
     );
   }
 };
