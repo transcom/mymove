@@ -108,7 +108,6 @@ export class PpmLanding extends Component {
       orders,
       move,
       ppm,
-      requestPaymentSuccess,
       location,
     } = this.props;
 
@@ -146,7 +145,6 @@ export class PpmLanding extends Component {
             editMove={this.editMove}
             resumeMove={this.resumeMove}
             reviewProfile={this.reviewProfile}
-            requestPaymentSuccess={requestPaymentSuccess}
           />
         )}
       </div>
@@ -191,7 +189,6 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     entitlement: loadEntitlementsFromState(state),
-    requestPaymentSuccess: state.ppm.requestPaymentSuccess,
   };
   return props;
 };
