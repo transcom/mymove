@@ -9,6 +9,9 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// Note: we’ll need to remove this in the future when we
+// integrate with the Rand McNally API instead of the database table.
+
 // Zip3Distance model struct
 type Zip3Distance struct {
 	ID            uuid.UUID `json:"id" db:"id"`
@@ -20,7 +23,7 @@ type Zip3Distance struct {
 }
 
 // Zip3Distances is not required by pop and may be deleted
-type Zip3Distances []Zip3Distances
+type Zip3Distances []Zip3Distance
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
