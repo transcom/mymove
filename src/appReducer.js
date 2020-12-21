@@ -5,6 +5,7 @@ import { adminReducer } from 'react-admin';
 import defaultMessages from 'ra-language-english';
 
 import authReducer from 'store/auth/reducer';
+import onboardingReducer from 'store/onboarding/reducer';
 import flashReducer from 'store/flash/reducer';
 import userReducer from 'shared/Data/users';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
@@ -38,6 +39,7 @@ const defaultReducers = {
 export const appReducer = (history) =>
   combineReducers({
     ...defaultReducers,
+    onboarding: onboardingReducer,
     router: connectRouter(history),
     swaggerInternal: swaggerReducerInternal,
     moves: moveReducer,

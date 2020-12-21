@@ -1,13 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
+
+import styles from './PpmMoveDetails.module.scss';
+
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'shared/formatters';
 import { formatIncentiveRange } from 'shared/incentive';
 import { selectPPMEstimateRange, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-import styles from './PpmMoveDetails.module.scss';
+import { selectCurrentMove } from 'store/entities/selectors';
 
 const SubmittedPpmMoveDetails = (props) => {
   const { advance, ppm, currentPPM, tempCurrentPPM, hasEstimateError, estimateRange } = props;
@@ -46,12 +49,13 @@ const SubmittedPpmMoveDetails = (props) => {
 };
 
 const mapStateToProps = (state, ownProps) => {
+  const currentMove = selectCurrentMove(state);
   const advance = selectReimbursement(state, ownProps.ppm.advance);
   const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
     'WEIGHT_TICKET_SET',
   ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
-  const moveID = state.moves.currentMove.id;
-  let currentPPM = selectActivePPMForMove(state, moveID);
+
+  let currentPPM = selectActivePPMForMove(state, currentMove?.id);
   let tempCurrentPPM = get(state, 'ppm.currentPpm');
   if (isEmpty(currentPPM) && isEmpty(tempCurrentPPM)) {
     currentPPM = {};

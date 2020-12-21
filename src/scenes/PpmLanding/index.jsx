@@ -1,14 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { withLastLocation } from 'react-router-last-location';
 
 import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
-import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectIsProfileComplete,
+  selectCurrentOrders,
+  selectCurrentMove,
+  selectHasCanceledMove,
+  selectMoveType,
+} from 'store/entities/selectors';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
@@ -18,9 +23,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
-import { loadMTOShipments, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
+import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
 
 export class PpmLanding extends Component {
   componentDidMount() {
@@ -76,7 +79,6 @@ export class PpmLanding extends Component {
       lastMoveIsCanceled,
       serviceMember,
       orders,
-      uploads,
       move,
       ppm,
       backupContacts,
@@ -87,7 +89,6 @@ export class PpmLanding extends Component {
       lastMoveIsCanceled,
       serviceMember,
       orders,
-      uploads,
       move,
       ppm,
       backupContacts,
@@ -171,18 +172,16 @@ PpmLanding.defaultProps = {
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const move = selectActiveOrLatestMove(state);
+  const move = selectCurrentMove(state) || {};
 
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
-    selectedMoveType: selectedMoveType(state),
+    lastMoveIsCanceled: selectHasCanceledMove(state),
+    selectedMoveType: selectMoveType(state),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
-    orders: selectActiveOrLatestOrders(state),
-    uploads: selectUploadsForActiveOrders(state),
+    orders: selectCurrentOrders(state) || {},
     move: move,
     ppm: getPPM(state),
     loggedInUser: user,

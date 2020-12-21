@@ -6,7 +6,7 @@ import SaveCancelButtons from './SaveCancelButtons';
 import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
@@ -17,12 +17,12 @@ import {
   updatePPMEstimate,
   getPpmWeightEstimate,
 } from 'shared/Entities/modules/ppms';
-import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
+import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
 
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
@@ -332,19 +332,19 @@ class EditWeight extends Component {
 }
 
 function mapStateToProps(state) {
-  const moveID = state.moves.currentMove.id;
+  const currentMove = selectCurrentMove(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
 
   return {
     serviceMemberId,
-    currentPPM: selectActivePPMForMove(state, moveID),
+    currentPPM: selectActivePPMForMove(state, currentMove?.id),
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
-    orders: selectActiveOrLatestOrders(state),
+    orders: selectCurrentOrders(state) || {},
   };
 }
 

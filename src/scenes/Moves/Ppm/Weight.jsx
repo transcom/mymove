@@ -16,7 +16,7 @@ import {
   getPpmWeightEstimate,
   selectPPMEstimateRange,
 } from 'shared/Entities/modules/ppms';
-import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
+import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
@@ -28,7 +28,7 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -416,9 +416,10 @@ PpmWeight.propTypes = {
 };
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const currentMove = selectCurrentMove(state);
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
   const originDutyStationZip = serviceMember?.current_station?.address?.postal_code;
-  const moveID = state.moves.currentMove.id;
+  const moveID = currentMove?.id;
   const serviceMemberId = serviceMember?.id;
 
   const props = {
@@ -430,7 +431,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
-    orders: selectActiveOrLatestOrders(state),
+    orders: selectCurrentOrders(state) || {},
     // TODO this is a work around till we refactor more SM data...
     tempCurrentPPM: get(state, 'ppm.currentPpm'),
   };

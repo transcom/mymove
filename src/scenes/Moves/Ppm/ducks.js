@@ -1,9 +1,12 @@
 import { get, isEmpty } from 'lodash';
+import { change } from 'redux-form';
+
 import { GetPpm, RequestPayment } from './api.js';
+
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
-import { change } from 'redux-form';
+import { selectCurrentMove } from 'store/entities/selectors';
 
 // Types
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
@@ -69,7 +72,7 @@ export function getMaxAdvance(state) {
 }
 
 export function getPPM(state) {
-  const move = state.moves.currentMove || state.moves.latestMove || {};
+  const move = selectCurrentMove(state) || {};
   const moveId = move.id;
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
   const tempPPM = state.ppm.currentPpm;
