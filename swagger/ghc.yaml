@@ -1575,19 +1575,45 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      orders_id:
+      availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      contractorId:
+        type: string
+        format: uuid
+        x-nullable: true
+      locator:
+        type: string
+        example: '1K43AR'
+      ordersId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      locator:
+      referenceId:
+        example: 1001-3456
         type: string
-        example: '1K43A'
+        x-nullable: true
+      status:
+        $ref: '#/definitions/MoveStatus'
       created_at:
         type: string
         format: date-time
+      submitted_at:
+        type: string
+        format: date-time
+        x-nullable: true
       updated_at:
         type: string
         format: date-time
+  MoveStatus:
+    type: string
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVALS REQUESTED
+      - APPROVED
+      - CANCELED
   DeptIndicator:
     type: string
     title: Dept. indicator
