@@ -17,7 +17,7 @@ jobs:
           echo ${{ github.ref }}
           echo ${{ github.base_ref }}
       - uses: dorny/paths-filter@v2
-        id: filter
+        id: filterfix-
         with:
           filters: |
             frontend:
@@ -36,6 +36,8 @@ jobs:
 
       - name: Set up node
         uses: actions/setup-node@v1
+        with:
+          node-version: '12.16.3'
 
       - name: Install dependencies
         run: yarn install
