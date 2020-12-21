@@ -2693,6 +2693,16 @@ func init() {
     },
     "Move": {
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
@@ -2704,12 +2714,25 @@ func init() {
         },
         "locator": {
           "type": "string",
-          "example": "1K43A"
+          "example": "1K43AR"
         },
-        "orders_id": {
+        "ordersId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "referenceId": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "updated_at": {
           "type": "string",
@@ -2828,6 +2851,16 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveOrder"
       }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVALS REQUESTED",
+        "APPROVED",
+        "CANCELED"
+      ]
     },
     "MoveTaskOrder": {
       "type": "object",
@@ -6703,6 +6736,16 @@ func init() {
     },
     "Move": {
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
@@ -6714,12 +6757,25 @@ func init() {
         },
         "locator": {
           "type": "string",
-          "example": "1K43A"
+          "example": "1K43AR"
         },
-        "orders_id": {
+        "ordersId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "referenceId": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "updated_at": {
           "type": "string",
@@ -6838,6 +6894,16 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveOrder"
       }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVALS REQUESTED",
+        "APPROVED",
+        "CANCELED"
+      ]
     },
     "MoveTaskOrder": {
       "type": "object",
