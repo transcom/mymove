@@ -1,4 +1,4 @@
-name: Happo CI
+name: Happo CI (master)
 
 on:
   push:
