@@ -9,9 +9,10 @@ import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/moveOrder';
 import { formatWeight, formatDaysInTransit } from 'shared/formatters';
 
-const AllowancesDetailForm = ({ entitlements, rankOptions }) => {
+const AllowancesDetailForm = ({ entitlements, rankOptions, branchOptions }) => {
   return (
     <div className={styles.AllowancesDetailForm}>
+      <DropdownInput name="branch" label="Branch" options={branchOptions} showDropdownPlaceholderText={false} />
       <DropdownInput name="grade" label="Rank" options={rankOptions} showDropdownPlaceholderText={false} />
       <TextMaskedInput
         defaultValue="0"
@@ -51,6 +52,7 @@ const AllowancesDetailForm = ({ entitlements, rankOptions }) => {
 AllowancesDetailForm.propTypes = {
   entitlements: EntitlementShape.isRequired,
   rankOptions: DropdownArrayOf.isRequired,
+  branchOptions: DropdownArrayOf.isRequired,
 };
 
 export default AllowancesDetailForm;

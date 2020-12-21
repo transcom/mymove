@@ -1507,6 +1507,24 @@ definitions:
     required:
       - message
     type: object
+  Branch:
+    type: string
+    x-nullable: true
+    title: branch
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marines
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      OTHER: OTHER
   Grade:
     type: string
     x-nullable: true
@@ -1682,6 +1700,8 @@ definitions:
         readOnly: true
       grade:
         $ref: '#/definitions/Grade'
+      branch:
+        $ref: '#/definitions/Branch'
       agency:
         type: string
         example: civilian
@@ -1794,6 +1814,8 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      branch:
+        $ref: '#/definitions/Branch'
       dependentsAuthorized:
         type: boolean
         x-nullable: true
