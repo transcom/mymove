@@ -1,12 +1,12 @@
-FROM cypress/base:12
+FROM milmove/circleci-docker:milmove-cypress
 
-COPY package.json /package.json
-COPY yarn.lock /yarn.lock
-RUN yarn install
+COPY . ./cypress
+COPY cypress.json ./cypress.json
+COPY mocha-reporter-config.json ./mocha-reporter-config.json
 
-COPY . /cypress
-COPY cypress.json /cypress.json
-COPY mocha-reporter-config.json /mocha-reporter-config.json
+USER root
+RUN chown -R circleci:circleci ./cypress cypress.json mocha-reporter-config.json
+USER circleci
 
-ENTRYPOINT ["/node_modules/.bin/cypress"]
+ENTRYPOINT ["./node_modules/.bin/cypress"]
 CMD ["run"]
