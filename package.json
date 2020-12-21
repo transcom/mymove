@@ -108,7 +108,7 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "happo": "happo",
-    "happo-ci": "HAPPO_IS_ASYNC=true happo-ci-circleci",
+    "happo-ci-github-actions": "happo-ci-github-actions",
     "spellcheck": "mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions"
   },
   "version": "0.1.0",
