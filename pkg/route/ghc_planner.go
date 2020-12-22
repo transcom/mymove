@@ -31,7 +31,7 @@ func (p *ghcPlanner) Zip5TransitDistanceLineHaul(source string, destination stri
 	panic("implement me")
 }
 
-// Zip3TransitDistance calculates the distance between two valid Zip3s
+// Zip5TransitDistance calculates the distance between two valid Zip5s
 func (p *ghcPlanner) Zip5TransitDistance(source string, destination string) (int, error) {
 	// Placeholder for the DTOD-based zip5-to-zip5 distance. This will be determined by making
 	// a SOAP call to DTOD using the provided source/destination zip5 and returning the
@@ -43,7 +43,7 @@ func (p *ghcPlanner) Zip5TransitDistance(source string, destination string) (int
 	panic("implement me")
 }
 
-// Zip5TransitDistance calculates the distance between two valid Zip5s
+// Zip3TransitDistance calculates the distance between two valid Zip3s
 func (p *ghcPlanner) Zip3TransitDistance(source string, destination string) (int, error) {
 	// Placeholder for the RM-based zip3-to-zip3 distance. This will be determined by reading the
 	// zip3_distances table using the provided source/destination zip3 and returning the associated
