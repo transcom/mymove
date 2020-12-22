@@ -13,11 +13,12 @@ import (
 
 // RandMcNallyPlannerServiceSuite is a suite for testing Rand McNally planner
 type RandMcNallyPlannerServiceSuite struct {
-	testingsuite.BaseTestSuite
+	testingsuite.PopTestSuite
 	logger Logger
 }
 
 func (suite *RandMcNallyPlannerServiceSuite) SetupTest() {
+	suite.DB().TruncateAll()
 }
 
 func TestRandMcNallyPlannerServiceSuite(t *testing.T) {
@@ -26,6 +27,10 @@ func TestRandMcNallyPlannerServiceSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	testSuite := &RandMcNallyPlannerServiceSuite{logger: logger}
+	testSuite := &RandMcNallyPlannerServiceSuite{
+		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		logger,
+	}
 	suite.Run(t, testSuite)
+	testSuite.PopTestSuite.TearDown()
 }
