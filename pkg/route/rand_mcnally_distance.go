@@ -8,14 +8,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func randMcNallyZip3Distance(db *pop.Connection, pickupZip string, destinationZip string) (int, error) {
+func randMcNallyZip3Distance(db *pop.Connection, fromZip3 string, toZip3 string) (int, error) {
 	var distance models.Zip3Distance
-	if pickupZip == destinationZip {
-		return 0, fmt.Errorf("pickupZip (%s) cannot be the same as destinationZip (%s)", pickupZip, destinationZip)
-	} else if pickupZip > destinationZip {
-		db.Where("from_zip3 = ? and to_zip3 = ?", destinationZip, pickupZip).First(&distance)
+	if fromZip3 == toZip3 {
+		return 0, fmt.Errorf("fromZip3 (%s) cannot be the same as toZip3 (%s)", fromZip3, toZip3)
+	} else if fromZip3 > toZip3 {
+		db.Where("from_zip3 = ? and to_zip3 = ?", toZip3, fromZip3).First(&distance)
 	} else {
-		db.Where("from_zip3 = ? and to_zip3 = ?", pickupZip, destinationZip).First(&distance)
+		db.Where("from_zip3 = ? and to_zip3 = ?", fromZip3, toZip3).First(&distance)
 	}
 	return distance.DistanceMiles, nil
 }
