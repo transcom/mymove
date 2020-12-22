@@ -14,7 +14,6 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/dustin/go-humanize v1.0.0
-	github.com/emirpasic/gods v1.12.0
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a
 	github.com/felixge/httpsnoop v1.0.1
 	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a
