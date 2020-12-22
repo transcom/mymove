@@ -90,7 +90,7 @@ describe('TXO Move Info Container', () => {
 
       const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/mto');
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/mto');
     });
 
     it('should handle the Move Payment Requests route', () => {
