@@ -2,7 +2,6 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -36,7 +35,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		IsCanceled:         moveTaskOrder.IsCanceled(),
 		MoveOrder:          MoveOrder(&moveTaskOrder.Orders),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
-		ContractorID:       strfmt.UUID(moveTaskOrder.ContractorID.String()),
+		ContractorID:       handlers.FmtUUIDPtr(moveTaskOrder.ContractorID),
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
@@ -61,13 +60,13 @@ func Customer(customer *models.ServiceMember) *supportmessages.Customer {
 		return nil
 	}
 	payload := supportmessages.Customer{
-		Agency:         swag.StringValue((*string)(customer.Affiliation)),
+		Agency:         (*string)(customer.Affiliation),
 		CurrentAddress: Address(customer.ResidentialAddress),
-		DodID:          swag.StringValue(customer.Edipi),
+		DodID:          customer.Edipi,
 		Email:          customer.PersonalEmail,
-		FirstName:      swag.StringValue(customer.FirstName),
+		FirstName:      customer.FirstName,
 		ID:             strfmt.UUID(customer.ID.String()),
-		LastName:       swag.StringValue(customer.LastName),
+		LastName:       customer.LastName,
 		Phone:          customer.Telephone,
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
@@ -102,13 +101,13 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
 		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
 		UploadedOrders:           uploadedOrders,
-		UploadedOrdersID:         strfmt.UUID(uploadedOrders.ID.String()),
+		UploadedOrdersID:         uploadedOrders.ID,
 		ReportByDate:             &reportByDate,
 		IssueDate:                &issueDate,
 	}
 
 	if moveOrder.Grade != nil {
-		payload.Rank = moveOrder.Grade
+		payload.Rank = (supportmessages.Rank)(*moveOrder.Grade)
 	}
 	return &payload
 }

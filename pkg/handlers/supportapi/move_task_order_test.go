@@ -1,6 +1,7 @@
 package supportapi
 
 import (
+	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -225,9 +226,18 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
+		// We delete these because these objects should come from DB, we should not send them
+		mtoPayload.MoveOrder.Customer = nil
+		mtoPayload.MoveOrder.DestinationDutyStation = nil
+		mtoPayload.MoveOrder.OriginDutyStation = nil
+		// We provide the ids to link the correct objects
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
 		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
 		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(originDutyStation.ID.String())
+
+		output, _ := mtoPayload.MarshalJSON()
+		fmt.Println(string(output))
+
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
@@ -236,6 +246,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		handler := CreateMoveTaskOrderHandler{context,
 			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
+		// CALL FUNCTION UNDER TEST
+
 		response := handler.Handle(params)
 
 		suite.IsType(&movetaskorderops.CreateMoveTaskOrderCreated{}, response)

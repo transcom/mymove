@@ -32,8 +32,9 @@ type MoveTaskOrder struct {
 
 	// ID associated with the contractor, in this case Prime
 	//
+	// Required: true
 	// Format: uuid
-	ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+	ContractorID *strfmt.UUID `json:"contractorID"`
 
 	// Date the MoveTaskOrder was created on.
 	// Read Only: true
@@ -113,7 +114,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
-		ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+		ContractorID *strfmt.UUID `json:"contractorID"`
 
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -227,7 +228,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
-		ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+		ContractorID *strfmt.UUID `json:"contractorID"`
 
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -379,8 +380,8 @@ func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) erro
 
 func (m *MoveTaskOrder) validateContractorID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ContractorID) { // not required
-		return nil
+	if err := validate.Required("contractorID", "body", m.ContractorID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("contractorID", "body", "uuid", m.ContractorID.String(), formats); err != nil {
