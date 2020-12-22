@@ -560,7 +560,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetPlanner(routePlanner)
 
 	// Create a secondary planner specifically for GHC.
-	ghcRoutePlanner := route.InitGHCRoutePlanner(v, logger)
+	ghcRoutePlanner := route.InitGHCRoutePlanner(v, dbConnection, logger)
 	handlerContext.SetGHCPlanner(ghcRoutePlanner)
 
 	// Set SendProductionInvoice for ediinvoice
