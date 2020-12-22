@@ -1509,7 +1509,6 @@ definitions:
     type: object
   Branch:
     type: string
-    x-nullable: true
     title: branch
     enum:
       - ARMY
@@ -1679,6 +1678,7 @@ definitions:
       agency:
         type: string
         example: civilian
+        $ref: '#/definitions/Branch'
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
@@ -1788,7 +1788,8 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
-      branch:
+      agency:
+        description: the branch that the service member belongs to
         $ref: '#/definitions/Branch'
     required:
       - issueDate
@@ -1796,6 +1797,7 @@ definitions:
       - ordersType
       - newDutyStationId
       - originDutyStationId
+      - agency
   MoveTaskOrder:
     properties:
       id:

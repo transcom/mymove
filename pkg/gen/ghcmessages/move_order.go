@@ -18,7 +18,10 @@ import (
 type MoveOrder struct {
 
 	// agency
-	Agency string `json:"agency,omitempty"`
+	Agency Branch `json:"agency,omitempty"`
+
+	// branch
+	Branch Branch `json:"branch,omitempty"`
 
 	// confirmation number
 	ConfirmationNumber string `json:"confirmation_number,omitempty"`
@@ -99,6 +102,14 @@ type MoveOrder struct {
 func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAgency(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateBranch(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCustomerID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -154,6 +165,38 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveOrder) validateAgency(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Agency) { // not required
+		return nil
+	}
+
+	if err := m.Agency.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("agency")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateBranch(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Branch) { // not required
+		return nil
+	}
+
+	if err := m.Branch.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("branch")
+		}
+		return err
+	}
+
 	return nil
 }
 

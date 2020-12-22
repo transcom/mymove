@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -98,6 +99,8 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 	newOrder.ID = orderID
 
 	updatedOrder, err := h.moveOrderUpdater.UpdateMoveOrder(orderID, params.IfMatch, newOrder)
+	fmt.Printf("updatedOrder: %v", updatedOrder.ServiceMember.Affiliation)
+
 	if err != nil {
 		logger.Error("error updating move order", zap.Error(err))
 		switch err.(type) {
@@ -179,12 +182,14 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 		ordersTypeDetail = &orderTypeDetail
 	}
 
-	var branch *string
-	if payload.Branch != nil {
-		branch = (*string)(payload.Branch)
+	var serviceMember models.ServiceMember
+	if payload.Agency != "" {
+		serviceMemberAffiliation := models.ServiceMemberAffiliation(payload.Agency)
+		serviceMember.Affiliation = &serviceMemberAffiliation
 	}
 
-	return models.Order{
+	updatedOrder := models.Order{
+		ServiceMember:       serviceMember,
 		DepartmentIndicator: departmentIndicator,
 		Entitlement:         &entitlement,
 		Grade:               grade,
@@ -197,5 +202,8 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 		ReportByDate:        time.Time(*payload.ReportByDate),
 		SAC:                 payload.Sac,
 		TAC:                 payload.Tac,
-	}, nil
+	}
+
+	return updatedOrder, nil
+
 }

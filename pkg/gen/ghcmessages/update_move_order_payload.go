@@ -17,6 +17,10 @@ import (
 // swagger:model UpdateMoveOrderPayload
 type UpdateMoveOrderPayload struct {
 
+	// the branch that the service member belongs to
+	// Required: true
+	Agency Branch `json:"agency"`
+
 	// unit is in lbs
 	// Minimum: 1
 	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
@@ -72,6 +76,10 @@ type UpdateMoveOrderPayload struct {
 func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAgency(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateAuthorizedWeight(formats); err != nil {
 		res = append(res, err)
 	}
@@ -111,6 +119,18 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdateMoveOrderPayload) validateAgency(formats strfmt.Registry) error {
+
+	if err := m.Agency.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("agency")
+		}
+		return err
+	}
+
 	return nil
 }
 

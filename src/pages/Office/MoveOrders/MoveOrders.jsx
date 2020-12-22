@@ -92,6 +92,7 @@ const MoveOrders = () => {
   };
 
   const initialValues = {
+    agency: moveOrder?.agency,
     originDutyStation: moveOrder?.originDutyStation,
     newDutyStation: moveOrder?.destinationDutyStation,
     issueDate: moveOrder?.date_issued,
