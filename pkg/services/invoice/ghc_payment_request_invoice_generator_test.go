@@ -234,10 +234,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	// Test Header Generation
 	suite.T().Run("adds bx header segment", func(t *testing.T) {
-		bxInterface, ok := result.Header.Get("BX_ShipmentInformation")
-		suite.True(ok)
-		suite.IsType(&edisegment.BX{}, bxInterface)
-		bx := bxInterface.(*edisegment.BX)
+		bx := result.Header.ShipmentInformation
+		suite.IsType(edisegment.BX{}, bx)
 		suite.Equal("00", bx.TransactionSetPurposeCode)
 		suite.Equal("J", bx.TransactionMethodTypeCode)
 		suite.Equal("PP", bx.ShipmentMethodOfPayment)
@@ -255,45 +253,37 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		TestName      string
 		Qualifier     string
 		ExpectedValue string
-		Key           string
+		ActualValue   *edisegment.N9
 	}{
-		{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, Key: "N9_PaymentRequestNumber"},
-		{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", Key: "N9_ContractCode"},
-		{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), Key: "N9_ServiceMemberName"},
-		{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank), Key: "N9_ServiceMemberRank"},
-		{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), Key: "N9_ServiceMemberBranch"},
+		{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, ActualValue: &result.Header.PaymentRequestNumber},
+		{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", ActualValue: &result.Header.ContractCode},
+		{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
+		{TestName: "service member rank", Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank), ActualValue: &result.Header.ServiceMemberRank},
+		{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
 	}
 
 	for _, data := range testData {
 		suite.T().Run(fmt.Sprintf("adds %s to header", data.TestName), func(t *testing.T) {
-			headerItem, ok := result.Header.Get(data.Key)
-			suite.True(ok)
-			suite.IsType(&edisegment.N9{}, headerItem)
-			n9 := headerItem.(*edisegment.N9)
+			suite.IsType(&edisegment.N9{}, data.ActualValue)
+			n9 := data.ActualValue
 			suite.Equal(data.Qualifier, n9.ReferenceIdentificationQualifier)
 			suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
 		})
 	}
 
 	suite.T().Run("adds actual pickup date to header", func(t *testing.T) {
-		requested, ok := result.Header.Get("G62_RequestedPickupDate")
-		suite.True(ok)
-		suite.IsType(&edisegment.G62{}, requested)
-		g62Requested := requested.(*edisegment.G62)
+		g62Requested := result.Header.RequestedPickupDate
+		suite.IsType(&edisegment.G62{}, g62Requested)
 		suite.Equal(10, g62Requested.DateQualifier)
 		suite.Equal(requestedPickupDate.Format(testDateFormat), g62Requested.Date)
 
-		scheduled, ok := result.Header.Get("G62_ScheduledPickupDate")
-		suite.True(ok)
-		suite.IsType(&edisegment.G62{}, scheduled)
-		g62Scheduled := scheduled.(*edisegment.G62)
+		g62Scheduled := result.Header.ScheduledPickupDate
+		suite.IsType(&edisegment.G62{}, g62Scheduled)
 		suite.Equal(76, g62Scheduled.DateQualifier)
 		suite.Equal(scheduledPickupDate.Format(testDateFormat), g62Scheduled.Date)
 
-		actual, ok := result.Header.Get("G62_ActualPickupDate")
-		suite.True(ok)
-		suite.IsType(&edisegment.G62{}, actual)
-		g62Actual := actual.(*edisegment.G62)
+		g62Actual := result.Header.ActualPickupDate
+		suite.IsType(&edisegment.G62{}, g62Actual)
 		suite.Equal(86, g62Actual.DateQualifier)
 		suite.Equal(actualPickupDate.Format(testDateFormat), g62Actual.Date)
 	})
@@ -303,23 +293,19 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		originDutyStation := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation
 		transportationOffice, err := models.FetchDutyStationTransportationOffice(suite.DB(), originDutyStation.ID)
 		suite.FatalNoError(err)
-		buyerOrg, ok := result.Header.Get("N1_BuyerOrganizationName")
-		suite.True(ok)
-		suite.IsType(&edisegment.N1{}, buyerOrg)
-		n1 := buyerOrg.(*edisegment.N1)
-		suite.Equal("BY", n1.EntityIdentifierCode)
-		suite.Equal(transportationOffice.Name, n1.Name)
-		suite.Equal("92", n1.IdentificationCodeQualifier)
-		suite.Equal(transportationOffice.Gbloc, n1.IdentificationCode)
+		buyerOrg := result.Header.BuyerOrganizationName
+		suite.IsType(edisegment.N1{}, buyerOrg)
+		suite.Equal("BY", buyerOrg.EntityIdentifierCode)
+		suite.Equal(transportationOffice.Name, buyerOrg.Name)
+		suite.Equal("92", buyerOrg.IdentificationCodeQualifier)
+		suite.Equal(transportationOffice.Gbloc, buyerOrg.IdentificationCode)
 
-		sellerOrg, ok := result.Header.Get("N1_SellerOrganizationName")
-		suite.True(ok)
-		suite.IsType(&edisegment.N1{}, sellerOrg)
-		n1 = sellerOrg.(*edisegment.N1)
-		suite.Equal("SE", n1.EntityIdentifierCode)
-		suite.Equal("Prime", n1.Name)
-		suite.Equal("2", n1.IdentificationCodeQualifier)
-		suite.Equal("PRME", n1.IdentificationCode)
+		sellerOrg := result.Header.SellerOrganizationName
+		suite.IsType(edisegment.N1{}, sellerOrg)
+		suite.Equal("SE", sellerOrg.EntityIdentifierCode)
+		suite.Equal("Prime", sellerOrg.Name)
+		suite.Equal("2", sellerOrg.IdentificationCodeQualifier)
+		suite.Equal("PRME", sellerOrg.IdentificationCode)
 	})
 
 	suite.T().Run("adds orders destination address", func(t *testing.T) {
@@ -327,27 +313,22 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		transportationOffice, err := models.FetchDutyStationTransportationOffice(suite.DB(), expectedDutyStation.ID)
 		suite.FatalNoError(err)
 		// name
-		destName, ok := result.Header.Get("N1_DestinationName")
-		suite.True(ok)
-		suite.IsType(&edisegment.N1{}, destName)
-		n1 := destName.(*edisegment.N1)
+		n1 := result.Header.DestinationName
+		suite.IsType(edisegment.N1{}, n1)
 		suite.Equal("ST", n1.EntityIdentifierCode)
 		suite.Equal(expectedDutyStation.Name, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
 		suite.Equal(transportationOffice.Gbloc, n1.IdentificationCode)
 		// street address
 		address := expectedDutyStation.Address
-		destAddress, ok := result.Header.Get("N3_DestinationStreetAddress")
-		suite.True(ok)
+		destAddress := result.Header.DestinationStreetAddress
 		suite.IsType(&edisegment.N3{}, destAddress)
-		n3 := destAddress.(*edisegment.N3)
+		n3 := *destAddress
 		suite.Equal(address.StreetAddress1, n3.AddressInformation1)
 		suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
 		// city state info
-		destPostalDetails, ok := result.Header.Get("N4_DestinationPostalDetails")
-		suite.True(ok)
-		suite.IsType(&edisegment.N4{}, destPostalDetails)
-		n4 := destPostalDetails.(*edisegment.N4)
+		n4 := result.Header.DestinationPostalDetails
+		suite.IsType(edisegment.N4{}, n4)
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
@@ -362,10 +343,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				destPhoneLines = append(destPhoneLines, phoneLine.Number)
 			}
 		}
-		phone, ok := result.Header.Get("PER_DestinationPhone")
-		suite.True(ok)
+		phone := result.Header.DestinationPhone
 		suite.IsType(&edisegment.PER{}, phone)
-		per := phone.(*edisegment.PER)
+		per := *phone
 		suite.Equal("CN", per.ContactFunctionCode)
 		suite.Equal("TE", per.CommunicationNumberQualifier)
 		suite.Equal(destPhoneLines[0], per.CommunicationNumber)
@@ -374,27 +354,22 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.T().Run("adds orders origin address", func(t *testing.T) {
 		// name
 		expectedDutyStation := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation
-		originName, ok := result.Header.Get("N1_OriginName")
-		suite.True(ok)
-		suite.IsType(&edisegment.N1{}, originName)
-		n1 := originName.(*edisegment.N1)
+		n1 := result.Header.OriginName
+		suite.IsType(edisegment.N1{}, n1)
 		suite.Equal("SF", n1.EntityIdentifierCode)
 		suite.Equal(expectedDutyStation.Name, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
 		suite.Equal(expectedDutyStation.TransportationOffice.Gbloc, n1.IdentificationCode)
 		// street address
 		address := expectedDutyStation.Address
-		n3Address, ok := result.Header.Get("N3_OriginStreetAddress")
-		suite.True(ok)
+		n3Address := result.Header.OriginStreetAddress
 		suite.IsType(&edisegment.N3{}, n3Address)
-		n3 := n3Address.(*edisegment.N3)
+		n3 := *n3Address
 		suite.Equal(address.StreetAddress1, n3.AddressInformation1)
 		suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
 		// city state info
-		n4Address, ok := result.Header.Get("N4_OriginStreetAddress")
-		suite.True(ok)
-		suite.IsType(&edisegment.N4{}, n4Address)
-		n4 := n4Address.(*edisegment.N4)
+		n4 := result.Header.OriginPostalDetails
+		suite.IsType(edisegment.N4{}, n4)
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
@@ -409,31 +384,27 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				originPhoneLines = append(originPhoneLines, phoneLine.Number)
 			}
 		}
-		phone, ok := result.Header.Get("PER_OriginPhone")
-		suite.True(ok)
+		phone := result.Header.OriginPhone
 		suite.IsType(&edisegment.PER{}, phone)
-		per := phone.(*edisegment.PER)
+		per := *phone
 		suite.Equal("CN", per.ContactFunctionCode)
 		suite.Equal("TE", per.CommunicationNumberQualifier)
 		suite.Equal(originPhoneLines[0], per.CommunicationNumber)
 	})
 
-	var numOfSegments = 6
 	for idx, paymentServiceItem := range paymentServiceItems {
 		var hierarchicalNumberInt = idx + 1
 		var hierarchicalNumber = strconv.Itoa(hierarchicalNumberInt)
-		segmentOffset := numOfSegments * idx
+		segmentOffset := idx
 
 		suite.T().Run("adds hl service item segment", func(t *testing.T) {
-			suite.IsType(&edisegment.HL{}, result.ServiceItems[segmentOffset])
-			hl := result.ServiceItems[segmentOffset].(*edisegment.HL)
+			hl := result.ServiceItems[segmentOffset].HL
 			suite.Equal(hierarchicalNumber, hl.HierarchicalIDNumber)
 			suite.Equal("I", hl.HierarchicalLevelCode)
 		})
 
 		suite.T().Run("adds n9 service item segment", func(t *testing.T) {
-			suite.IsType(&edisegment.N9{}, result.ServiceItems[segmentOffset+1])
-			n9 := result.ServiceItems[segmentOffset+1].(*edisegment.N9)
+			n9 := result.ServiceItems[segmentOffset].N9
 			suite.Equal("PO", n9.ReferenceIdentificationQualifier)
 			suite.Equal(paymentServiceItem.ReferenceID, n9.ReferenceIdentification)
 		})
@@ -441,8 +412,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		switch serviceCode {
 		case models.ReServiceCodeCS, models.ReServiceCodeMS:
 			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
-				suite.IsType(&edisegment.L5{}, result.ServiceItems[segmentOffset+2])
-				l5 := result.ServiceItems[segmentOffset+2].(*edisegment.L5)
+				l5 := result.ServiceItems[segmentOffset].L5
 				suite.Equal(hierarchicalNumberInt, l5.LadingLineItemNumber)
 				suite.Equal(string(serviceCode), l5.LadingDescription)
 				suite.Equal("TBD", l5.CommodityCode)
@@ -450,15 +420,13 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			})
 
 			suite.T().Run("adds l0 service item segment", func(t *testing.T) {
-				suite.IsType(&edisegment.L0{}, result.ServiceItems[segmentOffset+3])
-				l0 := result.ServiceItems[segmentOffset+3].(*edisegment.L0)
+				l0 := result.ServiceItems[segmentOffset].L0
 				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
 			})
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
 			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
-				suite.IsType(&edisegment.L5{}, result.ServiceItems[segmentOffset+2])
-				l5 := result.ServiceItems[segmentOffset+2].(*edisegment.L5)
+				l5 := result.ServiceItems[segmentOffset].L5
 				suite.Equal(hierarchicalNumberInt, l5.LadingLineItemNumber)
 				suite.Equal(string(serviceCode), l5.LadingDescription)
 				suite.Equal("TBD", l5.CommodityCode)
@@ -466,8 +434,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			})
 
 			suite.T().Run("adds l0 service item segment", func(t *testing.T) {
-				suite.IsType(&edisegment.L0{}, result.ServiceItems[segmentOffset+3])
-				l0 := result.ServiceItems[segmentOffset+3].(*edisegment.L0)
+				l0 := result.ServiceItems[segmentOffset].L0
 				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
 				suite.Equal(float64(4242), l0.Weight)
 				suite.Equal("B", l0.WeightQualifier)
@@ -475,8 +442,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			})
 		default:
 			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
-				suite.IsType(&edisegment.L5{}, result.ServiceItems[segmentOffset+2])
-				l5 := result.ServiceItems[segmentOffset+2].(*edisegment.L5)
+				l5 := result.ServiceItems[segmentOffset].L5
 				suite.Equal(hierarchicalNumberInt, l5.LadingLineItemNumber)
 				suite.Equal(string(serviceCode), l5.LadingDescription)
 				suite.Equal("TBD", l5.CommodityCode)
@@ -484,8 +450,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			})
 
 			suite.T().Run("adds l0 service item segment", func(t *testing.T) {
-				suite.IsType(&edisegment.L0{}, result.ServiceItems[segmentOffset+3])
-				l0 := result.ServiceItems[segmentOffset+3].(*edisegment.L0)
+				l0 := result.ServiceItems[segmentOffset].L0
 				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
 				if serviceCode == models.ReServiceCodeDSH {
 					suite.Equal(float64(24245), l0.BilledRatedAsQuantity)
@@ -500,23 +465,19 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}
 
 		suite.T().Run("adds fa1 service item segment", func(t *testing.T) {
-			suite.IsType(&edisegment.FA1{}, result.ServiceItems[segmentOffset+4])
-			fa1 := result.ServiceItems[segmentOffset+4].(*edisegment.FA1)
+			fa1 := result.ServiceItems[segmentOffset].FA1
 			suite.Equal("DY", fa1.AgencyQualifierCode) // Default Order from testdatagen is AIR_FORCE
 		})
 
 		suite.T().Run("adds fa2 service item segment", func(t *testing.T) {
-			suite.IsType(&edisegment.FA2{}, result.ServiceItems[segmentOffset+5])
-			fa2 := result.ServiceItems[segmentOffset+5].(*edisegment.FA2)
+			fa2 := result.ServiceItems[segmentOffset].FA2
 			suite.Equal("TA", fa2.BreakdownStructureDetailCode)
 			suite.Equal(*paymentRequest.MoveTaskOrder.Orders.TAC, fa2.FinancialInformationCode)
 		})
 	}
 
-	l3Location := numOfSegments * len(paymentServiceItems)
 	suite.T().Run("adds l3 service item segment", func(t *testing.T) {
-		suite.IsType(&edisegment.L3{}, result.ServiceItems[l3Location])
-		l3 := result.ServiceItems[l3Location].(*edisegment.L3)
+		l3 := result.L3
 		suite.Equal(int64(0), l3.PriceCents) // TODO: hard-coded to zero for now
 	})
 }
