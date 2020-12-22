@@ -65,6 +65,18 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		suite.Equal(move.UpdatedAt.Format(swaggerTimeFormat), payload.UpdatedAt.String())
 	})
 
+	suite.T().Run("Unsuccessful move fetch - empty string bad request", func(t *testing.T) {
+		mockFetcher := mocks.MoveFetcher{}
+
+		handler := GetMoveHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MoveFetcher:    &mockFetcher,
+		}
+
+		response := handler.Handle(moveops.GetMoveParams{HTTPRequest: req, Locator: ""})
+		suite.IsType(&moveops.GetMoveBadRequest{}, response)
+	})
+
 	suite.T().Run("Unsuccessful move fetch - locator not found", func(t *testing.T) {
 		mockFetcher := mocks.MoveFetcher{}
 

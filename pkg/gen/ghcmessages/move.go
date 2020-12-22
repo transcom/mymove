@@ -27,7 +27,7 @@ type Move struct {
 
 	// created at
 	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// id
 	// Format: uuid
@@ -48,11 +48,11 @@ type Move struct {
 
 	// submitted at
 	// Format: date-time
-	SubmittedAt *strfmt.DateTime `json:"submitted_at,omitempty"`
+	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
 	// updated at
 	// Format: date-time
-	UpdatedAt strfmt.DateTime `json:"updated_at,omitempty"`
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this move
@@ -129,7 +129,7 @@ func (m *Move) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -184,7 +184,7 @@ func (m *Move) validateSubmittedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("submitted_at", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("submittedAt", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -197,7 +197,7 @@ func (m *Move) validateUpdatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("updated_at", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 
