@@ -13,6 +13,7 @@ schemes:
   - http
 tags:
   - name: queues
+  - name: move
 paths:
   '/customer/{customerID}':
     parameters:
@@ -92,7 +93,7 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - move
-      description: Returns a given move
+      description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
   '/move-orders/{moveOrderID}':
@@ -1596,14 +1597,14 @@ definitions:
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      submitted_at:
+      submittedAt:
         type: string
         format: date-time
         x-nullable: true
-      updated_at:
+      updatedAt:
         type: string
         format: date-time
   MoveStatus:

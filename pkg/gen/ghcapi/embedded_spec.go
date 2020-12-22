@@ -1074,7 +1074,7 @@ func init() {
     },
     "/move/{locator}": {
       "get": {
-        "description": "Returns a given move",
+        "description": "Returns a given move for a unique alphanumeric locator string",
         "produces": [
           "application/json"
         ],
@@ -2703,7 +2703,7 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -2729,12 +2729,12 @@ func init() {
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
-        "submitted_at": {
+        "submittedAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -3715,6 +3715,9 @@ func init() {
   "tags": [
     {
       "name": "queues"
+    },
+    {
+      "name": "move"
     }
   ]
 }`))
@@ -5021,7 +5024,7 @@ func init() {
     },
     "/move/{locator}": {
       "get": {
-        "description": "Returns a given move",
+        "description": "Returns a given move for a unique alphanumeric locator string",
         "produces": [
           "application/json"
         ],
@@ -6746,7 +6749,7 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -6772,12 +6775,12 @@ func init() {
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
-        "submitted_at": {
+        "submittedAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -7764,6 +7767,9 @@ func init() {
   "tags": [
     {
       "name": "queues"
+    },
+    {
+      "name": "move"
     }
   ]
 }`))

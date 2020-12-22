@@ -16,7 +16,7 @@ type GetMoveHandler struct {
 	services.MoveFetcher
 }
 
-// Handle handles the handling
+// Handle handles the getMove by locator request
 func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
