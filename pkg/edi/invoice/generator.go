@@ -74,6 +74,8 @@ type ServiceItemSegments struct {
 // in an InvoiceHeader that are not nil
 func (ih *InvoiceHeader) NonEmptySegments() []edisegment.Segment {
 	var result []edisegment.Segment
+
+	// This array should contain every field of InvoiceHeader
 	fields := []edisegment.Segment{
 		&ih.ShipmentInformation,
 		&ih.PaymentRequestNumber,
@@ -95,8 +97,12 @@ func (ih *InvoiceHeader) NonEmptySegments() []edisegment.Segment {
 		&ih.OriginPostalDetails,
 		ih.OriginPhone,
 	}
+
 	for _, f := range fields {
-		if f != nil && !(reflect.ValueOf(f).Kind() == reflect.Ptr && reflect.ValueOf(f).IsNil()) {
+		// An interface value holding a nil pointer is not nil, so we have to use
+		// reflect here instead of just checking f != nil
+		if !(reflect.ValueOf(f).Kind() == reflect.Ptr &&
+			reflect.ValueOf(f).IsNil()) {
 			result = append(result, f)
 		}
 	}
