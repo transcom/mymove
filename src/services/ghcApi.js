@@ -25,7 +25,7 @@ export async function getPaymentRequest(key, paymentRequestID) {
 }
 
 export async function getMove(key, locator) {
-  return makeGHCRequest('move.getMove', { locator });
+  return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
 
 export async function getMoveOrder(key, moveOrderID) {
