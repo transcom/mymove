@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -27,9 +28,11 @@ func TestGHCTestSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
+	popTs := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
+	planner := NewGHCPlanner(popTs.DB(), logger)
 	ts := &GHCTestSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		planner:      NewGHCPlanner(logger),
+		PopTestSuite: popTs,
+		planner:      planner,
 		logger:       logger,
 	}
 
@@ -99,8 +102,15 @@ func (suite *GHCTestSuite) TestZip3TransitDistance() {
 	sourceZip3 := "309"
 	destinationZip3 := "782"
 
-	panicFunc := func() {
-		suite.planner.Zip3TransitDistance(sourceZip3, destinationZip3)
-	}
-	suite.Panics(panicFunc)
+	testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
+		Zip3Distance: models.Zip3Distance{
+			FromZip3:      "309",
+			ToZip3:        "782",
+			DistanceMiles: 42,
+		},
+	})
+
+	distance, err := suite.planner.Zip3TransitDistance(sourceZip3, destinationZip3)
+	suite.NoError(err)
+	suite.Equal(42, distance)
 }
