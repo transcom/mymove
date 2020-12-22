@@ -1996,6 +1996,26 @@ func init() {
         }
       }
     },
+    "Branch": {
+      "type": "string",
+      "title": "branch",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marines",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -2745,7 +2765,11 @@ func init() {
       "properties": {
         "agency": {
           "type": "string",
+          "$ref": "#/definitions/Branch",
           "example": "civilian"
+        },
+        "branch": {
+          "$ref": "#/definitions/Branch"
         },
         "confirmation_number": {
           "type": "string",
@@ -3497,9 +3521,14 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId"
+        "originDutyStationId",
+        "agency"
       ],
       "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
         "authorizedWeight": {
           "description": "unit is in lbs",
           "type": "integer",
@@ -6046,6 +6075,26 @@ func init() {
         }
       }
     },
+    "Branch": {
+      "type": "string",
+      "title": "branch",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marines",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -6795,7 +6844,11 @@ func init() {
       "properties": {
         "agency": {
           "type": "string",
+          "$ref": "#/definitions/Branch",
           "example": "civilian"
+        },
+        "branch": {
+          "$ref": "#/definitions/Branch"
         },
         "confirmation_number": {
           "type": "string",
@@ -7550,9 +7603,14 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId"
+        "originDutyStationId",
+        "agency"
       ],
       "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
         "authorizedWeight": {
           "description": "unit is in lbs",
           "type": "integer",

@@ -70,7 +70,7 @@ const MoveAllowances = () => {
 
   const moveOrder = Object.values(moveOrders)?.[0];
   const onSubmit = (values) => {
-    const { grade, authorizedWeight, dependentsAuthorized } = values;
+    const { grade, authorizedWeight, dependentsAuthorized, agency } = values;
     const body = {
       issueDate: moveOrder.date_issued,
       newDutyStationId: moveOrder.destinationDutyStation.id,
@@ -80,6 +80,7 @@ const MoveAllowances = () => {
       reportByDate: moveOrder.report_by_date,
       grade,
       authorizedWeight: Number(authorizedWeight),
+      agency,
       dependentsAuthorized,
     };
     mutateOrders({ moveOrderID: moveOrderId, ifMatchETag: moveOrder.eTag, body });
@@ -87,10 +88,10 @@ const MoveAllowances = () => {
 
   const documentsForViewer = Object.values(upload);
 
-  const { entitlement, grade } = moveOrder;
+  const { entitlement, grade, agency } = moveOrder;
   const { authorizedWeight, dependentsAuthorized } = entitlement;
 
-  const initialValues = { authorizedWeight: `${authorizedWeight}`, grade, dependentsAuthorized };
+  const initialValues = { authorizedWeight: `${authorizedWeight}`, grade, agency, dependentsAuthorized };
   return (
     <div className={moveOrdersStyles.MoveOrders}>
       {documentsForViewer && (
