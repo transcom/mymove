@@ -66,7 +66,19 @@ describe('TXO Move Info Container', () => {
 
       const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/orders');
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/orders');
+    });
+
+    it('should handle the Allowances route', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveId}/allowances`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const renderedRoute = wrapper.find('Route');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/allowances');
     });
 
     it('should handle the Move Task Order route', () => {
