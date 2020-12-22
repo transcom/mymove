@@ -41,11 +41,10 @@ jest.mock('services/ghcApi', () => ({
         },
       },
     }),
-  getMove: (key, id) =>
+  getMove: () =>
     Promise.resolve({
-      moves: {
-        id,
-      },
+      id: '1234',
+      ordersId: '4321',
     }),
   getMoveOrder: (key, id) =>
     Promise.resolve({
@@ -222,30 +221,16 @@ describe('useMoveTaskOrderQueries', () => {
 
 describe('useOrdersDocumentQueries', () => {
   it('loads data', async () => {
-    const testMoveOrderId = 'a1b2';
-    const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testMoveOrderId));
-
-    expect(result.current).toEqual({
-      move: { id: 'a1b2' },
-      moveOrders: {
-        a1b2: {
-          id: 'a1b2',
-          uploaded_order_id: '2',
-        },
-      },
-      documents: undefined,
-      upload: undefined,
-      isLoading: true,
-      isError: false,
-      isSuccess: false,
-    });
+    const testLocatorId = 'a1b2';
+    const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testLocatorId));
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
+      move: { id: '1234', ordersId: '4321' },
       moveOrders: {
-        a1b2: {
-          id: 'a1b2',
+        4321: {
+          id: '4321',
           uploaded_order_id: '2',
         },
       },
