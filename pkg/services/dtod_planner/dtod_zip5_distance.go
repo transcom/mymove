@@ -43,6 +43,7 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/tiaguinho/gosoap"
 
@@ -85,29 +86,15 @@ type dtodZip5DistanceInfo struct {
 	wsdl      string
 }
 
-/*  TODO might be used for parsing the response
-    delete if not needed
-type location struct {
-}
-
+// Response XML structs
+// There's more in the returned XML, but we're only trying to get to the distance.
 type processRequestResponse struct {
-	processRequestResult string `xml:"ProcessRequestResult"`
+	ProcessRequestResult processRequestResult `xml:"ProcessRequestResult"`
 }
 
 type processRequestResult struct {
-	date        string   `xml:Date`
-	version     string   `xml:Version`
-	function    string   `xml:Function`
-	region      string   `xml:Region`
-	routeType   string   `xml:RouteType`
-	units       string   `xml:Units`
-	origin      location `xml:Origin`
-	destination location `xml:Destination`
-	distance    float64  `xml:Distance`
-	time        float64  `xml:Time`
+	Distance float64 `xml:"Distance"`
 }
-
-*/
 
 // InitDTODFlags initializes DTOD command line flags
 func InitDTODFlags(flag *pflag.FlagSet) {
@@ -163,7 +150,6 @@ func NewDTODZip5Distance(logger Logger, tlsConfig *tls.Config, username string, 
 }
 
 func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip string) (int, error) {
-
 	distance := 0
 
 	tr := &http.Transport{TLSClientConfig: d.tlsConfig}
@@ -175,13 +161,11 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 		"xmlns:ser":     "https://dtod.sddc.army.mil/service/",
 	})
 
-	//TODO: for dev uncomment and use  SoapClientWithConfig to see both request and response
-	/*
-		config := gosoap.Config{
-			Dump: true,
-		}
-		soap, err := gosoap.SoapClientWithConfig(d.wsdl, httpClient, &config)
-	*/
+	// TODO: for dev uncomment and use SoapClientWithConfig to see both request and response
+	//config := gosoap.Config{
+	//	Dump: true,
+	//}
+	//soap, err := gosoap.SoapClientWithConfig(d.wsdl, httpClient, &config)
 
 	soap, err := gosoap.SoapClient(d.wsdl, httpClient)
 	if err != nil {
@@ -196,6 +180,9 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 			},
 			"UserRequest": map[string]interface{}{
 				"Function": "Distance",
+				// TODO: We are currently defaulting RouteType to PcsTdyTravel. Should we be using
+				//   DityPersonalProperty or CommercialPersonalProperty instead?
+				"RouteType": "CommercialPersonalProperty",
 				"Origin": map[string]interface{}{
 					"ZipCode": pickupZip,
 				},
@@ -207,29 +194,28 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 	}
 
 	soap.URL = d.url
-	//res, err := soap.Call("ProcessRequest", params)
-	_, err = soap.Call("ProcessRequest", params)
+	res, err := soap.Call("ProcessRequest", params)
 	if err != nil {
 		return distance, fmt.Errorf("call error: %s", err.Error())
 	}
 
-	/* TODO unmarshall the response from DTOD do this next sprint
 	var r processRequestResponse
-	res.Unmarshal(&r)
-
-
-	// processRequestResponse will be a string. We need to parse it to XML
-	result := processRequestResult{}
-	err = xml.Unmarshal([]byte(r.processRequestResult), &result)
+	err = res.Unmarshal(&r)
 	if err != nil {
-		fmt.Printf("xml.Unmarshall error: %s", err.Error())
-		d.logger.Fatal("xml.Unmarshal  error: ", zap.Error(err))
+		fmt.Printf("Unmarshal error: %s", err.Error())
+		d.logger.Fatal("Unmarshal error: ", zap.Error(err))
 	}
 
-	fmt.Printf("dtod resultr: %v", result)
-	d.logger.Debug("dtod result", zap.Any("processRequestResult", result))
+	// It looks like sending a bad zip just returns a distance of -1.
+	distanceFloat := r.ProcessRequestResult.Distance
+	if distanceFloat <= 0 {
+		return distance, fmt.Errorf("invalid distance using pickup %s and destination %s", pickupZip, destinationZip)
+	}
 
-	*/
+	// TODO: DTOD gives us a float back. Should we round, floor, or ceiling? Just going to round for now.
+	distance = int(distanceFloat + 0.5)
+
+	d.logger.Debug("dtod result", zap.Any("processRequestResponse", r), zap.Int("distance", distance))
 
 	return distance, nil
 }
