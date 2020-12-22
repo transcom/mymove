@@ -28,8 +28,8 @@ type UpdateMoveOrderPayload struct {
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
-	// entitlements
-	Entitlements *Entitlements `json:"entitlements,omitempty"`
+	// dependents authorized
+	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
 	// grade
 	Grade *Grade `json:"grade,omitempty"`
@@ -88,10 +88,6 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDepartmentIndicator(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateEntitlements(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -164,24 +160,6 @@ func (m *UpdateMoveOrderPayload) validateDepartmentIndicator(formats strfmt.Regi
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *UpdateMoveOrderPayload) validateEntitlements(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Entitlements) { // not required
-		return nil
-	}
-
-	if m.Entitlements != nil {
-		if err := m.Entitlements.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("entitlements")
 			}
 			return err
 		}

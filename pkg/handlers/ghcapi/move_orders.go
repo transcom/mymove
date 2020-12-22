@@ -81,7 +81,6 @@ type UpdateMoveOrderHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams) middleware.Responder {
-
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.MoveOrderID.String())
@@ -172,6 +171,10 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 	var entitlement models.Entitlement
 	if payload.AuthorizedWeight != nil {
 		entitlement.DBAuthorizedWeight = swag.Int(int(*payload.AuthorizedWeight))
+	}
+
+	if payload.DependentsAuthorized != nil {
+		entitlement.DependentsAuthorized = payload.DependentsAuthorized
 	}
 
 	var ordersTypeDetail *internalmessages.OrdersTypeDetail

@@ -1,6 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Fieldset, Checkbox } from '@trussworks/react-uswds';
+import { Field } from 'formik';
 
 import styles from './AllowancesDetailForm.module.scss';
 
@@ -42,14 +41,10 @@ const AllowancesDetailForm = ({ entitlements, rankOptions, branchOptions }) => {
         <dt>Storage in-transit</dt>
         <dd data-testid="storageInTransit">{formatDaysInTransit(entitlements.storageInTransit)}</dd>
       </dl>
-      <Fieldset>
-        <Checkbox
-          name="dependentsAuthorized"
-          label="Dependents authorized"
-          checked={entitlements.dependentsAuthorized}
-          onChange={onCheckboxChange}
-        />
-      </Fieldset>
+      <div className={styles.DependentsAuthorized}>
+        <Field type="checkbox" name="dependentsAuthorized" />
+        <label htmlFor="dependentsAuthorized"> Dependents Authorized</label>
+      </div>
     </div>
   );
 };

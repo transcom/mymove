@@ -51,8 +51,16 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 			}
 		}
 
-		if moveOrder.Entitlement.DBAuthorizedWeight != nil {
-			existingOrder.Entitlement.DBAuthorizedWeight = moveOrder.Entitlement.DBAuthorizedWeight
+		if moveOrder.Entitlement.DBAuthorizedWeight != nil || moveOrder.Entitlement.DependentsAuthorized != nil {
+
+			if moveOrder.Entitlement.DBAuthorizedWeight != nil {
+				existingOrder.Entitlement.DBAuthorizedWeight = moveOrder.Entitlement.DBAuthorizedWeight
+			}
+
+			if moveOrder.Entitlement.DependentsAuthorized != nil {
+				existingOrder.Entitlement.DependentsAuthorized = moveOrder.Entitlement.DependentsAuthorized
+			}
+
 			err = tx.Save(existingOrder.Entitlement)
 			if err != nil {
 				return err
