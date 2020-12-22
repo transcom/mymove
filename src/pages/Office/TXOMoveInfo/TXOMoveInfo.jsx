@@ -15,6 +15,7 @@ const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
 const TXOMoveInfo = () => {
+  // TODO - Clean up path param moveOrderId. Should be moveCode.
   const { moveOrderId } = useParams();
   const { pathname } = useLocation();
 
@@ -77,7 +78,7 @@ const TXOMoveInfo = () => {
             <MoveAllowances />
           </Route>
 
-          <Route path="/moves/:moveOrderId/mto" exact>
+          <Route path="/moves/:moveCode/mto" exact>
             <MoveTaskOrder />
           </Route>
 
