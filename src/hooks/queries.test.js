@@ -186,8 +186,8 @@ describe('useMoveTaskOrderQueries', () => {
 
     expect(result.current).toEqual({
       moveOrders: {
-        a1b2: {
-          id: 'a1b2',
+        4321: {
+          id: '4321',
           uploaded_order_id: '2',
         },
       },

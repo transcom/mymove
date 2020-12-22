@@ -83,14 +83,20 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   };
 };
 
-export const useMoveTaskOrderQueries = (moveOrderId) => {
+export const useMoveTaskOrderQueries = (moveCode) => {
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const moveOrderId = move?.ordersId;
+
   // get move orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
+    enabled: !!moveOrderId,
+  });
 
   // get move task orders
   const { data: { moveTaskOrders } = {}, ...moveTaskOrderQuery } = useQuery(
     [MOVE_TASK_ORDERS, moveOrderId],
     getMoveTaskOrderList,
+    { enabled: !!moveOrderId },
   );
 
   const moveTaskOrder = moveTaskOrders && Object.values(moveTaskOrders)[0];
@@ -109,6 +115,7 @@ export const useMoveTaskOrderQueries = (moveOrderId) => {
   );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
     moveOrderQuery,
     moveTaskOrderQuery,
     mtoShipmentQuery,
