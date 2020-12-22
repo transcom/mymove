@@ -90,6 +90,7 @@ type Assertions struct {
 	User                                     models.User
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
+	Zip3Distance                             models.Zip3Distance
 }
 
 func stringPointer(s string) *string {
