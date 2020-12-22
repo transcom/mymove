@@ -39,12 +39,12 @@ const validationSchema = Yup.object({
 
 const MoveOrders = () => {
   const history = useHistory();
-  const { moveOrderId } = useParams();
-
-  const { moveOrders, upload, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
+  const { moveCode } = useParams();
+  const { move, moveOrders, upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const moveOrderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(`/moves/${moveOrderId}/details`);
+    history.push(`/moves/${moveCode}/details`);
   };
 
   const [mutateOrders] = useMutation(updateMoveOrder, {
