@@ -77,7 +77,7 @@ const MoveQueue = ({ history }) => {
   const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
   const handleClick = (values) => {
-    history.push(`/moves/${values.id}/details`);
+    history.push(`/moves/${values.locator}/details`);
   };
 
   if (isLoading) return <LoadingPlaceholder />;
