@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/cli"
@@ -125,6 +126,6 @@ func InitRoutePlanner(v *viper.Viper, logger Logger) Planner {
 }
 
 // InitGHCRoutePlanner creates a new GHC route planner that adheres to the Planner interface
-func InitGHCRoutePlanner(v *viper.Viper, logger Logger) Planner {
-	return NewGHCPlanner(logger)
+func InitGHCRoutePlanner(v *viper.Viper, db *pop.Connection, logger Logger) Planner {
+	return NewGHCPlanner(db, logger)
 }
