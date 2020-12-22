@@ -1768,8 +1768,9 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
-      entitlements:
-        $ref: '#/definitions/Entitlements'
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
     required:
       - issueDate
       - reportByDate

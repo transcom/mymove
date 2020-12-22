@@ -67,7 +67,7 @@ const MoveAllowances = () => {
 
   const moveOrder = Object.values(moveOrders)?.[0];
   const onSubmit = (values) => {
-    const { grade, authorizedWeight } = values;
+    const { grade, authorizedWeight, dependentsAuthorized } = values;
     const body = {
       issueDate: moveOrder.date_issued,
       newDutyStationId: moveOrder.destinationDutyStation.id,
@@ -77,6 +77,7 @@ const MoveAllowances = () => {
       reportByDate: moveOrder.report_by_date,
       grade,
       authorizedWeight: Number(authorizedWeight),
+      dependentsAuthorized,
     };
     mutateOrders({ moveOrderID: moveOrderId, ifMatchETag: moveOrder.eTag, body });
   };
@@ -84,9 +85,9 @@ const MoveAllowances = () => {
   const documentsForViewer = Object.values(upload);
 
   const { entitlement, grade } = moveOrder;
-  const { authorizedWeight } = entitlement;
+  const { authorizedWeight, dependentsAuthorized } = entitlement;
 
-  const initialValues = { authorizedWeight: `${authorizedWeight}`, grade };
+  const initialValues = { authorizedWeight: `${authorizedWeight}`, grade, dependentsAuthorized };
   return (
     <div className={moveOrdersStyles.MoveOrders}>
       {documentsForViewer && (
@@ -119,11 +120,7 @@ const MoveAllowances = () => {
                   </div>
                 </div>
                 <div className={moveOrdersStyles.body}>
-                  <AllowancesDetailForm
-                    entitlements={moveOrder.entitlement}
-                    rankOptions={rankDropdownOptions}
-                    onCheckboxChange={formik.handleChange}
-                  />
+                  <AllowancesDetailForm entitlements={moveOrder.entitlement} rankOptions={rankDropdownOptions} />
                 </div>
                 <div className={moveOrdersStyles.bottom}>
                   <div className={moveOrdersStyles.buttonGroup}>

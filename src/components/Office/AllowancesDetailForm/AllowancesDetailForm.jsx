@@ -1,6 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Fieldset, Checkbox } from '@trussworks/react-uswds';
+import { Field } from 'formik';
 
 import styles from './AllowancesDetailForm.module.scss';
 
@@ -10,7 +9,7 @@ import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/moveOrder';
 import { formatWeight, formatDaysInTransit } from 'shared/formatters';
 
-const AllowancesDetailForm = ({ entitlements, rankOptions, onCheckboxChange }) => {
+const AllowancesDetailForm = ({ entitlements, rankOptions }) => {
   return (
     <div className={styles.AllowancesDetailForm}>
       <DropdownInput name="grade" label="Rank" options={rankOptions} showDropdownPlaceholderText={false} />
@@ -41,14 +40,10 @@ const AllowancesDetailForm = ({ entitlements, rankOptions, onCheckboxChange }) =
         <dt>Storage in-transit</dt>
         <dd data-testid="storageInTransit">{formatDaysInTransit(entitlements.storageInTransit)}</dd>
       </dl>
-      <Fieldset>
-        <Checkbox
-          name="dependentsAuthorized"
-          label="Dependents authorized"
-          checked={entitlements.dependentsAuthorized}
-          onChange={onCheckboxChange}
-        />
-      </Fieldset>
+      <div className={styles.DependentsAuthorized}>
+        <Field type="checkbox" name="dependentsAuthorized" />
+        <label htmlFor="dependentsAuthorized"> Dependents Authorized</label>
+      </div>
     </div>
   );
 };
@@ -56,7 +51,6 @@ const AllowancesDetailForm = ({ entitlements, rankOptions, onCheckboxChange }) =
 AllowancesDetailForm.propTypes = {
   entitlements: EntitlementShape.isRequired,
   rankOptions: DropdownArrayOf.isRequired,
-  onCheckboxChange: PropTypes.func.isRequired,
 };
 
 export default AllowancesDetailForm;
