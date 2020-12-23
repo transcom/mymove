@@ -2765,10 +2765,6 @@ func init() {
       "properties": {
         "agency": {
           "type": "string",
-          "$ref": "#/definitions/Branch",
-          "example": "civilian"
-        },
-        "branch": {
           "$ref": "#/definitions/Branch"
         },
         "confirmation_number": {
@@ -6844,10 +6840,6 @@ func init() {
       "properties": {
         "agency": {
           "type": "string",
-          "$ref": "#/definitions/Branch",
-          "example": "civilian"
-        },
-        "branch": {
           "$ref": "#/definitions/Branch"
         },
         "confirmation_number": {
