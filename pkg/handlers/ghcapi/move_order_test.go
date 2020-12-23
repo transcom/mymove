@@ -149,8 +149,8 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	grade := ghcmessages.GradeO5
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 	body := &ghcmessages.UpdateMoveOrderPayload{
-		AuthorizedWeight:    &newAuthorizedWeight,
-		Agency:              affiliation,
+		AuthorizedWeight:     &newAuthorizedWeight,
+		Agency:               affiliation,
 		DependentsAuthorized: swag.Bool(true),
 		Grade:                &grade,
 		IssueDate:            handlers.FmtDatePtr(&issueDate),
