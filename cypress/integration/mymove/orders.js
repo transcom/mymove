@@ -35,8 +35,9 @@ describe('orders entry', function () {
     cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
     cy.selectDutyStation('NAS Fort Worth JRB', 'new_duty_station');
-
+    cy.pa11y();
     cy.nextPage();
+    cy.pa11y();
 
     cy.location().should((loc) => {
       expect(loc.pathname).to.eq('/orders/upload');
