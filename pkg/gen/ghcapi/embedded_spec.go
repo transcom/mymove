@@ -1074,7 +1074,7 @@ func init() {
     },
     "/move/{locator}": {
       "get": {
-        "description": "Returns a given move",
+        "description": "Returns a given move for a unique alphanumeric locator string",
         "produces": [
           "application/json"
         ],
@@ -2693,7 +2693,17 @@ func init() {
     },
     "Move": {
       "properties": {
-        "created_at": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -2704,14 +2714,27 @@ func init() {
         },
         "locator": {
           "type": "string",
-          "example": "1K43A"
+          "example": "1K43AR"
         },
-        "orders_id": {
+        "ordersId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "updated_at": {
+        "referenceId": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -2828,6 +2851,16 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveOrder"
       }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVALS REQUESTED",
+        "APPROVED",
+        "CANCELED"
+      ]
     },
     "MoveTaskOrder": {
       "type": "object",
@@ -3682,6 +3715,9 @@ func init() {
   "tags": [
     {
       "name": "queues"
+    },
+    {
+      "name": "move"
     }
   ]
 }`))
@@ -4988,7 +5024,7 @@ func init() {
     },
     "/move/{locator}": {
       "get": {
-        "description": "Returns a given move",
+        "description": "Returns a given move for a unique alphanumeric locator string",
         "produces": [
           "application/json"
         ],
@@ -6703,7 +6739,17 @@ func init() {
     },
     "Move": {
       "properties": {
-        "created_at": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -6714,14 +6760,27 @@ func init() {
         },
         "locator": {
           "type": "string",
-          "example": "1K43A"
+          "example": "1K43AR"
         },
-        "orders_id": {
+        "ordersId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "updated_at": {
+        "referenceId": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -6838,6 +6897,16 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveOrder"
       }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVALS REQUESTED",
+        "APPROVED",
+        "CANCELED"
+      ]
     },
     "MoveTaskOrder": {
       "type": "object",
@@ -7698,6 +7767,9 @@ func init() {
   "tags": [
     {
       "name": "queues"
+    },
+    {
+      "name": "move"
     }
   ]
 }`))
