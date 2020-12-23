@@ -5,6 +5,7 @@ import { shallow } from 'enzyme';
 import { MoveDetails } from './MoveDetails';
 
 describe('MoveDetails page', () => {
+  const testMove = { id: '321', ordersId: '123' };
   const testMoveOrder = {
     id: '123',
     customerID: 'abc',
@@ -62,6 +63,7 @@ describe('MoveDetails page', () => {
       path: '',
       url: '',
     },
+    getMoveByLocator: jest.fn(() => new Promise((res) => res({ response: { body: testMove } }))),
     getMoveOrder: jest.fn(() => new Promise((res) => res({ response: { body: testMoveOrder } }))),
     getCustomer: jest.fn(),
     getAllMoveTaskOrders: jest.fn(() => new Promise((res) => res({ response: { body: testMoveTaskOrders } }))),
