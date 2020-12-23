@@ -151,17 +151,18 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	body := &ghcmessages.UpdateMoveOrderPayload{
 		AuthorizedWeight:    &newAuthorizedWeight,
 		Agency:              affiliation,
-		Grade:               &grade,
-		IssueDate:           handlers.FmtDatePtr(&issueDate),
-		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
-		OrdersType:          "RETIREMENT",
-		OrdersTypeDetail:    &ordersTypeDetail,
-		DepartmentIndicator: &deptIndicator,
-		OrdersNumber:        handlers.FmtString("ORDER100"),
-		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
-		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("012345678"),
-		Sac:                 handlers.FmtString("987654321"),
+		DependentsAuthorized: swag.Bool(true),
+		Grade:                &grade,
+		IssueDate:            handlers.FmtDatePtr(&issueDate),
+		ReportByDate:         handlers.FmtDatePtr(&reportByDate),
+		OrdersType:           "RETIREMENT",
+		OrdersTypeDetail:     &ordersTypeDetail,
+		DepartmentIndicator:  &deptIndicator,
+		OrdersNumber:         handlers.FmtString("ORDER100"),
+		NewDutyStationID:     handlers.FmtUUID(destinationDutyStation.ID),
+		OriginDutyStationID:  handlers.FmtUUID(originDutyStation.ID),
+		Tac:                  handlers.FmtString("012345678"),
+		Sac:                  handlers.FmtString("987654321"),
 	}
 
 	params := moveorderop.UpdateMoveOrderParams{
@@ -198,6 +199,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	suite.Equal(body.AuthorizedWeight, moveOrdersPayload.Entitlement.AuthorizedWeight)
 	suite.Equal(body.Grade, moveOrdersPayload.Grade)
 	suite.Equal(body.Agency, moveOrdersPayload.Agency)
+	suite.Equal(body.DependentsAuthorized, moveOrdersPayload.Entitlement.DependentsAuthorized)
 }
 
 // Test that a move order notification got stored Successfully
