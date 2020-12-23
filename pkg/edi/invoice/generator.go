@@ -129,8 +129,8 @@ func (invoice Invoice858C) Segments() [][]string {
 		invoice.ST.StringArray(),
 	}
 
-	for _, f := range invoice.Header.NonEmptySegments() {
-		records = append(records, f.StringArray())
+	for _, line := range invoice.Header.NonEmptySegments() {
+		records = append(records, line.StringArray())
 	}
 
 	for _, line := range invoice.ServiceItems {
