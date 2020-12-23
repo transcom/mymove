@@ -183,6 +183,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
 	suite.Nil(moveTaskOrdersPayload.AvailableToPrimeAt)
 }
+
+// moveTaskOrderPopulated function spot checks a few values in the Move, Orders, and Customer to
+// ensure they are populated.
 func (suite *HandlerSuite) moveTaskOrderPopulated(response *movetaskorderops.CreateMoveTaskOrderCreated,
 	destinationDutyStation *models.DutyStation,
 	originDutyStation *models.DutyStation) {
@@ -197,6 +200,7 @@ func (suite *HandlerSuite) moveTaskOrderPopulated(response *movetaskorderops.Cre
 	suite.Equal(originDutyStation.Name, responsePayload.MoveOrder.OriginDutyStation.Name)
 
 }
+
 func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	// Create the objects that are already in the db

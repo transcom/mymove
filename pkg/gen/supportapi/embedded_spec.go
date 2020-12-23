@@ -197,9 +197,6 @@ func init() {
               "$ref": "#/definitions/MoveTaskOrder"
             }
           },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
           "401": {
             "$ref": "#/responses/PermissionDenied"
           },
@@ -2240,12 +2237,6 @@ func init() {
             "description": "Successfully retrieve an individual move task order.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {

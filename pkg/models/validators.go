@@ -342,28 +342,30 @@ func (v *Float64IsGreaterThan) IsValid(errors *validate.Errors) {
 	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%f is not greater than %f.", v.Field, v.Compared))
 }
 
-// OptionalUUIDIsPresent is a structure for determining if UUID is present, optionally
+// OptionalUUIDIsPresent is a structure for determining if an Optional UUID is valid
+// If it is a nil pointer, it passes validation.
+// If it is a pointer to a valid UUID, it passes validation.
+// If it is a pointer to a non-valid UUID, it fails validation.
 type OptionalUUIDIsPresent struct {
 	Name    string
 	Field   *uuid.UUID
 	Message string
 }
 
-// IsValid adds an error if the field is not a valid uuid
+// IsValid adds an error if an optional UUID is valid.
+// If it is a nil pointer, it passes validation.
+// If it is a pointer to a valid UUID, it passes validation.
+// If it is a pointer to a non-valid UUID, it fails validation.
 func (v *OptionalUUIDIsPresent) IsValid(errors *validate.Errors) {
-	// If the pointer is nil, that's cool
 	if v.Field == nil {
 		return
 	}
 
 	s := v.Field.String()
-	// Create a string from the field. if it's not (an empty string or pointing to a nil uuid) that's cool
 	if strings.TrimSpace(s) != "" && *v.Field != uuid.Nil {
 		return
 	}
 
-	// So if the pointer is not nil, and it's an empty string, that's not cool
-	// or if the pointer is not nil, and it's pointing to a nil uuid, that's not cool
 	if len(v.Message) > 0 {
 		errors.Add(validators.GenerateKey(v.Name), v.Message)
 		return

@@ -49,7 +49,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 
 		// Convert payload to model for moveTaskOrder
 		moveTaskOrder = MoveTaskOrderModel(&payload)
-		// Generate a referenceID if one was not provided
+		// Fill in defaults if not provided in payload
 		if *moveTaskOrder.ReferenceID == "" {
 			refID, err = models.GenerateReferenceID(tx)
 			moveTaskOrder.ReferenceID = &refID
@@ -57,11 +57,9 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 		if err != nil {
 			return err
 		}
-		// Generate a locator if one was not provided
 		if moveTaskOrder.Locator == "" {
 			moveTaskOrder.Locator = models.GenerateLocator()
 		}
-		// Set default status to DRAFT
 		if moveTaskOrder.Status == "" {
 			moveTaskOrder.Status = models.MoveStatusDRAFT
 		}
@@ -78,8 +76,6 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(err))
 			return services.NewQueryError("MoveTaskOrder", err, "Unable to create MoveTaskOrder.")
 		}
-
-		// Populate nested object so that the returned
 		return nil
 	})
 
