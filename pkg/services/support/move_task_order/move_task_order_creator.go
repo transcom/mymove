@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -187,11 +188,14 @@ func createUser(tx *pop.Connection, userEmail *string, logger handlers.Logger) (
 
 // createOrGetCustomer creates a customer or gets one if id was provided
 func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, payloadCustomerID *strfmt.UUID, customerBody *supportmessages.Customer, logger handlers.Logger) (*models.ServiceMember, error) {
+	verrs := validate.NewErrors()
+
 	// If customer ID string is provided, we should find this customer
 	if payloadCustomerID != nil {
 		customerID, err := uuid.FromString(payloadCustomerID.String())
 		if err != nil {
-			returnErr := services.NewInvalidInputError(uuid.Nil, err, nil, "ID provided for Customer was invalid")
+			verrs.Add("customerID", "UUID is invalid")
+			returnErr := services.NewInvalidInputError(uuid.Nil, err, verrs, "ID provided for Customer was invalid")
 			return nil, returnErr
 		}
 
@@ -206,7 +210,8 @@ func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, payload
 	// Else customerIDString is empty and we need to create a customer
 	// Since each customer has a unique userid we need to create a user
 	if customerBody == nil {
-		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "If CustomerID is not provided, customer object is required to create Customer")
+		verrs.Add("customer", "If no customerID is provided, nested Customer object is required")
+		returnErr := services.NewInvalidInputError(uuid.Nil, nil, verrs, "If CustomerID is not provided, customer object is required to create Customer")
 		return nil, returnErr
 	}
 	user, err := createUser(tx, customerBody.Email, logger)
@@ -219,7 +224,7 @@ func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, payload
 	customer.UserID = user.ID
 
 	// Create the new customer in the db
-	verrs, err := tx.ValidateAndCreate(customer)
+	verrs, err = tx.ValidateAndCreate(customer)
 	if verrs.Count() > 0 {
 		logger.Error("supportapi.createOrGetCustomer error", zap.Error(verrs))
 		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "")

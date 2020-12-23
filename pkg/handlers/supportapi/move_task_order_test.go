@@ -397,6 +397,32 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.IsType(&movetaskorderops.CreateMoveTaskOrderBadRequest{}, response)
 	})
 
+	suite.T().Run("Failed createMoveTaskOrder 422 UnprocessableEntity due to no customer", func(t *testing.T) {
+
+		// TESTCASE SCENARIO
+		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
+		// Mocked:     None
+		// Set up:     We pass in a new moveTaskOrder, moveOrder, but no customer info
+		// Expected outcome:
+		//             Failure due to no customer info, so unprocessableEntity
+
+		mtoPayload.MoveOrder.Customer = nil
+		mtoPayload.MoveOrder.CustomerID = nil
+
+		// Running the same request should result in the same reference id
+		params := movetaskorderops.CreateMoveTaskOrderParams{
+			HTTPRequest: request,
+			Body:        mtoPayload,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// VERIFY RESULTS
+		suite.IsType(&movetaskorderops.CreateMoveTaskOrderUnprocessableEntity{}, response)
+	})
+
 	suite.T().Run("Failed createMoveTaskOrder 404 NotFound", func(t *testing.T) {
 		// TESTCASE SCENARIO
 		// Under test: CreateMoveTaskOrderHandler.Handle
@@ -433,6 +459,9 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		//             The move order has a bad duty station ID.
 		// Expected outcome:
 		//             Failure of 404 Not Found since the dutystation is not found.
+
+		// We only provide an existing customerID not the whole object.
+		mtoPayload.MoveOrder.CustomerID = handlers.FmtUUID(dbCustomer.ID)
 
 		// Using a randomID as a dutyStationID should cause a query error
 		mtoPayload.MoveOrder.OriginDutyStationID = handlers.FmtUUID(uuid.Must(uuid.NewV4()))
