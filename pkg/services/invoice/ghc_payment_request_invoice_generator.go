@@ -184,7 +184,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	if !msOrCsOnly(paymentServiceItems) {
-		_, err = g.createG62Segments(paymentRequest.ID, &edi858.Header)
+		err = g.createG62Segments(paymentRequest.ID, &edi858.Header)
 		if err != nil {
 			return ediinvoice.Invoice858C{}, err
 		}
@@ -262,9 +262,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uuid.UUID, header *ediinvoice.InvoiceHeader) ([]edisegment.Segment, error) {
-	var g62Segments []edisegment.Segment
-
+func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uuid.UUID, header *ediinvoice.InvoiceHeader) error {
 	// Get all the shipments associated with this payment request's service items, ordered by shipment creation date.
 	var shipments models.MTOShipments
 	err := g.db.Q().
@@ -275,14 +273,14 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 		All(&shipments)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			return nil, services.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
+			return services.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
 		}
-		return nil, services.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
+		return services.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
 	}
 
 	// If no shipments, then just return because we will not have access to the dates.
 	if len(shipments) == 0 {
-		return g62Segments, nil
+		return nil
 	}
 
 	// Use the first (earliest) shipment.
@@ -315,7 +313,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 		header.ActualPickupDate = &actualPickupDateSegment
 	}
 
-	return g62Segments, nil
+	return nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
