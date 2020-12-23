@@ -138,7 +138,6 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	moveOrder := moveTaskOrder.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-
 	request := httptest.NewRequest("PATCH", "/move-orders/{moveOrderID}", nil)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
@@ -146,10 +145,12 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 
 	newAuthorizedWeight := int64(10000)
 	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	affiliation := ghcmessages.BranchAIRFORCE
 	grade := ghcmessages.GradeO5
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 	body := &ghcmessages.UpdateMoveOrderPayload{
 		AuthorizedWeight:    &newAuthorizedWeight,
+		Agency:              affiliation,
 		Grade:               &grade,
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
@@ -196,6 +197,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	suite.Equal(body.Sac, moveOrdersPayload.Sac)
 	suite.Equal(body.AuthorizedWeight, moveOrdersPayload.Entitlement.AuthorizedWeight)
 	suite.Equal(body.Grade, moveOrdersPayload.Grade)
+	suite.Equal(body.Agency, moveOrdersPayload.Agency)
 }
 
 // Test that a move order notification got stored Successfully

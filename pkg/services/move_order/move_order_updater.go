@@ -43,6 +43,14 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 
 	transactionError := s.db.Transaction(func(tx *pop.Connection) error {
 
+		if moveOrder.ServiceMember.Affiliation != nil {
+			existingOrder.ServiceMember.Affiliation = moveOrder.ServiceMember.Affiliation
+			err = tx.Save(&existingOrder.ServiceMember)
+			if err != nil {
+				return err
+			}
+		}
+
 		if moveOrder.Entitlement.DBAuthorizedWeight != nil {
 			existingOrder.Entitlement.DBAuthorizedWeight = moveOrder.Entitlement.DBAuthorizedWeight
 			err = tx.Save(existingOrder.Entitlement)

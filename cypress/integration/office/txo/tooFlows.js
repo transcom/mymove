@@ -181,6 +181,8 @@ describe('TOO user', () => {
     cy.url().should('include', `/moves/${moveOrderId}/allowances`);
 
     // Edit grade and authorized weight
+    cy.get('select[name=agency]').contains('Army');
+    cy.get('select[name=agency]').select('Navy');
     cy.get('select[name="grade"]').contains('E-1');
     cy.get('select[name="grade"]').select('W-2');
     cy.get('input[name="authorizedWeight"]').clear().type('11111');
@@ -190,6 +192,7 @@ describe('TOO user', () => {
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveOrderId}/details`);
     cy.get('[data-testid="authorizedWeight"]').contains('11,111 lbs');
+    cy.get('[data-testid="branchRank"]').contains('Navy');
     cy.get('[data-testid="branchRank"]').contains('W-2');
 
     // Edit allowances page | Cancel

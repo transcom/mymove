@@ -15,11 +15,13 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
 import { MOVE_ORDERS } from 'constants/queryKeys';
 
 const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
+
+const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 
 const validationSchema = Yup.object({
   authorizedWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
@@ -67,7 +69,7 @@ const MoveAllowances = () => {
 
   const moveOrder = Object.values(moveOrders)?.[0];
   const onSubmit = (values) => {
-    const { grade, authorizedWeight } = values;
+    const { grade, authorizedWeight, agency } = values;
     const body = {
       issueDate: moveOrder.date_issued,
       newDutyStationId: moveOrder.destinationDutyStation.id,
@@ -77,16 +79,18 @@ const MoveAllowances = () => {
       reportByDate: moveOrder.report_by_date,
       grade,
       authorizedWeight: Number(authorizedWeight),
+      agency,
     };
     mutateOrders({ moveOrderID: moveOrderId, ifMatchETag: moveOrder.eTag, body });
   };
 
   const documentsForViewer = Object.values(upload);
 
-  const { entitlement, grade } = moveOrder;
+  const { entitlement, grade, agency } = moveOrder;
   const { authorizedWeight } = entitlement;
 
-  const initialValues = { authorizedWeight: `${authorizedWeight}`, grade };
+  const initialValues = { authorizedWeight: `${authorizedWeight}`, grade, agency };
+
   return (
     <div className={moveOrdersStyles.MoveOrders}>
       {documentsForViewer && (
@@ -119,7 +123,11 @@ const MoveAllowances = () => {
                   </div>
                 </div>
                 <div className={moveOrdersStyles.body}>
-                  <AllowancesDetailForm entitlements={moveOrder.entitlement} rankOptions={rankDropdownOptions} />
+                  <AllowancesDetailForm
+                    entitlements={moveOrder.entitlement}
+                    rankOptions={rankDropdownOptions}
+                    branchOptions={branchDropdownOption}
+                  />
                 </div>
                 <div className={moveOrdersStyles.bottom}>
                   <div className={moveOrdersStyles.buttonGroup}>

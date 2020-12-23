@@ -1508,6 +1508,23 @@ definitions:
     required:
       - message
     type: object
+  Branch:
+    type: string
+    title: branch
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marines
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      OTHER: OTHER
   Grade:
     type: string
     x-nullable: true
@@ -1685,7 +1702,7 @@ definitions:
         $ref: '#/definitions/Grade'
       agency:
         type: string
-        example: civilian
+        $ref: '#/definitions/Branch'
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
@@ -1795,12 +1812,16 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      agency:
+        description: the branch that the service member belongs to
+        $ref: '#/definitions/Branch'
     required:
       - issueDate
       - reportByDate
       - ordersType
       - newDutyStationId
       - originDutyStationId
+      - agency
   MoveTaskOrder:
     properties:
       id:
