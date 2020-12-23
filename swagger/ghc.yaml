@@ -1673,11 +1673,8 @@ definitions:
         readOnly: true
       grade:
         $ref: '#/definitions/Grade'
-      branch:
-        $ref: '#/definitions/Branch'
       agency:
         type: string
-        example: civilian
         $ref: '#/definitions/Branch'
       entitlement:
         $ref: '#/definitions/Entitlements'
