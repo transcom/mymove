@@ -130,14 +130,23 @@ func (suite *GHCTestSuite) TestZip3TransitDistance() {
 
 	testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
 		Zip3Distance: models.Zip3Distance{
-			FromZip3:      "309",
-			ToZip3:        "782",
+			FromZip3:      sourceZip3,
+			ToZip3:        destinationZip3,
 			DistanceMiles: 42,
 		},
 	})
 
-	planner := NewGHCPlanner(suite.logger, suite.DB(), &ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
-	distance, err := planner.Zip3TransitDistance(sourceZip3, destinationZip3)
-	suite.NoError(err)
-	suite.Equal(42, distance)
+	suite.T().Run("check 2 zip3 distances", func(t *testing.T) {
+		planner := NewGHCPlanner(suite.logger, suite.DB(), &ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		distance, err := planner.Zip3TransitDistance(sourceZip3, destinationZip3)
+		suite.NoError(err)
+		suite.Equal(42, distance)
+	})
+
+	suite.T().Run("errors on a zip5", func(t *testing.T) {
+		planner := NewGHCPlanner(suite.logger, suite.DB(), &ghcmocks.SoapCaller{}, fakeUsername, fakePassword)
+		distance, err := planner.Zip3TransitDistance("30902", "78223")
+		suite.NoError(err)
+		suite.Equal(42, distance)
+	})
 }

@@ -53,7 +53,9 @@ func (p *ghcPlanner) Zip5TransitDistance(source string, destination string) (int
 
 // Zip3TransitDistance calculates the distance between two valid Zip3s
 func (p *ghcPlanner) Zip3TransitDistance(source string, destination string) (int, error) {
-	return randMcNallyZip3Distance(p.db, source, destination)
+	sourceZip3 := source[0:3]
+	destZip3 := destination[0:3]
+	return randMcNallyZip3Distance(p.db, sourceZip3, destZip3)
 }
 
 // NewGHCPlanner constructs and returns a Planner for GHC routing.
