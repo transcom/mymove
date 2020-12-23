@@ -35,11 +35,8 @@ The Request to DTOD using the service ProcessRequest which looks like
  *******************************************/
 
 import (
-	"crypto/tls"
 	"fmt"
-	"net/http"
 	"os"
-	"time"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -48,10 +45,6 @@ import (
 	"github.com/tiaguinho/gosoap"
 
 	"github.com/transcom/mymove/pkg/services"
-)
-
-const (
-	dtodRequestTimeout = time.Duration(30) * time.Second
 )
 
 var (
@@ -77,13 +70,17 @@ var (
 	}
 )
 
+// SoapCaller provides an interface for the Call method of the gosoap Client so it can be mocked
+//go:generate mockery --name SoapCaller
+type SoapCaller interface {
+	Call(m string, p gosoap.SoapParams) (res *gosoap.Response, err error)
+}
+
 type dtodZip5DistanceInfo struct {
-	logger    Logger
-	tlsConfig *tls.Config
-	username  string
-	password  string
-	url       string
-	wsdl      string
+	logger     Logger
+	username   string
+	password   string
+	soapClient SoapCaller
 }
 
 // Response XML structs
@@ -138,39 +135,24 @@ func GetDTODFlags(v *viper.Viper) (string, string, string, string, error) {
 }
 
 // NewDTODZip5Distance returns a new DTOD Planner Mileage interface
-func NewDTODZip5Distance(logger Logger, tlsConfig *tls.Config, username string, password string, url string, wsdl string) services.DTODPlannerMileage {
+func NewDTODZip5Distance(logger Logger, username string, password string, soapClient SoapCaller) services.DTODPlannerMileage {
 	return &dtodZip5DistanceInfo{
-		logger:    logger,
-		tlsConfig: tlsConfig,
-		username:  username,
-		password:  password,
-		url:       url,
-		wsdl:      wsdl,
+		logger:     logger,
+		username:   username,
+		password:   password,
+		soapClient: soapClient,
 	}
 }
 
+// DTODZip5Distance returns the distance in miles between the pickup and destination zips
 func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip string) (int, error) {
 	distance := 0
-
-	tr := &http.Transport{TLSClientConfig: d.tlsConfig}
-	httpClient := &http.Client{Transport: tr, Timeout: dtodRequestTimeout}
 
 	// set custom envelope
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
 		"xmlns:ser":     "https://dtod.sddc.army.mil/service/",
 	})
-
-	// TODO: for dev uncomment and use SoapClientWithConfig to see both request and response
-	//config := gosoap.Config{
-	//	Dump: true,
-	//}
-	//soap, err := gosoap.SoapClientWithConfig(d.wsdl, httpClient, &config)
-
-	soap, err := gosoap.SoapClient(d.wsdl, httpClient)
-	if err != nil {
-		return distance, fmt.Errorf("SoapClient error: %s", err.Error())
-	}
 
 	params := gosoap.Params{
 		"DtodRequest": map[string]interface{}{
@@ -180,8 +162,7 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 			},
 			"UserRequest": map[string]interface{}{
 				"Function": "Distance",
-				// TODO: We are currently defaulting RouteType to PcsTdyTravel. Should we be using
-				//   DityPersonalProperty or CommercialPersonalProperty instead?
+				// TODO: Default RouteType is PcsTdyTravel, but CommercialPersonalProperty seems better. Verify.
 				"RouteType": "CommercialPersonalProperty",
 				"Origin": map[string]interface{}{
 					"ZipCode": pickupZip,
@@ -193,8 +174,7 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 		},
 	}
 
-	soap.URL = d.url
-	res, err := soap.Call("ProcessRequest", params)
+	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return distance, fmt.Errorf("call error: %s", err.Error())
 	}
@@ -202,11 +182,10 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(pickupZip string, destinationZip
 	var r processRequestResponse
 	err = res.Unmarshal(&r)
 	if err != nil {
-		fmt.Printf("Unmarshal error: %s", err.Error())
-		d.logger.Fatal("Unmarshal error: ", zap.Error(err))
+		return distance, fmt.Errorf("unmarshal error: %s", err.Error())
 	}
 
-	// It looks like sending a bad zip just returns a distance of -1.
+	// It looks like sending a bad zip just returns a distance of -1, so test for that
 	distanceFloat := r.ProcessRequestResult.Distance
 	if distanceFloat <= 0 {
 		return distance, fmt.Errorf("invalid distance using pickup %s and destination %s", pickupZip, destinationZip)
