@@ -1,6 +1,7 @@
 package supportmovetaskorder
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/services/support"
@@ -115,7 +116,7 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrd
 	moveOrder.NewDutyStationID = destinationDutyStationID
 	// Check that if provided, the origin duty station exists, then hook up to moveOrder
 	var originDutyStation *models.DutyStation
-	if moveOrderPayload.OriginDutyStationID.String() != "" {
+	if moveOrderPayload.OriginDutyStationID != nil {
 		originDutyStation = &models.DutyStation{}
 		originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
 		err = tx.Find(originDutyStation, originDutyStationID)
@@ -125,6 +126,20 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrd
 		}
 		moveOrder.OriginDutyStation = originDutyStation
 		moveOrder.OriginDutyStationID = &originDutyStationID
+	}
+	// Check that the uploaded orders document exists
+	var uploadedOrders *models.Document
+	if moveOrderPayload.UploadedOrdersID != nil {
+		uploadedOrders = &models.Document{}
+		uploadedOrdersID := uuid.FromStringOrNil(moveOrderPayload.UploadedOrdersID.String())
+		fmt.Println("\n\nUploaded orders id is ", uploadedOrdersID)
+		err = tx.Find(uploadedOrders, uploadedOrdersID)
+		if err != nil {
+			logger.Error("supportapi.createMoveOrder error", zap.Error(err))
+			return nil, services.NewNotFoundError(uploadedOrdersID, ". The uploadedOrders does not exist.")
+		}
+		moveOrder.UploadedOrders = *uploadedOrders
+		moveOrder.UploadedOrdersID = uploadedOrdersID
 	}
 
 	// Add customer to mO
@@ -241,15 +256,14 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 		return nil
 	}
 	model := &models.Order{
-		ID:               uuid.FromStringOrNil(moveOrderPayload.ID.String()),
-		Grade:            swag.String((string)(moveOrderPayload.Rank)),
-		OrdersNumber:     moveOrderPayload.OrderNumber,
-		Entitlement:      EntitlementModel(moveOrderPayload.Entitlement),
-		Status:           (models.OrderStatus)(moveOrderPayload.Status),
-		IssueDate:        (time.Time)(*moveOrderPayload.IssueDate),
-		OrdersType:       (internalmessages.OrdersType)(moveOrderPayload.OrdersType),
-		UploadedOrdersID: uuid.FromStringOrNil(moveOrderPayload.UploadedOrdersID.String()),
-		TAC:              moveOrderPayload.Tac,
+		ID:           uuid.FromStringOrNil(moveOrderPayload.ID.String()),
+		Grade:        swag.String((string)(moveOrderPayload.Rank)),
+		OrdersNumber: moveOrderPayload.OrderNumber,
+		Entitlement:  EntitlementModel(moveOrderPayload.Entitlement),
+		Status:       (models.OrderStatus)(moveOrderPayload.Status),
+		IssueDate:    (time.Time)(*moveOrderPayload.IssueDate),
+		OrdersType:   (internalmessages.OrdersType)(moveOrderPayload.OrdersType),
+		TAC:          moveOrderPayload.Tac,
 	}
 
 	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
@@ -266,6 +280,11 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 
 	if moveOrderPayload.Customer != nil {
 		model.ServiceMember = *CustomerModel(moveOrderPayload.Customer)
+	}
+
+	if moveOrderPayload.UploadedOrdersID != nil {
+		uploadedOrdersID := uuid.FromStringOrNil(moveOrderPayload.UploadedOrdersID.String())
+		model.UploadedOrdersID = uploadedOrdersID
 	}
 
 	reportByDate := time.Time(*moveOrderPayload.ReportByDate)
