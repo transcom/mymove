@@ -184,6 +184,9 @@ describe('TOO user', () => {
     cy.get('select[name="grade"]').select('W-2');
     cy.get('input[name="authorizedWeight"]').clear().type('11111');
 
+    //Edit DependentsAuthorized
+    cy.get('input[name="dependentsAuthorized"]').click();
+
     // Edit allowances page | Save
     cy.get('button').contains('Save').click();
     // Verify edited values are saved
@@ -191,6 +194,7 @@ describe('TOO user', () => {
     cy.get('[data-testid="authorizedWeight"]').contains('11,111 lbs');
     cy.get('[data-testid="branchRank"]').contains('Navy');
     cy.get('[data-testid="branchRank"]').contains('W-2');
+    cy.get('[data-testid="dependents"]').contains('Unauthorized');
 
     // Edit allowances page | Cancel
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
