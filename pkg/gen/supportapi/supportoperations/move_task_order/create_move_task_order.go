@@ -34,7 +34,7 @@ func NewCreateMoveTaskOrder(ctx *middleware.Context, handler CreateMoveTaskOrder
 createMoveTaskOrder
 
 Creates an instance of moveTaskOrder.
-Current this will also create a number of nested objects but not all.
+Currently this will also create a number of nested objects but not all.
 It will currently create
 * MoveTaskOrder
 * MoveOrder
