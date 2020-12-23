@@ -25,7 +25,7 @@ type MoveOrder struct {
 	// If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
 	//
 	// Format: uuid
-	CustomerID strfmt.UUID `json:"customerID,omitempty"`
+	CustomerID *strfmt.UUID `json:"customerID,omitempty"`
 
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
@@ -34,8 +34,9 @@ type MoveOrder struct {
 	//
 	// If creating a MoveTaskOrder, this should match an existing duty station.
 	//
+	// Required: true
 	// Format: uuid
-	DestinationDutyStationID strfmt.UUID `json:"destinationDutyStationID,omitempty"`
+	DestinationDutyStationID *strfmt.UUID `json:"destinationDutyStationID"`
 
 	// Uniquely identifies the state of the MoveOrder object (but not the nested objects)
 	//
@@ -72,12 +73,13 @@ type MoveOrder struct {
 	//
 	// If creating a MoveTaskOrder, this should match an existing duty station.
 	//
-	// Format: uuid
-	OriginDutyStationID strfmt.UUID `json:"originDutyStationID,omitempty"`
-
-	// Rank of the service member, must match specific list of available ranks.
 	// Required: true
-	Rank *string `json:"rank"`
+	// Format: uuid
+	OriginDutyStationID *strfmt.UUID `json:"originDutyStationID"`
+
+	// rank
+	// Required: true
+	Rank Rank `json:"rank"`
 
 	// Date that the service member must report to the new DutyStation by.
 	// Required: true
@@ -88,12 +90,17 @@ type MoveOrder struct {
 	// Required: true
 	Status OrdersStatus `json:"status"`
 
+	// TAC
+	// Required: true
+	Tac *string `json:"tac"`
+
 	// uploaded orders
 	UploadedOrders *Document `json:"uploadedOrders,omitempty"`
 
 	// ID of the uploaded document.
+	// Required: true
 	// Format: uuid
-	UploadedOrdersID strfmt.UUID `json:"uploadedOrdersID,omitempty"`
+	UploadedOrdersID *strfmt.UUID `json:"uploadedOrdersID"`
 }
 
 // Validate validates this move order
@@ -153,6 +160,10 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -221,8 +232,8 @@ func (m *MoveOrder) validateDestinationDutyStation(formats strfmt.Registry) erro
 
 func (m *MoveOrder) validateDestinationDutyStationID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.DestinationDutyStationID) { // not required
-		return nil
+	if err := validate.Required("destinationDutyStationID", "body", m.DestinationDutyStationID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("destinationDutyStationID", "body", "uuid", m.DestinationDutyStationID.String(), formats); err != nil {
@@ -317,8 +328,8 @@ func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 
 func (m *MoveOrder) validateOriginDutyStationID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.OriginDutyStationID) { // not required
-		return nil
+	if err := validate.Required("originDutyStationID", "body", m.OriginDutyStationID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("originDutyStationID", "body", "uuid", m.OriginDutyStationID.String(), formats); err != nil {
@@ -330,7 +341,10 @@ func (m *MoveOrder) validateOriginDutyStationID(formats strfmt.Registry) error {
 
 func (m *MoveOrder) validateRank(formats strfmt.Registry) error {
 
-	if err := validate.Required("rank", "body", m.Rank); err != nil {
+	if err := m.Rank.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("rank")
+		}
 		return err
 	}
 
@@ -362,6 +376,15 @@ func (m *MoveOrder) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MoveOrder) validateTac(formats strfmt.Registry) error {
+
+	if err := validate.Required("tac", "body", m.Tac); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MoveOrder) validateUploadedOrders(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.UploadedOrders) { // not required
@@ -382,8 +405,8 @@ func (m *MoveOrder) validateUploadedOrders(formats strfmt.Registry) error {
 
 func (m *MoveOrder) validateUploadedOrdersID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.UploadedOrdersID) { // not required
-		return nil
+	if err := validate.Required("uploadedOrdersID", "body", m.UploadedOrdersID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("uploadedOrdersID", "body", "uuid", m.UploadedOrdersID.String(), formats); err != nil {

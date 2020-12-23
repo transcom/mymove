@@ -343,7 +343,7 @@ func Test_OptionalUUIDIsPresent(t *testing.T) {
 
 	// negative test
 
-	// test with empty id
+	// test with empty id, this is equivalent to uuid.Nil
 	emptyUUID := uuid.UUID{}
 	v = models.OptionalUUIDIsPresent{Name: "Name", Field: &emptyUUID}
 	errors = validate.NewErrors()

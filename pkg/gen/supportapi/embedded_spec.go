@@ -81,7 +81,7 @@ func init() {
         }
       },
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrently this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -196,9 +196,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
             "$ref": "#/responses/PermissionDenied"
@@ -950,6 +947,13 @@ func init() {
     },
     "Customer": {
       "type": "object",
+      "required": [
+        "firstName",
+        "lastName",
+        "dodID",
+        "rank",
+        "agency"
+      ],
       "properties": {
         "agency": {
           "type": "string",
@@ -991,6 +995,9 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "userID": {
           "type": "string",
           "format": "uuid",
@@ -1027,18 +1034,6 @@ func init() {
     "DutyStation": {
       "type": "object",
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "addressID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1369,7 +1364,11 @@ func init() {
         "rank",
         "reportByDate",
         "issueDate",
-        "status"
+        "status",
+        "uploadedOrdersID",
+        "tac",
+        "originDutyStationID",
+        "destinationDutyStationID"
       ],
       "properties": {
         "customer": {
@@ -1379,6 +1378,7 @@ func init() {
           "description": "ID of the Customer this MoveOrder belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "destinationDutyStation": {
@@ -1428,9 +1428,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "description": "Rank of the service member, must match specific list of available ranks.",
-          "type": "string",
-          "example": "E_1"
+          "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
           "description": "Date that the service member must report to the new DutyStation by.",
@@ -1439,6 +1437,11 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OrdersStatus"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "example": "F8J1"
         },
         "uploadedOrders": {
           "$ref": "#/definitions/Document"
@@ -1470,7 +1473,8 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "required": [
-        "moveOrder"
+        "moveOrder",
+        "contractorID"
       ],
       "properties": {
         "availableToPrimeAt": {
@@ -1712,6 +1716,40 @@ func init() {
           }
         }
       }
+    },
+    "Rank": {
+      "description": "Rank of the service member, must match specific list of available ranks.",
+      "type": "string",
+      "enum": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6",
+        "E_7",
+        "E_8",
+        "E_9",
+        "O_1_ACADEMY_GRADUATE",
+        "O_2",
+        "O_3",
+        "O_4",
+        "O_5",
+        "O_6",
+        "O_7",
+        "O_8",
+        "O_9",
+        "O_10",
+        "W_1",
+        "W_2",
+        "W_3",
+        "W_4",
+        "W_5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ]
     },
     "UpdateMTOServiceItemStatus": {
       "type": "object",
@@ -2043,7 +2081,7 @@ func init() {
         }
       },
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrently this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -2199,12 +2237,6 @@ func init() {
             "description": "Successfully retrieve an individual move task order.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -3113,6 +3145,13 @@ func init() {
     },
     "Customer": {
       "type": "object",
+      "required": [
+        "firstName",
+        "lastName",
+        "dodID",
+        "rank",
+        "agency"
+      ],
       "properties": {
         "agency": {
           "type": "string",
@@ -3154,6 +3193,9 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "userID": {
           "type": "string",
           "format": "uuid",
@@ -3190,18 +3232,6 @@ func init() {
     "DutyStation": {
       "type": "object",
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "addressID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -3532,7 +3562,11 @@ func init() {
         "rank",
         "reportByDate",
         "issueDate",
-        "status"
+        "status",
+        "uploadedOrdersID",
+        "tac",
+        "originDutyStationID",
+        "destinationDutyStationID"
       ],
       "properties": {
         "customer": {
@@ -3542,6 +3576,7 @@ func init() {
           "description": "ID of the Customer this MoveOrder belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "destinationDutyStation": {
@@ -3591,9 +3626,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "description": "Rank of the service member, must match specific list of available ranks.",
-          "type": "string",
-          "example": "E_1"
+          "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
           "description": "Date that the service member must report to the new DutyStation by.",
@@ -3602,6 +3635,11 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OrdersStatus"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "example": "F8J1"
         },
         "uploadedOrders": {
           "$ref": "#/definitions/Document"
@@ -3633,7 +3671,8 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "required": [
-        "moveOrder"
+        "moveOrder",
+        "contractorID"
       ],
       "properties": {
         "availableToPrimeAt": {
@@ -3875,6 +3914,40 @@ func init() {
           }
         }
       }
+    },
+    "Rank": {
+      "description": "Rank of the service member, must match specific list of available ranks.",
+      "type": "string",
+      "enum": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6",
+        "E_7",
+        "E_8",
+        "E_9",
+        "O_1_ACADEMY_GRADUATE",
+        "O_2",
+        "O_3",
+        "O_4",
+        "O_5",
+        "O_6",
+        "O_7",
+        "O_8",
+        "O_9",
+        "O_10",
+        "W_1",
+        "W_2",
+        "W_3",
+        "W_4",
+        "W_5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ]
     },
     "UpdateMTOServiceItemStatus": {
       "type": "object",

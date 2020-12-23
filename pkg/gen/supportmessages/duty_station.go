@@ -17,17 +17,6 @@ import (
 // swagger:model DutyStation
 type DutyStation struct {
 
-	// address
-	Address *Address `json:"address,omitempty"`
-
-	// address ID
-	// Format: uuid
-	AddressID strfmt.UUID `json:"addressID,omitempty"`
-
-	// e tag
-	// Read Only: true
-	ETag string `json:"eTag,omitempty"`
-
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -40,14 +29,6 @@ type DutyStation struct {
 func (m *DutyStation) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateAddressID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -55,37 +36,6 @@ func (m *DutyStation) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *DutyStation) validateAddress(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Address) { // not required
-		return nil
-	}
-
-	if m.Address != nil {
-		if err := m.Address.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("address")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *DutyStation) validateAddressID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.AddressID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("addressID", "body", "uuid", m.AddressID.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
