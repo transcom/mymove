@@ -295,7 +295,7 @@ commands:
           at: /tmp/storybook
       - checkout
       - deploy:
-          name: Push StoryBook build to S3
+          name: Push Storybook build to S3
           command: scripts/push-storybook-assets "<< parameters.s3_bucket>>"
 
   build_image:
@@ -513,23 +513,6 @@ jobs:
             - ~/.cache/yarn/v3
       - announce_failure
 
-  pre_deps_cypress:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
-      - run:
-          name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile
-      # `v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}` is used to cache yarn sources
-      - save_cache:
-          key: v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
-          paths:
-            - ~/.cache/cypress/yarn/v1
-      - announce_failure
-
   # `check_generated_code` is used to ensure generated code doesn't change
   check_generated_code:
     executor: mymove_medium
@@ -656,9 +639,6 @@ jobs:
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run:
@@ -692,7 +672,7 @@ jobs:
           path: cypress/results
       - announce_failure
 
-  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
+  # `integration_tests_mtls` runs integration tests using prime-api-client
   integration_tests_mtls:
     executor: mymove_medium_plus
     steps:
@@ -907,8 +887,8 @@ jobs:
           repo: app
       - announce_failure
 
-  # `storybook_tests` triggers visual regression tests in Happo and builds static storybook assets for deploy
-  storybook_tests:
+  # `build_storybook` builds static storybook assets for deploy
+  build_storybook:
     executor: mymove_medium
     steps:
       - checkout
@@ -928,8 +908,8 @@ jobs:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
       - run:
-          name: Happo tests
-          command: yarn happo-ci
+          name: Build Storybook
+          command: yarn build-storybook
       - run:
           name: Output maximum memory usage in Bytes
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
@@ -1290,13 +1270,10 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - pre_deps_cypress
-
       - integration_tests:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-            - pre_deps_cypress
             - check_generated_code
             - push_app_legacy
             - push_app_stg
@@ -1514,12 +1491,12 @@ workflows:
 
       - deploy_storybook_dp3:
           requires:
-            - storybook_tests
+            - build_storybook
           filters:
             branches:
               only: master
 
-      - storybook_tests:
+      - build_storybook:
           requires:
             - anti_virus
             - pre_deps_yarn

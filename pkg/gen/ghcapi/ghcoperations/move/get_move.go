@@ -33,7 +33,7 @@ func NewGetMove(ctx *middleware.Context, handler GetMoveHandler) *GetMove {
 
 Returns a given move
 
-Returns a given move
+Returns a given move for a unique alphanumeric locator string
 
 */
 type GetMove struct {

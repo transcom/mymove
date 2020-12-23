@@ -21,11 +21,16 @@ func Move(move *models.Move) *ghcmessages.Move {
 	}
 
 	payload := &ghcmessages.Move{
-		CreatedAt: strfmt.DateTime(move.CreatedAt),
-		ID:        strfmt.UUID(move.ID.String()),
-		Locator:   move.Locator,
-		OrdersID:  strfmt.UUID(move.OrdersID.String()),
-		UpdatedAt: strfmt.DateTime(move.UpdatedAt),
+		ID:                 strfmt.UUID(move.ID.String()),
+		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ContractorID:       handlers.FmtUUIDPtr(move.ContractorID),
+		Locator:            move.Locator,
+		OrdersID:           strfmt.UUID(move.OrdersID.String()),
+		ReferenceID:        handlers.FmtStringPtr(move.ReferenceID),
+		Status:             ghcmessages.MoveStatus(move.Status),
+		CreatedAt:          strfmt.DateTime(move.CreatedAt),
+		SubmittedAt:        handlers.FmtDateTimePtr(move.SubmittedAt),
+		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 	}
 
 	return payload
