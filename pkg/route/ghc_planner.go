@@ -1,11 +1,14 @@
 package route
 
 import (
+	"github.com/gobuffalo/pop/v5"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // ghcPlanner holds configuration information to make calls to the GHC services (DTOD and RM).
 type ghcPlanner struct {
+	db     *pop.Connection
 	logger Logger
 }
 
@@ -31,7 +34,7 @@ func (p *ghcPlanner) Zip5TransitDistanceLineHaul(source string, destination stri
 	panic("implement me")
 }
 
-// Zip3TransitDistance calculates the distance between two valid Zip3s
+// Zip5TransitDistance calculates the distance between two valid Zip5s
 func (p *ghcPlanner) Zip5TransitDistance(source string, destination string) (int, error) {
 	// Placeholder for the DTOD-based zip5-to-zip5 distance. This will be determined by making
 	// a SOAP call to DTOD using the provided source/destination zip5 and returning the
@@ -43,21 +46,15 @@ func (p *ghcPlanner) Zip5TransitDistance(source string, destination string) (int
 	panic("implement me")
 }
 
-// Zip5TransitDistance calculates the distance between two valid Zip5s
+// Zip3TransitDistance calculates the distance between two valid Zip3s
 func (p *ghcPlanner) Zip3TransitDistance(source string, destination string) (int, error) {
-	// Placeholder for the RM-based zip3-to-zip3 distance. This will be determined by reading the
-	// zip3_distances table using the provided source/destination zip3 and returning the associated
-	// distance.
-	//
-	// It could be implemented as a service object if we expect reuse beyond the planner, or
-	// unexported code in this package if we always expect to access it via the planner.
-
-	panic("implement me")
+	return randMcNallyZip3Distance(p.db, source, destination)
 }
 
 // NewGHCPlanner constructs and returns a Planner for GHC routing.
-func NewGHCPlanner(logger Logger) Planner {
+func NewGHCPlanner(db *pop.Connection, logger Logger) Planner {
 	return &ghcPlanner{
+		db:     db,
 		logger: logger,
 	}
 }
