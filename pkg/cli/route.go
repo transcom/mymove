@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -55,12 +54,13 @@ func CheckRoute(v *viper.Viper) error {
 		}
 	}
 
-	if len(v.GetString(DTODApiUsernameFlag)) == 0 {
-		return errors.Errorf("%s is missing", DTODApiUsernameFlag)
-	}
-	if len(v.GetString(DTODApiPasswordFlag)) == 0 {
-		return errors.Errorf("%s is missing", DTODApiPasswordFlag)
-	}
+	// TODO: Removing this check for now to see how Circle reacts.
+	//if len(v.GetString(DTODApiUsernameFlag)) == 0 {
+	//	return errors.Errorf("%s is missing", DTODApiUsernameFlag)
+	//}
+	//if len(v.GetString(DTODApiPasswordFlag)) == 0 {
+	//	return errors.Errorf("%s is missing", DTODApiPasswordFlag)
+	//}
 
 	return nil
 }
