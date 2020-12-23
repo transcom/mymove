@@ -41,6 +41,7 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 		OrdersNumber:  moveOrderPayload.OrderNumber,
 		ServiceMember: *CustomerModel(moveOrderPayload.Customer),
 		Entitlement:   EntitlementModel(moveOrderPayload.Entitlement),
+		TAC:           moveOrderPayload.Tac,
 	}
 
 	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())

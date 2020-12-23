@@ -72,6 +72,9 @@ func Customer(customer *models.ServiceMember) *supportmessages.Customer {
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 	}
+	if customer.Rank != nil {
+		payload.Rank = supportmessages.Rank(*customer.Rank)
+	}
 	return &payload
 }
 
@@ -104,6 +107,7 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 		UploadedOrdersID:       uploadedOrders.ID,
 		ReportByDate:           &reportByDate,
 		IssueDate:              &issueDate,
+		Tac:                    moveOrder.TAC,
 	}
 
 	if moveOrder.Grade != nil {

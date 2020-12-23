@@ -99,7 +99,10 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrd
 		return nil, returnErr
 	}
 
-	// Check that the moveOrder destination duty station exists
+	// Move order model will also contain the entitlement
+	moveOrder := MoveOrderModel(moveOrderPayload)
+
+	// Check that the moveOrder destination duty station exists, then hook up to moveOrder
 	// It's required in the payload
 	destinationDutyStation := models.DutyStation{}
 	destinationDutyStationID := uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
@@ -108,6 +111,9 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrd
 		logger.Error("supportapi.createMoveOrder error", zap.Error(err))
 		return nil, services.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
 	}
+	moveOrder.NewDutyStation = destinationDutyStation
+	moveOrder.NewDutyStationID = destinationDutyStationID
+	// Check that if provided, the origin duty station exists, then hook up to moveOrder
 	var originDutyStation *models.DutyStation
 	if moveOrderPayload.OriginDutyStationID.String() != "" {
 		originDutyStation = &models.DutyStation{}
@@ -117,21 +123,13 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrd
 			logger.Error("supportapi.createMoveOrder error", zap.Error(err))
 			return nil, services.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
 		}
+		moveOrder.OriginDutyStation = originDutyStation
+		moveOrder.OriginDutyStationID = &originDutyStationID
 	}
-
-	// Move order model will also contain the entitlement
-	moveOrder := MoveOrderModel(moveOrderPayload)
 
 	// Add customer to mO
 	moveOrder.ServiceMember = *customer
 	moveOrder.ServiceMemberID = customer.ID
-	if originDutyStation != nil {
-		moveOrder.OriginDutyStation = originDutyStation
-		originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
-		moveOrder.OriginDutyStationID = &originDutyStationID
-	}
-	moveOrder.NewDutyStation = destinationDutyStation
-	moveOrder.NewDutyStationID = destinationDutyStationID
 
 	// Creates the moveOrder and the entitlement at the same time
 	verrs, err := tx.Eager().ValidateAndCreate(moveOrder)
@@ -251,6 +249,7 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 		IssueDate:        (time.Time)(*moveOrderPayload.IssueDate),
 		OrdersType:       (internalmessages.OrdersType)(moveOrderPayload.OrdersType),
 		UploadedOrdersID: uuid.FromStringOrNil(moveOrderPayload.UploadedOrdersID.String()),
+		TAC:              moveOrderPayload.Tac,
 	}
 
 	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
