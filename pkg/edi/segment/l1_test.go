@@ -7,7 +7,7 @@ import (
 func (suite *SegmentSuite) TestValidateL1() {
 	validL1 := L1{
 		FreightRate:              0,
-		RateValueQualifier:       "RC",
+		RateValueQualifier:       "LB",
 		Charge:                   100.00,
 		SpecialChargeDescription: "ABC",
 	}

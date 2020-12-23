@@ -8,8 +8,8 @@ import (
 // L1 represents the L1 EDI segment
 type L1 struct {
 	LadingLineItemNumber     int     `validate:"omitempty,min=1,max=999"`
-	FreightRate              float64 `validate:"eq=0"`
-	RateValueQualifier       string  `validate:"eq=RC"`
+	FreightRate              int     `validate:"eq=0"`
+	RateValueQualifier       string  `validate:"eq=LB"`
 	Charge                   float64 `validate:"required"`
 	SpecialChargeDescription string  `validate:"min=2,max=25"`
 }
@@ -19,7 +19,7 @@ func (s *L1) StringArray() []string {
 	return []string{
 		"L1",
 		strconv.Itoa(s.LadingLineItemNumber),
-		strconv.FormatFloat(s.FreightRate, 'f', 2, 64),
+		strconv.Itoa(s.FreightRate),
 		s.RateValueQualifier,
 		FloatToNx(s.Charge, 2),
 		"",
@@ -45,7 +45,7 @@ func (s *L1) Parse(elements []string) error {
 	if err != nil {
 		return err
 	}
-	s.FreightRate, err = strconv.ParseFloat(elements[1], 64)
+	s.FreightRate, err = strconv.Atoi(elements[1])
 	if err != nil {
 		return err
 	}

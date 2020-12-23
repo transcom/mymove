@@ -621,6 +621,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// Determine the correct params to use based off of the particular ReService code
 		serviceCode := serviceItem.MTOServiceItem.ReService.Code
 		switch serviceCode {
+		// cs and ms have no weight and no distance
 		case models.ReServiceCodeCS, models.ReServiceCodeMS:
 			l5Segment := edisegment.L5{
 				LadingLineItemNumber:   hierarchicalIDNumber,
@@ -633,8 +634,13 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				LadingLineItemNumber: hierarchicalIDNumber,
 			}
 
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
-		// pack and unpack, dom dest and dom origin have weight no distance
+			l1Segment := edisegment.L1{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				Charge:               float64(*serviceItem.PriceCents),
+			}
+
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l1Segment)
+		// pack and unpack, dom dest and dom origin have weight but no distance
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
 			var err error
@@ -657,7 +663,12 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:       "L",
 			}
 
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
+			l1Segment := edisegment.L1{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				Charge:               float64(*serviceItem.PriceCents),
+			}
+
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l1Segment)
 
 		default:
 			var err error
@@ -682,7 +693,14 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:         "L",
 			}
 
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
+			l1Segment := edisegment.L1{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				FreightRate:          int(weightFloat),
+				RateValueQualifier:   "LB",
+				Charge:               float64(*serviceItem.PriceCents),
+			}
+
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l1Segment)
 		}
 
 		loaSegments, err := g.createLoaSegments(orders)
