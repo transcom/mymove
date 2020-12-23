@@ -25,7 +25,7 @@ type MoveOrder struct {
 	// If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
 	//
 	// Format: uuid
-	CustomerID strfmt.UUID `json:"customerID,omitempty"`
+	CustomerID *strfmt.UUID `json:"customerID,omitempty"`
 
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`

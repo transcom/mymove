@@ -6,6 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/services/support"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -34,7 +35,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		// Create or get customer
-		customer, err := createOrGetCustomer(tx, customer.NewCustomerFetcher(tx), payload.MoveOrder.CustomerID.String(), payload.MoveOrder.Customer, logger)
+		customer, err := createOrGetCustomer(tx, customer.NewCustomerFetcher(tx), payload.MoveOrder.CustomerID, payload.MoveOrder.Customer, logger)
 		if err != nil {
 			return err
 		}
@@ -185,15 +186,15 @@ func createUser(tx *pop.Connection, userEmail *string, logger handlers.Logger) (
 }
 
 // createOrGetCustomer creates a customer or gets one if id was provided
-func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, customerIDString string, customerBody *supportmessages.Customer, logger handlers.Logger) (*models.ServiceMember, error) {
+func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, payloadCustomerID *strfmt.UUID, customerBody *supportmessages.Customer, logger handlers.Logger) (*models.ServiceMember, error) {
 	// If customer ID string is provided, we should find this customer
-	if customerIDString != "" {
-		customerID, err := uuid.FromString(customerIDString)
-		// Error on bad customer id string
+	if payloadCustomerID != nil {
+		customerID, err := uuid.FromString(payloadCustomerID.String())
 		if err != nil {
-			returnErr := services.NewInvalidInputError(uuid.Nil, err, nil, "Invalid customerID: params CustomerID cannot be converted to a UUID")
+			returnErr := services.NewInvalidInputError(uuid.Nil, err, nil, "ID provided for Customer was invalid")
 			return nil, returnErr
 		}
+
 		// Find customer and return
 		customer, err := f.FetchCustomer(customerID)
 		if err != nil {
@@ -266,8 +267,10 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 		TAC:          moveOrderPayload.Tac,
 	}
 
-	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
-	model.ServiceMemberID = customerID
+	if moveOrderPayload.CustomerID != nil {
+		customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
+		model.ServiceMemberID = customerID
+	}
 
 	if moveOrderPayload.DestinationDutyStationID != nil {
 		model.NewDutyStationID = uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
