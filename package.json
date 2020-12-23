@@ -4,7 +4,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-regular-svg-icons": "^5.15.1",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
-    "@fortawesome/react-fontawesome": "^0.1.13",
+    "@fortawesome/react-fontawesome": "^0.1.14",
     "@trussworks/react-file-viewer": "https://github.com/trussworks/react-file-viewer#ds-enable-image-file-type-support",
     "@trussworks/react-uswds": "^1.9.3",
     "bytes": "^3.0.0",
