@@ -26,11 +26,9 @@ const ordersInfoOptional = {
   ordersType: 'SEPARATION',
 };
 
-const moveCode = 'TEST';
-
 describe('Orders Table', () => {
   it('should render the data passed to its props', () => {
-    const wrapper = shallow(<OrdersTable ordersInfo={ordersInfo} moveCode={moveCode} />);
+    const wrapper = shallow(<OrdersTable ordersInfo={ordersInfo} />);
     expect(wrapper.find({ 'data-testid': 'currentDutyStation' }).text()).toMatch('JBSA Lackland');
     expect(wrapper.find({ 'data-testid': 'newDutyStation' }).text()).toMatch('JB Lewis-McChord');
     expect(wrapper.find({ 'data-testid': 'issuedDate' }).text()).toMatch('08 Mar 2020');
@@ -44,7 +42,7 @@ describe('Orders Table', () => {
   });
 
   it('should render the table with only required fields', () => {
-    const wrapper = shallow(<OrdersTable ordersInfo={ordersInfoOptional} moveCode={moveCode} />);
+    const wrapper = shallow(<OrdersTable ordersInfo={ordersInfoOptional} />);
     expect(wrapper.find({ 'data-testid': 'currentDutyStation' }).text()).toMatch('JBSA Lackland');
     expect(wrapper.find({ 'data-testid': 'newDutyStation' }).text()).toMatch('JB Lewis-McChord');
     expect(wrapper.find({ 'data-testid': 'issuedDate' }).text()).toMatch('08 Mar 2020');
@@ -59,8 +57,8 @@ describe('Orders Table', () => {
 
   it('should link to the edit orders page with order id param', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/1000/details`]}>
-        <OrdersTable ordersInfo={ordersInfoOptional} moveCode={moveCode} />
+      <MockProviders initialEntries={[`/moves/TEST/details`]}>
+        <OrdersTable ordersInfo={ordersInfoOptional} />
       </MockProviders>,
     );
     expect(wrapper.find('Link').text()).toMatch('View & edit orders');
