@@ -1,4 +1,4 @@
-package dtod
+package route
 
 /*******************************************
 
@@ -36,44 +36,15 @@ The Request to DTOD using the service ProcessRequest which looks like
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/tiaguinho/gosoap"
-
-	"github.com/transcom/mymove/pkg/services"
 )
 
-var (
-	// UsernameFlag DTOD username env flag
-	UsernameFlag = map[string]string{
-		"cli": "dtod-api-username",
-		"env": "DTOD_API_USERNAME",
-	}
-	// PasswordFlag DTOD password env flag
-	PasswordFlag = map[string]string{
-		"cli": "dtod-api-password",
-		"env": "DTOD_API_PASSWORD",
-	}
-	// URLFlag DTOD URL env flag
-	URLFlag = map[string]string{
-		"cli": "dtod-api-url",
-		"env": "DTOD_API_URL",
-	}
-	// WSDLFlag DTOD WSDL env flag
-	WSDLFlag = map[string]string{
-		"cli": "dtod-api-wsdl",
-		"env": "DTOD_API_WSDL",
-	}
-)
-
-// SoapCaller provides an interface for the Call method of the gosoap Client so it can be mocked
-//go:generate mockery --name SoapCaller
-type SoapCaller interface {
-	Call(m string, p gosoap.SoapParams) (res *gosoap.Response, err error)
+// DTODPlannerMileage is the interface for connecting to DTOD SOAP service and requesting distance mileage
+type DTODPlannerMileage interface {
+	DTODZip5Distance(pickup string, destination string) (int, error)
 }
 
 type dtodZip5DistanceInfo struct {
@@ -93,49 +64,8 @@ type processRequestResult struct {
 	Distance float64 `xml:"Distance"`
 }
 
-// InitDTODFlags initializes DTOD command line flags
-func InitDTODFlags(flag *pflag.FlagSet) {
-	flag.String(UsernameFlag["cli"], "", "DTOD api auth username")
-	flag.String(PasswordFlag["cli"], "", "DTOD api auth password")
-	flag.String(URLFlag["cli"], "", "URL for sending an SOAP request to DTOD")
-	flag.String(WSDLFlag["cli"], "", "WSDL for sending an SOAP request to DTOD")
-}
-
-// GetDTODFlags return the DTOD flag values
-func GetDTODFlags(v *viper.Viper) (string, string, string, string, error) {
-	username := v.GetString(UsernameFlag["cli"])
-	if len(username) == 0 {
-		username = os.Getenv(UsernameFlag["env"])
-		if len(username) == 0 {
-			return "", "", "", "", fmt.Errorf("%s not set", UsernameFlag["env"])
-		}
-	}
-	password := v.GetString(PasswordFlag["cli"])
-	if len(password) == 0 {
-		password = os.Getenv(PasswordFlag["env"])
-		if len(password) == 0 {
-			return "", "", "", "", fmt.Errorf("%s not set", PasswordFlag["env"])
-		}
-	}
-	url := v.GetString(URLFlag["cli"])
-	if len(url) == 0 {
-		url = os.Getenv(URLFlag["env"])
-		if len(url) == 0 {
-			return "", "", "", "", fmt.Errorf("%s not set", URLFlag["env"])
-		}
-	}
-	wsdl := v.GetString(WSDLFlag["cli"])
-	if len(url) == 0 {
-		url = os.Getenv(WSDLFlag["env"])
-		if len(url) == 0 {
-			return "", "", "", "", fmt.Errorf("%s not set", WSDLFlag["env"])
-		}
-	}
-	return username, password, url, wsdl, nil
-}
-
 // NewDTODZip5Distance returns a new DTOD Planner Mileage interface
-func NewDTODZip5Distance(logger Logger, username string, password string, soapClient SoapCaller) services.DTODPlannerMileage {
+func NewDTODZip5Distance(logger Logger, username string, password string, soapClient SoapCaller) DTODPlannerMileage {
 	return &dtodZip5DistanceInfo{
 		logger:     logger,
 		username:   username,
