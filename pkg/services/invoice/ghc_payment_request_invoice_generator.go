@@ -242,7 +242,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// rank
 	rank := serviceMember.Rank
 	if rank == nil {
-		return services.NewBadDataError(fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+		return services.NewConflictError(serviceMember.ID, fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
 	}
 	header.ServiceMemberRank = edisegment.N9{
 		ReferenceIdentificationQualifier: "ML",
@@ -252,7 +252,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// branch
 	branch := serviceMember.Affiliation
 	if branch == nil {
-		return services.NewBadDataError(fmt.Sprintf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
+		return services.NewConflictError(serviceMember.ID, fmt.Sprintf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
 	}
 	header.ServiceMemberBranch = edisegment.N9{
 		ReferenceIdentificationQualifier: "3L",
@@ -329,7 +329,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 			return services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		return services.NewBadDataError("Invalid Order, must have OriginDutyStation")
+		return services.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
@@ -365,7 +365,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 			return services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
 		}
 	} else {
-		return services.NewBadDataError("Invalid Order, must have NewDutyStation")
+		return services.NewConflictError(orders.ID, "Invalid Order, must have NewDutyStation")
 	}
 
 	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, destinationDutyStation.ID)
@@ -434,7 +434,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 			return services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		return services.NewBadDataError("Invalid Order, must have OriginDutyStation")
+		return services.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
