@@ -1,11 +1,11 @@
 package supportapi
 
 import (
-	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -14,7 +14,7 @@ import (
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 
 	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
+	//"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -187,16 +187,19 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
+	// Create the objects that are already in the db
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	dbCustomer := testdatagen.MakeDefaultServiceMember(suite.DB())
 	contractor := testdatagen.MakeDefaultContractor(suite.DB())
 	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	// Create the mto payload we will be requesting to create
 	issueDate := swag.Time(time.Now())
 	reportByDate := swag.Time(time.Now().AddDate(0, 0, -1))
 	referenceID, _ := models.GenerateReferenceID(suite.DB())
 
-	mtoWithoutCustomer := &supportmessages.MoveTaskOrder{
+	mtoPayload := &supportmessages.MoveTaskOrder{
 		ReferenceID:        referenceID,
 		AvailableToPrimeAt: handlers.FmtDateTime(time.Now()),
 		PpmType:            "FULL",
@@ -220,35 +223,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			Tac:              swag.String("47475"),
 		},
 	}
-	mtoPayload := mtoWithoutCustomer
-	/*
-		mtoWithoutCustomer := models.Move{
-			ReferenceID:        &referenceID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-			PPMType:            swag.String("FULL"),
-			ContractorID:       &contractor.ID,
-			Orders: models.Order{
-				Grade:               swag.String("E_6"),
-				OrdersNumber:        swag.String("4554"),
-				NewDutyStationID:    destinationDutyStation.ID,
-				OriginDutyStationID: &originDutyStation.ID,
-				Entitlement: &models.Entitlement{
-					DependentsAuthorized: swag.Bool(true),
-					TotalDependents:      swag.Int(5),
-					NonTemporaryStorage:  swag.Bool(false),
-				},
-				Status:           models.OrderStatusDRAFT,
-				IssueDate:        *issueDate,
-				ReportByDate:     *reportByDate,
-				OrdersType:       "PERMANENT_CHANGE_OF_STATION",
-				UploadedOrdersID: document.ID,
-				TAC:              swag.String("47475"),
-			},
-		}
-	*/
 
+	// Create the handler object
 	request := httptest.NewRequest("POST", "/move-task-orders", nil)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := CreateMoveTaskOrderHandler{context,
+		internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+	}
 
 	suite.T().Run("successful create movetaskorder request 201", func(t *testing.T) {
 		// TESTCASE SCENARIO
@@ -259,30 +240,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Expected outcome:
 		//             New MTO and orders are created. Customer data and duty station data are pulled in.
 
-		// If customerID is provided create MTO without creating a new customer
-		//mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
-		// We delete these because these objects should come from DB, we should not send them
-		mtoPayload.MoveOrder.Customer = nil
-		mtoPayload.MoveOrder.DestinationDutyStation = nil
-		mtoPayload.MoveOrder.OriginDutyStation = nil
-		mtoPayload.MoveOrder.UploadedOrders = nil
-		// We provide the ids to let the handler link the correct objects
+		// We only provide an existing customerID not the whole object.
+		// We expect the handler to link the correct objects
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
-		originDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
-
-		output, _ := mtoPayload.MarshalJSON()
-		fmt.Println(string(output))
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
-		}
-		// make the request
-		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		// CALL FUNCTION UNDER TEST
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -293,7 +257,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
-		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
+		suite.Equal(mtoPayload.ReferenceID, moveTaskOrdersPayload.ReferenceID)
 		suite.NotNil(moveTaskOrdersPayload.Locator)
 		suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 		suite.Equal((models.MoveStatus)(moveTaskOrdersPayload.Status), models.MoveStatusDRAFT)
@@ -305,32 +269,27 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder and moveOrder associated with an existing customer,
 		//             existing duty stations and existing uploaded orders document.
-		//             The status is cancelled.
+		//             The status is canceled.
 		// Expected outcome:
 		//             New MTO and orders are created. Customer data and duty station data are pulled in.
-		//             Status is cancelled.
+		//             Status is canceled.
 
 		// Regenerate the ReferenceID because it needs to be unique
 		referenceID, _ := models.GenerateReferenceID(suite.DB())
-		//mtoWithoutCustomer.ReferenceID = &referenceID
 		mtoPayload.ReferenceID = referenceID
-		// If customerID is provided create MTO without creating a new customer
-		//mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
+
+		// We only provide an existing customerID not the whole object.
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
-		originDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
+
 		// Set IsCanceled to true to set the Move's status to CANCELED
 		mtoPayload.IsCanceled = swag.Bool(true)
+
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
 		}
-		// make the request
-		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
-		}
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		suite.IsType(&movetaskorderops.CreateMoveTaskOrderCreated{}, response)
@@ -353,25 +312,20 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// Regenerate the ReferenceID because it needs to be unique
 		referenceID, _ := models.GenerateReferenceID(suite.DB())
-		//mtoWithoutCustomer.ReferenceID = &referenceID
 		mtoPayload.ReferenceID = referenceID
-		// If customerID is provided create MTO without creating a new customer
-		//mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
+
+		// We only provide an existing customerID not the whole object.
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
-		originDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
+
 		// Set IsCanceled to false to allow default creation of move
 		mtoPayload.IsCanceled = swag.Bool(false)
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
 		}
-		// make the request
-		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
-		}
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		suite.IsType(&movetaskorderops.CreateMoveTaskOrderCreated{}, response)
@@ -392,33 +346,25 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		//             New MTO, orders and customer are created.
 		//             Default status is draft.
 
-		newCustomer := models.ServiceMember{
+		// This time we provide customer details to create
+		mtoPayload.MoveOrder.Customer = &supportmessages.Customer{
 			FirstName: swag.String("Grace"),
 			LastName:  swag.String("Griffin"),
+			Agency:    swag.String("Marines"),
+			DodID:     swag.String("1209457894"),
+			Rank:      (supportmessages.Rank)("ACADEMY_CADET"),
 		}
 		// Regenerate the ReferenceID because it needs to be unique
 		referenceID, _ := models.GenerateReferenceID(suite.DB())
-		//mtoWithoutCustomer.ReferenceID = &referenceID
 		mtoPayload.ReferenceID = referenceID
-
-		// If customerID is provided create MTO without creating a new customer
-		//mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
-		customerPayload := payloads.Customer(&newCustomer)
-		mtoPayload.MoveOrder.Customer = customerPayload
-		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
-		originDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
 		}
 
-		// make the request
-		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
-		}
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		suite.IsType(&movetaskorderops.CreateMoveTaskOrderCreated{}, response)
@@ -426,7 +372,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
 		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
-		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
+		suite.Equal(mtoPayload.ReferenceID, moveTaskOrdersPayload.ReferenceID)
 		suite.NotNil(moveTaskOrdersPayload.Locator)
 		suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 	})
@@ -436,29 +382,19 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder, moveOrder, and existing customer.
-		//             We use a referenceID that has been used already
+		//             We do not generate a new referenceID that has been used already
 		// Expected outcome:
 		//             Failure due to bad referenceID, so unprocessableEntity
 		//             Default status is draft.
 
 		// Running the same request should result in the same reference id
-		// If customerID is provided create MTO without creating a new customer
-		//mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
-		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
-		originDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
-
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
 		}
 
-		// make the request
-		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
-		}
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		suite.IsType(&movetaskorderops.CreateMoveTaskOrderBadRequest{}, response)
@@ -474,22 +410,14 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		//             Default status is draft. Seems to test the same as previous
 
 		// Running the same request should result in the same reference id
-		// If customerID is provided create MTO without creating a new customer
-		//mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
-
-		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
 		}
 
-		// make the request
-		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
-		}
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		suite.IsType(&movetaskorderops.CreateMoveTaskOrderBadRequest{}, response)
@@ -503,16 +431,11 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Expected outcome:
 		//             NotFound Response
 
-		//mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
-		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-
 		mockCreator := supportMocks.InternalMoveTaskOrderCreator{}
-		handler := CreateMoveTaskOrderHandler{context,
-			&mockCreator,
-		}
+		handler.moveTaskOrderCreator = &mockCreator
 
+		// Set expectation that a call to InternalCreateMoveTaskOrder will return a notFoundError
 		notFoundError := services.NotFoundError{}
-
 		mockCreator.On("InternalCreateMoveTaskOrder",
 			mock.Anything,
 			mock.Anything,
@@ -535,21 +458,20 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Expected outcome:
 		//             Failure of 404 Not Found since the dutystation is not found.
 
-		//mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
-		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
-		// using a customerID as a dutyStationID should cause a query error
-		originDutyStationID := strfmt.UUID(dbCustomer.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
+		// Using a randomID as a dutyStationID should cause a query error
+		mtoPayload.MoveOrder.OriginDutyStationID = handlers.FmtUUID(uuid.Must(uuid.NewV4()))
+
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
 		}
-		// make the request
+
 		handler := CreateMoveTaskOrderHandler{context,
 			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		suite.IsType(&movetaskorderops.CreateMoveTaskOrderNotFound{}, response)
