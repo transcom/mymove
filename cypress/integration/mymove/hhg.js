@@ -8,6 +8,7 @@ describe('A customer following HHG Setup flow', function () {
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
     cy.intercept('**/internal/moves/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/internal/users/logged_in').as('getLoggedInUser');
+    
   });
 
   it('can create an HHG shipment, review and edit details, and submit their move', function () {
@@ -18,12 +19,15 @@ describe('A customer following HHG Setup flow', function () {
     customerSetsUpAnHHGMove();
     customerReviewsMoveDetailsAndEditsHHG();
     customerSubmitsMove();
+    cy.pa11y();
   });
 });
 
 function customerChoosesAnHHGMove() {
   cy.get('button[data-testid="shipment-selection-btn"]').click();
+  cy.pa11y();
   cy.nextPage();
+  cy.pa11y();
   cy.get('h2').contains('Choose 1 shipment at a time.');
 
   cy.get('input[type="radio"]').eq(1).check({ force: true });
@@ -31,6 +35,7 @@ function customerChoosesAnHHGMove() {
 }
 
 function customerSetsUpAnHHGMove() {
+  cy.pa11y();
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
   cy.get('input[name="pickup.requestedDate"]').focus().blur();
@@ -114,6 +119,7 @@ function customerSetsUpAnHHGMove() {
 }
 
 function customerReviewsMoveDetailsAndEditsHHG() {
+  cy.pa11y();
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
   cy.get('[data-testid="ShipmentContainer"]').contains('HHG 1');
@@ -146,11 +152,11 @@ function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('button').contains('Finish later').click();
   cy.get('h3').contains('Time to submit your move');
   cy.get('button').contains('Review and submit').click();
-
   cy.nextPage();
 }
 
 function customerSubmitsMove() {
+  cy.pa11y();
   cy.get('h1').contains('Now for the official part...');
   cy.get('input[name="signature"]').type('Signature');
   cy.get('button').contains('Complete').click();
