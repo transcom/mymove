@@ -1037,18 +1037,6 @@ func init() {
     "DutyStation": {
       "type": "object",
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "addressID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1381,7 +1369,9 @@ func init() {
         "issueDate",
         "status",
         "uploadedOrdersID",
-        "tac"
+        "tac",
+        "originDutyStationID",
+        "destinationDutyStationID"
       ],
       "properties": {
         "customer": {
@@ -3250,18 +3240,6 @@ func init() {
     "DutyStation": {
       "type": "object",
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "addressID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -3594,7 +3572,9 @@ func init() {
         "issueDate",
         "status",
         "uploadedOrdersID",
-        "tac"
+        "tac",
+        "originDutyStationID",
+        "destinationDutyStationID"
       ],
       "properties": {
         "customer": {

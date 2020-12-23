@@ -28,6 +28,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		return nil
 	}
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
+
 	payload := &supportmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
@@ -90,24 +91,29 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 	issueDate := strfmt.Date(moveOrder.IssueDate)
 
 	payload := supportmessages.MoveOrder{
-		DestinationDutyStation:   destinationDutyStation,
-		DestinationDutyStationID: destinationDutyStation.ID,
-		Entitlement:              Entitlement(moveOrder.Entitlement),
-		Customer:                 Customer(&moveOrder.ServiceMember),
-		OrderNumber:              moveOrder.OrdersNumber,
-		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
-		ID:                       strfmt.UUID(moveOrder.ID.String()),
-		OriginDutyStation:        originDutyStation,
-		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
-		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
-		UploadedOrders:           uploadedOrders,
-		UploadedOrdersID:         uploadedOrders.ID,
-		ReportByDate:             &reportByDate,
-		IssueDate:                &issueDate,
+		DestinationDutyStation: destinationDutyStation,
+		Entitlement:            Entitlement(moveOrder.Entitlement),
+		Customer:               Customer(&moveOrder.ServiceMember),
+		OrderNumber:            moveOrder.OrdersNumber,
+		OrdersType:             supportmessages.OrdersType(moveOrder.OrdersType),
+		ID:                     strfmt.UUID(moveOrder.ID.String()),
+		OriginDutyStation:      originDutyStation,
+		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+		Status:                 supportmessages.OrdersStatus(moveOrder.Status),
+		UploadedOrders:         uploadedOrders,
+		UploadedOrdersID:       uploadedOrders.ID,
+		ReportByDate:           &reportByDate,
+		IssueDate:              &issueDate,
 	}
 
 	if moveOrder.Grade != nil {
 		payload.Rank = (supportmessages.Rank)(*moveOrder.Grade)
+	}
+	if destinationDutyStation != nil {
+		payload.DestinationDutyStationID = &(destinationDutyStation.ID)
+	}
+	if originDutyStation != nil {
+		payload.OriginDutyStationID = &(originDutyStation.ID)
 	}
 	return &payload
 }
@@ -156,13 +162,9 @@ func DutyStation(dutyStation *models.DutyStation) *supportmessages.DutyStation {
 	if dutyStation == nil {
 		return nil
 	}
-	address := Address(&dutyStation.Address)
 	payload := supportmessages.DutyStation{
-		Address:   address,
-		AddressID: address.ID,
-		ID:        strfmt.UUID(dutyStation.ID.String()),
-		Name:      dutyStation.Name,
-		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
+		ID:   strfmt.UUID(dutyStation.ID.String()),
+		Name: dutyStation.Name,
 	}
 	return &payload
 }

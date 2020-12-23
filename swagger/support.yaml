@@ -823,15 +823,6 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      addressID:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      address:
-        $ref: '#/definitions/Address'
-      eTag:
-        type: string
-        readOnly: true
   Entitlement:
     properties:
       id:
@@ -979,6 +970,8 @@ definitions:
       - status
       - uploadedOrdersID
       - tac
+      - originDutyStationID
+      - destinationDutyStationID
   MoveStatus:
     type: string
     description: Current status of this MoveTaskOrder

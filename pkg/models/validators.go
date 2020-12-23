@@ -351,15 +351,19 @@ type OptionalUUIDIsPresent struct {
 
 // IsValid adds an error if the field is not a valid uuid
 func (v *OptionalUUIDIsPresent) IsValid(errors *validate.Errors) {
+	// If the pointer is nil, that's cool
 	if v.Field == nil {
 		return
 	}
 
 	s := v.Field.String()
+	// Create a string from the field. if it's not (an empty string or pointing to a nil uuid) that's cool
 	if strings.TrimSpace(s) != "" && *v.Field != uuid.Nil {
 		return
 	}
 
+	// So if the pointer is not nil, and it's an empty string, that's not cool
+	// or if the pointer is not nil, and it's pointing to a nil uuid, that's not cool
 	if len(v.Message) > 0 {
 		errors.Add(validators.GenerateKey(v.Name), v.Message)
 		return

@@ -44,7 +44,9 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 			return err
 		}
 
+		// Convert payload to model for moveTaskOrder
 		moveTaskOrder = MoveTaskOrderModel(&payload)
+		// Generate a referenceID if one was not provided
 		if *moveTaskOrder.ReferenceID == "" {
 			refID, err = models.GenerateReferenceID(tx)
 			moveTaskOrder.ReferenceID = &refID
@@ -52,9 +54,11 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 		if err != nil {
 			return err
 		}
+		// Generate a locator if one was not provided
 		if moveTaskOrder.Locator == "" {
 			moveTaskOrder.Locator = models.GenerateLocator()
 		}
+		// Set default status to DRAFT
 		if moveTaskOrder.Status == "" {
 			moveTaskOrder.Status = models.MoveStatusDRAFT
 		}
@@ -71,6 +75,8 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(err))
 			return services.NewQueryError("MoveTaskOrder", err, "Unable to create MoveTaskOrder.")
 		}
+
+		// Populate nested object so that the returned
 		return nil
 	})
 
@@ -93,12 +99,39 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrd
 		return nil, returnErr
 	}
 
+	// Check that the moveOrder destination duty station exists
+	// It's required in the payload
+	destinationDutyStation := models.DutyStation{}
+	destinationDutyStationID := uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
+	err := tx.Find(&destinationDutyStation, destinationDutyStationID)
+	if err != nil {
+		logger.Error("supportapi.createMoveOrder error", zap.Error(err))
+		return nil, services.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
+	}
+	var originDutyStation *models.DutyStation
+	if moveOrderPayload.OriginDutyStationID.String() != "" {
+		originDutyStation = &models.DutyStation{}
+		originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
+		err = tx.Find(originDutyStation, originDutyStationID)
+		if err != nil {
+			logger.Error("supportapi.createMoveOrder error", zap.Error(err))
+			return nil, services.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
+		}
+	}
+
 	// Move order model will also contain the entitlement
 	moveOrder := MoveOrderModel(moveOrderPayload)
 
 	// Add customer to mO
 	moveOrder.ServiceMember = *customer
 	moveOrder.ServiceMemberID = customer.ID
+	if originDutyStation != nil {
+		moveOrder.OriginDutyStation = originDutyStation
+		originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
+		moveOrder.OriginDutyStationID = &originDutyStationID
+	}
+	moveOrder.NewDutyStation = destinationDutyStation
+	moveOrder.NewDutyStationID = destinationDutyStationID
 
 	// Creates the moveOrder and the entitlement at the same time
 	verrs, err := tx.Eager().ValidateAndCreate(moveOrder)
@@ -223,11 +256,14 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
 	model.ServiceMemberID = customerID
 
-	destinationDutyStationID := uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
-	model.NewDutyStationID = destinationDutyStationID
+	if moveOrderPayload.DestinationDutyStationID != nil {
+		model.NewDutyStationID = uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
+	}
 
-	originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
-	model.OriginDutyStationID = &originDutyStationID
+	if moveOrderPayload.OriginDutyStationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
+		model.OriginDutyStationID = &originDutyStationID
+	}
 
 	if moveOrderPayload.Customer != nil {
 		model.ServiceMember = *CustomerModel(moveOrderPayload.Customer)

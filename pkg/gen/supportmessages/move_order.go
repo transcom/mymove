@@ -34,8 +34,9 @@ type MoveOrder struct {
 	//
 	// If creating a MoveTaskOrder, this should match an existing duty station.
 	//
+	// Required: true
 	// Format: uuid
-	DestinationDutyStationID strfmt.UUID `json:"destinationDutyStationID,omitempty"`
+	DestinationDutyStationID *strfmt.UUID `json:"destinationDutyStationID"`
 
 	// Uniquely identifies the state of the MoveOrder object (but not the nested objects)
 	//
@@ -72,8 +73,9 @@ type MoveOrder struct {
 	//
 	// If creating a MoveTaskOrder, this should match an existing duty station.
 	//
+	// Required: true
 	// Format: uuid
-	OriginDutyStationID strfmt.UUID `json:"originDutyStationID,omitempty"`
+	OriginDutyStationID *strfmt.UUID `json:"originDutyStationID"`
 
 	// rank
 	// Required: true
@@ -230,8 +232,8 @@ func (m *MoveOrder) validateDestinationDutyStation(formats strfmt.Registry) erro
 
 func (m *MoveOrder) validateDestinationDutyStationID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.DestinationDutyStationID) { // not required
-		return nil
+	if err := validate.Required("destinationDutyStationID", "body", m.DestinationDutyStationID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("destinationDutyStationID", "body", "uuid", m.DestinationDutyStationID.String(), formats); err != nil {
@@ -326,8 +328,8 @@ func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 
 func (m *MoveOrder) validateOriginDutyStationID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.OriginDutyStationID) { // not required
-		return nil
+	if err := validate.Required("originDutyStationID", "body", m.OriginDutyStationID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("originDutyStationID", "body", "uuid", m.OriginDutyStationID.String(), formats); err != nil {

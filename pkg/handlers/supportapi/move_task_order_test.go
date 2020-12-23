@@ -230,10 +230,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		mtoPayload.MoveOrder.Customer = nil
 		mtoPayload.MoveOrder.DestinationDutyStation = nil
 		mtoPayload.MoveOrder.OriginDutyStation = nil
+		mtoPayload.MoveOrder.UploadedOrders = nil
 		// We provide the ids to link the correct objects
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(originDutyStation.ID.String())
+		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
+		originDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
 
 		output, _ := mtoPayload.MarshalJSON()
 		fmt.Println(string(output))
@@ -269,8 +272,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(originDutyStation.ID.String())
+		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
+		originDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
 		// Set IsCanceled to true to set the Move's status to CANCELED
 		mtoPayload.IsCanceled = swag.Bool(true)
 		params := movetaskorderops.CreateMoveTaskOrderParams{
@@ -299,8 +304,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(originDutyStation.ID.String())
+		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
+		originDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
 		// Set IsCanceled to true to set the Move's status to CANCELED
 		mtoPayload.IsCanceled = swag.Bool(false)
 		params := movetaskorderops.CreateMoveTaskOrderParams{
@@ -335,8 +342,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
 		customerPayload := payloads.Customer(&newCustomer)
 		mtoPayload.MoveOrder.Customer = customerPayload
-		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(originDutyStation.ID.String())
+		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
+		originDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
@@ -364,8 +373,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
-		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(originDutyStation.ID.String())
+		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
+		originDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
@@ -386,7 +397,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
+		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
@@ -430,9 +442,11 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	suite.T().Run("failed create movetaskorder request 400 -- Invalid Request", func(t *testing.T) {
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
-		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
+		destinationDutyStationID := strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = &destinationDutyStationID
 		// using a customerID as a dutyStationID should cause a query error
-		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(dbCustomer.ID.String())
+		originDutyStationID := strfmt.UUID(dbCustomer.ID.String())
+		mtoPayload.MoveOrder.OriginDutyStationID = &originDutyStationID
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,

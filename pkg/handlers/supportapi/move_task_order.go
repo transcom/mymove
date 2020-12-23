@@ -126,6 +126,7 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		case services.InvalidInputError:
+			// MYTODO: why is this create?
 			return movetaskorderops.NewCreateMoveTaskOrderUnprocessableEntity().WithPayload(
 				payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors))
 		default:
@@ -149,6 +150,7 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 	moveTaskOrder, err := h.moveTaskOrderCreator.InternalCreateMoveTaskOrder(*params.Body, logger)
 
 	if err != nil {
+		logger.Error("primeapi.support.CreateMoveTaskOrderHandler error", zap.Error(err))
 		switch typedErr := err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(
@@ -165,6 +167,8 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	}
+
+	// On creation, some of the nested objects are not populated. Populating them here:
 	moveTaskOrderPayload := payloads.MoveTaskOrder(moveTaskOrder)
 	return movetaskorderops.NewCreateMoveTaskOrderCreated().WithPayload(moveTaskOrderPayload)
 
