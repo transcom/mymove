@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 
 import styles from '../MoveDetailTable.module.scss';
 
@@ -8,7 +7,7 @@ import { OrdersInfoShape } from 'types/moveOrder';
 import { formatDate } from 'shared/dates';
 import { departmentIndicatorReadable, ordersTypeReadable, ordersTypeDetailReadable } from 'shared/formatters';
 
-function OrdersTable({ ordersInfo, moveCode }) {
+function OrdersTable({ ordersInfo }) {
   return (
     <div className={styles.MoveDetailTable}>
       <div className="stackedtable-header">
@@ -16,7 +15,7 @@ function OrdersTable({ ordersInfo, moveCode }) {
           <h4>Orders</h4>
         </div>
         <div>
-          <Link className="usa-button usa-button--secondary" to={`/moves/${moveCode}/orders`}>
+          <Link className="usa-button usa-button--secondary" to="orders">
             View & edit orders
           </Link>
         </div>
@@ -75,7 +74,6 @@ function OrdersTable({ ordersInfo, moveCode }) {
 
 OrdersTable.propTypes = {
   ordersInfo: OrdersInfoShape.isRequired,
-  moveCode: PropTypes.string.isRequired,
 };
 
 export default OrdersTable;
