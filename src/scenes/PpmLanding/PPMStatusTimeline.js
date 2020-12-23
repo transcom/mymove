@@ -1,13 +1,16 @@
 import React from 'react';
 import { get, includes } from 'lodash';
-import { StatusTimeline } from './StatusTimeline';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+
+import { StatusTimeline } from './StatusTimeline';
+
 import {
   getSignedCertification,
   selectPaymentRequestCertificationForMove,
 } from 'shared/Entities/modules/signed_certifications';
+import { selectCurrentMove } from 'store/entities/selectors';
 
 const PpmStatuses = {
   Submitted: 'SUBMITTED',
@@ -124,10 +127,11 @@ PPMStatusTimeline.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const move = state.moves.currentMove || state.moves.latestMove || {};
-  const moveId = move.id || null;
+  const move = selectCurrentMove(state);
+  const moveId = move?.id;
+
   return {
-    signedCertification: selectPaymentRequestCertificationForMove(state, move.id),
+    signedCertification: selectPaymentRequestCertificationForMove(state, moveId),
     moveId,
   };
 }

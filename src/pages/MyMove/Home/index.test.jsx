@@ -1,13 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
 import moment from 'moment';
 
 import Home from '.';
 
 import { MockProviders } from 'testUtils';
-import { store } from 'shared/store';
 import { formatCustomerDate } from 'utils/formatters';
 import { MOVE_STATUSES } from 'shared/constants';
 
@@ -34,9 +32,9 @@ const defaultProps = {
 
 function mountHome(props = {}) {
   return mount(
-    <Provider store={store}>
+    <MockProviders>
       <Home {...defaultProps} {...props} />
-    </Provider>,
+    </MockProviders>,
   );
 }
 

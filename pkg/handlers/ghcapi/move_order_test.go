@@ -144,12 +144,18 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 
+	newAuthorizedWeight := int64(10000)
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	grade := ghcmessages.GradeO5
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 	body := &ghcmessages.UpdateMoveOrderPayload{
+		AuthorizedWeight:    &newAuthorizedWeight,
+		Grade:               &grade,
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
-		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
-		DepartmentIndicator: "COAST_GUARD",
+		OrdersTypeDetail:    &ordersTypeDetail,
+		DepartmentIndicator: &deptIndicator,
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
@@ -188,6 +194,8 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	suite.Equal(body.DepartmentIndicator, moveOrdersPayload.DepartmentIndicator)
 	suite.Equal(body.Tac, moveOrdersPayload.Tac)
 	suite.Equal(body.Sac, moveOrdersPayload.Sac)
+	suite.Equal(body.AuthorizedWeight, moveOrdersPayload.Entitlement.AuthorizedWeight)
+	suite.Equal(body.Grade, moveOrdersPayload.Grade)
 }
 
 // Test that a move order notification got stored Successfully
@@ -201,13 +209,15 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
 	body := &ghcmessages.UpdateMoveOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
-		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
-		DepartmentIndicator: "COAST_GUARD",
+		OrdersTypeDetail:    &ordersTypeDetail,
+		DepartmentIndicator: &deptIndicator,
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
@@ -249,6 +259,8 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
 	params := moveorderop.UpdateMoveOrderParams{
 		HTTPRequest: request,
@@ -258,8 +270,8 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 			IssueDate:           handlers.FmtDatePtr(&issueDate),
 			ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 			OrdersType:          "RETIREMENT",
-			OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
-			DepartmentIndicator: "COAST_GUARD",
+			OrdersTypeDetail:    &ordersTypeDetail,
+			DepartmentIndicator: &deptIndicator,
 			OrdersNumber:        handlers.FmtString("ORDER100"),
 			NewDutyStationID:    handlers.FmtUUID(uuid.Nil),
 			OriginDutyStationID: handlers.FmtUUID(uuid.Nil),
@@ -290,13 +302,15 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
 	body := &ghcmessages.UpdateMoveOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
-		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
-		DepartmentIndicator: "COAST_GUARD",
+		OrdersTypeDetail:    &ordersTypeDetail,
+		DepartmentIndicator: &deptIndicator,
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
@@ -332,13 +346,15 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
 	body := &ghcmessages.UpdateMoveOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
-		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
-		DepartmentIndicator: "COAST_GUARD",
+		OrdersTypeDetail:    &ordersTypeDetail,
+		DepartmentIndicator: &deptIndicator,
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(uuid.Nil), // An unknown duty station will result in a invalid input error
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
@@ -362,5 +378,5 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderBadRequest{}, response)
+	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderPreconditionFailed{}, response)
 }

@@ -183,50 +183,33 @@ const cypressUpdateChecks = async () => {
 
   // check if relevant package.jsons have changed
   const rootPackageFile = 'package.json';
-  const cypressPackageFile = 'cypress/package.json';
   const rootPackageChanged = allFiles.includes(rootPackageFile);
-  const cypressPackageChanged = allFiles.includes('cypress/package.json');
-  const cypressPackageName = '"cypress":';
-  const versionRegex = /(~|\^|)\d+.\d+.\d+/;
+  const cypressPackageNames = [
+    '"cypress":',
+    '"cypress-audit":',
+    '"cypress-multi-reporters":',
+    '"cypress-wait-until":',
+    '"mocha":',
+    '"mocha-junit-reporter":',
+    '"moment":',
+  ];
 
   let hasRootCypressDepChanged = false;
-  let hasCypressPackageCypressDepChanged = false;
-  let rootVersion;
-  let cypressPackageVersion;
 
   // if root changed, check for cypress in diff
   if (rootPackageChanged) {
     const rootPackageDiff = await danger.git.diffForFile(rootPackageFile);
-    if (rootPackageDiff && rootPackageDiff.diff.includes(cypressPackageName)) {
-      hasRootCypressDepChanged = true;
-
-      const diff = rootPackageDiff.diff.split(cypressPackageName)[1]; // we don't care about diff before cypress
-      [rootVersion] = diff.match(versionRegex); // the first version # will be cypress's
-    }
+    cypressPackageNames.forEach((cypressPackageName) => {
+      if (hasRootCypressDepChanged || (rootPackageDiff && rootPackageDiff.diff.includes(cypressPackageName))) {
+        hasRootCypressDepChanged = true;
+      }
+    });
   }
 
-  // if cypress package changed, check for cypress in diff
-  if (cypressPackageChanged) {
-    const cypressPackageDiff = await danger.git.diffForFile(cypressPackageFile);
-    if (cypressPackageDiff && cypressPackageDiff.diff.includes(cypressPackageName)) {
-      hasCypressPackageCypressDepChanged = true;
-
-      const diff = cypressPackageDiff.diff.split(cypressPackageName)[1]; // we don't care about diff before cypress
-      [cypressPackageVersion] = diff.match(versionRegex); // the first version # will be cypress's
-    }
-  }
-
-  if (hasRootCypressDepChanged !== hasCypressPackageCypressDepChanged) {
+  if (hasRootCypressDepChanged) {
     warn(
-      `It looks like you updated the Cypress package dependency in one of two
-required places. Please update it in both the root package.json and the cypress/
-folder's separate package.json`,
-    );
-  } else if (rootVersion !== cypressPackageVersion) {
-    warn(
-      `It looks like there is a Cypress version mismatch between the root
-package.json and the cypress/ folder's separate package.json. Please double
-check they have the same version.`,
+      `It looks like you updated the Cypress package dependency in one of two required places.
+Please update it in both the root package.json and the [cirlcleci-docker/milmove-cypress/](https://github.com/transcom/circleci-docker) folder's separate package.json`,
     );
   }
 };

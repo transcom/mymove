@@ -50,3 +50,70 @@ export const selectBackupContacts = (state) => {
   const backupContactIds = serviceMember?.backup_contacts || [];
   return backupContactIds.map((id) => state.entities.backupContacts?.[`${id}`]);
 };
+
+/** Orders */
+export const selectOrdersForLoggedInUser = (state) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const ordersIds = serviceMember?.orders || [];
+  return ordersIds.map((id) => state.entities.orders?.[`${id}`]);
+};
+
+export const selectCurrentOrders = (state) => {
+  const orders = selectOrdersForLoggedInUser(state);
+  const [activeOrders] = orders.filter(
+    (o) => ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'].indexOf(o?.status) > -1,
+  );
+
+  return activeOrders || orders[0] || null;
+};
+
+export const selectOrdersById = (state, id) => {
+  return state.entities.orders?.[`${id}`] || null;
+};
+
+export const selectUploadsForCurrentOrders = (state) => {
+  const orders = selectCurrentOrders(state);
+  return orders ? orders.uploaded_orders?.uploads : [];
+};
+
+/** Moves */
+export const selectMovesForLoggedInUser = (state) => {
+  const orders = selectOrdersForLoggedInUser(state);
+  const moves = orders?.reduce((prev, cur) => {
+    return prev.concat(cur.moves?.map((id) => state.entities.moves?.[`${id}`]) || []);
+  }, []);
+
+  return moves;
+};
+
+export const selectMovesForCurrentOrders = (state) => {
+  const activeOrders = selectCurrentOrders(state);
+  const moveIds = activeOrders?.moves || [];
+  return moveIds.map((id) => state.entities.moves?.[`${id}`]);
+};
+
+export const selectCurrentMove = (state) => {
+  const moves = selectMovesForCurrentOrders(state);
+  const [activeMove] = moves.filter(
+    (m) => ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'].indexOf(m?.status) > -1,
+  );
+  return activeMove || moves[0] || null;
+};
+
+export const selectMoveIsApproved = createSelector(selectCurrentMove, (move) => move?.status === 'APPROVED');
+
+export const selectHasCanceledMove = createSelector(selectMovesForLoggedInUser, (moves) =>
+  moves.some((m) => m.status === 'CANCELED'),
+);
+
+export const selectMoveType = createSelector(selectCurrentMove, (move) => move?.selected_move_type);
+
+/** MTO Shipments */
+export const selectMTOShipmentsForCurrentMove = (state) => {
+  const currentMove = selectCurrentMove(state);
+  return Object.values(state.entities.mtoShipments)?.filter((m) => m.moveTaskOrderID === currentMove?.id);
+};
+
+export function selectMTOShipmentById(state, id) {
+  return state.entities?.mtoShipments?.[`${id}`] || null;
+}

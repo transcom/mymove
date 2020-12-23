@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/cli"
@@ -105,14 +106,14 @@ func zip3TransitDistanceHelper(planner Planner, source string, destination strin
 type Planner interface {
 	TransitDistance(source *models.Address, destination *models.Address) (int, error)
 	LatLongTransitDistance(source LatLong, destination LatLong) (int, error)
-	// Zip5TransitDistanceLineHaul is used by PPM flow and checks for minimum distance restriciton as PPM doesn't allow short hauls
+	// Zip5TransitDistanceLineHaul is used by PPM flow and checks for minimum distance restriction as PPM doesn't allow short hauls
 	// New code should probably make the minimum checks after calling Zip5TransitDistance over using this method
 	Zip5TransitDistanceLineHaul(source string, destination string) (int, error)
 	Zip5TransitDistance(source string, destination string) (int, error)
 	Zip3TransitDistance(source string, destination string) (int, error)
 }
 
-// InitRoutePlanner validates Route Planner command line flags
+// InitRoutePlanner creates a new HERE route planner that adheres to the Planner interface
 func InitRoutePlanner(v *viper.Viper, logger Logger) Planner {
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 	return NewHEREPlanner(
@@ -122,4 +123,9 @@ func InitRoutePlanner(v *viper.Viper, logger Logger) Planner {
 		v.GetString(cli.HEREMapsRoutingEndpointFlag),
 		v.GetString(cli.HEREMapsAppIDFlag),
 		v.GetString(cli.HEREMapsAppCodeFlag))
+}
+
+// InitGHCRoutePlanner creates a new GHC route planner that adheres to the Planner interface
+func InitGHCRoutePlanner(v *viper.Viper, db *pop.Connection, logger Logger) Planner {
+	return NewGHCPlanner(db, logger)
 }

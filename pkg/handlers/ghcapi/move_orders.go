@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -146,8 +148,6 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 // MoveOrder transforms UpdateMoveOrderPayload to Order model
 func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error) {
 
-	ordersTypeDetail := internalmessages.OrdersTypeDetail(payload.OrdersTypeDetail)
-
 	var originDutyStationID uuid.UUID
 	if payload.OriginDutyStationID != nil {
 		originDutyStationID = uuid.FromStringOrNil(payload.OriginDutyStationID.String())
@@ -158,18 +158,39 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 		return models.Order{}, err
 	}
 
-	departmentIndicator := string(payload.DepartmentIndicator)
+	var departmentIndicator *string
+	if payload.DepartmentIndicator != nil {
+		departmentIndicator = (*string)(payload.DepartmentIndicator)
+	}
+
+	var grade *string
+	if payload.Grade != nil {
+		grade = (*string)(payload.Grade)
+	}
+
+	var entitlement models.Entitlement
+	if payload.AuthorizedWeight != nil {
+		entitlement.DBAuthorizedWeight = swag.Int(int(*payload.AuthorizedWeight))
+	}
+
+	var ordersTypeDetail *internalmessages.OrdersTypeDetail
+	if payload.OrdersTypeDetail != nil {
+		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)
+		ordersTypeDetail = &orderTypeDetail
+	}
 
 	return models.Order{
+		DepartmentIndicator: departmentIndicator,
+		Entitlement:         &entitlement,
+		Grade:               grade,
 		IssueDate:           time.Time(*payload.IssueDate),
-		ReportByDate:        time.Time(*payload.ReportByDate),
-		OrdersType:          internalmessages.OrdersType(payload.OrdersType),
-		OrdersTypeDetail:    &ordersTypeDetail,
 		NewDutyStationID:    newDutyStationID,
 		OrdersNumber:        payload.OrdersNumber,
-		TAC:                 payload.Tac,
-		SAC:                 payload.Sac,
-		DepartmentIndicator: &departmentIndicator,
+		OrdersType:          internalmessages.OrdersType(payload.OrdersType),
+		OrdersTypeDetail:    ordersTypeDetail,
 		OriginDutyStationID: &originDutyStationID,
+		ReportByDate:        time.Time(*payload.ReportByDate),
+		SAC:                 payload.Sac,
+		TAC:                 payload.Tac,
 	}, nil
 }

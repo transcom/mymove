@@ -24,7 +24,7 @@ import {
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentMove, selectCurrentOrders } from 'store/entities/selectors';
 
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 
@@ -183,7 +183,7 @@ class EditDateAndLocation extends Component {
         currentPPM.original_move_date,
         currentPPM.days_in_storage,
         currentPPM.pickup_postal_code,
-        this.currentOrders.id,
+        this.props.currentOrders.id,
         currentPPM.weight_estimate,
       );
     }
@@ -237,24 +237,21 @@ EditDateAndLocation.propTypes = {
   error: PropTypes.object,
 };
 function mapStateToProps(state) {
-  const moveID = state.moves.currentMove.id;
+  const currentMove = selectCurrentMove(state) || {};
+  const moveID = currentMove?.id;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    move: get(state, 'moves.currentMove'),
-    currentOrders: get(state.orders, 'currentOrders'),
+    move: currentMove,
+    currentOrders: selectCurrentOrders(state) || {},
     currentPPM: selectActivePPMForMove(state, moveID),
     formValues: getFormValues(editDateAndLocationFormName)(state),
     entitlement: loadEntitlementsFromState(state),
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
     sitEstimate: selectPPMSitEstimate(state),
-    entitiesSitReimbursement: get(
-      selectActivePPMForMove(state, get(state, 'moves.currentMove.id')),
-      'estimated_storage_reimbursement',
-      '',
-    ),
+    entitiesSitReimbursement: get(selectActivePPMForMove(state, moveID), 'estimated_storage_reimbursement', ''),
   };
 
   const defaultPickupZip = serviceMember?.residential_address?.postal_code;
