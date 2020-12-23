@@ -27,6 +27,7 @@ describe('Customer NTSr Setup flow', function () {
 });
 
 function customerEditsNTSRShipmentFromHomePage() {
+  cy.pa11y();
   cy.get('[data-testid="shipment-list-item-container"]').contains('NTS-R').click();
   cy.get('textarea[data-testid="remarks"]').clear().type('Warning: glass').blur();
 
@@ -37,6 +38,7 @@ function customerEditsNTSRShipmentFromHomePage() {
 }
 
 function customerReviewsNTSRMoveDetails() {
+  cy.pa11y();
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
   // Requested delivery date
@@ -55,6 +57,7 @@ function customerReviewsNTSRMoveDetails() {
 }
 
 function customerEditsNTSRShipmentFromReviewPage() {
+  cy.pa11y();
   cy.get('button[data-testid="edit-ntsr-shipment-btn"]').contains('Edit').click();
   cy.get('input[name="delivery.requestedDate"]').clear().type('01/01/2022').blur();
   cy.get('[data-testid="mailingAddress1"]').clear().type('123 Maple street');
@@ -71,15 +74,19 @@ function customerEditsNTSRShipmentFromReviewPage() {
 }
 
 function customerVisitsReviewPage() {
+  cy.pa11y();
   cy.get('button[data-testid="review-and-submit-btn"]').contains('Review and submit').click();
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 }
 
 function customerCreatesAnNTSRShipment() {
+  cy.pa11y();
   cy.get('[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
+  cy.pa11y();
   cy.get('input[type="radio"]').eq(3).check({ force: true });
   cy.nextPage();
+  cy.pa11y();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ntsr-start/);
   });
@@ -99,4 +106,5 @@ function customerCreatesAnNTSRShipment() {
   cy.get(`[data-testid="remarks"]`).first().type('some other customer remark');
 
   cy.nextPage();
+  cy.pa11y();
 }
