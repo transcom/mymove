@@ -54,7 +54,7 @@ require (
 	github.com/mattn/go-shellwords v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.4.0
 	github.com/namsral/flag v1.7.4-pre
-	github.com/pdfcpu/pdfcpu v0.2.5
+	github.com/pdfcpu/pdfcpu v0.3.8
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.12.0
 	github.com/rickar/cal v1.0.5
