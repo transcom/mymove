@@ -3537,6 +3537,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "grade": {
           "$ref": "#/definitions/Grade"
         },
@@ -7610,6 +7614,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"

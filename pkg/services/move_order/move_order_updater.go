@@ -30,7 +30,6 @@ type UpdateMoveOrderQueryBuilder interface {
 }
 
 func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, moveOrder models.Order) (*models.Order, error) {
-
 	existingOrder, err := s.moveOrderFetcher.FetchMoveOrder(moveOrder.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(moveOrder.ID, "while looking for moveOrder")
@@ -51,8 +50,16 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 			}
 		}
 
-		if moveOrder.Entitlement.DBAuthorizedWeight != nil {
-			existingOrder.Entitlement.DBAuthorizedWeight = moveOrder.Entitlement.DBAuthorizedWeight
+		if entitlement := moveOrder.Entitlement; entitlement != nil && (entitlement.DBAuthorizedWeight != nil || entitlement.DependentsAuthorized != nil) {
+
+			if entitlement.DBAuthorizedWeight != nil {
+				existingOrder.Entitlement.DBAuthorizedWeight = entitlement.DBAuthorizedWeight
+			}
+
+			if entitlement.DependentsAuthorized != nil {
+				existingOrder.Entitlement.DependentsAuthorized = entitlement.DependentsAuthorized
+			}
+
 			err = tx.Save(existingOrder.Entitlement)
 			if err != nil {
 				return err

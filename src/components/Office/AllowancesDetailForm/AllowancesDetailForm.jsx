@@ -1,4 +1,5 @@
 import React from 'react';
+import { Field } from 'formik';
 
 import styles from './AllowancesDetailForm.module.scss';
 
@@ -40,6 +41,10 @@ const AllowancesDetailForm = ({ entitlements, rankOptions, branchOptions }) => {
         <dt>Storage in-transit</dt>
         <dd data-testid="storageInTransit">{formatDaysInTransit(entitlements.storageInTransit)}</dd>
       </dl>
+      <div className={styles.DependentsAuthorized}>
+        <Field type="checkbox" name="dependentsAuthorized" />
+        <label htmlFor="dependentsAuthorized"> Dependents Authorized</label>
+      </div>
     </div>
   );
 };

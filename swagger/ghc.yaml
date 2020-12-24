@@ -1812,6 +1812,9 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
       agency:
         description: the branch that the service member belongs to
         $ref: '#/definitions/Branch'
