@@ -7,9 +7,8 @@ import TabNav from 'components/TabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
+const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
 const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrder'));
-const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
-const MoveAllowances = lazy(() => import('pages/Office/MoveAllowances/MoveAllowances'));
 const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
@@ -71,11 +70,11 @@ const TXOMoveInfo = () => {
           </Route>
 
           <Route path="/moves/:moveCode/orders" exact>
-            <MoveOrders />
+            <MoveDocumentWrapper formName="orders" />
           </Route>
 
           <Route path="/moves/:moveCode/allowances" exact>
-            <MoveAllowances />
+            <MoveDocumentWrapper formName="allowances" />
           </Route>
 
           <Route path="/moves/:moveCode/mto" exact>
