@@ -1675,10 +1675,6 @@ func init() {
         "linesOfAccounting": {
           "type": "string"
         },
-        "moveCode": {
-          "type": "string",
-          "example": "HYXFJF"
-        },
         "orderNumber": {
           "type": "string"
         },
@@ -1726,6 +1722,10 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "moveCode": {
+          "type": "string",
+          "example": "HYXFJF"
         },
         "moveOrder": {
           "$ref": "#/definitions/MoveOrder"
@@ -4134,10 +4134,6 @@ func init() {
         "linesOfAccounting": {
           "type": "string"
         },
-        "moveCode": {
-          "type": "string",
-          "example": "HYXFJF"
-        },
         "orderNumber": {
           "type": "string"
         },
@@ -4185,6 +4181,10 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "moveCode": {
+          "type": "string",
+          "example": "HYXFJF"
         },
         "moveOrder": {
           "$ref": "#/definitions/MoveOrder"

@@ -24,6 +24,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
+		MoveCode:           moveTaskOrder.Locator,
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         moveTaskOrder.IsCanceled(),
@@ -99,11 +100,6 @@ func MoveOrder(moveOrder *models.Order) *primemessages.MoveOrder {
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
 
-	var moveCode string
-	if moveOrder.Moves != nil && len(moveOrder.Moves) > 0 {
-		moveCode = moveOrder.Moves[0].Locator
-	}
-
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
 		Customer:               Customer(&moveOrder.ServiceMember),
@@ -116,7 +112,6 @@ func MoveOrder(moveOrder *models.Order) *primemessages.MoveOrder {
 		Rank:                   moveOrder.Grade,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
-		MoveCode:               moveCode,
 	}
 
 	return &payload

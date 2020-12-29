@@ -42,9 +42,6 @@ type MoveOrder struct {
 	// Required: true
 	LinesOfAccounting *string `json:"linesOfAccounting"`
 
-	// move code
-	MoveCode string `json:"moveCode,omitempty"`
-
 	// order number
 	// Required: true
 	OrderNumber *string `json:"orderNumber"`
