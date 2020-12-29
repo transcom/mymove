@@ -20,9 +20,6 @@ type MoveOrder struct {
 	// agency
 	Agency Branch `json:"agency,omitempty"`
 
-	// confirmation number
-	ConfirmationNumber string `json:"confirmation_number,omitempty"`
-
 	// customer ID
 	// Format: uuid
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
@@ -60,6 +57,9 @@ type MoveOrder struct {
 	// last name
 	// Read Only: true
 	LastName string `json:"last_name,omitempty"`
+
+	// move code
+	MoveCode string `json:"moveCode,omitempty"`
 
 	// move task order ID
 	// Format: uuid

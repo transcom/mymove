@@ -974,10 +974,9 @@ definitions:
       reportByDate:
         type: string
         format: date
-      confirmationNumber:
+      moveCode:
         type: string
         example: 'HYXFJF'
-        x-nullable: true
       orderNumber:
         type: string
       linesOfAccounting:

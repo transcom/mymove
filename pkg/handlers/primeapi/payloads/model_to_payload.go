@@ -98,6 +98,12 @@ func MoveOrder(moveOrder *models.Order) *primemessages.MoveOrder {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
+
+	var moveCode string
+	if moveOrder.Moves != nil && len(moveOrder.Moves) > 0 {
+		moveCode = moveOrder.Moves[0].Locator
+	}
+
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
 		Customer:               Customer(&moveOrder.ServiceMember),
@@ -108,9 +114,9 @@ func MoveOrder(moveOrder *models.Order) *primemessages.MoveOrder {
 		OrderNumber:            moveOrder.OrdersNumber,
 		LinesOfAccounting:      moveOrder.TAC,
 		Rank:                   moveOrder.Grade,
-		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
+		MoveCode:               moveCode,
 	}
 
 	return &payload

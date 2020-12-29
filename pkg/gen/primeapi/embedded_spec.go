@@ -1649,11 +1649,6 @@ func init() {
         "linesOfAccounting"
       ],
       "properties": {
-        "confirmationNumber": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "HYXFJF"
-        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -1679,6 +1674,10 @@ func init() {
         },
         "linesOfAccounting": {
           "type": "string"
+        },
+        "moveCode": {
+          "type": "string",
+          "example": "HYXFJF"
         },
         "orderNumber": {
           "type": "string"
@@ -4109,11 +4108,6 @@ func init() {
         "linesOfAccounting"
       ],
       "properties": {
-        "confirmationNumber": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "HYXFJF"
-        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -4139,6 +4133,10 @@ func init() {
         },
         "linesOfAccounting": {
           "type": "string"
+        },
+        "moveCode": {
+          "type": "string",
+          "example": "HYXFJF"
         },
         "orderNumber": {
           "type": "string"
