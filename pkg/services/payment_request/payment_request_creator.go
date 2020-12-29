@@ -435,7 +435,7 @@ func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto mod
 		return "", 0, fmt.Errorf("max sequence_number for MoveTaskOrderID [%s] failed: %w", mto.ID, err)
 	}
 
-	if *mto.ReferenceID == "" {
+	if mto.ReferenceID == nil || *mto.ReferenceID == "" {
 		return "", 0, fmt.Errorf("could not find reference ID for MoveTaskOrderID [%s]", mto.ID)
 	}
 

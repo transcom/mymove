@@ -671,4 +671,65 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal(expectedPaymentRequestNumber2, paymentRequest2.PaymentRequestNumber)
 		suite.Equal(expectedSequenceNumber2, paymentRequest2.SequenceNumber)
 	})
+
+	suite.T().Run("Payment request number fails due to empty MTO ReferenceID", func(t *testing.T) {
+
+		saveReferenceID := moveTaskOrder.ReferenceID
+		*moveTaskOrder.ReferenceID = ""
+		suite.MustSave(&moveTaskOrder)
+
+		// Create new ones
+		paymentRequest1 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							ServiceItemParamKeyID: serviceItemParamKey1.ID,
+							Value:                 "3254",
+						},
+					},
+				},
+			},
+		}
+		_, err := creator.CreatePaymentRequest(&paymentRequest1)
+		suite.Contains(err.Error(), "failure creating payment request: issue creating payment request unique identifier")
+
+		moveTaskOrder.ReferenceID = saveReferenceID
+		suite.MustSave(&moveTaskOrder)
+	})
+
+	suite.T().Run("Payment request number fails due to nil MTO ReferenceID", func(t *testing.T) {
+
+		saveReferenceID := moveTaskOrder.ReferenceID
+		moveTaskOrder.ReferenceID = nil
+		suite.MustSave(&moveTaskOrder)
+
+		// Create new one
+		paymentRequest1 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							ServiceItemParamKeyID: serviceItemParamKey1.ID,
+							Value:                 "3254",
+						},
+					},
+				},
+			},
+		}
+		_, err := creator.CreatePaymentRequest(&paymentRequest1)
+		suite.Contains(err.Error(), "failure creating payment request: issue creating payment request unique identifier")
+
+		moveTaskOrder.ReferenceID = saveReferenceID
+		suite.MustSave(&moveTaskOrder)
+	})
+
 }

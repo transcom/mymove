@@ -11,6 +11,10 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
@@ -23,8 +27,18 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+)
+
+const (
+	dlhTestServiceArea = "004"
+	//TODO remove if not using
+	// dlhTestDistance    = unit.Miles(1200)
+	dlhTestWeight = unit.Pound(4000)
+	//TODO remove if not using
+	//dlhPriceCents      = unit.Cents(249770)
 )
 
 func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
@@ -478,5 +492,371 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			assert.Equal(t, "event_type", zapFields[0].Key)
 			assert.Equal(t, "audit_post_payment_requests", eventType)
 		}
+	})
+}
+
+func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
+	hhgMoveType := models.SelectedMoveTypeHHG
+	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		AccessCode: models.AccessCode{},
+		Address: models.Address{
+			StreetAddress1: "7 Q St",
+			City:           "Birmingham",
+			State:          "AL",
+			PostalCode:     "35203",
+		},
+	})
+	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		AccessCode: models.AccessCode{},
+		Address: models.Address{
+			StreetAddress1: "148 S East St",
+			City:           "Miami",
+			State:          "FL",
+			PostalCode:     "33130",
+		},
+	})
+	testEstWeight := dlhTestWeight
+	testActualWeight := testEstWeight //+ 2000
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &testEstWeight,
+			PrimeActualWeight:    &testActualWeight,
+			PickupAddressID:      &pickupAddress.ID,
+			PickupAddress:        &pickupAddress,
+			DestinationAddressID: &destinationAddress.ID,
+			DestinationAddress:   &destinationAddress,
+		},
+	})
+	moveTaskOrder := testdatagen.MakeMoveWithoutMoveType(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			MTOShipments: models.MTOShipments{
+				mtoShipment,
+			},
+		},
+	})
+
+	var mtoServiceItems models.MTOServiceItems
+	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrder,
+		ReService: models.ReService{
+			Code: "DLH",
+		},
+		MTOShipment: mtoShipment,
+	})
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItem1)
+	/* TODO if not adding another service item
+	mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrder,
+		ReService: models.ReService{
+			Code: "DOP",
+		},
+		MTOShipment: mtoShipment,
+	})
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItem2)
+	*/
+
+	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameWeightEstimated,
+			Description: "estimated weight",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey2 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameRequestedPickupDate,
+			Description: "requested pickup date",
+			Type:        models.ServiceItemParamTypeDate,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey3 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameContractCode,
+			Description: "contract code",
+			Type:        models.ServiceItemParamTypeString,
+			Origin:      models.ServiceItemParamOriginSystem,
+		},
+	})
+	serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameDistanceZip3,
+			Description: "distance zip3",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginSystem,
+		},
+	})
+	serviceItemParamKey5 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameZipPickupAddress,
+			Description: "zip pickup address",
+			Type:        models.ServiceItemParamTypeString,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey6 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameZipDestAddress,
+			Description: "zip destination address",
+			Type:        models.ServiceItemParamTypeString,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey7 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameWeightBilledActual,
+			Description: "weight billed actual",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginSystem,
+		},
+	})
+	serviceItemParamKey8 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameWeightActual,
+			Description: "weight actual",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey9 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameServiceAreaOrigin,
+			Description: "service area actual",
+			Type:        models.ServiceItemParamTypeString,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+
+	/* TODO if not adding another service item
+	serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameCanStandAlone,
+			Description: "can stand alone",
+			Type:        models.ServiceItemParamTypeString,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	*/
+
+	// Service Item DLH
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey1.ID,
+			ServiceItemParamKey:   serviceItemParamKey1,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey2.ID,
+			ServiceItemParamKey:   serviceItemParamKey2,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey3.ID,
+			ServiceItemParamKey:   serviceItemParamKey3,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey4.ID,
+			ServiceItemParamKey:   serviceItemParamKey4,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey5.ID,
+			ServiceItemParamKey:   serviceItemParamKey5,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey6.ID,
+			ServiceItemParamKey:   serviceItemParamKey6,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey7.ID,
+			ServiceItemParamKey:   serviceItemParamKey7,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey8.ID,
+			ServiceItemParamKey:   serviceItemParamKey8,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey9.ID,
+			ServiceItemParamKey:   serviceItemParamKey9,
+		},
+	})
+
+	/*  TODO if not adding another service item
+	// Service Item DOP
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem2.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey1.ID,
+			ServiceItemParamKey:   serviceItemParamKey1,
+		},
+	})
+
+	*/
+
+	return moveTaskOrder, mtoServiceItems
+}
+
+func (suite *HandlerSuite) setupDomesticLinehaulData() {
+
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Escalation:           1.0197,
+				EscalationCompounded: 1.04071,
+				StartDate:            time.Date(testdatagen.GHCTestYear, time.January, 1, 0, 0, 0, 0, time.UTC),
+				EndDate:              time.Date(testdatagen.GHCTestYear, time.December, 31, 0, 0, 0, 0, time.UTC),
+			},
+		})
+
+	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+		testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				Contract:    contractYear.Contract,
+				ServiceArea: dlhTestServiceArea,
+			},
+		})
+
+	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+			ContractID:            contractYear.Contract.ID,
+			Contract:              contractYear.Contract,
+			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceArea:   serviceArea,
+			IsPeakPeriod:          false,
+		},
+	})
+
+	_ = testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+			ContractID:            contractYear.Contract.ID,
+			Contract:              contractYear.Contract,
+			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceArea:   serviceArea,
+			IsPeakPeriod:          true,
+			PriceMillicents:       baseLinehaulPrice.PriceMillicents - 2500, // minus $0.025
+		},
+	})
+
+	rateArea := models.ReRateArea{
+		ContractID: contractYear.Contract.ID,
+		IsOconus:   false,
+		Code:       "US47",
+		Name:       "Alabama",
+		Contract:   contractYear.Contract,
+	}
+	suite.MustSave(&rateArea)
+	err := suite.DB().Q().Where("code = ?", "US47").First(&rateArea)
+	suite.NoError(err)
+
+	_ = testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+		ReZip3: models.ReZip3{
+			ContractID:            contractYear.Contract.ID,
+			Zip3:                  "352",
+			BasePointCity:         "Birmingham",
+			State:                 "AL",
+			DomesticServiceAreaID: serviceArea.ID,
+			RateAreaID:            &rateArea.ID,
+			HasMultipleRateAreas:  false,
+			Contract:              contractYear.Contract,
+			DomesticServiceArea:   serviceArea,
+			RateArea:              &rateArea,
+		},
+	})
+
+}
+
+func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreator() {
+	const defaultZip3Distance = 1234
+	const defaultZip5Distance = 48
+
+	suite.setupDomesticLinehaulData()
+	move, mtoServiceItems := suite.createMTO()
+	moveTaskOrderID := move.ID
+
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+	suite.T().Run("successfully create payment request with real PaymentRequestCreator", func(t *testing.T) {
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		planner := &routemocks.Planner{}
+		planner.On("Zip5TransitDistanceLineHaul",
+			mock.Anything,
+			mock.Anything,
+		).Return(defaultZip5Distance, nil)
+		planner.On("Zip3TransitDistance",
+			mock.Anything,
+			mock.Anything,
+		).Return(defaultZip3Distance, nil)
+		planner.On("Zip5TransitDistance",
+			"90210",
+			"94535",
+		).Return(defaultZip5Distance, nil)
+
+		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+			suite.DB(),
+			planner,
+			ghcrateengine.NewServiceItemPricer(suite.DB()),
+		)
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequest{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				ServiceItems: []*primemessages.ServiceItem{
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
+					},
+					/* TODO remove if not adding another service item
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[1].ID),
+					},
+					*/
+				},
+				PointOfContact: "user@prime.com",
+			},
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestCreated)
+		suite.NotEmpty(typedResponse.Payload.ID.String(), "valid payload ID string")
+		suite.NotEmpty(typedResponse.Payload.MoveTaskOrderID.String(), "valid MTO ID")
+		suite.NotEmpty(typedResponse.Payload.PaymentRequestNumber, "valid Payment Request Number")
 	})
 }
