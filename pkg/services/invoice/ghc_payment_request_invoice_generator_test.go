@@ -478,7 +478,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds l3 service item segment", func(t *testing.T) {
 		l3 := result.L3
-		suite.Equal(int64(0), l3.PriceCents) // TODO: hard-coded to zero for now
+		suite.Equal(int64(7992), l3.PriceCents)
 	})
 }
 
