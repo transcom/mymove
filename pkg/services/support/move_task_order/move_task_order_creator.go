@@ -242,6 +242,7 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 		ID:            uuid.FromStringOrNil(customer.ID.String()),
 		Affiliation:   (*models.ServiceMemberAffiliation)(customer.Agency),
 		Edipi:         customer.DodID,
+		Rank:          (*models.ServiceMemberRank)(&customer.Rank),
 		FirstName:     customer.FirstName,
 		LastName:      customer.LastName,
 		PersonalEmail: customer.Email,
