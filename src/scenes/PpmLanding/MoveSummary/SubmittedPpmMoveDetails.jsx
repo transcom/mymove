@@ -55,7 +55,8 @@ const mapStateToProps = (state, ownProps) => {
   ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
 
   const props = {
-    currentPPM: selectCurrentPPM(state),
+    currentPPM: selectCurrentPPM(state) || {},
+    // TODO
     ppm: get(state, 'ppm', {}),
     advance,
     isMissingWeightTicketDocuments,

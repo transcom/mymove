@@ -8,8 +8,8 @@ import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/Editable
 import { formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
-
+import { updatePPM } from 'shared/Entities/modules/ppms';
+import { selectPPMForMove } from 'store/entities/selectors';
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
 const validateWeight = (value, formValues, props, fieldName) => {
@@ -107,7 +107,7 @@ let PPMEstimatesPanel = editablePanelify(EstimatesDisplay, EstimatesEdit);
 PPMEstimatesPanel = reduxForm({ form: formName })(PPMEstimatesPanel);
 
 function mapStateToProps(state, ownProps) {
-  const PPMEstimate = selectActivePPMForMove(state, ownProps.moveId);
+  const PPMEstimate = selectPPMForMove(state, ownProps.moveId) || {};
   const formValues = getFormValues(formName)(state);
 
   return {

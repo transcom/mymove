@@ -161,7 +161,7 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
-    currentPpm: selectCurrentPPM(state),
+    currentPpm: selectCurrentPPM(state) || {},
   };
 }
 

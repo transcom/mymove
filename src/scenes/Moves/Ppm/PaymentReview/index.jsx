@@ -207,7 +207,7 @@ const mapStateToProps = (state, props) => {
       weightTickets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     },
     moveId,
-    currentPPM: selectCurrentPPM(state),
+    currentPPM: selectCurrentPPM(state) || {},
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { includes, get, isEmpty } from 'lodash';
 import qs from 'query-string';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import { Switch, Redirect } from 'react-router-dom';
 
 import { selectMove } from 'shared/Entities/modules/moves';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
@@ -12,14 +14,10 @@ import { PanelField } from 'shared/EditablePanel';
 import { loadMove, loadMoveLabel } from 'shared/Entities/modules/moves';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'containers/PrivateRoute';
-import { Switch, Redirect } from 'react-router-dom';
-
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-
+import { selectPPMForMove } from 'store/entities/selectors';
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import {
   selectAllDocumentsForMove,
@@ -227,7 +225,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    currentPpm: selectActivePPMForMove(state, moveId),
+    currentPpm: selectPPMForMove(state, moveId) || {},
     docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
     moveId,
     moveLocator,

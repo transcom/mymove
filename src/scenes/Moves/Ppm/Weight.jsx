@@ -419,7 +419,7 @@ function mapStateToProps(state) {
     schema: schema,
     originDutyStationZip,
     orders: selectCurrentOrders(state) || {},
-    currentPPM: selectCurrentPPM(state),
+    currentPPM: selectCurrentPPM(state) || {},
   };
 
   return props;

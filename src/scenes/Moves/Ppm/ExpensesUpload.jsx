@@ -337,7 +337,7 @@ function mapStateToProps(state, props) {
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     expenseSchema: get(state, 'swaggerInternal.spec.definitions.CreateMovingExpenseDocumentPayload', {}),
-    currentPpm: selectCurrentPPM(state),
+    currentPpm: selectCurrentPPM(state) || {},
     expenses: selectPPMCloseoutDocumentsForMove(state, moveId, ['EXPENSE']),
   };
 }

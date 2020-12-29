@@ -1,11 +1,11 @@
 import { filter, get } from 'lodash';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
-import { formatCents } from 'shared/formatters';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-import { getTabularExpenses, getPpmExpenseSummary } from 'scenes/Office/Ppm/ducks';
 import { connect } from 'react-redux';
 
+import { formatCents } from 'shared/formatters';
+import { getTabularExpenses, getPpmExpenseSummary } from 'scenes/Office/Ppm/ducks';
+import { selectPPMForMove } from 'store/entities/selectors';
 import Alert from 'shared/Alert';
 import { getDocsByStatusAndType } from './ducks';
 
@@ -78,7 +78,7 @@ class ExpensesPanel extends Component {
 function mapStateToProps(state, ownProps) {
   const expenseDocuments = filter(ownProps.moveDocuments, ['move_document_type', 'EXPENSE']);
   return {
-    ppmId: selectActivePPMForMove(state, ownProps.moveId).id,
+    ppmId: selectPPMForMove(state, ownProps.moveId)?.id,
     schemaMovingExpenseType: get(state, 'swaggerInternal.spec.definitions.MovingExpenseType', {}),
     expenseData: get(state, 'ppmIncentive.summary'),
     awaitingStorageExpenses: getDocsByStatusAndType(expenseDocuments, 'OK', 'STORAGE'),

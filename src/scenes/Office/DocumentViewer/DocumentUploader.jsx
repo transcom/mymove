@@ -7,7 +7,6 @@ import { getFormValues, reduxForm } from 'redux-form';
 import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -15,6 +14,7 @@ import Uploader from 'shared/Uploader';
 import ExpenseDocumentForm from './ExpenseDocumentForm';
 import { convertDollarsToCents } from 'shared/utils';
 import { documentSizeLimitMsg } from 'shared/constants';
+import { selectPPMForMove } from 'store/entities/selectors';
 
 import './DocumentUploader.css';
 
@@ -182,7 +182,7 @@ function mapStateToProps(state, props) {
     formValues: getFormValues(moveDocumentFormName)(state),
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    currentPpm: selectActivePPMForMove(state, props.moveId) || get(state, 'ppm.currentPpm'),
+    currentPpm: selectPPMForMove(state, props.moveId) || {},
   };
   return newProps;
 }

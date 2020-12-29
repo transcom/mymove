@@ -119,10 +119,14 @@ export function selectMTOShipmentById(state, id) {
 }
 
 /** PPMs */
-export const selectCurrentPPM = (state) => {
-  const move = selectCurrentMove(state);
-  const ppmForMove = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === move?.id);
+export const selectPPMForMove = (state, moveId) => {
+  const ppmForMove = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
   if (['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'].indexOf(ppmForMove?.status) > -1)
     return ppmForMove;
   return null;
+};
+
+export const selectCurrentPPM = (state) => {
+  const move = selectCurrentMove(state);
+  return selectPPMForMove(state, move?.id);
 };

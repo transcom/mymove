@@ -7,8 +7,8 @@ import { convertDollarsToCents } from 'shared/utils';
 import { formatCents } from 'shared/formatters';
 import { editablePanelify } from 'shared/EditablePanel';
 import { selectMoveDocument, updateMoveDocument } from 'shared/Entities/modules/moveDocuments';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { isMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
+import { selectPPMForMove } from 'store/entities/selectors';
 
 import DocumentDetailDisplay from './DocumentDetailDisplay';
 import DocumentDetailEdit from './DocumentDetailEdit';
@@ -51,7 +51,7 @@ function mapStateToProps(state, props) {
     getUpdateArgs: function () {
       // Make a copy of values to not modify moveDocument
       let values = cloneDeep(getFormValues(formName)(state));
-      values.moveDocument.personally_procured_move_id = selectActivePPMForMove(state, props.moveId).id;
+      values.moveDocument.personally_procured_move_id = selectPPMForMove(state, props.moveId)?.id;
       if (
         get(values.moveDocument, 'move_document_type', '') !== 'EXPENSE' &&
         get(values.moveDocument, 'payment_method', false)

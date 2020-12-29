@@ -10,7 +10,7 @@ import moment from 'moment';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'containers/PrivateRoute';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert';
 import ToolTip from 'shared/ToolTip';
 import ComboButton from 'shared/ComboButton';
 import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
@@ -30,11 +30,12 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
-import { approvePPM, loadPPMs, selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { approvePPM, loadPPMs, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
+import { selectPPMForMove } from 'store/entities/selectors';
 
 import { roleTypes } from 'constants/userRoles';
 
@@ -434,7 +435,7 @@ MoveInfo.propTypes = {
 const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
   const move = selectMove(state, moveId);
-  const ppm = selectActivePPMForMove(state, moveId);
+  const ppm = selectPPMForMove(state, moveId) || {};
   const ordersId = move.orders_id;
   const orders = selectOrders(state, ordersId);
   const serviceMemberId = move.service_member_id;

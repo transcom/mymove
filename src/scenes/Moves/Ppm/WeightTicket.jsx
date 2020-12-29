@@ -552,7 +552,7 @@ function mapStateToProps(state, ownProps) {
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
-    currentPpm: selectCurrentPPM(state),
+    currentPpm: selectCurrentPPM(state) || {},
     weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     transportationOffice: transportationOffice,
     dutyStationId: dutyStationId,

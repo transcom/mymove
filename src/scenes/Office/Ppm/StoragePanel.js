@@ -8,7 +8,8 @@ import { filter } from 'lodash';
 import Alert from 'shared/Alert';
 import { editablePanelify, PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
+import { updatePPM } from 'shared/Entities/modules/ppms';
+import { selectPPMForMove } from 'store/entities/selectors';
 import { formatCents } from '../../../shared/formatters';
 import { convertDollarsToCents } from '../../../shared/utils';
 import { getDocsByStatusAndType } from './ducks';
@@ -82,7 +83,7 @@ StoragePanel = reduxForm({
 
 function mapStateToProps(state, props) {
   const formValues = getFormValues(formName)(state);
-  const ppm = selectActivePPMForMove(state, props.moveId);
+  const ppm = selectPPMForMove(state, props.moveId) || {};
   const storageExpenses = filter(props.moveDocuments, ['moving_expense_type', 'STORAGE']);
 
   return {

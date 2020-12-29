@@ -1,8 +1,7 @@
-import { get, filter } from 'lodash';
+import { get } from 'lodash';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { formatDateForSwagger } from 'shared/dates';
-import { fetchActivePPM } from '../../utils';
 
 const approvePpmLabel = 'PPMs.approvePPM';
 export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
@@ -146,13 +145,6 @@ export function approveReimbursement(reimbursementId, label = approveReimburseme
   return swaggerRequest(getClient, swaggerTag, { reimbursementId }, { label });
 }
 
-export function selectActivePPMForMove(state, moveId) {
-  const ppms = Object.values(state.entities.personallyProcuredMoves);
-  filter(ppms, (ppm) => ppm.moveId === moveId);
-  const activePPM = fetchActivePPM(ppms);
-  return activePPM || {};
-}
-
 export function selectPPMEstimateRange(state) {
   if (state.entities.ppmEstimateRanges) {
     return state.entities.ppmEstimateRanges.undefined;
@@ -169,6 +161,7 @@ export function selectPPMSitEstimate(state) {
 
 export function selectReimbursement(state, reimbursementId) {
   const advanceFromEntities = get(state, `entities.reimbursements.${reimbursementId}`);
+  // todo
   const advanceFromPpmReducer = get(state, 'ppm.currentPpm.advance');
   return advanceFromEntities || advanceFromPpmReducer || {};
 }
