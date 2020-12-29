@@ -20,7 +20,7 @@ func (suite *SegmentSuite) TestValidateL1() {
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		l1 := L1{
 			LadingLineItemNumber:     -3,   // min
-			FreightRate:              1,    // eq
+			FreightRate:              -1,   // min
 			RateValueQualifier:       "XX", // eq
 			Charge:                   0,    // required
 			SpecialChargeDescription: "X",  // min
@@ -28,7 +28,7 @@ func (suite *SegmentSuite) TestValidateL1() {
 
 		err := suite.validator.Struct(l1)
 		suite.ValidateError(err, "LadingLineItemNumber", "min")
-		suite.ValidateError(err, "FreightRate", "eq")
+		suite.ValidateError(err, "FreightRate", "min")
 		suite.ValidateError(err, "RateValueQualifier", "eq")
 		suite.ValidateError(err, "Charge", "required")
 		suite.ValidateError(err, "SpecialChargeDescription", "min")
