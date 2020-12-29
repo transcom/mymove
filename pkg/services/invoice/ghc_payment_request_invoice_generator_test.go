@@ -529,7 +529,6 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 	_, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
 }
-
 func (suite *GHCInvoiceSuite) TestNilValues() {
 	currentTime := time.Now()
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
@@ -645,4 +644,74 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	//	suite.NotPanics(panicFunc)
 	//	nilPaymentRequest.PaymentServiceItems[0].PriceCents = oldPriceCents
 	//})
+}
+
+func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+	}
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+		PaymentRequest: models.PaymentRequest{
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+	})
+
+	assertions := testdatagen.Assertions{
+		Move:               mto,
+		PaymentRequest:     paymentRequest,
+		PaymentServiceItem: models.PaymentServiceItem{},
+	}
+
+	assertions.PaymentServiceItem.Status = models.PaymentServiceItemStatusDenied
+	testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeMS,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+
+	assertions.PaymentServiceItem.Status = models.PaymentServiceItemStatusRequested
+	testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeCS,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+
+	assertions.PaymentServiceItem.Status = models.PaymentServiceItemStatusPaid
+	testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeCS,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+
+	assertions.PaymentServiceItem.Status = models.PaymentServiceItemStatusSentToGex
+	testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeCS,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+
+	result, err := generator.Generate(paymentRequest, false)
+	suite.NoError(err)
+
+	suite.T().Run("Service items that are not approved should be not added to invoice", func(t *testing.T) {
+		suite.Empty(result.ServiceItems)
+	})
+
+	suite.T().Run("Cost of service items that are not approved should not be included in L3", func(t *testing.T) {
+		l3 := result.L3
+		suite.Equal(int64(0), l3.PriceCents)
+	})
 }
