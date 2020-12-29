@@ -993,9 +993,10 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      moveCode:
+      locator:
         type: string
         example: 'HYXFJF'
+        readOnly: true
       createdAt:
         format: date-time
         type: string
