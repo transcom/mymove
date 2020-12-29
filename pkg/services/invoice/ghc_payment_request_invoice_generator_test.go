@@ -107,6 +107,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		Move:           mto,
 		MTOShipment:    mtoShipment,
 		PaymentRequest: paymentRequest,
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
 	}
 
 	var paymentServiceItems models.PaymentServiceItems
@@ -274,6 +277,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.T().Run("adds actual pickup date to header", func(t *testing.T) {
 		g62Requested := result.Header.RequestedPickupDate
 		suite.IsType(&edisegment.G62{}, g62Requested)
+		suite.NotNil(g62Requested)
 		suite.Equal(10, g62Requested.DateQualifier)
 		suite.Equal(requestedPickupDate.Format(testDateFormat), g62Requested.Date)
 
@@ -504,6 +508,9 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 	assertions := testdatagen.Assertions{
 		Move:           mto,
 		PaymentRequest: paymentRequest,
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
 	}
 
 	testdatagen.MakePaymentServiceItemWithParams(
@@ -563,6 +570,9 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	assertions := testdatagen.Assertions{
 		Move:           nilMove,
 		PaymentRequest: nilPaymentRequest,
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
 	}
 
 	testdatagen.MakePaymentServiceItemWithParams(

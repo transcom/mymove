@@ -175,6 +175,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	err = g.db.Q().
 		Eager("MTOServiceItem.ReService").
 		Where("payment_request_id = ?", paymentRequest.ID).
+		Where("status = ?", models.PaymentServiceItemStatusApproved).
 		All(&paymentServiceItems)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
