@@ -111,9 +111,9 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 			IssueDate:           defaultMoveOrder.IssueDate,
 			ReportByDate:        defaultMoveOrder.ReportByDate,
 			OrdersType:          defaultMoveOrder.OrdersType,
-			Entitlement: &models.Entitlement{
+			Entitlement: &models.Entitlement{ // try to update entitlement and see that it's not updated after failed transaction
 				DBAuthorizedWeight:   swag.Int(20000),
-				DependentsAuthorized: swag.Bool(true),
+				DependentsAuthorized: swag.Bool(false),
 			},
 			ServiceMember: serviceMember, // this is to make sure we're updating other models so we can check after a failed transaction
 			SAC:           &emptyStrSAC,  // this will trigger validation error on Order model
@@ -131,5 +131,11 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 		fetchedSM := models.ServiceMember{}
 		_ = suite.DB().Find(&fetchedSM, serviceMember.ID)
 		suite.EqualValues(models.AffiliationARMY, *fetchedSM.Affiliation)
+
+		// check that entitlement is not updated as well
+		fetchedEntitlement := models.Entitlement{}
+		_ = suite.DB().Find(&fetchedEntitlement, defaultMoveOrder.Entitlement.ID)
+		suite.Nil(fetchedEntitlement.DBAuthorizedWeight, "DBAuthorizedWeight expected not to be set")
+		suite.EqualValues(true, *fetchedEntitlement.DependentsAuthorized)
 	})
 }
