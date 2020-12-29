@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { get } from 'lodash';
+import { connect } from 'react-redux';
+import { reduxForm } from 'redux-form';
+import { bindActionCreators } from 'redux';
+
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import './PPMPaymentRequest.css';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { get } from 'lodash';
-import { withContext } from 'shared/AppContext';
-import { connect } from 'react-redux';
-import Alert from 'shared/Alert';
-import { reduxForm } from 'redux-form';
 import styles from './PPMPaymentRequestIntro.module.scss';
-import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-import { bindActionCreators } from 'redux';
+
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { withContext } from 'shared/AppContext';
+import Alert from 'shared/Alert';
+import { loadPPMs, updatePPM } from 'shared/Entities/modules/ppms';
+import { selectCurrentPPM } from 'store/entities/selectors';
 
 class PPMPaymentRequestIntro extends Component {
   state = {
@@ -104,11 +107,12 @@ PPMPaymentRequestIntro = reduxForm({
 
 function mapStateToProps(state, ownProps) {
   const moveID = ownProps.match.params.moveId;
-  const currentPPM = selectActivePPMForMove(state, moveID);
+  const currentPPM = selectCurrentPPM(state);
   const actualMoveDate = currentPPM.actual_move_date ? currentPPM.actual_move_date : null;
+
   return {
-    moveID: moveID,
-    currentPPM: currentPPM,
+    moveID,
+    currentPPM,
     schema: get(state, 'swaggerInternal.spec.definitions.PatchPersonallyProcuredMovePayload'),
     initialValues: { actual_move_date: actualMoveDate },
   };

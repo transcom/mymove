@@ -6,12 +6,12 @@ import { object, string, shape, bool, number } from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
 
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
 import { hasShortHaulError } from 'shared/incentive';
 import { getRequestStatus } from 'shared/Swagger/selectors';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentPPM } from 'store/entities/selectors';
 
 import './Review.css';
 
@@ -156,14 +156,13 @@ PPMShipmentSummary.propTypes = {
 function mapStateToProps(state, ownProps) {
   const { ppm } = ownProps;
   const advance = selectReimbursement(state, ppm.advance);
-  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } = selectActivePPMForMove(
-    state,
-    ppm.move_id,
-  );
+  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } = selectCurrentPPM(state);
+
   const ppmEstimateStatus = getRequestStatus(state, getPPMEstimateLabel);
   let hasError = !!ppmEstimateStatus.error;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
+  // TODO
   return {
     ...ownProps,
     advance,

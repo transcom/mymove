@@ -9,19 +9,13 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import {
-  loadPPMs,
-  createPPM,
-  selectActivePPMForMove,
-  updatePPM,
-  updatePPMEstimate,
-} from 'shared/Entities/modules/ppms';
+import { loadPPMs, createPPM, updatePPM, updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import { setInitialFormValues } from './ducks';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentPPM } from 'store/entities/selectors';
 
 import './DateAndLocation.css';
 
@@ -202,7 +196,6 @@ DateAndLocation.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const currentMove = selectCurrentMove(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   const defaultPickupZip = serviceMember?.residential_address?.postal_code;
@@ -212,7 +205,7 @@ function mapStateToProps(state) {
   const props = {
     serviceMemberId,
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    currentPPM: selectActivePPMForMove(state, currentMove?.id),
+    currentPPM: selectCurrentPPM(state),
     currentOrders: selectCurrentOrders(state),
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),

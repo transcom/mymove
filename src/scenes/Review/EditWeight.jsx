@@ -12,7 +12,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
   loadPPMs,
   updatePPM,
-  selectActivePPMForMove,
   selectPPMEstimateRange,
   updatePPMEstimate,
   getPpmWeightEstimate,
@@ -22,7 +21,7 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentPPM } from 'store/entities/selectors';
 
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
@@ -332,13 +331,12 @@ class EditWeight extends Component {
 }
 
 function mapStateToProps(state) {
-  const currentMove = selectCurrentMove(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
 
   return {
     serviceMemberId,
-    currentPPM: selectActivePPMForMove(state, currentMove?.id),
+    currentPPM: selectCurrentPPM(state),
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     entitlement: loadEntitlementsFromState(state),

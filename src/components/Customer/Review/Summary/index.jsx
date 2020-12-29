@@ -10,7 +10,6 @@ import styles from './Summary.module.scss';
 
 import { checkEntitlement } from 'scenes/Review/ducks';
 import ConnectedPPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove } from 'shared/Entities/modules/moves';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
@@ -33,6 +32,7 @@ import {
   selectHasCanceledMove,
   selectMoveType,
   selectMTOShipmentsForCurrentMove,
+  selectCurrentPPM,
 } from 'store/entities/selectors';
 import { OrdersShape, MoveShape, MtoShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 
@@ -297,11 +297,9 @@ Summary.defaultProps = {
   reviewState: {},
 };
 
-function mapStateToProps(state, ownProps) {
-  const moveID = ownProps.match.params.moveId;
-
+function mapStateToProps(state) {
   return {
-    currentPPM: selectActivePPMForMove(state, moveID),
+    currentPPM: selectCurrentPPM(state),
     mtoShipments: selectMTOShipmentsForCurrentMove(state),
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove: selectCurrentMove(state) || {},

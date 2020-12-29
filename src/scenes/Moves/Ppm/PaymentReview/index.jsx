@@ -16,22 +16,16 @@ import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentPPM } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
 import { updatePPM as updatePPMInRedux } from 'store/entities/actions';
 import { requestPayment } from 'services/internalApi';
+import { loadPPMs, selectPPMEstimateRange, getPpmWeightEstimate, updatePPM } from 'shared/Entities/modules/ppms';
 
 import DocumentsUploaded from './DocumentsUploaded';
 import { calcNetWeight } from '../utility';
 import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
-import {
-  selectActivePPMForMove,
-  loadPPMs,
-  selectPPMEstimateRange,
-  getPpmWeightEstimate,
-  updatePPM,
-} from 'shared/Entities/modules/ppms';
 
 const nextBtnLabel = 'Submit Request';
 
@@ -213,7 +207,7 @@ const mapStateToProps = (state, props) => {
       weightTickets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     },
     moveId,
-    currentPPM: selectActivePPMForMove(state, moveId),
+    currentPPM: selectCurrentPPM(state),
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
