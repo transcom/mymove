@@ -15,6 +15,7 @@ const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
 const TXOMoveInfo = () => {
+  // TODO - Clean up path param moveOrderId. Should be moveCode.
   const { moveOrderId } = useParams();
   const { pathname } = useLocation();
 
@@ -24,11 +25,11 @@ const TXOMoveInfo = () => {
       exact: true,
     }) ||
     matchPath(pathname, {
-      path: '/moves/:moveOrderId/orders',
+      path: '/moves/:moveCode/orders',
       exact: true,
     }) ||
     matchPath(pathname, {
-      path: '/moves/:moveOrderId/allowances',
+      path: '/moves/:moveCode/allowances',
       exact: true,
     });
 
@@ -65,19 +66,19 @@ const TXOMoveInfo = () => {
       )}
       <Suspense fallback={<LoadingPlaceholder />}>
         <Switch>
-          <Route path="/moves/:moveOrderId/details" exact>
+          <Route path="/moves/:moveCode/details" exact>
             <MoveDetails />
           </Route>
 
-          <Route path="/moves/:moveOrderId/orders" exact>
+          <Route path="/moves/:moveCode/orders" exact>
             <MoveOrders />
           </Route>
 
-          <Route path="/moves/:moveOrderId/allowances" exact>
+          <Route path="/moves/:moveCode/allowances" exact>
             <MoveAllowances />
           </Route>
 
-          <Route path="/moves/:moveOrderId/mto" exact>
+          <Route path="/moves/:moveCode/mto" exact>
             <MoveTaskOrder />
           </Route>
 
@@ -94,7 +95,7 @@ const TXOMoveInfo = () => {
           </Route>
 
           {/* TODO - clarify role/tab access */}
-          <Redirect from="/moves/:moveOrderId" to="/moves/:moveOrderId/details" />
+          <Redirect from="/moves/:moveCode" to="/moves/:moveCode/details" />
         </Switch>
       </Suspense>
     </>

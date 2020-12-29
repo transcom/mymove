@@ -103,6 +103,11 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 	if moveOrder.Grade != nil {
 		grade = ghcmessages.Grade(*moveOrder.Grade)
 	}
+	//
+	var branch ghcmessages.Branch
+	if moveOrder.ServiceMember.Affiliation != nil {
+		branch = ghcmessages.Branch(*moveOrder.ServiceMember.Affiliation)
+	}
 
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
@@ -113,7 +118,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
-		Agency:                 swag.StringValue((*string)(moveOrder.ServiceMember.Affiliation)),
+		Agency:                 branch,
 		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
 		FirstName:              swag.StringValue(moveOrder.ServiceMember.FirstName),
 		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),

@@ -18,13 +18,15 @@ import (
 type Customer struct {
 
 	// Agency customer is affilated with
-	Agency string `json:"agency,omitempty"`
+	// Required: true
+	Agency *string `json:"agency"`
 
 	// current address
 	CurrentAddress *Address `json:"currentAddress,omitempty"`
 
 	// dod ID
-	DodID string `json:"dodID,omitempty"`
+	// Required: true
+	DodID *string `json:"dodID"`
 
 	// e tag
 	// Read Only: true
@@ -35,7 +37,8 @@ type Customer struct {
 	Email *string `json:"email,omitempty"`
 
 	// first name
-	FirstName string `json:"firstName,omitempty"`
+	// Required: true
+	FirstName *string `json:"firstName"`
 
 	// id
 	// Read Only: true
@@ -43,11 +46,16 @@ type Customer struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// last name
-	LastName string `json:"lastName,omitempty"`
+	// Required: true
+	LastName *string `json:"lastName"`
 
 	// phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Phone *string `json:"phone,omitempty"`
+
+	// rank
+	// Required: true
+	Rank Rank `json:"rank"`
 
 	// user ID
 	// Format: uuid
@@ -58,7 +66,15 @@ type Customer struct {
 func (m *Customer) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAgency(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCurrentAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDodID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -66,11 +82,23 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateFirstName(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
+	if err := m.validateLastName(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validatePhone(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -81,6 +109,15 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Customer) validateAgency(formats strfmt.Registry) error {
+
+	if err := validate.Required("agency", "body", m.Agency); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -102,6 +139,15 @@ func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Customer) validateDodID(formats strfmt.Registry) error {
+
+	if err := validate.Required("dodID", "body", m.DodID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Customer) validateEmail(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Email) { // not required
@@ -109,6 +155,15 @@ func (m *Customer) validateEmail(formats strfmt.Registry) error {
 	}
 
 	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Customer) validateFirstName(formats strfmt.Registry) error {
+
+	if err := validate.Required("firstName", "body", m.FirstName); err != nil {
 		return err
 	}
 
@@ -128,6 +183,15 @@ func (m *Customer) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Customer) validateLastName(formats strfmt.Registry) error {
+
+	if err := validate.Required("lastName", "body", m.LastName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Customer) validatePhone(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Phone) { // not required
@@ -135,6 +199,18 @@ func (m *Customer) validatePhone(formats strfmt.Registry) error {
 	}
 
 	if err := validate.Pattern("phone", "body", string(*m.Phone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Customer) validateRank(formats strfmt.Registry) error {
+
+	if err := m.Rank.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("rank")
+		}
 		return err
 	}
 

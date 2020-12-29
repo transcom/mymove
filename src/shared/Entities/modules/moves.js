@@ -76,6 +76,10 @@ export const selectMove = (state, id) => {
   return denormalize([id], moves, state.entities)[0] || emptyMove;
 };
 
+export const selectMoveByLocator = (state, locator) => {
+  return Object.values(state.entities.moves).find((move) => move.locator === locator);
+};
+
 export function selectMoveStatus(state, moveId) {
   const move = selectMove(state, moveId);
   return move.status;

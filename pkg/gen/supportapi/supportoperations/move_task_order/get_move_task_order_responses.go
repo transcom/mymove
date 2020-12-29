@@ -57,50 +57,6 @@ func (o *GetMoveTaskOrderOK) WriteResponse(rw http.ResponseWriter, producer runt
 	}
 }
 
-// GetMoveTaskOrderBadRequestCode is the HTTP code returned for type GetMoveTaskOrderBadRequest
-const GetMoveTaskOrderBadRequestCode int = 400
-
-/*GetMoveTaskOrderBadRequest The request payload is invalid.
-
-swagger:response getMoveTaskOrderBadRequest
-*/
-type GetMoveTaskOrderBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *supportmessages.ClientError `json:"body,omitempty"`
-}
-
-// NewGetMoveTaskOrderBadRequest creates GetMoveTaskOrderBadRequest with default headers values
-func NewGetMoveTaskOrderBadRequest() *GetMoveTaskOrderBadRequest {
-
-	return &GetMoveTaskOrderBadRequest{}
-}
-
-// WithPayload adds the payload to the get move task order bad request response
-func (o *GetMoveTaskOrderBadRequest) WithPayload(payload *supportmessages.ClientError) *GetMoveTaskOrderBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the get move task order bad request response
-func (o *GetMoveTaskOrderBadRequest) SetPayload(payload *supportmessages.ClientError) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *GetMoveTaskOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // GetMoveTaskOrderUnauthorizedCode is the HTTP code returned for type GetMoveTaskOrderUnauthorized
 const GetMoveTaskOrderUnauthorizedCode int = 401
 

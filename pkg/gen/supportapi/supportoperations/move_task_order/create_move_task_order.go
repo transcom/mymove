@@ -34,7 +34,7 @@ func NewCreateMoveTaskOrder(ctx *middleware.Context, handler CreateMoveTaskOrder
 createMoveTaskOrder
 
 Creates an instance of moveTaskOrder.
-Current this will also create a number of nested objects but not all.
+Currently this will also create a number of nested objects but not all.
 It will currently create
 * MoveTaskOrder
 * MoveOrder
@@ -42,7 +42,7 @@ It will currently create
 * User
 * Entitlement
 
-It will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,
+It will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,
 origin duty station ID, and an uploaded orders ID to be passed into the request.
 
 This is a support endpoint and will not be available in production.

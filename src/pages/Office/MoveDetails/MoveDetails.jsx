@@ -14,6 +14,7 @@ import {
   selectMTOShipments,
 } from 'shared/Entities/modules/mtoShipments';
 import 'styles/office.scss';
+import { getMoveByLocator as getMoveByLocatorAction, selectMoveByLocator } from 'shared/Entities/modules/moves';
 import {
   getMoveOrder as getMoveOrderAction,
   getCustomer as getCustomerAction,
@@ -67,22 +68,39 @@ export class MoveDetails extends Component {
     window.addEventListener('scroll', this.handleScroll);
 
     // TODO - API flow
-    const { match, getMoveOrder, getCustomer, getAllMoveTaskOrders, getMTOShipments, getMTOServiceItems } = this.props;
+    const {
+      match,
+      getMoveByLocator,
+      getMoveOrder,
+      getCustomer,
+      getAllMoveTaskOrders,
+      getMTOShipments,
+      getMTOServiceItems,
+    } = this.props;
     const { params } = match;
-    const { moveOrderId } = params;
+    const { moveCode } = params;
 
-    getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
-      getCustomer(moveOrder.customerID);
-      getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
-        moveTaskOrder.forEach((item) =>
-          getMTOShipments(item.id).then(({ response: { body: mtoShipments } }) => {
-            mtoShipments.map((shipment) => getMTOAgentList(shipment.moveTaskOrderID, shipment.id));
-            this.checkToAddShipmentsSections(mtoShipments);
-            getMTOServiceItems(item.id);
-          }),
-        );
-      });
-    });
+    // TODO - Refactor when we convert this file to use react-query
+    getMoveByLocator(moveCode).then(
+      ({
+        response: {
+          body: { ordersId: moveOrderId },
+        },
+      }) => {
+        getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
+          getCustomer(moveOrder.customerID);
+          getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
+            moveTaskOrder.forEach((item) =>
+              getMTOShipments(item.id).then(({ response: { body: mtoShipments } }) => {
+                mtoShipments.map((shipment) => getMTOAgentList(shipment.moveTaskOrderID, shipment.id));
+                this.checkToAddShipmentsSections(mtoShipments);
+                getMTOServiceItems(item.id);
+              }),
+            );
+          });
+        });
+      },
+    );
   }
 
   componentWillUnmount() {
@@ -139,6 +157,7 @@ export class MoveDetails extends Component {
       moveTaskOrder,
       updateMoveTaskOrderStatus,
       patchMTOShipmentStatus,
+      moveCode,
     } = this.props;
 
     const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
@@ -228,7 +247,7 @@ export class MoveDetails extends Component {
               <GridContainer>
                 <Grid row gap>
                   <Grid col>
-                    <OrdersTable ordersInfo={ordersInfo} />
+                    <OrdersTable ordersInfo={ordersInfo} moveCode={moveCode} />
                   </Grid>
                 </Grid>
               </GridContainer>
@@ -260,6 +279,7 @@ export class MoveDetails extends Component {
 
 MoveDetails.propTypes = {
   match: MatchShape.isRequired,
+  getMoveByLocator: PropTypes.func.isRequired,
   getMoveOrder: PropTypes.func.isRequired,
   getCustomer: PropTypes.func.isRequired,
   getAllMoveTaskOrders: PropTypes.func.isRequired,
@@ -274,6 +294,7 @@ MoveDetails.propTypes = {
   mtoAgents: PropTypes.arrayOf(MTOAgentShape),
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   moveTaskOrder: MoveTaskOrderShape,
+  moveCode: PropTypes.string.isRequired,
 };
 
 MoveDetails.defaultProps = {
@@ -287,7 +308,9 @@ MoveDetails.defaultProps = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const { moveOrderId } = ownProps.match.params;
+  const { moveCode } = ownProps.match.params;
+  const move = selectMoveByLocator(state, moveCode);
+  const moveOrderId = move?.ordersId;
   const moveOrder = selectMoveOrder(state, moveOrderId);
   const allowances = moveOrder?.entitlement;
   const customerId = moveOrder.customerID;
@@ -295,6 +318,7 @@ const mapStateToProps = (state, ownProps) => {
   const moveTaskOrder = moveTaskOrders[0];
 
   return {
+    moveCode,
     moveOrder,
     allowances,
     customer: selectCustomer(state, customerId),
@@ -306,6 +330,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = {
+  getMoveByLocator: getMoveByLocatorAction,
   getMoveOrder: getMoveOrderAction,
   loadOrders,
   getCustomer: getCustomerAction,
