@@ -9,6 +9,18 @@ const initialValues = {
   authorizedWeight: '11000',
 };
 
+const rankOptions = [
+  { key: 'E_1', value: 'E-1' },
+  { key: 'E_2', value: 'E-2' },
+  { key: 'E_3', value: 'E-3' },
+  { key: 'E_4', value: 'E-4' },
+  { key: 'E_5', value: 'E-5' },
+  { key: 'E_6', value: 'E-6' },
+  { key: 'E_7', value: 'E-7' },
+  { key: 'E_8', value: 'E-8' },
+  { key: 'E_9', value: 'E-9' },
+];
+
 const entitlements = {
   authorizedWeight: 11000,
   dependentsAuthorized: true,
@@ -25,7 +37,7 @@ describe('AllowancesDetailForm', () => {
   const wrapper = mount(
     <Formik initialValues={initialValues} onSubmit={jest.fn()}>
       <form>
-        <AllowancesDetailForm entitlements={entitlements} />
+        <AllowancesDetailForm entitlements={entitlements} rankOptions={rankOptions} />
       </form>
     </Formik>,
   );
@@ -56,7 +68,7 @@ describe('AllowancesDetailForm', () => {
     const wrapperNoProps = mount(
       <Formik initialValues={{ authorizedWeight: null }} onSubmit={jest.fn()}>
         <form>
-          <AllowancesDetailForm entitlements={{}} />
+          <AllowancesDetailForm entitlements={{}} rankOptions={[]} />
         </form>
       </Formik>,
     );
@@ -75,5 +87,8 @@ describe('AllowancesDetailForm', () => {
 
     // Storage in-transit
     expect(wrapperNoProps.find('dd').at(3).text()).toBe('0 days');
+
+    // Dependents authorized
+    expect(wrapperNoProps.find(`[name="dependentsAuthorized"]`)).toBeTruthy();
   });
 });

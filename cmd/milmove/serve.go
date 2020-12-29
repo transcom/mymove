@@ -554,15 +554,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(build))
 
-	// Get route planner for handlers to calculate transit distances
-	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := route.InitRoutePlanner(v, logger)
-	handlerContext.SetPlanner(routePlanner)
-
-	// Create a secondary planner specifically for GHC.
-	ghcRoutePlanner := route.InitGHCRoutePlanner(v, logger)
-	handlerContext.SetGHCPlanner(ghcRoutePlanner)
-
 	// Set SendProductionInvoice for ediinvoice
 	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
@@ -578,8 +569,21 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Debug("Server DOD Key Pair Loaded")
 	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
 
+	// Get route planner for handlers to calculate transit distances
+	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
+	routePlanner := route.InitRoutePlanner(v, logger)
+	handlerContext.SetPlanner(routePlanner)
+
+	// Create a secondary planner specifically for GHC.
+	routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+	ghcRoutePlanner, initRouteErr := route.InitGHCRoutePlanner(v, logger, dbConnection, routeTLSConfig)
+	if initRouteErr != nil {
+		logger.Fatal("Could not instantiate GHC route planner", zap.Error(initRouteErr))
+	}
+	handlerContext.SetGHCPlanner(ghcRoutePlanner)
+
 	// Set the GexSender() and GexSender fields
-	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+	gexTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
 	var gexRequester services.GexSender
 	gexURL := v.GetString(cli.GEXURLFlag)
 	if len(gexURL) == 0 {
@@ -598,7 +602,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		gexRequester = invoice.NewGexSenderHTTP(
 			gexURL,
 			true,
-			tlsConfig,
+			gexTLSConfig,
 			v.GetString(cli.GEXBasicAuthUsernameFlag),
 			v.GetString(cli.GEXBasicAuthPasswordFlag),
 		)

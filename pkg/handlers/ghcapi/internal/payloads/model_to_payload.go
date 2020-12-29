@@ -21,11 +21,16 @@ func Move(move *models.Move) *ghcmessages.Move {
 	}
 
 	payload := &ghcmessages.Move{
-		CreatedAt: strfmt.DateTime(move.CreatedAt),
-		ID:        strfmt.UUID(move.ID.String()),
-		Locator:   move.Locator,
-		OrdersID:  strfmt.UUID(move.OrdersID.String()),
-		UpdatedAt: strfmt.DateTime(move.UpdatedAt),
+		ID:                 strfmt.UUID(move.ID.String()),
+		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ContractorID:       handlers.FmtUUIDPtr(move.ContractorID),
+		Locator:            move.Locator,
+		OrdersID:           strfmt.UUID(move.OrdersID.String()),
+		ReferenceID:        handlers.FmtStringPtr(move.ReferenceID),
+		Status:             ghcmessages.MoveStatus(move.Status),
+		CreatedAt:          strfmt.DateTime(move.CreatedAt),
+		SubmittedAt:        handlers.FmtDateTimePtr(move.SubmittedAt),
+		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 	}
 
 	return payload
@@ -98,6 +103,11 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 	if moveOrder.Grade != nil {
 		grade = ghcmessages.Grade(*moveOrder.Grade)
 	}
+	//
+	var branch ghcmessages.Branch
+	if moveOrder.ServiceMember.Affiliation != nil {
+		branch = ghcmessages.Branch(*moveOrder.ServiceMember.Affiliation)
+	}
 
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
@@ -108,7 +118,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
-		Agency:                 swag.StringValue((*string)(moveOrder.ServiceMember.Affiliation)),
+		Agency:                 branch,
 		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
 		FirstName:              swag.StringValue(moveOrder.ServiceMember.FirstName),
 		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),

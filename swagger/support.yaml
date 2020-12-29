@@ -62,7 +62,7 @@ paths:
       summary: createMoveTaskOrder
       description: |
         Creates an instance of moveTaskOrder.
-        Current this will also create a number of nested objects but not all.
+        Currently this will also create a number of nested objects but not all.
         It will currently create
         * MoveTaskOrder
         * MoveOrder
@@ -70,7 +70,7 @@ paths:
         * User
         * Entitlement
 
-        It will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,
+        It will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,
         origin duty station ID, and an uploaded orders ID to be passed into the request.
 
         This is a support endpoint and will not be available in production.
@@ -131,8 +131,6 @@ paths:
           description: Successfully retrieve an individual move task order.
           schema:
             $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          $ref: '#/responses/InvalidRequest'
         '401':
           $ref: '#/responses/PermissionDenied'
         '403':
@@ -783,9 +781,17 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      rank:
+        $ref: '#/definitions/Rank'
       eTag:
         type: string
         readOnly: true
+    required:
+      - firstName
+      - lastName
+      - dodID
+      - rank
+      - agency
   Document:
     type: object
     properties:
@@ -815,15 +821,6 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      addressID:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      address:
-        $ref: '#/definitions/Address'
-      eTag:
-        type: string
-        readOnly: true
   Entitlement:
     properties:
       id:
@@ -901,6 +898,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+        x-nullable: true
       entitlement:
         $ref: '#/definitions/Entitlement'
       destinationDutyStation:
@@ -926,15 +924,17 @@ definitions:
 
           If creating a MoveTaskOrder, this should match an existing duty station.
       rank:
-        description: Rank of the service member, must match specific list of available ranks.
-        type: string
-        example: E_1
+        $ref: "#/definitions/Rank"
       reportByDate:
         description: Date that the service member must report to the new DutyStation by.
         type: string
         format: date
       status:
         $ref: '#/definitions/OrdersStatus'
+      tac:
+        type: string
+        title: TAC
+        example: 'F8J1'
       uploadedOrders:
         $ref: '#/definitions/Document'
       uploadedOrdersID:
@@ -967,6 +967,10 @@ definitions:
       - reportByDate
       - issueDate
       - status
+      - uploadedOrdersID
+      - tac
+      - originDutyStationID
+      - destinationDutyStationID
   MoveStatus:
     type: string
     description: Current status of this MoveTaskOrder
@@ -984,6 +988,7 @@ definitions:
     type: object
     required:
       - moveOrder
+      - contractorID
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -1358,6 +1363,38 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
+  Rank:
+    description: Rank of the service member, must match specific list of available ranks.
+    type: string
+    enum:
+      - E_1
+      - E_2
+      - E_3
+      - E_4
+      - E_5
+      - E_6
+      - E_7
+      - E_8
+      - E_9
+      - O_1_ACADEMY_GRADUATE
+      - O_2
+      - O_3
+      - O_4
+      - O_5
+      - O_6
+      - O_7
+      - O_8
+      - O_9
+      - O_10
+      - W_1
+      - W_2
+      - W_3
+      - W_4
+      - W_5
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - ACADEMY_CADET
+      - MIDSHIPMAN
   UpdateMTOServiceItemStatus:
     properties:
       moveTaskOrderID:

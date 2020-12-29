@@ -1074,7 +1074,7 @@ func init() {
     },
     "/move/{locator}": {
       "get": {
-        "description": "Returns a given move",
+        "description": "Returns a given move for a unique alphanumeric locator string",
         "produces": [
           "application/json"
         ],
@@ -1996,6 +1996,26 @@ func init() {
         }
       }
     },
+    "Branch": {
+      "type": "string",
+      "title": "branch",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marines",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -2693,7 +2713,17 @@ func init() {
     },
     "Move": {
       "properties": {
-        "created_at": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -2704,14 +2734,27 @@ func init() {
         },
         "locator": {
           "type": "string",
-          "example": "1K43A"
+          "example": "1K43AR"
         },
-        "orders_id": {
+        "ordersId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "updated_at": {
+        "referenceId": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -2722,7 +2765,7 @@ func init() {
       "properties": {
         "agency": {
           "type": "string",
-          "example": "civilian"
+          "$ref": "#/definitions/Branch"
         },
         "confirmation_number": {
           "type": "string",
@@ -2828,6 +2871,16 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveOrder"
       }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVALS REQUESTED",
+        "APPROVED",
+        "CANCELED"
+      ]
     },
     "MoveTaskOrder": {
       "type": "object",
@@ -3464,9 +3517,14 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId"
+        "originDutyStationId",
+        "agency"
       ],
       "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
         "authorizedWeight": {
           "description": "unit is in lbs",
           "type": "integer",
@@ -3478,6 +3536,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -3682,6 +3744,9 @@ func init() {
   "tags": [
     {
       "name": "queues"
+    },
+    {
+      "name": "move"
     }
   ]
 }`))
@@ -4988,7 +5053,7 @@ func init() {
     },
     "/move/{locator}": {
       "get": {
-        "description": "Returns a given move",
+        "description": "Returns a given move for a unique alphanumeric locator string",
         "produces": [
           "application/json"
         ],
@@ -6006,6 +6071,26 @@ func init() {
         }
       }
     },
+    "Branch": {
+      "type": "string",
+      "title": "branch",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marines",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -6703,7 +6788,17 @@ func init() {
     },
     "Move": {
       "properties": {
-        "created_at": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -6714,14 +6809,27 @@ func init() {
         },
         "locator": {
           "type": "string",
-          "example": "1K43A"
+          "example": "1K43AR"
         },
-        "orders_id": {
+        "ordersId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "updated_at": {
+        "referenceId": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -6732,7 +6840,7 @@ func init() {
       "properties": {
         "agency": {
           "type": "string",
-          "example": "civilian"
+          "$ref": "#/definitions/Branch"
         },
         "confirmation_number": {
           "type": "string",
@@ -6838,6 +6946,16 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveOrder"
       }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVALS REQUESTED",
+        "APPROVED",
+        "CANCELED"
+      ]
     },
     "MoveTaskOrder": {
       "type": "object",
@@ -7477,9 +7595,14 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId"
+        "originDutyStationId",
+        "agency"
       ],
       "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
         "authorizedWeight": {
           "description": "unit is in lbs",
           "type": "integer",
@@ -7491,6 +7614,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -7698,6 +7825,9 @@ func init() {
   "tags": [
     {
       "name": "queues"
+    },
+    {
+      "name": "move"
     }
   ]
 }`))
