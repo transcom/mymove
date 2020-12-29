@@ -1,12 +1,9 @@
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import { change } from 'redux-form';
-
-import { GetPpm } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
-import { selectCurrentMove } from 'store/entities/selectors';
 
 // Types
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
@@ -22,60 +19,12 @@ export function setInitialFormValues(originalMoveDate, pickupPostalCode, originD
   };
 }
 
-export function loadPpm(moveId) {
-  const action = ReduxHelpers.generateAsyncActions('GET_PPM');
-  return function (dispatch, getState) {
-    dispatch(action.start);
-    const state = getState();
-    const currentPpm = state.ppm.currentPpm;
-    if (!currentPpm) {
-      return GetPpm(moveId)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
-    }
-    return Promise.resolve();
-  };
-}
-
 // Selectors
 export function getMaxAdvance(state) {
   const maxIncentive = get(state, 'ppm.incentive_estimate_max');
   // we are using 20000000 since it is the largest number MacRae found that could be stored in table
   // and we don't want to block the user from requesting an advance if the rate engine fails
   return maxIncentive ? 0.6 * maxIncentive : 20000000;
-}
-
-export function getPPM(state) {
-  const move = selectCurrentMove(state) || {};
-  const moveId = move.id;
-  const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
-  const tempPPM = state.ppm.currentPpm;
-  // temp fix while redux refactor is in progress when statuses aren't updated on ppms from both places
-  const ppmStates = ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'CANCELED'];
-
-  if (!isEmpty(ppmFromEntities) && !isEmpty(tempPPM)) {
-    const entitiesPPMStatus = ppmFromEntities.status;
-    const tempPPMStatus = tempPPM.status;
-    const indexOfEntitiesPPMStatus = ppmStates.indexOf(entitiesPPMStatus);
-    const indexOfTempPPMStatus = ppmStates.indexOf(tempPPMStatus);
-
-    if (entitiesPPMStatus === 'CANCELED') {
-      return ppmFromEntities;
-    } else if (tempPPMStatus === 'CANCELED') {
-      return tempPPM;
-    }
-
-    if (indexOfEntitiesPPMStatus > indexOfTempPPMStatus) {
-      return ppmFromEntities;
-    }
-    if (indexOfEntitiesPPMStatus < indexOfTempPPMStatus) {
-      return tempPPM;
-    }
-    return ppmFromEntities;
-  } else if (tempPPM) {
-    return tempPPM;
-  }
-  return {};
 }
 
 // Reducer

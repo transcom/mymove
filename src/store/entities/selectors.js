@@ -117,3 +117,9 @@ export const selectMTOShipmentsForCurrentMove = (state) => {
 export function selectMTOShipmentById(state, id) {
   return state.entities?.mtoShipments?.[`${id}`] || null;
 }
+
+/** PPMs */
+export const selectCurrentPPM = (state) => {
+  const move = selectCurrentMove(state);
+  return Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === move?.id) || null;
+};
