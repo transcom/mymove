@@ -3,6 +3,11 @@ import { Card, CardHeader, CardBody } from '@trussworks/react-uswds';
 
 import * as styles from './MilmoveCard.module.scss';
 
+import PPMShipmentImg from 'shared/images/fabien-maurin-HLc2_JYHrJg-unsplash.jpg';
+import HHGShipmentImg from 'shared/images/hiveboxx-OoiWpdFC0Rw-unsplash.jpg';
+import MoveCounselorImg from 'shared/images/christina-wocintechchat-com-LQ1t-8Ms5PY-unsplash.jpg';
+import MovingTruckImg from 'shared/images/arron-choi-kRK1Bne4xEw-unsplash.jpg';
+
 const Divider = () => <div className={styles.divider} />;
 
 const MilmoveCard = () => (
@@ -24,7 +29,7 @@ const MilmoveCard = () => (
 
 const SectionA = () => (
   <>
-    <img src="https://via.placeholder.com/150" alt="Placeholder" />
+    <img src={PPMShipmentImg} alt="PPM Shipment" />
     <p>
       Hand-carry important documents — ID, medical info, orders, school records, etc.
       <br />
@@ -39,7 +44,7 @@ const SectionA = () => (
 const SectionB = () => (
   <>
     <h2>One move, several parts</h2>
-    <img src="https://via.placeholder.com/150" alt="Placeholder" />
+    <img src={HHGShipmentImg} alt="HHG Shipment" />
     <p>It’s common to move a few things yourself and have professional movers pack and move the rest.</p>
     <p>
       You can have things picked up or delivered to more than one place — your home and an office, for example. But
@@ -51,7 +56,7 @@ const SectionB = () => (
 const SectionC = () => (
   <>
     <h2>Talk to your move counselor</h2>
-    <img src="https://via.placeholder.com/150" alt="Placeholder" />
+    <img src={MoveCounselorImg} alt="Move counselor meeting" />
     <p>
       A session with a move counselor is free. Counselors have a lot of experience with military moves and can steer you
       through complicated situations.
@@ -70,7 +75,7 @@ const SectionC = () => (
 const SectionD = () => (
   <>
     <h2>Talk to your movers</h2>
-    <img src="https://via.placeholder.com/150" alt="Placeholder" />
+    <img src={MovingTruckImg} alt="Moving truck" />
     <p>
       If you have any shipments using professional movers, you&apos;ll be referred to a point of contact for your move.
     </p>
