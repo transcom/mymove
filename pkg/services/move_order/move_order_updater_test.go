@@ -19,8 +19,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 	expectedMoveOrder := expectedMoveTaskOrder.Orders
 
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	moveOrderUpdater := NewMoveOrderUpdater(suite.DB(), queryBuilder)
+	moveOrderUpdater := NewMoveOrderUpdater(suite.DB())
 
 	suite.T().Run("NotFoundError when order id doesn't exit", func(t *testing.T) {
 		_, err := moveOrderUpdater.UpdateMoveOrder(uuid.Nil, "", models.Order{})

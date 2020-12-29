@@ -2,7 +2,6 @@ package moveorder
 
 import (
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -15,12 +14,11 @@ import (
 type moveOrderUpdater struct {
 	db *pop.Connection
 	moveOrderFetcher
-	builder UpdateMoveOrderQueryBuilder
 }
 
 // NewMoveOrderUpdater creates a new struct with the service dependencies
-func NewMoveOrderUpdater(db *pop.Connection, builder UpdateMoveOrderQueryBuilder) services.MoveOrderUpdater {
-	return &moveOrderUpdater{db, moveOrderFetcher{db}, builder}
+func NewMoveOrderUpdater(db *pop.Connection) services.MoveOrderUpdater {
+	return &moveOrderUpdater{db, moveOrderFetcher{db}}
 }
 
 // UpdateMoveOrder updates the Order model
