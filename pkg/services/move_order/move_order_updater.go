@@ -23,12 +23,7 @@ func NewMoveOrderUpdater(db *pop.Connection, builder UpdateMoveOrderQueryBuilder
 	return &moveOrderUpdater{db, moveOrderFetcher{db}, builder}
 }
 
-// UpdateMoveOrderQueryBuilder interface performs fetch and updates during move order update
-type UpdateMoveOrderQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
-	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
-}
-
+// UpdateMoveOrder updates the Order model
 func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, moveOrder models.Order) (*models.Order, error) {
 	existingOrder, err := s.moveOrderFetcher.FetchMoveOrder(moveOrder.ID)
 	if err != nil {
