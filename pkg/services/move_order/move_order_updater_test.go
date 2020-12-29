@@ -130,7 +130,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 		// make sure that service member is not updated as well
 		// we expect the affiliation to not have been updated, which is expected to be ARMY
 		fetchedSM := models.ServiceMember{}
-		suite.DB().Find(&fetchedSM, serviceMember.ID)
+		_ = suite.DB().Find(&fetchedSM, serviceMember.ID)
 		suite.EqualValues(models.AffiliationARMY, *fetchedSM.Affiliation)
 	})
 }
