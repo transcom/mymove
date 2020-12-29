@@ -19,7 +19,6 @@ import {
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
-import { setInitialFormValues } from './ducks';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
 
@@ -232,10 +231,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { loadPPMs, createPPM, updatePPM, setInitialFormValues, updatePPMEstimate, fetchLatestOrders },
-    dispatch,
-  );
+  return bindActionCreators({ loadPPMs, createPPM, updatePPM, updatePPMEstimate, fetchLatestOrders }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
