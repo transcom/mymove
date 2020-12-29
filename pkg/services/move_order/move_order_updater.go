@@ -105,19 +105,15 @@ func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, m
 		existingOrder.ReportByDate = moveOrder.ReportByDate
 		existingOrder.OrdersType = moveOrder.OrdersType
 
-		verrs, updateErr := s.builder.UpdateOne(existingOrder, &eTag)
+		// optimistic locking handled before transaction block
+		verrs, updateErr := tx.ValidateAndUpdate(existingOrder)
 
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidInputError(moveOrder.ID, err, verrs, "")
 		}
 
 		if updateErr != nil {
-			switch updateErr.(type) {
-			case query.StaleIdentifierError:
-				return services.NewPreconditionFailedError(moveOrder.ID, err)
-			default:
-				return updateErr
-			}
+			return updateErr
 		}
 
 		return nil
