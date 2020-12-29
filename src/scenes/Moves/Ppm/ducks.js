@@ -1,5 +1,4 @@
 import { get, isEmpty } from 'lodash';
-import { change } from 'redux-form';
 
 import { GetPpm, RequestPayment } from './api.js';
 
@@ -12,15 +11,6 @@ import { selectCurrentMove } from 'store/entities/selectors';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
-
-export function setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode) {
-  return function (dispatch) {
-    dispatch(change('ppp_date_and_location', 'original_move_date', originalMoveDate));
-    dispatch(change('ppp_date_and_location', 'pickup_postal_code', pickupPostalCode));
-    dispatch(change('ppp_date_and_location', 'origin_duty_station_zip', originDutyStationZip));
-    dispatch(change('ppp_date_and_location', 'destination_postal_code', destinationPostalCode));
-  };
-}
 
 export function loadPpm(moveId) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM');
