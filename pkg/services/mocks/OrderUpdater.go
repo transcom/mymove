@@ -12,13 +12,13 @@ type OrderUpdater struct {
 	mock.Mock
 }
 
-// UpdateOrder provides a mock function with given fields: eTag, moveOrder
-func (_m *OrderUpdater) UpdateOrder(eTag string, moveOrder models.Order) (*models.Order, error) {
-	ret := _m.Called(eTag, moveOrder)
+// UpdateOrder provides a mock function with given fields: eTag, order
+func (_m *OrderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Order, error) {
+	ret := _m.Called(eTag, order)
 
 	var r0 *models.Order
 	if rf, ok := ret.Get(0).(func(string, models.Order) *models.Order); ok {
-		r0 = rf(eTag, moveOrder)
+		r0 = rf(eTag, order)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Order)
@@ -27,7 +27,7 @@ func (_m *OrderUpdater) UpdateOrder(eTag string, moveOrder models.Order) (*model
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, models.Order) error); ok {
-		r1 = rf(eTag, moveOrder)
+		r1 = rf(eTag, order)
 	} else {
 		r1 = ret.Error(1)
 	}
