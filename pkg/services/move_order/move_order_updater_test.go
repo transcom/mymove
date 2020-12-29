@@ -1,6 +1,7 @@
 package moveorder
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -94,5 +94,43 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 		suite.NoError(err)
 		suite.Equal(swag.Int(20000), actualOrder.Entitlement.DBAuthorizedWeight)
 		suite.Equal(swag.Bool(true), actualOrder.Entitlement.DependentsAuthorized)
+	})
+
+	suite.T().Run("Transaction rolled back after Order model validation error", func(t *testing.T) {
+		defaultMoveOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		serviceMember := defaultMoveOrder.ServiceMember
+
+		// update service member to compare after a failed transaction
+		updateAffiliation := models.AffiliationCOASTGUARD
+		serviceMember.Affiliation = &updateAffiliation
+
+		emptyStrSAC := ""
+		updatedMoveOrder := models.Order{
+			ID:                  defaultMoveOrder.ID,
+			OriginDutyStationID: defaultMoveOrder.OriginDutyStationID,
+			NewDutyStationID:    defaultMoveOrder.NewDutyStationID,
+			IssueDate:           defaultMoveOrder.IssueDate,
+			ReportByDate:        defaultMoveOrder.ReportByDate,
+			OrdersType:          defaultMoveOrder.OrdersType,
+			Entitlement: &models.Entitlement{
+				DBAuthorizedWeight:   swag.Int(20000),
+				DependentsAuthorized: swag.Bool(true),
+			},
+			ServiceMember: serviceMember, // this is to make sure we're updating other models so we can check after a failed transaction
+			SAC:           &emptyStrSAC,  // this will trigger validation error on Order model
+		}
+
+		expectedETag := etag.GenerateEtag(defaultMoveOrder.UpdatedAt)
+		actualOrder, err := moveOrderUpdater.UpdateMoveOrder(defaultMoveOrder.ID, expectedETag, updatedMoveOrder)
+
+		// check that we get back a validation error
+		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", defaultMoveOrder.ID))
+		suite.Nil(actualOrder)
+
+		// make sure that service member is not updated as well
+		// we expect the affiliation to not have been updated, which is expected to be ARMY
+		fetchedSM := models.ServiceMember{}
+		suite.DB().Find(&fetchedSM, serviceMember.ID)
+		suite.EqualValues(models.AffiliationARMY, *fetchedSM.Affiliation)
 	})
 }
