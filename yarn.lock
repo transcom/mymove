@@ -7117,10 +7117,10 @@ cyclist@^1.0.1:
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
-cypress-audit@^0.2.4:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/cypress-audit/-/cypress-audit-0.2.4.tgz#0dcebb8f667ff08facc7075797d69ad1877f2fe4"
-  integrity sha512-YuzTWL/6e3tGbqpPicMzqH3YK17jWJUZNktEOh+V4moZ2xYoYYlt94OFAETN0VwaC4H+qtyCqzcosVdqDnqFIg==
+cypress-audit@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/cypress-audit/-/cypress-audit-0.3.0.tgz#6a4e4697d392d0be5a337351193f1066bf99307b"
+  integrity sha512-qjuVJkdp2qGd6UrWMb+kkG4BSv0oaileoFJmAuMQUMeSbfUhTm41Z/cyx6vLyhrHeSSyrdUzKa7kdaLVyXfv4g==
   dependencies:
     lighthouse "^7.0.0"
     pa11y "^5.3.0"
