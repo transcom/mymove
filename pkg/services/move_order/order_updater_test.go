@@ -18,17 +18,17 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 	expectedMoveOrder := expectedMoveTaskOrder.Orders
 
-	moveOrderUpdater := NewMoveOrderUpdater(suite.DB())
+	moveOrderUpdater := NewOrderUpdater(suite.DB())
 
 	suite.T().Run("NotFoundError when order id doesn't exit", func(t *testing.T) {
-		_, err := moveOrderUpdater.UpdateMoveOrder("", models.Order{})
+		_, err := moveOrderUpdater.UpdateOrder("", models.Order{})
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("PreconditionsError when etag is stale", func(t *testing.T) {
 		staleEtag := etag.GenerateEtag(expectedMoveOrder.UpdatedAt.Add(-1 * time.Minute))
-		_, err := moveOrderUpdater.UpdateMoveOrder(staleEtag, models.Order{ID: expectedMoveOrder.ID})
+		_, err := moveOrderUpdater.UpdateOrder(staleEtag, models.Order{ID: expectedMoveOrder.ID})
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
@@ -55,7 +55,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 		}
 
 		expectedETag := etag.GenerateEtag(defaultMoveOrder.UpdatedAt)
-		actualOrder, err := moveOrderUpdater.UpdateMoveOrder(expectedETag, updatedMoveOrder)
+		actualOrder, err := moveOrderUpdater.UpdateOrder(expectedETag, updatedMoveOrder)
 
 		suite.NoError(err)
 		suite.Equal(updatedMoveOrder.ID, actualOrder.ID)
@@ -88,7 +88,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 		}
 
 		expectedETag := etag.GenerateEtag(defaultMoveOrder.UpdatedAt)
-		actualOrder, err := moveOrderUpdater.UpdateMoveOrder(expectedETag, updatedMoveOrder)
+		actualOrder, err := moveOrderUpdater.UpdateOrder(expectedETag, updatedMoveOrder)
 
 		suite.NoError(err)
 		suite.Equal(swag.Int(20000), actualOrder.Entitlement.DBAuthorizedWeight)
@@ -120,7 +120,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 		}
 
 		expectedETag := etag.GenerateEtag(defaultMoveOrder.UpdatedAt)
-		actualOrder, err := moveOrderUpdater.UpdateMoveOrder(expectedETag, updatedMoveOrder)
+		actualOrder, err := moveOrderUpdater.UpdateOrder(expectedETag, updatedMoveOrder)
 
 		// check that we get back a validation error
 		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", defaultMoveOrder.ID))

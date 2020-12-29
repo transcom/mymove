@@ -174,7 +174,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB()),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -238,7 +238,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 	// Set up handler:
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB()),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	traceID, err := uuid.NewV4()
@@ -284,7 +284,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB()),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -328,7 +328,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB()),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -371,7 +371,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB()),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
