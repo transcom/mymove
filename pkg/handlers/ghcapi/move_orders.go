@@ -76,7 +76,7 @@ func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersP
 // UpdateMoveOrderHandler updates an order via PATCH /move-orders/{moveOrderId}
 type UpdateMoveOrderHandler struct {
 	handlers.HandlerContext
-	moveOrderUpdater services.MoveOrderUpdater
+	orderUpdater services.OrderUpdater
 }
 
 // Handle ... updates an order from a request payload
@@ -96,7 +96,7 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 	}
 	newOrder.ID = orderID
 
-	updatedOrder, err := h.moveOrderUpdater.UpdateMoveOrder(orderID, params.IfMatch, newOrder)
+	updatedOrder, err := h.orderUpdater.UpdateOrder(params.IfMatch, newOrder)
 
 	if err != nil {
 		logger.Error("error updating move order", zap.Error(err))

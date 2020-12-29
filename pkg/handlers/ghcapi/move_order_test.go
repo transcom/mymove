@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveorder "github.com/transcom/mymove/pkg/services/move_order"
-	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -173,10 +172,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(context.DB())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -237,11 +235,10 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(context.DB())
 	// Set up handler:
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	traceID, err := uuid.NewV4()
@@ -285,10 +282,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(context.DB())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -330,10 +326,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(context.DB())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -374,10 +369,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(context.DB())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
