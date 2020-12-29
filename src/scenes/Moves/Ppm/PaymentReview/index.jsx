@@ -16,11 +16,16 @@ import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentPPM } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectCurrentPPM,
+  selectPPMEstimateRange,
+} from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
 import { updatePPM as updatePPMInRedux } from 'store/entities/actions';
 import { requestPayment } from 'services/internalApi';
-import { loadPPMs, selectPPMEstimateRange, getPpmWeightEstimate, updatePPM } from 'shared/Entities/modules/ppms';
+import { loadPPMs, getPpmWeightEstimate, updatePPM } from 'shared/Entities/modules/ppms';
 
 import DocumentsUploaded from './DocumentsUploaded';
 import { calcNetWeight } from '../utility';
@@ -208,8 +213,8 @@ const mapStateToProps = (state, props) => {
     },
     moveId,
     currentPPM: selectCurrentPPM(state) || {},
-    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
-    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
+    incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
     entitlement: loadEntitlementsFromState(state),
     orders: selectCurrentOrders(state) || {},

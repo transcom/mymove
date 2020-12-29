@@ -8,13 +8,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import {
-  loadPPMs,
-  updatePPM,
-  updatePPMEstimate,
-  getPpmWeightEstimate,
-  selectPPMEstimateRange,
-} from 'shared/Entities/modules/ppms';
+import { loadPPMs, updatePPM, updatePPMEstimate, getPpmWeightEstimate } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
@@ -27,7 +21,12 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentPPM } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectCurrentPPM,
+  selectPPMEstimateRange,
+} from 'store/entities/selectors';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -79,6 +78,7 @@ export class PpmWeight extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    // TODO
     const { currentPPM, hasLoadSuccess } = this.props;
     if (!prevProps.hasLoadSuccess && hasLoadSuccess && currentPPM) {
       this.setState(
@@ -413,13 +413,13 @@ function mapStateToProps(state) {
   const props = {
     ...state.ppm,
     serviceMemberId,
-    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
-    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
+    incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
     orders: selectCurrentOrders(state) || {},
-    currentPPM: selectCurrentPPM(state) || {},
+    currentPPM: selectCurrentPPM(state),
   };
 
   return props;

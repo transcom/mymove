@@ -7,9 +7,9 @@ import styles from './PpmMoveDetails.module.scss';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'shared/formatters';
 import { formatIncentiveRange } from 'shared/incentive';
-import { selectPPMEstimateRange, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-import { selectCurrentPPM } from 'store/entities/selectors';
+import { selectCurrentPPM, selectPPMEstimateRange } from 'store/entities/selectors';
 
 const SubmittedPpmMoveDetails = (props) => {
   const { advance, ppm, currentPPM, hasEstimateError, estimateRange } = props;
@@ -60,7 +60,7 @@ const mapStateToProps = (state, ownProps) => {
     ppm: get(state, 'ppm', {}),
     advance,
     isMissingWeightTicketDocuments,
-    estimateRange: selectPPMEstimateRange(state),
+    estimateRange: selectPPMEstimateRange(state) || {},
   };
   return props;
 };

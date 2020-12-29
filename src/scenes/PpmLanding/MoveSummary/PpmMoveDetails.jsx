@@ -5,8 +5,9 @@ import { formatCents } from 'shared/formatters';
 import { formatActualIncentiveRange, formatIncentiveRange } from 'shared/incentive';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { selectPPMEstimateRange, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
+import { selectPPMEstimateRange } from 'store/entities/selectors';
 import styles from './PpmMoveDetails.module.scss';
 
 const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimateRange, netWeight }) => {
@@ -76,7 +77,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     advance,
     isMissingWeightTicketDocuments,
-    estimateRange: selectPPMEstimateRange(state),
+    estimateRange: selectPPMEstimateRange(state) || {},
   };
 };
 

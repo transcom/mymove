@@ -13,13 +13,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import {
-  loadPPMs,
-  updatePPM,
-  updatePPMEstimate,
-  getPPMSitEstimate,
-  selectPPMSitEstimate,
-} from 'shared/Entities/modules/ppms';
+import { loadPPMs, updatePPM, updatePPMEstimate, getPPMSitEstimate } from 'shared/Entities/modules/ppms';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
@@ -28,6 +22,7 @@ import {
   selectCurrentMove,
   selectCurrentOrders,
   selectCurrentPPM,
+  selectPPMSitEstimate,
 } from 'store/entities/selectors';
 
 import 'scenes/Moves/Ppm/DateAndLocation.css';
@@ -123,6 +118,7 @@ class EditDateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
+      // TODO
       return this.props.updatePPM(moveId, this.props.currentPPM.id, pendingValues).then(({ response }) => {
         this.props
           .updatePPMEstimate(moveId, response.body.id)
@@ -255,7 +251,7 @@ function mapStateToProps(state) {
     // TODO
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
-    sitEstimate: selectPPMSitEstimate(state),
+    sitEstimate: selectPPMSitEstimate(state) || '',
     entitiesSitReimbursement: currentPPM?.estimated_storage_reimbursement || '',
   };
 

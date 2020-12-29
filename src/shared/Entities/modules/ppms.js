@@ -145,20 +145,6 @@ export function approveReimbursement(reimbursementId, label = approveReimburseme
   return swaggerRequest(getClient, swaggerTag, { reimbursementId }, { label });
 }
 
-export function selectPPMEstimateRange(state) {
-  if (state.entities.ppmEstimateRanges) {
-    return state.entities.ppmEstimateRanges.undefined;
-  }
-  return {};
-}
-
-export function selectPPMSitEstimate(state) {
-  if (state.entities.ppmSitEstimate) {
-    return state.entities.ppmSitEstimate.undefined.estimate;
-  }
-  return '';
-}
-
 export function selectReimbursement(state, reimbursementId) {
   const advanceFromEntities = get(state, `entities.reimbursements.${reimbursementId}`);
   // todo
