@@ -96,7 +96,7 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 	}
 	newOrder.ID = orderID
 
-	updatedOrder, err := h.moveOrderUpdater.UpdateMoveOrder(orderID, params.IfMatch, newOrder)
+	updatedOrder, err := h.moveOrderUpdater.UpdateMoveOrder(params.IfMatch, newOrder)
 
 	if err != nil {
 		logger.Error("error updating move order", zap.Error(err))

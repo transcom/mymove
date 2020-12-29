@@ -2,7 +2,6 @@ package moveorder
 
 import (
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 
@@ -22,7 +21,7 @@ func NewMoveOrderUpdater(db *pop.Connection) services.MoveOrderUpdater {
 }
 
 // UpdateMoveOrder updates the Order model
-func (s *moveOrderUpdater) UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, moveOrder models.Order) (*models.Order, error) {
+func (s *moveOrderUpdater) UpdateMoveOrder(eTag string, moveOrder models.Order) (*models.Order, error) {
 	existingOrder, err := s.moveOrderFetcher.FetchMoveOrder(moveOrder.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(moveOrder.ID, "while looking for moveOrder")
