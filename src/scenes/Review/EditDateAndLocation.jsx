@@ -16,7 +16,6 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
   loadPPMs,
   updatePPM,
-  selectActivePPMForMove,
   updatePPMEstimate,
   getPPMSitEstimate,
   selectPPMSitEstimate,
@@ -24,7 +23,12 @@ import {
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
-import { selectServiceMemberFromLoggedInUser, selectCurrentMove, selectCurrentOrders } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentMove,
+  selectCurrentOrders,
+  selectCurrentPPM,
+} from 'store/entities/selectors';
 
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 
@@ -238,20 +242,21 @@ EditDateAndLocation.propTypes = {
 };
 function mapStateToProps(state) {
   const currentMove = selectCurrentMove(state) || {};
-  const moveID = currentMove?.id;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const currentPPM = selectCurrentPPM(state);
 
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     move: currentMove,
     currentOrders: selectCurrentOrders(state) || {},
-    currentPPM: selectActivePPMForMove(state, moveID),
+    currentPPM,
     formValues: getFormValues(editDateAndLocationFormName)(state),
     entitlement: loadEntitlementsFromState(state),
+    // TODO
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
     sitEstimate: selectPPMSitEstimate(state),
-    entitiesSitReimbursement: get(selectActivePPMForMove(state, moveID), 'estimated_storage_reimbursement', ''),
+    entitiesSitReimbursement: currentPPM?.estimated_storage_reimbursement || '',
   };
 
   const defaultPickupZip = serviceMember?.residential_address?.postal_code;

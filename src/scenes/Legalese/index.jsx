@@ -15,7 +15,8 @@ import { formatSwaggerDate } from 'shared/formatters';
 import './index.scss';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
-import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
+import { selectCurrentPPM } from 'store/entities/selectors';
+import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { submitMoveForApproval } from 'services/internalApi';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { completeCertificationText } from './legaleseText';
@@ -160,10 +161,7 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
-    currentPpm: selectActivePPMForMove(state, moveId),
-    tempPpmId: get(state.ppm, 'currentPpm.id', null),
-    has_sit: get(state.ppm, 'currentPpm.has_sit', false),
-    has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
+    currentPpm: selectCurrentPPM(state),
   };
 }
 

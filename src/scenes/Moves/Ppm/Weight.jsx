@@ -11,7 +11,6 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
   loadPPMs,
   updatePPM,
-  selectActivePPMForMove,
   updatePPMEstimate,
   getPpmWeightEstimate,
   selectPPMEstimateRange,
@@ -28,7 +27,7 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentPPM } from 'store/entities/selectors';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -98,19 +97,11 @@ export class PpmWeight extends Component {
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive = () => {
-    const { currentPPM, originDutyStationZip, tempCurrentPPM } = this.props;
+    const { currentPPM, originDutyStationZip } = this.props;
     const weight = this.state.pendingPpmWeight;
 
-    // TODO this is a work around till we refactor more SM data...
-    const origMoveDate =
-      currentPPM && currentPPM.hasOwnProperty('original_move_date')
-        ? currentPPM.original_move_date
-        : tempCurrentPPM.original_move_date;
-    // TODO this is a work around till we refactor more SM data...
-    const pickupPostalCode =
-      currentPPM && currentPPM.hasOwnProperty('pickup_postal_code')
-        ? currentPPM.pickup_postal_code
-        : tempCurrentPPM.pickup_postal_code;
+    const origMoveDate = currentPPM?.original_move_date;
+    const pickupPostalCode = currentPPM?.pickup_postal_code;
 
     this.props
       .getPpmWeightEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight)
@@ -125,10 +116,9 @@ export class PpmWeight extends Component {
       has_pro_gear_over_thousand: toUpper(this.state.isProgearMoreThan1000),
     };
 
-    // TODO this is a work around till we refactor more SM data...
-    const ppmId = this.props.currentPPM.id ? this.props.currentPPM.id : this.props.tempCurrentPPM.id;
-    // TODO this is a work around till we refactor more SM data...
-    const moveId = this.props.currentPPM.move_id ? this.props.currentPPM.move_id : this.props.tempCurrentPPM.move_id;
+    const ppmId = this.props.currentPPM?.id;
+    const moveId = this.props.currentPPM?.move_id;
+
     return this.props
       .updatePPM(moveId, ppmId, ppmBody)
       .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch((err) => err));
@@ -406,20 +396,18 @@ export class PpmWeight extends Component {
 }
 
 PpmWeight.propTypes = {
-  currentPpm: PropTypes.shape({
+  currentPPM: PropTypes.shape({
     id: PropTypes.string,
     weight: PropTypes.number,
     incentive: PropTypes.string,
   }),
   hasLoadSuccess: PropTypes.bool.isRequired,
-  currentPPM: PropTypes.object.isRequired,
 };
+
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const currentMove = selectCurrentMove(state);
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
   const originDutyStationZip = serviceMember?.current_station?.address?.postal_code;
-  const moveID = currentMove?.id;
   const serviceMemberId = serviceMember?.id;
 
   const props = {
@@ -427,13 +415,11 @@ function mapStateToProps(state) {
     serviceMemberId,
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
-    currentPPM: selectActivePPMForMove(state, moveID),
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
     orders: selectCurrentOrders(state) || {},
-    // TODO this is a work around till we refactor more SM data...
-    tempCurrentPPM: get(state, 'ppm.currentPpm'),
+    currentPPM: selectCurrentPPM(state),
   };
 
   return props;
