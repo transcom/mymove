@@ -84,8 +84,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
 			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
 			// Create the payment service item
-			// #nosec G601 TODO needs review
-			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(tx, &paymentServiceItem, paymentRequestArg, now)
+			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(tx, paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
 				if _, ok := err.(services.InvalidCreateInputError); ok {
 					return err
@@ -276,7 +275,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	return paymentRequest, nil
 }
 
-func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, paymentServiceItem *models.PaymentServiceItem, paymentRequest *models.PaymentRequest, requestedAt time.Time) (models.PaymentServiceItem, models.MTOServiceItem, error) {
+func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, paymentServiceItem models.PaymentServiceItem, paymentRequest *models.PaymentRequest, requestedAt time.Time) (models.PaymentServiceItem, models.MTOServiceItem, error) {
 	// Verify that the MTO service item ID exists
 	var mtoServiceItem models.MTOServiceItem
 	err := tx.Eager("ReService").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
@@ -285,7 +284,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 			msg := fmt.Sprint("for MTO Service Item")
 			return models.PaymentServiceItem{}, models.MTOServiceItem{}, services.NewNotFoundError(paymentServiceItem.MTOServiceItemID, msg)
 		}
-		return *paymentServiceItem, models.MTOServiceItem{}, fmt.Errorf("could not find MTO MTOServiceItemID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)
+		return paymentServiceItem, models.MTOServiceItem{}, fmt.Errorf("could not find MTO MTOServiceItemID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)
 	}
 
 	paymentServiceItem.MTOServiceItemID = mtoServiceItem.ID
@@ -296,16 +295,16 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	// No pricing at this point, so skipping the PriceCents field.
 	paymentServiceItem.RequestedAt = requestedAt
 
-	verrs, err := tx.ValidateAndCreate(paymentServiceItem)
+	verrs, err := tx.ValidateAndCreate(&paymentServiceItem)
 	if verrs.HasAny() {
 		msg := fmt.Sprint("validation error creating payment request service item in payment request creation")
-		return *paymentServiceItem, mtoServiceItem, services.NewInvalidCreateInputError(verrs, msg)
+		return paymentServiceItem, mtoServiceItem, services.NewInvalidCreateInputError(verrs, msg)
 	}
 	if err != nil {
-		return *paymentServiceItem, mtoServiceItem, fmt.Errorf("failure creating payment service item: %w for MTO Service Item ID <%s>", err, paymentServiceItem.MTOServiceItemID.String())
+		return paymentServiceItem, mtoServiceItem, fmt.Errorf("failure creating payment service item: %w for MTO Service Item ID <%s>", err, paymentServiceItem.MTOServiceItemID.String())
 	}
 
-	return *paymentServiceItem, mtoServiceItem, nil
+	return paymentServiceItem, mtoServiceItem, nil
 }
 
 func (p *paymentRequestCreator) pricePaymentServiceItem(tx *pop.Connection, pricer services.ServiceItemPricer, paymentServiceItem *models.PaymentServiceItem) error {
