@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { Suspense } from 'react';
 import { mount } from 'enzyme';
 
@@ -102,11 +101,18 @@ jest.mock('hooks/queries', () => ({
   },
 }));
 
-describe('MoveOrders page', () => {
+const testMoveId = '10000';
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn().mockReturnValue({ moveOrderId: testMoveId }),
+}));
+
+describe('MoveDocumentWrapper', () => {
   const wrapper = mount(
-    <MockProviders initialEntries={['moves/1000/orders']}>
+    <MockProviders initialEntries={[`/moves/${testMoveId}/orders`]}>
       <Suspense fallback={<div>Loading</div>}>
-        <MoveDocumentWrapper formName="orders" />
+        <MoveDocumentWrapper />
       </Suspense>
     </MockProviders>,
   );

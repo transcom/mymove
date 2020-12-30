@@ -179,36 +179,38 @@ describe('TOO user', () => {
 
     // Edit orders fields
 
-    // TODO Changing the originDutyStation value changes the moveLocator for the rest of the tests. Why?
-    // cy.get('[class*="-control"]')
-    //   .first()
-    //   .click(0, 0, { force: true })
-    //   .type('Fort Hood')
-    //   .get('[class*="-menu"]')
-    //   .find('[class*="-option"]')
-    //   .eq(1)
-    //   .click(0, 0, { force: true });
+    cy.get('form').within(($form) => {
+      // TODO Changing the originDutyStation value changes the moveLocator for the rest of the tests. Why?
+      // cy.get('[class*="-control"]')
+      //   .first()
+      //   .click(0, 0, { force: true })
+      //   .type('Fort Hood')
+      //   .get('[class*="-menu"]')
+      //   .find('[class*="-option"]')
+      //   .eq(1)
+      //   .click(0, 0, { force: true });
 
-    cy.get('[class*="-control"]')
-      .eq(1)
-      .click(0, 0, { force: true })
-      .type('JB McGuire-Dix-Lakehurst')
-      .get('[class*="-menu"]')
-      .find('[class*="-option"]')
-      .eq(1)
-      .click(0, 0, { force: true });
+      cy.get('[class*="-control"]')
+        .eq(1)
+        .click(0, 0, { force: true })
+        .type('JB McGuire-Dix-Lakehurst')
+        .get('[class*="-menu"]')
+        .find('[class*="-option"]')
+        .eq(1)
+        .click(0, 0, { force: true });
 
-    cy.get('input[name="issueDate"]').click({ force: true }).clear().type('16 Mar 2018');
-    cy.get('input[name="reportByDate"]').click({ force: true }).clear().type('22 Mar 2018');
-    cy.get('select[name="departmentIndicator"]').select('21 Army', { force: true });
-    cy.get('input[name="ordersNumber"]').click({ force: true }).clear().type('ORDER66');
-    cy.get('select[name="ordersType"]').select('Permanent Change Of Station (PCS)');
-    cy.get('select[name="ordersTypeDetail"]').select('Shipment of HHG Permitted');
-    cy.get('input[name="tac"]').click({ force: true }).clear().type('F123');
-    cy.get('input[name="sac"]').click({ force: true }).clear().type('4K988AS098F');
+      cy.get('input[name="issueDate"]').click({ force: true }).clear().type('16 Mar 2018');
+      cy.get('input[name="reportByDate"]').click({ force: true }).clear().type('22 Mar 2018');
+      cy.get('select[name="departmentIndicator"]').select('21 Army', { force: true });
+      cy.get('input[name="ordersNumber"]').click({ force: true }).clear().type('ORDER66');
+      cy.get('select[name="ordersType"]').select('Permanent Change Of Station (PCS)');
+      cy.get('select[name="ordersTypeDetail"]').select('Shipment of HHG Permitted');
+      cy.get('input[name="tac"]').click({ force: true }).clear().type('F123');
+      cy.get('input[name="sac"]').click({ force: true }).clear().type('4K988AS098F');
 
-    // Edit orders page | Save
-    cy.get('button').contains('Save').click();
+      // Edit orders page | Save
+      cy.get('button').contains('Save').click();
+    });
 
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
@@ -249,18 +251,21 @@ describe('TOO user', () => {
     cy.get('[data-testid="view-allowances"]').click();
     cy.url().should('include', `/moves/${moveLocator}/allowances`);
 
-    // Edit grade and authorized weight
-    cy.get('select[name=agency]').contains('Army');
-    cy.get('select[name=agency]').select('Navy');
-    cy.get('select[name="grade"]').contains('E-1');
-    cy.get('select[name="grade"]').select('W-2');
-    cy.get('input[name="authorizedWeight"]').clear().type('11111');
+    cy.get('form').within(($form) => {
+      // Edit grade and authorized weight
+      cy.get('select[name=agency]').contains('Army');
+      cy.get('select[name=agency]').select('Navy');
+      cy.get('select[name="grade"]').contains('E-1');
+      cy.get('select[name="grade"]').select('W-2');
+      cy.get('input[name="authorizedWeight"]').clear().type('11111');
 
-    //Edit DependentsAuthorized
-    cy.get('input[name="dependentsAuthorized"]').click();
+      //Edit DependentsAuthorized
+      cy.get('input[name="dependentsAuthorized"]').click();
 
-    // Edit allowances page | Save
-    cy.get('button').contains('Save').click();
+      // Edit allowances page | Save
+      cy.get('button').contains('Save').click();
+    });
+
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="authorizedWeight"]').contains('11,111 lbs');

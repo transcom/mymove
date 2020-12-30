@@ -1,7 +1,5 @@
-/* eslint-disable camelcase */
 import React, { lazy } from 'react';
-import PropTypes from 'prop-types';
-import { useParams } from 'react-router-dom';
+import { useParams, matchPath, useLocation } from 'react-router-dom';
 
 import moveOrdersStyles from '../MoveOrders/MoveOrders.module.scss';
 
@@ -13,14 +11,19 @@ import { useOrdersDocumentQueries } from 'hooks/queries';
 const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
 const MoveAllowances = lazy(() => import('pages/Office/MoveAllowances/MoveAllowances'));
 
-const MoveDocumentWrapper = (props) => {
+const MoveDocumentWrapper = () => {
   const { moveCode } = useParams();
-  const { formName } = props;
+  const { pathname } = useLocation();
 
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const showOrders = matchPath(pathname, {
+    path: '/moves/:moveCode/orders',
+    exact: true,
+  });
 
   const documentsForViewer = Object.values(upload);
 
@@ -31,13 +34,9 @@ const MoveDocumentWrapper = (props) => {
           <DocumentViewer files={documentsForViewer} />
         </div>
       )}
-      {formName === 'allowances' && <MoveAllowances moveCode={moveCode} />}
-      {formName === 'orders' && <MoveOrders moveCode={moveCode} />}
+      {showOrders ? <MoveOrders moveCode={moveCode} /> : <MoveAllowances moveCode={moveCode} />}
     </div>
   );
 };
 
-MoveDocumentWrapper.propTypes = {
-  formName: PropTypes.string.isRequired,
-};
 export default MoveDocumentWrapper;

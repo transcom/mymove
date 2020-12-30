@@ -69,12 +69,8 @@ const TXOMoveInfo = () => {
             <MoveDetails />
           </Route>
 
-          <Route path="/moves/:moveCode/orders" exact>
-            <MoveDocumentWrapper formName="orders" />
-          </Route>
-
-          <Route path="/moves/:moveCode/allowances" exact>
-            <MoveDocumentWrapper formName="allowances" />
+          <Route path={['/moves/:moveCode/allowances', '/moves/:moveCode/orders']} exact>
+            <MoveDocumentWrapper />
           </Route>
 
           <Route path="/moves/:moveCode/mto" exact>
