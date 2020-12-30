@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardBody } from '@trussworks/react-uswds';
+import { CardGroup, Card, CardBody } from '@trussworks/react-uswds';
 
 import * as styles from './MilmoveCard.module.scss';
 
@@ -11,17 +11,19 @@ import MovingTruckImg from 'shared/images/arron-choi-kRK1Bne4xEw-unsplash.jpg';
 const Divider = () => <div className={styles.Divider} />;
 
 const MilmoveCard = () => (
-  <Card containerProps={{ className: styles.CardContainer }}>
-    <CardBody id={styles.CardBody}>
-      <PPMExplanation />
-      <Divider />
-      <HHGExplanation />
-      <Divider />
-      <MoveCounselorExplanation />
-      <Divider />
-      <MoversExplanation />
-    </CardBody>
-  </Card>
+  <CardGroup>
+    <Card containerProps={{ className: styles.CardContainer }}>
+      <CardBody id={styles.CardBody}>
+        <PPMExplanation />
+        <Divider />
+        <HHGExplanation />
+        <Divider />
+        <MoveCounselorExplanation />
+        <Divider />
+        <MoversExplanation />
+      </CardBody>
+    </Card>
+  </CardGroup>
 );
 
 const PPMExplanation = () => (
