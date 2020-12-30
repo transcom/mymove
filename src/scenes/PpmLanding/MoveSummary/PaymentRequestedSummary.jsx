@@ -1,6 +1,5 @@
 import React from 'react';
 import { ppmInfoPacket } from 'shared/constants';
-import Alert from 'shared/Alert';
 import moment from 'moment';
 import ppmCar from 'scenes/PpmLanding/images/ppm-car.svg';
 import PPMStatusTimeline from 'scenes/PpmLanding/PPMStatusTimeline';
@@ -8,7 +7,7 @@ import FindWeightScales from 'scenes/PpmLanding/MoveSummary/FindWeightScales';
 import PpmMoveDetails from 'scenes/PpmLanding/MoveSummary/SubmittedPpmMoveDetails';
 
 const PaymentRequestedSummary = (props) => {
-  const { ppm, requestPaymentSuccess } = props;
+  const { ppm } = props;
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   return (
     <div>
@@ -19,12 +18,6 @@ const PaymentRequestedSummary = (props) => {
         </div>
 
         <div className="shipment_box_contents">
-          {requestPaymentSuccess && (
-            <Alert type="success" heading="">
-              Payment request submitted
-            </Alert>
-          )}
-
           <PPMStatusTimeline ppm={ppm} />
           <div className="step-contents">
             <div className="status_box usa-width-two-thirds">

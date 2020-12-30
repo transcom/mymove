@@ -24,6 +24,7 @@ import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 export class PpmLanding extends Component {
   componentDidMount() {
@@ -107,7 +108,6 @@ export class PpmLanding extends Component {
       orders,
       move,
       ppm,
-      requestPaymentSuccess,
       location,
     } = this.props;
 
@@ -133,6 +133,8 @@ export class PpmLanding extends Component {
 
     return (
       <div className="grid-container">
+        <ConnectedFlashMessage />
+
         {isProfileComplete && (
           <PpmSummary
             entitlement={entitlement}
@@ -143,7 +145,6 @@ export class PpmLanding extends Component {
             editMove={this.editMove}
             resumeMove={this.resumeMove}
             reviewProfile={this.reviewProfile}
-            requestPaymentSuccess={requestPaymentSuccess}
           />
         )}
       </div>
@@ -188,7 +189,6 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     entitlement: loadEntitlementsFromState(state),
-    requestPaymentSuccess: state.ppm.requestPaymentSuccess,
   };
   return props;
 };

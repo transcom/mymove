@@ -1,6 +1,6 @@
 import { get, isEmpty } from 'lodash';
 
-import { GetPpm, RequestPayment } from './api.js';
+import { GetPpm } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
@@ -24,32 +24,6 @@ export function loadPpm(moveId) {
         .catch((error) => dispatch(action.error(error)));
     }
     return Promise.resolve();
-  };
-}
-
-const REQUESTED_PAYMENT_ACTION = {
-  type: 'REQUESTED_PAYMENT',
-};
-
-export function submitExpenseDocs(state) {
-  const updateAction = ReduxHelpers.generateAsyncActions('CREATE_OR_UPDATE_PPM');
-  return function (dispatch, getState) {
-    dispatch(updateAction.start());
-    const state = getState();
-    const currentPpm = state.ppm.currentPpm;
-    if (!currentPpm) {
-      console.log('Attempted to request payment on a PPM that did not exist.');
-      return Promise.reject();
-    }
-    return RequestPayment(currentPpm.id)
-      .then((item) => {
-        dispatch(updateAction.success(item));
-        dispatch(REQUESTED_PAYMENT_ACTION);
-      })
-      .catch((error) => {
-        dispatch(updateAction.error(error));
-        return Promise.reject();
-      });
   };
 }
 
@@ -145,10 +119,6 @@ export function ppmReducer(state = initialState, action) {
         hasSubmitError: true,
         hasSubmitInProgress: false,
         error: action.error,
-      });
-    case 'REQUESTED_PAYMENT':
-      return Object.assign({}, state, {
-        requestPaymentSuccess: true,
       });
     case GET_PPM.start:
       return Object.assign({}, state, {
