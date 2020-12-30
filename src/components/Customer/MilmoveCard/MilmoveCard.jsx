@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardBody, CardMedia } from '@trussworks/react-uswds';
+import { Card, CardBody } from '@trussworks/react-uswds';
 
 import * as styles from './MilmoveCard.module.scss';
 
@@ -12,24 +12,22 @@ const Divider = () => <div className={styles.Divider} />;
 
 const MilmoveCard = () => (
   <Card containerProps={{ className: styles.CardContainer }}>
-    <CardBody className={styles.CardBody}>
-      <SectionA />
+    <CardBody id={styles.CardBody}>
+      <PPMExplanation />
       <Divider />
-      <SectionB />
+      <HHGExplanation />
       <Divider />
-      <SectionC />
+      <MoveCounselorExplanation />
       <Divider />
-      <SectionD />
+      <MoversExplanation />
     </CardBody>
   </Card>
 );
 
-const SectionA = () => (
+const PPMExplanation = () => (
   <div className={styles.Section}>
     <h3>Hold on to things you’ll need quickly</h3>
-    <CardMedia>
-      <img src={PPMShipmentImg} alt="PPM Shipment" />
-    </CardMedia>
+    <img src={PPMShipmentImg} alt="PPM Shipment" />
     <p>Hand-carry important documents — ID, medical info, orders, school records, etc.sss</p>
     <p>
       Pack a set of things that you’ll need when you arrive — clothes, electronics, chargers, cleaning supplies, etc.
@@ -39,7 +37,7 @@ const SectionA = () => (
   </div>
 );
 
-const SectionB = () => (
+const HHGExplanation = () => (
   <div className={styles.Section}>
     <h3>One move, several parts</h3>
     <img src={HHGShipmentImg} alt="HHG Shipment" />
@@ -51,7 +49,7 @@ const SectionB = () => (
   </div>
 );
 
-const SectionC = () => (
+const MoveCounselorExplanation = () => (
   <div className={styles.Section}>
     <h3>Talk to your move counselor</h3>
     <img src={MoveCounselorImg} alt="Move counselor meeting" />
@@ -68,7 +66,7 @@ const SectionC = () => (
   </div>
 );
 
-const SectionD = () => (
+const MoversExplanation = () => (
   <div className={styles.Section}>
     <h3>Talk to your movers</h3>
     <img src={MovingTruckImg} alt="Moving truck" />

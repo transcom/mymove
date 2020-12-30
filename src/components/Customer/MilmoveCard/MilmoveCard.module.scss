@@ -8,40 +8,65 @@
 }
 
 .CardContainer {
-  border-width: 0px;
   max-width: 675px;
-}
+  #CardBody {
+    padding: 40px;
 
-.CardBody {
-  padding: 40px !important; // TODO: Better way to do padding, spacing between paragraphs, spacing between unordered list and unordered list header
-
-  h3 {
-    margin-bottom: 24px;
-  }
-
-  img {
-    width: 594px;
-    height: 341px;
-  }
-}
-
-.Section {
-  &:first-child {
     h3 {
-      margin-top: 0px;
+      margin-bottom: 24px;
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+
+    .Section {
+      &:first-child {
+        h3 {
+          margin-top: 0px;
+        }
+      }
+
+      p:last-child {
+        margin-bottom: 0px;
+      }
+
+      ul {
+        margin-top: 0px;
+        padding-left: 1.2rem;
+      }
+
+      .CounselorListHeader {
+        margin-bottom: 0px;
+      }
     }
   }
+}
 
-  p:last-child {
-    margin-bottom: 0px;
-  }
+@media screen and (max-width: $mobile) {
+  .CardContainer {
+    border-width: 0px !important;
+    #CardBody {
+      padding: 0px;
 
-  ul {
-    margin-top: 0px;
-    padding-left: 1.2rem;
-  }
+      h3 {
+        margin-top: 0px;
+        margin-bottom: 18px;
+        font-size: 15px;
+        padding: 24px 24px 0px 24px;
+      }
 
-  .CounselorListHeader {
-    margin-bottom: 0px;
+      .Section {
+        p {
+          padding: 0px 24px;
+        }
+
+        ul {
+          margin-top: 0px;
+          padding-left: 3rem;
+        }
+      }
+    }
   }
 }

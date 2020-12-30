@@ -3,7 +3,6 @@ import qs from 'query-string';
 
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
-import MilmoveCard from 'components/Customer/MilmoveCard/MilmoveCard';
 
 const SignIn = ({ context, location }) => {
   const error = qs.parse(location.search).error;
@@ -42,7 +41,6 @@ const SignIn = ({ context, location }) => {
           </div>
         </div>
       </div>
-      <MilmoveCard />
     </div>
   );
 };
