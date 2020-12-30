@@ -1,22 +1,5 @@
 @import 'shared/styles/_variables';
 
-.CardBody {
-  padding-top: 16px;
-}
-
-@media screen and (max-width: $mobile) {
-  .CardBody {
-    padding-top: 10px;
-  }
-
-  .CardContainer {
-    h3 {
-      font-size: 15px;
-      padding: 24px 0px 10px 24px;
-    }
-  }
-}
-
 .CardContainer {
   border-width: 0;
   border-bottom: 1px solid #dcdee0;
