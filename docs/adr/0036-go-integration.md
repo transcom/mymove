@@ -38,8 +38,7 @@ An example of the suite setup and test:
 // SetupTest sets up the test suite by preparing the DB
 func (suite *HandlerSuite) SetupTest() {
   if !testing.Short() {
-      err := suite.TruncateAll()
-      suite.FatalNoError(err)
+      suite.DB().TruncateAll()
   }
 }
 
