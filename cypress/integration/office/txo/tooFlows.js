@@ -182,30 +182,30 @@ describe('TOO user', () => {
     cy.get('form').within(($form) => {
       cy.get('[class*="-control"]')
         .first()
-        .click(0, 0, { force: true })
+        .click(0, 0)
         .type('Fort Irwin')
         .get('[class*="-menu"]')
         .find('[class*="-option"]')
         .first()
-        .click(0, 0, { force: true });
+        .click(0, 0);
 
       cy.get('[class*="-control"]')
         .eq(1)
-        .click(0, 0, { force: true })
+        .click(0, 0)
         .type('JB McGuire-Dix-Lakehurst')
         .get('[class*="-menu"]')
         .find('[class*="-option"]')
         .eq(1)
-        .click(0, 0, { force: true });
+        .click(0, 0);
 
       cy.get('input[name="issueDate"]').click({ force: true }).clear().type('16 Mar 2018');
       cy.get('input[name="reportByDate"]').click({ force: true }).clear().type('22 Mar 2018');
       cy.get('select[name="departmentIndicator"]').select('21 Army', { force: true });
-      cy.get('input[name="ordersNumber"]').click({ force: true }).clear().type('ORDER66');
+      cy.get('input[name="ordersNumber"]').click().clear().type('ORDER66');
       cy.get('select[name="ordersType"]').select('Permanent Change Of Station (PCS)');
       cy.get('select[name="ordersTypeDetail"]').select('Shipment of HHG Permitted');
-      cy.get('input[name="tac"]').click({ force: true }).clear().type('F123');
-      cy.get('input[name="sac"]').click({ force: true }).clear().type('4K988AS098F');
+      cy.get('input[name="tac"]').click().clear().type('F123');
+      cy.get('input[name="sac"]').click().clear().type('4K988AS098F');
 
       // Edit orders page | Save
       cy.get('button').contains('Save').click();
