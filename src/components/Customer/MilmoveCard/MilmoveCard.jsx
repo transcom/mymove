@@ -7,10 +7,6 @@ import * as styles from './MilmoveCard.module.scss';
 const MilmoveCard = ({ children, headerFirst }) => (
   <Card containerProps={{ className: styles.CardContainer }} headerFirst={headerFirst}>
     <>{children}</>
-    {/* <CardHeader>
-        <h3>{headerText}</h3>
-      </CardHeader>
-      <CardBody className={styles.CardBody}>{children}</CardBody> */}
   </Card>
 );
 
