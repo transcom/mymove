@@ -66,7 +66,7 @@ describe('TXO Move Info Container', () => {
 
       const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/orders');
+      expect(renderedRoute.prop('path')).toEqual(['/moves/:moveCode/allowances', '/moves/:moveCode/orders']);
     });
 
     it('should handle the Allowances route', () => {
@@ -78,7 +78,7 @@ describe('TXO Move Info Container', () => {
 
       const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/allowances');
+      expect(renderedRoute.prop('path')).toEqual(['/moves/:moveCode/allowances', '/moves/:moveCode/orders']);
     });
 
     it('should handle the Move Task Order route', () => {
