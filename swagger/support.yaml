@@ -456,9 +456,9 @@ paths:
                 description: Name of event triggered
                 example: paymentRequest.updated
               triggeredAt:
-                  type: string
-                  format: date-time
-                  description: Time representing when the event was triggered
+                type: string
+                format: date-time
+                description: Time representing when the event was triggered
               objectType:
                 type: string
                 description: The type of object that's being updated
@@ -481,9 +481,9 @@ paths:
                 description: Name of event triggered
                 example: paymentRequest.updated
               triggeredAt:
-                  type: string
-                  format: date-time
-                  description: Time representing when the event was triggered
+                type: string
+                format: date-time
+                description: Time representing when the event was triggered
               objectType:
                 type: string
                 description: The type of object that's being updated
@@ -924,7 +924,7 @@ definitions:
 
           If creating a MoveTaskOrder, this should match an existing duty station.
       rank:
-        $ref: "#/definitions/Rank"
+        $ref: '#/definitions/Rank'
       reportByDate:
         description: Date that the service member must report to the new DutyStation by.
         type: string
@@ -1067,10 +1067,11 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/MoveStatus'
-      locator:
+      moveCode:
         description: Unique 6-character code the customer can use to refer to their move
         type: string
         example: ABC123
+        readOnly: true
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'

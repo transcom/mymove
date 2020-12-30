@@ -1649,11 +1649,6 @@ func init() {
         "linesOfAccounting"
       ],
       "properties": {
-        "confirmationNumber": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "HYXFJF"
-        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -1727,6 +1722,11 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
         },
         "moveOrder": {
           "$ref": "#/definitions/MoveOrder"
@@ -4109,11 +4109,6 @@ func init() {
         "linesOfAccounting"
       ],
       "properties": {
-        "confirmationNumber": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "HYXFJF"
-        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -4187,6 +4182,11 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
         },
         "moveOrder": {
           "$ref": "#/definitions/MoveOrder"

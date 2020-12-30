@@ -2767,10 +2767,6 @@ func init() {
           "type": "string",
           "$ref": "#/definitions/Branch"
         },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "customerID": {
           "type": "string",
           "format": "uuid",
@@ -2816,6 +2812,10 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "Doe"
+        },
+        "moveCode": {
+          "type": "string",
+          "example": "H2XFJF"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -6842,10 +6842,6 @@ func init() {
           "type": "string",
           "$ref": "#/definitions/Branch"
         },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "customerID": {
           "type": "string",
           "format": "uuid",
@@ -6891,6 +6887,10 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "Doe"
+        },
+        "moveCode": {
+          "type": "string",
+          "example": "H2XFJF"
         },
         "moveTaskOrderID": {
           "type": "string",

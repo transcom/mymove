@@ -192,7 +192,7 @@ func (suite *HandlerSuite) moveTaskOrderPopulated(response *movetaskorderops.Cre
 
 	responsePayload := response.Payload
 
-	suite.NotNil(responsePayload.Locator)
+	suite.NotNil(responsePayload.MoveCode)
 	suite.NotNil(responsePayload.AvailableToPrimeAt)
 	suite.NotNil(responsePayload.MoveOrder.Customer.FirstName)
 

@@ -337,7 +337,7 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
 	model := &models.Move{
 		ReferenceID:        &mtoPayload.ReferenceID,
-		Locator:            mtoPayload.Locator,
+		Locator:            mtoPayload.MoveCode,
 		PPMEstimatedWeight: &ppmEstimatedWeight,
 		PPMType:            &mtoPayload.PpmType,
 		ContractorID:       &contractorID,
