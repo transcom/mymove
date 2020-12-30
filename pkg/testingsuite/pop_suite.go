@@ -66,7 +66,6 @@ func dropDB(conn *pop.Connection, destination string) error {
 }
 
 func cloneDatabase(conn *pop.Connection, source, destination string) error {
-
 	// Now that the lock is available clone the DB
 	// Drop and then Create the DB
 	if dropErr := dropDB(conn, destination); dropErr != nil {
@@ -175,11 +174,11 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 
 	uniq := StringWithCharset(6, charset)
 	dbNamePackage := fmt.Sprintf("%s_%s_%s", dbNameTest, strings.Replace(packageName.String(), "/", "_", -1), uniq)
-	fmt.Printf("attempting to clone database %s to %s... ", dbNameTest, dbNamePackage)
+	log.Printf("attempting to clone database %s to %s... ", dbNameTest, dbNamePackage)
 	if err := cloneDatabase(primaryConn, dbNameTest, dbNamePackage); err != nil {
 		log.Panicf("failed to clone database '%s' to '%s': %#v", dbNameTest, dbNamePackage, err)
 	}
-	fmt.Println("success")
+	log.Println("success")
 
 	// disconnect from the primary DB
 	if err := primaryConn.Close(); err != nil {
