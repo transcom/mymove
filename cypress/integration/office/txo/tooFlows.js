@@ -169,7 +169,7 @@ describe('TOO user', () => {
     cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // Navigate to Edit orders page
-    cy.get('[data-testid="edit-orders"]').contains('View & Edit Orders').click();
+    cy.get('[data-testid="edit-orders"]').contains('View & edit orders').click();
 
     // Toggle between Edit Allowances and Edit Orders page
     cy.get('[data-testid="view-allowances"]').click();
@@ -225,7 +225,7 @@ describe('TOO user', () => {
     cy.get('[data-testid="sacSDN"]').contains('4K988AS098F');
 
     // Edit orders page | Cancel
-    cy.get('[data-testid="edit-orders"]').contains('View & Edit Orders').click();
+    cy.get('[data-testid="edit-orders"]').contains('View & edit orders').click();
     cy.get('button').contains('Cancel').click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
   });
