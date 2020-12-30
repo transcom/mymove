@@ -16,7 +16,6 @@ const MoveAllowances = lazy(() => import('pages/Office/MoveAllowances/MoveAllowa
 const MoveDocumentWrapper = (props) => {
   const { moveCode } = useParams();
   const { formName } = props;
-  // console.log(formName);
 
   const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
 
