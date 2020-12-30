@@ -109,6 +109,11 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		branch = ghcmessages.Branch(*moveOrder.ServiceMember.Affiliation)
 	}
 
+	var moveCode string
+	if moveOrder.Moves != nil && len(moveOrder.Moves) > 0 {
+		moveCode = moveOrder.Moves[0].Locator
+	}
+
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
@@ -129,10 +134,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		Tac:                    handlers.FmtStringPtr(moveOrder.TAC),
 		Sac:                    handlers.FmtStringPtr(moveOrder.SAC),
 		UploadedOrderID:        strfmt.UUID(moveOrder.UploadedOrdersID.String()),
-	}
-
-	if moveOrder.ConfirmationNumber != nil {
-		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
+		MoveCode:               moveCode,
 	}
 
 	return &payload

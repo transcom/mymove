@@ -44,6 +44,10 @@ type MoveTaskOrder struct {
 	// is canceled
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
+	// move code
+	// Read Only: true
+	MoveCode string `json:"moveCode,omitempty"`
+
 	// move order
 	MoveOrder *MoveOrder `json:"moveOrder,omitempty"`
 
@@ -100,6 +104,8 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
+		MoveCode string `json:"moveCode,omitempty"`
+
 		MoveOrder *MoveOrder `json:"moveOrder,omitempty"`
 
 		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
@@ -148,6 +154,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// isCanceled
 	result.IsCanceled = data.IsCanceled
 
+	// moveCode
+	result.MoveCode = data.MoveCode
+
 	// moveOrder
 	result.MoveOrder = data.MoveOrder
 
@@ -195,6 +204,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
+		MoveCode string `json:"moveCode,omitempty"`
+
 		MoveOrder *MoveOrder `json:"moveOrder,omitempty"`
 
 		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
@@ -221,6 +232,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		ID: m.ID,
 
 		IsCanceled: m.IsCanceled,
+
+		MoveCode: m.MoveCode,
 
 		MoveOrder: m.MoveOrder,
 

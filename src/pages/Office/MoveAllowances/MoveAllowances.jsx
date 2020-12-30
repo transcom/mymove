@@ -11,7 +11,6 @@ import moveOrdersStyles from '../MoveOrders/MoveOrders.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
 import { updateMoveOrder } from 'services/ghcApi';
-import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -31,7 +30,7 @@ const MoveAllowances = () => {
   const { moveCode } = useParams();
   const history = useHistory();
 
-  const { move, moveOrders, upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const { move, moveOrders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const moveOrderId = move?.ordersId;
 
   const handleClose = () => {
@@ -86,66 +85,57 @@ const MoveAllowances = () => {
     mutateOrders({ moveOrderID: moveOrderId, ifMatchETag: moveOrder.eTag, body });
   };
 
-  const documentsForViewer = Object.values(upload);
-
   const { entitlement, grade, agency } = moveOrder;
   const { authorizedWeight, dependentsAuthorized } = entitlement;
 
   const initialValues = { authorizedWeight: `${authorizedWeight}`, grade, agency, dependentsAuthorized };
 
   return (
-    <div className={moveOrdersStyles.MoveOrders}>
-      {documentsForViewer && (
-        <div className={moveOrdersStyles.embed}>
-          <DocumentViewer files={documentsForViewer} />
-        </div>
-      )}
-      <div className={moveOrdersStyles.sidebar}>
-        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-          {(formik) => (
-            <form onSubmit={formik.handleSubmit}>
-              <div className={moveOrdersStyles.orderDetails}>
-                <div className={moveOrdersStyles.top}>
-                  <Button
-                    className={moveOrdersStyles.closeButton}
-                    data-testid="closeSidebar"
-                    type="button"
-                    onClick={handleClose}
-                    unstyled
-                  >
-                    <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
-                  </Button>
-                  <h2 className={moveOrdersStyles.header} data-testid="allowances-header">
-                    View Allowances
-                  </h2>
-                  <div>
-                    <Link className={moveOrdersStyles.viewAllowances} data-testid="view-orders" to="orders">
-                      View Orders
-                    </Link>
-                  </div>
-                </div>
-                <div className={moveOrdersStyles.body}>
-                  <AllowancesDetailForm
-                    entitlements={moveOrder.entitlement}
-                    rankOptions={rankDropdownOptions}
-                    branchOptions={branchDropdownOption}
-                  />
-                </div>
-                <div className={moveOrdersStyles.bottom}>
-                  <div className={moveOrdersStyles.buttonGroup}>
-                    <Button disabled={formik.isSubmitting} type="submit">
-                      Save
-                    </Button>
-                    <Button type="button" secondary onClick={handleClose}>
-                      Cancel
-                    </Button>
-                  </div>
+    <div className={moveOrdersStyles.sidebar}>
+      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+        {(formik) => (
+          <form onSubmit={formik.handleSubmit}>
+            <div className={moveOrdersStyles.orderDetails}>
+              <div className={moveOrdersStyles.top}>
+                <Button
+                  className={moveOrdersStyles.closeButton}
+                  data-testid="closeSidebar"
+                  type="button"
+                  onClick={handleClose}
+                  unstyled
+                >
+                  <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
+                </Button>
+                <h2 className={moveOrdersStyles.header} data-testid="allowances-header">
+                  View Allowances
+                </h2>
+                <div>
+                  <Link className={moveOrdersStyles.viewAllowances} data-testid="view-orders" to="orders">
+                    View Orders
+                  </Link>
                 </div>
               </div>
-            </form>
-          )}
-        </Formik>
-      </div>
+              <div className={moveOrdersStyles.body}>
+                <AllowancesDetailForm
+                  entitlements={moveOrder.entitlement}
+                  rankOptions={rankDropdownOptions}
+                  branchOptions={branchDropdownOption}
+                />
+              </div>
+              <div className={moveOrdersStyles.bottom}>
+                <div className={moveOrdersStyles.buttonGroup}>
+                  <Button disabled={formik.isSubmitting} type="submit">
+                    Save
+                  </Button>
+                  <Button type="button" secondary onClick={handleClose}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </form>
+        )}
+      </Formik>
     </div>
   );
 };
