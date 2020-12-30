@@ -157,6 +157,78 @@ describe('TOO user', () => {
     cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
   });
 
+  it('is able to edit orders', () => {
+    const moveLocator = 'TEST12';
+
+    // TOO Moves queue
+    cy.wait(['@getSortedMoveOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+
+    // Move Details page
+    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // Navigate to Edit orders page
+    cy.get('[data-testid="edit-orders"]').contains('View & Edit Orders').click();
+
+    // Toggle between Edit Allowances and Edit Orders page
+    cy.get('[data-testid="view-allowances"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/allowances`);
+    cy.get('[data-testid="view-orders"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/orders`);
+
+    // Edit orders fields
+
+    // TODO Changing the originDutyStation value changes the moveLocator for the rest of the tests. Why?
+    // cy.get('[class*="-control"]')
+    //   .first()
+    //   .click(0, 0, { force: true })
+    //   .type('Fort Hood')
+    //   .get('[class*="-menu"]')
+    //   .find('[class*="-option"]')
+    //   .eq(1)
+    //   .click(0, 0, { force: true });
+
+    cy.get('[class*="-control"]')
+      .eq(1)
+      .click(0, 0, { force: true })
+      .type('JB McGuire-Dix-Lakehurst')
+      .get('[class*="-menu"]')
+      .find('[class*="-option"]')
+      .eq(1)
+      .click(0, 0, { force: true });
+
+    cy.get('input[name="issueDate"]').click({ force: true }).clear().type('16 Mar 2018');
+    cy.get('input[name="reportByDate"]').click({ force: true }).clear().type('22 Mar 2018');
+    cy.get('select[name="departmentIndicator"]').select('21 Army', { force: true });
+    cy.get('input[name="ordersNumber"]').click({ force: true }).clear().type('ORDER66');
+    cy.get('select[name="ordersType"]').select('Permanent Change Of Station (PCS)');
+    cy.get('select[name="ordersTypeDetail"]').select('Shipment of HHG Permitted');
+    cy.get('input[name="tac"]').click({ force: true }).clear().type('F123');
+    cy.get('input[name="sac"]').click({ force: true }).clear().type('4K988AS098F');
+
+    // Edit orders page | Save
+    cy.get('button').contains('Save').click();
+
+    // Verify edited values are saved
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    // cy.get('[data-testid="currentDutyStation"]').contains('Fort Lee');
+    cy.get('[data-testid="newDutyStation"]').contains('JB Lewis-McChord');
+    cy.get('[data-testid="issuedDate"]').contains('16 Mar 2018');
+    cy.get('[data-testid="reportByDate"]').contains('22 Mar 2018');
+    cy.get('[data-testid="departmentIndicator"]').contains('Army');
+    cy.get('[data-testid="ordersNumber"]').contains('ORDER66');
+    cy.get('[data-testid="ordersType"]').contains('Permanent Change Of Station (PCS)');
+    cy.get('[data-testid="ordersTypeDetail"]').contains('Shipment of HHG Permitted');
+    cy.get('[data-testid="tacMDC"]').contains('F123');
+    cy.get('[data-testid="sacSDN"]').contains('4K988AS098F');
+
+    // Edit orders page | Cancel
+    cy.get('[data-testid="edit-orders"]').contains('View & Edit Orders').click();
+    cy.get('button').contains('Cancel').click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+  });
+
   it('is able to edit allowances', () => {
     const moveLocator = 'TEST12';
 

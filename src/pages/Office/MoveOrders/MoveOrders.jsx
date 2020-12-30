@@ -136,7 +136,7 @@ const MoveOrders = () => {
               </div>
               <div className={styles.bottom}>
                 <div className={styles.buttonGroup}>
-                  <Button primary type="submit" disabled={formik.isSubmitting}>
+                  <Button type="submit" disabled={formik.isSubmitting}>
                     Save
                   </Button>
                   <Button type="button" secondary onClick={handleClose}>

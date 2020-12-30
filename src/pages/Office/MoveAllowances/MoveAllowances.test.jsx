@@ -77,27 +77,6 @@ jest.mock('hooks/queries', () => ({
           sac: 'E2P3',
         },
       },
-      documents: {
-        2: {
-          id: '2',
-          uploads: [
-            {
-              id: 'z',
-              filename: 'test.pdf',
-              contentType: 'application/pdf',
-              url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-            },
-          ],
-        },
-      },
-      upload: {
-        z: {
-          id: 'z',
-          filename: 'test.pdf',
-          contentType: 'application/pdf',
-          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-        },
-      },
     };
   },
 }));
@@ -108,10 +87,6 @@ describe('MoveAllowances page', () => {
       <MoveAllowances />
     </MockProviders>,
   );
-
-  it('renders the orders document viewer', () => {
-    expect(wrapper.find('DocumentViewer').exists()).toBe(true);
-  });
 
   it('renders the sidebar elements', () => {
     expect(wrapper.find({ 'data-testid': 'allowances-header' }).text()).toBe('View Allowances');

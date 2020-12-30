@@ -15,8 +15,8 @@ function OrdersTable({ ordersInfo }) {
           <h4>Orders</h4>
         </div>
         <div>
-          <Link className="usa-button usa-button--secondary" to="orders">
-            View & edit orders
+          <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+            View & Edit Orders
           </Link>
         </div>
       </div>

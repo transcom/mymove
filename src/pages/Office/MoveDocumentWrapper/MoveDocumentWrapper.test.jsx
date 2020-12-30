@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { Suspense } from 'react';
 import { mount } from 'enzyme';
 
-import MoveOrders from './MoveOrders';
+import MoveDocumentWrapper from './MoveDocumentWrapper';
 
 import { MockProviders } from 'testUtils';
 
@@ -77,6 +77,27 @@ jest.mock('hooks/queries', () => ({
           sac: 'E2P3',
         },
       },
+      documents: {
+        2: {
+          id: '2',
+          uploads: [
+            {
+              id: 'z',
+              filename: 'test.pdf',
+              contentType: 'application/pdf',
+              url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+            },
+          ],
+        },
+      },
+      upload: {
+        z: {
+          id: 'z',
+          filename: 'test.pdf',
+          contentType: 'application/pdf',
+          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+        },
+      },
     };
   },
 }));
@@ -84,24 +105,18 @@ jest.mock('hooks/queries', () => ({
 describe('MoveOrders page', () => {
   const wrapper = mount(
     <MockProviders initialEntries={['moves/1000/orders']}>
-      <MoveOrders />
+      <Suspense fallback={<div>Loading</div>}>
+        <MoveDocumentWrapper formName="orders" />
+      </Suspense>
     </MockProviders>,
   );
 
-  it('renders the sidebar orders detail form', () => {
-    expect(wrapper.find('OrdersDetailForm').exists()).toBe(true);
+  it('renders the orders document viewer', () => {
+    expect(wrapper.find('DocumentViewer').exists()).toBe(true);
   });
 
-  it('populates inital field values', () => {
-    expect(wrapper.find('Select[name="originDutyStation"]').prop('value')).toEqual(mockOriginDutyStation);
-    expect(wrapper.find('Select[name="newDutyStation"]').prop('value')).toEqual(mockDestinationDutyStation);
-    expect(wrapper.find('input[name="issueDate"]').prop('value')).toBe('15 Mar 2018');
-    expect(wrapper.find('input[name="reportByDate"]').prop('value')).toBe('01 Aug 2018');
-    expect(wrapper.find('select[name="departmentIndicator"]').prop('value')).toBe('AIR_FORCE');
-    expect(wrapper.find('input[name="ordersNumber"]').prop('value')).toBe('ORDER3');
-    expect(wrapper.find('select[name="ordersType"]').prop('value')).toBe('PERMANENT_CHANGE_OF_STATION');
-    expect(wrapper.find('select[name="ordersTypeDetail"]').prop('value')).toBe('HHG_PERMITTED');
-    expect(wrapper.find('input[name="tac"]').prop('value')).toBe('F8E1');
-    expect(wrapper.find('input[name="sac"]').prop('value')).toBe('E2P3');
+  it('renders the sidebar orders detail form', async () => {
+    await wrapper.update();
+    expect(wrapper.find('OrdersDetailForm').exists()).toBe(true);
   });
 });
