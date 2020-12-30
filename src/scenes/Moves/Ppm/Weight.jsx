@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get, isNull, toUpper } from 'lodash';
 import PropTypes from 'prop-types';
+import 'react-rangeslider/lib/index.css';
+
+import styles from './Weight.module.scss';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
@@ -10,17 +13,16 @@ import { formatCentsRange } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
   loadPPMs,
-  updatePPM,
   selectActivePPMForMove,
   updatePPMEstimate,
   getPpmWeightEstimate,
   selectPPMEstimateRange,
 } from 'shared/Entities/modules/ppms';
+import { patchPPM } from 'services/internalApi';
+import { updatePPM } from 'store/entities/actions';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
-import 'react-rangeslider/lib/index.css';
-import styles from './Weight.module.scss';
 import { withContext } from 'shared/AppContext';
 import RangeSlider from 'shared/RangeSlider';
 import { hasShortHaulError } from 'shared/incentive';
@@ -118,20 +120,25 @@ export class PpmWeight extends Component {
   };
 
   handleSubmit = () => {
+    // TODO this is a work around till we refactor more SM data...
+    const ppmId = this.props.currentPPM.id ? this.props.currentPPM.id : this.props.tempCurrentPPM.id;
+    // TODO this is a work around till we refactor more SM data...
+    const moveId = this.props.currentPPM.move_id ? this.props.currentPPM.move_id : this.props.tempCurrentPPM.move_id;
+
     const ppmBody = {
+      id: ppmId,
       weight_estimate: parseInt(this.state.pendingPpmWeight),
       has_requested_advance: false,
       has_pro_gear: toUpper(this.state.includesProgear),
       has_pro_gear_over_thousand: toUpper(this.state.isProgearMoreThan1000),
     };
 
-    // TODO this is a work around till we refactor more SM data...
-    const ppmId = this.props.currentPPM.id ? this.props.currentPPM.id : this.props.tempCurrentPPM.id;
-    // TODO this is a work around till we refactor more SM data...
-    const moveId = this.props.currentPPM.move_id ? this.props.currentPPM.move_id : this.props.tempCurrentPPM.move_id;
-    return this.props
-      .updatePPM(moveId, ppmId, ppmBody)
-      .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch((err) => err));
+    return patchPPM(moveId, ppmBody)
+      .then((response) => {
+        this.props.updatePPM(response);
+        return response;
+      })
+      .then((response) => this.props.updatePPMEstimate(moveId, response.id).catch((err) => err));
     // catch block returns error so that the wizard can continue on with its flow
   };
 
