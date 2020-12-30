@@ -29,7 +29,8 @@ type ServiceParamValueLookupsSuite struct {
 }
 
 func (suite *ServiceParamValueLookupsSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestServiceParamValueLookupsSuite(t *testing.T) {

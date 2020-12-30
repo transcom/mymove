@@ -18,7 +18,8 @@ type GHCRateEngineServiceSuite struct {
 }
 
 func (suite *GHCRateEngineServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestGHCRateEngineServiceSuite(t *testing.T) {

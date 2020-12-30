@@ -26,7 +26,8 @@ type GHCTestSuite struct {
 }
 
 func (suite *GHCTestSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestGHCTestSuite(t *testing.T) {

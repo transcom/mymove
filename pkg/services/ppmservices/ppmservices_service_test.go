@@ -15,7 +15,8 @@ type PPMServiceSuite struct {
 }
 
 func (suite *PPMServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestPPMServiceSuite(t *testing.T) {
