@@ -13,7 +13,8 @@ type UsersRolesServiceSuite struct {
 }
 
 func (suite *UsersRolesServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestUsersRolesServiceSuite(t *testing.T) {

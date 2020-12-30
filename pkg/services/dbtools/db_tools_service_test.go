@@ -15,7 +15,8 @@ type DBToolsServiceSuite struct {
 }
 
 func (suite *DBToolsServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestDBToolsServiceSuite(t *testing.T) {

@@ -13,7 +13,8 @@ type MoveOrderServiceSuite struct {
 }
 
 func (suite *MoveOrderServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestMoveOrderServiceSuite(t *testing.T) {

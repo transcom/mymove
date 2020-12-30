@@ -224,6 +224,12 @@ func (suite *PopTestSuite) DB() *pop.Connection {
 	return suite.db
 }
 
+// TruncateAll deletes all data from all tables that are owned by the user connected to the
+// database.
+func (suite *PopTestSuite) TruncateAll() error {
+	return suite.db.TruncateAll()
+}
+
 // MustSave requires saving without errors
 func (suite *PopTestSuite) MustSave(model interface{}) {
 	t := suite.T()

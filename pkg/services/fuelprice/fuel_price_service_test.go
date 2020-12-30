@@ -18,7 +18,8 @@ type FuelPriceServiceSuite struct {
 }
 
 func (suite *FuelPriceServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestFuelPriceSuite(t *testing.T) {
