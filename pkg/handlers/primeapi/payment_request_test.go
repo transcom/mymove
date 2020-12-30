@@ -34,11 +34,7 @@ import (
 
 const (
 	dlhTestServiceArea = "004"
-	//TODO remove if not using
-	// dlhTestDistance    = unit.Miles(1200)
-	dlhTestWeight = unit.Pound(4000)
-	//TODO remove if not using
-	//dlhPriceCents      = unit.Cents(249770)
+	dlhTestWeight      = unit.Pound(4000)
 )
 
 func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
@@ -498,7 +494,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
 	hhgMoveType := models.SelectedMoveTypeHHG
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		AccessCode: models.AccessCode{},
 		Address: models.Address{
 			StreetAddress1: "7 Q St",
 			City:           "Birmingham",
@@ -507,7 +502,6 @@ func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
 		},
 	})
 	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		AccessCode: models.AccessCode{},
 		Address: models.Address{
 			StreetAddress1: "148 S East St",
 			City:           "Miami",
@@ -516,7 +510,7 @@ func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
 		},
 	})
 	testEstWeight := dlhTestWeight
-	testActualWeight := testEstWeight //+ 2000
+	testActualWeight := testEstWeight
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 
 		MTOShipment: models.MTOShipment{
@@ -546,16 +540,6 @@ func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
 		MTOShipment: mtoShipment,
 	})
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItem1)
-	/* TODO if not adding another service item
-	mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-		ReService: models.ReService{
-			Code: "DOP",
-		},
-		MTOShipment: mtoShipment,
-	})
-	mtoServiceItems = append(mtoServiceItems, mtoServiceItem2)
-	*/
 
 	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
@@ -630,17 +614,6 @@ func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
 		},
 	})
 
-	/* TODO if not adding another service item
-	serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameCanStandAlone,
-			Description: "can stand alone",
-			Type:        models.ServiceItemParamTypeString,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-	*/
-
 	// Service Item DLH
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
@@ -708,18 +681,6 @@ func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
 			ServiceItemParamKey:   serviceItemParamKey9,
 		},
 	})
-
-	/*  TODO if not adding another service item
-	// Service Item DOP
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem2.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey1.ID,
-			ServiceItemParamKey:   serviceItemParamKey1,
-		},
-	})
-
-	*/
 
 	return moveTaskOrder, mtoServiceItems
 }
@@ -842,11 +803,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
 					},
-					/* TODO remove if not adding another service item
-					{
-						ID: *handlers.FmtUUID(mtoServiceItems[1].ID),
-					},
-					*/
 				},
 				PointOfContact: "user@prime.com",
 			},
@@ -858,5 +814,83 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		suite.NotEmpty(typedResponse.Payload.ID.String(), "valid payload ID string")
 		suite.NotEmpty(typedResponse.Payload.MoveTaskOrderID.String(), "valid MTO ID")
 		suite.NotEmpty(typedResponse.Payload.PaymentRequestNumber, "valid Payment Request Number")
+	})
+}
+
+func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID() {
+	const defaultZip3Distance = 1234
+	const defaultZip5Distance = 48
+
+	suite.setupDomesticLinehaulData()
+	move, mtoServiceItems := suite.createMTO()
+	moveTaskOrderID := move.ID
+
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(defaultZip5Distance, nil)
+	planner.On("Zip3TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(defaultZip3Distance, nil)
+	planner.On("Zip5TransitDistance",
+		"90210",
+		"94535",
+	).Return(defaultZip5Distance, nil)
+
+	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+		suite.DB(),
+		planner,
+		ghcrateengine.NewServiceItemPricer(suite.DB()),
+	)
+
+	handler := CreatePaymentRequestHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		paymentRequestCreator,
+	}
+
+	params := paymentrequestop.CreatePaymentRequestParams{
+		HTTPRequest: req,
+		Body: &primemessages.CreatePaymentRequest{
+			IsFinal:         swag.Bool(false),
+			MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+			ServiceItems: []*primemessages.ServiceItem{
+				{
+					ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
+				},
+			},
+			PointOfContact: "user@prime.com",
+		},
+	}
+
+	suite.T().Run("fail to create payment request with real PaymentRequestCreator and empty MTO Reference ID", func(t *testing.T) {
+
+		// Set Reference ID to an empty string
+		*move.ReferenceID = ""
+		suite.MustSave(&move)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity)
+		suite.Contains(*typedResponse.Payload.Detail, "has missing ReferenceID")
+	})
+	suite.T().Run("fail to create payment request with real PaymentRequestCreator and nil MTO Reference ID", func(t *testing.T) {
+
+		// Set Reference ID to a nil string
+		move.ReferenceID = nil
+		suite.MustSave(&move)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity)
+		suite.Contains(*typedResponse.Payload.Detail, "has missing ReferenceID")
 	})
 }

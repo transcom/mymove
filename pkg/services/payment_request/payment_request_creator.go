@@ -258,7 +258,8 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 
 	uniqueIdentifier, sequenceNumber, err := p.makeUniqueIdentifier(tx, moveTaskOrder)
 	if err != nil {
-		return nil, fmt.Errorf("issue creating payment request unique identifier: %w", err)
+		errMsg := fmt.Sprintf("issue creating payment request unique identifier: %s", err.Error())
+		return nil, services.NewInvalidCreateInputError(nil, errMsg)
 	}
 	paymentRequest.PaymentRequestNumber = uniqueIdentifier
 	paymentRequest.SequenceNumber = sequenceNumber
@@ -436,7 +437,8 @@ func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto mod
 	}
 
 	if mto.ReferenceID == nil || *mto.ReferenceID == "" {
-		return "", 0, fmt.Errorf("could not find reference ID for MoveTaskOrderID [%s]", mto.ID)
+		errMsg := fmt.Sprintf("MTO %s has missing ReferenceID", mto.ID.String())
+		return "", 0, errors.New(errMsg)
 	}
 
 	nextSequence := max + 1

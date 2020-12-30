@@ -678,7 +678,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		*moveTaskOrder.ReferenceID = ""
 		suite.MustSave(&moveTaskOrder)
 
-		// Create new ones
+		// Create new one
 		paymentRequest1 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -696,7 +696,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 		_, err := creator.CreatePaymentRequest(&paymentRequest1)
-		suite.Contains(err.Error(), "failure creating payment request: issue creating payment request unique identifier")
+		suite.Contains(err.Error(), "has missing ReferenceID")
 
 		moveTaskOrder.ReferenceID = saveReferenceID
 		suite.MustSave(&moveTaskOrder)
@@ -726,7 +726,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 		_, err := creator.CreatePaymentRequest(&paymentRequest1)
-		suite.Contains(err.Error(), "failure creating payment request: issue creating payment request unique identifier")
+		suite.Contains(err.Error(), "has missing ReferenceID")
 
 		moveTaskOrder.ReferenceID = saveReferenceID
 		suite.MustSave(&moveTaskOrder)
