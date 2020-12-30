@@ -24,7 +24,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-		Locator:            moveTaskOrder.Locator,
+		MoveCode:           moveTaskOrder.Locator,
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         moveTaskOrder.IsCanceled(),

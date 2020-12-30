@@ -1512,7 +1512,7 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "locator": {
+        "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
           "type": "string",
           "readOnly": true,
@@ -3711,7 +3711,7 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "locator": {
+        "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
           "type": "string",
           "readOnly": true,

@@ -1723,7 +1723,7 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "locator": {
+        "moveCode": {
           "type": "string",
           "readOnly": true,
           "example": "HYXFJF"
@@ -4183,7 +4183,7 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "locator": {
+        "moveCode": {
           "type": "string",
           "readOnly": true,
           "example": "HYXFJF"

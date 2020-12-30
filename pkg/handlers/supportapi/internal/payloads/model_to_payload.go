@@ -41,7 +41,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 		Status:             (supportmessages.MoveStatus)(moveTaskOrder.Status),
-		Locator:            moveTaskOrder.Locator,
+		MoveCode:           moveTaskOrder.Locator,
 	}
 
 	if moveTaskOrder.PPMEstimatedWeight != nil {

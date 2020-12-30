@@ -44,9 +44,9 @@ type MoveTaskOrder struct {
 	// is canceled
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
-	// locator
+	// move code
 	// Read Only: true
-	Locator string `json:"locator,omitempty"`
+	MoveCode string `json:"moveCode,omitempty"`
 
 	// move order
 	MoveOrder *MoveOrder `json:"moveOrder,omitempty"`
@@ -104,7 +104,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
-		Locator string `json:"locator,omitempty"`
+		MoveCode string `json:"moveCode,omitempty"`
 
 		MoveOrder *MoveOrder `json:"moveOrder,omitempty"`
 
@@ -154,8 +154,8 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// isCanceled
 	result.IsCanceled = data.IsCanceled
 
-	// locator
-	result.Locator = data.Locator
+	// moveCode
+	result.MoveCode = data.MoveCode
 
 	// moveOrder
 	result.MoveOrder = data.MoveOrder
@@ -204,7 +204,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
-		Locator string `json:"locator,omitempty"`
+		MoveCode string `json:"moveCode,omitempty"`
 
 		MoveOrder *MoveOrder `json:"moveOrder,omitempty"`
 
@@ -233,7 +233,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		IsCanceled: m.IsCanceled,
 
-		Locator: m.Locator,
+		MoveCode: m.MoveCode,
 
 		MoveOrder: m.MoveOrder,
 

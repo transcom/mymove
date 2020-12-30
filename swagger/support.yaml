@@ -1067,7 +1067,7 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/MoveStatus'
-      locator:
+      moveCode:
         description: Unique 6-character code the customer can use to refer to their move
         type: string
         example: ABC123
