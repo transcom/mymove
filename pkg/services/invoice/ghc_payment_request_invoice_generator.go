@@ -594,6 +594,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// Determine the correct params to use based off of the particular ReService code
 		serviceCode := serviceItem.MTOServiceItem.ReService.Code
 		switch serviceCode {
+		// cs and ms have no weight and no distance
 		case models.ReServiceCodeCS, models.ReServiceCodeMS:
 			newSegment.L5 = edisegment.L5{
 				LadingLineItemNumber:   hierarchicalIDNumber,
@@ -606,7 +607,12 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				LadingLineItemNumber: hierarchicalIDNumber,
 			}
 
-		// pack and unpack, dom dest and dom origin have weight no distance
+			newSegment.L1 = edisegment.L1{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				Charge:               float64(*serviceItem.PriceCents),
+			}
+
+		// pack and unpack, dom dest and dom origin have weight and no distance
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
 			var err error
@@ -627,6 +633,13 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				Weight:               weightFloat,
 				WeightQualifier:      "B",
 				WeightUnitCode:       "L",
+			}
+
+			newSegment.L1 = edisegment.L1{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				FreightRate:          int(weightFloat),
+				RateValueQualifier:   "LB",
+				Charge:               float64(*serviceItem.PriceCents),
 			}
 
 		default:
@@ -650,6 +663,13 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				Weight:                 weightFloat,
 				WeightQualifier:        "B",
 				WeightUnitCode:         "L",
+			}
+
+			newSegment.L1 = edisegment.L1{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				FreightRate:          int(weightFloat),
+				RateValueQualifier:   "LB",
+				Charge:               float64(*serviceItem.PriceCents),
 			}
 
 		}

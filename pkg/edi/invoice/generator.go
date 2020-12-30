@@ -66,6 +66,7 @@ type ServiceItemSegments struct {
 	N9  edisegment.N9
 	L5  edisegment.L5
 	L0  edisegment.L0
+	L1  edisegment.L1
 	FA1 edisegment.FA1
 	FA2 edisegment.FA2
 }
@@ -139,6 +140,7 @@ func (invoice Invoice858C) Segments() [][]string {
 			line.N9.StringArray(),
 			line.L5.StringArray(),
 			line.L0.StringArray(),
+			line.L1.StringArray(),
 			line.FA1.StringArray(),
 			line.FA2.StringArray(),
 		)
