@@ -41,7 +41,6 @@ func cutoffDate() time.Time {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
-	db := suite.DB()
 	date10DaysAgo := offsetDate(-10)
 	date9DaysAgo := offsetDate(-9)
 
@@ -112,7 +111,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	ppms := suite.createPaymentReminderMoves(moves)
 
-	PaymentReminder, err := NewPaymentReminder(db, suite.logger)
+	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
 	suite.NoError(err)
 	emailInfo, err := PaymentReminder.GetEmailInfo()
 	suite.NoError(err)
@@ -131,7 +130,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
-	db := suite.DB()
 	date10DaysAgo := offsetDate(-10)
 	date9DaysAgo := offsetDate(-9)
 	dateTooOld := cutoffDate()
@@ -158,7 +156,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 
 	suite.createPaymentReminderMoves(moves)
 
-	PaymentReminder, err := NewPaymentReminder(db, suite.logger)
+	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
 	suite.NoError(err)
 	emailInfo, err := PaymentReminder.GetEmailInfo()
 
@@ -167,8 +165,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
-	db := suite.DB()
-
 	date10DaysAgo := offsetDate(-10)
 	dateTooOld := cutoffDate()
 
@@ -184,7 +180,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 	}
 	suite.createPaymentReminderMoves(moves)
 
-	PaymentReminder, err := NewPaymentReminder(db, suite.logger)
+	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
 	suite.NoError(err)
 	emailInfoBeforeSending, err := PaymentReminder.GetEmailInfo()
 	suite.NoError(err)
@@ -198,19 +194,18 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
-	db := suite.DB()
-	sm := testdatagen.MakeDefaultServiceMember(db)
+	sm := testdatagen.MakeDefaultServiceMember(suite.DB())
 	ei := PaymentReminderEmailInfo{
 		ServiceMemberID: sm.ID,
 	}
 
-	PaymentReminder, err := NewPaymentReminder(db, suite.logger)
+	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
 	suite.NoError(err)
 	err = PaymentReminder.OnSuccess(ei)("SESID")
 	suite.NoError(err)
 
 	n := models.Notification{}
-	err = db.First(&n)
+	err = suite.DB().First(&n)
 	suite.NoError(err)
 	suite.Equal(sm.ID, n.ServiceMemberID)
 	suite.Equal(models.MovePaymentReminderEmail, n.NotificationType)
