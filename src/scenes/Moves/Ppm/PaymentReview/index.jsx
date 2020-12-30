@@ -18,7 +18,7 @@ import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActio
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
-import { updatePPM as updatePPMInRedux } from 'store/entities/actions';
+import { updatePPM } from 'store/entities/actions';
 import { requestPayment } from 'services/internalApi';
 
 import DocumentsUploaded from './DocumentsUploaded';
@@ -30,7 +30,6 @@ import {
   loadPPMs,
   selectPPMEstimateRange,
   getPpmWeightEstimate,
-  updatePPM,
 } from 'shared/Entities/modules/ppms';
 
 const nextBtnLabel = 'Submit Request';
@@ -108,7 +107,7 @@ class PaymentReview extends Component {
       Promise.all([this.submitCertificate(), requestPayment(this.props.currentPPM.id)])
         .then(([res1, res2]) => {
           // .then params is an array, where each item corresponds to the Promise.all items
-          this.props.updatePPMInRedux(res2);
+          this.props.updatePPM(res2);
           this.props.setFlashMessage('REQUEST_PAYMENT_SUCCESS', 'success', '', 'Payment request submitted');
 
           // TODO: path may change to home after ppm integration with new home page
@@ -228,7 +227,6 @@ const mapDispatchToProps = {
   getPpmWeightEstimate,
   loadPPMs,
   updatePPM,
-  updatePPMInRedux,
   setFlashMessage,
 };
 
