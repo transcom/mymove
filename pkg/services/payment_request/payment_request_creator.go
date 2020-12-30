@@ -118,7 +118,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 				if param != nil && key != nil && value != nil {
 					incomingMTOServiceItemParams[*key] = *value
-					newPaymentServiceItemParams = append(newPaymentServiceItemParams, paymentServiceItemParam)
+					newPaymentServiceItemParams = append(newPaymentServiceItemParams, *param)
 				}
 			}
 
