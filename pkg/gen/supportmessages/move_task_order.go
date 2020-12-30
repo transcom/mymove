@@ -58,6 +58,7 @@ type MoveTaskOrder struct {
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
 	// Unique 6-character code the customer can use to refer to their move
+	// Read Only: true
 	Locator string `json:"locator,omitempty"`
 
 	// move order
