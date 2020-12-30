@@ -704,7 +704,7 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 	)
 
 	result, err := generator.Generate(paymentRequest, false)
-	suite.NoError(err)
+	suite.Error(err)
 
 	suite.T().Run("Service items that are not approved should be not added to invoice", func(t *testing.T) {
 		suite.Empty(result.ServiceItems)

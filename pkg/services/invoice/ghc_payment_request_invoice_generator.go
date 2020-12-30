@@ -184,6 +184,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("Could not find payment service items: %s", err))
 	}
 
+	if len(paymentServiceItems) == 0 {
+		return ediinvoice.Invoice858C{}, services.NewConflictError(paymentRequest.ID, "this payment request has no approved PaymentServiceItems")
+	}
+
 	if !msOrCsOnly(paymentServiceItems) {
 		err = g.createG62Segments(paymentRequest.ID, &edi858.Header)
 		if err != nil {
