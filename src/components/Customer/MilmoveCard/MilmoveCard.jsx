@@ -28,7 +28,7 @@ const PPMExplanation = () => (
   <div className={styles.Section}>
     <h3>Hold on to things you’ll need quickly</h3>
     <img src={PPMShipmentImg} alt="PPM Shipment" />
-    <p>Hand-carry important documents — ID, medical info, orders, school records, etc.sss</p>
+    <p>Hand-carry important documents — ID, medical info, orders, school records, etc.</p>
     <p>
       Pack a set of things that you’ll need when you arrive — clothes, electronics, chargers, cleaning supplies, etc.
       Valuables that can’t be replaced are also a good idea.
