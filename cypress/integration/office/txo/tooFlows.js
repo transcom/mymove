@@ -180,15 +180,14 @@ describe('TOO user', () => {
     // Edit orders fields
 
     cy.get('form').within(($form) => {
-      // TODO Changing the originDutyStation value changes the moveLocator for the rest of the tests. Why?
-      // cy.get('[class*="-control"]')
-      //   .first()
-      //   .click(0, 0, { force: true })
-      //   .type('Fort Hood')
-      //   .get('[class*="-menu"]')
-      //   .find('[class*="-option"]')
-      //   .eq(1)
-      //   .click(0, 0, { force: true });
+      cy.get('[class*="-control"]')
+        .first()
+        .click(0, 0, { force: true })
+        .type('Fort Irwin')
+        .get('[class*="-menu"]')
+        .find('[class*="-option"]')
+        .first()
+        .click(0, 0, { force: true });
 
       cy.get('[class*="-control"]')
         .eq(1)
@@ -214,7 +213,7 @@ describe('TOO user', () => {
 
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
-    // cy.get('[data-testid="currentDutyStation"]').contains('Fort Lee');
+    cy.get('[data-testid="currentDutyStation"]').contains('Fort Irwin');
     cy.get('[data-testid="newDutyStation"]').contains('JB Lewis-McChord');
     cy.get('[data-testid="issuedDate"]').contains('16 Mar 2018');
     cy.get('[data-testid="reportByDate"]').contains('22 Mar 2018');
