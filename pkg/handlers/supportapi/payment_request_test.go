@@ -262,10 +262,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 			Value:   "2424",
 		},
 	}
-	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDLH,
 		basicPaymentServiceItemParams,
+		testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
+		},
 	)
 
 	// Add a price to the service item.
