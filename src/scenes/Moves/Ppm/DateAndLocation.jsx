@@ -105,7 +105,7 @@ export class DateAndLocation extends Component {
         return createPPMForMove(moveId, pendingValues)
           .then((response) => {
             this.props.updatePPM(response);
-            return this.props.updatePPMEstimate(moveId, response.body.id);
+            return this.props.updatePPMEstimate(moveId, response.id);
           })
           .catch((err) => err);
       } else {
@@ -114,7 +114,7 @@ export class DateAndLocation extends Component {
         return patchPPM(moveId, pendingValues)
           .then((response) => {
             this.props.updatePPM(response);
-            return this.props.updatePPMEstimate(moveId, response.body.id);
+            return this.props.updatePPMEstimate(moveId, response.id);
           })
           .catch((err) => err);
       }
@@ -240,6 +240,6 @@ function mapStateToProps(state) {
   return props;
 }
 
-const mapDispatchToProps = (dispatch) => ({ loadPPMs, updatePPM, updatePPMEstimate, fetchLatestOrders });
+const mapDispatchToProps = { loadPPMs, updatePPM, updatePPMEstimate, fetchLatestOrders };
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
