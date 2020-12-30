@@ -1,72 +1,23 @@
 @import 'shared/styles/_variables';
 
-.Divider {
-  width: 100%;
-  height: 1px;
-  margin-top: 24px;
-  border: solid 1px #dcdee0;
-}
-
-.CardContainer {
-  max-width: 675px;
-  #CardBody {
-    padding: 40px;
-
-    h3 {
-      margin-bottom: 24px;
-    }
-
-    img {
-      width: 100%;
-      height: auto;
-    }
-
-    .Section {
-      &:first-child {
-        h3 {
-          margin-top: 0px;
-        }
-      }
-
-      p:last-child {
-        margin-bottom: 0px;
-      }
-
-      ul {
-        margin-top: 0px;
-        padding-left: 1.2rem;
-      }
-
-      .CounselorListHeader {
-        margin-bottom: 0px;
-      }
-    }
-  }
+.CardBody {
+  padding-top: 16px;
 }
 
 @media screen and (max-width: $mobile) {
+  .CardBody {
+    padding-top: 10px;
+  }
+
   .CardContainer {
-    border-width: 0px !important;
-    #CardBody {
-      padding: 0px;
-
-      h3 {
-        margin-top: 0px;
-        margin-bottom: 18px;
-        font-size: 15px;
-        padding: 24px 24px 0px 24px;
-      }
-
-      .Section {
-        p {
-          padding: 0px 24px;
-        }
-
-        ul {
-          margin-top: 0px;
-          padding-left: 3rem;
-        }
-      }
+    h3 {
+      font-size: 15px;
+      padding: 24px 0px 10px 24px;
     }
   }
+}
+
+.CardContainer {
+  border-width: 0;
+  border-bottom: 1px solid #dcdee0;
 }

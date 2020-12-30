@@ -1,31 +1,26 @@
 import React from 'react';
-import { CardGroup, Card, CardBody } from '@trussworks/react-uswds';
+import { CardGroup, Card, CardHeader, CardBody } from '@trussworks/react-uswds';
+import { node, string } from 'prop-types';
 
 import * as styles from './MilmoveCard.module.scss';
 
-import PPMShipmentImg from 'shared/images/fabien-maurin-HLc2_JYHrJg-unsplash.jpg';
-import HHGShipmentImg from 'shared/images/hiveboxx-OoiWpdFC0Rw-unsplash.jpg';
-import MoveCounselorImg from 'shared/images/christina-wocintechchat-com-LQ1t-8Ms5PY-unsplash.jpg';
-import MovingTruckImg from 'shared/images/arron-choi-kRK1Bne4xEw-unsplash.jpg';
-
-const Divider = () => <div className={styles.Divider} />;
-
-const MilmoveCard = () => (
+const MilmoveCard = ({ headerText, children }) => (
   <CardGroup>
     <Card containerProps={{ className: styles.CardContainer }}>
-      <CardBody id={styles.CardBody}>
-        <PPMExplanation />
-        <Divider />
-        <HHGExplanation />
-        <Divider />
-        <MoveCounselorExplanation />
-        <Divider />
-        <MoversExplanation />
-      </CardBody>
+      <CardHeader>
+        <h3>{headerText}</h3>
+      </CardHeader>
+      <CardBody className={styles.CardBody}>{children}</CardBody>
     </Card>
   </CardGroup>
 );
 
+MilmoveCard.propTypes = {
+  headerText: string.isRequired,
+  children: node.isRequired,
+};
+
+/*
 const PPMExplanation = () => (
   <div className={styles.Section}>
     <h3>Hold on to things you’ll need quickly</h3>
@@ -81,4 +76,5 @@ const MoversExplanation = () => (
     </p>
   </div>
 );
+*/
 export default MilmoveCard;
