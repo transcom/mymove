@@ -584,3 +584,4 @@
 20201120174609_add_indexes_for_move_selected_type.up.sql
 20201207223002_create_zip3_distances.up.sql
 20201208215206_load_zip3_distances.up.sql
+20201230070814_fix_ecs_user_in_docker.up.sql
