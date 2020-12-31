@@ -347,9 +347,6 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 			}
 			return models.PaymentServiceItemParam{}, nil, nil, fmt.Errorf("could not fetch ServiceItemParamKey with ID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
 		}
-		if serviceItemParamKey.ID == uuid.Nil || serviceItemParamKey.Key == "" {
-			return models.PaymentServiceItemParam{}, nil, nil, fmt.Errorf("ServiceItemParamKeyID [%s]: has invalid Key <%s> or UUID <%s> ", paymentServiceItemParam.ServiceItemParamKeyID, serviceItemParamKey.Key, serviceItemParamKey.ID.String())
-		}
 		key = serviceItemParamKey.Key.String()
 		value = paymentServiceItemParam.Value
 		createParam = true
