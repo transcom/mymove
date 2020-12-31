@@ -612,7 +612,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		suite.IsType(&services.BadDataError{}, err)
+		suite.IsType(services.NotFoundError{}, err)
+		suite.Equal("not found Service Item Param Key bogus: FETCH_NOT_FOUND", err.Error())
 	})
 
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {

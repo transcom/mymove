@@ -358,7 +358,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		if err != nil {
 			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 				errorString := fmt.Sprintf("Service Item Param Key %s: %s", paymentServiceItemParam.IncomingKey, models.ErrFetchNotFound)
-				return models.PaymentServiceItemParam{}, nil, nil, services.NewBadDataError(errorString)
+				return models.PaymentServiceItemParam{}, nil, nil, services.NewNotFoundError(uuid.Nil, errorString)
 			}
 			return models.PaymentServiceItemParam{}, nil, nil, fmt.Errorf("could not retrieve param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
 		}
