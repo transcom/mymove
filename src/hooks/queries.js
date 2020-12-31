@@ -164,11 +164,15 @@ export const useOrdersDocumentQueries = (moveCode) => {
 
   // Get a document
   // TODO - "upload" instead of "uploads" is because of the schema.js entity name. Change to "uploads"
+  const staleTime = 60 * 60000; // 60 * 60000 milliseconds = 1 hour
+  const cacheTime = staleTime;
   const { data: { documents, upload } = {}, ...ordersDocumentsQuery } = useQuery(
     [ORDERS_DOCUMENTS, documentId],
     getDocument,
     {
       enabled: !!documentId,
+      staleTime,
+      cacheTime,
     },
   );
 
