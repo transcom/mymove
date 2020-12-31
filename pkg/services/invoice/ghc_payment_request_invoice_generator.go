@@ -180,7 +180,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		if err.Error() == models.RecordNotFoundErrorString {
 			return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.ID, "for payment service items in PaymentRequest")
 		}
-		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("Could not find payment service items: %s", err))
+		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("error while looking for payment service items on payment request: %s", err))
 	}
 
 	if !msOrCsOnly(paymentServiceItems) {

@@ -283,7 +283,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 			msg := fmt.Sprint("for MTO Service Item")
 			return models.PaymentServiceItem{}, models.MTOServiceItem{}, services.NewNotFoundError(paymentServiceItem.MTOServiceItemID, msg)
 		}
-		return paymentServiceItem, models.MTOServiceItem{}, fmt.Errorf("could not find MTO MTOServiceItemID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)
+		return paymentServiceItem, models.MTOServiceItem{}, fmt.Errorf("could not fetch MTOServiceItem with ID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)
 	}
 
 	paymentServiceItem.MTOServiceItemID = mtoServiceItem.ID
