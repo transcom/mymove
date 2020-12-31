@@ -423,8 +423,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
-		firstContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
-		secondContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
+		firstContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
+		secondContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
 
 		payload = &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
@@ -437,8 +437,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		}
 
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
-		item := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
-		crate := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
+		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		payload = &primemessages.MTOServiceItemDomesticCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Item: &primemessages.MTOServiceItemDimension{
@@ -546,8 +546,8 @@ func ClientError(title string, detail string, instance uuid.UUID) *primemessages
 	}
 }
 
-// getDimension will get the first dimension of the passed in type.
-func getDimension(dimensions models.MTOServiceItemDimensions, dimensionType models.DimensionType) models.MTOServiceItemDimension {
+// GetDimension will get the first dimension of the passed in type.
+func GetDimension(dimensions models.MTOServiceItemDimensions, dimensionType models.DimensionType) models.MTOServiceItemDimension {
 	if len(dimensions) == 0 {
 		return models.MTOServiceItemDimension{}
 	}
@@ -561,8 +561,8 @@ func getDimension(dimensions models.MTOServiceItemDimensions, dimensionType mode
 	return models.MTOServiceItemDimension{}
 }
 
-// getFirstCustomerContact will get the first customer contact for destination 1st day SIT based on type.
-func getCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, customerContactType models.CustomerContactType) models.MTOServiceItemCustomerContact {
+// GetCustomerContact will get the first customer contact for destination 1st day SIT based on type.
+func GetCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, customerContactType models.CustomerContactType) models.MTOServiceItemCustomerContact {
 	if len(customerContacts) == 0 {
 		return models.MTOServiceItemCustomerContact{}
 	}
