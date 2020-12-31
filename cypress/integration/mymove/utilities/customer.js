@@ -119,7 +119,7 @@ export function customerFillsOutOrdersInformation() {
   cy.upload_file('.filepond--root', 'top-secret.png');
   cy.get('button[data-testid="wizardNextButton"]', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
 
-  cy.get('h1').contains('Figure out your shipments');
+  cy.get('h1').contains('Tips for planning your shipments');
   cy.nextPage();
 
   cy.visit('/');
