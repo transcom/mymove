@@ -1,6 +1,8 @@
 package route
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/tiaguinho/gosoap"
 
@@ -52,8 +54,19 @@ func (p *ghcPlanner) Zip5TransitDistance(source string, destination string) (int
 }
 
 // Zip3TransitDistance calculates the distance between two valid Zip3s
+// if valid Zip5 are passed in they are converted to Zip3s
 func (p *ghcPlanner) Zip3TransitDistance(source string, destination string) (int, error) {
-	return randMcNallyZip3Distance(p.db, source, destination)
+	sourceZip5 := source
+	if len(source) < 5 {
+		sourceZip5 = fmt.Sprintf("%05s", source)
+	}
+	destZip5 := destination
+	if len(destination) < 5 {
+		destZip5 = fmt.Sprintf("%05s", destination)
+	}
+	sourceZip3 := sourceZip5[0:3]
+	destZip3 := destZip5[0:3]
+	return randMcNallyZip3Distance(p.db, sourceZip3, destZip3)
 }
 
 // NewGHCPlanner constructs and returns a Planner for GHC routing.

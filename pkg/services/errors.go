@@ -42,6 +42,9 @@ func NewNotFoundError(id uuid.UUID, message string) NotFoundError {
 }
 
 func (e NotFoundError) Error() string {
+	if e.id == uuid.Nil {
+		return fmt.Sprintf("not found %s", e.message)
+	}
 	return fmt.Sprintf("id: %s not found %s", e.id.String(), e.message)
 }
 
