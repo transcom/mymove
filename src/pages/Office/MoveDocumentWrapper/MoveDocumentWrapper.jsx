@@ -1,4 +1,4 @@
-import React, { lazy } from 'react';
+import React from 'react';
 import { useParams, matchPath, useLocation } from 'react-router-dom';
 
 import moveOrdersStyles from '../MoveOrders/MoveOrders.module.scss';
@@ -7,9 +7,8 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-
-const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
-const MoveAllowances = lazy(() => import('pages/Office/MoveAllowances/MoveAllowances'));
+import MoveOrders from 'pages/Office/MoveOrders/MoveOrders';
+import MoveAllowances from 'pages/Office/MoveAllowances/MoveAllowances';
 
 const MoveDocumentWrapper = () => {
   const { moveCode } = useParams();
