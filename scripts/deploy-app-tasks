@@ -18,15 +18,15 @@ readonly environment="${1:-exp}"
 case "${environment}" in
   exp)
     compare_host=my.exp.move.mil
-    AWS_ACCOUNT_ID=015681133840
+    export AWS_ACCOUNT_ID=015681133840
     ;;
   stg)
     compare_host=my.stg.move.mil
-    AWS_ACCOUNT_ID=015932076428
+    export AWS_ACCOUNT_ID=015932076428
     ;;
   prd)
     compare_host=my.move.mil
-    AWS_ACCOUNT_ID=015533997236
+    export AWS_ACCOUNT_ID=015533997236
     ;;
   *)
     echo "<environment> must be one of exp, stg, or prd"

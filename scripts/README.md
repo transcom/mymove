@@ -53,7 +53,15 @@ This series of scripts allows you to quickly deploy the app manually (for exampl
 Run the scripts in this order with the environment you're deploying to (`exp`, `stg`, `prd`) passed in as a variable.
 You will need to specify which account you're using. Do so by pre-pending
 `DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec AWS_ACCOUNT --` to the script command (i.e.
-`DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app exp`.
+`DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app exp`).
+For example, to run in the `prd` environment, you'd run:
+
+```bash
+DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-migrations prd
+DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app prd
+DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-client-tls prd
+DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-tasks prd
+```
 
 | Script Name             | Description                                                             |
 | ----------------------- | ----------------------------------------------------------------------- |
