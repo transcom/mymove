@@ -3,6 +3,11 @@
 @import 'shared/styles/_variables.scss';
 @import 'shared/styles/_basics.scss';
 
+// 24px margin in between Alert and SectionWrapper
+:global(.usa-alert) + .sectionWrapper {
+  @include u-margin-top(3);
+}
+
 .sectionWrapper {
   @media (min-width: $tablet) {
     @include u-bg('white');
@@ -30,6 +35,10 @@
     :global {
       .usa-form-group:first-of-type .usa-label {
         margin-top: 0;
+      }
+
+      .usa-card-group:first-child > .usa-card--header-first:first-child .usa-card__header {
+        @include u-padding-top(0);
       }
     }
   }

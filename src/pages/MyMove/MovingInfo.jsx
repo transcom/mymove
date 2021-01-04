@@ -1,11 +1,10 @@
 import React from 'react';
-import { CardGroup, CardHeader, CardBody, CardMedia } from '@trussworks/react-uswds';
+import { Alert, CardGroup, CardHeader, CardBody, CardMedia } from '@trussworks/react-uswds';
 
-import PPMShipmentImg from '../../images/ppm-shipment.jpg';
-import HHGShipmentImg from '../../images/hhg-shipment.jpg';
-import MoveCounselorImg from '../../images/move-counselor.jpg';
-import MovingTruckImg from '../../images/moving-truck.jpg';
-
+import PPMShipmentImg from 'images/ppm-shipment.jpg';
+import HHGShipmentImg from 'images/hhg-shipment.jpg';
+import MoveCounselorImg from 'images/move-counselor.jpg';
+import MovingTruckImg from 'images/moving-truck.jpg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MilmoveCard from 'components/Customer/MilmoveCard/MilmoveCard';
 
@@ -13,6 +12,12 @@ export const MovingInfo = () => {
   return (
     <>
       <h1 data-testid="shipmentsHeader">Tips for planning your shipments</h1>
+      <Alert type="info" heading="You can move 7,000 lbs for free">
+        The government will pay to move that much weight. Your whole move, no matter how many shipments it takes.
+        <br />
+        <br />
+        If you move more weight, you’ll need to pay for the excess. We’ll tell you if it looks like that could happen.
+      </Alert>
       <SectionWrapper>
         <CardGroup>
           <MilmoveCard>
@@ -57,11 +62,11 @@ export const MovingInfo = () => {
             <CardBody>
               <p>
                 A session with a move counselor is free. Counselors have a lot of experience with military moves and can
-                steer you through complicated situations.{' '}
+                steer you through complicated situations.
               </p>
               <p>Your counselor can identify:</p>
               <ul>
-                <li>belongings that won&apos;t count against your weight allowance</li>
+                <li>belongings that won’t count against your weight allowance</li>
                 <li>excess weight, excess distance, and other things that can cost you money</li>
                 <li>things to make your move easier</li>
               </ul>
@@ -76,8 +81,8 @@ export const MovingInfo = () => {
             </CardMedia>
             <CardBody>
               <p>
-                If you have any shipments using professional movers, you&apos;ll be referred to a point of contact for
-                your move.
+                If you have any shipments using professional movers, you’ll be referred to a point of contact for your
+                move.
               </p>
               <p>When things get complicated or you have questions during your move, they are there to help.</p>
               <p>
