@@ -33,6 +33,9 @@ type PaymentServiceItem struct {
 	// Format: uuid
 	MtoServiceItemID strfmt.UUID `json:"mtoServiceItemID,omitempty"`
 
+	// mto service item name
+	MtoServiceItemName string `json:"mtoServiceItemName,omitempty"`
+
 	// payment request ID
 	// Format: uuid
 	PaymentRequestID strfmt.UUID `json:"paymentRequestID,omitempty"`
