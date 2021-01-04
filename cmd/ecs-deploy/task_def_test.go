@@ -7,7 +7,7 @@ import (
 )
 
 func TestCreateAwsConfig(t *testing.T) {
-
+	// This isn't a great test BUT should be a good starting point for others
 	awsRegionString := "us-gov-west-1"
 	awsConfig := createAwsConfig(awsRegionString)
 	if *awsConfig.Region != *aws.String(awsRegionString) {

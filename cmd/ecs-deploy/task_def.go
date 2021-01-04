@@ -465,12 +465,14 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		quit(logger, nil, fmt.Errorf("failed to create AWS session: %w", err))
 	}
+
 	// Create the Services
 	serviceCloudWatchEvents := cloudwatchevents.New(sess)
 	serviceECS := ecs.New(sess)
 	serviceECR := ecr.New(sess)
 	serviceRDS := rds.New(sess)
 	serviceSSM := ssm.New(sess)
+
 	// ===== Limit the variables required =====
 	awsAccountID := v.GetString(awsAccountIDFlag)
 	awsRegion := v.GetString(cli.AWSRegionFlag)
