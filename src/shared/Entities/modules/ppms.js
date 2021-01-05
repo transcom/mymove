@@ -11,7 +11,6 @@ const createPPMLabel = 'office.createPPM';
 const updatePPMLabel = 'office.updatePPM';
 const updatePPMEstimateLabel = 'ppm.updatePPMEstimate';
 const approveReimbursementLabel = 'office.approveReimbursement';
-const getPPMEstimateLabel = 'ppm.showPPMEstimate';
 const getPPMSitEstimateLabel = 'ppm.updatePPMEstimate';
 
 export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveApproveDate, label = approvePpmLabel) {
@@ -71,30 +70,6 @@ export function updatePPM(
       patchPersonallyProcuredMovePayload: payload,
     },
     { label },
-  );
-}
-
-export function getPpmWeightEstimate(
-  moveDate,
-  originZip,
-  originDutyStationZip,
-  ordersId,
-  weightEstimate,
-  label = getPPMEstimateLabel,
-) {
-  const swaggerTag = 'ppm.showPPMEstimate';
-  const schemaKey = 'ppmEstimateRange';
-  return swaggerRequest(
-    getClient,
-    swaggerTag,
-    {
-      original_move_date: moveDate,
-      origin_zip: originZip,
-      origin_duty_station_zip: originDutyStationZip,
-      orders_id: ordersId,
-      weight_estimate: weightEstimate,
-    },
-    { label, schemaKey },
   );
 }
 
