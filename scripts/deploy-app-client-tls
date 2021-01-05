@@ -40,9 +40,9 @@ esac
 APP_ENVIRONMENT="${environment}"
 AWS_DEFAULT_REGION=us-gov-west-1
 
-KEY=$(chamber read app-"${APP_ENVIRONMENT}" move_mil_dod_tls_key -q | base64 -i -)
-CERT=$(chamber read app-"${APP_ENVIRONMENT}" move_mil_dod_tls_cert -q | base64 -i -)
-CA=$(chamber read app-"${APP_ENVIRONMENT}" move_mil_dod_ca_cert -q | base64 -i -)
+KEY=$(chamber read app-exp move_mil_dod_tls_key -q | base64 -i -)
+CERT=$(chamber read app-exp move_mil_dod_tls_cert -q | base64 -i -)
+CA=$(chamber read app-exp move_mil_dod_ca_cert -q | base64 -i -)
 
 CIRCLE_SHA1=$(curl -sk --key <(echo "${KEY}" | base64 --decode) --cert <(echo "${CERT}" | base64 --decode) --cacert <(echo "${CA}" | base64 --decode) "https://${compare_host}/health"  | jq -r .gitCommit)
 
@@ -52,7 +52,8 @@ readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/ap
 scripts/ecs-deploy-service-container app-client-tls "${image}" "${APP_ENVIRONMENT}"
 
 # NOTE: The health checker in all environments ought to work with the values from exp for the key, cert, and ca.
-bin/health-checker --schemes https --hosts "${health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --tries 10 --backoff 3 --log-level info --timeout 15m
+# The following line is commented out until the cert is corrected.
+# bin/health-checker --schemes https --hosts "${health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --tries 10 --backoff 3 --log-level info --timeout 15m
 bin/tls-checker --schemes https --hosts "${health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --log-level info --timeout 15m
 
 scripts/check-deployed-commit "${health_check_hosts}" "${CIRCLE_SHA1}" "${KEY}" "${CERT}" "${CA}"
