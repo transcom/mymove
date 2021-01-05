@@ -38,6 +38,7 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 // QueryOption defines the type for the functional arguments passed to ListMoveOrders
 type QueryOption func(*pop.Query)
 
+// FetchPaymentRequestList returns a list of payment requests
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
 
 	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
@@ -116,6 +117,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	return &paymentRequests, count, nil
 }
 
+// FetchPaymentRequestListByMove returns a payment request by move locator id
 func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error) {
 	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
 	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(officeUserID)
@@ -125,7 +127,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID u
 
 	paymentRequests := models.PaymentRequests{}
 
-	query := f.db.Q().EagerPreload("PaymentServiceItems").
+	query := f.db.Q().Eager("PaymentServiceItems.MTOServiceItem.ReService").
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").

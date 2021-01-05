@@ -115,7 +115,17 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 
 func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	prUUID, _ := uuid.NewV4()
-	paymentRequests := models.PaymentRequests{models.PaymentRequest{ID: prUUID}}
+	expectedServiceItemName := "Test Service Item Name"
+	paymentRequests := models.PaymentRequests{
+		models.PaymentRequest{
+			ID: prUUID,
+			PaymentServiceItems: models.PaymentServiceItems{
+				models.PaymentServiceItem{
+					MTOServiceItem: models.MTOServiceItem{
+						ReService: models.ReService{Name: expectedServiceItemName}}},
+			},
+		},
+	}
 	officeUserUUID, _ := uuid.NewV4()
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
@@ -142,6 +152,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestsForMoveOK{}, response)
 		okResponse := response.(*paymentrequestop.GetPaymentRequestsForMoveOK)
 		suite.Equal(prUUID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(expectedServiceItemName, okResponse.Payload[0].ServiceItems[0].MtoServiceItemName)
 	})
 
 	suite.T().Run("Failed list fetch - Not found error ", func(t *testing.T) {
