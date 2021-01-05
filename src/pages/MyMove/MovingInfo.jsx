@@ -22,7 +22,7 @@ export const MovingInfo = () => {
         <CardGroup>
           <MilmoveCard>
             <CardHeader>
-              <h3>Hold on to things you’ll need quickly</h3>
+              <h3 data-testid="shipmentsSubHeader">Hold on to things you’ll need quickly</h3>
             </CardHeader>
             <CardMedia inset>
               <img src={PPMShipmentImg} alt="PPM Shipment" />
@@ -38,7 +38,7 @@ export const MovingInfo = () => {
           </MilmoveCard>
           <MilmoveCard>
             <CardHeader>
-              <h3>One move, several parts</h3>
+              <h3 data-testid="shipmentsSubHeader">One move, several parts</h3>
             </CardHeader>
             <CardMedia inset>
               <img src={HHGShipmentImg} alt="HHG Shipment" />
@@ -54,7 +54,7 @@ export const MovingInfo = () => {
           </MilmoveCard>
           <MilmoveCard>
             <CardHeader>
-              <h3>Talk to your move counselor</h3>
+              <h3 data-testid="shipmentsSubHeader">Talk to your move counselor</h3>
             </CardHeader>
             <CardMedia inset>
               <img src={MoveCounselorImg} alt="Move counselor" />
@@ -74,7 +74,7 @@ export const MovingInfo = () => {
           </MilmoveCard>
           <MilmoveCard>
             <CardHeader>
-              <h3>Talk to your movers</h3>
+              <h3 data-testid="shipmentsSubHeader">Talk to your movers</h3>
             </CardHeader>
             <CardMedia inset>
               <img src={MovingTruckImg} alt="Moving truck" />
