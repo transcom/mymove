@@ -23,7 +23,8 @@ type EventServiceSuite struct {
 }
 
 func (suite *EventServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestEventServiceSuite(t *testing.T) {

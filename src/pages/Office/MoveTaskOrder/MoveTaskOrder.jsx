@@ -43,7 +43,7 @@ export const MoveTaskOrder = ({ match }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
 
-  const { moveOrderId } = match.params;
+  const { moveCode } = match.params;
 
   // TODO - Do something with moveOrder and moveTaskOrder?
   const {
@@ -53,7 +53,7 @@ export const MoveTaskOrder = ({ match }) => {
     mtoServiceItems,
     isLoading,
     isError,
-  } = useMoveTaskOrderQueries(moveOrderId);
+  } = useMoveTaskOrderQueries(moveCode);
 
   let mtoServiceItemsArr;
   if (mtoServiceItems) {

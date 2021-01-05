@@ -7,14 +7,14 @@ import TabNav from 'components/TabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
+const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
 const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrder'));
-const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
-const MoveAllowances = lazy(() => import('pages/Office/MoveAllowances/MoveAllowances'));
 const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
 const TXOMoveInfo = () => {
+  // TODO - Clean up path param moveOrderId. Should be moveCode.
   const { moveOrderId } = useParams();
   const { pathname } = useLocation();
 
@@ -24,11 +24,11 @@ const TXOMoveInfo = () => {
       exact: true,
     }) ||
     matchPath(pathname, {
-      path: '/moves/:moveOrderId/orders',
+      path: '/moves/:moveCode/orders',
       exact: true,
     }) ||
     matchPath(pathname, {
-      path: '/moves/:moveOrderId/allowances',
+      path: '/moves/:moveCode/allowances',
       exact: true,
     });
 
@@ -65,19 +65,15 @@ const TXOMoveInfo = () => {
       )}
       <Suspense fallback={<LoadingPlaceholder />}>
         <Switch>
-          <Route path="/moves/:moveOrderId/details" exact>
+          <Route path="/moves/:moveCode/details" exact>
             <MoveDetails />
           </Route>
 
-          <Route path="/moves/:moveOrderId/orders" exact>
-            <MoveOrders />
+          <Route path={['/moves/:moveCode/allowances', '/moves/:moveCode/orders']} exact>
+            <MoveDocumentWrapper />
           </Route>
 
-          <Route path="/moves/:moveOrderId/allowances" exact>
-            <MoveAllowances />
-          </Route>
-
-          <Route path="/moves/:moveOrderId/mto" exact>
+          <Route path="/moves/:moveCode/mto" exact>
             <MoveTaskOrder />
           </Route>
 
@@ -94,7 +90,7 @@ const TXOMoveInfo = () => {
           </Route>
 
           {/* TODO - clarify role/tab access */}
-          <Redirect from="/moves/:moveOrderId" to="/moves/:moveOrderId/details" />
+          <Redirect from="/moves/:moveCode" to="/moves/:moveCode/details" />
         </Switch>
       </Suspense>
     </>

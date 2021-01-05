@@ -58,9 +58,27 @@ func (suite *InvoiceSuite) TestEDIString() {
 		suite.Equal(`ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*000009999*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*1*X*004010
 ST*858*ABCDE
+BX*00*J*PP*3351-1123b*BLKW**4
+N9*CN*3351-1123-1b**
+N9*CT*TRUSS_TEST**
+N9*1W*Leo, Spacemen**
+N9*ML*E_1**
+N9*3L*ARMY**
 G62*10*20200909**
+N1*BY*BuyerOrganizationName*92*LKNQ
+N1*SE*SellerOrganizationName*2*BLKW
+N1*ST*DestinationName*10*CNNQ
+N4*Augusta*GA*30813*US**
+N1*SF*Uoe1WjuUjU*10*LKNQ
+N4*Des Moines*IA*50309*US**
+HL*1**I
+N9*PO*3351-1123c**
+L5*1*CS*TBD*D**
+L0*1**********
+L1*1*0**10000
+FA1*DF
+FA2*TA*1234
 L3*300.000*B***100
-N4*San Francisco*CA*94123*USA**
 SE*12345*ABCDE
 GE*1*1234567
 IEA*1*000009999
@@ -81,11 +99,104 @@ func MakeValidEdi() Invoice858C {
 		DateQualifier: 10,
 		Date:          "20200909",
 	}
-	n4 := edisegment.N4{
-		CityName:            "San Francisco",
-		StateOrProvinceCode: "CA",
-		PostalCode:          "94123",
-		CountryCode:         "USA",
+	ediHeader := InvoiceHeader{
+		ShipmentInformation: edisegment.BX{
+			TransactionSetPurposeCode:    "00",
+			TransactionMethodTypeCode:    "J",
+			ShipmentMethodOfPayment:      "PP",
+			ShipmentIdentificationNumber: "3351-1123b",
+			StandardCarrierAlphaCode:     "BLKW",
+			ShipmentQualifier:            "4",
+		},
+		PaymentRequestNumber: edisegment.N9{
+			ReferenceIdentificationQualifier: "CN",
+			ReferenceIdentification:          "3351-1123-1b",
+		},
+		ContractCode: edisegment.N9{
+			ReferenceIdentificationQualifier: "CT",
+			ReferenceIdentification:          "TRUSS_TEST",
+		},
+		ServiceMemberName: edisegment.N9{
+			ReferenceIdentificationQualifier: "1W",
+			ReferenceIdentification:          "Leo, Spacemen",
+		},
+		ServiceMemberRank: edisegment.N9{
+			ReferenceIdentificationQualifier: "ML",
+			ReferenceIdentification:          "E_1",
+		},
+		ServiceMemberBranch: edisegment.N9{
+			ReferenceIdentificationQualifier: "3L",
+			ReferenceIdentification:          "ARMY",
+		},
+
+		RequestedPickupDate: &date,
+
+		BuyerOrganizationName: edisegment.N1{
+			EntityIdentifierCode:        "BY",
+			Name:                        "BuyerOrganizationName",
+			IdentificationCodeQualifier: "92",
+			IdentificationCode:          "LKNQ",
+		},
+		SellerOrganizationName: edisegment.N1{
+			EntityIdentifierCode:        "SE",
+			Name:                        "SellerOrganizationName",
+			IdentificationCodeQualifier: "2",
+			IdentificationCode:          "BLKW",
+		},
+		DestinationName: edisegment.N1{
+			EntityIdentifierCode:        "ST",
+			Name:                        "DestinationName",
+			IdentificationCodeQualifier: "10",
+			IdentificationCode:          "CNNQ",
+		},
+		DestinationPostalDetails: edisegment.N4{
+			CityName:            "Augusta",
+			StateOrProvinceCode: "GA",
+			PostalCode:          "30813",
+			CountryCode:         "US",
+		},
+		OriginName: edisegment.N1{
+			EntityIdentifierCode:        "SF",
+			Name:                        "Uoe1WjuUjU",
+			IdentificationCodeQualifier: "10",
+			IdentificationCode:          "LKNQ",
+		},
+		OriginPostalDetails: edisegment.N4{
+			CityName:            "Des Moines",
+			StateOrProvinceCode: "IA",
+			PostalCode:          "50309",
+			CountryCode:         "US",
+		},
+	}
+	serviceItems := ServiceItemSegments{
+		HL: edisegment.HL{
+			HierarchicalIDNumber:  "1",
+			HierarchicalLevelCode: "I",
+		},
+		N9: edisegment.N9{
+			ReferenceIdentificationQualifier: "PO",
+			ReferenceIdentification:          "3351-1123c",
+		},
+		L5: edisegment.L5{
+			LadingLineItemNumber:   1,
+			LadingDescription:      "CS",
+			CommodityCode:          "TBD",
+			CommodityCodeQualifier: "D",
+		},
+		L0: edisegment.L0{
+			LadingLineItemNumber: 1,
+		},
+		L1: edisegment.L1{
+			LadingLineItemNumber: 1,
+			Charge:               float64(100),
+		},
+		FA1: edisegment.FA1{
+			AgencyQualifierCode: "DF",
+		},
+		FA2: edisegment.FA2{
+			BreakdownStructureDetailCode: "TA",
+			FinancialInformationCode:     "1234",
+		},
 	}
 	l3total := edisegment.L3{
 		Weight:          300.0,
@@ -126,13 +237,9 @@ func MakeValidEdi() Invoice858C {
 			TransactionSetIdentifierCode: "858",
 			TransactionSetControlNumber:  "ABCDE",
 		},
-		Header: []edisegment.Segment{
-			&date,
-		},
-		ServiceItems: []edisegment.Segment{
-			&l3total,
-			&n4,
-		},
+		Header:       ediHeader,
+		ServiceItems: []ServiceItemSegments{serviceItems},
+		L3:           l3total,
 		SE: edisegment.SE{
 			NumberOfIncludedSegments:    12345,
 			TransactionSetControlNumber: "ABCDE",

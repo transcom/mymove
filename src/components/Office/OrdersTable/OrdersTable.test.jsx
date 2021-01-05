@@ -57,11 +57,11 @@ describe('Orders Table', () => {
 
   it('should link to the edit orders page with order id param', () => {
     const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/1000/details`]}>
+      <MockProviders initialEntries={[`/moves/TEST/details`]}>
         <OrdersTable ordersInfo={ordersInfoOptional} />
       </MockProviders>,
     );
     expect(wrapper.find('Link').text()).toMatch('View & edit orders');
-    expect(wrapper.find('a').prop('href')).toMatch('/moves/1000/orders');
+    expect(wrapper.find('a').prop('href')).toMatch('/moves/TEST/orders');
   });
 });

@@ -32,8 +32,9 @@ type MoveTaskOrder struct {
 
 	// ID associated with the contractor, in this case Prime
 	//
+	// Required: true
 	// Format: uuid
-	ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+	ContractorID *strfmt.UUID `json:"contractorID"`
 
 	// Date the MoveTaskOrder was created on.
 	// Read Only: true
@@ -57,7 +58,8 @@ type MoveTaskOrder struct {
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
 	// Unique 6-character code the customer can use to refer to their move
-	Locator string `json:"locator,omitempty"`
+	// Read Only: true
+	MoveCode string `json:"moveCode,omitempty"`
 
 	// move order
 	// Required: true
@@ -113,7 +115,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
-		ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+		ContractorID *strfmt.UUID `json:"contractorID"`
 
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -123,7 +125,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
-		Locator string `json:"locator,omitempty"`
+		MoveCode string `json:"moveCode,omitempty"`
 
 		MoveOrder *MoveOrder `json:"moveOrder"`
 
@@ -182,8 +184,8 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// isCanceled
 	result.IsCanceled = data.IsCanceled
 
-	// locator
-	result.Locator = data.Locator
+	// moveCode
+	result.MoveCode = data.MoveCode
 
 	// moveOrder
 	result.MoveOrder = data.MoveOrder
@@ -227,7 +229,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
-		ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+		ContractorID *strfmt.UUID `json:"contractorID"`
 
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -237,7 +239,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
-		Locator string `json:"locator,omitempty"`
+		MoveCode string `json:"moveCode,omitempty"`
 
 		MoveOrder *MoveOrder `json:"moveOrder"`
 
@@ -270,7 +272,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		IsCanceled: m.IsCanceled,
 
-		Locator: m.Locator,
+		MoveCode: m.MoveCode,
 
 		MoveOrder: m.MoveOrder,
 
@@ -379,8 +381,8 @@ func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) erro
 
 func (m *MoveTaskOrder) validateContractorID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ContractorID) { // not required
-		return nil
+	if err := validate.Required("contractorID", "body", m.ContractorID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("contractorID", "body", "uuid", m.ContractorID.String(), formats); err != nil {

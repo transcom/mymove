@@ -29,7 +29,8 @@ type TransitTimeParserSuite struct {
 }
 
 func (suite *TransitTimeParserSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestTransitTimeParserSuite(t *testing.T) {

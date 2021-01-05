@@ -135,7 +135,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		builder := query.NewQueryBuilder(suite.DB())
 		creator := NewMTOServiceItemCreator(builder)
 
-		notFoundID := uuid.Nil
+		notFoundID := uuid.Must(uuid.NewV4())
 		serviceItemNoMTO := models.MTOServiceItem{
 			MoveTaskOrderID: notFoundID,
 		}

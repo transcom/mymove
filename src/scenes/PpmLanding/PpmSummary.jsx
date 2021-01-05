@@ -19,11 +19,9 @@ import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import './PpmSummary.css';
 
 const MoveInfoHeader = (props) => {
-  const { orders, profile, move, entitlement, requestPaymentSuccess } = props;
+  const { orders, profile, move, entitlement } = props;
   return (
     <div>
-      {requestPaymentSuccess && <Alert type="success" heading="Payment request submitted" />}
-
       <h1>
         {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
       </h1>
@@ -100,7 +98,6 @@ export class PpmSummaryComponent extends React.Component {
       entitlement,
       resumeMove,
       reviewProfile,
-      requestPaymentSuccess,
       isMissingWeightTicketDocuments,
     } = this.props;
     const moveStatus = get(move, 'status', 'DRAFT');
@@ -120,13 +117,7 @@ export class PpmSummaryComponent extends React.Component {
           <div className="grid-col-12">
             {move.status !== 'CANCELED' && (
               <div>
-                <MoveInfoHeader
-                  orders={orders}
-                  profile={profile}
-                  move={move}
-                  entitlement={entitlement}
-                  requestPaymentSuccess={requestPaymentSuccess}
-                />
+                <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
                 <br />
               </div>
             )}
@@ -148,7 +139,6 @@ export class PpmSummaryComponent extends React.Component {
               entitlement={entitlement}
               resumeMove={resumeMove}
               reviewProfile={reviewProfile}
-              requestPaymentSuccess={requestPaymentSuccess}
               isMissingWeightTicketDocuments={isMissingWeightTicketDocuments}
               hasEstimateError={this.state.hasEstimateError}
               netWeight={this.state.netWeight}

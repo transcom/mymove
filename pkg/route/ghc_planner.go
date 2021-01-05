@@ -1,15 +1,28 @@
 package route
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop/v5"
+	"github.com/tiaguinho/gosoap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// SoapCaller provides an interface for the Call method of the gosoap Client so it can be mocked.
+// NOTE: Placing this in a separate package/directory to avoid a circular dependency from an existing mock.
+//go:generate mockery --name SoapCaller --outpkg ghcmocks --output ./ghcmocks
+type SoapCaller interface {
+	Call(m string, p gosoap.SoapParams) (res *gosoap.Response, err error)
+}
+
 // ghcPlanner holds configuration information to make calls to the GHC services (DTOD and RM).
 type ghcPlanner struct {
-	db     *pop.Connection
-	logger Logger
+	logger       Logger
+	db           *pop.Connection
+	soapClient   SoapCaller
+	dtodUsername string
+	dtodPassword string
 }
 
 // TransitDistance calculates the distance between two valid addresses
@@ -36,25 +49,33 @@ func (p *ghcPlanner) Zip5TransitDistanceLineHaul(source string, destination stri
 
 // Zip5TransitDistance calculates the distance between two valid Zip5s
 func (p *ghcPlanner) Zip5TransitDistance(source string, destination string) (int, error) {
-	// Placeholder for the DTOD-based zip5-to-zip5 distance. This will be determined by making
-	// a SOAP call to DTOD using the provided source/destination zip5 and returning the
-	// associated distance.
-	//
-	// It could be implemented as a service object if we expect reuse beyond the planner, or
-	// unexported code in this package if we always expect to access it via the planner.
-
-	panic("implement me")
+	dtod := NewDTODZip5Distance(p.logger, p.dtodUsername, p.dtodPassword, p.soapClient)
+	return dtod.DTODZip5Distance(source, destination)
 }
 
 // Zip3TransitDistance calculates the distance between two valid Zip3s
+// if valid Zip5 are passed in they are converted to Zip3s
 func (p *ghcPlanner) Zip3TransitDistance(source string, destination string) (int, error) {
-	return randMcNallyZip3Distance(p.db, source, destination)
+	sourceZip5 := source
+	if len(source) < 5 {
+		sourceZip5 = fmt.Sprintf("%05s", source)
+	}
+	destZip5 := destination
+	if len(destination) < 5 {
+		destZip5 = fmt.Sprintf("%05s", destination)
+	}
+	sourceZip3 := sourceZip5[0:3]
+	destZip3 := destZip5[0:3]
+	return randMcNallyZip3Distance(p.db, sourceZip3, destZip3)
 }
 
 // NewGHCPlanner constructs and returns a Planner for GHC routing.
-func NewGHCPlanner(db *pop.Connection, logger Logger) Planner {
+func NewGHCPlanner(logger Logger, db *pop.Connection, soapClient SoapCaller, dtodUsername string, dtodPassword string) Planner {
 	return &ghcPlanner{
-		db:     db,
-		logger: logger,
+		logger:       logger,
+		db:           db,
+		soapClient:   soapClient,
+		dtodUsername: dtodUsername,
+		dtodPassword: dtodPassword,
 	}
 }

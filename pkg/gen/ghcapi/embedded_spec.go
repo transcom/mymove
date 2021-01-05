@@ -1996,6 +1996,26 @@ func init() {
         }
       }
     },
+    "Branch": {
+      "type": "string",
+      "title": "branch",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marines",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -2745,11 +2765,7 @@ func init() {
       "properties": {
         "agency": {
           "type": "string",
-          "example": "civilian"
-        },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+          "$ref": "#/definitions/Branch"
         },
         "customerID": {
           "type": "string",
@@ -2796,6 +2812,10 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "Doe"
+        },
+        "moveCode": {
+          "type": "string",
+          "example": "H2XFJF"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -3497,9 +3517,14 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId"
+        "originDutyStationId",
+        "agency"
       ],
       "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
         "authorizedWeight": {
           "description": "unit is in lbs",
           "type": "integer",
@@ -3511,6 +3536,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -6042,6 +6071,26 @@ func init() {
         }
       }
     },
+    "Branch": {
+      "type": "string",
+      "title": "branch",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marines",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -6791,11 +6840,7 @@ func init() {
       "properties": {
         "agency": {
           "type": "string",
-          "example": "civilian"
-        },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+          "$ref": "#/definitions/Branch"
         },
         "customerID": {
           "type": "string",
@@ -6842,6 +6887,10 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "Doe"
+        },
+        "moveCode": {
+          "type": "string",
+          "example": "H2XFJF"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -7546,9 +7595,14 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId"
+        "originDutyStationId",
+        "agency"
       ],
       "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
         "authorizedWeight": {
           "description": "unit is in lbs",
           "type": "integer",
@@ -7560,6 +7614,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"

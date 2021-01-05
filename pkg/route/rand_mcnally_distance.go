@@ -13,9 +13,16 @@ func randMcNallyZip3Distance(db *pop.Connection, fromZip3 string, toZip3 string)
 	if fromZip3 == toZip3 {
 		return 0, fmt.Errorf("fromZip3 (%s) cannot be the same as toZip3 (%s)", fromZip3, toZip3)
 	} else if fromZip3 > toZip3 {
-		db.Where("from_zip3 = ? and to_zip3 = ?", toZip3, fromZip3).First(&distance)
+		err := db.Where("from_zip3 = ? and to_zip3 = ?", toZip3, fromZip3).First(&distance)
+		if err != nil {
+			return 0, fmt.Errorf("failed to load distance in database fromZip3 (%s) toZip3 (%s): %w", toZip3, fromZip3, err)
+		}
 	} else {
-		db.Where("from_zip3 = ? and to_zip3 = ?", fromZip3, toZip3).First(&distance)
+		err := db.Where("from_zip3 = ? and to_zip3 = ?", fromZip3, toZip3).First(&distance)
+		if err != nil {
+			return 0, fmt.Errorf("failed to load distance in database fromZip3 (%s) toZip3 (%s): %w", fromZip3, toZip3, err)
+		}
 	}
+
 	return distance.DistanceMiles, nil
 }

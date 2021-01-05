@@ -394,7 +394,8 @@ type RateEngineSuite struct {
 }
 
 func (suite *RateEngineSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestRateEngineSuite(t *testing.T) {

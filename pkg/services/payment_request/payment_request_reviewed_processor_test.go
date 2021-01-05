@@ -80,6 +80,9 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 			Move:           mto,
 			MTOShipment:    mtoShipment,
 			PaymentRequest: paymentRequest,
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
 		}
 
 		// dlh

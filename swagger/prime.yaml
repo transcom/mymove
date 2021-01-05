@@ -974,10 +974,6 @@ definitions:
       reportByDate:
         type: string
         format: date
-      confirmationNumber:
-        type: string
-        example: 'HYXFJF'
-        x-nullable: true
       orderNumber:
         type: string
       linesOfAccounting:
@@ -997,6 +993,10 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      moveCode:
+        type: string
+        example: 'HYXFJF'
+        readOnly: true
       createdAt:
         format: date-time
         type: string
@@ -1287,7 +1287,7 @@ definitions:
           sitPostalCode:
             type: string
             format: zip
-            example: "90210"
+            example: '90210'
             pattern: '^(\d{5}([\-]\d{4})?)$'
           sitEntryDate:
             format: date
@@ -1463,7 +1463,7 @@ definitions:
       status:
         $ref: '#/definitions/PaymentRequestStatus'
       paymentRequestNumber:
-        example: "1234-5678-1"
+        example: '1234-5678-1'
         readOnly: true
         type: string
       proofOfServiceDocs:
@@ -1537,7 +1537,7 @@ definitions:
       key:
         $ref: '#/definitions/ServiceItemParamName'
       value:
-        example: "3025"
+        example: '3025'
         type: string
       type:
         $ref: '#/definitions/ServiceItemParamType'
@@ -1811,7 +1811,7 @@ responses:
     schema:
       $ref: '#/definitions/ClientError'
   Conflict:
-    description: "The request could not be processed because of conflict in the current state of the resource."
+    description: 'The request could not be processed because of conflict in the current state of the resource.'
     schema:
       $ref: '#/definitions/ClientError'
   PermissionDenied:

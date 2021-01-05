@@ -16,7 +16,8 @@ type NotificationSuite struct {
 }
 
 func (suite *NotificationSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestNotificationSuite(t *testing.T) {
