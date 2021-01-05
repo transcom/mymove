@@ -16,7 +16,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetMoveHandler() {
-	swaggerTimeFormat := "2006-01-02T15:04:05.999Z07:00"
+	swaggerTimeFormat := "2006-01-02T15:04:05.99Z07:00"
 	availableToPrimeAt := time.Now()
 	submittedAt := availableToPrimeAt.Add(-1 * time.Hour)
 
@@ -54,15 +54,15 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		payload := response.(*moveops.GetMoveOK).Payload
 
 		suite.Equal(move.ID.String(), payload.ID.String())
-		suite.Equal(move.AvailableToPrimeAt.Format(swaggerTimeFormat), payload.AvailableToPrimeAt.String())
+		suite.Equal(move.AvailableToPrimeAt.Format(swaggerTimeFormat), time.Time(*payload.AvailableToPrimeAt).Format(swaggerTimeFormat))
 		suite.Equal(move.ContractorID.String(), payload.ContractorID.String())
 		suite.Equal(move.Locator, payload.Locator)
 		suite.Equal(move.OrdersID.String(), payload.OrdersID.String())
 		suite.Equal(move.ReferenceID, payload.ReferenceID)
 		suite.Equal(string(move.Status), string(payload.Status))
-		suite.Equal(move.CreatedAt.Format(swaggerTimeFormat), payload.CreatedAt.String())
-		suite.Equal(move.SubmittedAt.Format(swaggerTimeFormat), payload.SubmittedAt.String())
-		suite.Equal(move.UpdatedAt.Format(swaggerTimeFormat), payload.UpdatedAt.String())
+		suite.Equal(move.CreatedAt.Format(swaggerTimeFormat), time.Time(payload.CreatedAt).Format(swaggerTimeFormat))
+		suite.Equal(move.SubmittedAt.Format(swaggerTimeFormat), time.Time(*payload.SubmittedAt).Format(swaggerTimeFormat))
+		suite.Equal(move.UpdatedAt.Format(swaggerTimeFormat), time.Time(payload.UpdatedAt).Format(swaggerTimeFormat))
 	})
 
 	suite.T().Run("Unsuccessful move fetch - empty string bad request", func(t *testing.T) {
