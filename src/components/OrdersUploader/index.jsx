@@ -125,13 +125,16 @@ class OrdersUploader extends Component {
         const response = get(item, 'response', {});
         load(response);
         const getNewFiles = (state) => reject(state.files, (upload) => upload.id === uploadId);
-        this.setState((prevState) => ({
-          files: getNewFiles(prevState),
-        }), () => {
-          if (onChange) {
-          onChange(this.state.files, this.isIdle());
-          }
-        });
+        this.setState(
+          (prevState) => ({
+            files: getNewFiles(prevState),
+          }),
+          () => {
+            if (onChange) {
+              onChange(this.state.files, this.isIdle());
+            }
+          },
+        );
       })
       .catch(error);
   };
