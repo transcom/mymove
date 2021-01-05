@@ -50,6 +50,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
     };
   }
 
+  const showDetailsChevron = showDetails ? 'chevron-up' : 'chevron-down';
   const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
 
   return (
@@ -127,15 +128,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
           )}
           <div className={styles.toggleDrawer}>
             <Button type="button" unstyled onClick={handleToggleDetails}>
-              {showDetails ? (
-                <>
-                  <FontAwesomeIcon icon="chevron-up" /> Show request details
-                </>
-              ) : (
-                <>
-                  <FontAwesomeIcon icon="chevron-down" /> Show request details
-                </>
-              )}
+              <FontAwesomeIcon icon={showDetailsChevron} /> Show request details
             </Button>
           </div>
         </div>
