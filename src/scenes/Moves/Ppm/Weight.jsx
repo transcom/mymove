@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { get, isNull, toUpper } from 'lodash';
 import PropTypes from 'prop-types';
 
@@ -13,7 +12,6 @@ import {
   updatePPM,
   selectActivePPMForMove,
   updatePPMEstimate,
-  getPpmWeightEstimate,
   selectPPMEstimateRange,
 } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
@@ -28,6 +26,8 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { calculatePPMEstimate } from 'services/internalApi';
+import { updatePPMEstimate as updatePPMEstimateInRedux } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
@@ -112,8 +112,10 @@ export class PpmWeight extends Component {
         ? currentPPM.pickup_postal_code
         : tempCurrentPPM.pickup_postal_code;
 
-    this.props
-      .getPpmWeightEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight)
+    calculatePPMEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight)
+      .then((response) => {
+        this.props.updatePPMEstimateInRedux(response);
+      })
       .catch(() => this.setState({ hasEstimateError: true }));
   };
 
@@ -439,17 +441,12 @@ function mapStateToProps(state) {
   return props;
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      loadPPMs,
-      getPpmWeightEstimate,
-      updatePPM,
-      updatePPMEstimate,
-      fetchLatestOrders,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  loadPPMs,
+  updatePPM,
+  updatePPMEstimate,
+  fetchLatestOrders,
+  updatePPMEstimateInRedux,
+};
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(PpmWeight));

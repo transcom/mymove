@@ -213,8 +213,7 @@ export async function patchMTOShipment(mtoShipmentId, mtoShipment, ifMatchETag) 
 }
 
 /** PPMS */
-// schema = ppmEstimateRange
-export async function getIncentiveRangeForPpm(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) {
+export async function calculatePPMEstimate(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) {
   return makeInternalRequest(
     'ppm.showPPMEstimate',
     {
@@ -231,7 +230,7 @@ export async function getIncentiveRangeForPpm(moveDate, originZip, originDutySta
 }
 
 // TODO - rename?
-export async function patchPPMIncentiveRange(moveId, ppmId) {
+export async function persistPPMEstimate(moveId, ppmId) {
   return makeInternalRequest(
     'ppm.updatePersonallyProcuredMoveEstimate',
     {
@@ -246,7 +245,7 @@ export async function patchPPMIncentiveRange(moveId, ppmId) {
 
 // TODO formatDateForSwagger moveDate
 // schema = ppmSitEstimate
-export async function getSITEstimateForPpm(ppmId, moveDate, sitDays, originZip, ordersId, weightEstimate) {
+export async function calculatePPMSITEstimate(ppmId, moveDate, sitDays, originZip, ordersId, weightEstimate) {
   return makeInternalRequest(
     'ppm.showPPMSitEstimate',
     {
