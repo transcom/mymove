@@ -610,8 +610,12 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 	models.SaveMoveDependencies(db, &ppm6.Move)
 }
 
-func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
-	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
+func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation) {
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			Affiliation: &affiliation,
+		},
+	})
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: customer.ID,
@@ -1741,8 +1745,10 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// This allows testing the pagination feature in the TXO queues.
 	// Feel free to comment out the loop if you don't need this many moves.
 	for i := 1; i < 12; i++ {
-		createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger)
+		createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE)
 	}
+	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationMARINES)
+
 	createMoveWithPPMAndHHG(db, userUploader)
 	createHHGMoveWith10ServiceItems(db, userUploader)
 	createHHGMoveWith2PaymentRequests(db, userUploader)
