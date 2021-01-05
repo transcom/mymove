@@ -127,3 +127,182 @@ func MakeMultiPaymentRequestWithItems(db *pop.Connection, assertions Assertions,
 		MakePaymentRequestWithServiceItems(db, assertions)
 	}
 }
+
+// MakeFullDLHMTOServiceItem makes a DLH type service item along with all its expected parameters returns the created move and all service items
+func MakeFullDLHMTOServiceItem(db *pop.Connection, assertions Assertions) (models.Move, models.MTOServiceItems) {
+	mtoShipment := assertions.MTOShipment
+	if mtoShipment.ID == uuid.Nil {
+		mtoShipment = MakeMTOShipment(db, assertions)
+	}
+
+	moveTaskOrder := assertions.Move
+	if moveTaskOrder.ID == uuid.Nil {
+		hhgMoveType := models.SelectedMoveTypeHHG
+		selectedMoveType := assertions.Move.SelectedMoveType
+		if selectedMoveType == nil {
+			selectedMoveType = &hhgMoveType
+		}
+
+		moveTaskOrder = MakeMoveWithoutMoveType(db, Assertions{
+			Move: models.Move{
+				SelectedMoveType: selectedMoveType,
+				MTOShipments: models.MTOShipments{
+					mtoShipment,
+				},
+			},
+		})
+	}
+
+	var mtoServiceItems models.MTOServiceItems
+	mtoServiceItem1 := MakeMTOServiceItem(db, Assertions{
+		Move: moveTaskOrder,
+		ReService: models.ReService{
+			Code: "DLH",
+		},
+		MTOShipment: mtoShipment,
+	})
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItem1)
+
+	serviceItemParamKey1 := MakeServiceItemParamKey(db, Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameWeightEstimated,
+			Description: "estimated weight",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey2 := MakeServiceItemParamKey(db, Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameRequestedPickupDate,
+			Description: "requested pickup date",
+			Type:        models.ServiceItemParamTypeDate,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey3 := MakeServiceItemParamKey(db, Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameContractCode,
+			Description: "contract code",
+			Type:        models.ServiceItemParamTypeString,
+			Origin:      models.ServiceItemParamOriginSystem,
+		},
+	})
+	serviceItemParamKey4 := MakeServiceItemParamKey(db, Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameDistanceZip3,
+			Description: "distance zip3",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginSystem,
+		},
+	})
+	serviceItemParamKey5 := MakeServiceItemParamKey(db, Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameZipPickupAddress,
+			Description: "zip pickup address",
+			Type:        models.ServiceItemParamTypeString,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey6 := MakeServiceItemParamKey(db, Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameZipDestAddress,
+			Description: "zip destination address",
+			Type:        models.ServiceItemParamTypeString,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey7 := MakeServiceItemParamKey(db, Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameWeightBilledActual,
+			Description: "weight billed actual",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginSystem,
+		},
+	})
+	serviceItemParamKey8 := MakeServiceItemParamKey(db, Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameWeightActual,
+			Description: "weight actual",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey9 := MakeServiceItemParamKey(db, Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameServiceAreaOrigin,
+			Description: "service area actual",
+			Type:        models.ServiceItemParamTypeString,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+
+	// Service Item DLH
+	_ = MakeServiceParam(db, Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey1.ID,
+			ServiceItemParamKey:   serviceItemParamKey1,
+		},
+	})
+
+	_ = MakeServiceParam(db, Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey2.ID,
+			ServiceItemParamKey:   serviceItemParamKey2,
+		},
+	})
+
+	_ = MakeServiceParam(db, Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey3.ID,
+			ServiceItemParamKey:   serviceItemParamKey3,
+		},
+	})
+
+	_ = MakeServiceParam(db, Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey4.ID,
+			ServiceItemParamKey:   serviceItemParamKey4,
+		},
+	})
+	_ = MakeServiceParam(db, Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey5.ID,
+			ServiceItemParamKey:   serviceItemParamKey5,
+		},
+	})
+	_ = MakeServiceParam(db, Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey6.ID,
+			ServiceItemParamKey:   serviceItemParamKey6,
+		},
+	})
+	_ = MakeServiceParam(db, Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey7.ID,
+			ServiceItemParamKey:   serviceItemParamKey7,
+		},
+	})
+	_ = MakeServiceParam(db, Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey8.ID,
+			ServiceItemParamKey:   serviceItemParamKey8,
+		},
+	})
+	_ = MakeServiceParam(db, Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey9.ID,
+			ServiceItemParamKey:   serviceItemParamKey9,
+		},
+	})
+
+	return moveTaskOrder, mtoServiceItems
+}

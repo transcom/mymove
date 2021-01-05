@@ -492,7 +492,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 }
 
 func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
-	hhgMoveType := models.SelectedMoveTypeHHG
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "7 Q St",
@@ -511,8 +510,8 @@ func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
 	})
 	testEstWeight := dlhTestWeight
 	testActualWeight := testEstWeight
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 
+	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullDLHMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &testEstWeight,
 			PrimeActualWeight:    &testActualWeight,
@@ -522,166 +521,6 @@ func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
 			DestinationAddress:   &destinationAddress,
 		},
 	})
-	moveTaskOrder := testdatagen.MakeMoveWithoutMoveType(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-			MTOShipments: models.MTOShipments{
-				mtoShipment,
-			},
-		},
-	})
-
-	var mtoServiceItems models.MTOServiceItems
-	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
-		ReService: models.ReService{
-			Code: "DLH",
-		},
-		MTOShipment: mtoShipment,
-	})
-	mtoServiceItems = append(mtoServiceItems, mtoServiceItem1)
-
-	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameWeightEstimated,
-			Description: "estimated weight",
-			Type:        models.ServiceItemParamTypeInteger,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-	serviceItemParamKey2 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameRequestedPickupDate,
-			Description: "requested pickup date",
-			Type:        models.ServiceItemParamTypeDate,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-	serviceItemParamKey3 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameContractCode,
-			Description: "contract code",
-			Type:        models.ServiceItemParamTypeString,
-			Origin:      models.ServiceItemParamOriginSystem,
-		},
-	})
-	serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameDistanceZip3,
-			Description: "distance zip3",
-			Type:        models.ServiceItemParamTypeInteger,
-			Origin:      models.ServiceItemParamOriginSystem,
-		},
-	})
-	serviceItemParamKey5 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameZipPickupAddress,
-			Description: "zip pickup address",
-			Type:        models.ServiceItemParamTypeString,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-	serviceItemParamKey6 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameZipDestAddress,
-			Description: "zip destination address",
-			Type:        models.ServiceItemParamTypeString,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-	serviceItemParamKey7 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameWeightBilledActual,
-			Description: "weight billed actual",
-			Type:        models.ServiceItemParamTypeInteger,
-			Origin:      models.ServiceItemParamOriginSystem,
-		},
-	})
-	serviceItemParamKey8 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameWeightActual,
-			Description: "weight actual",
-			Type:        models.ServiceItemParamTypeInteger,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-	serviceItemParamKey9 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameServiceAreaOrigin,
-			Description: "service area actual",
-			Type:        models.ServiceItemParamTypeString,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-
-	// Service Item DLH
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey1.ID,
-			ServiceItemParamKey:   serviceItemParamKey1,
-		},
-	})
-
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey2.ID,
-			ServiceItemParamKey:   serviceItemParamKey2,
-		},
-	})
-
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey3.ID,
-			ServiceItemParamKey:   serviceItemParamKey3,
-		},
-	})
-
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey4.ID,
-			ServiceItemParamKey:   serviceItemParamKey4,
-		},
-	})
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey5.ID,
-			ServiceItemParamKey:   serviceItemParamKey5,
-		},
-	})
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey6.ID,
-			ServiceItemParamKey:   serviceItemParamKey6,
-		},
-	})
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey7.ID,
-			ServiceItemParamKey:   serviceItemParamKey7,
-		},
-	})
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey8.ID,
-			ServiceItemParamKey:   serviceItemParamKey8,
-		},
-	})
-	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey9.ID,
-			ServiceItemParamKey:   serviceItemParamKey9,
-		},
-	})
-
 	return moveTaskOrder, mtoServiceItems
 }
 
