@@ -12,7 +12,7 @@ export const MovingInfo = () => {
   return (
     <>
       <h1 data-testid="shipmentsHeader">Tips for planning your shipments</h1>
-      <Alert type="info" heading="You can move 7,000 lbs for free">
+      <Alert type="info" heading="You can move 7,000 lbs for free" noIcon>
         The government will pay to move that much weight. Your whole move, no matter how many shipments it takes.
         <br />
         <br />
@@ -24,7 +24,7 @@ export const MovingInfo = () => {
             <CardHeader>
               <h3>Hold on to things you’ll need quickly</h3>
             </CardHeader>
-            <CardMedia>
+            <CardMedia inset>
               <img src={PPMShipmentImg} alt="PPM Shipment" />
             </CardMedia>
             <CardBody>
@@ -40,7 +40,7 @@ export const MovingInfo = () => {
             <CardHeader>
               <h3>One move, several parts</h3>
             </CardHeader>
-            <CardMedia>
+            <CardMedia inset>
               <img src={HHGShipmentImg} alt="HHG Shipment" />
             </CardMedia>
             <CardBody>
@@ -56,7 +56,7 @@ export const MovingInfo = () => {
             <CardHeader>
               <h3>Talk to your move counselor</h3>
             </CardHeader>
-            <CardMedia>
+            <CardMedia inset>
               <img src={MoveCounselorImg} alt="Move counselor" />
             </CardMedia>
             <CardBody>
@@ -76,7 +76,7 @@ export const MovingInfo = () => {
             <CardHeader>
               <h3>Talk to your movers</h3>
             </CardHeader>
-            <CardMedia>
+            <CardMedia inset>
               <img src={MovingTruckImg} alt="Moving truck" />
             </CardMedia>
             <CardBody>
