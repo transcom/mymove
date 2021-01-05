@@ -124,14 +124,14 @@ class OrdersUploader extends Component {
       .then((item) => {
         const response = get(item, 'response', {});
         load(response);
-        // eslint-disable-next-line react/no-access-state-in-setstate
-        const newFiles = reject(this.state.files, (upload) => upload.id === uploadId);
-        this.setState({
-          files: newFiles,
+        const getNewFiles = (state) => reject(state.files, (upload) => upload.id === uploadId);
+        this.setState((prevState) => ({
+          files: getNewFiles(prevState),
+        }), () => {
+          if (onChange) {
+          onChange(this.state.files, this.isIdle());
+          }
         });
-        if (onChange) {
-          onChange(newFiles, this.isIdle());
-        }
       })
       .catch(error);
   };
