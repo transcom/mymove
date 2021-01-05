@@ -63,9 +63,9 @@ jest.mock('hooks/queries', () => ({
 }));
 
 describe('MovePaymentRequests', () => {
-  const testMoveLocator = 'L2BKD6';
+  const testMoveCode = 'L2BKD6';
   const component = mount(
-    <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+    <MockProviders initialEntries={[`/moves/${testMoveCode}/payment-requests`]}>
       <MovePaymentRequests />
     </MockProviders>,
   );
