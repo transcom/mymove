@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import SaveCancelButtons from './SaveCancelButtons';
@@ -15,7 +14,6 @@ import {
   selectActivePPMForMove,
   selectPPMEstimateRange,
   updatePPMEstimate,
-  getPpmWeightEstimate,
 } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -23,6 +21,8 @@ import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
+import { calculatePPMEstimate } from 'services/internalApi';
+import { updatePPMEstimate as updatePPMEstimateInRedux } from 'store/entities/actions';
 
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
@@ -209,12 +209,18 @@ class EditWeight extends Component {
     scrollToTop();
   }
 
-  debouncedGetPpmWeightEstimate = debounce(this.props.getPpmWeightEstimate, weightEstimateDebounce);
+  handleWeightChange = (moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) => {
+    calculatePPMEstimate(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate).then((response) => {
+      this.props.updatePPMEstimateInRedux(response);
+    });
+  };
+
+  debouncedHandleWeightChange = debounce(this.handleWeightChange, weightEstimateDebounce);
 
   onWeightChange = (e, newValue) => {
     const { currentPPM, entitlement, originDutyStationZip, orders } = this.props;
     if (newValue > 0 && newValue <= entitlement.sum) {
-      this.debouncedGetPpmWeightEstimate(
+      this.debouncedHandleWeightChange(
         currentPPM.original_move_date,
         currentPPM.pickup_postal_code,
         originDutyStationZip,
@@ -222,7 +228,7 @@ class EditWeight extends Component {
         newValue,
       );
     } else {
-      this.debouncedGetPpmWeightEstimate.cancel();
+      this.debouncedHandleWeightChange.cancel();
     }
   };
 
@@ -348,22 +354,17 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-      loadPPMs,
-      fetchLatestOrders,
-      updatePPM,
-      getPpmWeightEstimate,
-      editBegin,
-      editSuccessful,
-      entitlementChangeBegin,
-      checkEntitlement,
-      updatePPMEstimate,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  loadPPMs,
+  fetchLatestOrders,
+  updatePPM,
+  editBegin,
+  editSuccessful,
+  entitlementChangeBegin,
+  checkEntitlement,
+  updatePPMEstimate,
+  updatePPMEstimateInRedux,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditWeight);
