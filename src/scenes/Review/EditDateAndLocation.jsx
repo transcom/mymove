@@ -17,13 +17,14 @@ import {
   loadPPMs,
   updatePPM,
   selectActivePPMForMove,
-  updatePPMEstimate,
   getPPMSitEstimate,
   selectPPMSitEstimate,
 } from 'shared/Entities/modules/ppms';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
+import { persistPPMEstimate } from 'services/internalApi';
+import { updatePPM as updatePPMInRedux } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser, selectCurrentMove, selectCurrentOrders } from 'store/entities/selectors';
 
 import 'scenes/Moves/Ppm/DateAndLocation.css';
@@ -120,8 +121,8 @@ class EditDateAndLocation extends Component {
       }
       const moveId = this.props.match.params.moveId;
       return this.props.updatePPM(moveId, this.props.currentPPM.id, pendingValues).then(({ response }) => {
-        this.props
-          .updatePPMEstimate(moveId, response.body.id)
+        persistPPMEstimate(moveId, response.body.id)
+          .then((response) => this.props.updatePPMInRedux(response))
           .then(() => {
             // This promise resolves regardless of error.
             if (!this.props.hasSubmitError) {
@@ -276,7 +277,7 @@ function mapDispatchToProps(dispatch) {
       editBegin,
       editSuccessful,
       entitlementChangeBegin,
-      updatePPMEstimate,
+      updatePPMInRedux,
     },
     dispatch,
   );

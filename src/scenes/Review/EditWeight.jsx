@@ -8,21 +8,15 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import {
-  loadPPMs,
-  updatePPM,
-  selectActivePPMForMove,
-  selectPPMEstimateRange,
-  updatePPMEstimate,
-} from 'shared/Entities/modules/ppms';
+import { loadPPMs, updatePPM, selectActivePPMForMove, selectPPMEstimateRange } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
-import { calculatePPMEstimate } from 'services/internalApi';
-import { updatePPMEstimate as updatePPMEstimateInRedux } from 'store/entities/actions';
+import { calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
+import { updatePPM as updatePPMInRedux, updatePPMEstimate } from 'store/entities/actions';
 
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
@@ -211,7 +205,7 @@ class EditWeight extends Component {
 
   handleWeightChange = (moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) => {
     calculatePPMEstimate(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate).then((response) => {
-      this.props.updatePPMEstimateInRedux(response);
+      this.props.updatePPMEstimate(response);
     });
   };
 
@@ -239,8 +233,8 @@ class EditWeight extends Component {
         weight_estimate: values.weight_estimate,
       })
       .then(({ response }) => {
-        this.props
-          .updatePPMEstimate(moveId, response.body.id)
+        persistPPMEstimate(moveId, response.body.id)
+          .then((response) => this.props.updatePPMInRedux(response))
           .then(() => {
             if (!this.props.hasSubmitError) {
               this.props.editSuccessful();
@@ -359,12 +353,12 @@ const mapDispatchToProps = {
   loadPPMs,
   fetchLatestOrders,
   updatePPM,
+  updatePPMInRedux,
   editBegin,
   editSuccessful,
   entitlementChangeBegin,
   checkEntitlement,
   updatePPMEstimate,
-  updatePPMEstimateInRedux,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditWeight);

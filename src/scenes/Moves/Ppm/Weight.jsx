@@ -7,13 +7,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import {
-  loadPPMs,
-  updatePPM,
-  selectActivePPMForMove,
-  updatePPMEstimate,
-  selectPPMEstimateRange,
-} from 'shared/Entities/modules/ppms';
+import { loadPPMs, updatePPM, selectActivePPMForMove, selectPPMEstimateRange } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
@@ -26,8 +20,8 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { calculatePPMEstimate } from 'services/internalApi';
-import { updatePPMEstimate as updatePPMEstimateInRedux } from 'store/entities/actions';
+import { calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
+import { updatePPMEstimate, updatePPM as updatePPMInRedux } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
@@ -114,7 +108,7 @@ export class PpmWeight extends Component {
 
     calculatePPMEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight)
       .then((response) => {
-        this.props.updatePPMEstimateInRedux(response);
+        this.props.updatePPMEstimate(response);
       })
       .catch(() => this.setState({ hasEstimateError: true }));
   };
@@ -133,7 +127,9 @@ export class PpmWeight extends Component {
     const moveId = this.props.currentPPM.move_id ? this.props.currentPPM.move_id : this.props.tempCurrentPPM.move_id;
     return this.props
       .updatePPM(moveId, ppmId, ppmBody)
-      .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch((err) => err));
+      .then(({ response }) => persistPPMEstimate(moveId, response.body.id))
+      .then((response) => this.props.updatePPMInRedux(response))
+      .catch((err) => err);
     // catch block returns error so that the wizard can continue on with its flow
   };
 
@@ -444,9 +440,9 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   loadPPMs,
   updatePPM,
-  updatePPMEstimate,
   fetchLatestOrders,
-  updatePPMEstimateInRedux,
+  updatePPMInRedux,
+  updatePPMEstimate,
 };
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(PpmWeight));

@@ -229,7 +229,6 @@ export async function calculatePPMEstimate(moveDate, originZip, originDutyStatio
   );
 }
 
-// TODO - rename?
 export async function persistPPMEstimate(moveId, ppmId) {
   return makeInternalRequest(
     'ppm.updatePersonallyProcuredMoveEstimate',
