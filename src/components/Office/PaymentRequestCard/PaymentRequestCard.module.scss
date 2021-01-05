@@ -93,7 +93,7 @@
 
 .footer {
   @include u-display(flex);
-  @include u-margin-top(2);
+  @include u-margin-y(2);
   align-items: center;
 
   dl {
@@ -135,6 +135,9 @@
 }
 
 .drawer {
+  border-top: 1px solid #dcdee0;
+  padding-left: 7.2rem;
+  padding-right: 7.2rem;
 }
 
 .docs-icon {

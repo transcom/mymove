@@ -1,5 +1,4 @@
-import React from 'react';
-// import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
@@ -29,6 +28,7 @@ const paymentRequestStatusLabel = (status) => {
 };
 
 const PaymentRequestCard = ({ paymentRequest, history }) => {
+  const [showDetails, setShowDetails] = useState(false);
   let handleClick = () => {};
   let requestedAmount = 0;
   let approvedAmount = 0;
@@ -49,6 +49,8 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
       history.push(`payment-requests/${paymentRequest.id}`);
     };
   }
+
+  const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
 
   return (
     <div className={classnames(styles.PaymentRequestCard, 'container')}>
@@ -124,13 +126,34 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
             </a>
           )}
           <div className={styles.toggleDrawer}>
-            <Button type="button" unstyled>
-              <FontAwesomeIcon icon="chevron-down" /> Show request details
+            <Button type="button" unstyled onClick={handleToggleDetails}>
+              {showDetails ? (
+                <>
+                  <FontAwesomeIcon icon="chevron-up" /> Show request details
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon="chevron-down" /> Show request details
+                </>
+              )}
             </Button>
           </div>
         </div>
       </div>
-      <div className={styles.drawer} />
+      {showDetails && (
+        <div className={styles.drawer}>
+          {paymentRequest.serviceItems.map((serviceItem) => (
+            <>
+              <br />
+              {serviceItem.mtoServiceItemName}
+              <br />
+              {toDollarString(serviceItem.priceCents)}
+              <br />
+              {serviceItem.status}
+            </>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
