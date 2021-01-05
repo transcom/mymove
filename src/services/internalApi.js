@@ -242,8 +242,6 @@ export async function persistPPMEstimate(moveId, ppmId) {
   );
 }
 
-// TODO formatDateForSwagger moveDate
-// schema = ppmSitEstimate
 export async function calculatePPMSITEstimate(ppmId, moveDate, sitDays, originZip, ordersId, weightEstimate) {
   return makeInternalRequest(
     'ppm.showPPMSitEstimate',

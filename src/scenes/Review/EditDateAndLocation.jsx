@@ -1,32 +1,25 @@
+import React, { Component, Fragment } from 'react';
 import { debounce, get, bind, cloneDeep } from 'lodash';
+import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
-import { getFormValues } from 'redux-form';
+import { getFormValues, reduxForm } from 'redux-form';
+
 import SaveCancelButtons from './SaveCancelButtons';
-import React, { Component, Fragment } from 'react';
-import { reduxForm } from 'redux-form';
+import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
+
 import Alert from 'shared/Alert';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import {
-  loadPPMs,
-  updatePPM,
-  selectActivePPMForMove,
-  getPPMSitEstimate,
-  selectPPMSitEstimate,
-} from 'shared/Entities/modules/ppms';
-import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
+import { formatDateForSwagger } from 'shared/dates';
+import { loadPPMs, updatePPM, selectActivePPMForMove, selectPPMSitEstimate } from 'shared/Entities/modules/ppms';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
-import { persistPPMEstimate } from 'services/internalApi';
-import { updatePPM as updatePPMInRedux } from 'store/entities/actions';
+import { persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
+import { updatePPM as updatePPMInRedux, updatePPMSitEstimate } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser, selectCurrentMove, selectCurrentOrders } from 'store/entities/selectors';
-
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 
 const sitEstimateDebounceTime = 300;
@@ -148,7 +141,10 @@ class EditDateAndLocation extends Component {
 
   getSitEstimate = (ppmId, moveDate, sitDays, pickupZip, ordersID, weight) => {
     if (sitDays <= 90 && pickupZip.length === 5) {
-      this.props.getPPMSitEstimate(ppmId, moveDate, sitDays, pickupZip, ordersID, weight);
+      const formattedMoveDate = formatDateForSwagger(moveDate);
+      calculatePPMSITEstimate(ppmId, formattedMoveDate, sitDays, pickupZip, ordersID, weight).then((response) =>
+        this.props.updatePPMSitEstimate(response),
+      );
     }
   };
 
@@ -179,14 +175,14 @@ class EditDateAndLocation extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.currentPPM !== this.props.currentPPM && prevProps.currentOrders !== this.props.currentOrders) {
       const currentPPM = this.props.currentPPM;
-      this.props.getPPMSitEstimate(
+      calculatePPMSITEstimate(
         currentPPM.id,
-        currentPPM.original_move_date,
+        formatDateForSwagger(currentPPM.original_move_date),
         currentPPM.days_in_storage,
         currentPPM.pickup_postal_code,
         this.props.currentOrders.id,
         currentPPM.weight_estimate,
-      );
+      ).then((response) => this.props.updatePPMSitEstimate(response));
     }
   }
 
@@ -267,20 +263,15 @@ function mapStateToProps(state) {
   return props;
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-      updatePPM,
-      loadPPMs,
-      getPPMSitEstimate,
-      editBegin,
-      editSuccessful,
-      entitlementChangeBegin,
-      updatePPMInRedux,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  updatePPM,
+  loadPPMs,
+  editBegin,
+  editSuccessful,
+  entitlementChangeBegin,
+  updatePPMInRedux,
+  updatePPMSitEstimate,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditDateAndLocation);
