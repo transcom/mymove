@@ -11,37 +11,34 @@ usage() {
   exit 1
 }
 
-readonly environment="${1:-experimental}"
+readonly environment="${1:-exp}"
 
 [[ -z "${environment}" ]] && usage
 
 case "${environment}" in
-  experimental)
-    compare_host=my.experimental.move.mil
-    health_check_hosts=my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
+  exp)
+    compare_host=my.exp.move.mil
+    health_check_hosts=my.exp.move.mil,office.exp.move.mil,admin.exp.move.mil
+    export AWS_ACCOUNT_ID=015681133840
     ;;
-  staging)
-    compare_host=my.staging.move.mil
-    health_check_hosts=my.staging.move.mil,office.staging.move.mil,admin.staging.move.mil
+  stg)
+    compare_host=my.stg.move.mil
+    health_check_hosts=my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil
+    export AWS_ACCOUNT_ID=015932076428
     ;;
-  prod)
+  prd)
     compare_host=my.move.mil
     health_check_hosts=my.move.mil,office.move.mil,admin.move.mil
+    export AWS_ACCOUNT_ID=015533997236
     ;;
   *)
-    echo "<environment> must be one of experimental, staging, or prod"
+    echo "<environment> must be one of exp, stg, or prd"
     exit 1
     ;;
 esac
 
-if [ -z "${AWS_ACCOUNT_ID}" ]; then
-  echo "AWS_ACCOUNT_ID not found!"
-  echo "Please add 'AWS_ACCOUNT_ID' to your .envrc.local"
-  exit 1
-fi
-
 APP_ENVIRONMENT="${environment}"
-AWS_DEFAULT_REGION=us-west-2
+AWS_DEFAULT_REGION=us-gov-west-1
 CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"

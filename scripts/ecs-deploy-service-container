@@ -79,7 +79,7 @@ blue_task_def_arn=$(aws ecs describe-services --services "${name}" --cluster "${
 # create new task definition with the given image
 echo "* Registering new task definition"
 set +e
-green_task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
+green_task_def_date_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region "${AWS_DEFAULT_REGION}" \
   --service "${name}" \
@@ -91,10 +91,10 @@ green_task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --memory "${RESERVATION_MEM}" \
   --register)
 # shellcheck disable=SC2181
-if [ "$?" != "0" ]; then echo "$green_task_def_arn"; exit 1; fi
+if [ "$?" != "0" ]; then echo "$green_task_def_date_arn"; exit 1; fi
 set -e
 
-readonly green_task_def_arn
+green_task_def_arn=$(echo "${green_task_def_date_arn}" | cut -d ' ' -f 3)
 check_arn "$green_task_def_arn"
 
 if update_service "$green_task_def_arn"; then
