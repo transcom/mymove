@@ -213,6 +213,56 @@ export async function patchMTOShipment(mtoShipmentId, mtoShipment, ifMatchETag) 
 }
 
 /** PPMS */
+// schema = ppmEstimateRange
+export async function getIncentiveRangeForPpm(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) {
+  return makeInternalRequest(
+    'ppm.showPPMEstimate',
+    {
+      original_move_date: moveDate,
+      origin_zip: originZip,
+      origin_duty_station_zip: originDutyStationZip,
+      orders_id: ordersId,
+      weight_estimate: weightEstimate,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+// TODO - rename?
+export async function patchPPMIncentiveRange(moveId, ppmId) {
+  return makeInternalRequest(
+    'ppm.updatePersonallyProcuredMoveEstimate',
+    {
+      moveId,
+      personallyProcuredMoveId: ppmId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+// TODO formatDateForSwagger moveDate
+// schema = ppmSitEstimate
+export async function getSITEstimateForPpm(ppmId, moveDate, sitDays, originZip, ordersId, weightEstimate) {
+  return makeInternalRequest(
+    'ppm.showPPMSitEstimate',
+    {
+      personally_procured_move_id: ppmId,
+      original_move_date: moveDate,
+      days_in_storage: sitDays,
+      origin_zip: originZip,
+      orders_id: ordersId,
+      weight_estimate: weightEstimate,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function requestPayment(ppmId) {
   return makeInternalRequest(
     'ppm.requestPPMPayment',
