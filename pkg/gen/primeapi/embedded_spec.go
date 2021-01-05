@@ -919,6 +919,10 @@ func init() {
           "description": "Email or id of a contact person for this update",
           "type": "string"
         },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
+        },
         "requestedPickupDate": {
           "description": "The date the customer requested that this shipment be picked up.",
           "type": "string",
@@ -3378,6 +3382,10 @@ func init() {
         "pointOfContact": {
           "description": "Email or id of a contact person for this update",
           "type": "string"
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
         },
         "requestedPickupDate": {
           "description": "The date the customer requested that this shipment be picked up.",
