@@ -1725,7 +1725,8 @@ func init() {
         },
         "isCanceled": {
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "moveCode": {
           "type": "string",
@@ -4189,7 +4190,8 @@ func init() {
         },
         "isCanceled": {
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "moveCode": {
           "type": "string",

@@ -1021,6 +1021,7 @@ definitions:
       isCanceled:
         type: boolean
         x-nullable: true
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
