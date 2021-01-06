@@ -23,7 +23,7 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrd
 }
 
 // MoveTaskOrderIDs payload
-func MoveTaskOrderIDs(moveTaskOrderIDs *models.MoveTaskOrderIDs) []*supportmessages.MoveTaskOrderID {
+func MoveTaskOrderIDs(moveTaskOrderIDs *models.MoveTaskOrderIDs) supportmessages.MoveTaskOrderIDs {
 	payload := make(supportmessages.MoveTaskOrderIDs, len(*moveTaskOrderIDs))
 	for i, m := range *moveTaskOrderIDs {
 		// #nosec G601 TODO needs review
@@ -33,8 +33,8 @@ func MoveTaskOrderIDs(moveTaskOrderIDs *models.MoveTaskOrderIDs) []*supportmessa
 }
 
 // MoveTaskOrderID payload
-func MoveTaskOrderID(moveTaskOrderID uuid.UUID) *supportmessages.MoveTaskOrderID {
-	return &supportmessages.MoveTaskOrderID{ID: strfmt.UUID(moveTaskOrderID.String())}
+func MoveTaskOrderID(moveTaskOrderID uuid.UUID) supportmessages.MoveTaskOrderID {
+	return supportmessages.MoveTaskOrderID(strfmt.UUID(moveTaskOrderID.String()))
 }
 
 // MoveTaskOrder payload

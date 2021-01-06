@@ -21,7 +21,7 @@ func NewMoveTaskOrderHider(db *pop.Connection) services.MoveTaskOrderHider {
 }
 
 // Hide hides any MTO that isn't using valid fake data
-func (o *moveTaskOrderHider) Hide() (models.MoveTaskOrderIDs, error) {
+func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 	var mtos models.Moves
 	err := o.db.Q().
 		// Note: We may be able to save some queries if we load on demand, but we'll need to
@@ -57,13 +57,11 @@ func (o *moveTaskOrderHider) Hide() (models.MoveTaskOrderIDs, error) {
 		}
 	}
 
-	var invalidMoveIDs models.MoveTaskOrderIDs
 	// TODO: Should we be doing this in a transaction?
 	for i := range invalidFakeMoves {
 		// Take the address of the slice element to avoid implicit memory aliasing of items from a range statement.
 		mto := invalidFakeMoves[i]
 
-		invalidMoveIDs = append(invalidMoveIDs, mto.ID)
 		verrs, updateErr := o.db.ValidateAndUpdate(&mto)
 		if verrs != nil && verrs.HasAny() {
 			return nil, services.NewInvalidInputError(mto.ID, err, verrs, "")
@@ -73,7 +71,7 @@ func (o *moveTaskOrderHider) Hide() (models.MoveTaskOrderIDs, error) {
 		}
 	}
 
-	return invalidMoveIDs, nil
+	return invalidFakeMoves, nil
 }
 
 func isValidFakeModelAddress(a *models.Address) (bool, error) {

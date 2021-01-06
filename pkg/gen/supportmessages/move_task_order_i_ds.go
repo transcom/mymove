@@ -10,30 +10,24 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 )
 
 // MoveTaskOrderIDs move task order i ds
 //
 // swagger:model MoveTaskOrderIDs
-type MoveTaskOrderIDs []*MoveTaskOrderID
+type MoveTaskOrderIDs []MoveTaskOrderID
 
 // Validate validates this move task order i ds
 func (m MoveTaskOrderIDs) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {
-		if swag.IsZero(m[i]) { // not required
-			continue
-		}
 
-		if m[i] != nil {
-			if err := m[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName(strconv.Itoa(i))
-				}
-				return err
+		if err := m[i].Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName(strconv.Itoa(i))
 			}
+			return err
 		}
 
 	}

@@ -1569,15 +1569,8 @@ func init() {
       }
     },
     "MoveTaskOrderID": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        }
-      }
+      "type": "string",
+      "format": "uuid"
     },
     "MoveTaskOrderIDs": {
       "type": "array",
@@ -3785,15 +3778,8 @@ func init() {
       }
     },
     "MoveTaskOrderID": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        }
-      }
+      "type": "string",
+      "format": "uuid"
     },
     "MoveTaskOrderIDs": {
       "type": "array",

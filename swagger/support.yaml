@@ -1073,13 +1073,8 @@ definitions:
         example: ABC123
         readOnly: true
   MoveTaskOrderID:
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        readOnly: true
-        type: string
-    type: object
+    format: uuid
+    type: string
   MoveTaskOrderIDs:
     items:
       $ref: '#/definitions/MoveTaskOrderID'

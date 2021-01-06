@@ -43,10 +43,10 @@ func (s SelectedMoveType) String() string {
 	return string(s)
 }
 
-// MoveTaskOrderID represents the type of move being represented
+// MoveTaskOrderID represents the type of move ID
 type MoveTaskOrderID uuid.UUID
 
-// MoveTaskOrderIDs represednts the type of move being represented
+// MoveTaskOrderIDs represednts the type of move IDs
 type MoveTaskOrderIDs []uuid.UUID
 
 // This lists available move types in the system
