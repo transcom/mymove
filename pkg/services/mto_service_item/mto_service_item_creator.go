@@ -45,6 +45,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil, nil, services.NewNotFoundError(moveID, "in Moves")
 	}
 
+	// Service items can only be created if a Move's status is either Approved
+	// or Approvals Requested, so check and fail early.
+	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
+		return nil, nil, services.NewConflictError(
+			move.ID,
+			fmt.Sprintf("Cannot create service items before a move has been approved. The current status for the move with ID %s is %s", move.ID, move.Status),
+		)
+	}
+
 	// find the re service code id
 	var reService models.ReService
 	reServiceCode := serviceItem.ReService.Code
@@ -97,6 +106,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
 		if mtoShipment.PrimeEstimatedWeight == nil {
+			fmt.Println("PrimeEstimatedWeight is nil")
 			return nil, verrs, services.NewConflictError(reService.ID, "for creating a service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.")
 		}
 	}
@@ -187,12 +197,17 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil, verrs, services.NewQueryError("unknown", err, "")
 	}
 
-	// TODO: Determine if this should be in the same transaction as the service items (they get created even if this fails)
+	// Once the service item is successfuly created, the Move's status needs to
+	// be updated to 'Approvals Requested' if it's not already in that state,
+	// which will let the TOO know they need to review it.
 	if move.Status != models.MoveStatusAPPROVALSREQUESTED {
-		err := move.SetApprovalsRequested()
-		if err != nil {
-			return nil, nil, services.NewConflictError(move.ID, err.Error())
-		}
+		// We're not checking for an error here because this will only error if
+		// the move's status is not 'Approved', and it's not possible for a Move
+		// that's not 'Approved' to get to this line of code because at the
+		// beginning of this function, we only allow moves with status 'Approved'
+		// or 'Approvals Requested'.
+		move.SetApprovalsRequested()
+
 		verrs, err := o.builder.UpdateOne(&move, nil)
 		if verrs != nil || err != nil {
 			return nil, verrs, err

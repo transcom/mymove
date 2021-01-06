@@ -93,10 +93,11 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
 	}
 
-	// If there are no service items that are SUBMITTED then we need to change the move status to MOVE APPROVED
+	// If there are no service items that are SUBMITTED then we need to change
+	// the move status to APPROVED
 	moveShouldBeMoveApproved := true
 	for _, mtoServiceItem := range move.MTOServiceItems {
-		if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
+		if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted || status == models.MTOServiceItemStatusSubmitted {
 			moveShouldBeMoveApproved = false
 			break
 		}
@@ -118,8 +119,10 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 			}
 		}
 	}
-	// If we didn't set to MOVE APPROVED and we aren't already at APPROVALS REQUESTED we need to get there
-	if move.Status != models.MoveStatusAPPROVALSREQUESTED && move.Status != models.MoveStatusAPPROVED {
+	// If the move should not be APPROVED (due to one or more service items
+	// being in SUBMITTED status) then it needs to be set to APPROVALS REQUESTED
+	// so the TOO can review it.
+	if !moveShouldBeMoveApproved {
 		err = move.SetApprovalsRequested()
 		if err != nil {
 			return nil, err
