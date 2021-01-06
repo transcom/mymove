@@ -12,7 +12,7 @@ import (
 // MoveTaskOrderHider is the service object interface for Hide
 //go:generate mockery -name MoveTaskOrderHider
 type MoveTaskOrderHider interface {
-	Hide() (models.Moves, error)
+	Hide() (models.MoveTaskOrderIDs, error)
 }
 
 // MoveTaskOrderCreator is the service object interface for CreateMoveTaskOrder

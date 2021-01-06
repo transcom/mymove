@@ -149,7 +149,7 @@ func init() {
           "200": {
             "description": "Successfully hid MTOs.",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
+              "$ref": "#/definitions/MoveTaskOrderIDs"
             }
           },
           "400": {
@@ -1566,6 +1566,23 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
+      }
+    },
+    "MoveTaskOrderID": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "MoveTaskOrderIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {
@@ -2168,7 +2185,7 @@ func init() {
           "200": {
             "description": "Successfully hid MTOs.",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
+              "$ref": "#/definitions/MoveTaskOrderIDs"
             }
           },
           "400": {
@@ -3765,6 +3782,23 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
+      }
+    },
+    "MoveTaskOrderID": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "MoveTaskOrderIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {

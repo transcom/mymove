@@ -96,8 +96,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 		suite.NoError(err)
 
 		if suite.Len(result, 1) {
-			suite.Equal(result[0].ID, move.ID)
-			suite.Equal(result[0].Show, swag.Bool(false))
+			suite.Equal(result[0], move.ID)
 
 			// Check the database to make sure the move is truly hidden.
 			var savedMove models.Move

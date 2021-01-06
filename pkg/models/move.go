@@ -43,6 +43,12 @@ func (s SelectedMoveType) String() string {
 	return string(s)
 }
 
+// MoveTaskOrderID represents the type of move being represented
+type MoveTaskOrderID uuid.UUID
+
+// MoveTaskOrderIDs represednts the type of move being represented
+type MoveTaskOrderIDs []uuid.UUID
+
 // This lists available move types in the system
 // Combination move types like HHG+PPM should be added as an underscore separated list
 // The list should be lexigraphically sorted. Ex: UB + PPM will always be 'PPM_UB'
