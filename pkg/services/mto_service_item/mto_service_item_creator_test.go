@@ -66,7 +66,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() 
 		Move: move,
 	})
 
-	serviceItemForUnapprovedMTO := models.MTOServiceItem{
+	serviceItemForUnapprovedMove := models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
 		MoveTaskOrder:   move,
 		ReService:       reServiceDDFSIT,
@@ -74,7 +74,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() 
 		MTOShipment:     shipment,
 	}
 
-	return serviceItemForUnapprovedMTO
+	return serviceItemForUnapprovedMove
 }
 
 func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithValidMove() models.MTOServiceItem {
