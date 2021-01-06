@@ -902,6 +902,7 @@ webhook_client_start:
 	# More environment variables can be added here that correlate with the command line options for
 	# the webhook-client binary.
 	docker run \
+		-e GODEBUG=netdns=cgo+1 \
 		-e LOGGING_LEVEL=debug \
 		-e DB_HOST="host.docker.internal" \
 		-e DB_NAME \
@@ -909,7 +910,9 @@ webhook_client_start:
 		-e DB_USER \
 		-e DB_PASSWORD \
 		-e PERIOD \
-		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
+		--volume $(PWD):/code/ \
+		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest \
+		/bin/webhook-client post-webhook-notify --insecure --hostname primelocal --filename /code/pkg/testdatagen/testdata/webhook_test_data.json
 
 .PHONY: webhook_client_test
 webhook_client_test: db_test_e2e_populate webhook_client_test_standalone
