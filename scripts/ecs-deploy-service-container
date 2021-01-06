@@ -86,7 +86,7 @@ green_task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --environment "${environment}" \
   --image "${image}" \
   --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
-  --entrypoint "/bin/milmove serveasd" \
+  --entrypoint "/bin/milmove serve" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
   --register)
@@ -100,7 +100,7 @@ check_arn "$green_task_def_arn"
 if update_service "$green_task_def_arn"; then
     echo "Success."
     put_metric DeployCount "${cluster}"
-    exit 0
+    #exit 0
 fi
 echo "Service failed to stabilize!"
 put_metric DeployFail "${cluster}"
