@@ -14,12 +14,17 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatDateForSwagger } from 'shared/dates';
-import { loadPPMs, updatePPM, selectActivePPMForMove, selectPPMSitEstimate } from 'shared/Entities/modules/ppms';
+import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
 import { persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
 import { updatePPM as updatePPMInRedux, updatePPMSitEstimate } from 'store/entities/actions';
-import { selectServiceMemberFromLoggedInUser, selectCurrentMove, selectCurrentOrders } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentMove,
+  selectCurrentOrders,
+  selectPPMSitEstimate,
+} from 'store/entities/selectors';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 
 const sitEstimateDebounceTime = 300;

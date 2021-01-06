@@ -16,11 +16,15 @@ import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectPPMEstimateRange,
+} from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
 import { updatePPM, updatePPMEstimate } from 'store/entities/actions';
 import { calculatePPMEstimate, requestPayment } from 'services/internalApi';
-import { selectActivePPMForMove, loadPPMs, selectPPMEstimateRange } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 
 import DocumentsUploaded from './DocumentsUploaded';
 import { calcNetWeight } from '../utility';
@@ -209,8 +213,8 @@ const mapStateToProps = (state, props) => {
     },
     moveId,
     currentPPM: selectActivePPMForMove(state, moveId),
-    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
-    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
+    incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
     entitlement: loadEntitlementsFromState(state),
     orders: selectCurrentOrders(state) || {},

@@ -7,7 +7,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { loadPPMs, updatePPM, selectActivePPMForMove, selectPPMEstimateRange } from 'shared/Entities/modules/ppms';
+import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
@@ -22,7 +22,12 @@ import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
 import { updatePPMEstimate, updatePPM as updatePPMInRedux } from 'store/entities/actions';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectCurrentMove,
+  selectPPMEstimateRange,
+} from 'store/entities/selectors';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -423,8 +428,8 @@ function mapStateToProps(state) {
   const props = {
     ...state.ppm,
     serviceMemberId,
-    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
-    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
+    incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     currentPPM: selectActivePPMForMove(state, moveID),
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
