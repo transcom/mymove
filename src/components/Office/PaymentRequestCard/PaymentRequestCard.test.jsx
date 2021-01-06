@@ -109,6 +109,13 @@ describe('PaymentRequestCard', () => {
       expect(viewLink.contains('View orders')).toBe(true);
       expect(viewLink.prop('href')).toBe('orders');
     });
+
+    it('renders request details toggle drawer after click', () => {
+      const showRequestDetailsButton = wrapper.find('button[data-testid="showRequestDetailsButton"]');
+      showRequestDetailsButton.simulate('click');
+
+      expect(wrapper.find('[data-testid="toggleDrawer"]').length).toBe(1);
+    });
   });
 
   describe('reviewed payment request', () => {

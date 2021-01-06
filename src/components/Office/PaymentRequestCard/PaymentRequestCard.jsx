@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
@@ -127,23 +127,23 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
             </a>
           )}
           <div className={styles.toggleDrawer}>
-            <Button type="button" unstyled onClick={handleToggleDetails}>
+            <Button data-testid="showRequestDetailsButton" type="button" unstyled onClick={handleToggleDetails}>
               <FontAwesomeIcon icon={showDetailsChevron} /> Show request details
             </Button>
           </div>
         </div>
       </div>
       {showDetails && (
-        <div className={styles.drawer}>
+        <div data-testid="toggleDrawer" className={styles.drawer}>
           {paymentRequest.serviceItems.map((serviceItem) => (
-            <>
+            <Fragment key={serviceItem.id}>
               <br />
               {serviceItem.mtoServiceItemName}
               <br />
               {toDollarString(serviceItem.priceCents)}
               <br />
               {serviceItem.status}
-            </>
+            </Fragment>
           ))}
         </div>
       )}
