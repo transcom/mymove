@@ -1513,7 +1513,8 @@ func init() {
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
@@ -3718,7 +3719,8 @@ func init() {
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",

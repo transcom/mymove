@@ -1029,6 +1029,7 @@ definitions:
       isCanceled:
         type: boolean
         x-nullable: true
+        readOnly: true
         description: Indicated this MoveTaskOrder has been canceled.
       contractorID:
         type: string
