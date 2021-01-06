@@ -903,13 +903,12 @@ webhook_client_start:
 	# the webhook-client binary.
 	docker run \
 		-e LOGGING_LEVEL=debug \
-		-e DB_HOST="database" \
+		-e DB_HOST="host.docker.internal" \
 		-e DB_NAME \
 		-e DB_PORT \
 		-e DB_USER \
 		-e DB_PASSWORD \
 		-e PERIOD \
-		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
 
 .PHONY: webhook_client_test
