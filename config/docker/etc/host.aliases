@@ -1,0 +1,5 @@
+adminlocal host.docker.internal
+milmovelocal host.docker.internal
+officelocal host.docker.internal
+orderslocal host.docker.internal
+primelocal host.docker.internal

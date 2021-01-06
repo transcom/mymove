@@ -17,7 +17,7 @@ RUN make bin/webhook-client
 # FINAL #
 #########
 
-FROM gcr.io/distroless/static:latest
+FROM gcr.io/distroless/base:latest
 
 # mTLS authentication self-signed certificate for use in development and test environments.
 COPY --from=builder --chown=root:root /home/circleci/project/config/tls/devlocal-mtls.cer /config/tls/devlocal-mtls.cer
@@ -28,5 +28,9 @@ COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-us-gov-w
 
 # The main webhook-client binary.
 COPY --from=builder --chown=root:root /home/circleci/project/bin/webhook-client /bin/webhook-client
+
+# Create and use a host alias file for local development.
+ENV HOSTALIASES=/etc/host.aliases
+COPY --from=builder --chown=root:root /home/circleci/project/config/docker/etc/host.aliases /etc/host.aliases
 
 CMD ["/bin/webhook-client", "db-webhook-notify"]
