@@ -14,11 +14,11 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatDateForSwagger } from 'shared/dates';
-import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
-import { persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
-import { updatePPM as updatePPMInRedux, updatePPMSitEstimate } from 'store/entities/actions';
+import { patchPPM, persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
+import { updatePPM, updatePPMSitEstimate } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentMove,
@@ -110,37 +110,46 @@ EditDateAndLocationForm = reduxForm({ form: editDateAndLocationFormName, enableR
 
 class EditDateAndLocation extends Component {
   handleSubmit = () => {
-    const pendingValues = Object.assign({}, this.props.formValues);
+    const pendingValues = { ...this.props.formValues };
     if (pendingValues) {
+      pendingValues.id = this.props.currentPPM.id;
       pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
       pendingValues.has_sit = pendingValues.has_sit || false;
       if (!pendingValues.has_sit) {
         pendingValues.days_in_storage = null;
       }
+
+      pendingValues.original_move_date = formatDateForSwagger(pendingValues.original_move_date);
+      pendingValues.actual_move_date = formatDateForSwagger(pendingValues.actual_move_date);
+
       const moveId = this.props.match.params.moveId;
-      return this.props.updatePPM(moveId, this.props.currentPPM.id, pendingValues).then(({ response }) => {
-        persistPPMEstimate(moveId, response.body.id)
-          .then((response) => this.props.updatePPMInRedux(response))
-          .then(() => {
-            // This promise resolves regardless of error.
-            if (!this.props.hasSubmitError) {
-              this.props.editSuccessful();
-              this.props.history.goBack();
-            } else {
-              scrollToTop();
-            }
-          })
-          .catch((err) => {
-            // This promise resolves regardless of error.
-            if (!this.props.hasSubmitError) {
-              this.props.editSuccessful();
-              this.props.history.goBack();
-            } else {
-              scrollToTop();
-            }
-            return err;
-          });
-      });
+
+      return patchPPM(moveId, pendingValues)
+        .then((response) => {
+          this.props.updatePPM(response);
+          return response;
+        })
+        .then((response) => persistPPMEstimate(moveId, response.id))
+        .then((response) => this.props.updatePPM(response))
+        .then(() => {
+          // This promise resolves regardless of error.
+          if (!this.props.hasSubmitError) {
+            this.props.editSuccessful();
+            this.props.history.goBack();
+          } else {
+            scrollToTop();
+          }
+        })
+        .catch((err) => {
+          // This promise resolves regardless of error.
+          if (!this.props.hasSubmitError) {
+            this.props.editSuccessful();
+            this.props.history.goBack();
+          } else {
+            scrollToTop();
+          }
+          return err;
+        });
     }
   };
 
@@ -275,7 +284,6 @@ const mapDispatchToProps = {
   editBegin,
   editSuccessful,
   entitlementChangeBegin,
-  updatePPMInRedux,
   updatePPMSitEstimate,
 };
 

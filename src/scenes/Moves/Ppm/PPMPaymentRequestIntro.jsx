@@ -1,17 +1,21 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { get } from 'lodash';
+import { connect } from 'react-redux';
+import { reduxForm } from 'redux-form';
+
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import './PPMPaymentRequest.css';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { get } from 'lodash';
-import { withContext } from 'shared/AppContext';
-import { connect } from 'react-redux';
-import Alert from 'shared/Alert';
-import { reduxForm } from 'redux-form';
 import styles from './PPMPaymentRequestIntro.module.scss';
-import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-import { bindActionCreators } from 'redux';
+
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { formatDateForSwagger } from 'shared/dates';
+import { withContext } from 'shared/AppContext';
+import Alert from 'shared/Alert';
+import { loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { patchPPM } from 'services/internalApi';
+import { updatePPM } from 'store/entities/actions';
 
 class PPMPaymentRequestIntro extends Component {
   state = {
@@ -25,9 +29,10 @@ class PPMPaymentRequestIntro extends Component {
   updatePpmDate = (formValues) => {
     const { history, moveID, currentPPM } = this.props;
     if (formValues.actual_move_date && currentPPM) {
-      const updatedPPM = { ...currentPPM, actual_move_date: formValues.actual_move_date };
-      this.props
-        .updatePPM(moveID, updatedPPM.id, updatedPPM)
+      const updatedPPM = { ...currentPPM, actual_move_date: formatDateForSwagger(formValues.actual_move_date) };
+
+      patchPPM(moveID, updatedPPM)
+        .then((response) => this.props.updatePPM(response))
         .then(() => history.push(`/moves/${moveID}/ppm-weight-ticket`))
         .catch(() => {
           this.setState({ ppmUpdateError: true });
@@ -114,14 +119,9 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      loadPPMs,
-      updatePPM,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  loadPPMs,
+  updatePPM,
+};
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(PPMPaymentRequestIntro));

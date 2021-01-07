@@ -8,7 +8,7 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
@@ -20,8 +20,8 @@ import {
   selectCurrentMove,
   selectPPMEstimateRange,
 } from 'store/entities/selectors';
-import { calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
-import { updatePPM as updatePPMInRedux, updatePPMEstimate } from 'store/entities/actions';
+import { patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
+import { updatePPM, updatePPMEstimate } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
@@ -240,31 +240,33 @@ class EditWeight extends Component {
 
   updatePpm = (values, dispatch, props) => {
     const moveId = this.props.match.params.moveId;
-    return this.props
-      .updatePPM(moveId, this.props.currentPPM.id, {
-        weight_estimate: values.weight_estimate,
+    return patchPPM(moveId, {
+      id: this.props.currentPPM.id,
+      weight_estimate: values.weight_estimate,
+    })
+      .then((response) => {
+        this.props.updatePPM(response);
+        return response;
       })
-      .then(({ response }) => {
-        persistPPMEstimate(moveId, response.body.id)
-          .then((response) => this.props.updatePPMInRedux(response))
-          .then(() => {
-            if (!this.props.hasSubmitError) {
-              this.props.editSuccessful();
-              this.props.history.goBack();
-              this.props.checkEntitlement(moveId);
-            } else {
-              scrollToTop();
-            }
-          })
-          .catch(() => {
-            if (!this.props.hasSubmitError) {
-              this.props.editSuccessful();
-              this.props.history.goBack();
-              this.props.checkEntitlement(moveId);
-            } else {
-              scrollToTop();
-            }
-          });
+      .then((response) => persistPPMEstimate(moveId, response.id))
+      .then((response) => this.props.updatePPM(response))
+      .then(() => {
+        if (!this.props.hasSubmitError) {
+          this.props.editSuccessful();
+          this.props.history.goBack();
+          this.props.checkEntitlement(moveId);
+        } else {
+          scrollToTop();
+        }
+      })
+      .catch(() => {
+        if (!this.props.hasSubmitError) {
+          this.props.editSuccessful();
+          this.props.history.goBack();
+          this.props.checkEntitlement(moveId);
+        } else {
+          scrollToTop();
+        }
       });
   };
 
@@ -366,7 +368,6 @@ const mapDispatchToProps = {
   loadPPMs,
   fetchLatestOrders,
   updatePPM,
-  updatePPMInRedux,
   editBegin,
   editSuccessful,
   entitlementChangeBegin,
