@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -36,8 +35,6 @@ func Move(move *models.Move) *ghcmessages.Move {
 	if move == nil {
 		return nil
 	}
-	fmt.Printf("contractor: %v", move.Contractor)
-	fmt.Printf("contractorID: %v", move.ContractorID)
 
 	payload := &ghcmessages.Move{
 		ID:                 strfmt.UUID(move.ID.String()),

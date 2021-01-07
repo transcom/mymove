@@ -1632,7 +1632,7 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 			ID:            uuid.FromStringOrNil("cfd110d4-1f62-401c-a92c-39987a0b4228"),
 			MoveTaskOrder: move9,
 			IsFinal:       false,
-			Status:        models.PaymentRequestStatusReviewed,
+			Status:        models.PaymentRequestStatusPending,
 		},
 		Move: move9,
 	})

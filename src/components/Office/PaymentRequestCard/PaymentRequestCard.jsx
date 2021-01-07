@@ -9,7 +9,7 @@ import { HistoryShape } from '../../../types/router';
 
 import styles from './PaymentRequestCard.module.scss';
 
-import { formatDateWithoutDash, formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
+import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import { PaymentRequestShape } from 'types/index';
 
 const paymentRequestStatusLabel = (status) => {
@@ -90,7 +90,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
                   <div>
                     <h2>{toDollarString(formatCents(approvedAmount))}</h2>
                     <span>Accepted</span>
-                    <span> on {formatDateWithoutDash(paymentRequest.reviewedAt)}</span>
+                    <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
                   </div>
                 </div>
               )}
@@ -100,7 +100,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
                   <div>
                     <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
                     <span>Rejected</span>
-                    <span> on {formatDateWithoutDash(paymentRequest.reviewedAt)}</span>
+                    <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
                   </div>
                 </div>
               )}
