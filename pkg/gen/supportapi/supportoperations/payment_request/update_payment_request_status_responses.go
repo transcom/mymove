@@ -233,6 +233,50 @@ func (o *UpdatePaymentRequestStatusNotFound) WriteResponse(rw http.ResponseWrite
 	}
 }
 
+// UpdatePaymentRequestStatusConflictCode is the HTTP code returned for type UpdatePaymentRequestStatusConflict
+const UpdatePaymentRequestStatusConflictCode int = 409
+
+/*UpdatePaymentRequestStatusConflict There was a conflict with the request.
+
+swagger:response updatePaymentRequestStatusConflict
+*/
+type UpdatePaymentRequestStatusConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewUpdatePaymentRequestStatusConflict creates UpdatePaymentRequestStatusConflict with default headers values
+func NewUpdatePaymentRequestStatusConflict() *UpdatePaymentRequestStatusConflict {
+
+	return &UpdatePaymentRequestStatusConflict{}
+}
+
+// WithPayload adds the payload to the update payment request status conflict response
+func (o *UpdatePaymentRequestStatusConflict) WithPayload(payload *supportmessages.ClientError) *UpdatePaymentRequestStatusConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update payment request status conflict response
+func (o *UpdatePaymentRequestStatusConflict) SetPayload(payload *supportmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdatePaymentRequestStatusConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdatePaymentRequestStatusPreconditionFailedCode is the HTTP code returned for type UpdatePaymentRequestStatusPreconditionFailed
 const UpdatePaymentRequestStatusPreconditionFailedCode int = 412
 

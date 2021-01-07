@@ -220,7 +220,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		AvailableToPrimeAt: handlers.FmtDateTime(time.Now()),
 		PpmType:            "FULL",
 		ContractorID:       handlers.FmtUUID(contractor.ID),
-		IsCanceled:         swag.Bool(false),
 		MoveOrder: &supportmessages.MoveOrder{
 			Rank:                     (supportmessages.Rank)("E_6"),
 			OrderNumber:              swag.String("4554"),
@@ -255,7 +254,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		//             existing duty stations and existing uploaded orders document
 		// Expected outcome:
 		//             New MTO and orders are created. Customer data and duty station data are pulled in.
-		//			   isCanceled should be default value which is draft
+		//			   Status should be default value which is DRAFT
 
 		// We only provide an existing customerID not the whole object.
 		// We expect the handler to link the correct objects
@@ -302,8 +301,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// We only provide an existing customerID not the whole object.
 		mtoPayload.MoveOrder.CustomerID = handlers.FmtUUID(dbCustomer.ID)
 
-		// Set IsCanceled to true to set the Move's status to CANCELED
-		mtoPayload.IsCanceled = swag.Bool(true)
+		// Set the status to CANCELED
+		mtoPayload.Status = supportmessages.MoveStatusCANCELED
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,

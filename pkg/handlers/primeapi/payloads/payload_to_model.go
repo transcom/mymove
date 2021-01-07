@@ -98,6 +98,13 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		CustomerRemarks: mtoShipment.CustomerRemarks,
 	}
 
+	if mtoShipment.PrimeEstimatedWeight > 0 {
+		estimatedWeight := unit.Pound(mtoShipment.PrimeEstimatedWeight)
+		model.PrimeEstimatedWeight = &estimatedWeight
+		recordedDate := time.Now()
+		model.PrimeEstimatedWeightRecordedDate = &recordedDate
+	}
+
 	if mtoShipment.RequestedPickupDate != nil {
 		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
 	}

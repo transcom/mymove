@@ -308,6 +308,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -1027,6 +1029,7 @@ definitions:
       isCanceled:
         type: boolean
         x-nullable: true
+        readOnly: true
         description: Indicated this MoveTaskOrder has been canceled.
       contractorID:
         type: string
