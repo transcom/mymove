@@ -34,12 +34,12 @@ const (
 	VaultAWSProfileTranscomPPP string = "transcom-ppp"
 	// VaultAWSProfileTranscomComLegacy is the aws-vault profile name for transcom-com-legacy
 	VaultAWSProfileTranscomComLegacy string = "transcom-com-legacy"
-	// VaultAWSProfileTranscomGovExp is the aws-vault profile name for transcom-gov-exp
-	VaultAWSProfileTranscomGovExp string = "transcom-gov-exp"
-	// VaultAWSProfileTranscomGovStg is the aws-vault profile name for transcom-gov-stg
-	VaultAWSProfileTranscomGovStg string = "transcom-gov-stg"
-	// VaultAWSProfileTranscomGovPrd is the aws-vault profile name for transcom-gov-prd
-	VaultAWSProfileTranscomGovPrd string = "transcom-gov-prd"
+	// VaultAWSProfileTranscomGovExp is the aws-vault profile name for transcom-gov-milmove-exp
+	VaultAWSProfileTranscomGovExp string = "transcom-gov-milmove-exp"
+	// VaultAWSProfileTranscomGovStg is the aws-vault profile name for transcom-gov-milmove-stg
+	VaultAWSProfileTranscomGovStg string = "transcom-gov-milmove-stg"
+	// VaultAWSProfileTranscomGovPrd is the aws-vault profile name for transcom-gov-milmove-prd
+	VaultAWSProfileTranscomGovPrd string = "transcom-gov-milmove-prd"
 )
 
 type errInvalidKeychainName struct {
