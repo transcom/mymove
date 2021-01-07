@@ -23,10 +23,9 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrd
 }
 
 // MoveTaskOrderIDs payload
-func MoveTaskOrderIDs(moveTaskOrderIDs *models.MoveTaskOrderIDs) supportmessages.MoveTaskOrderIDs {
-	payload := make(supportmessages.MoveTaskOrderIDs, len(*moveTaskOrderIDs))
-	for i, m := range *moveTaskOrderIDs {
-		// #nosec G601 TODO needs review
+func MoveTaskOrderIDs(moveTaskOrderIDs []uuid.UUID) supportmessages.MoveTaskOrderIDs {
+	payload := make(supportmessages.MoveTaskOrderIDs, len(moveTaskOrderIDs))
+	for i, m := range moveTaskOrderIDs {
 		payload[i] = MoveTaskOrderID(m)
 	}
 	return payload
