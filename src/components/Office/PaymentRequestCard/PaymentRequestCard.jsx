@@ -33,7 +33,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
   let approvedAmount = 0;
   let rejectedAmount = 0;
 
-  const { sac, tac } = paymentRequest.moveTaskOrder.orders;
+  const { orders } = paymentRequest.moveTaskOrder;
   const { contractNumber } = paymentRequest.moveTaskOrder.contractor;
 
   if (paymentRequest.serviceItems) {
@@ -115,9 +115,9 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
             <dt>Contract Number:</dt>
             <dd>{contractNumber}</dd>
             <dt>TAC/MDC:</dt>
-            <dd>{tac}</dd>
+            <dd>{orders.tac}</dd>
             <dt>SAC/SDN:</dt>
-            <dd>{sac}</dd>
+            <dd>{orders.sac}</dd>
           </dl>
           {paymentRequest.status === 'PENDING' ? (
             <a href="orders">View orders</a>
