@@ -1,8 +1,8 @@
 import React from 'react';
-// TODO Future work adds more shipmentType indicators
-// import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 import PaymentRequestDetails from './PaymentRequestDetails';
+
+import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const reviewedPaymentRequest = {
   id: '29474c6a-69b6-4501-8e08-670a12512e5f',
@@ -16,7 +16,7 @@ const reviewedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       priceCents: 2000001,
-      status: 'APPROVED',
+      status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
       shipmentType: null,
       serviceItemName: 'Move management',
     },
@@ -25,7 +25,7 @@ const reviewedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       priceCents: 4000001,
-      status: 'DENIED',
+      status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
       rejectionReason: 'duplicate charge',
       shipmentType: null,
       serviceItemName: 'Counseling',
@@ -35,7 +35,7 @@ const reviewedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       priceCents: 4000001,
-      status: 'PENDING',
+      status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
       rejectionReason: 'duplicate charge',
       shipmentType: null,
       serviceItemName: 'Counseling',
@@ -45,7 +45,7 @@ const reviewedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       priceCents: 2000001,
-      status: 'APPROVED',
+      status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
       shipmentType: null,
       serviceItemName: 'Move management',
     },
@@ -54,7 +54,7 @@ const reviewedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       priceCents: 4000001,
-      status: 'DENIED',
+      status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
       rejectionReason: 'duplicate charge',
       shipmentType: null,
       serviceItemName: 'Counseling',
@@ -64,7 +64,7 @@ const reviewedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       priceCents: 4000001,
-      status: 'PENDING',
+      status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
       rejectionReason: 'duplicate charge',
       shipmentType: null,
       serviceItemName: 'Counseling',

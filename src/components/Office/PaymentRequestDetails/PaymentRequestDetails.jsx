@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './PaymentRequestDetails.module.scss';
 
+import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { formatCents, toDollarString } from 'shared/formatters';
 import { PaymentServiceItemShape } from 'types';
 
@@ -14,7 +15,9 @@ const PaymentRequestDetails = ({ serviceItems }) => {
         {/* TODO this div will become dynamic based on different shipment types */}
         <div className={styles.shipmentType}>
           <div className={styles.basicServiceType} />
-          <h3>Basic Service Items ({serviceItems.length} items)</h3>
+          <h3>
+            Basic Service Items ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
+          </h3>
         </div>
       </div>
       <table className="table--stacked">
@@ -31,26 +34,26 @@ const PaymentRequestDetails = ({ serviceItems }) => {
           </tr>
         </thead>
         <tbody>
-          {serviceItems.map((item, i) => {
+          {serviceItems.map((item) => {
             return (
               // eslint-disable-next-line react/no-array-index-key
-              <tr key={i}>
+              <tr key={item.id}>
                 <td>{item.mtoServiceItemName}</td>
                 <td>{toDollarString(formatCents(item.priceCents))}</td>
                 <td>
-                  {item.status === 'PENDING' && (
+                  {item.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
                     <div className={styles.needsReview}>
                       <FontAwesomeIcon icon="exclamation-circle" />
                       <span>Needs Review</span>
                     </div>
                   )}
-                  {item.status === 'APPROVED' && (
+                  {item.status === PAYMENT_SERVICE_ITEM_STATUS.APPROVED && (
                     <div className={styles.accepted}>
                       <FontAwesomeIcon icon="check" />
                       <span>Accepted</span>
                     </div>
                   )}
-                  {item.status === 'DENIED' && (
+                  {item.status === PAYMENT_SERVICE_ITEM_STATUS.DENIED && (
                     <div className={styles.rejected}>
                       <FontAwesomeIcon icon="times" />
                       <span>Rejected</span>
