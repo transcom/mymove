@@ -45,6 +45,24 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
 	}
 
+	var move models.Move
+	moveFilter := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", mtoServiceItem.MoveTaskOrderID),
+	}
+	err = p.builder.FetchOne(&move, moveFilter)
+	if err != nil {
+		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
+	}
+
+	// Service item status can only be updated if a Move's status is either Approved
+	// or Approvals Requested, so check and fail early.
+	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
+		return nil, services.NewConflictError(
+			move.ID,
+			fmt.Sprintf("Cannot update a service item on a move that is not currently approved. The current status for the move with ID %s is %s", move.ID, move.Status),
+		)
+	}
+
 	mtoServiceItem.Status = status
 	updatedAt := time.Now()
 	mtoServiceItem.UpdatedAt = updatedAt
@@ -84,10 +102,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		}
 	}
 
-	var move models.Move
-	moveFilter := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoServiceItem.MoveTaskOrderID),
-	}
+	// Fetch move again since its service item was updated above
 	err = p.builder.FetchOne(&move, moveFilter)
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")

@@ -269,20 +269,42 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	})
 }
 
-func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
-	builder := query.NewQueryBuilder(suite.DB())
-	updater := NewMTOServiceItemUpdater(builder)
+func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTOServiceItem, models.Move) {
 	move := testdatagen.MakeApprovalsRequestedMove(suite.DB())
 
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
+
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+	return eTag, serviceItem, move
+}
+
+func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (string, models.MTOServiceItem, models.Move) {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+
+	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+	return eTag, serviceItem, move
+}
+
+func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
+	builder := query.NewQueryBuilder(suite.DB())
+	updater := NewMTOServiceItemUpdater(builder)
+
 	rejectionReason := swag.String("")
 
 	// Test that the move's status changes to Approved when the service item's
 	// status is no longer SUBMITTED
 	suite.T().Run("When TOO reviews move and approves service item", func(t *testing.T) {
+		suite.DB().TruncateAll()
+		eTag, serviceItem, move := suite.createServiceItem()
+
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
 			serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
 
@@ -298,10 +320,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	// Test that the move's status changes to Approvals Requested if any of its service
 	// items' status is SUBMITTED
 	suite.T().Run("When move is approved and service item is submitted", func(t *testing.T) {
-		suite.DB().Find(&move, move.ID)
-		suite.Equal(models.MoveStatusAPPROVED, move.Status)
-
-		eTag = etag.GenerateEtag(serviceItem.UpdatedAt)
+		suite.DB().TruncateAll()
+		eTag, serviceItem, move := suite.createServiceItem()
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
 			serviceItem.ID, models.MTOServiceItemStatusSubmitted, rejectionReason, eTag)
@@ -313,7 +333,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Equal(models.MTOServiceItemStatusSubmitted, serviceItem.Status)
 		suite.Nil(serviceItem.RejectionReason)
 		suite.Nil(serviceItem.RejectedAt)
-		suite.NotNil(serviceItem.ApprovedAt)
+		suite.Nil(serviceItem.ApprovedAt)
 		suite.NotNil(updatedServiceItem)
 		suite.NoError(err)
 	})
@@ -321,11 +341,9 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	// Test that the move's status changes to Approved if the service item is
 	// rejected
 	suite.T().Run("When TOO reviews move and rejects service item", func(t *testing.T) {
-		suite.DB().Find(&move, move.ID)
-		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
-
-		eTag = etag.GenerateEtag(serviceItem.UpdatedAt)
-		rejectionReason := swag.String("incomplete")
+		suite.DB().TruncateAll()
+		eTag, serviceItem, move := suite.createServiceItem()
+		rejectionReason = swag.String("incomplete")
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
 			serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, eTag)
@@ -340,5 +358,25 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(serviceItem.ApprovedAt)
 		suite.NotNil(updatedServiceItem)
 		suite.NoError(err)
+	})
+
+	// Test that a service item's status can only be updated if the Move's status
+	// is either Approved or Approvals Requested. Neither the Move's status nor
+	// the service item's status should be changed if the requirements aren't met.
+	suite.T().Run("When the Move has not been approved yet", func(t *testing.T) {
+		suite.DB().TruncateAll()
+		eTag, serviceItem, move := suite.createServiceItemForUnapprovedMove()
+
+		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
+			serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+
+		suite.DB().Find(&move, move.ID)
+		suite.DB().Find(&serviceItem, serviceItem.ID)
+
+		suite.Equal(models.MoveStatusDRAFT, move.Status)
+		suite.Equal(models.MTOServiceItemStatusSubmitted, serviceItem.Status)
+		suite.Nil(updatedServiceItem)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Cannot update a service item on a move that is not currently approved")
 	})
 }
