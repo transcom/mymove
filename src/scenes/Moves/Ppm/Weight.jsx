@@ -22,6 +22,8 @@ import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
 import { updatePPMEstimate, updatePPM as updatePPMInRedux } from 'store/entities/actions';
+import { setPPMEstimateError } from 'store/onboarding/actions';
+import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -114,8 +116,13 @@ export class PpmWeight extends Component {
     calculatePPMEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight)
       .then((response) => {
         this.props.updatePPMEstimate(response);
+        this.props.setPPMEstimateError(null);
+        this.setState({ hasEstimateError: false });
       })
-      .catch(() => this.setState({ hasEstimateError: true }));
+      .catch((error) => {
+        this.props.setPPMEstimateError(error);
+        this.setState({ hasEstimateError: true });
+      });
   };
 
   handleSubmit = () => {
@@ -417,6 +424,7 @@ PpmWeight.propTypes = {
   hasLoadSuccess: PropTypes.bool.isRequired,
   currentPPM: PropTypes.object.isRequired,
 };
+
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const currentMove = selectCurrentMove(state);
@@ -427,6 +435,7 @@ function mapStateToProps(state) {
 
   const props = {
     ...state.ppm,
+    rateEngineError: selectPPMEstimateError(state),
     serviceMemberId,
     incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
@@ -448,6 +457,7 @@ const mapDispatchToProps = {
   fetchLatestOrders,
   updatePPMInRedux,
   updatePPMEstimate,
+  setPPMEstimateError,
 };
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(PpmWeight));

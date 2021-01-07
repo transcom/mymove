@@ -23,6 +23,7 @@ import {
 } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
 import { updatePPM, updatePPMEstimate } from 'store/entities/actions';
+import { setPPMEstimateError } from 'store/onboarding/actions';
 import { calculatePPMEstimate, requestPayment } from 'services/internalApi';
 import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 
@@ -57,7 +58,12 @@ class PaymentReview extends Component {
             originDutyStationZip,
             this.props.orders.id,
             netWeight,
-          ).then((response) => this.props.updatePPMEstimate(response));
+          )
+            .then((response) => {
+              this.props.updatePPMEstimate(response);
+              this.props.setPPMEstimateError(null);
+            })
+            .catch((error) => this.props.setPPMEstimateError(error));
         });
       }
     });
@@ -79,7 +85,12 @@ class PaymentReview extends Component {
             originDutyStationZip,
             this.props.orders.id,
             netWeight,
-          ).then((response) => this.props.updatePPMEstimate(response));
+          )
+            .then((response) => {
+              this.props.updatePPMEstimate(response);
+              this.props.setPPMEstimateError(null);
+            })
+            .catch((error) => this.props.setPPMEstimateError(error));
         });
       }
     }
@@ -228,6 +239,7 @@ const mapDispatchToProps = {
   updatePPM,
   updatePPMEstimate,
   setFlashMessage,
+  setPPMEstimateError,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentReview);

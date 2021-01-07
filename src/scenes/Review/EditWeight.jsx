@@ -22,6 +22,8 @@ import {
 } from 'store/entities/selectors';
 import { calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
 import { updatePPM as updatePPMInRedux, updatePPMEstimate } from 'store/entities/actions';
+import { setPPMEstimateError } from 'store/onboarding/actions';
+import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
@@ -209,9 +211,14 @@ class EditWeight extends Component {
   }
 
   handleWeightChange = (moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) => {
-    calculatePPMEstimate(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate).then((response) => {
-      this.props.updatePPMEstimate(response);
-    });
+    calculatePPMEstimate(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate)
+      .then((response) => {
+        this.props.updatePPMEstimate(response);
+        this.props.setPPMEstimateError(null);
+      })
+      .catch((error) => {
+        this.props.setPPMEstimateError(error);
+      });
   };
 
   debouncedHandleWeightChange = debounce(this.handleWeightChange, weightEstimateDebounce);
@@ -350,6 +357,7 @@ function mapStateToProps(state) {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
     orders: selectCurrentOrders(state) || {},
+    rateEngineError: selectPPMEstimateError(state),
   };
 }
 
@@ -364,6 +372,7 @@ const mapDispatchToProps = {
   entitlementChangeBegin,
   checkEntitlement,
   updatePPMEstimate,
+  setPPMEstimateError,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditWeight);

@@ -15,6 +15,7 @@ import SubmittedPpmMoveSummary from 'scenes/PpmLanding/MoveSummary/SubmittedPpmM
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { calculatePPMEstimate } from 'services/internalApi';
 import { updatePPMEstimate } from 'store/entities/actions';
+import { setPPMEstimateError } from 'store/onboarding/actions';
 
 import './PpmSummary.css';
 
@@ -81,8 +82,15 @@ export class PpmSummaryComponent extends React.Component {
             this.props.orders.id,
             netWeight,
           )
-            .then((response) => this.props.updatePPMEstimate(response))
-            .catch((err) => this.setState({ hasEstimateError: true }));
+            .then((response) => {
+              this.props.updatePPMEstimate(response);
+              this.props.setPPMEstimateError(null);
+            })
+            .catch((err) => {
+              this.props.setPPMEstimateError(err);
+              this.setState({ hasEstimateError: true });
+            });
+
           this.setState({ netWeight: netWeight });
         }
       });
@@ -182,6 +190,7 @@ function mapStateToProps(state, ownProps) {
 const mapDispatchToProps = {
   getMoveDocumentsForMove,
   updatePPMEstimate,
+  setPPMEstimateError,
 };
 
 export const PpmSummary = connect(mapStateToProps, mapDispatchToProps)(PpmSummaryComponent);

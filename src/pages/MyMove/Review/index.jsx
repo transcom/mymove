@@ -11,6 +11,7 @@ import ConnectedWizardPage from 'shared/WizardPage/index';
 import ConnectedSummary from 'components/Customer/Review/Summary/index';
 import 'scenes/Review/Review.css';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
 class Review extends Component {
   componentDidMount() {
@@ -55,19 +56,20 @@ Review.propTypes = {
 
 const mapStateToProps = (state, ownProps) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const ppmEstimateError = selectPPMEstimateError(state);
 
   const ppmEstimate = {
-    hasEstimateError: state.ppm.hasEstimateError,
+    hasEstimateError: !!ppmEstimateError,
     hasEstimateSuccess: state.ppm.hasEstimateSuccess,
     hasEstimateInProgress: state.ppm.hasEstimateInProgress,
-    rateEngineError: state.ppm.rateEngineError || null,
+    rateEngineError: ppmEstimateError,
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
   };
 
   return {
     ...ownProps,
     ppmEstimate,
-    canMoveNext: !hasShortHaulError(ppmEstimate.rateEngineError),
+    canMoveNext: !hasShortHaulError(ppmEstimateError),
   };
 };
 
