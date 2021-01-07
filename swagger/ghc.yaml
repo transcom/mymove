@@ -1399,7 +1399,6 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
   Contractor:
-    type: object
     properties:
       contractNumber:
         type: string
@@ -1407,6 +1406,8 @@ definitions:
         format: uuid
         type: string
       name:
+        type: string
+      type:
         type: string
   Customer:
     type: object

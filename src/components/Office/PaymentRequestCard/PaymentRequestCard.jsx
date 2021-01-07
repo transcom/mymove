@@ -33,6 +33,9 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
   let approvedAmount = 0;
   let rejectedAmount = 0;
 
+  const { sac, tac } = paymentRequest.moveTaskOrder.orders;
+  const { contractNumber } = paymentRequest.moveTaskOrder.contractor;
+
   if (paymentRequest.serviceItems) {
     paymentRequest.serviceItems.forEach((item) => {
       requestedAmount += item.priceCents;
@@ -110,11 +113,11 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
         <div className={styles.footer}>
           <dl>
             <dt>Contract Number:</dt>
-            <dd>HTC711-20-D-RO30</dd>
+            <dd>{contractNumber}</dd>
             <dt>TAC/MDC:</dt>
-            <dd>{paymentRequest.moveTaskOrder.orders.tac}</dd>
+            <dd>{tac}</dd>
             <dt>SAC/SDN:</dt>
-            <dd>{paymentRequest.moveTaskOrder.orders.sac}</dd>
+            <dd>{sac}</dd>
           </dl>
           {paymentRequest.status === 'PENDING' ? (
             <a href="orders">View orders</a>

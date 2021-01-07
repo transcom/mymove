@@ -2037,7 +2037,6 @@ func init() {
       }
     },
     "Contractor": {
-      "type": "object",
       "properties": {
         "contractNumber": {
           "type": "string"
@@ -2047,6 +2046,9 @@ func init() {
           "format": "uuid"
         },
         "name": {
+          "type": "string"
+        },
+        "type": {
           "type": "string"
         }
       }
@@ -6136,7 +6138,6 @@ func init() {
       }
     },
     "Contractor": {
-      "type": "object",
       "properties": {
         "contractNumber": {
           "type": "string"
@@ -6146,6 +6147,9 @@ func init() {
           "format": "uuid"
         },
         "name": {
+          "type": "string"
+        },
+        "type": {
           "type": "string"
         }
       }

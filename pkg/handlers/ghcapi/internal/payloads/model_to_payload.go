@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -24,6 +25,7 @@ func Contractor(contractor *models.Contractor) *ghcmessages.Contractor {
 		ID:             strfmt.UUID(contractor.ID.String()),
 		ContractNumber: contractor.ContractNumber,
 		Name:           contractor.Name,
+		Type:           contractor.Type,
 	}
 
 	return payload
@@ -34,12 +36,14 @@ func Move(move *models.Move) *ghcmessages.Move {
 	if move == nil {
 		return nil
 	}
+	fmt.Printf("contractor: %v", move.Contractor)
+	fmt.Printf("contractorID: %v", move.ContractorID)
 
 	payload := &ghcmessages.Move{
 		ID:                 strfmt.UUID(move.ID.String()),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
 		ContractorID:       handlers.FmtUUIDPtr(move.ContractorID),
-		Contractor:         Contractor(&move.Contractor),
+		Contractor:         Contractor(move.Contractor),
 		Locator:            move.Locator,
 		OrdersID:           strfmt.UUID(move.OrdersID.String()),
 		Orders:             MoveOrder(&move.Orders),
