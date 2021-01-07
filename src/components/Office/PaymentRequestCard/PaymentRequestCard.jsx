@@ -33,8 +33,13 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
   let approvedAmount = 0;
   let rejectedAmount = 0;
 
-  const { orders } = paymentRequest.moveTaskOrder;
-  const { contractNumber } = paymentRequest.moveTaskOrder.contractor;
+  let orders;
+  let contractNumber;
+
+  if (paymentRequest.moveTaskOrder) {
+    orders = paymentRequest.moveTaskOrder.orders;
+    contractNumber = paymentRequest.moveTaskOrder.contractor.contractNumber;
+  }
 
   if (paymentRequest.serviceItems) {
     paymentRequest.serviceItems.forEach((item) => {
