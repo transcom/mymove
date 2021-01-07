@@ -1,4 +1,5 @@
 import React from 'react';
+import { PropTypes } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { PaymentServiceItemShape } from '../../../types/index';
@@ -41,7 +42,7 @@ const PaymentRequestDetails = ({ serviceItems }) => {
                 <td>{item.serviceItemName}</td>
                 <td>{toDollarString(formatCents(item.priceCents))}</td>
                 <td>
-                  {item.status === PAYMENT_SERVICE_ITEM_STATUS.PENDING && (
+                  {item.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
                     <div className={styles.needsReview}>
                       <FontAwesomeIcon icon="exclamation-circle" />
                       <span>Needs Review</span>
@@ -70,7 +71,7 @@ const PaymentRequestDetails = ({ serviceItems }) => {
 };
 
 PaymentRequestDetails.propTypes = {
-  serviceItems: PaymentServiceItemShape.isRequired,
+  serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
 };
 
 export default PaymentRequestDetails;
