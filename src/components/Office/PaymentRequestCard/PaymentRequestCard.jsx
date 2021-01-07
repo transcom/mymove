@@ -5,12 +5,12 @@ import { Button, Tag } from '@trussworks/react-uswds';
 import { withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { HistoryShape } from '../../../types/router';
-
 import styles from './PaymentRequestCard.module.scss';
 
-import { PaymentRequestShape } from 'types/index';
+import { HistoryShape } from 'types/router';
+import { PaymentRequestShape } from 'types';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
+import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -135,16 +135,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
       </div>
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
-          {paymentRequest.serviceItems.map((serviceItem) => (
-            <Fragment key={serviceItem.id}>
-              <br />
-              {serviceItem.mtoServiceItemName}
-              <br />
-              {toDollarString(serviceItem.priceCents)}
-              <br />
-              {serviceItem.status}
-            </Fragment>
-          ))}
+          <PaymentRequestDetails serviceItems={paymentRequest.serviceItems} />
         </div>
       )}
     </div>

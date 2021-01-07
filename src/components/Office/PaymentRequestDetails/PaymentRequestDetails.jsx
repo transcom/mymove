@@ -2,11 +2,10 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { ShipmentOptionsOneOf } from '../../../types/shipment';
-
 import styles from './PaymentRequestDetails.module.scss';
 
 import { formatCents, toDollarString } from 'shared/formatters';
+import { PaymentServiceItemShape } from 'types';
 
 const PaymentRequestDetails = ({ serviceItems }) => {
   return (
@@ -36,7 +35,7 @@ const PaymentRequestDetails = ({ serviceItems }) => {
             return (
               // eslint-disable-next-line react/no-array-index-key
               <tr key={i}>
-                <td>{item.serviceItemName}</td>
+                <td>{item.mtoServiceItemName}</td>
                 <td>{toDollarString(formatCents(item.priceCents))}</td>
                 <td>
                   {item.status === 'PENDING' && (
@@ -68,16 +67,7 @@ const PaymentRequestDetails = ({ serviceItems }) => {
 };
 
 PaymentRequestDetails.propTypes = {
-  serviceItems: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      createAt: PropTypes.string,
-      mtoServiceItemID: PropTypes.string,
-      priceCents: PropTypes.number,
-      status: PropTypes.string,
-      shipmentType: ShipmentOptionsOneOf,
-    }),
-  ).isRequired,
+  serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
 };
 
 export default PaymentRequestDetails;
