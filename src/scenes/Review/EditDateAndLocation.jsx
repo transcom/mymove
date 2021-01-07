@@ -14,11 +14,11 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatDateForSwagger } from 'shared/dates';
-import { loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
-import { patchPPM, persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
-import { updatePPM, updatePPMSitEstimate } from 'store/entities/actions';
+import { getPPMsForMove, patchPPM, persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
+import { updatePPMs, updatePPM, updatePPMSitEstimate } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentMove,
@@ -182,7 +182,7 @@ class EditDateAndLocation extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
-    this.props.loadPPMs(this.props.match.params.moveId);
+    getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
     scrollToTop();
   }
 
@@ -280,7 +280,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   push,
   updatePPM,
-  loadPPMs,
+  updatePPMs,
   editBegin,
   editSuccessful,
   entitlementChangeBegin,

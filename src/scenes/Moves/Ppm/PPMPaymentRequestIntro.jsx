@@ -13,9 +13,9 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatDateForSwagger } from 'shared/dates';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
-import { loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-import { patchPPM } from 'services/internalApi';
-import { updatePPM } from 'store/entities/actions';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { getPPMsForMove, patchPPM } from 'services/internalApi';
+import { updatePPMs, updatePPM } from 'store/entities/actions';
 
 class PPMPaymentRequestIntro extends Component {
   state = {
@@ -23,7 +23,7 @@ class PPMPaymentRequestIntro extends Component {
   };
 
   componentDidMount() {
-    this.props.loadPPMs(this.props.moveID);
+    getPPMsForMove(this.props.moveID).then((response) => this.props.updatePPMs(response));
   }
 
   updatePpmDate = (formValues) => {
@@ -120,8 +120,8 @@ function mapStateToProps(state, ownProps) {
 }
 
 const mapDispatchToProps = {
-  loadPPMs,
   updatePPM,
+  updatePPMs,
 };
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(PPMPaymentRequestIntro));

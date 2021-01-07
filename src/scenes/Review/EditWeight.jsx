@@ -8,7 +8,7 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
@@ -20,8 +20,8 @@ import {
   selectCurrentMove,
   selectPPMEstimateRange,
 } from 'store/entities/selectors';
-import { patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
-import { updatePPM, updatePPMEstimate } from 'store/entities/actions';
+import { getPPMsForMove, patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
+import { updatePPMs, updatePPM, updatePPMEstimate } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
@@ -205,7 +205,7 @@ class EditWeight extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
-    this.props.loadPPMs(this.props.match.params.moveId);
+    getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
     scrollToTop();
   }
@@ -365,9 +365,9 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   push,
-  loadPPMs,
   fetchLatestOrders,
   updatePPM,
+  updatePPMs,
   editBegin,
   editSuccessful,
   entitlementChangeBegin,

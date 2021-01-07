@@ -7,7 +7,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
@@ -20,8 +20,8 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
-import { updatePPMEstimate, updatePPM } from 'store/entities/actions';
+import { getPPMsForMove, patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
+import { updatePPMs, updatePPMEstimate, updatePPM } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import {
@@ -64,7 +64,7 @@ export class PpmWeight extends Component {
   componentDidMount() {
     const { currentPPM } = this.props;
     const moveId = this.props.match.params.moveId;
-    this.props.loadPPMs(moveId);
+    getPPMsForMove(moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
 
     if (currentPPM) {
@@ -457,8 +457,8 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  loadPPMs,
   updatePPM,
+  updatePPMs,
   updatePPMEstimate,
   fetchLatestOrders,
   setPPMEstimateError,

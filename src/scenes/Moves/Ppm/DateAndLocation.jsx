@@ -9,13 +9,13 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatDateForSwagger } from 'shared/dates';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { createPPMForMove, patchPPM, persistPPMEstimate } from 'services/internalApi';
-import { updatePPM } from 'store/entities/actions';
+import { getPPMsForMove, createPPMForMove, patchPPM, persistPPMEstimate } from 'services/internalApi';
+import { updatePPMs, updatePPM } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
 
 import './DateAndLocation.css';
@@ -72,7 +72,8 @@ const validateDifferentZip = (value, formValues) => {
 export class DateAndLocation extends Component {
   componentDidMount() {
     const moveId = this.props.match.params.moveId;
-    this.props.loadPPMs(moveId);
+    getPPMsForMove(moveId).then((response) => this.props.updatePPMs(response));
+
     this.props.fetchLatestOrders(this.props.serviceMemberId);
   }
 
@@ -244,7 +245,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  loadPPMs,
+  updatePPMs,
   updatePPM,
   fetchLatestOrders,
 };
