@@ -363,6 +363,7 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 		ID:                 *handlers.FmtUUID(ps.ID),
 		MtoServiceItemID:   *handlers.FmtUUID(ps.MTOServiceItemID),
 		MtoServiceItemName: ps.MTOServiceItem.ReService.Name,
+		MtoShipmentType:    ghcmessages.MTOShipmentType(ps.MTOServiceItem.MTOShipment.ShipmentType),
 		CreatedAt:          strfmt.DateTime(ps.CreatedAt),
 		PriceCents:         handlers.FmtCost(ps.PriceCents),
 		RejectionReason:    ps.RejectionReason,

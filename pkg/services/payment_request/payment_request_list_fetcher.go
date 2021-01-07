@@ -127,7 +127,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID u
 
 	paymentRequests := models.PaymentRequests{}
 
-	query := f.db.Q().Eager("PaymentServiceItems.MTOServiceItem.ReService").
+	query := f.db.Q().Eager("PaymentServiceItems.MTOServiceItem.ReService", "PaymentServiceItems.MTOServiceItem.MTOShipment").
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
