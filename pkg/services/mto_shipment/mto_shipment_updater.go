@@ -491,6 +491,19 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	shipment.Status = status
 	shipment.RejectionReason = rejectionReason
 
+	// When a shipment is approved, service items automatically get created, but
+	// service items can only be created if a Move's status is either Approved
+	// or Approvals Requested, so check and fail early.
+	if shipment.Status == models.MTOShipmentStatusApproved {
+		move := shipment.MoveTaskOrder
+		if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
+			return nil, services.NewConflictError(
+				move.ID,
+				fmt.Sprintf("Cannot approve a shipment if the move isn't approved. The current status for the move with ID %s is %s", move.ID, move.Status),
+			)
+		}
+	}
+
 	if shipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Now()
 		shipment.ApprovedDate = &approvedDate
