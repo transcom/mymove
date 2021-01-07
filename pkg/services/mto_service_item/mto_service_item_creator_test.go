@@ -47,21 +47,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() 
 	// service items can only be created if a Move's status is Approved or
 	// Approvals Requested
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDASIT,
-		},
-	})
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDDSIT,
-		},
-	})
-	reServiceDDFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDFSIT,
-		},
-	})
+	reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
@@ -87,22 +73,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithValidMove() mo
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDASIT,
-		},
-	})
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDDSIT,
-		},
-	})
-	reServiceDDFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDDFSIT,
-		},
-	})
+	reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
@@ -126,14 +97,16 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 	creator := NewMTOServiceItemCreator(builder)
 	serviceItemForUnapprovedMove := suite.buildValidServiceItemWithInvalidMove()
 
-	createdServiceItem, _, err := creator.CreateMTOServiceItem(&serviceItemForUnapprovedMove)
+	createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemForUnapprovedMove)
 
-	suite.DB().Find(&serviceItemForUnapprovedMove, serviceItemForUnapprovedMove.ID)
 	move := serviceItemForUnapprovedMove.MoveTaskOrder
 	suite.DB().Find(&move, move.ID)
 
-	suite.Nil(createdServiceItem)
-	suite.Zero(serviceItemForUnapprovedMove.ID)
+	var serviceItem models.MTOServiceItem
+	suite.DB().Where("move_id = ?", move.ID).First(&serviceItem)
+
+	suite.Nil(createdServiceItems)
+	suite.Zero(serviceItem.ID)
 	suite.Error(err)
 	suite.Contains(err.Error(), "Cannot create service items before a move has been approved")
 	suite.Equal(models.MoveStatusDRAFT, move.Status)
@@ -147,16 +120,16 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 	// Happy path: If the service item is created successfully it should be returned
 	suite.T().Run("success", func(t *testing.T) {
-		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(&serviceItem)
+		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(&serviceItem)
 
 		move := serviceItem.MoveTaskOrder
 		suite.DB().Find(&move, move.ID)
 
 		suite.NoError(err)
 		suite.Nil(verrs)
-		suite.NotNil(createdServiceItem)
+		suite.NotNil(createdServiceItems)
 
-		createdServiceItemList := *createdServiceItem
+		createdServiceItemList := *createdServiceItems
 		suite.Equal(len(createdServiceItemList), 3)
 		suite.NotEmpty(createdServiceItemList[2].Dimensions)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
@@ -194,9 +167,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			createNewBuilder: fakeCreateNewBuilder,
 		}
 
-		createdServiceItem, verrs, _ := creator.CreateMTOServiceItem(&serviceItem)
+		createdServiceItems, verrs, _ := creator.CreateMTOServiceItem(&serviceItem)
 		suite.Error(verrs)
-		suite.Nil(createdServiceItem)
+		suite.Nil(createdServiceItems)
 	})
 
 	// Should return a "NotFoundError" if the MTO ID is nil
@@ -206,8 +179,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			MoveTaskOrderID: notFoundID,
 		}
 
-		createdServiceItemNoMTO, _, err := creator.CreateMTOServiceItem(&serviceItemNoMTO)
-		suite.Nil(createdServiceItemNoMTO)
+		createdServiceItemsNoMTO, _, err := creator.CreateMTOServiceItem(&serviceItemNoMTO)
+		suite.Nil(createdServiceItemsNoMTO)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 		suite.Contains(err.Error(), notFoundID.String())
@@ -224,8 +197,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		}
 
-		createdServiceItemBadCode, _, err := creator.CreateMTOServiceItem(&serviceItemBadCode)
-		suite.Nil(createdServiceItemBadCode)
+		createdServiceItemsBadCode, _, err := creator.CreateMTOServiceItem(&serviceItemBadCode)
+		suite.Nil(createdServiceItemsBadCode)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 		suite.Contains(err.Error(), fakeCode)
@@ -245,11 +218,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reServiceCS,
 		}
 
-		createdServiceItemCS, _, err := creator.CreateMTOServiceItem(&serviceItemCS)
-		suite.NotNil(createdServiceItemCS)
+		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(&serviceItemCS)
+		suite.NotNil(createdServiceItemsCS)
 		suite.NoError(err)
 
-		createdServiceItemCSList := *createdServiceItemCS
+		createdServiceItemCSList := *createdServiceItemsCS
 		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 	})
 
@@ -270,8 +243,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reService,
 		}
 
-		createdServiceItemBadShip, _, err := creator.CreateMTOServiceItem(&serviceItemBadShip)
-		suite.Nil(createdServiceItemBadShip)
+		createdServiceItemsBadShip, _, err := creator.CreateMTOServiceItem(&serviceItemBadShip)
+		suite.Nil(createdServiceItemsBadShip)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 		suite.Contains(err.Error(), shipment.ID.String())
@@ -298,8 +271,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reService,
 		}
 
-		createdServiceItem, _, err := creator.CreateMTOServiceItem(&serviceItemNoWeight)
-		suite.Nil(createdServiceItem)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemNoWeight)
+		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 	})
