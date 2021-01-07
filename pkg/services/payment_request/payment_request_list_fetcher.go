@@ -125,6 +125,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID u
 
 	paymentRequests := models.PaymentRequests{}
 
+	// Replaced EagerPreload due to nullable fka on Contractor
 	query := f.db.Q().Eager("PaymentServiceItems", "MoveTaskOrder.Contractor", "MoveTaskOrder.Orders").
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
