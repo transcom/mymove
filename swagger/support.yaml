@@ -205,7 +205,7 @@ paths:
         '200':
           description: Successfully hid MTOs.
           schema:
-            $ref: '#/definitions/MoveTaskOrders'
+            $ref: '#/definitions/MoveTaskOrderIDs'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1075,6 +1075,14 @@ definitions:
         type: string
         example: ABC123
         readOnly: true
+  MoveTaskOrderID:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  MoveTaskOrderIDs:
+    items:
+      $ref: '#/definitions/MoveTaskOrderID'
+    type: array
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'

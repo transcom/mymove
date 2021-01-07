@@ -93,14 +93,14 @@ func NewHideNonFakeMoveTaskOrdersOK() *HideNonFakeMoveTaskOrdersOK {
 Successfully hid MTOs.
 */
 type HideNonFakeMoveTaskOrdersOK struct {
-	Payload supportmessages.MoveTaskOrders
+	Payload supportmessages.MoveTaskOrderIDs
 }
 
 func (o *HideNonFakeMoveTaskOrdersOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersOK  %+v", 200, o.Payload)
 }
 
-func (o *HideNonFakeMoveTaskOrdersOK) GetPayload() supportmessages.MoveTaskOrders {
+func (o *HideNonFakeMoveTaskOrdersOK) GetPayload() supportmessages.MoveTaskOrderIDs {
 	return o.Payload
 }
 

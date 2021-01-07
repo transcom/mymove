@@ -61,6 +61,7 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 	for i := range invalidFakeMoves {
 		// Take the address of the slice element to avoid implicit memory aliasing of items from a range statement.
 		mto := invalidFakeMoves[i]
+
 		verrs, updateErr := o.db.ValidateAndUpdate(&mto)
 		if verrs != nil && verrs.HasAny() {
 			return nil, services.NewInvalidInputError(mto.ID, err, verrs, "")
