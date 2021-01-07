@@ -144,12 +144,11 @@ class OrdersUploader extends Component {
     // If this component is unloaded quickly, this function can be called after the ref is deleted,
     // so check that the ref still exists before continuing
     if (!this.pond) {
-      return;
+      return false;
     }
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
     const isIdle = existingFiles.every((f) => idleStatuses.indexOf(f.status) > -1);
-    // eslint-disable-next-line consistent-return
     return isIdle;
   }
 
