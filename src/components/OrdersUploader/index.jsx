@@ -148,8 +148,7 @@ class OrdersUploader extends Component {
     }
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
-    const isIdle = existingFiles.every((f) => idleStatuses.indexOf(f.status) > -1);
-    return isIdle;
+    return existingFiles.every((f) => idleStatuses.indexOf(f.status) > -1);
   }
 
   clearFiles() {
