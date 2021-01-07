@@ -87,6 +87,7 @@ type Move struct {
 	Show                    *bool                   `json:"show" db:"show"`
 	AvailableToPrimeAt      *time.Time              `db:"available_to_prime_at"`
 	ContractorID            *uuid.UUID              `db:"contractor_id"`
+	Contractor              Contractor              `belongs_to:"contractors"`
 	PPMEstimatedWeight      *unit.Pound             `db:"ppm_estimated_weight"`
 	PPMType                 *string                 `db:"ppm_type"`
 	MTOServiceItems         MTOServiceItems         `has_many:"mto_service_items"`

@@ -2036,6 +2036,21 @@ func init() {
         }
       }
     },
+    "Contractor": {
+      "type": "object",
+      "properties": {
+        "contractNumber": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -2718,6 +2733,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "contractor": {
+          "$ref": "#/definitions/Contractor"
+        },
         "contractorId": {
           "type": "string",
           "format": "uuid",
@@ -2735,6 +2753,9 @@ func init() {
         "locator": {
           "type": "string",
           "example": "1K43AR"
+        },
+        "orders": {
+          "$ref": "#/definitions/MoveOrder"
         },
         "ordersId": {
           "type": "string",
@@ -3042,6 +3063,9 @@ func init() {
         "isFinal": {
           "type": "boolean",
           "default": false
+        },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -6111,6 +6135,21 @@ func init() {
         }
       }
     },
+    "Contractor": {
+      "type": "object",
+      "properties": {
+        "contractNumber": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -6793,6 +6832,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "contractor": {
+          "$ref": "#/definitions/Contractor"
+        },
         "contractorId": {
           "type": "string",
           "format": "uuid",
@@ -6810,6 +6852,9 @@ func init() {
         "locator": {
           "type": "string",
           "example": "1K43AR"
+        },
+        "orders": {
+          "$ref": "#/definitions/MoveOrder"
         },
         "ordersId": {
           "type": "string",
@@ -7117,6 +7162,9 @@ func init() {
         "isFinal": {
           "type": "boolean",
           "default": false
+        },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
         },
         "moveTaskOrderID": {
           "type": "string",

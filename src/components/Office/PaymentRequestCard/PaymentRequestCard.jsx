@@ -1,5 +1,4 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
@@ -10,8 +9,8 @@ import { HistoryShape } from '../../../types/router';
 
 import styles from './PaymentRequestCard.module.scss';
 
+import { formatDateWithoutDash, formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import { PaymentRequestShape } from 'types/index';
-import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -83,6 +82,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
                   <div>
                     <h2>{toDollarString(formatCents(approvedAmount))}</h2>
                     <span>Accepted</span>
+                    <span> on {formatDateWithoutDash(paymentRequest.reviewedAt)}</span>
                   </div>
                 </div>
               )}
@@ -92,6 +92,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
                   <div>
                     <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
                     <span>Rejected</span>
+                    <span> on {formatDateWithoutDash(paymentRequest.reviewedAt)}</span>
                   </div>
                 </div>
               )}
@@ -111,9 +112,9 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
             <dt>Contract Number:</dt>
             <dd>HTC711-20-D-RO30</dd>
             <dt>TAC/MDC:</dt>
-            <dd>1234</dd>
+            <dd>{paymentRequest.moveTaskOrder.orders.tac}</dd>
             <dt>SAC/SDN:</dt>
-            <dd>1234567890987654</dd>
+            <dd>{paymentRequest.moveTaskOrder.orders.sac}</dd>
           </dl>
           {paymentRequest.status === 'PENDING' ? (
             <a href="orders">View orders</a>
