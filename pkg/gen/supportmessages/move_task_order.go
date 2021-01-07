@@ -55,6 +55,7 @@ type MoveTaskOrder struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// Indicated this MoveTaskOrder has been canceled.
+	// Read Only: true
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
 	// Unique 6-character code the customer can use to refer to their move

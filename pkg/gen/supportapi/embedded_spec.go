@@ -559,6 +559,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -1510,7 +1513,8 @@ func init() {
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
@@ -2725,6 +2729,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "409": {
+            "description": "There was a conflict with the request.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
@@ -3709,7 +3719,8 @@ func init() {
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",

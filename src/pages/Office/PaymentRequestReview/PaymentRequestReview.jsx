@@ -16,7 +16,7 @@ import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 
 export const PaymentRequestReview = ({ history, match }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
-  const { paymentRequestId, moveOrderId } = match.params;
+  const { paymentRequestId, moveCode } = match.params;
   const {
     paymentRequest,
     paymentRequests,
@@ -92,7 +92,7 @@ export const PaymentRequestReview = ({ history, match }) => {
   };
 
   const handleClose = () => {
-    history.push(`/moves/${moveOrderId}/payment-requests`);
+    history.push(`/moves/${moveCode}/payment-requests`);
   };
 
   const serviceItemCards = paymentServiceItemsArr.map((item) => {

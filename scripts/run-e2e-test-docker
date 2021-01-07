@@ -162,10 +162,10 @@ docker logs -f ${CONTAINER_CYPRESS}
 docker stop ${CONTAINER}
 
 # Copy out the results
-docker cp ${CONTAINER_CYPRESS}:/cypress/results cypress/ 2>/dev/null || echo "No cypress results copied"
-docker cp ${CONTAINER_CYPRESS}:/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
-docker cp ${CONTAINER_CYPRESS}:/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
-docker cp ${CONTAINER_CYPRESS}:/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
+docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/results cypress/ 2>/dev/null || echo "No cypress results copied"
+docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
+docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
+docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
 
 # Grab the exit code from the test container
 EXIT_STATUS=$(docker inspect ${CONTAINER_CYPRESS} --format='{{.State.ExitCode}}')
