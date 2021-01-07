@@ -1991,6 +1991,8 @@ definitions:
       mtoServiceItemName:
         example: Shipment Mgmt. Services
         type: string
+      mtoShipmentType:
+        $ref: '#/definitions/MTOShipmentType'
       status:
         $ref: '#/definitions/PaymentServiceItemStatus'
       priceCents:
@@ -2225,6 +2227,18 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
+  MTOShipmentType:
+    type: string
+    title: Shipment Type
+    example: HHG
+    enum:
+      - HHG
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+    x-display-value:
+      HHG: HHG
+      INTERNATIONAL_HHG: International HHG
+      INTERNATIONAL_UB: International UB
   MTOShipment:
     properties:
       moveTaskOrderID:

@@ -2705,6 +2705,21 @@ func init() {
         }
       }
     },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
     "MTOShipments": {
       "type": "array",
       "items": {
@@ -3115,6 +3130,9 @@ func init() {
         "mtoServiceItemName": {
           "type": "string",
           "example": "Shipment Mgmt. Services"
+        },
+        "mtoShipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "paymentRequestID": {
           "type": "string",
@@ -6784,6 +6802,21 @@ func init() {
         }
       }
     },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
     "MTOShipments": {
       "type": "array",
       "items": {
@@ -7194,6 +7227,9 @@ func init() {
         "mtoServiceItemName": {
           "type": "string",
           "example": "Shipment Mgmt. Services"
+        },
+        "mtoShipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "paymentRequestID": {
           "type": "string",
