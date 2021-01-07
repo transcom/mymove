@@ -9,7 +9,7 @@ import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
-import { hasShortHaulError } from 'shared/incentive';
+import { hasShortHaulError } from 'utils/incentives';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 

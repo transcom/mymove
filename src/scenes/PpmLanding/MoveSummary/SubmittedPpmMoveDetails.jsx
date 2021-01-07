@@ -6,7 +6,7 @@ import styles from './PpmMoveDetails.module.scss';
 
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'shared/formatters';
-import { formatIncentiveRange } from 'shared/incentive';
+import { getIncentiveRange } from 'utils/incentives';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
@@ -20,7 +20,7 @@ const SubmittedPpmMoveDetails = (props) => {
   const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
   const currentPPMToUse = isEmpty(currentPPM) ? tempCurrentPPM : currentPPM;
-  const incentiveRange = formatIncentiveRange(currentPPMToUse, estimateRange);
+  const incentiveRange = getIncentiveRange(currentPPMToUse, estimateRange);
 
   const weightEstimate = currentPPMToUse.weight_estimate;
   return (

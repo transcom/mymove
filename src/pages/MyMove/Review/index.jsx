@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import styles from './Review.module.scss';
 
-import { hasShortHaulError } from 'shared/incentive';
+import { hasShortHaulError } from 'utils/incentives';
 import { no_op as noOp } from 'shared/utils';
 import scrollToTop from 'shared/scrollToTop';
 import ConnectedWizardPage from 'shared/WizardPage/index';

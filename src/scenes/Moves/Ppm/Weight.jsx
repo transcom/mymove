@@ -15,7 +15,7 @@ import 'react-rangeslider/lib/index.css';
 import styles from './Weight.module.scss';
 import { withContext } from 'shared/AppContext';
 import RangeSlider from 'shared/RangeSlider';
-import { hasShortHaulError } from 'shared/incentive';
+import { hasShortHaulError } from 'utils/incentives';
 import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
