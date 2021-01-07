@@ -140,6 +140,7 @@ class OrdersUploader extends Component {
     return this.state.files.length === 0;
   }
 
+  // TODO: Remove isIdle function- the onChange where it is called does not actually expect second argument
   isIdle() {
     // If this component is unloaded quickly, this function can be called after the ref is deleted,
     // so check that the ref still exists before continuing
