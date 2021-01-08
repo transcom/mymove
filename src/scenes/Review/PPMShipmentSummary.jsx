@@ -142,8 +142,6 @@ PPMShipmentSummary.propTypes = {
   movePath: string.isRequired,
   ppmEstimate: shape({
     hasEstimateError: bool.isRequired,
-    hasEstimateSuccess: bool.isRequired,
-    hasEstimateInProgress: bool.isRequired,
     rateEngineError: Error.isRequired,
     originDutyStationZip: string.isRequired,
     incentive_estimate_min: number,
@@ -166,8 +164,6 @@ function mapStateToProps(state, ownProps) {
     advance,
     ppmEstimate: {
       hasEstimateError: hasError,
-      hasEstimateSuccess: state.ppm.hasEstimateSuccess,
-      hasEstimateInProgress: state.ppm.hasEstimateInProgress,
       rateEngineError: ppmEstimateError,
       originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
       incentive_estimate_min,

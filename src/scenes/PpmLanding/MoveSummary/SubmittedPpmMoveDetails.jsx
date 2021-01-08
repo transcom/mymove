@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 
 import styles from './PpmMoveDetails.module.scss';
 
@@ -10,14 +9,17 @@ import { getIncentiveRange } from 'utils/incentives';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { selectCurrentPPM, selectPPMEstimateRange } from 'store/entities/selectors';
+import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
 const SubmittedPpmMoveDetails = (props) => {
-  const { advance, ppm, currentPPM, hasEstimateError, estimateRange } = props;
-  const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
-    ? `(up to ${ppm.estimated_storage_reimbursement})`
+  const { advance, currentPPM, hasEstimateError, estimateRange } = props;
+  const privateStorageString = currentPPM?.estimated_storage_reimbursement
+    ? `(up to ${currentPPM.estimated_storage_reimbursement})`
     : '';
-  const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
-  const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
+  const advanceString = currentPPM?.has_requested_advance
+    ? `Advance Requested: $${formatCents(advance.requested_amount)}`
+    : '';
+  const hasSitString = `Temp. Storage: ${currentPPM?.days_in_storage} days ${privateStorageString}`;
   const incentiveRange = getIncentiveRange(currentPPM, estimateRange);
 
   const weightEstimate = currentPPM?.weight_estimate;
@@ -27,7 +29,7 @@ const SubmittedPpmMoveDetails = (props) => {
       <div>Weight: {weightEstimate} lbs</div>
       <div>
         Payment:{' '}
-        {ppm.hasEstimateError || hasEstimateError ? (
+        {hasEstimateError ? (
           <>
             Not ready yet{' '}
             <IconWithTooltip
@@ -40,24 +42,25 @@ const SubmittedPpmMoveDetails = (props) => {
           incentiveRange
         )}
       </div>
-      {ppm.has_sit && <div>{hasSitString}</div>}
-      {ppm.has_requested_advance && <div>{advanceString}</div>}
+      {currentPPM?.has_sit && <div>{hasSitString}</div>}
+      {currentPPM?.has_requested_advance && <div>{advanceString}</div>}
     </div>
   );
 };
 
-const mapStateToProps = (state, ownProps) => {
-  const advance = selectReimbursement(state, ownProps.ppm.advance);
-  const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
+const mapStateToProps = (state) => {
+  const currentPPM = selectCurrentPPM(state) || {};
+  const advance = selectReimbursement(state, currentPPM?.advance);
+  const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, currentPPM?.move_id, [
     'WEIGHT_TICKET_SET',
   ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
 
   const props = {
-    currentPPM: selectCurrentPPM(state) || {},
-    ppm: get(state, 'ppm', {}),
+    currentPPM,
     advance,
     isMissingWeightTicketDocuments,
     estimateRange: selectPPMEstimateRange(state) || {},
+    hasEstimateError: selectPPMEstimateError(state),
   };
   return props;
 };

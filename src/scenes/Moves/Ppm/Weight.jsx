@@ -79,21 +79,6 @@ export class PpmWeight extends Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { currentPPM, hasLoadSuccess } = this.props;
-    if (!prevProps.hasLoadSuccess && hasLoadSuccess && currentPPM) {
-      this.setState(
-        {
-          pendingPpmWeight:
-            currentPPM.weight_estimate && currentPPM.weight_estimate !== 0
-              ? currentPPM.weight_estimate
-              : this.getDefaultWeightClassMedian(),
-        },
-        this.updateIncentive,
-      );
-    }
-  }
-
   // this method is used to set the incentive on page load
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
@@ -273,15 +258,7 @@ export class PpmWeight extends Component {
   }
 
   render() {
-    const {
-      incentiveEstimateMin,
-      incentiveEstimateMax,
-      pages,
-      pageKey,
-      hasEstimateInProgress,
-      error,
-      rateEngineError,
-    } = this.props;
+    const { incentiveEstimateMin, incentiveEstimateMax, pages, pageKey, error, rateEngineError } = this.props;
     const { includesProgear, isProgearMoreThan1000, hasEstimateError } = this.state;
 
     return (
@@ -291,7 +268,6 @@ export class PpmWeight extends Component {
         pageKey={pageKey}
         serverError={error}
         additionalValues={{
-          hasEstimateInProgress,
           incentiveEstimateMax,
         }}
         readyToSubmit={!hasShortHaulError(rateEngineError)}
@@ -415,7 +391,6 @@ PpmWeight.propTypes = {
     weight: PropTypes.number,
     incentive: PropTypes.string,
   }),
-  hasLoadSuccess: PropTypes.bool.isRequired,
   currentPPM: PropTypes.object.isRequired,
 };
 
@@ -426,7 +401,6 @@ function mapStateToProps(state) {
   const serviceMemberId = serviceMember?.id;
 
   const props = {
-    ...state.ppm,
     rateEngineError: selectPPMEstimateError(state),
     serviceMemberId,
     incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,

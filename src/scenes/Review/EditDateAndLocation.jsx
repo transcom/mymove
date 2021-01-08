@@ -40,6 +40,7 @@ let EditDateAndLocationForm = (props) => {
     sitReimbursement,
     submitting,
   } = props;
+
   const displayedSitReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
 
   return (
@@ -201,16 +202,7 @@ class EditDateAndLocation extends Component {
   }
 
   render() {
-    const {
-      initialValues,
-      schema,
-      formValues,
-      sitReimbursement,
-      currentOrders,
-      error,
-      sitEstimate,
-      entitiesSitReimbursement,
-    } = this.props;
+    const { initialValues, schema, formValues, sitReimbursement, currentOrders, error, sitEstimate } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -228,11 +220,7 @@ class EditDateAndLocation extends Component {
             initialValues={initialValues}
             schema={schema}
             formValues={formValues}
-            sitReimbursement={
-              sitReimbursement !== entitiesSitReimbursement && sitReimbursement
-                ? sitReimbursement
-                : entitiesSitReimbursement
-            }
+            sitReimbursement={sitReimbursement}
             currentOrders={currentOrders}
             onCancel={this.returnToReview}
           />
@@ -259,10 +247,8 @@ function mapStateToProps(state) {
     currentPPM,
     formValues: getFormValues(editDateAndLocationFormName)(state),
     entitlement: loadEntitlementsFromState(state),
-    error: get(state, 'ppm.error'),
-    hasSubmitError: get(state, 'ppm.hasSubmitError'),
     sitEstimate: selectPPMSitEstimate(state),
-    entitiesSitReimbursement: currentPPM?.estimated_storage_reimbursement,
+    sitReimbursement: currentPPM?.estimated_storage_reimbursement,
   };
 
   const defaultPickupZip = serviceMember?.residential_address?.postal_code;
