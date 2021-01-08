@@ -132,6 +132,10 @@ export const selectCurrentPPM = (state) => {
   return selectPPMForMove(state, move?.id);
 };
 
+export const selectHasCurrentPPM = (state) => {
+  return !!selectCurrentPPM(state);
+};
+
 export function selectPPMEstimateRange(state) {
   return state.entities?.ppmEstimateRanges?.undefined || null;
 }
