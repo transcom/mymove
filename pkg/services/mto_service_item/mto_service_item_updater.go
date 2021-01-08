@@ -50,8 +50,9 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		query.NewQueryFilter("id", "=", mtoServiceItem.MoveTaskOrderID),
 	}
 	err = p.builder.FetchOne(&move, moveFilter)
+	moveID := mtoServiceItem.MoveTaskOrderID
 	if err != nil {
-		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
+		return nil, services.NewNotFoundError(moveID, "MoveID")
 	}
 
 	// Service item status can only be updated if a Move's status is either Approved
@@ -102,22 +103,27 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		}
 	}
 
-	// Fetch move again since its service item was updated above
-	err = p.builder.FetchOne(&move, moveFilter)
-	if err != nil {
-		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
-	}
-
 	// If there are no service items that are SUBMITTED then we need to change
 	// the move status to APPROVED
 	moveShouldBeMoveApproved := true
-	for _, mtoServiceItem := range move.MTOServiceItems {
-		if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted || status == models.MTOServiceItemStatusSubmitted {
-			moveShouldBeMoveApproved = false
-			break
+
+	if status == models.MTOServiceItemStatusSubmitted {
+		moveShouldBeMoveApproved = false
+	} else {
+		// Fetch move again since other service items could have been updated
+		err = p.builder.FetchOne(&move, moveFilter)
+		if err != nil {
+			return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
+		}
+
+		for _, mtoServiceItem := range move.MTOServiceItems {
+			if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
+				moveShouldBeMoveApproved = false
+				break
+			}
 		}
 	}
-	// Doing the change
+
 	if moveShouldBeMoveApproved {
 		err = move.Approve()
 		if err != nil {

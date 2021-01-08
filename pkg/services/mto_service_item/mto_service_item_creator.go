@@ -187,21 +187,16 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			}
 		}
 
-		// Once the service item is successfuly created, the Move's status needs to
+		// Once the service item is successfully created, the Move's status needs to
 		// be updated to 'Approvals Requested' if it's not already in that state,
 		// which will let the TOO know they need to review it.
-		if move.Status != models.MoveStatusAPPROVALSREQUESTED {
-			// We're not checking for an error here because this will only error if
-			// the move's status is not 'Approved', and it's not possible for a Move
-			// that's not 'Approved' to get to this line of code because at the
-			// beginning of this function, we only allow moves with status 'Approved'
-			// or 'Approvals Requested'.
-			move.SetApprovalsRequested()
-
-			verrs, err = txBuilder.UpdateOne(&move, nil)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
-			}
+		err = move.SetApprovalsRequested()
+		if err != nil {
+			return fmt.Errorf("%e", err)
+		}
+		verrs, err = txBuilder.UpdateOne(&move, nil)
+		if verrs != nil || err != nil {
+			return fmt.Errorf("%#v %e", verrs, err)
 		}
 
 		return nil

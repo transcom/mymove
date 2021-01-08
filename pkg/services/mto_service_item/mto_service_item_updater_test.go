@@ -302,7 +302,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	// Test that the move's status changes to Approved when the service item's
 	// status is no longer SUBMITTED
 	suite.T().Run("When TOO reviews move and approves service item", func(t *testing.T) {
-		suite.DB().TruncateAll()
+		suite.SetupTest()
 		eTag, serviceItem, move := suite.createServiceItem()
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
@@ -320,8 +320,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	// Test that the move's status changes to Approvals Requested if any of its service
 	// items' status is SUBMITTED
 	suite.T().Run("When move is approved and service item is submitted", func(t *testing.T) {
-		suite.DB().TruncateAll()
+		suite.SetupTest()
 		eTag, serviceItem, move := suite.createServiceItem()
+		move.Status = models.MoveStatusAPPROVED
+		suite.MustSave(&move)
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
 			serviceItem.ID, models.MTOServiceItemStatusSubmitted, rejectionReason, eTag)
@@ -341,7 +343,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	// Test that the move's status changes to Approved if the service item is
 	// rejected
 	suite.T().Run("When TOO reviews move and rejects service item", func(t *testing.T) {
-		suite.DB().TruncateAll()
+		suite.SetupTest()
 		eTag, serviceItem, move := suite.createServiceItem()
 		rejectionReason = swag.String("incomplete")
 
@@ -364,7 +366,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	// is either Approved or Approvals Requested. Neither the Move's status nor
 	// the service item's status should be changed if the requirements aren't met.
 	suite.T().Run("When the Move has not been approved yet", func(t *testing.T) {
-		suite.DB().TruncateAll()
+		suite.SetupTest()
 		eTag, serviceItem, move := suite.createServiceItemForUnapprovedMove()
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
