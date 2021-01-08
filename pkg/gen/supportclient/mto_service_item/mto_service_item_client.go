@@ -49,7 +49,7 @@ func (a *Client) UpdateMTOServiceItemStatus(params *UpdateMTOServiceItemStatusPa
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "updateMTOServiceItemStatus",
 		Method:             "PATCH",
-		PathPattern:        "/service-items/{mtoServiceItemID}/status",
+		PathPattern:        "/mto-service-items/{mtoServiceItemID}/status",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
