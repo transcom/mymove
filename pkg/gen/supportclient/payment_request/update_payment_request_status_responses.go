@@ -53,6 +53,12 @@ func (o *UpdatePaymentRequestStatusReader) ReadResponse(response runtime.ClientR
 			return nil, err
 		}
 		return nil, result
+	case 409:
+		result := NewUpdatePaymentRequestStatusConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 412:
 		result := NewUpdatePaymentRequestStatusPreconditionFailed()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -231,6 +237,39 @@ func (o *UpdatePaymentRequestStatusNotFound) GetPayload() *supportmessages.Clien
 }
 
 func (o *UpdatePaymentRequestStatusNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(supportmessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewUpdatePaymentRequestStatusConflict creates a UpdatePaymentRequestStatusConflict with default headers values
+func NewUpdatePaymentRequestStatusConflict() *UpdatePaymentRequestStatusConflict {
+	return &UpdatePaymentRequestStatusConflict{}
+}
+
+/*UpdatePaymentRequestStatusConflict handles this case with default header values.
+
+There was a conflict with the request.
+*/
+type UpdatePaymentRequestStatusConflict struct {
+	Payload *supportmessages.ClientError
+}
+
+func (o *UpdatePaymentRequestStatusConflict) Error() string {
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusConflict  %+v", 409, o.Payload)
+}
+
+func (o *UpdatePaymentRequestStatusConflict) GetPayload() *supportmessages.ClientError {
+	return o.Payload
+}
+
+func (o *UpdatePaymentRequestStatusConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(supportmessages.ClientError)
 

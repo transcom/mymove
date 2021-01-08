@@ -25,7 +25,7 @@ type HideNonFakeMoveTaskOrdersOK struct {
 	/*
 	  In: Body
 	*/
-	Payload supportmessages.MoveTaskOrders `json:"body,omitempty"`
+	Payload supportmessages.MoveTaskOrderIDs `json:"body,omitempty"`
 }
 
 // NewHideNonFakeMoveTaskOrdersOK creates HideNonFakeMoveTaskOrdersOK with default headers values
@@ -35,13 +35,13 @@ func NewHideNonFakeMoveTaskOrdersOK() *HideNonFakeMoveTaskOrdersOK {
 }
 
 // WithPayload adds the payload to the hide non fake move task orders o k response
-func (o *HideNonFakeMoveTaskOrdersOK) WithPayload(payload supportmessages.MoveTaskOrders) *HideNonFakeMoveTaskOrdersOK {
+func (o *HideNonFakeMoveTaskOrdersOK) WithPayload(payload supportmessages.MoveTaskOrderIDs) *HideNonFakeMoveTaskOrdersOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the hide non fake move task orders o k response
-func (o *HideNonFakeMoveTaskOrdersOK) SetPayload(payload supportmessages.MoveTaskOrders) {
+func (o *HideNonFakeMoveTaskOrdersOK) SetPayload(payload supportmessages.MoveTaskOrderIDs) {
 	o.Payload = payload
 }
 
@@ -52,7 +52,7 @@ func (o *HideNonFakeMoveTaskOrdersOK) WriteResponse(rw http.ResponseWriter, prod
 	payload := o.Payload
 	if payload == nil {
 		// return empty array
-		payload = supportmessages.MoveTaskOrders{}
+		payload = supportmessages.MoveTaskOrderIDs{}
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {
