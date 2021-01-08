@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Provider } from 'react-redux';
-import Loadable from 'react-loadable';
 import { ConnectedRouter } from 'connected-react-router';
 import { PersistGate } from 'redux-persist/integration/react';
 import { ReactQueryConfigProvider } from 'react-query';
@@ -15,15 +14,8 @@ import { detectFlags } from 'shared/featureFlags';
 import '../icons';
 import './index.css';
 
-const Office = Loadable({
-  loader: () => import('pages/Office'),
-  loading: () => <LoadingPlaceholder />,
-});
-
-const MyMove = Loadable({
-  loader: () => import('scenes/MyMove'),
-  loading: () => <LoadingPlaceholder />,
-});
+const Office = lazy(() => import('pages/Office/index'));
+const MyMove = lazy(() => import('scenes/MyMove/index'));
 
 // Will uncomment for program admin
 // const Admin = Loadable({
@@ -31,10 +23,8 @@ const MyMove = Loadable({
 //   loading: () => <LoadingPlaceholder />,
 // });
 //
-const SystemAdmin = Loadable({
-  loader: () => import('scenes/SystemAdmin'),
-  loading: () => <LoadingPlaceholder />,
-});
+
+const SystemAdmin = lazy(() => import('scenes/SystemAdmin/index'));
 
 const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
@@ -61,7 +51,9 @@ const App = () => {
           <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
             <AppContext.Provider value={officeContext}>
               <ConnectedRouter history={history}>
-                <Office />
+                <Suspense fallback={<LoadingPlaceholder />}>
+                  <Office />
+                </Suspense>
                 <ReactQueryDevtools initialIsOpen={false} />
               </ConnectedRouter>
             </AppContext.Provider>
@@ -73,7 +65,9 @@ const App = () => {
   if (isSystemAdminSite)
     return (
       <AppContext.Provider value={adminContext}>
-        <SystemAdmin />
+        <Suspense fallback={<LoadingPlaceholder />}>
+          <SystemAdmin />
+        </Suspense>
       </AppContext.Provider>
     );
 
@@ -82,7 +76,9 @@ const App = () => {
   return (
     <Provider store={store}>
       <AppContext.Provider value={myMoveContext}>
-        <MyMove />
+        <Suspense fallback={<LoadingPlaceholder />}>
+          <MyMove />
+        </Suspense>
       </AppContext.Provider>
     </Provider>
   );
