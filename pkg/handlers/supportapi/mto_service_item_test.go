@@ -163,11 +163,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 	response := handler.Handle(params)
 
 	// CHECK RESULTS
-	mtoServiceItemResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusConflict)
-	mtoServiceItemPayload := mtoServiceItemResponse.Payload
-
-	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusConflict{}, mtoServiceItemResponse)
-	suite.Assertions.IsType(&supportmessages.ClientError{}, mtoServiceItemPayload)
+	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusUnprocessableEntity{}, response)
 
 	// Check that the status in DB is still SUBMITTED, not APPROVED or REJECTED
 	serviceItemInDB := models.MTOServiceItem{}

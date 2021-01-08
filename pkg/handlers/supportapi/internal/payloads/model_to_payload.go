@@ -321,9 +321,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 		shipmentIDStr = mtoServiceItem.MTOShipmentID.String()
 	}
 
-	one := mtoServiceItem.ID.String()
-	two := strfmt.UUID(one)
-	payload.SetID(two)
+	payload.SetID(*handlers.FmtUUID(mtoServiceItem.ID))
 	payload.SetMoveTaskOrderID(handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID))
 	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
