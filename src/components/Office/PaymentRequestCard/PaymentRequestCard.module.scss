@@ -138,6 +138,7 @@
   border-top: 1px solid #dcdee0;
   padding-left: 7.2rem;
   padding-right: 7.2rem;
+  @include u-padding-y(5);
 }
 
 .docs-icon {
