@@ -28,7 +28,12 @@ const paymentRequestStatusLabel = (status) => {
 };
 
 const PaymentRequestCard = ({ paymentRequest, history }) => {
-  const [showDetails, setShowDetails] = useState(false);
+  // show details by default if not reviewed
+  const defaultShowDetails = paymentRequestStatusLabel(paymentRequest.status) !== 'Reviewed';
+  // only show button in reviewed state
+  const showRequestDetailsButton = !defaultShowDetails;
+  // state to toggle between showing details or not
+  const [showDetails, setShowDetails] = useState(defaultShowDetails);
   let handleClick = () => {};
   let requestedAmount = 0;
   let approvedAmount = 0;
@@ -127,9 +132,11 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
             </a>
           )}
           <div className={styles.toggleDrawer}>
-            <Button data-testid="showRequestDetailsButton" type="button" unstyled onClick={handleToggleDetails}>
-              <FontAwesomeIcon icon={showDetailsChevron} /> Show request details
-            </Button>
+            {showRequestDetailsButton && (
+              <Button data-testid="showRequestDetailsButton" type="button" unstyled onClick={handleToggleDetails}>
+                <FontAwesomeIcon icon={showDetailsChevron} /> Show request details
+              </Button>
+            )}
           </div>
         </div>
       </div>
