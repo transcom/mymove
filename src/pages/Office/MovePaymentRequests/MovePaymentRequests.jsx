@@ -10,8 +10,8 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
 
 const MovePaymentRequests = () => {
-  const { locator } = useParams();
-  const { paymentRequests, isLoading, isError } = useMovePaymentRequestsQueries(locator);
+  const { moveCode } = useParams();
+  const { paymentRequests, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;

@@ -919,6 +919,10 @@ func init() {
           "description": "Email or id of a contact person for this update",
           "type": "string"
         },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
+        },
         "requestedPickupDate": {
           "description": "The date the customer requested that this shipment be picked up.",
           "type": "string",
@@ -1721,7 +1725,8 @@ func init() {
         },
         "isCanceled": {
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "moveCode": {
           "type": "string",
@@ -1824,6 +1829,7 @@ func init() {
       "enum": [
         "PENDING",
         "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID"
@@ -3379,6 +3385,10 @@ func init() {
           "description": "Email or id of a contact person for this update",
           "type": "string"
         },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
+        },
         "requestedPickupDate": {
           "description": "The date the customer requested that this shipment be picked up.",
           "type": "string",
@@ -4181,7 +4191,8 @@ func init() {
         },
         "isCanceled": {
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "moveCode": {
           "type": "string",
@@ -4284,6 +4295,7 @@ func init() {
       "enum": [
         "PENDING",
         "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID"

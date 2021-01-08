@@ -233,9 +233,6 @@ bin/generate-deploy-notes: cmd/generate-deploy-notes
 bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
-bin/ecs-service-logs: cmd/ecs-service-logs
-	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
-
 bin/find-guardduty-user: cmd/find-guardduty-user
 	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
 
@@ -342,7 +339,10 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run redis_run ## Debug the server
 	scripts/kill-process-on-port 8080
 	scripts/kill-process-on-port 9443
-	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-dev -- \
+	dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
 build_tools: bin/gin \
@@ -353,7 +353,6 @@ build_tools: bin/gin \
 	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
-	bin/ecs-service-logs \
 	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \

@@ -38,9 +38,8 @@ const OrdersInfo = lazy(() => import('scenes/Office/OrdersInfo'));
 const DocumentViewer = lazy(() => import('scenes/Office/DocumentViewer'));
 // TXO
 const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
-// TOO pages (TODO move into src/pages)
+// TOO pages
 const MoveQueue = lazy(() => import('pages/Office/MoveQueue/MoveQueue'));
-const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
 // TIO pages
 const PaymentRequestQueue = lazy(() => import('pages/Office/PaymentRequestQueue/PaymentRequestQueue'));
 
@@ -125,14 +124,14 @@ export class OfficeApp extends Component {
     const txoRoutes = [
       <PrivateRoute
         key="txoMoveInfoRoute"
-        path="/moves/:moveOrderId"
+        path="/moves/:moveCode"
         component={TXOMoveInfo}
         requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
       />,
     ];
 
     const isFullscreenPage = matchPath(pathname, {
-      path: '/moves/:moveOrderId/payment-requests/:id',
+      path: '/moves/:moveCode/payment-requests/:id',
     });
 
     const siteClasses = classnames('site', {
@@ -169,13 +168,6 @@ export class OfficeApp extends Component {
 
                 {/* PPM & TXO conflicting routes - select based on user role */}
                 {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
-
-                {/* TEMP FOR DEV ONLY */}
-                <PrivateRoute
-                  path="/too/:moveOrderId/customer/:customerId"
-                  component={CustomerDetails}
-                  requiredRoles={[roleTypes.TOO]}
-                />
 
                 <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
                 {/* ROOT */}

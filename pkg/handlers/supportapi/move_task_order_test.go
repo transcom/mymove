@@ -85,19 +85,20 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		moves = append(moves, mto1, mto2)
 
 		response := handler.Handle(params)
-		mtoRequestsResponse := response.(*movetaskorderops.HideNonFakeMoveTaskOrdersOK)
-		mtoRequestsPayload := mtoRequestsResponse.Payload
+		mtoIDsRequestsResponse := response.(*movetaskorderops.HideNonFakeMoveTaskOrdersOK)
+		mtoIDsRequestsPayload := mtoIDsRequestsResponse.Payload
 		suite.IsNotErrResponse(response)
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersOK(), response)
 
-		for idx, mto := range mtoRequestsPayload {
-			suite.Equal(strfmt.UUID(moves[idx].ID.String()), mto.ID)
+		for i, mtoID := range mtoIDsRequestsPayload {
+			suite.Equal(supportmessages.MoveTaskOrderID(strfmt.UUID(moves[i].ID.String())), mtoID)
 		}
 	})
 
 	suite.T().Run("unsuccessfully hide fake moves", func(t *testing.T) {
 		var moves models.Moves
-		moves = append(moves, testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{}))
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		moves = append(moves, move)
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
 			context,
@@ -128,8 +129,8 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
 		// Ensure that mto without a contractorID is NOT included in the payload
-		for _, mto := range moveTaskOrdersPayload {
-			suite.NotEqual(mto.ID, moves[0].ID)
+		for i, mtoID := range moveTaskOrdersPayload {
+			suite.Equal(supportmessages.MoveTaskOrderID(strfmt.UUID(moves[i].ID.String())), mtoID)
 		}
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersOK(), response)
 	})
@@ -220,7 +221,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		AvailableToPrimeAt: handlers.FmtDateTime(time.Now()),
 		PpmType:            "FULL",
 		ContractorID:       handlers.FmtUUID(contractor.ID),
-		IsCanceled:         swag.Bool(false),
 		MoveOrder: &supportmessages.MoveOrder{
 			Rank:                     (supportmessages.Rank)("E_6"),
 			OrderNumber:              swag.String("4554"),
@@ -255,7 +255,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		//             existing duty stations and existing uploaded orders document
 		// Expected outcome:
 		//             New MTO and orders are created. Customer data and duty station data are pulled in.
-		//			   isCanceled should be default value which is draft
+		//			   Status should be default value which is DRAFT
 
 		// We only provide an existing customerID not the whole object.
 		// We expect the handler to link the correct objects
@@ -302,8 +302,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// We only provide an existing customerID not the whole object.
 		mtoPayload.MoveOrder.CustomerID = handlers.FmtUUID(dbCustomer.ID)
 
-		// Set IsCanceled to true to set the Move's status to CANCELED
-		mtoPayload.IsCanceled = swag.Bool(true)
+		// Set the status to CANCELED
+		mtoPayload.Status = supportmessages.MoveStatusCANCELED
 
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,

@@ -42,6 +42,7 @@ type MoveTaskOrder struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// is canceled
+	// Read Only: true
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
 	// move code

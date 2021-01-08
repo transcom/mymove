@@ -3,9 +3,11 @@ package supportapi
 import (
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 
-	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
@@ -17,94 +19,158 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess() {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
+// Create a service item on a Move with Approvals Requested status
+func (suite *HandlerSuite) createServiceItem() models.MTOServiceItem {
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB())
+	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
 
-	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
+	return serviceItem
+}
+
+func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess() {
+
+	// TESTCASE SCENARIO
+	// Under test: UpdateMTOServiceItemStatusHandler
+	// Mocked:     None
+	// Set up:     We create an MTO service item in the DB, then try to approve it.
+	// Expected outcome:
+	//             Success, MTO service item is approved
+
+	// SETUP
+	// Create a service item on a move
+	mtoServiceItem := suite.createServiceItem()
+	// Update the service item so that it has an existing RejectionReason
+	// because we want to test that it becomes nil when the service item is
+	// approved.
 	reason := "should not update reason"
-	mtoServiceItem.Status = models.MTOServiceItemStatusApproved
-	mtoServiceItem.Reason = &reason
+	mtoServiceItem.RejectionReason = &reason
+	suite.MustSave(&mtoServiceItem)
+
+	// Create a request to the endpoint
+	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
+
+	requestPayload := &supportmessages.UpdateMTOServiceItemStatus{
+		Status: supportmessages.MTOServiceItemStatusAPPROVED,
+	}
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 		HTTPRequest:      request,
 		MtoServiceItemID: mtoServiceItem.ID.String(),
-		Body:             payloads.MTOServiceItem(&mtoServiceItem),
+		Body:             requestPayload,
 		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-
-	// make the request
 	handler := UpdateMTOServiceItemStatusHandler{context,
 		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
 	}
+
+	// CALL FUNCTION UNDER TEST
+	suite.Nil(params.Body.Validate(strfmt.Default))
 	response := handler.Handle(params)
 
+	// CHECK RESULTS
 	suite.IsNotErrResponse(response)
 	mtoServiceItemResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
 	mtoServiceItemPayload := mtoServiceItemResponse.Payload
-
 	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
-	suite.Equal(mtoServiceItemPayload.Status, supportmessages.MTOServiceItemStatusAPPROVED)
-	suite.NotEqual(mtoServiceItemPayload.RejectionReason, reason)
+
+	// Check the status is APPROVED
+	suite.Equal(supportmessages.MTOServiceItemStatusAPPROVED, mtoServiceItemPayload.Status())
+	// Check that RejectionReason was set to nil
+	suite.Nil(mtoServiceItemPayload.RejectionReason())
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
-	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
-	reason := "item too heavy"
-	mtoServiceItem.Status = models.MTOServiceItemStatusRejected
-	mtoServiceItem.RejectionReason = &reason
+	// TESTCASE SCENARIO
+	// Under test: UpdateMTOServiceItemStatusHandler
+	// Mocked:     None
+	// Set up:     We create an MTO service item in the DB, then try to reject it.
+	// Expected outcome:
+	//             Success, MTO service item is rejected, rejectionReason is populated
+
+	// SETUP
+	// Create a service item on a move
+	mtoServiceItem := suite.createServiceItem()
+
+	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
+	requestPayload := &supportmessages.UpdateMTOServiceItemStatus{
+		Status:          supportmessages.MTOServiceItemStatusREJECTED,
+		RejectionReason: swag.String("Should definitely update the reason"),
+	}
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 		HTTPRequest:      request,
 		MtoServiceItemID: mtoServiceItem.ID.String(),
-		Body:             payloads.MTOServiceItem(&mtoServiceItem),
+		Body:             requestPayload,
 		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-
-	// make the request
 	handler := UpdateMTOServiceItemStatusHandler{context,
 		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
 	}
+
+	// CALL FUNCTION UNDER TEST
+	suite.Nil(params.Body.Validate(strfmt.Default))
 	response := handler.Handle(params)
 
+	// CHECK RESULTS
 	suite.IsNotErrResponse(response)
 	mtoServiceItemResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
 	mtoServiceItemPayload := mtoServiceItemResponse.Payload
 
 	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
-	suite.Equal(mtoServiceItemPayload.Status, supportmessages.MTOServiceItemStatusREJECTED)
-	suite.Equal(*mtoServiceItemPayload.RejectionReason, reason)
+	suite.Equal(supportmessages.MTOServiceItemStatusREJECTED, mtoServiceItemPayload.Status())
+	suite.Equal(requestPayload.RejectionReason, mtoServiceItemPayload.RejectionReason())
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedNoReason() {
-	mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
-	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
-	mtoServiceItem.Status = models.MTOServiceItemStatusRejected
+	// TESTCASE SCENARIO
+	// Under test: UpdateMTOServiceItemStatusHandler
+	// Mocked:     None
+	// Set up:     We create an MTO service item in the DB, then try to reject it, but fail
+	//             to send a rejectionReason
+	// Expected outcome:
+	//             Fail, RejectionReason must be provided to service item is not updated.
+
+	// SETUP
+	// Create a service item on a move
+	mtoServiceItem := suite.createServiceItem()
+
+	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
+	requestPayload := &supportmessages.UpdateMTOServiceItemStatus{
+		Status:          supportmessages.MTOServiceItemStatusREJECTED,
+		RejectionReason: nil,
+	}
+
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 		HTTPRequest:      request,
 		MtoServiceItemID: mtoServiceItem.ID.String(),
-		Body:             payloads.MTOServiceItem(&mtoServiceItem),
+		Body:             requestPayload,
 		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-
-	// make the request
 	handler := UpdateMTOServiceItemStatusHandler{context,
 		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
 	}
+
+	// CALL FUNCTION UNDER TEST
+	suite.Nil(params.Body.Validate(strfmt.Default))
 	response := handler.Handle(params)
 
-	mtoServiceItemResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusConflict)
-	mtoServiceItemPayload := mtoServiceItemResponse.Payload
+	// CHECK RESULTS
+	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusUnprocessableEntity{}, response)
 
-	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusConflict{}, mtoServiceItemResponse)
-	suite.Assertions.IsType(mtoServiceItemPayload, &supportmessages.ClientError{})
+	// Check that the status in DB is still SUBMITTED, not APPROVED or REJECTED
+	serviceItemInDB := models.MTOServiceItem{}
+	suite.DB().Find(&serviceItemInDB, mtoServiceItem.ID)
+	suite.Equal(models.MTOServiceItemStatusSubmitted, serviceItemInDB.Status)
+
 }
