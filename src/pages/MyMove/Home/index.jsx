@@ -29,6 +29,7 @@ import {
   selectIsProfileComplete,
   selectCurrentOrders,
   selectCurrentMove,
+  selectCurrentPPM,
   selectMTOShipmentsForCurrentMove,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
@@ -38,7 +39,6 @@ import {
 } from 'shared/Entities/modules/signed_certifications';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
@@ -487,7 +487,7 @@ const mapStateToProps = (state) => {
   const move = selectCurrentMove(state) || {};
 
   return {
-    currentPpm: selectActivePPMForMove(state, move.id),
+    currentPpm: selectCurrentPPM(state),
     isLoggedIn: user.isLoggedIn,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),

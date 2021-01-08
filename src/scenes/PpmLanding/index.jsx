@@ -13,6 +13,7 @@ import {
   selectCurrentMove,
   selectHasCanceledMove,
   selectMoveType,
+  selectCurrentPPM,
 } from 'store/entities/selectors';
 import { updatePPMs } from 'store/entities/actions';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -21,7 +22,6 @@ import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/M
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
-import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { getPPMsForMove } from 'services/internalApi';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
@@ -185,7 +185,7 @@ const mapStateToProps = (state) => {
     backupContacts: serviceMember?.backup_contacts || [],
     orders: selectCurrentOrders(state) || {},
     move: move,
-    ppm: getPPM(state),
+    ppm: selectCurrentPPM(state),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),

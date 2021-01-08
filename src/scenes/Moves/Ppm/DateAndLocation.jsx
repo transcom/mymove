@@ -9,14 +9,13 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatDateForSwagger } from 'shared/dates';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { getPPMsForMove, createPPMForMove, patchPPM, persistPPMEstimate } from 'services/internalApi';
 import { updatePPMs, updatePPM } from 'store/entities/actions';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentPPM } from 'store/entities/selectors';
 
 import './DateAndLocation.css';
 
@@ -215,7 +214,6 @@ DateAndLocation.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const currentMove = selectCurrentMove(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   const defaultPickupZip = serviceMember?.residential_address?.postal_code;
@@ -225,7 +223,7 @@ function mapStateToProps(state) {
   const props = {
     serviceMemberId,
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    currentPPM: selectActivePPMForMove(state, currentMove?.id),
+    currentPPM: selectCurrentPPM(state),
     currentOrders: selectCurrentOrders(state),
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
