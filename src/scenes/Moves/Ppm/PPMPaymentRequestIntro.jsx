@@ -109,7 +109,7 @@ PPMPaymentRequestIntro = reduxForm({
 
 function mapStateToProps(state, ownProps) {
   const moveID = ownProps.match.params.moveId;
-  const currentPPM = selectCurrentPPM(state);
+  const currentPPM = selectCurrentPPM(state) || {};
   const actualMoveDate = currentPPM.actual_move_date ? currentPPM.actual_move_date : null;
   return {
     moveID,

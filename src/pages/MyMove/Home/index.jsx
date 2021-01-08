@@ -487,7 +487,7 @@ const mapStateToProps = (state) => {
   const move = selectCurrentMove(state) || {};
 
   return {
-    currentPpm: selectCurrentPPM(state),
+    currentPpm: selectCurrentPPM(state) || {},
     isLoggedIn: user.isLoggedIn,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),

@@ -350,7 +350,7 @@ function mapStateToProps(state) {
 
   return {
     serviceMemberId,
-    currentPPM: selectCurrentPPM(state),
+    currentPPM: selectCurrentPPM(state) || {},
     incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     entitlement: loadEntitlementsFromState(state),

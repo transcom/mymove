@@ -154,7 +154,8 @@ PPMShipmentSummary.propTypes = {
 function mapStateToProps(state, ownProps) {
   const { ppm } = ownProps;
   const advance = selectReimbursement(state, ppm.advance);
-  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } = selectCurrentPPM(state);
+  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } =
+    selectCurrentPPM(state) || {};
 
   const ppmEstimateError = selectPPMEstimateError(state);
   let hasError = !!ppmEstimateError;

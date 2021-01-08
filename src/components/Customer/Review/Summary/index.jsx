@@ -299,7 +299,7 @@ Summary.defaultProps = {
 
 function mapStateToProps(state) {
   return {
-    currentPPM: selectCurrentPPM(state),
+    currentPPM: selectCurrentPPM(state) || {},
     mtoShipments: selectMTOShipmentsForCurrentMove(state),
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove: selectCurrentMove(state) || {},

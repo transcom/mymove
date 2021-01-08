@@ -250,7 +250,7 @@ EditDateAndLocation.propTypes = {
 function mapStateToProps(state) {
   const currentMove = selectCurrentMove(state) || {};
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const currentPPM = selectCurrentPPM(state);
+  const currentPPM = selectCurrentPPM(state) || {};
 
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),

@@ -185,7 +185,7 @@ const mapStateToProps = (state) => {
     backupContacts: serviceMember?.backup_contacts || [],
     orders: selectCurrentOrders(state) || {},
     move: move,
-    ppm: selectCurrentPPM(state),
+    ppm: selectCurrentPPM(state) || {},
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),

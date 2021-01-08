@@ -10,6 +10,7 @@ import {
   selectMovesForCurrentOrders,
   selectCurrentMove,
   selectCurrentPPM,
+  selectPPMForMove,
   selectPPMEstimateRange,
   selectPPMSitEstimate,
 } from './selectors';
@@ -826,6 +827,184 @@ describe('selectCurrentMove', () => {
     };
 
     expect(selectCurrentMove(testState)).toEqual(testState.entities.moves.move1029);
+  });
+});
+describe('selectPPMForMove', () => {
+  it('returns the PPM associated with the given move ID', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+            status: 'CANCELED',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+            status: 'DRAFT',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+            status: 'CANCELED',
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'DRAFT',
+          },
+        },
+        personallyProcuredMoves: {
+          ppmId789: {
+            id: 'ppmId789',
+            move_id: 'move2938',
+            status: 'DRAFT',
+          },
+          ppmId910: {
+            id: 'ppmId910',
+            move_id: 'move1029',
+            status: 'CANCELED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectPPMForMove(testState, 'move2938')).toEqual(testState.entities.personallyProcuredMoves.ppmId789);
+  });
+
+  it('returns null if the PPM status is not active', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+            status: 'CANCELED',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+            status: 'DRAFT',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+            status: 'CANCELED',
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'DRAFT',
+          },
+        },
+        personallyProcuredMoves: {
+          ppmId789: {
+            id: 'ppmId789',
+            move_id: 'move2938',
+            status: 'CANCELED',
+          },
+          ppmId910: {
+            id: 'ppmId910',
+            move_id: 'move1029',
+            status: 'CANCELED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectPPMForMove(testState, 'move1029')).toEqual(null);
+  });
+
+  it('returns null if there is no PPM associated with the given move', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+            status: 'CANCELED',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+            status: 'DRAFT',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+            status: 'CANCELED',
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'DRAFT',
+          },
+        },
+        personallyProcuredMoves: {
+          ppmId789: {
+            id: 'ppmId789',
+            move_id: 'move1111',
+            status: 'DRAFT',
+          },
+          ppmId910: {
+            id: 'ppmId910',
+            move_id: 'move2222',
+            status: 'SUBMITTED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectPPMForMove(testState, 'move1029')).toEqual(null);
   });
 });
 
