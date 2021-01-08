@@ -51,7 +51,10 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 
 	if status == models.MTOServiceItemStatusRejected {
 		if rejectionReason == nil {
-			return nil, services.NewConflictError(mtoServiceItemID, "Rejecting an MTO Service item requires a rejection reason")
+			verrs := validate.NewErrors()
+			verrs.Add("rejectionReason", "field must be provided when status is set to REJECTED")
+			err := services.NewInvalidInputError(mtoServiceItemID, nil, verrs, "Invalid input found in the request.")
+			return nil, err
 		}
 		mtoServiceItem.RejectionReason = rejectionReason
 		mtoServiceItem.RejectedAt = &updatedAt
