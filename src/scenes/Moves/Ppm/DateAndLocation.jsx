@@ -2,24 +2,19 @@ import { get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import {
-  loadPPMs,
-  createPPM,
-  selectActivePPMForMove,
-  updatePPM,
-  updatePPMEstimate,
-} from 'shared/Entities/modules/ppms';
+import { loadPPMs, createPPM, selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { persistPPMEstimate } from 'services/internalApi';
+import { updatePPM as updatePPMInRedux } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
 
 import './DateAndLocation.css';
@@ -101,11 +96,15 @@ export class DateAndLocation extends Component {
       if (isEmpty(this.props.currentPPM)) {
         return this.props
           .createPPM(moveId, pendingValues)
-          .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch((err) => err));
+          .then(({ response }) => persistPPMEstimate(moveId, response.body.id))
+          .then((response) => this.props.updatePPMInRedux(response))
+          .catch((err) => err);
       } else {
         return this.props
           .updatePPM(moveId, this.props.currentPPM.id, pendingValues)
-          .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch((err) => err));
+          .then(({ response }) => persistPPMEstimate(moveId, response.body.id))
+          .then((response) => this.props.updatePPMInRedux(response))
+          .catch((err) => err);
       }
     }
   };
@@ -230,8 +229,12 @@ function mapStateToProps(state) {
   return props;
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadPPMs, createPPM, updatePPM, updatePPMEstimate, fetchLatestOrders }, dispatch);
-}
+const mapDispatchToProps = {
+  loadPPMs,
+  createPPM,
+  updatePPM,
+  fetchLatestOrders,
+  updatePPMInRedux,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);

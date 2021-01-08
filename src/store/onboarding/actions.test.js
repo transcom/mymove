@@ -9,6 +9,8 @@ import {
   INIT_ONBOARDING_COMPLETE,
   fetchCustomerData,
   FETCH_CUSTOMER_DATA,
+  setPPMEstimateError,
+  SET_PPM_ESTIMATE_ERROR,
 } from './actions';
 
 describe('Onboarding actions', () => {
@@ -52,5 +54,14 @@ describe('Onboarding actions', () => {
     };
 
     expect(fetchCustomerData()).toEqual(expectedAction);
+  });
+
+  it('setPPMEstimateError returns the expected action', () => {
+    const expectedAction = {
+      type: SET_PPM_ESTIMATE_ERROR,
+      error: { message: 'This is a test error' },
+    };
+
+    expect(setPPMEstimateError({ message: 'This is a test error' })).toEqual(expectedAction);
   });
 });

@@ -9,10 +9,7 @@ export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
 const loadPPMsLabel = 'office.loadPPMs';
 const createPPMLabel = 'office.createPPM';
 const updatePPMLabel = 'office.updatePPM';
-const updatePPMEstimateLabel = 'ppm.updatePPMEstimate';
 const approveReimbursementLabel = 'office.approveReimbursement';
-const getPPMEstimateLabel = 'ppm.showPPMEstimate';
-const getPPMSitEstimateLabel = 'ppm.updatePPMEstimate';
 
 export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveApproveDate, label = approvePpmLabel) {
   const swaggerTag = 'office.approvePPM';
@@ -74,67 +71,6 @@ export function updatePPM(
   );
 }
 
-export function getPpmWeightEstimate(
-  moveDate,
-  originZip,
-  originDutyStationZip,
-  ordersId,
-  weightEstimate,
-  label = getPPMEstimateLabel,
-) {
-  const swaggerTag = 'ppm.showPPMEstimate';
-  const schemaKey = 'ppmEstimateRange';
-  return swaggerRequest(
-    getClient,
-    swaggerTag,
-    {
-      original_move_date: moveDate,
-      origin_zip: originZip,
-      origin_duty_station_zip: originDutyStationZip,
-      orders_id: ordersId,
-      weight_estimate: weightEstimate,
-    },
-    { label, schemaKey },
-  );
-}
-
-export function updatePPMEstimate(moveId, personallyProcuredMoveId, label = updatePPMEstimateLabel) {
-  const swaggerTag = 'ppm.updatePersonallyProcuredMoveEstimate';
-  return swaggerRequest(
-    getClient,
-    swaggerTag,
-    {
-      moveId,
-      personallyProcuredMoveId,
-    },
-    {
-      label,
-    },
-  );
-}
-
-export function getPPMSitEstimate(
-  ppmId,
-  moveDate,
-  sitDays,
-  originZip,
-  ordersID,
-  weightEstimate,
-  label = getPPMSitEstimateLabel,
-) {
-  const swaggerTag = 'ppm.showPPMSitEstimate';
-  const schemaKey = 'ppmSitEstimate';
-  const payload = {
-    personally_procured_move_id: ppmId,
-    original_move_date: formatDateForSwagger(moveDate),
-    days_in_storage: sitDays,
-    origin_zip: originZip,
-    orders_id: ordersID,
-    weight_estimate: weightEstimate,
-  };
-  return swaggerRequest(getClient, swaggerTag, payload, { label, schemaKey });
-}
-
 export function downloadPPMAttachments(ppmId, docTypes, label = downloadPPMAttachmentsLabel) {
   const swaggerTag = 'ppm.createPPMAttachments';
   const payload = { personallyProcuredMoveId: ppmId, docTypes };
@@ -151,20 +87,6 @@ export function selectActivePPMForMove(state, moveId) {
   filter(ppms, (ppm) => ppm.moveId === moveId);
   const activePPM = fetchActivePPM(ppms);
   return activePPM || {};
-}
-
-export function selectPPMEstimateRange(state) {
-  if (state.entities.ppmEstimateRanges) {
-    return state.entities.ppmEstimateRanges.undefined;
-  }
-  return {};
-}
-
-export function selectPPMSitEstimate(state) {
-  if (state.entities.ppmSitEstimate) {
-    return state.entities.ppmSitEstimate.undefined.estimate;
-  }
-  return '';
 }
 
 export function selectReimbursement(state, reimbursementId) {
