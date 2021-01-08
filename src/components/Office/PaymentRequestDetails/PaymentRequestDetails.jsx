@@ -9,6 +9,11 @@ import { formatCents, toDollarString } from 'shared/formatters';
 import { PaymentServiceItemShape } from 'types';
 
 const PaymentRequestDetails = ({ serviceItems }) => {
+  // TODO - Will need to update this when we add support for other shipment types
+  const basicServiceItems = serviceItems.filter(
+    (item) => item.mtoShipmentType === undefined || item.mtoShipmentType.null,
+  );
+
   return (
     <div className={styles.PaymentRequestDetails}>
       <div className="stackedtable-header">
@@ -16,7 +21,7 @@ const PaymentRequestDetails = ({ serviceItems }) => {
         <div className={styles.shipmentType}>
           <div className={styles.basicServiceType} />
           <h3>
-            Basic Service Items ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
+            Basic Service Items ({basicServiceItems.length} {basicServiceItems.length > 1 ? 'items' : 'item'})
           </h3>
         </div>
       </div>
@@ -34,7 +39,7 @@ const PaymentRequestDetails = ({ serviceItems }) => {
           </tr>
         </thead>
         <tbody>
-          {serviceItems.map((item) => {
+          {basicServiceItems.map((item) => {
             return (
               // eslint-disable-next-line react/no-array-index-key
               <tr key={item.id}>
