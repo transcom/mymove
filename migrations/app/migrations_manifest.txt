@@ -585,3 +585,4 @@
 20201207223002_create_zip3_distances.up.sql
 20201208215206_load_zip3_distances.up.sql
 20201229155602_drop_confirmation_number_from_orders.up.sql
+20201230070814_fix_ecs_user_in_docker.up.sql
