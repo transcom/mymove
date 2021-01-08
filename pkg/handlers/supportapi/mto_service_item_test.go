@@ -19,6 +19,16 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+// Create a service item on a Move with Approvals Requested status
+func (suite *HandlerSuite) createServiceItem() models.MTOServiceItem {
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB())
+	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	return serviceItem
+}
+
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess() {
 
 	// TESTCASE SCENARIO
@@ -30,18 +40,19 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 
 	// SETUP
 	// Create a service item on a move
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusAPPROVALSREQUESTED,
-		},
-	})
+	mtoServiceItem := suite.createServiceItem()
+	// Update the service item so that it has an existing RejectionReason
+	// because we want to test that it becomes nil when the service item is
+	// approved.
+	reason := "should not update reason"
+	mtoServiceItem.RejectionReason = &reason
+	suite.MustSave(&mtoServiceItem)
 
 	// Create a request to the endpoint
 	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
 
 	requestPayload := &supportmessages.UpdateMTOServiceItemStatus{
-		Status:          supportmessages.MTOServiceItemStatusAPPROVED,
-		RejectionReason: swag.String("Should not update the reason"),
+		Status: supportmessages.MTOServiceItemStatusAPPROVED,
 	}
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 		HTTPRequest:      request,
@@ -68,8 +79,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 
 	// Check the status is APPROVED
 	suite.Equal(supportmessages.MTOServiceItemStatusAPPROVED, mtoServiceItemPayload.Status())
-	// Check that reason was NOT set
-	suite.NotEqual(requestPayload.RejectionReason, mtoServiceItemPayload.RejectionReason())
+	// Check that RejectionReason was set to nil
+	suite.Nil(mtoServiceItemPayload.RejectionReason())
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() {
@@ -83,11 +94,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 
 	// SETUP
 	// Create a service item on a move
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusAPPROVALSREQUESTED,
-		},
-	})
+	mtoServiceItem := suite.createServiceItem()
 
 	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
 	requestPayload := &supportmessages.UpdateMTOServiceItemStatus{
@@ -133,11 +140,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 
 	// SETUP
 	// Create a service item on a move
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusAPPROVALSREQUESTED,
-		},
-	})
+	mtoServiceItem := suite.createServiceItem()
 
 	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
 	requestPayload := &supportmessages.UpdateMTOServiceItemStatus{
