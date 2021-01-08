@@ -7,6 +7,19 @@ import { MockProviders } from 'testUtils';
 
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: () => {
+    const order = {
+      sac: '1234456',
+      tac: '1213',
+    };
+
+    const contractor = {
+      contractNumber: 'HTC-123-3456',
+    };
+
+    const move = {
+      contractor,
+      orders: order,
+    };
     return {
       paymentRequests: [
         {
@@ -15,6 +28,7 @@ jest.mock('hooks/queries', () => ({
           moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
           paymentRequestNumber: '1843-9061-1',
           status: 'REVIEWED',
+          moveTaskOrder: move,
           serviceItems: [
             {
               id: '09474c6a-69b6-4501-8e08-670a12512a5f',
@@ -40,6 +54,7 @@ jest.mock('hooks/queries', () => ({
           moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
           paymentRequestNumber: '1843-9061-2',
           status: 'PENDING',
+          moveTaskOrder: move,
           serviceItems: [
             {
               id: '09474c6a-69b6-4501-8e08-670a12512a5f',
@@ -65,12 +80,26 @@ jest.mock('hooks/queries', () => ({
 const testMoveLocator = 'AF7K1P';
 
 describe('PaymentRequestCard', () => {
+  const order = {
+    sac: '1234456',
+    tac: '1213',
+  };
+
+  const contractor = {
+    contractNumber: 'HTC-123-3456',
+  };
+
+  const move = {
+    contractor,
+    orders: order,
+  };
   describe('pending payment request', () => {
     const pendingPaymentRequest = {
       id: '29474c6a-69b6-4501-8e08-670a12512e5f',
       createdAt: '2020-12-01T00:00:00.000Z',
       moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
       paymentRequestNumber: '1843-9061-2',
+      moveTaskOrder: move,
       status: 'PENDING',
       serviceItems: [
         {
@@ -118,6 +147,7 @@ describe('PaymentRequestCard', () => {
       moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
       paymentRequestNumber: '1843-9061-2',
       status: 'REVIEWED',
+      moveTaskOrder: move,
       serviceItems: [
         {
           id: '09474c6a-69b6-4501-8e08-670a12512a5f',
@@ -143,6 +173,7 @@ describe('PaymentRequestCard', () => {
       moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
       paymentRequestNumber: '1843-9061-2',
       status: 'REVIEWED',
+      moveTaskOrder: move,
       serviceItems: [
         {
           id: '09474c6a-69b6-4501-8e08-670a12512a5f',
@@ -207,6 +238,7 @@ describe('PaymentRequestCard', () => {
         moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
         paymentRequestNumber: '1843-9061-2',
         status: 'SENT_TO_GEX',
+        moveTaskOrder: move,
         serviceItems: [
           {
             id: '09474c6a-69b6-4501-8e08-670a12512a5f',
@@ -240,6 +272,7 @@ describe('PaymentRequestCard', () => {
         moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
         paymentRequestNumber: '1843-9061-2',
         status: 'RECEIVED_BY_GEX',
+        moveTaskOrder: move,
         serviceItems: [
           {
             id: '09474c6a-69b6-4501-8e08-670a12512a5f',
@@ -273,6 +306,7 @@ describe('PaymentRequestCard', () => {
         moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
         paymentRequestNumber: '1843-9061-2',
         status: 'PAID',
+        moveTaskOrder: move,
         serviceItems: [
           {
             id: '09474c6a-69b6-4501-8e08-670a12512a5f',
