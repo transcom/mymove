@@ -1366,7 +1366,7 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cj-pg-local
 
       - push_tasks_exp:
           requires:
@@ -1394,7 +1394,7 @@ workflows:
             - push_migrations_exp
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cj-pg-local
 
       - deploy_exp_tasks:
           requires:
