@@ -40,7 +40,7 @@ func (o *UpdateMTOServiceItemStatusURL) SetBasePath(bp string) {
 func (o *UpdateMTOServiceItemStatusURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/service-items/{mtoServiceItemID}/status"
+	var _path = "/mto-service-items/{mtoServiceItemID}/status"
 
 	mtoServiceItemID := o.MtoServiceItemID
 	if mtoServiceItemID != "" {

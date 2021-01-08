@@ -3106,6 +3106,7 @@ func init() {
       "enum": [
         "PENDING",
         "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID"
@@ -7207,6 +7208,7 @@ func init() {
       "enum": [
         "PENDING",
         "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID"

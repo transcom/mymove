@@ -25,7 +25,7 @@ type UpdateMTOServiceItemStatusOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.UpdateMTOServiceItemStatus `json:"body,omitempty"`
+	Payload supportmessages.MTOServiceItem `json:"body,omitempty"`
 }
 
 // NewUpdateMTOServiceItemStatusOK creates UpdateMTOServiceItemStatusOK with default headers values
@@ -35,13 +35,13 @@ func NewUpdateMTOServiceItemStatusOK() *UpdateMTOServiceItemStatusOK {
 }
 
 // WithPayload adds the payload to the update m t o service item status o k response
-func (o *UpdateMTOServiceItemStatusOK) WithPayload(payload *supportmessages.UpdateMTOServiceItemStatus) *UpdateMTOServiceItemStatusOK {
+func (o *UpdateMTOServiceItemStatusOK) WithPayload(payload supportmessages.MTOServiceItem) *UpdateMTOServiceItemStatusOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o service item status o k response
-func (o *UpdateMTOServiceItemStatusOK) SetPayload(payload *supportmessages.UpdateMTOServiceItemStatus) {
+func (o *UpdateMTOServiceItemStatusOK) SetPayload(payload supportmessages.MTOServiceItem) {
 	o.Payload = payload
 }
 

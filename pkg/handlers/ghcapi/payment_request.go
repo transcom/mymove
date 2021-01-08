@@ -133,74 +133,35 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
-	status := existingPaymentRequest.Status
-	var reviewedDate time.Time
-	var recGexDate time.Time
-	var sentGexDate time.Time
-	var paidAtDate time.Time
-
-	if existingPaymentRequest.ReviewedAt != nil {
-		reviewedDate = *existingPaymentRequest.ReviewedAt
-	}
-	if existingPaymentRequest.ReceivedByGexAt != nil {
-		recGexDate = *existingPaymentRequest.ReceivedByGexAt
-	}
-	if existingPaymentRequest.SentToGexAt != nil {
-		sentGexDate = *existingPaymentRequest.SentToGexAt
-	}
-	if existingPaymentRequest.PaidAt != nil {
-		paidAtDate = *existingPaymentRequest.PaidAt
-	}
+	now := time.Now()
+	existingPaymentRequest.Status = models.PaymentRequestStatus(params.Body.Status)
 
 	// Let's map the incoming status to our enumeration type
-	switch params.Body.Status {
-	case "PENDING":
-		status = models.PaymentRequestStatusPending
-	case "REVIEWED":
-		status = models.PaymentRequestStatusReviewed
-		reviewedDate = time.Now()
-	case "SENT_TO_GEX":
-		status = models.PaymentRequestStatusSentToGex
-		sentGexDate = time.Now()
-	case "RECEIVED_BY_GEX":
-		status = models.PaymentRequestStatusReceivedByGex
-		recGexDate = time.Now()
-	case "PAID":
-		status = models.PaymentRequestStatusPaid
-		paidAtDate = time.Now()
+	switch existingPaymentRequest.Status {
+	case models.PaymentRequestStatusReviewed, models.PaymentRequestStatusReviewedAllRejected:
+		existingPaymentRequest.ReviewedAt = &now
+	case models.PaymentRequestStatusSentToGex:
+		existingPaymentRequest.SentToGexAt = &now
+	case models.PaymentRequestStatusReceivedByGex:
+		existingPaymentRequest.ReceivedByGexAt = &now
+	case models.PaymentRequestStatusPaid:
+		existingPaymentRequest.PaidAt = &now
 	}
 
 	// If we got a rejection reason let's use it
-	rejectionReason := existingPaymentRequest.RejectionReason
 	if params.Body.RejectionReason != nil {
-		rejectionReason = params.Body.RejectionReason
-	}
-
-	paymentRequestForUpdate := models.PaymentRequest{
-		ID:                   existingPaymentRequest.ID,
-		MoveTaskOrder:        existingPaymentRequest.MoveTaskOrder,
-		MoveTaskOrderID:      existingPaymentRequest.MoveTaskOrderID,
-		IsFinal:              existingPaymentRequest.IsFinal,
-		Status:               status,
-		RejectionReason:      rejectionReason,
-		RequestedAt:          existingPaymentRequest.RequestedAt,
-		ReviewedAt:           &reviewedDate,
-		SentToGexAt:          &sentGexDate,
-		ReceivedByGexAt:      &recGexDate,
-		PaidAt:               &paidAtDate,
-		PaymentRequestNumber: existingPaymentRequest.PaymentRequestNumber,
-		SequenceNumber:       existingPaymentRequest.SequenceNumber,
+		existingPaymentRequest.RejectionReason = params.Body.RejectionReason
 	}
 
 	// Capture update attempt in audit log
-	_, err = audit.Capture(&paymentRequestForUpdate, nil, logger, session, params.HTTPRequest)
+	_, err = audit.Capture(&existingPaymentRequest, nil, logger, session, params.HTTPRequest)
 	if err != nil {
 		logger.Error("Auditing service error for payment request update.", zap.Error(err))
 		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, params.IfMatch)
+	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&existingPaymentRequest, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {

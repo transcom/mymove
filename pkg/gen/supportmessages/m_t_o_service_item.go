@@ -24,21 +24,12 @@ import (
 type MTOServiceItem interface {
 	runtime.Validatable
 
-	// description
-	Description() string
-	SetDescription(string)
-
-	// e tag
+	// ETag identifier required to update this object
 	// Read Only: true
 	ETag() string
 	SetETag(string)
 
-	// fee type
-	// Enum: [COUNSELING CRATING TRUCKING SHUTTLE]
-	FeeType() string
-	SetFeeType(string)
-
-	// id
+	// ID of the service item
 	// Format: uuid
 	ID() strfmt.UUID
 	SetID(strfmt.UUID)
@@ -48,30 +39,23 @@ type MTOServiceItem interface {
 	ModelType() MTOServiceItemModelType
 	SetModelType(MTOServiceItemModelType)
 
-	// move task order ID
+	// ID of the associated moveTaskOrder
 	// Required: true
 	// Format: uuid
 	MoveTaskOrderID() *strfmt.UUID
 	SetMoveTaskOrderID(*strfmt.UUID)
 
-	// mto shipment ID
+	// ID of the associated mtoShipment
 	// Format: uuid
 	MtoShipmentID() strfmt.UUID
 	SetMtoShipmentID(strfmt.UUID)
 
-	// quantity
-	Quantity() int64
-	SetQuantity(int64)
-
-	// rate
-	Rate() int64
-	SetRate(int64)
-
-	// re service name
+	// Full descriptive name of the service
+	// Read Only: true
 	ReServiceName() string
 	SetReServiceName(string)
 
-	// rejection reason
+	// Reason the service item was rejected by the TOO
 	RejectionReason() *string
 	SetRejectionReason(*string)
 
@@ -84,11 +68,7 @@ type MTOServiceItem interface {
 }
 
 type mTOServiceItem struct {
-	descriptionField string
-
 	eTagField string
-
-	feeTypeField string
 
 	idField strfmt.UUID
 
@@ -98,25 +78,11 @@ type mTOServiceItem struct {
 
 	mtoShipmentIdField strfmt.UUID
 
-	quantityField int64
-
-	rateField int64
-
 	reServiceNameField string
 
 	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
-}
-
-// Description gets the description of this polymorphic type
-func (m *mTOServiceItem) Description() string {
-	return m.descriptionField
-}
-
-// SetDescription sets the description of this polymorphic type
-func (m *mTOServiceItem) SetDescription(val string) {
-	m.descriptionField = val
 }
 
 // ETag gets the e tag of this polymorphic type
@@ -127,16 +93,6 @@ func (m *mTOServiceItem) ETag() string {
 // SetETag sets the e tag of this polymorphic type
 func (m *mTOServiceItem) SetETag(val string) {
 	m.eTagField = val
-}
-
-// FeeType gets the fee type of this polymorphic type
-func (m *mTOServiceItem) FeeType() string {
-	return m.feeTypeField
-}
-
-// SetFeeType sets the fee type of this polymorphic type
-func (m *mTOServiceItem) SetFeeType(val string) {
-	m.feeTypeField = val
 }
 
 // ID gets the id of this polymorphic type
@@ -176,26 +132,6 @@ func (m *mTOServiceItem) MtoShipmentID() strfmt.UUID {
 // SetMtoShipmentID sets the mto shipment ID of this polymorphic type
 func (m *mTOServiceItem) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
-}
-
-// Quantity gets the quantity of this polymorphic type
-func (m *mTOServiceItem) Quantity() int64 {
-	return m.quantityField
-}
-
-// SetQuantity sets the quantity of this polymorphic type
-func (m *mTOServiceItem) SetQuantity(val int64) {
-	m.quantityField = val
-}
-
-// Rate gets the rate of this polymorphic type
-func (m *mTOServiceItem) Rate() int64 {
-	return m.rateField
-}
-
-// SetRate sets the rate of this polymorphic type
-func (m *mTOServiceItem) SetRate(val int64) {
-	m.rateField = val
 }
 
 // ReServiceName gets the re service name of this polymorphic type
@@ -280,6 +216,36 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 			return nil, err
 		}
 		return &result, nil
+	case "MTOServiceItemBasic":
+		var result MTOServiceItemBasic
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "MTOServiceItemDestSIT":
+		var result MTOServiceItemDestSIT
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "MTOServiceItemDomesticCrating":
+		var result MTOServiceItemDomesticCrating
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "MTOServiceItemOriginSIT":
+		var result MTOServiceItemOriginSIT
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	case "MTOServiceItemShuttle":
+		var result MTOServiceItemShuttle
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	}
 	return nil, errors.New(422, "invalid modelType value: %q", getType.ModelType)
 }
@@ -287,10 +253,6 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 // Validate validates this m t o service item
 func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateFeeType(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
@@ -311,55 +273,6 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var mTOServiceItemTypeFeeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["COUNSELING","CRATING","TRUCKING","SHUTTLE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		mTOServiceItemTypeFeeTypePropEnum = append(mTOServiceItemTypeFeeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// MTOServiceItemFeeTypeCOUNSELING captures enum value "COUNSELING"
-	MTOServiceItemFeeTypeCOUNSELING string = "COUNSELING"
-
-	// MTOServiceItemFeeTypeCRATING captures enum value "CRATING"
-	MTOServiceItemFeeTypeCRATING string = "CRATING"
-
-	// MTOServiceItemFeeTypeTRUCKING captures enum value "TRUCKING"
-	MTOServiceItemFeeTypeTRUCKING string = "TRUCKING"
-
-	// MTOServiceItemFeeTypeSHUTTLE captures enum value "SHUTTLE"
-	MTOServiceItemFeeTypeSHUTTLE string = "SHUTTLE"
-)
-
-// prop value enum
-func (m *mTOServiceItem) validateFeeTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, mTOServiceItemTypeFeeTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *mTOServiceItem) validateFeeType(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.FeeType()) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateFeeTypeEnum("feeType", "body", m.FeeType()); err != nil {
-		return err
-	}
-
 	return nil
 }
 
