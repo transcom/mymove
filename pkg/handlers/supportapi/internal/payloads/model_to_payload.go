@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"time"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -8,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	primepayloads "github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -42,6 +45,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		return nil
 	}
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
+	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 
 	payload := &supportmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
@@ -65,6 +69,8 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 	if moveTaskOrder.PPMType != nil {
 		payload.PpmType = *moveTaskOrder.PPMType
 	}
+
+	payload.SetMtoServiceItems(*mtoServiceItems)
 
 	return payload
 }
@@ -255,18 +261,99 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 }
 
 // MTOServiceItem payload
-func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.UpdateMTOServiceItemStatus {
-	strfmt.MarshalFormat = strfmt.RFC3339Micro
-	payload := &supportmessages.UpdateMTOServiceItemStatus{
-		ETag:            etag.GenerateEtag(mtoServiceItem.UpdatedAt),
-		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
-		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),
-		MtoShipmentID:   strfmt.UUID(mtoServiceItem.MTOShipmentID.String()),
-		Status:          supportmessages.MTOServiceItemStatus(mtoServiceItem.Status),
-		RejectionReason: mtoServiceItem.RejectionReason,
+func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOServiceItem {
+	var payload supportmessages.MTOServiceItem
+	// Here we determine which payload model to use based on the re service code
+	switch mtoServiceItem.ReService.Code {
+	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT:
+		var sitDepartureDate time.Time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
+		}
+		payload = &supportmessages.MTOServiceItemOriginSIT{
+			ReServiceCode:    handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:           mtoServiceItem.Reason,
+			SitDepartureDate: handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:    mtoServiceItem.SITPostalCode,
+		}
+	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
+		var sitDepartureDate time.Time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
+		}
+		firstContact := primepayloads.GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
+		secondContact := primepayloads.GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
+
+		payload = &supportmessages.MTOServiceItemDestSIT{
+			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
+			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
+			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
+			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
+			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+		}
+
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+		item := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
+		payload = &supportmessages.MTOServiceItemDomesticCrating{
+			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Item: &supportmessages.MTOServiceItemDimension{
+				ID:     strfmt.UUID(item.ID.String()),
+				Type:   supportmessages.DimensionType(item.Type),
+				Height: item.Height.Int32Ptr(),
+				Length: item.Length.Int32Ptr(),
+				Width:  item.Width.Int32Ptr(),
+			},
+			Crate: &supportmessages.MTOServiceItemDimension{
+				ID:     strfmt.UUID(crate.ID.String()),
+				Type:   supportmessages.DimensionType(crate.Type),
+				Height: crate.Height.Int32Ptr(),
+				Length: crate.Length.Int32Ptr(),
+				Width:  crate.Width.Int32Ptr(),
+			},
+			Description: mtoServiceItem.Description,
+		}
+	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
+		payload = &supportmessages.MTOServiceItemShuttle{
+			Description:   mtoServiceItem.Description,
+			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:        mtoServiceItem.Reason,
+		}
+	default:
+		// otherwise, basic service item
+		payload = &supportmessages.MTOServiceItemBasic{
+			ReServiceCode: supportmessages.ReServiceCode(mtoServiceItem.ReService.Code),
+		}
 	}
 
+	// set all relevant fields that apply to all service items
+	var shipmentIDStr string
+	if mtoServiceItem.MTOShipmentID != nil {
+		shipmentIDStr = mtoServiceItem.MTOShipmentID.String()
+	}
+
+	payload.SetID(*handlers.FmtUUID(mtoServiceItem.ID))
+	payload.SetMoveTaskOrderID(handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID))
+	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
+	payload.SetReServiceName(mtoServiceItem.ReService.Name)
+	payload.SetStatus(supportmessages.MTOServiceItemStatus(mtoServiceItem.Status))
+	payload.SetRejectionReason(mtoServiceItem.RejectionReason)
+	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
 	return payload
+}
+
+// MTOServiceItems payload
+func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]supportmessages.MTOServiceItem {
+	var payload []supportmessages.MTOServiceItem
+
+	for _, p := range *mtoServiceItems {
+		copyOfP := p // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload = append(payload, MTOServiceItem(&copyOfP))
+	}
+	return &payload
 }
 
 // MTOShipments payload
