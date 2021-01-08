@@ -22,7 +22,7 @@ const PaymentRequestDetails = ({ serviceItems }) => {
           <div className={styles.shipmentType}>
             <div className={styles.basicServiceType} />
             <h3>
-              Basic Service Items ({basicServiceItems.length} {basicServiceItems.length > 1 ? 'items' : 'item'})
+              Basic service items ({basicServiceItems.length} {basicServiceItems.length > 1 ? 'items' : 'item'})
             </h3>
           </div>
         </div>
@@ -34,7 +34,7 @@ const PaymentRequestDetails = ({ serviceItems }) => {
           </colgroup>
           <thead>
             <tr>
-              <th>Service Item</th>
+              <th>Service item</th>
               <th className="align-right">Amount</th>
               <th className="align-right">Status</th>
             </tr>

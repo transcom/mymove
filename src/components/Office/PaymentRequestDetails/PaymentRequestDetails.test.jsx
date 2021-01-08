@@ -108,7 +108,7 @@ describe('PaymentRequestDetails', () => {
     });
 
     it('renders the expected table title', () => {
-      expect(wrapper.text().includes('Basic Service Items (6 items)')).toBeTruthy();
+      expect(wrapper.text().includes('Basic service items (6 items)')).toBeTruthy();
     });
   });
 
@@ -120,7 +120,7 @@ describe('PaymentRequestDetails', () => {
     );
 
     it('renders the expected table title', () => {
-      expect(wrapper.text().includes('Basic Service Items (1 item)')).toBeTruthy();
+      expect(wrapper.text().includes('Basic service items (1 item)')).toBeTruthy();
     });
   });
 });
