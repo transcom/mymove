@@ -233,9 +233,6 @@ bin/generate-deploy-notes: cmd/generate-deploy-notes
 bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
-bin/ecs-service-logs: cmd/ecs-service-logs
-	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
-
 bin/find-guardduty-user: cmd/find-guardduty-user
 	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
 
@@ -353,7 +350,6 @@ build_tools: bin/gin \
 	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
-	bin/ecs-service-logs \
 	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \

@@ -784,6 +784,9 @@ definitions:
         format: date
         type: string
         description: The date the customer requested that this shipment be picked up.
+      primeEstimatedWeight:
+        type: integer
+        example: 4500
       customerRemarks:
         type: string
         example: handle with care
@@ -1018,6 +1021,7 @@ definitions:
       isCanceled:
         type: boolean
         x-nullable: true
+        readOnly: true
       updatedAt:
         format: date-time
         type: string

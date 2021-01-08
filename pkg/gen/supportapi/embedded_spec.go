@@ -149,7 +149,7 @@ func init() {
           "200": {
             "description": "Successfully hid MTOs.",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
+              "$ref": "#/definitions/MoveTaskOrderIDs"
             }
           },
           "400": {
@@ -558,6 +558,9 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
@@ -1510,7 +1513,8 @@ func init() {
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
@@ -1566,6 +1570,17 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
+      }
+    },
+    "MoveTaskOrderID": {
+      "type": "string",
+      "format": "uuid",
+      "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+    },
+    "MoveTaskOrderIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {
@@ -2169,7 +2184,7 @@ func init() {
           "200": {
             "description": "Successfully hid MTOs.",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
+              "$ref": "#/definitions/MoveTaskOrderIDs"
             }
           },
           "400": {
@@ -2722,6 +2737,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "There was a conflict with the request.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -3710,7 +3731,8 @@ func init() {
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
@@ -3766,6 +3788,17 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
+      }
+    },
+    "MoveTaskOrderID": {
+      "type": "string",
+      "format": "uuid",
+      "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+    },
+    "MoveTaskOrderIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {

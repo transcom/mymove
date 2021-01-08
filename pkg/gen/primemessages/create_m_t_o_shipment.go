@@ -47,6 +47,9 @@ type CreateMTOShipment struct {
 	// Email or id of a contact person for this update
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
+	// prime estimated weight
+	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+
 	// The date the customer requested that this shipment be picked up.
 	// Required: true
 	// Format: date
@@ -83,6 +86,8 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 		PickupAddress *Address `json:"pickupAddress"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
+
+		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
 		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
@@ -128,6 +133,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	// pointOfContact
 	result.PointOfContact = data.PointOfContact
 
+	// primeEstimatedWeight
+	result.PrimeEstimatedWeight = data.PrimeEstimatedWeight
+
 	// requestedPickupDate
 	result.RequestedPickupDate = data.RequestedPickupDate
 
@@ -156,6 +164,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
+		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+
 		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType"`
@@ -172,6 +182,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 		PickupAddress: m.PickupAddress,
 
 		PointOfContact: m.PointOfContact,
+
+		PrimeEstimatedWeight: m.PrimeEstimatedWeight,
 
 		RequestedPickupDate: m.RequestedPickupDate,
 
