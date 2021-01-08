@@ -33,9 +33,9 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
     (item) => item.mtoShipmentType === undefined || item.mtoShipmentType.null,
   );
 
-  // show details by default if not reviewed
-  const defaultShowDetails = paymentRequestStatusLabel(paymentRequest.status) !== 'Reviewed';
-  // only show button in reviewed state
+  // show details by default if in pending/needs review
+  const defaultShowDetails = paymentRequest.status === 'PENDING';
+  // only show button in reviewed/paid
   const showRequestDetailsButton = !defaultShowDetails && basicServiceItems.length > 0;
   // state to toggle between showing details or not
   const [showDetails, setShowDetails] = useState(defaultShowDetails);
