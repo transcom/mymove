@@ -375,6 +375,7 @@ func IsValidFakeDataPhone(phone string) (bool, error) {
 
 /*
 IsValidFakeDataEmail - checks for the format
+@truss.works or
 @example.com or
 @email.com
 */
@@ -387,6 +388,10 @@ func IsValidFakeDataEmail(email string) (bool, error) {
 	}
 
 	if strings.HasSuffix(lowerEmail, "@email.com") {
+		return true, nil
+	}
+
+	if strings.HasSuffix(lowerEmail, "@truss.works") {
 		return true, nil
 	}
 

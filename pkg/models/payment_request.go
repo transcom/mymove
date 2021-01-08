@@ -22,6 +22,8 @@ const (
 	PaymentRequestStatusPending PaymentRequestStatus = "PENDING"
 	// PaymentRequestStatusReviewed is reviewed
 	PaymentRequestStatusReviewed PaymentRequestStatus = "REVIEWED"
+	// PaymentRequestStatusReviewedAllRejected is reviewed
+	PaymentRequestStatusReviewedAllRejected PaymentRequestStatus = "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"
 	// PaymentRequestStatusSentToGex is sent to gex
 	PaymentRequestStatusSentToGex PaymentRequestStatus = "SENT_TO_GEX"
 	// PaymentRequestStatusReceivedByGex is received by gex
@@ -33,6 +35,7 @@ const (
 var validPaymentRequestStatus = []string{
 	string(PaymentRequestStatusPending),
 	string(PaymentRequestStatusReviewed),
+	string(PaymentRequestStatusReviewedAllRejected),
 	string(PaymentRequestStatusSentToGex),
 	string(PaymentRequestStatusReceivedByGex),
 	string(PaymentRequestStatusPaid),
