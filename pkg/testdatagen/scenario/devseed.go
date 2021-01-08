@@ -1692,7 +1692,6 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 	testdatagen.MakePaymentServiceItemWithParams(
 		db,
 		models.ReServiceCodeDLH,
-
 		basicPaymentServiceItemParams,
 		assertions9,
 	)

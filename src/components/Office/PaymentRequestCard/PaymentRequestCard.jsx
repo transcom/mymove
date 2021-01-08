@@ -42,7 +42,6 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
     sac = paymentRequest.moveTaskOrder.orders.sac;
     contractNumber = paymentRequest.moveTaskOrder.contractor.contractNumber;
   }
-
   if (paymentRequest.serviceItems) {
     paymentRequest.serviceItems.forEach((item) => {
       requestedAmount += item.priceCents;

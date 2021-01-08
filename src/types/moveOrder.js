@@ -149,6 +149,4 @@ export const PaymentRequestShape = PropTypes.shape({
   eTag: PropTypes.string,
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape),
   reviewedAt: PropTypes.string,
-  Sac: PropTypes.string,
-  Tac: PropTypes.string,
 });
