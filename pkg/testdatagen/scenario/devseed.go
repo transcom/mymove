@@ -1632,9 +1632,24 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 			ID:            uuid.FromStringOrNil("cfd110d4-1f62-401c-a92c-39987a0b4228"),
 			MoveTaskOrder: move9,
 			IsFinal:       false,
-			Status:        models.PaymentRequestStatusPending,
+			Status:        models.PaymentRequestStatusReviewed,
+			ReviewedAt:    swag.Time(time.Now()),
 		},
 		Move: move9,
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
+		PaymentRequest: paymentRequest9,
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusDenied,
+		},
+		PaymentRequest: paymentRequest9,
 	})
 
 	assertions9 := testdatagen.Assertions{
@@ -1677,6 +1692,7 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 	testdatagen.MakePaymentServiceItemWithParams(
 		db,
 		models.ReServiceCodeDLH,
+
 		basicPaymentServiceItemParams,
 		assertions9,
 	)
