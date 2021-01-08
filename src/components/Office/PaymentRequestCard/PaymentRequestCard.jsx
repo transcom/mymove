@@ -34,7 +34,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
   );
 
   // show details by default if in pending/needs review
-  const defaultShowDetails = paymentRequest.status === 'PENDING';
+  const defaultShowDetails = paymentRequest.status === 'PENDING' && basicServiceItems.length > 0;
   // only show button in reviewed/paid
   const showRequestDetailsButton = !defaultShowDetails && basicServiceItems.length > 0;
   // state to toggle between showing details or not
