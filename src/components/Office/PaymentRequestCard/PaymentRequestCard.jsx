@@ -28,10 +28,15 @@ const paymentRequestStatusLabel = (status) => {
 };
 
 const PaymentRequestCard = ({ paymentRequest, history }) => {
+  // TODO - Will need to update this when we add support for other shipment types
+  const basicServiceItems = paymentRequest.serviceItems.filter(
+    (item) => item.mtoShipmentType === undefined || item.mtoShipmentType.null,
+  );
+
   // show details by default if not reviewed
   const defaultShowDetails = paymentRequestStatusLabel(paymentRequest.status) !== 'Reviewed';
   // only show button in reviewed state
-  const showRequestDetailsButton = !defaultShowDetails;
+  const showRequestDetailsButton = !defaultShowDetails && basicServiceItems.length > 0;
   // state to toggle between showing details or not
   const [showDetails, setShowDetails] = useState(defaultShowDetails);
   let handleClick = () => {};
@@ -142,7 +147,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
       </div>
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
-          <PaymentRequestDetails serviceItems={paymentRequest.serviceItems} />
+          <PaymentRequestDetails serviceItems={basicServiceItems} />
         </div>
       )}
     </div>
