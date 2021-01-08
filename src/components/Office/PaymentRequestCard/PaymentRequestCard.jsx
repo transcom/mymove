@@ -33,15 +33,9 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
   let approvedAmount = 0;
   let rejectedAmount = 0;
 
-  let tac;
-  let sac;
-  let contractNumber;
+  const { sac, tac } = paymentRequest.moveTaskOrder.orders;
+  const { contractNumber } = paymentRequest.moveTaskOrder.contractor;
 
-  if (paymentRequest.moveTaskOrder) {
-    tac = paymentRequest.moveTaskOrder.orders.tac;
-    sac = paymentRequest.moveTaskOrder.orders.sac;
-    contractNumber = paymentRequest.moveTaskOrder.contractor.contractNumber;
-  }
   if (paymentRequest.serviceItems) {
     paymentRequest.serviceItems.forEach((item) => {
       requestedAmount += item.priceCents;
