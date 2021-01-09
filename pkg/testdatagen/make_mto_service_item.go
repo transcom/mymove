@@ -103,6 +103,24 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 			},
 		},
 	}
+	// MS
+	serviceParams[models.ReServiceCodeMS] = realMTOServiceParamData{
+		ServiceCode: models.ReServiceCodeMS,
+		ServiceItemParamKeys: []models.ServiceItemParamKey{
+			{
+				Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Description: "mto available to prime at",
+				Type:        models.ServiceItemParamTypeTimestamp,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+		},
+	}
 	// DLH
 	serviceParams[models.ReServiceCodeDLH] = realMTOServiceParamData{
 		ServiceCode: models.ReServiceCodeDLH,
