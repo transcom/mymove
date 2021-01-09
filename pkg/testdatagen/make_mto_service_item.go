@@ -181,6 +181,54 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 			},
 		},
 	}
+	// FSC
+	serviceParams[models.ReServiceCodeFSC] = realMTOServiceParamData{
+		ServiceCode: models.ReServiceCodeFSC,
+		ServiceItemParamKeys: []models.ServiceItemParamKey{
+			{
+				Key:         models.ServiceItemParamNameEIAFuelPrice,
+				Description: "eia fuel price",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameActualPickupDate,
+				Description: "actual pickup date",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+				Description: "fsc weigh based multiplier",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameDistanceZip3,
+				Description: "distance zip 3",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameDistanceZip5,
+				Description: "distance zip 5",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightBilledActual,
+				Description: "weight billed actual",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+		},
+	}
 
 	return serviceParams
 }
