@@ -154,9 +154,18 @@ func MakeFullDLHMTOServiceItem(db *pop.Connection, assertions Assertions) (model
 	}
 
 	var mtoServiceItems models.MTOServiceItems
+	// Service Item MS
+	mtoServiceItemMS := MakeRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeMS, moveTaskOrder, mtoShipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemMS)
+	// Service Item CS
+	mtoServiceItemCS := MakeRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeCS, moveTaskOrder, mtoShipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemCS)
 	// Service Item DLH
 	mtoServiceItemDLH := MakeRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDLH, moveTaskOrder, mtoShipment)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDLH)
+	// Service Item FSC
+	mtoServiceItemFSC := MakeRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeFSC, moveTaskOrder, mtoShipment)
+	mtoServiceItems = append(mtoServiceItems, mtoServiceItemFSC)
 
 	return moveTaskOrder, mtoServiceItems
 }

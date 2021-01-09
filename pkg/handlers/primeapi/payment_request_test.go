@@ -642,6 +642,15 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
 					},
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[1].ID),
+					},
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[2].ID),
+					},
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[3].ID),
+					},
 				},
 				PointOfContact: "user@prime.com",
 			},

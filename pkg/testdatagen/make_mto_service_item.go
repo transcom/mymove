@@ -205,7 +205,7 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 			},
 			{
 				Key:         models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
-				Description: "fsc weigh based multiplier",
+				Description: "fsc weight based multiplier",
 				Type:        models.ServiceItemParamTypeDecimal,
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
