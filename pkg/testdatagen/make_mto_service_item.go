@@ -85,6 +85,25 @@ type realMTOServiceParamData struct {
 
 func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServiceParamData {
 	serviceParams := make(map[models.ReServiceCode]realMTOServiceParamData)
+	// CS
+	serviceParams[models.ReServiceCodeCS] = realMTOServiceParamData{
+		ServiceCode: models.ReServiceCodeCS,
+		ServiceItemParamKeys: []models.ServiceItemParamKey{
+			{
+				Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Description: "mto available to prime at",
+				Type:        models.ServiceItemParamTypeTimestamp,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+		},
+	}
+	// DLH
 	serviceParams[models.ReServiceCodeDLH] = realMTOServiceParamData{
 		ServiceCode: models.ReServiceCodeDLH,
 		ServiceItemParamKeys: []models.ServiceItemParamKey{
