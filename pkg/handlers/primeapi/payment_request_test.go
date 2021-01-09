@@ -491,7 +491,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 }
 
-func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
+func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOServiceItems) {
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "7 Q St",
@@ -511,38 +511,7 @@ func (suite *HandlerSuite) createMTO() (models.Move, models.MTOServiceItems) {
 	testEstWeight := dlhTestWeight
 	testActualWeight := testEstWeight
 
-	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullDLHMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &testEstWeight,
-			PrimeActualWeight:    &testActualWeight,
-			PickupAddressID:      &pickupAddress.ID,
-			PickupAddress:        &pickupAddress,
-			DestinationAddressID: &destinationAddress.ID,
-			DestinationAddress:   &destinationAddress,
-		},
-	})
-	return moveTaskOrder, mtoServiceItems
-}
-
-func (suite *HandlerSuite) setupDomesticLinehaulData() {
-
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
-		testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				Escalation:           1.0197,
-				EscalationCompounded: 1.04071,
-				StartDate:            time.Date(testdatagen.GHCTestYear, time.January, 1, 0, 0, 0, 0, time.UTC),
-				EndDate:              time.Date(testdatagen.GHCTestYear, time.December, 31, 0, 0, 0, 0, time.UTC),
-			},
-		})
-
-	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
-		testdatagen.Assertions{
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				Contract:    contractYear.Contract,
-				ServiceArea: dlhTestServiceArea,
-			},
-		})
+	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), dlhTestServiceArea, pickupAddress)
 
 	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
@@ -565,40 +534,24 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() {
 		},
 	})
 
-	rateArea := models.ReRateArea{
-		ContractID: contractYear.Contract.ID,
-		IsOconus:   false,
-		Code:       "US47",
-		Name:       "Alabama",
-		Contract:   contractYear.Contract,
-	}
-	suite.MustSave(&rateArea)
-	err := suite.DB().Q().Where("code = ?", "US47").First(&rateArea)
-	suite.NoError(err)
-
-	_ = testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
-		ReZip3: models.ReZip3{
-			ContractID:            contractYear.Contract.ID,
-			Zip3:                  "352",
-			BasePointCity:         "Birmingham",
-			State:                 "AL",
-			DomesticServiceAreaID: serviceArea.ID,
-			RateAreaID:            &rateArea.ID,
-			HasMultipleRateAreas:  false,
-			Contract:              contractYear.Contract,
-			DomesticServiceArea:   serviceArea,
-			RateArea:              &rateArea,
+	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullDLHMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &testEstWeight,
+			PrimeActualWeight:    &testActualWeight,
+			PickupAddressID:      &pickupAddress.ID,
+			PickupAddress:        &pickupAddress,
+			DestinationAddressID: &destinationAddress.ID,
+			DestinationAddress:   &destinationAddress,
 		},
 	})
-
+	return moveTaskOrder, mtoServiceItems
 }
 
 func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreator() {
 	const defaultZip3Distance = 1234
 	const defaultZip5Distance = 48
 
-	suite.setupDomesticLinehaulData()
-	move, mtoServiceItems := suite.createMTO()
+	move, mtoServiceItems := suite.setupDomesticLinehaulData()
 	moveTaskOrderID := move.ID
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -669,8 +622,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 	const defaultZip3Distance = 1234
 	const defaultZip5Distance = 48
 
-	suite.setupDomesticLinehaulData()
-	move, mtoServiceItems := suite.createMTO()
+	move, mtoServiceItems := suite.setupDomesticLinehaulData()
 	moveTaskOrderID := move.ID
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
