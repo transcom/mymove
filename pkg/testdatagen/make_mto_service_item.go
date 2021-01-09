@@ -83,9 +83,7 @@ type realMTOServiceParamData struct {
 	ServiceItemParamKeys []models.ServiceItemParamKey
 }
 
-// MakeRealMTOServiceItemWithAllDeps Takes a service code, move, shipment
-// and creates or finds all the needed data to create a service item all its params ready for pricing
-func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.ReServiceCode, mto models.Move, mtoShipment models.MTOShipment) models.MTOServiceItem {
+func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServiceParamData {
 	serviceParams := make(map[models.ReServiceCode]realMTOServiceParamData)
 	serviceParams[models.ReServiceCodeDLH] = realMTOServiceParamData{
 		ServiceCode: models.ReServiceCodeDLH,
@@ -146,6 +144,14 @@ func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.Re
 			},
 		},
 	}
+
+	return serviceParams
+}
+
+// MakeRealMTOServiceItemWithAllDeps Takes a service code, move, shipment
+// and creates or finds all the needed data to create a service item all its params ready for pricing
+func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.ReServiceCode, mto models.Move, mtoShipment models.MTOShipment) models.MTOServiceItem {
+	serviceParams := fixtureMapOfServiceItemParams()
 
 	// look up the data we need
 	data := serviceParams[serviceCode]
