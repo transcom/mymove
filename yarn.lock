@@ -15976,10 +15976,10 @@ querystringify@^2.1.1:
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.1.1.tgz#60e5a5fd64a7f8bfa4d2ab2ed6fdf4c85bad154e"
   integrity sha512-w7fLxIRCRT7U8Qu53jQnJyPkYZIaR4n5151KMfcJlO/A9397Wxb1amJvROTK6TOnp7PfoAmg/qXiNHI+08jRfA==
 
-ra-core@^3.11.1:
-  version "3.11.1"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.11.1.tgz#c50ae7f17c74e7fdc56e60483107ac08a34d2491"
-  integrity sha512-wV4nnG7RWUH2rNNdOyyjBDQH/sl/lHa7k52AHpRkto40n2VFCW8qC+fHtwT5Jj+GXg4cS81lYQaWfxE6xMFOfg==
+ra-core@^3.11.1, ra-core@^3.11.2:
+  version "3.11.2"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.11.2.tgz#22a6b93e093ddcbbb45f04904f74020c6c4d8fde"
+  integrity sha512-1oYCnXER5iSmEwHi3Hy2CkAuJXkC/6AjkJlVf0trnhzvUxkzusMOV9dm4ONyyrPDwGFc7oStNA793F7qNZbXog==
   dependencies:
     "@testing-library/react" "^8.0.7"
     classnames "~2.2.5"
@@ -16006,12 +16006,12 @@ ra-i18n-polyglot@^3.11.1:
     node-polyglot "^2.2.2"
     ra-core "^3.11.1"
 
-ra-language-english@^3.10.4, ra-language-english@^3.11.1:
-  version "3.11.1"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.11.1.tgz#df17ba56803e3a71e6981a9a7c6e2249417318e1"
-  integrity sha512-6MAuEM7mFoxdwa2lKcJh+tldviLevzn31EM8IbqKVU8kqHkxGk5KTfUMDcZcbIRWa68AenN/WjLM9CthRqJrOQ==
+ra-language-english@^3.11.1, ra-language-english@^3.11.2:
+  version "3.11.2"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.11.2.tgz#eeab5aefaadae4e064dfd8df4fb041477b9936ea"
+  integrity sha512-ainBiE4+4ITJgU4+nLu0I3Lu+nsDzYOW8iFU+T+xcXW/Dni4lfUr5PGzvCefhNx5E5mXzUxJUkmpbYzUaMlILg==
   dependencies:
-    ra-core "^3.11.1"
+    ra-core "^3.11.2"
 
 ra-ui-materialui@^3.11.1:
   version "3.11.1"
@@ -16425,10 +16425,10 @@ react-hotkeys@2.0.0:
   dependencies:
     prop-types "^15.6.1"
 
-react-idle-timer@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.5.0.tgz#7fd1d63763839e8b534c81755631ebc3c3bc5d07"
-  integrity sha512-R6V3eErt+eCDjEkgh5s4bPEMKIEcYsppmfyjhhKrs3D8qxGMkv38zrJHlvkSU9ndtQFBh6eyGkDa45NMBv8Lnw==
+react-idle-timer@^4.5.1:
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.5.1.tgz#ecf13e4b6327f11e2543a4fb730a8457e496339d"
+  integrity sha512-SR1A5XgOfjcXb6JbRHiMremcuLBC1ygkSuMqjwLs98ApM3qfMUfabRgHeXSX7/wK89PF7xRODhm0qQ0hQt+jyw==
 
 react-imask@^6.0.5:
   version "6.0.5"

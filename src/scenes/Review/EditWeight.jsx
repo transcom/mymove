@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import SaveCancelButtons from './SaveCancelButtons';
@@ -9,20 +8,22 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import {
-  loadPPMs,
-  updatePPM,
-  selectActivePPMForMove,
-  selectPPMEstimateRange,
-  updatePPMEstimate,
-  getPpmWeightEstimate,
-} from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders, selectCurrentMove } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectCurrentMove,
+  selectPPMEstimateRange,
+} from 'store/entities/selectors';
+import { getPPMsForMove, patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
+import { updatePPMs, updatePPM, updatePPMEstimate } from 'store/entities/actions';
+import { setPPMEstimateError } from 'store/onboarding/actions';
+import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
@@ -204,17 +205,28 @@ class EditWeight extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
-    this.props.loadPPMs(this.props.match.params.moveId);
+    getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
     scrollToTop();
   }
 
-  debouncedGetPpmWeightEstimate = debounce(this.props.getPpmWeightEstimate, weightEstimateDebounce);
+  handleWeightChange = (moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) => {
+    calculatePPMEstimate(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate)
+      .then((response) => {
+        this.props.updatePPMEstimate(response);
+        this.props.setPPMEstimateError(null);
+      })
+      .catch((error) => {
+        this.props.setPPMEstimateError(error);
+      });
+  };
+
+  debouncedHandleWeightChange = debounce(this.handleWeightChange, weightEstimateDebounce);
 
   onWeightChange = (e, newValue) => {
     const { currentPPM, entitlement, originDutyStationZip, orders } = this.props;
     if (newValue > 0 && newValue <= entitlement.sum) {
-      this.debouncedGetPpmWeightEstimate(
+      this.debouncedHandleWeightChange(
         currentPPM.original_move_date,
         currentPPM.pickup_postal_code,
         originDutyStationZip,
@@ -222,37 +234,39 @@ class EditWeight extends Component {
         newValue,
       );
     } else {
-      this.debouncedGetPpmWeightEstimate.cancel();
+      this.debouncedHandleWeightChange.cancel();
     }
   };
 
   updatePpm = (values, dispatch, props) => {
     const moveId = this.props.match.params.moveId;
-    return this.props
-      .updatePPM(moveId, this.props.currentPPM.id, {
-        weight_estimate: values.weight_estimate,
+    return patchPPM(moveId, {
+      id: this.props.currentPPM.id,
+      weight_estimate: values.weight_estimate,
+    })
+      .then((response) => {
+        this.props.updatePPM(response);
+        return response;
       })
-      .then(({ response }) => {
-        this.props
-          .updatePPMEstimate(moveId, response.body.id)
-          .then(() => {
-            if (!this.props.hasSubmitError) {
-              this.props.editSuccessful();
-              this.props.history.goBack();
-              this.props.checkEntitlement(moveId);
-            } else {
-              scrollToTop();
-            }
-          })
-          .catch(() => {
-            if (!this.props.hasSubmitError) {
-              this.props.editSuccessful();
-              this.props.history.goBack();
-              this.props.checkEntitlement(moveId);
-            } else {
-              scrollToTop();
-            }
-          });
+      .then((response) => persistPPMEstimate(moveId, response.id))
+      .then((response) => this.props.updatePPM(response))
+      .then(() => {
+        if (!this.props.hasSubmitError) {
+          this.props.editSuccessful();
+          this.props.history.goBack();
+          this.props.checkEntitlement(moveId);
+        } else {
+          scrollToTop();
+        }
+      })
+      .catch(() => {
+        if (!this.props.hasSubmitError) {
+          this.props.editSuccessful();
+          this.props.history.goBack();
+          this.props.checkEntitlement(moveId);
+        } else {
+          scrollToTop();
+        }
       });
   };
 
@@ -339,31 +353,27 @@ function mapStateToProps(state) {
   return {
     serviceMemberId,
     currentPPM: selectActivePPMForMove(state, currentMove?.id),
-    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
-    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
+    incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
     orders: selectCurrentOrders(state) || {},
+    rateEngineError: selectPPMEstimateError(state),
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-      loadPPMs,
-      fetchLatestOrders,
-      updatePPM,
-      getPpmWeightEstimate,
-      editBegin,
-      editSuccessful,
-      entitlementChangeBegin,
-      checkEntitlement,
-      updatePPMEstimate,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  fetchLatestOrders,
+  updatePPM,
+  updatePPMs,
+  editBegin,
+  editSuccessful,
+  entitlementChangeBegin,
+  checkEntitlement,
+  updatePPMEstimate,
+  setPPMEstimateError,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditWeight);

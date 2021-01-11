@@ -6,11 +6,11 @@ import styles from './PpmMoveDetails.module.scss';
 
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'shared/formatters';
-import { formatIncentiveRange } from 'shared/incentive';
-import { selectPPMEstimateRange, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { getIncentiveRange } from 'utils/incentives';
+import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-import { selectCurrentMove } from 'store/entities/selectors';
+import { selectCurrentMove, selectPPMEstimateRange } from 'store/entities/selectors';
 
 const SubmittedPpmMoveDetails = (props) => {
   const { advance, ppm, currentPPM, tempCurrentPPM, hasEstimateError, estimateRange } = props;
@@ -20,7 +20,7 @@ const SubmittedPpmMoveDetails = (props) => {
   const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
   const currentPPMToUse = isEmpty(currentPPM) ? tempCurrentPPM : currentPPM;
-  const incentiveRange = formatIncentiveRange(currentPPMToUse, estimateRange);
+  const incentiveRange = getIncentiveRange(currentPPMToUse, estimateRange);
 
   const weightEstimate = currentPPMToUse.weight_estimate;
   return (
@@ -69,7 +69,7 @@ const mapStateToProps = (state, ownProps) => {
     ppm: get(state, 'ppm', {}),
     advance,
     isMissingWeightTicketDocuments,
-    estimateRange: selectPPMEstimateRange(state),
+    estimateRange: selectPPMEstimateRange(state) || {},
   };
   return props;
 };
