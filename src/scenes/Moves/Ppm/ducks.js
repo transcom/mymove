@@ -1,7 +1,5 @@
 import { get, isEmpty } from 'lodash';
 
-import { GetPpm } from './api.js';
-
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
@@ -11,21 +9,6 @@ import { selectCurrentMove } from 'store/entities/selectors';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
-
-export function loadPpm(moveId) {
-  const action = ReduxHelpers.generateAsyncActions('GET_PPM');
-  return function (dispatch, getState) {
-    dispatch(action.start);
-    const state = getState();
-    const currentPpm = state.ppm.currentPpm;
-    if (!currentPpm) {
-      return GetPpm(moveId)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
-    }
-    return Promise.resolve();
-  };
-}
 
 // Selectors
 export function getMaxAdvance(state) {

@@ -32,6 +32,9 @@ type PaymentRequest struct {
 	// is final
 	IsFinal *bool `json:"isFinal,omitempty"`
 
+	// move task order
+	MoveTaskOrder *Move `json:"moveTaskOrder,omitempty"`
+
 	// move task order ID
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
@@ -66,6 +69,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveTaskOrder(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -116,6 +123,24 @@ func (m *PaymentRequest) validateID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateMoveTaskOrder(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MoveTaskOrder) { // not required
+		return nil
+	}
+
+	if m.MoveTaskOrder != nil {
+		if err := m.MoveTaskOrder.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("moveTaskOrder")
+			}
+			return err
+		}
 	}
 
 	return nil
