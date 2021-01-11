@@ -6,11 +6,14 @@ import { object, string, shape, bool, number } from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
 
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
 import { hasShortHaulError } from 'utils/incentives';
-import { selectServiceMemberFromLoggedInUser, selectCurrentPPM } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentPPM,
+  selectReimbursementById,
+} from 'store/entities/selectors';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
 import './Review.css';
@@ -151,7 +154,7 @@ PPMShipmentSummary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const { ppm } = ownProps;
-  const advance = selectReimbursement(state, ppm.advance);
+  const advance = selectReimbursementById(state, ppm.advance) || {};
   const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } =
     selectCurrentPPM(state) || {};
 

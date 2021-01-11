@@ -13,6 +13,7 @@ import {
   selectPPMForMove,
   selectPPMEstimateRange,
   selectPPMSitEstimate,
+  selectReimbursementById,
 } from './selectors';
 
 describe('selectLoggedInUser', () => {
@@ -1237,5 +1238,33 @@ describe('selectPPMSitEstimate', () => {
     };
 
     expect(selectPPMSitEstimate(testState)).toEqual(null);
+  });
+});
+
+describe('selectReimbursementById', () => {
+  it('returns the only PPM SIT estimate stored in entities', () => {
+    const testState = {
+      entities: {
+        reimbursements: {
+          testReimbursement123: {
+            id: 'testReimbursement123',
+          },
+        },
+      },
+    };
+
+    expect(selectReimbursementById(testState, 'testReimbursement123')).toEqual(
+      testState.entities.reimbursements.testReimbursement123,
+    );
+  });
+
+  it('returns null if there is no reimbursement in entities', () => {
+    const testState = {
+      entities: {
+        ppmSitEstimate: {},
+      },
+    };
+
+    expect(selectReimbursementById(testState, 'testReimbursement123')).toEqual(null);
   });
 });

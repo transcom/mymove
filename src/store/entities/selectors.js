@@ -143,3 +143,7 @@ export function selectPPMEstimateRange(state) {
 export function selectPPMSitEstimate(state) {
   return state.entities?.ppmSitEstimate?.undefined?.estimate || null;
 }
+
+export function selectReimbursementById(state, reimbursementId) {
+  return state.entities?.reimbursements?.[`${reimbursementId}`] || null;
+}
