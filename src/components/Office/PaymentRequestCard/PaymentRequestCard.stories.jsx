@@ -33,12 +33,27 @@ export default {
 // always show 7 days prior to mocked date time
 const itsBeenOneWeek = moment(mockedDate).subtract(7, 'days').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
 
+const order = {
+  sac: '1234456',
+  tac: '1213',
+};
+
+const contractor = {
+  contractNumber: 'HTC-123-3456',
+};
+
+const move = {
+  contractor,
+  orders: order,
+};
+
 const pendingPaymentRequest = {
   id: '09474c6a-69b6-4501-8e08-670a12512e5f',
   createdAt: isHappoRun() ? itsBeenOneWeek : '2020-12-01T00:00:00.000Z',
   moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
   paymentRequestNumber: '1843-9061-1',
   status: 'PENDING',
+  moveTaskOrder: move,
   serviceItems: [
     {
       id: '09474c6a-69b6-4501-8e08-670a12512a5f',
@@ -55,6 +70,7 @@ const reviewedPaymentRequest = {
   id: '09474c6a-69b6-4501-8e08-670a12512e5f',
   createdAt: isHappoRun() ? itsBeenOneWeek : '2020-12-01T00:00:00.000Z',
   moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+  moveTaskOrder: move,
   paymentRequestNumber: '1843-9061-1',
   status: 'REVIEWED',
   serviceItems: [
@@ -83,6 +99,7 @@ const rejectedPaymentRequest = {
   moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
   paymentRequestNumber: '1843-9061-1',
   status: 'REVIEWED',
+  moveTaskOrder: move,
   serviceItems: [
     {
       id: '09474c6a-69b6-4501-8e08-670a12512a5f',
