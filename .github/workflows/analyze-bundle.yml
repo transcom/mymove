@@ -21,16 +21,13 @@ jobs:
         run: yarn install
 
       - name: Build app
-        run: yarn build
-
-      - name: Build stats
-        run: yarn analyze --json build/stats.json
+        run: yarn build --stats
 
       - name: Upload stats.json
         uses: actions/upload-artifact@v2
         with:
           name: head-stats
-          path: ./build/stats.json
+          path: ./build/bundle-stats.json
 
   build-base:
     name: 'Build base'
@@ -50,23 +47,19 @@ jobs:
         run: yarn install
 
       - name: Build app
-        run: yarn build
-
-      - name: Build stats
-        run: yarn analyze --json build/stats.json
+        run: yarn build --stats
 
       - name: Upload stats.json
         uses: actions/upload-artifact@v2
         with:
           name: base-stats
-          path: ./build/stats.json
+          path: ./build/bundle-stats.json
 
   compare:
     name: 'Compare base & head bundle size'
     runs-on: ubuntu-latest
     needs: [build-head, build-base]
     steps:
-      - uses: actions/checkout@v2
       - name: Download artifacts
         uses: actions/download-artifact@v2
       - name: Display structure of downloaded files
@@ -74,6 +67,6 @@ jobs:
       - name: Diff between base & head
         uses: chronotruck/webpack-stats-diff-action@1.1.0
         with:
-          base_stats_path: ./base-stats/stats.json
-          head_stats_path: ./head-stats/stats.json
+          base_stats_path: ./base-stats/bundle-stats.json
+          head_stats_path: ./head-stats/bundle-stats.json
           token: ${{ secrets.GITHUB_TOKEN }}
