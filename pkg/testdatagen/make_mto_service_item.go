@@ -271,6 +271,6 @@ func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.Re
 		return mtoServiceItem
 	}
 
-	log.Panicf("couldn't create service item service code %s not defiled", serviceCode)
+	log.Panicf("couldn't create service item service code %s not defined", serviceCode)
 	return models.MTOServiceItem{}
 }
