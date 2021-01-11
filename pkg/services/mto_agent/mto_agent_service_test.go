@@ -13,7 +13,8 @@ type MTOAgentServiceSuite struct {
 }
 
 func (suite *MTOAgentServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 func TestMTOAgentServiceSuite(t *testing.T) {
 	ts := &MTOAgentServiceSuite{

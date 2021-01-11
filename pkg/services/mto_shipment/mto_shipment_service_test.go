@@ -13,7 +13,8 @@ type MTOShipmentServiceSuite struct {
 }
 
 func (suite *MTOShipmentServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 func TestMTOShipmentServiceSuite(t *testing.T) {
 

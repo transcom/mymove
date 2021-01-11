@@ -23,7 +23,8 @@ type PaymentRequestServiceSuite struct {
 }
 
 func (suite *PaymentRequestServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestPaymentRequestServiceSuite(t *testing.T) {

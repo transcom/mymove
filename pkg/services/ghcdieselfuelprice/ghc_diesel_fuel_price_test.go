@@ -17,7 +17,8 @@ type GHCDieselFuelPriceServiceSuite struct {
 }
 
 func (suite *GHCDieselFuelPriceServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestGHCDieselFuelPriceServiceSuite(t *testing.T) {

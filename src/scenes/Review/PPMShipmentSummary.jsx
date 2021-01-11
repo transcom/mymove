@@ -9,13 +9,11 @@ import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
-import { hasShortHaulError } from 'shared/incentive';
-import { getRequestStatus } from 'shared/Swagger/selectors';
+import { hasShortHaulError } from 'utils/incentives';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
 import './Review.css';
-
-const getPPMEstimateLabel = 'ppm.showPPMEstimate';
 
 export class PPMShipmentSummary extends Component {
   chooseEstimateText(ppmEstimate) {
@@ -160,8 +158,9 @@ function mapStateToProps(state, ownProps) {
     state,
     ppm.move_id,
   );
-  const ppmEstimateStatus = getRequestStatus(state, getPPMEstimateLabel);
-  let hasError = !!ppmEstimateStatus.error;
+
+  const ppmEstimateError = selectPPMEstimateError(state);
+  let hasError = !!ppmEstimateError;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
@@ -171,7 +170,7 @@ function mapStateToProps(state, ownProps) {
       hasEstimateError: hasError,
       hasEstimateSuccess: state.ppm.hasEstimateSuccess,
       hasEstimateInProgress: state.ppm.hasEstimateInProgress,
-      rateEngineError: state.ppm.rateEngineError || null,
+      rateEngineError: ppmEstimateError,
       originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
       incentive_estimate_min,
       incentive_estimate_max,

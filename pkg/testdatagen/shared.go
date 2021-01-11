@@ -64,6 +64,7 @@ type Assertions struct {
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
+	ReDomesticLinehaulPrice                  models.ReDomesticLinehaulPrice
 	Reimbursement                            models.Reimbursement
 	ReService                                models.ReService
 	ReZip3                                   models.ReZip3

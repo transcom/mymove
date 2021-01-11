@@ -25,7 +25,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		suite.NoError(err)
 	})
 
-	suite.T().Run("Should return an InvalidInputError if the payment request has any service items that have not been reviewed", func(t *testing.T) {
+	suite.T().Run("Should return a ConflictError if the payment request has any service items that have not been reviewed", func(t *testing.T) {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 		psiCost := unit.Cents(10000)
@@ -49,7 +49,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.Error(err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(services.ConflictError{}, err)
 	})
 
 	suite.T().Run("Should update and return no error if the payment request has service items that have all been reviewed", func(t *testing.T) {

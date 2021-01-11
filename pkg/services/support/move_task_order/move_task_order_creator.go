@@ -349,9 +349,5 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 		model.AvailableToPrimeAt = &availableToPrimeAt
 	}
 
-	if mtoPayload.IsCanceled != nil && *mtoPayload.IsCanceled == true {
-		model.Status = models.MoveStatusCANCELED
-	}
-
 	return model
 }

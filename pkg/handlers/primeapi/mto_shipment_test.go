@@ -77,9 +77,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				StreetAddress2: pickupAddress.StreetAddress2,
 				StreetAddress3: pickupAddress.StreetAddress3,
 			},
-			PointOfContact:      "John Doe",
-			RequestedPickupDate: handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
-			ShipmentType:        primemessages.MTOShipmentTypeHHG,
+			PointOfContact:       "John Doe",
+			PrimeEstimatedWeight: 1200,
+			RequestedPickupDate:  handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
+			ShipmentType:         primemessages.MTOShipmentTypeHHG,
 		},
 	}
 
@@ -97,6 +98,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 		// check that the mto shipment status is Submitted
 		suite.Require().Equal(createMTOShipmentPayload.Status, primemessages.MTOShipmentStatusSUBMITTED, "MTO Shipment should have been submitted")
+		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
 	suite.T().Run("POST failure - 500", func(t *testing.T) {

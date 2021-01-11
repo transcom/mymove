@@ -164,11 +164,16 @@ export const useOrdersDocumentQueries = (moveCode) => {
 
   // Get a document
   // TODO - "upload" instead of "uploads" is because of the schema.js entity name. Change to "uploads"
+  const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
+  const cacheTime = staleTime;
   const { data: { documents, upload } = {}, ...ordersDocumentsQuery } = useQuery(
     [ORDERS_DOCUMENTS, documentId],
     getDocument,
     {
       enabled: !!documentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
     },
   );
 
@@ -218,9 +223,7 @@ export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], curre
 
 export const useMovePaymentRequestsQueries = (locator) => {
   const { data = {}, ...movePaymentRequestsQuery } = useQuery([MOVE_PAYMENT_REQUESTS, locator], getMovePaymentRequests);
-
   const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery]);
-
   return {
     paymentRequests: data,
     isLoading,

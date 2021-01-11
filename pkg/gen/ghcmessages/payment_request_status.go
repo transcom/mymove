@@ -26,6 +26,9 @@ const (
 	// PaymentRequestStatusREVIEWED captures enum value "REVIEWED"
 	PaymentRequestStatusREVIEWED PaymentRequestStatus = "REVIEWED"
 
+	// PaymentRequestStatusREVIEWEDANDALLSERVICEITEMSREJECTED captures enum value "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"
+	PaymentRequestStatusREVIEWEDANDALLSERVICEITEMSREJECTED PaymentRequestStatus = "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"
+
 	// PaymentRequestStatusSENTTOGEX captures enum value "SENT_TO_GEX"
 	PaymentRequestStatusSENTTOGEX PaymentRequestStatus = "SENT_TO_GEX"
 
@@ -41,7 +44,7 @@ var paymentRequestStatusEnum []interface{}
 
 func init() {
 	var res []PaymentRequestStatus
-	if err := json.Unmarshal([]byte(`["PENDING","REVIEWED","SENT_TO_GEX","RECEIVED_BY_GEX","PAID"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PENDING","REVIEWED","REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED","SENT_TO_GEX","RECEIVED_BY_GEX","PAID"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
