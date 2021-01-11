@@ -15,7 +15,7 @@ import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/Payme
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
     case 'PENDING':
-      return 'Needs Review';
+      return 'Needs review';
     case 'REVIEWED':
     case 'SENT_TO_GEX':
     case 'RECEIVED_BY_GEX':

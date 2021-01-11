@@ -96,7 +96,7 @@ describe('PaymentRequestCard', () => {
     );
 
     it('renders the needs review status tag', () => {
-      expect(wrapper.find({ 'data-testid': 'tag' }).contains('Needs Review')).toBe(true);
+      expect(wrapper.find({ 'data-testid': 'tag' }).contains('Needs review')).toBe(true);
     });
 
     it('sums the service items total', () => {
