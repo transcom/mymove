@@ -380,14 +380,16 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 // PaymentServiceItem payload
 func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServiceItem {
 	return &ghcmessages.PaymentServiceItem{
-		ID:               *handlers.FmtUUID(ps.ID),
-		MtoServiceItemID: *handlers.FmtUUID(ps.MTOServiceItemID),
-		CreatedAt:        strfmt.DateTime(ps.CreatedAt),
-		PriceCents:       handlers.FmtCost(ps.PriceCents),
-		RejectionReason:  ps.RejectionReason,
-		Status:           ghcmessages.PaymentServiceItemStatus(ps.Status),
-		ReferenceID:      ps.ReferenceID,
-		ETag:             etag.GenerateEtag(ps.UpdatedAt),
+		ID:                 *handlers.FmtUUID(ps.ID),
+		MtoServiceItemID:   *handlers.FmtUUID(ps.MTOServiceItemID),
+		MtoServiceItemName: ps.MTOServiceItem.ReService.Name,
+		MtoShipmentType:    ghcmessages.MTOShipmentType(ps.MTOServiceItem.MTOShipment.ShipmentType),
+		CreatedAt:          strfmt.DateTime(ps.CreatedAt),
+		PriceCents:         handlers.FmtCost(ps.PriceCents),
+		RejectionReason:    ps.RejectionReason,
+		Status:             ghcmessages.PaymentServiceItemStatus(ps.Status),
+		ReferenceID:        ps.ReferenceID,
+		ETag:               etag.GenerateEtag(ps.UpdatedAt),
 	}
 }
 

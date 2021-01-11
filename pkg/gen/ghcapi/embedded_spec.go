@@ -2722,6 +2722,21 @@ func init() {
         }
       }
     },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
     "MTOShipments": {
       "type": "array",
       "items": {
@@ -3138,6 +3153,13 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemName": {
+          "type": "string",
+          "example": "Shipment Mgmt. Services"
+        },
+        "mtoShipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "paymentRequestID": {
           "type": "string",
@@ -6824,6 +6846,21 @@ func init() {
         }
       }
     },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
     "MTOShipments": {
       "type": "array",
       "items": {
@@ -7240,6 +7277,13 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemName": {
+          "type": "string",
+          "example": "Shipment Mgmt. Services"
+        },
+        "mtoShipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "paymentRequestID": {
           "type": "string",
