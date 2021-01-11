@@ -16,22 +16,21 @@ import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectPPMEstimateRange,
+} from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
-import { updatePPM as updatePPMInRedux } from 'store/entities/actions';
-import { requestPayment } from 'services/internalApi';
+import { updatePPM, updatePPMEstimate } from 'store/entities/actions';
+import { setPPMEstimateError } from 'store/onboarding/actions';
+import { calculatePPMEstimate, requestPayment } from 'services/internalApi';
+import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 
 import DocumentsUploaded from './DocumentsUploaded';
 import { calcNetWeight } from '../utility';
 import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
-import {
-  selectActivePPMForMove,
-  loadPPMs,
-  selectPPMEstimateRange,
-  getPpmWeightEstimate,
-  updatePPM,
-} from 'shared/Entities/modules/ppms';
 
 const nextBtnLabel = 'Submit Request';
 
@@ -53,13 +52,18 @@ class PaymentReview extends Component {
             weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
           // TODO: make not async, make sure this happens
 
-          this.props.getPpmWeightEstimate(
+          calculatePPMEstimate(
             original_move_date,
             pickup_postal_code,
             originDutyStationZip,
             this.props.orders.id,
             netWeight,
-          );
+          )
+            .then((response) => {
+              this.props.updatePPMEstimate(response);
+              this.props.setPPMEstimateError(null);
+            })
+            .catch((error) => this.props.setPPMEstimateError(error));
         });
       }
     });
@@ -74,13 +78,19 @@ class PaymentReview extends Component {
           const weightTicketNetWeight = calcNetWeight(documents);
           const netWeight =
             weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-          this.props.getPpmWeightEstimate(
+
+          calculatePPMEstimate(
             original_move_date,
             pickup_postal_code,
             originDutyStationZip,
             this.props.orders.id,
             netWeight,
-          );
+          )
+            .then((response) => {
+              this.props.updatePPMEstimate(response);
+              this.props.setPPMEstimateError(null);
+            })
+            .catch((error) => this.props.setPPMEstimateError(error));
         });
       }
     }
@@ -108,7 +118,7 @@ class PaymentReview extends Component {
       Promise.all([this.submitCertificate(), requestPayment(this.props.currentPPM.id)])
         .then(([res1, res2]) => {
           // .then params is an array, where each item corresponds to the Promise.all items
-          this.props.updatePPMInRedux(res2);
+          this.props.updatePPM(res2);
           this.props.setFlashMessage('REQUEST_PAYMENT_SUCCESS', 'success', '', 'Payment request submitted');
 
           // TODO: path may change to home after ppm integration with new home page
@@ -214,8 +224,8 @@ const mapStateToProps = (state, props) => {
     },
     moveId,
     currentPPM: selectActivePPMForMove(state, moveId),
-    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
-    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
+    incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
     entitlement: loadEntitlementsFromState(state),
     orders: selectCurrentOrders(state) || {},
@@ -225,11 +235,11 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = {
   createSignedCertification,
   getMoveDocumentsForMove,
-  getPpmWeightEstimate,
   loadPPMs,
   updatePPM,
-  updatePPMInRedux,
+  updatePPMEstimate,
   setFlashMessage,
+  setPPMEstimateError,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentReview);

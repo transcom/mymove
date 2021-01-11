@@ -42,7 +42,7 @@ var fakeDataTestCases = []fakeDataTestCase{
 		lastName:       "Swinglehurst-Walters",
 		address:        "4124 Apache Dr, Apt 18C",
 		phone:          "456-555-9359",
-		email:          "test@email.com",
+		email:          "test@truss.works",
 		expected:       true,
 		expectedStrict: true,
 	},

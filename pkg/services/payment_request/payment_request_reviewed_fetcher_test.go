@@ -20,6 +20,11 @@ func (suite *PaymentRequestServiceSuite) TestFetchReviewedPaymentRequest() {
 			Status: models.PaymentRequestStatusPending,
 		},
 	})
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status: models.PaymentRequestStatusReviewedAllRejected,
+		},
+	})
 
 	suite.T().Run("check for reviewed payment requests", func(t *testing.T) {
 		result, err := reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()

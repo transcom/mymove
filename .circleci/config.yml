@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-fcd43e812a1cb05183d967c2fafb4e36edeeabc9
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-2c832f32e8dbd8afaaa5265e9c6ff59e8d536d11
 
   postgres: &postgres postgres:12.2
 
