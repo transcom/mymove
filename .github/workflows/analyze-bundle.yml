@@ -1,11 +1,26 @@
-name: F/E Bundle Analysis
+name: F/E bundle diff
 
 on:
   pull_request:
     branches: [master]
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'src/**'
+              - 'yarn.lock'
+
   build-head:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     name: 'Build head'
     runs-on: ubuntu-latest
     steps:
@@ -30,6 +45,8 @@ jobs:
           path: ./build/bundle-stats.json
 
   build-base:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     name: 'Build base'
     runs-on: ubuntu-latest
     steps:
@@ -62,8 +79,6 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v2
-      - name: Display structure of downloaded files
-        run: ls -R
       - name: Diff between base & head
         uses: chronotruck/webpack-stats-diff-action@1.1.0
         with:
