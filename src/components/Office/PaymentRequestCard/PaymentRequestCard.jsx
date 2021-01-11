@@ -112,7 +112,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
         </div>
         <div className={styles.footer}>
           <dl>
-            <dt>Contract Number:</dt>
+            <dt>Contract number:</dt>
             <dd>{contractNumber}</dd>
             <dt>TAC/MDC:</dt>
             <dd>{tac}</dd>
