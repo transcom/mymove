@@ -14,6 +14,22 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+// Contractor payload
+func Contractor(contractor *models.Contractor) *ghcmessages.Contractor {
+	if contractor == nil {
+		return nil
+	}
+
+	payload := &ghcmessages.Contractor{
+		ID:             strfmt.UUID(contractor.ID.String()),
+		ContractNumber: contractor.ContractNumber,
+		Name:           contractor.Name,
+		Type:           contractor.Type,
+	}
+
+	return payload
+}
+
 // Move payload
 func Move(move *models.Move) *ghcmessages.Move {
 	if move == nil {
@@ -24,8 +40,10 @@ func Move(move *models.Move) *ghcmessages.Move {
 		ID:                 strfmt.UUID(move.ID.String()),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
 		ContractorID:       handlers.FmtUUIDPtr(move.ContractorID),
+		Contractor:         Contractor(move.Contractor),
 		Locator:            move.Locator,
 		OrdersID:           strfmt.UUID(move.OrdersID.String()),
+		Orders:             MoveOrder(&move.Orders),
 		ReferenceID:        handlers.FmtStringPtr(move.ReferenceID),
 		Status:             ghcmessages.MoveStatus(move.Status),
 		CreatedAt:          strfmt.DateTime(move.CreatedAt),
@@ -84,7 +102,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
-	if moveOrder.Grade != nil {
+	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
@@ -332,6 +350,7 @@ func PaymentRequests(prs *models.PaymentRequests, storer storage.FileStorer) (*g
 // PaymentRequest payload
 func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
 	serviceDocs := make(ghcmessages.ProofOfServiceDocs, len(pr.ProofOfServiceDocs))
+
 	if pr.ProofOfServiceDocs != nil && len(pr.ProofOfServiceDocs) > 0 {
 		for i, proofOfService := range pr.ProofOfServiceDocs {
 			payload, err := ProofOfServiceDoc(proofOfService, storer)
@@ -346,6 +365,7 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ID:                   *handlers.FmtUUID(pr.ID),
 		IsFinal:              &pr.IsFinal,
 		MoveTaskOrderID:      *handlers.FmtUUID(pr.MoveTaskOrderID),
+		MoveTaskOrder:        Move(&pr.MoveTaskOrder),
 		PaymentRequestNumber: pr.PaymentRequestNumber,
 		RejectionReason:      pr.RejectionReason,
 		Status:               ghcmessages.PaymentRequestStatus(pr.Status),

@@ -44,6 +44,9 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
   let approvedAmount = 0;
   let rejectedAmount = 0;
 
+  const { sac, tac } = paymentRequest.moveTaskOrder.orders;
+  const { contractNumber } = paymentRequest.moveTaskOrder.contractor;
+
   if (paymentRequest.serviceItems) {
     paymentRequest.serviceItems.forEach((item) => {
       requestedAmount += item.priceCents;
@@ -96,6 +99,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
                   <div>
                     <h2>{toDollarString(formatCents(approvedAmount))}</h2>
                     <span>Accepted</span>
+                    <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
                   </div>
                 </div>
               )}
@@ -105,6 +109,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
                   <div>
                     <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
                     <span>Rejected</span>
+                    <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
                   </div>
                 </div>
               )}
@@ -121,12 +126,12 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
         </div>
         <div className={styles.footer}>
           <dl>
-            <dt>Contract Number:</dt>
-            <dd>HTC711-20-D-RO30</dd>
+            <dt>Contract number:</dt>
+            <dd>{contractNumber}</dd>
             <dt>TAC/MDC:</dt>
-            <dd>1234</dd>
+            <dd>{tac}</dd>
             <dt>SAC/SDN:</dt>
-            <dd>1234567890987654</dd>
+            <dd>{sac}</dd>
           </dl>
           {paymentRequest.status === 'PENDING' ? (
             <a href="orders">View orders</a>
