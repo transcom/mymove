@@ -28,7 +28,7 @@ const SubmittedPpmMoveDetails = (props) => {
       <div>Weight: {weightEstimate} lbs</div>
       <div>
         Payment:{' '}
-        {hasEstimateError ? (
+        {!incentiveRange || hasEstimateError ? (
           <>
             Not ready yet{' '}
             <IconWithTooltip
