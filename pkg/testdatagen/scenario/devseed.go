@@ -1633,8 +1633,23 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 			MoveTaskOrder: move9,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusReviewed,
+			ReviewedAt:    swag.Time(time.Now()),
 		},
 		Move: move9,
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
+		PaymentRequest: paymentRequest9,
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusDenied,
+		},
+		PaymentRequest: paymentRequest9,
 	})
 
 	assertions9 := testdatagen.Assertions{

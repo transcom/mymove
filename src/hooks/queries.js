@@ -223,9 +223,7 @@ export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], curre
 
 export const useMovePaymentRequestsQueries = (locator) => {
   const { data = {}, ...movePaymentRequestsQuery } = useQuery([MOVE_PAYMENT_REQUESTS, locator], getMovePaymentRequests);
-
   const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery]);
-
   return {
     paymentRequests: data,
     isLoading,

@@ -21,6 +21,9 @@ type Move struct {
 	// Format: date-time
 	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
+	// contractor
+	Contractor *Contractor `json:"contractor,omitempty"`
+
 	// contractor Id
 	// Format: uuid
 	ContractorID *strfmt.UUID `json:"contractorId,omitempty"`
@@ -35,6 +38,9 @@ type Move struct {
 
 	// locator
 	Locator string `json:"locator,omitempty"`
+
+	// orders
+	Orders *MoveOrder `json:"orders,omitempty"`
 
 	// orders Id
 	// Format: uuid
@@ -63,6 +69,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateContractor(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateContractorID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -72,6 +82,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrders(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -105,6 +119,24 @@ func (m *Move) validateAvailableToPrimeAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("availableToPrimeAt", "body", "date-time", m.AvailableToPrimeAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateContractor(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Contractor) { // not required
+		return nil
+	}
+
+	if m.Contractor != nil {
+		if err := m.Contractor.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("contractor")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -144,6 +176,24 @@ func (m *Move) validateID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateOrders(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Orders) { // not required
+		return nil
+	}
+
+	if m.Orders != nil {
+		if err := m.Orders.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("orders")
+			}
+			return err
+		}
 	}
 
 	return nil
