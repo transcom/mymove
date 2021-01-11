@@ -15,12 +15,12 @@ import { formatSwaggerDate } from 'shared/formatters';
 import './index.scss';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
-import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
-import { submitMoveForApproval } from 'services/internalApi';
-import { updateMove as updateMoveAction } from 'store/entities/actions';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { getPPMsForMove, submitMoveForApproval } from 'services/internalApi';
+import { updatePPMs, updateMove } from 'store/entities/actions';
 import { completeCertificationText } from './legaleseText';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { setFlashMessage } from 'store/flash/actions';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
@@ -31,7 +31,7 @@ export class SignedCertification extends Component {
   };
 
   componentDidMount() {
-    this.props.loadPPMs(this.props.moveId);
+    getPPMsForMove(this.props.moveId).then((response) => this.props.updatePPMs(response));
   }
 
   handleSubmit = () => {
@@ -169,10 +169,10 @@ function mapStateToProps(state, ownProps) {
 
 const mapDispatchToProps = {
   createSignedCertification,
-  loadPPMs,
+  updatePPMs,
+  updateMove,
   push,
-  setFlashMessage: setFlashMessageAction,
-  updateMove: updateMoveAction,
+  setFlashMessage,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignedCertification);

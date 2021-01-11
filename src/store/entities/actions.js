@@ -3,6 +3,7 @@ export const UPDATE_BACKUP_CONTACT = 'UPDATE_BACKUP_CONTACT';
 export const UPDATE_MOVE = 'UPDATE_MOVE';
 export const UPDATE_MTO_SHIPMENT = 'UPDATE_MTO_SHIPMENT';
 export const UPDATE_ORDERS = 'UPDATE_ORDERS';
+export const UPDATE_PPMS = 'UPDATE_PPMS';
 export const UPDATE_PPM = 'UPDATE_PPM';
 export const UPDATE_PPM_ESTIMATE = 'UPDATE_PPM_ESTIMATE';
 export const UPDATE_PPM_SIT_ESTIMATE = 'UPDATE_PPM_SIT_ESTIMATE';
@@ -29,6 +30,11 @@ export const updateMTOShipment = (payload) => ({
 
 export const updateOrders = (payload) => ({
   type: UPDATE_ORDERS,
+  payload,
+});
+
+export const updatePPMs = (payload) => ({
+  type: UPDATE_PPMS,
   payload,
 });
 
