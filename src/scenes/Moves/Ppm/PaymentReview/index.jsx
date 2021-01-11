@@ -22,10 +22,10 @@ import {
   selectPPMEstimateRange,
 } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
-import { updatePPM, updatePPMEstimate } from 'store/entities/actions';
+import { updatePPMs, updatePPM, updatePPMEstimate } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
-import { calculatePPMEstimate, requestPayment } from 'services/internalApi';
-import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
+import { getPPMsForMove, calculatePPMEstimate, requestPayment } from 'services/internalApi';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 
 import DocumentsUploaded from './DocumentsUploaded';
 import { calcNetWeight } from '../utility';
@@ -44,29 +44,31 @@ class PaymentReview extends Component {
     const { originDutyStationZip, currentPPM, moveId } = this.props;
     const { original_move_date, pickup_postal_code } = currentPPM;
 
-    this.props.loadPPMs(moveId).then(() => {
-      if (!isEmpty(currentPPM)) {
-        this.props.getMoveDocumentsForMove(moveId).then(({ obj: documents }) => {
-          const weightTicketNetWeight = calcNetWeight(documents);
-          const netWeight =
-            weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-          // TODO: make not async, make sure this happens
+    getPPMsForMove(moveId)
+      .then((response) => this.props.updatePPMs(response))
+      .then(() => {
+        if (!isEmpty(currentPPM)) {
+          this.props.getMoveDocumentsForMove(moveId).then(({ obj: documents }) => {
+            const weightTicketNetWeight = calcNetWeight(documents);
+            const netWeight =
+              weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+            // TODO: make not async, make sure this happens
 
-          calculatePPMEstimate(
-            original_move_date,
-            pickup_postal_code,
-            originDutyStationZip,
-            this.props.orders.id,
-            netWeight,
-          )
-            .then((response) => {
-              this.props.updatePPMEstimate(response);
-              this.props.setPPMEstimateError(null);
-            })
-            .catch((error) => this.props.setPPMEstimateError(error));
-        });
-      }
-    });
+            calculatePPMEstimate(
+              original_move_date,
+              pickup_postal_code,
+              originDutyStationZip,
+              this.props.orders.id,
+              netWeight,
+            )
+              .then((response) => {
+                this.props.updatePPMEstimate(response);
+                this.props.setPPMEstimateError(null);
+              })
+              .catch((error) => this.props.setPPMEstimateError(error));
+          });
+        }
+      });
   }
 
   componentDidUpdate(prevProps) {
@@ -235,8 +237,8 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = {
   createSignedCertification,
   getMoveDocumentsForMove,
-  loadPPMs,
   updatePPM,
+  updatePPMs,
   updatePPMEstimate,
   setFlashMessage,
   setPPMEstimateError,

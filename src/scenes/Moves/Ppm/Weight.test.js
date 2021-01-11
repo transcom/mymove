@@ -23,7 +23,6 @@ describe('Weight', () => {
     },
     orders: { id: 1 },
     match: { params: { moveId: 'some id' } },
-    loadPPMs: jest.fn(),
     fetchLatestOrders: jest.fn(),
   };
   it('Component renders', () => {

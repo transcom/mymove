@@ -7,7 +7,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
@@ -20,8 +20,8 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
-import { updatePPMEstimate, updatePPM as updatePPMInRedux } from 'store/entities/actions';
+import { getPPMsForMove, patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
+import { updatePPMs, updatePPMEstimate, updatePPM } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import {
@@ -64,7 +64,7 @@ export class PpmWeight extends Component {
   componentDidMount() {
     const { currentPPM } = this.props;
     const moveId = this.props.match.params.moveId;
-    this.props.loadPPMs(moveId);
+    getPPMsForMove(moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
 
     if (currentPPM) {
@@ -126,21 +126,26 @@ export class PpmWeight extends Component {
   };
 
   handleSubmit = () => {
+    // TODO this is a work around till we refactor more SM data...
+    const ppmId = this.props.currentPPM.id ? this.props.currentPPM.id : this.props.tempCurrentPPM.id;
+    // TODO this is a work around till we refactor more SM data...
+    const moveId = this.props.currentPPM.move_id ? this.props.currentPPM.move_id : this.props.tempCurrentPPM.move_id;
+
     const ppmBody = {
+      id: ppmId,
       weight_estimate: parseInt(this.state.pendingPpmWeight),
       has_requested_advance: false,
       has_pro_gear: toUpper(this.state.includesProgear),
       has_pro_gear_over_thousand: toUpper(this.state.isProgearMoreThan1000),
     };
 
-    // TODO this is a work around till we refactor more SM data...
-    const ppmId = this.props.currentPPM.id ? this.props.currentPPM.id : this.props.tempCurrentPPM.id;
-    // TODO this is a work around till we refactor more SM data...
-    const moveId = this.props.currentPPM.move_id ? this.props.currentPPM.move_id : this.props.tempCurrentPPM.move_id;
-    return this.props
-      .updatePPM(moveId, ppmId, ppmBody)
-      .then(({ response }) => persistPPMEstimate(moveId, response.body.id))
-      .then((response) => this.props.updatePPMInRedux(response))
+    return patchPPM(moveId, ppmBody)
+      .then((response) => {
+        this.props.updatePPM(response);
+        return response;
+      })
+      .then((response) => persistPPMEstimate(moveId, response.id))
+      .then((response) => this.props.updatePPM(response))
       .catch((err) => err);
     // catch block returns error so that the wizard can continue on with its flow
   };
@@ -452,11 +457,10 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  loadPPMs,
   updatePPM,
-  fetchLatestOrders,
-  updatePPMInRedux,
+  updatePPMs,
   updatePPMEstimate,
+  fetchLatestOrders,
   setPPMEstimateError,
 };
 
