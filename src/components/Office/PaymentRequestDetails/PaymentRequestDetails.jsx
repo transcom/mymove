@@ -45,7 +45,7 @@ const PaymentRequestDetails = ({ serviceItems }) => {
                   {item.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
                     <div className={styles.needsReview}>
                       <FontAwesomeIcon icon="exclamation-circle" />
-                      <span>Needs Review</span>
+                      <span>Needs review</span>
                     </div>
                   )}
                   {item.status === PAYMENT_SERVICE_ITEM_STATUS.APPROVED && (
