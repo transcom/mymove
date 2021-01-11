@@ -511,7 +511,16 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 	testEstWeight := dlhTestWeight
 	testActualWeight := testEstWeight
 
-	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), dlhTestServiceArea, pickupAddress)
+	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			Escalation:           1.0197,
+			EscalationCompounded: 1.04071,
+		},
+		ReDomesticServiceArea: models.ReDomesticServiceArea{
+			ServiceArea: dlhTestServiceArea,
+		},
+		Address: pickupAddress,
+	})
 
 	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
 		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{

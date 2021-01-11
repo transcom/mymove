@@ -12,24 +12,36 @@ import (
 
 // SetupServiceAreaRateArea sets up contract, service area, rate area, zip3
 // returns contractYear, serviceArea, rateArea, reZip3
-func SetupServiceAreaRateArea(db *pop.Connection, serviceAreaStr string, address models.Address) (models.ReContractYear, models.ReDomesticServiceArea, models.ReRateArea, models.ReZip3) {
-	contractYear := MakeReContractYear(db,
+func SetupServiceAreaRateArea(db *pop.Connection, assertions Assertions) (models.ReContractYear, models.ReDomesticServiceArea, models.ReRateArea, models.ReZip3) {
+	contractYear := models.ReContractYear{
+		Escalation:           1.0185,
+		EscalationCompounded: 1.04082,
+		StartDate:            time.Date(GHCTestYear, time.January, 1, 0, 0, 0, 0, time.UTC),
+		EndDate:              time.Date(GHCTestYear, time.December, 31, 0, 0, 0, 0, time.UTC),
+	}
+
+	mergeModels(&contractYear, assertions.ReContractYear)
+
+	contractYear = MakeReContractYear(db, Assertions{ReContractYear: contractYear})
+
+	serviceArea := models.ReDomesticServiceArea{
+		Contract:    contractYear.Contract,
+		ServiceArea: "042",
+	}
+
+	mergeModels(&serviceArea, assertions.ReDomesticServiceArea)
+
+	serviceArea = MakeReDomesticServiceArea(db,
 		Assertions{
-			ReContractYear: models.ReContractYear{
-				Escalation:           1.0197,
-				EscalationCompounded: 1.04071,
-				StartDate:            time.Date(GHCTestYear, time.January, 1, 0, 0, 0, 0, time.UTC),
-				EndDate:              time.Date(GHCTestYear, time.December, 31, 0, 0, 0, 0, time.UTC),
-			},
+			ReDomesticServiceArea: serviceArea,
 		})
 
-	serviceArea := MakeReDomesticServiceArea(db,
-		Assertions{
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				Contract:    contractYear.Contract,
-				ServiceArea: serviceAreaStr,
-			},
-		})
+	address := models.Address{
+		City:       "Birmingham",
+		State:      "AL",
+		PostalCode: "35203",
+	}
+	mergeModels(&address, assertions.Address)
 
 	rateArea := models.ReRateArea{
 		ContractID: contractYear.Contract.ID,
@@ -38,25 +50,32 @@ func SetupServiceAreaRateArea(db *pop.Connection, serviceAreaStr string, address
 		Name:       address.State,
 		Contract:   contractYear.Contract,
 	}
+
+	mergeModels(&rateArea, assertions.ReRateArea)
+
 	mustSave(db, &rateArea)
 	err := db.Q().Where("code = ?", "US47").First(&rateArea)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	reZip3 := MakeReZip3(db, Assertions{
-		ReZip3: models.ReZip3{
-			ContractID:            contractYear.Contract.ID,
-			Zip3:                  address.PostalCode[0:3],
-			BasePointCity:         address.City,
-			State:                 address.State,
-			DomesticServiceAreaID: serviceArea.ID,
-			RateAreaID:            &rateArea.ID,
-			HasMultipleRateAreas:  false,
-			Contract:              contractYear.Contract,
-			DomesticServiceArea:   serviceArea,
-			RateArea:              &rateArea,
-		},
+	reZip3 := models.ReZip3{
+		ContractID:            contractYear.Contract.ID,
+		Zip3:                  address.PostalCode[0:3],
+		BasePointCity:         address.City,
+		State:                 address.State,
+		DomesticServiceAreaID: serviceArea.ID,
+		RateAreaID:            &rateArea.ID,
+		HasMultipleRateAreas:  false,
+		Contract:              contractYear.Contract,
+		DomesticServiceArea:   serviceArea,
+		RateArea:              &rateArea,
+	}
+
+	mergeModels(&reZip3, assertions.ReZip3)
+
+	reZip3 = MakeReZip3(db, Assertions{
+		ReZip3: reZip3,
 	})
 
 	return contractYear, serviceArea, rateArea, reZip3
