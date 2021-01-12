@@ -63,6 +63,7 @@ describe('MoveDetails page', () => {
       path: '',
       url: '',
     },
+    moveCode: '8UY81V',
     getMoveByLocator: jest.fn(() => new Promise((res) => res({ response: { body: testMove } }))),
     getMoveOrder: jest.fn(() => new Promise((res) => res({ response: { body: testMoveOrder } }))),
     getCustomer: jest.fn(),
