@@ -37,6 +37,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
   const defaultShowDetails = paymentRequest.status === 'PENDING' && basicServiceItems.length > 0;
   // only show button in reviewed/paid
   const showRequestDetailsButton = !defaultShowDetails && basicServiceItems.length > 0;
+
   // state to toggle between showing details or not
   const [showDetails, setShowDetails] = useState(defaultShowDetails);
   let handleClick = () => {};
@@ -64,6 +65,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
   }
 
   const showDetailsChevron = showDetails ? 'chevron-up' : 'chevron-down';
+  const showDetailsText = showDetails ? 'Hide request details' : 'Show request details';
   const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
 
   return (
@@ -144,7 +146,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
           <div className={styles.toggleDrawer}>
             {showRequestDetailsButton && (
               <Button data-testid="showRequestDetailsButton" type="button" unstyled onClick={handleToggleDetails}>
-                <FontAwesomeIcon icon={showDetailsChevron} /> Show request details
+                <FontAwesomeIcon icon={showDetailsChevron} /> {showDetailsText}
               </Button>
             )}
           </div>
