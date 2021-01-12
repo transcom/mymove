@@ -1,0 +1,26 @@
+name: Happo CI (master)
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  happo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.16.3'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Start Happo run
+        run: yarn happo-ci-github-actions
+        env:
+          HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
+          HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}

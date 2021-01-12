@@ -33,6 +33,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
 	suite.Equal(expectedMoveOrder.OriginDutyStation.AddressID, moveOrder.OriginDutyStation.AddressID)
 	suite.Equal(expectedMoveOrder.OriginDutyStation.Address.StreetAddress1, moveOrder.OriginDutyStation.Address.StreetAddress1)
 	suite.NotZero(moveOrder.OriginDutyStation)
+	suite.Equal(expectedMoveTaskOrder.Locator, moveOrder.Moves[0].Locator)
 }
 
 func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { get, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import moment from 'moment';
 
 import Alert from 'shared/Alert';
@@ -16,20 +16,21 @@ import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectPPMEstimateRange,
+} from 'store/entities/selectors';
+import { setFlashMessage } from 'store/flash/actions';
+import { updatePPMs, updatePPM, updatePPMEstimate } from 'store/entities/actions';
+import { setPPMEstimateError } from 'store/onboarding/actions';
+import { getPPMsForMove, calculatePPMEstimate, requestPayment } from 'services/internalApi';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 
-import { submitExpenseDocs } from '../ducks';
 import DocumentsUploaded from './DocumentsUploaded';
 import { calcNetWeight } from '../utility';
 import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
-import {
-  selectActivePPMForMove,
-  loadPPMs,
-  selectPPMEstimateRange,
-  getPpmWeightEstimate,
-  updatePPM,
-} from 'shared/Entities/modules/ppms';
 
 const nextBtnLabel = 'Submit Request';
 
@@ -43,24 +44,31 @@ class PaymentReview extends Component {
     const { originDutyStationZip, currentPPM, moveId } = this.props;
     const { original_move_date, pickup_postal_code } = currentPPM;
 
-    this.props.loadPPMs(moveId).then(() => {
-      if (!isEmpty(currentPPM)) {
-        this.props.getMoveDocumentsForMove(moveId).then(({ obj: documents }) => {
-          const weightTicketNetWeight = calcNetWeight(documents);
-          const netWeight =
-            weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-          // TODO: make not async, make sure this happens
+    getPPMsForMove(moveId)
+      .then((response) => this.props.updatePPMs(response))
+      .then(() => {
+        if (!isEmpty(currentPPM)) {
+          this.props.getMoveDocumentsForMove(moveId).then(({ obj: documents }) => {
+            const weightTicketNetWeight = calcNetWeight(documents);
+            const netWeight =
+              weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+            // TODO: make not async, make sure this happens
 
-          this.props.getPpmWeightEstimate(
-            original_move_date,
-            pickup_postal_code,
-            originDutyStationZip,
-            this.props.orders.id,
-            netWeight,
-          );
-        });
-      }
-    });
+            calculatePPMEstimate(
+              original_move_date,
+              pickup_postal_code,
+              originDutyStationZip,
+              this.props.orders.id,
+              netWeight,
+            )
+              .then((response) => {
+                this.props.updatePPMEstimate(response);
+                this.props.setPPMEstimateError(null);
+              })
+              .catch((error) => this.props.setPPMEstimateError(error));
+          });
+        }
+      });
   }
 
   componentDidUpdate(prevProps) {
@@ -72,13 +80,19 @@ class PaymentReview extends Component {
           const weightTicketNetWeight = calcNetWeight(documents);
           const netWeight =
             weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-          this.props.getPpmWeightEstimate(
+
+          calculatePPMEstimate(
             original_move_date,
             pickup_postal_code,
             originDutyStationZip,
             this.props.orders.id,
             netWeight,
-          );
+          )
+            .then((response) => {
+              this.props.updatePPMEstimate(response);
+              this.props.setPPMEstimateError(null);
+            })
+            .catch((error) => this.props.setPPMEstimateError(error));
         });
       }
     }
@@ -103,8 +117,12 @@ class PaymentReview extends Component {
 
   applyClickHandlers = () => {
     this.setState({ moveSubmissionError: false }, () =>
-      Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
-        .then(() => {
+      Promise.all([this.submitCertificate(), requestPayment(this.props.currentPPM.id)])
+        .then(([res1, res2]) => {
+          // .then params is an array, where each item corresponds to the Promise.all items
+          this.props.updatePPM(res2);
+          this.props.setFlashMessage('REQUEST_PAYMENT_SUCCESS', 'success', '', 'Payment request submitted');
+
           // TODO: path may change to home after ppm integration with new home page
           this.props.history.push('/ppm');
         })
@@ -208,21 +226,22 @@ const mapStateToProps = (state, props) => {
     },
     moveId,
     currentPPM: selectActivePPMForMove(state, moveId),
-    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
-    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
+    incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
     entitlement: loadEntitlementsFromState(state),
-    orders: get(state, 'orders.currentOrders', {}),
+    orders: selectCurrentOrders(state) || {},
   };
 };
 
 const mapDispatchToProps = {
-  submitExpenseDocs,
   createSignedCertification,
   getMoveDocumentsForMove,
-  getPpmWeightEstimate,
-  loadPPMs,
   updatePPM,
+  updatePPMs,
+  updatePPMEstimate,
+  setFlashMessage,
+  setPPMEstimateError,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentReview);

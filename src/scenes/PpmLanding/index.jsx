@@ -1,14 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { withLastLocation } from 'react-router-last-location';
 
 import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
-import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectIsProfileComplete,
+  selectCurrentOrders,
+  selectCurrentMove,
+  selectHasCanceledMove,
+  selectMoveType,
+} from 'store/entities/selectors';
+import { updatePPMs } from 'store/entities/actions';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
@@ -16,11 +22,10 @@ import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
-import { loadPPMs } from 'shared/Entities/modules/ppms';
+import { getPPMsForMove } from 'services/internalApi';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
-import { loadMTOShipments, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
+import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 export class PpmLanding extends Component {
   componentDidMount() {
@@ -44,7 +49,7 @@ export class PpmLanding extends Component {
 
     if (prevProps.move && prevProps.move.id !== this.props.move.id) {
       this.props.loadMTOShipments(this.props.move.id);
-      this.props.loadPPMs(this.props.move.id);
+      getPPMsForMove(this.props.move.id).then((response) => this.props.updatePPMs(response));
     }
   }
 
@@ -76,7 +81,6 @@ export class PpmLanding extends Component {
       lastMoveIsCanceled,
       serviceMember,
       orders,
-      uploads,
       move,
       ppm,
       backupContacts,
@@ -87,7 +91,6 @@ export class PpmLanding extends Component {
       lastMoveIsCanceled,
       serviceMember,
       orders,
-      uploads,
       move,
       ppm,
       backupContacts,
@@ -106,7 +109,6 @@ export class PpmLanding extends Component {
       orders,
       move,
       ppm,
-      requestPaymentSuccess,
       location,
     } = this.props;
 
@@ -132,6 +134,8 @@ export class PpmLanding extends Component {
 
     return (
       <div className="grid-container">
+        <ConnectedFlashMessage />
+
         {isProfileComplete && (
           <PpmSummary
             entitlement={entitlement}
@@ -142,7 +146,6 @@ export class PpmLanding extends Component {
             editMove={this.editMove}
             resumeMove={this.resumeMove}
             reviewProfile={this.reviewProfile}
-            requestPaymentSuccess={requestPaymentSuccess}
           />
         )}
       </div>
@@ -171,33 +174,30 @@ PpmLanding.defaultProps = {
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const move = selectActiveOrLatestMove(state);
+  const move = selectCurrentMove(state) || {};
 
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
-    selectedMoveType: selectedMoveType(state),
+    lastMoveIsCanceled: selectHasCanceledMove(state),
+    selectedMoveType: selectMoveType(state),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
-    orders: selectActiveOrLatestOrders(state),
-    uploads: selectUploadsForActiveOrders(state),
+    orders: selectCurrentOrders(state) || {},
     move: move,
     ppm: getPPM(state),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     entitlement: loadEntitlementsFromState(state),
-    requestPaymentSuccess: state.ppm.requestPaymentSuccess,
   };
   return props;
 };
 
 const mapDispatchToProps = {
   push,
-  loadPPMs,
   loadMTOShipments,
+  updatePPMs,
   showLoggedInUser: showLoggedInUserAction,
 };
 

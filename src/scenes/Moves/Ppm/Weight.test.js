@@ -22,12 +22,7 @@ describe('Weight', () => {
       pickup_postal_code: '00000',
     },
     orders: { id: 1 },
-    getPpmWeightEstimate: () =>
-      new Promise((approve, reject) => {
-        approve({});
-      }),
     match: { params: { moveId: 'some id' } },
-    loadPPMs: jest.fn(),
     fetchLatestOrders: jest.fn(),
   };
   it('Component renders', () => {
@@ -182,10 +177,6 @@ describe('Weight', () => {
     const iconAndTextProps = {
       currentPPM: {},
       orders: { id: 1 },
-      getPpmWeightEstimate: () =>
-        new Promise((approve, reject) => {
-          reject({});
-        }),
     };
     it('Should not show an estimate error', () => {
       wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} />);

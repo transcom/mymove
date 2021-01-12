@@ -23,13 +23,12 @@ describe('TOO user', () => {
 
   // This test performs a mutation so it can only succeed on a fresh DB.
   it('is able to approve a shipment', () => {
-    const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
     cy.wait(['@getSortedMoveOrders']);
     cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveOrderId}/details`);
+    cy.url().should('include', `/moves/${moveLocator}/details`);
 
     // Move Details page
     cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
@@ -68,7 +67,7 @@ describe('TOO user', () => {
       cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
 
       // Page refresh
-      cy.url().should('include', `/moves/${moveOrderId}/details`);
+      cy.url().should('include', `/moves/${moveLocator}/details`);
       cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
       cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
       cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
@@ -79,16 +78,15 @@ describe('TOO user', () => {
   });
 
   it('is able to approve and reject mto service items', () => {
-    const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
     cy.wait(['@getSortedMoveOrders']);
     cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveOrderId}/details`);
+    cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
     cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
-    cy.url().should('include', `/moves/${moveOrderId}/mto`);
+    cy.url().should('include', `/moves/${moveLocator}/mto`);
 
     // Move Task Order page
     const shipments = cy.get('[data-testid="ShipmentContainer"]');
@@ -159,27 +157,124 @@ describe('TOO user', () => {
     cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
   });
 
-  it('is able to edit allowances', () => {
-    const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
+  it('is able to edit orders', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
     cy.wait(['@getSortedMoveOrders']);
     cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveOrderId}/details`);
+    cy.url().should('include', `/moves/${moveLocator}/details`);
 
     // Move Details page
     cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
-    // Edit allowances page | Save
+    // Navigate to Edit orders page
+    cy.get('[data-testid="edit-orders"]').contains('View & edit orders').click();
+
+    // Toggle between Edit Allowances and Edit Orders page
+    cy.get('[data-testid="view-allowances"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/allowances`);
+    cy.get('[data-testid="view-orders"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/orders`);
+
+    // Edit orders fields
+
+    cy.get('form').within(($form) => {
+      cy.get('[class*="-control"]')
+        .first()
+        .click(0, 0)
+        .type('Fort Irwin')
+        .get('[class*="-menu"]')
+        .find('[class*="-option"]')
+        .first()
+        .click(0, 0);
+
+      cy.get('[class*="-control"]')
+        .eq(1)
+        .click(0, 0)
+        .type('JB McGuire-Dix-Lakehurst')
+        .get('[class*="-menu"]')
+        .find('[class*="-option"]')
+        .eq(1)
+        .click(0, 0);
+
+      cy.get('input[name="issueDate"]').click({ force: true }).clear().type('16 Mar 2018');
+      cy.get('input[name="reportByDate"]').click({ force: true }).clear().type('22 Mar 2018');
+      cy.get('select[name="departmentIndicator"]').select('21 Army', { force: true });
+      cy.get('input[name="ordersNumber"]').click().clear().type('ORDER66');
+      cy.get('select[name="ordersType"]').select('Permanent Change Of Station (PCS)');
+      cy.get('select[name="ordersTypeDetail"]').select('Shipment of HHG Permitted');
+      cy.get('input[name="tac"]').click().clear().type('F123');
+      cy.get('input[name="sac"]').click().clear().type('4K988AS098F');
+
+      // Edit orders page | Save
+      cy.get('button').contains('Save').click();
+    });
+
+    // Verify edited values are saved
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    cy.get('[data-testid="currentDutyStation"]').contains('Fort Irwin');
+    cy.get('[data-testid="newDutyStation"]').contains('JB Lewis-McChord');
+    cy.get('[data-testid="issuedDate"]').contains('16 Mar 2018');
+    cy.get('[data-testid="reportByDate"]').contains('22 Mar 2018');
+    cy.get('[data-testid="departmentIndicator"]').contains('Army');
+    cy.get('[data-testid="ordersNumber"]').contains('ORDER66');
+    cy.get('[data-testid="ordersType"]').contains('Permanent Change Of Station (PCS)');
+    cy.get('[data-testid="ordersTypeDetail"]').contains('Shipment of HHG Permitted');
+    cy.get('[data-testid="tacMDC"]').contains('F123');
+    cy.get('[data-testid="sacSDN"]').contains('4K988AS098F');
+
+    // Edit orders page | Cancel
+    cy.get('[data-testid="edit-orders"]').contains('View & edit orders').click();
+    cy.get('button').contains('Cancel').click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+  });
+
+  it('is able to edit allowances', () => {
+    const moveLocator = 'TEST12';
+
+    // TOO Moves queue
+    cy.wait(['@getSortedMoveOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+
+    // Move Details page
+    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    // Navigate to Edit allowances page
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
-    cy.url().should('include', `/moves/${moveOrderId}/allowances`);
-    cy.get('button').contains('Save').click();
-    cy.url().should('include', `/moves/${moveOrderId}/details`);
+
+    // Toggle between Edit Allowances and Edit Orders page
+    cy.get('[data-testid="view-orders"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/orders`);
+    cy.get('[data-testid="view-allowances"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/allowances`);
+
+    cy.get('form').within(($form) => {
+      // Edit grade and authorized weight
+      cy.get('select[name=agency]').contains('Army');
+      cy.get('select[name=agency]').select('Navy');
+      cy.get('select[name="grade"]').contains('E-1');
+      cy.get('select[name="grade"]').select('W-2');
+      cy.get('input[name="authorizedWeight"]').clear().type('11111');
+
+      //Edit DependentsAuthorized
+      cy.get('input[name="dependentsAuthorized"]').click();
+
+      // Edit allowances page | Save
+      cy.get('button').contains('Save').click();
+    });
+
+    // Verify edited values are saved
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    cy.get('[data-testid="authorizedWeight"]').contains('11,111 lbs');
+    cy.get('[data-testid="branchRank"]').contains('Navy');
+    cy.get('[data-testid="branchRank"]').contains('W-2');
+    cy.get('[data-testid="dependents"]').contains('Unauthorized');
 
     // Edit allowances page | Cancel
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
     cy.get('button').contains('Cancel').click();
-    cy.url().should('include', `/moves/${moveOrderId}/details`);
+    cy.url().should('include', `/moves/${moveLocator}/details`);
   });
 });

@@ -12,11 +12,11 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
-import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
+import { isPpm } from 'scenes/Moves/ducks';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectMoveIsApproved, selectCurrentMove } from 'store/entities/selectors';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -181,9 +181,9 @@ function mapStateToProps(state) {
 
   return {
     serviceMember,
-    move: get(state, 'moves.currentMove'),
+    move: selectCurrentMove(state) || {},
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
-    moveIsApproved: moveIsApproved(state),
+    moveIsApproved: selectMoveIsApproved(state),
     isPpm: isPpm(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),

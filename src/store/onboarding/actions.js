@@ -4,6 +4,10 @@ export const INIT_ONBOARDING_COMPLETE = 'INIT_ONBOARDING_COMPLETE';
 
 export const FETCH_CUSTOMER_DATA = 'FETCH_CUSTOMER_DATA';
 
+export const SET_CONUS_STATUS = 'SET_CONUS_STATUS';
+
+export const SET_PPM_ESTIMATE_ERROR = 'SET_PPM_ESTIMATE_ERROR';
+
 export const initOnboarding = () => ({
   type: INIT_ONBOARDING,
 });
@@ -19,4 +23,14 @@ export const initOnboardingComplete = () => ({
 
 export const fetchCustomerData = () => ({
   type: FETCH_CUSTOMER_DATA,
+});
+
+export const setConusStatus = (moveType) => ({
+  type: SET_CONUS_STATUS,
+  moveType,
+});
+
+export const setPPMEstimateError = (error) => ({
+  type: SET_PPM_ESTIMATE_ERROR,
+  error,
 });

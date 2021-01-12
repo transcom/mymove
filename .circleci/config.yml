@@ -13,9 +13,9 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-fcd43e812a1cb05183d967c2fafb4e36edeeabc9
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-2c832f32e8dbd8afaaa5265e9c6ff59e8d536d11
 
-  postgres: &postgres postgres:12.2
+  postgres: &postgres postgres:12.4
 
 executors:
   av_medium:
@@ -295,7 +295,7 @@ commands:
           at: /tmp/storybook
       - checkout
       - deploy:
-          name: Push StoryBook build to S3
+          name: Push Storybook build to S3
           command: scripts/push-storybook-assets "<< parameters.s3_bucket>>"
 
   build_image:
@@ -513,23 +513,6 @@ jobs:
             - ~/.cache/yarn/v3
       - announce_failure
 
-  pre_deps_cypress:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
-      - run:
-          name: Install Frozen YARN dependencies
-          command: yarn install --frozen-lockfile
-      # `v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}` is used to cache yarn sources
-      - save_cache:
-          key: v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
-          paths:
-            - ~/.cache/cypress/yarn/v1
-      - announce_failure
-
   # `check_generated_code` is used to ensure generated code doesn't change
   check_generated_code:
     executor: mymove_medium
@@ -656,9 +639,6 @@ jobs:
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run:
@@ -692,7 +672,7 @@ jobs:
           path: cypress/results
       - announce_failure
 
-  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
+  # `integration_tests_mtls` runs integration tests using prime-api-client
   integration_tests_mtls:
     executor: mymove_medium_plus
     steps:
@@ -759,13 +739,47 @@ jobs:
 
   # `webhook_client_test` runs the webhook client Go tests
   webhook_client_test:
-    executor: mymove_large
+    executor: mymove_and_postgres_large
     steps:
       - checkout
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run: make webhook_client_test
+      - run: make db_test_reset
+      - run:
+          command: make db_test_migrate
+          environment:
+            APPLICATION: app
+            DB_HOST: localhost
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            DB_PASSWORD: mysecretpassword
+            DB_PORT: 5432
+            DB_PORT_TEST: 5432
+            DB_USER: postgres
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+      - run:
+          command: make db_e2e_up
+          environment:
+            APPLICATION: app
+            DB_HOST: localhost
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            DB_PASSWORD: mysecretpassword
+            DB_PORT: 5432
+            DB_PORT_TEST: 5432
+            DB_USER: postgres
+      - run:
+          command: make webhook_client_test_standalone
+          environment:
+            DB_HOST: localhost
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            DB_PASSWORD: mysecretpassword
+            DB_PORT: 5432
+            DB_PORT_TEST: 5432
+            DB_USER: postgres
       - announce_failure
 
   # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
@@ -873,8 +887,8 @@ jobs:
           repo: app
       - announce_failure
 
-  # `storybook_tests` triggers visual regression tests in Happo and builds static storybook assets for deploy
-  storybook_tests:
+  # `build_storybook` builds static storybook assets for deploy
+  build_storybook:
     executor: mymove_medium
     steps:
       - checkout
@@ -894,8 +908,8 @@ jobs:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
       - run:
-          name: Happo tests
-          command: yarn happo-ci
+          name: Build Storybook
+          command: yarn build-storybook
       - run:
           name: Output maximum memory usage in Bytes
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
@@ -1256,13 +1270,10 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - pre_deps_cypress
-
       - integration_tests:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-            - pre_deps_cypress
             - check_generated_code
             - push_app_legacy
             - push_app_stg
@@ -1304,7 +1315,7 @@ workflows:
 
       - webhook_client_test:
           requires:
-            - pre_deps_golang
+            - build_tools
 
       - build_app:
           requires:
@@ -1341,7 +1352,6 @@ workflows:
       - build_webhook_client:
           requires:
             - anti_virus
-            - pre_deps_golang
             - webhook_client_test
 
       - push_app_exp:
@@ -1481,12 +1491,12 @@ workflows:
 
       - deploy_storybook_dp3:
           requires:
-            - storybook_tests
+            - build_storybook
           filters:
             branches:
               only: master
 
-      - storybook_tests:
+      - build_storybook:
           requires:
             - anti_virus
             - pre_deps_yarn

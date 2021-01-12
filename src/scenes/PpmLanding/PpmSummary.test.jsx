@@ -14,7 +14,6 @@ describe('PpmSummaryComponent', () => {
   const serviceMember = { current_station: { name: 'Ft Carson' } };
   const ordersObj = {};
   const getMoveDocumentsForMove = jest.fn(() => ({ then: () => {} }));
-  const getPpmWeightEstimate = jest.fn();
   const getShallowRender = (entitlementObj, serviceMember, ordersObj, moveObj, ppmObj, editMoveFn, resumeMoveFn) => {
     return shallow(
       <PpmSummaryComponent
@@ -26,7 +25,6 @@ describe('PpmSummaryComponent', () => {
         editMove={editMoveFn}
         resumeMove={resumeMoveFn}
         getMoveDocumentsForMove={getMoveDocumentsForMove}
-        getPpmWeightEstimate={getPpmWeightEstimate}
       />,
     );
   };

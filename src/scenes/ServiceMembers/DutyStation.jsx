@@ -9,10 +9,9 @@ import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { NULL_UUID } from 'shared/constants';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 
 import './DutyStation.css';
 
@@ -114,7 +113,7 @@ const mapDispatchToProps = {
 
 function mapStateToProps(state) {
   const formValues = getFormValues(dutyStationFormName)(state);
-  const orders = selectActiveOrLatestOrders(state);
+  const orders = selectCurrentOrders(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
@@ -122,7 +121,7 @@ function mapStateToProps(state) {
     existingStation: serviceMember?.current_station || {},
     currentServiceMember: serviceMember,
     currentStation: get(formValues, 'current_station', {}),
-    newDutyStation: get(orders, 'new_duty_station', {}),
+    newDutyStation: orders?.new_duty_station || {},
   };
 }
 

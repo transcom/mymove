@@ -17,7 +17,7 @@ type ModelSuite struct {
 }
 
 func (suite *ModelSuite) SetupTest() {
-	errTruncateAll := suite.DB().TruncateAll()
+	errTruncateAll := suite.TruncateAll()
 	if errTruncateAll != nil {
 		log.Panicf("failed to truncate database: %#v", errTruncateAll)
 	}

@@ -6,13 +6,10 @@ import { string, bool, func, arrayOf, shape } from 'prop-types';
 import styles from './SelectMoveType.module.scss';
 
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
+import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
 import { WizardPage } from 'shared/WizardPage';
 import SelectableCard from 'components/Customer/SelectableCard';
-import {
-  selectMTOShipmentsByMoveId,
-  loadMTOShipments as loadMTOShipmentsAction,
-} from 'shared/Entities/modules/mtoShipments';
+import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
 import { patchMove, getResponseError } from 'services/internalApi';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
@@ -243,16 +240,15 @@ SelectMoveType.propTypes = {
   mtoShipments: arrayOf(MTOShipmentShape).isRequired,
 };
 
-function mapStateToProps(state) {
-  const move = selectActiveOrLatestMove(state);
-  const mtoShipments = selectMTOShipmentsByMoveId(state, move.id);
+const mapStateToProps = (state) => {
+  const move = selectCurrentMove(state) || {};
+  const mtoShipments = selectMTOShipmentsForCurrentMove(state);
 
-  const props = {
+  return {
     move,
     mtoShipments,
   };
-  return props;
-}
+};
 
 const mapDispatchToProps = {
   updateMove: updateMoveAction,

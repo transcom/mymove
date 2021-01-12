@@ -80,6 +80,9 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 			Move:           mto,
 			MTOShipment:    mtoShipment,
 			PaymentRequest: paymentRequest,
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
 		}
 
 		// dlh
@@ -181,6 +184,43 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			SFTPSession)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.NoError(err)
+	})
+
+	suite.T().Run("process reviewed payment request successfully (1 payment request reviewed all rejected excluded)", func(t *testing.T) {
+		rejectionReason := "Voided"
+		rejectedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewedAllRejected,
+				RejectionReason: &rejectionReason,
+			},
+		})
+
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+		suite.NoError(SFTPSessionError)
+		var gexSender services.GexSender
+		gexSender = nil
+		sendToSyncada := false
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			generator,
+			sendToSyncada,
+			gexSender,
+			SFTPSession)
+		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.NoError(err)
+
+		// Ensure that payment requst was not sent to gex
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		paymentRequest, _ := fetcher.FetchPaymentRequest(rejectedPaymentRequest.ID)
+		suite.Nil(paymentRequest.SentToGexAt)
+		suite.Equal(rejectedPaymentRequest.Status, models.PaymentRequestStatusReviewedAllRejected)
 	})
 
 	suite.T().Run("process reviewed payment request successfully (do not send file)", func(t *testing.T) {

@@ -6,9 +6,24 @@ import {
   updateBackupContact,
   updateMove,
   updateMTOShipment,
+  updateOrders,
+  updatePPMs,
+  updatePPM,
+  updatePPMEstimate,
+  updatePPMSitEstimate,
 } from './entities';
 
-import { UPDATE_SERVICE_MEMBER, UPDATE_BACKUP_CONTACT, UPDATE_MOVE, UPDATE_MTO_SHIPMENT } from 'store/entities/actions';
+import {
+  UPDATE_SERVICE_MEMBER,
+  UPDATE_BACKUP_CONTACT,
+  UPDATE_MOVE,
+  UPDATE_MTO_SHIPMENT,
+  UPDATE_ORDERS,
+  UPDATE_PPMS,
+  UPDATE_PPM,
+  UPDATE_PPM_ESTIMATE,
+  UPDATE_PPM_SIT_ESTIMATE,
+} from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { addEntities } from 'shared/Entities/actions';
 
@@ -20,8 +35,13 @@ describe('watchUpdateEntities', () => {
       all([
         takeLatest(UPDATE_SERVICE_MEMBER, updateServiceMember),
         takeLatest(UPDATE_BACKUP_CONTACT, updateBackupContact),
+        takeLatest(UPDATE_ORDERS, updateOrders),
         takeLatest(UPDATE_MOVE, updateMove),
         takeLatest(UPDATE_MTO_SHIPMENT, updateMTOShipment),
+        takeLatest(UPDATE_PPMS, updatePPMs),
+        takeLatest(UPDATE_PPM, updatePPM),
+        takeLatest(UPDATE_PPM_ESTIMATE, updatePPMEstimate),
+        takeLatest(UPDATE_PPM_SIT_ESTIMATE, updatePPMSitEstimate),
       ]),
     );
   });
@@ -180,6 +200,167 @@ describe('updateMTOShipment', () => {
 
   it('stores the normalized data in entities', () => {
     expect(generator.next(normalizedMove).value).toEqual(put(addEntities(normalizedMove)));
+  });
+
+  it('is done', () => {
+    expect(generator.next().done).toEqual(true);
+  });
+});
+
+describe('updateOrders', () => {
+  const testAction = {
+    payload: {
+      created_at: '2020-12-17T15:54:48.853Z',
+      has_dependents: false,
+      id: 'ef45eb5a-c1bf-4c60-9c22-990500b6badc',
+      issue_date: '2020-12-22',
+      moves: [
+        {
+          created_at: '2020-12-17T15:54:48.873Z',
+          id: '0ff5ec27-57be-4760-a87f-42998aa94caf',
+          locator: 'C8PFDW',
+          orders_id: 'ef45eb5a-c1bf-4c60-9c22-990500b6badc',
+          selected_move_type: '',
+          service_member_id: '15a17300-e1c6-4b3a-8e5d-9c47782a3961',
+          status: 'DRAFT',
+          updated_at: '2020-12-17T15:54:48.873Z',
+        },
+      ],
+      new_duty_station: {
+        address: {
+          city: 'Glendale Luke AFB',
+          country: 'United States',
+          id: 'ce6ec9a4-1bad-4fb3-8b3c-89ebee54e8cf',
+          postal_code: '85309',
+          state: 'AZ',
+          street_address_1: 'n/a',
+        },
+        address_id: 'ce6ec9a4-1bad-4fb3-8b3c-89ebee54e8cf',
+        affiliation: 'AIR_FORCE',
+        created_at: '2020-12-07T17:02:33.987Z',
+        id: '9e1b519e-6daa-4c3f-8cfe-413c582b6366',
+        name: 'Luke AFB',
+        updated_at: '2020-12-07T17:02:33.987Z',
+      },
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      report_by_date: '2020-12-28',
+      service_member_id: '15a17300-e1c6-4b3a-8e5d-9c47782a3961',
+      spouse_has_pro_gear: false,
+      status: 'DRAFT',
+      updated_at: '2020-12-17T15:54:48.853Z',
+      uploaded_orders: {
+        id: '251ea83d-4295-4105-9780-3ae2d6549872',
+        service_member_id: '15a17300-e1c6-4b3a-8e5d-9c47782a3961',
+        uploads: [],
+      },
+    },
+  };
+
+  const normalizedOrders = normalizeResponse(testAction.payload, 'orders');
+
+  const generator = updateOrders(testAction);
+
+  it('normalizes the payload', () => {
+    expect(generator.next().value).toEqual(call(normalizeResponse, testAction.payload, 'orders'));
+  });
+
+  it('stores the normalized data in entities', () => {
+    expect(generator.next(normalizedOrders).value).toEqual(put(addEntities(normalizedOrders)));
+  });
+
+  it('is done', () => {
+    expect(generator.next().done).toEqual(true);
+  });
+});
+
+describe('updatePPM', () => {
+  const testAction = {
+    payload: {
+      actual_move_date: '2020-12-18',
+      advance_worksheet: {
+        id: '00000000-0000-0000-0000-000000000000',
+        service_member_id: '00000000-0000-0000-0000-000000000000',
+        uploads: [],
+      },
+      approve_date: '2020-12-21T22:45:52.000Z',
+      created_at: '2020-12-21T22:43:48.278Z',
+      destination_postal_code: '99619',
+      has_additional_postal_code: false,
+      has_requested_advance: false,
+      has_sit: false,
+      id: 'd9488eac-eef8-430e-8c4b-05884c3cc6fa',
+      move_id: '2b8198ca-e70a-40b7-822e-be5527bf0606',
+      original_move_date: '2020-12-19',
+      pickup_postal_code: '10002',
+      status: 'PAYMENT_REQUESTED',
+      submit_date: '2020-12-21T22:45:12.100Z',
+      updated_at: '2020-12-21T22:46:50.805Z',
+    },
+  };
+
+  const normalizedPPM = normalizeResponse(testAction.payload, 'personallyProcuredMove');
+
+  const generator = updatePPM(testAction);
+
+  it('normalizes the payload', () => {
+    expect(generator.next().value).toEqual(call(normalizeResponse, testAction.payload, 'personallyProcuredMove'));
+  });
+
+  it('stores the normalized data in entities', () => {
+    expect(generator.next(normalizedPPM).value).toEqual(put(addEntities(normalizedPPM)));
+  });
+
+  it('calls the legacy CREATE_OR_UPDATE_PPM_SUCCESS action with the raw payload', () => {
+    expect(generator.next().value).toEqual(
+      put({
+        type: 'CREATE_OR_UPDATE_PPM_SUCCESS',
+        payload: testAction.payload,
+      }),
+    );
+  });
+
+  it('is done', () => {
+    expect(generator.next().done).toEqual(true);
+  });
+});
+
+describe('updatePPMs', () => {
+  const testAction = {
+    payload: [
+      {
+        actual_move_date: '2020-12-18',
+        advance_worksheet: {
+          id: '00000000-0000-0000-0000-000000000000',
+          service_member_id: '00000000-0000-0000-0000-000000000000',
+          uploads: [],
+        },
+        approve_date: '2020-12-21T22:45:52.000Z',
+        created_at: '2020-12-21T22:43:48.278Z',
+        destination_postal_code: '99619',
+        has_additional_postal_code: false,
+        has_requested_advance: false,
+        has_sit: false,
+        id: 'd9488eac-eef8-430e-8c4b-05884c3cc6fa',
+        move_id: '2b8198ca-e70a-40b7-822e-be5527bf0606',
+        original_move_date: '2020-12-19',
+        pickup_postal_code: '10002',
+        status: 'PAYMENT_REQUESTED',
+        submit_date: '2020-12-21T22:45:12.100Z',
+        updated_at: '2020-12-21T22:46:50.805Z',
+      },
+    ],
+  };
+
+  const normalizedPPM = normalizeResponse(testAction.payload, 'personallyProcuredMoves');
+
+  const generator = updatePPMs(testAction);
+
+  it('normalizes the payload', () => {
+    expect(generator.next().value).toEqual(call(normalizeResponse, testAction.payload, 'personallyProcuredMoves'));
+  });
+
+  it('stores the normalized data in entities', () => {
+    expect(generator.next(normalizedPPM).value).toEqual(put(addEntities(normalizedPPM)));
   });
 
   it('is done', () => {

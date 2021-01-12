@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION="5.0"
+VERSION="5.1"
 
 # Script helps ensure that /etc/shells has all the correct entries in it
 

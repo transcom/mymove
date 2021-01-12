@@ -42,7 +42,7 @@ var fakeDataTestCases = []fakeDataTestCase{
 		lastName:       "Swinglehurst-Walters",
 		address:        "4124 Apache Dr, Apt 18C",
 		phone:          "456-555-9359",
-		email:          "test@email.com",
+		email:          "test@truss.works",
 		expected:       true,
 		expectedStrict: true,
 	},
@@ -110,7 +110,7 @@ var fakeDataTestCases = []fakeDataTestCase{
 	},
 }
 
-func (suite *FakeDataSuite) TestPricersTestCases() {
+func (suite *FakeDataSuite) TestFakeDataTestCases() {
 	var result bool
 	var err error
 	for i, testCase := range fakeDataTestCases {

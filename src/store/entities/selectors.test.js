@@ -4,6 +4,13 @@ import {
   selectIsProfileComplete,
   selectBackupContacts,
   selectCurrentDutyStation,
+  selectOrdersForLoggedInUser,
+  selectCurrentOrders,
+  selectMovesForLoggedInUser,
+  selectMovesForCurrentOrders,
+  selectCurrentMove,
+  selectPPMEstimateRange,
+  selectPPMSitEstimate,
 } from './selectors';
 
 describe('selectLoggedInUser', () => {
@@ -312,5 +319,564 @@ describe('selectIsProfileComplete', () => {
     };
 
     expect(selectIsProfileComplete(testState)).toEqual(true);
+  });
+});
+
+describe('selectOrdersForLoggedInUser', () => {
+  it('returns the orders associated with the logged in user', () => {
+    const testState = {
+      entities: {
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectOrdersForLoggedInUser(testState)).toEqual([
+      testState.entities.orders.orders789,
+      testState.entities.orders.orders8910,
+    ]);
+  });
+
+  it('returns an empty array if the service member has no orders', () => {
+    const testState = {
+      entities: {
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+          },
+        },
+      },
+    };
+
+    expect(selectOrdersForLoggedInUser(testState)).toEqual([]);
+  });
+});
+
+describe('selectCurrentOrders', () => {
+  it('returns the current orders associated with the logged in user', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+            status: 'CANCELED',
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'APPROVED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectCurrentOrders(testState)).toEqual(testState.entities.orders.orders8910);
+  });
+
+  it('returns the first orders if none of the orders statuses are active', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+            status: 'CANCELED',
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'CANCELED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectCurrentOrders(testState)).toEqual(testState.entities.orders.orders789);
+  });
+
+  it('returns null if there are no orders', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+          },
+        },
+        orders: {},
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectCurrentOrders(testState)).toEqual(null);
+  });
+});
+
+describe('selectMovesForLoggedInUser', () => {
+  it('returns the moves associated with the logged in user', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+            status: 'CANCELED',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'SUBMITTED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectMovesForLoggedInUser(testState)).toEqual([
+      testState.entities.moves.move1029,
+      testState.entities.moves.move2938,
+    ]);
+  });
+
+  it('returns an empty array if the logged in user has no moves', () => {
+    const testState = {
+      entities: {
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: [],
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            status: 'SUBMITTED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectMovesForLoggedInUser(testState)).toEqual([]);
+  });
+});
+
+describe('selectMovesForCurrentOrders', () => {
+  it('returns the moves associated with the current orders', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'SUBMITTED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectMovesForCurrentOrders(testState)).toEqual([testState.entities.moves.move2938]);
+  });
+
+  it('returns an empty array if the current orders have no moves', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: [],
+            status: 'SUBMITTED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectMovesForCurrentOrders(testState)).toEqual([]);
+  });
+});
+
+describe('selectCurrentMove', () => {
+  it('returns the current move associated with the current orders', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+            status: 'CANCELED',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+            status: 'DRAFT',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+            status: 'CANCELED',
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'DRAFT',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectCurrentMove(testState)).toEqual(testState.entities.moves.move2938);
+  });
+
+  it('returns the current move associated with the first orders if none of the orders statuses are active', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+            status: 'SUBMITTED',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+            status: 'APPROVED',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+            status: 'CANCELED',
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'CANCELED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectCurrentMove(testState)).toEqual(testState.entities.moves.move1029);
+  });
+
+  it('returns the first move if there are no active moves', () => {
+    const testState = {
+      entities: {
+        moves: {
+          move1029: {
+            id: 'move1029',
+            orders_id: 'orders789',
+            status: 'CANCELED',
+          },
+          move2938: {
+            id: 'move2938',
+            orders_id: 'orders8910',
+            status: 'CANCELED',
+          },
+        },
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move1029'],
+            status: 'CANCELED',
+          },
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            status: 'CANCELED',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders789', 'orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectCurrentMove(testState)).toEqual(testState.entities.moves.move1029);
+  });
+});
+
+describe('selectPPMEstimateRange', () => {
+  it('returns the only PPM estimate range stored in entities', () => {
+    const testState = {
+      entities: {
+        ppmEstimateRanges: {
+          undefined: {
+            range_min: 1000,
+            range_max: 2400,
+          },
+        },
+      },
+    };
+
+    expect(selectPPMEstimateRange(testState)).toEqual(testState.entities.ppmEstimateRanges.undefined);
+  });
+
+  it('returns null if there is no PPM estimate range in entities', () => {
+    const testState = {
+      entities: {
+        ppmEstimateRanges: {},
+      },
+    };
+
+    expect(selectPPMEstimateRange(testState)).toEqual(null);
+  });
+});
+
+describe('selectPPMSitEstimate', () => {
+  it('returns the only PPM SIT estimate stored in entities', () => {
+    const testState = {
+      entities: {
+        ppmSitEstimate: {
+          undefined: {
+            estimate: 12500,
+          },
+        },
+      },
+    };
+
+    expect(selectPPMSitEstimate(testState)).toEqual(testState.entities.ppmSitEstimate.undefined.estimate);
+  });
+
+  it('returns null if there is no PPM SIT estimate in entities', () => {
+    const testState = {
+      entities: {
+        ppmSitEstimate: {},
+      },
+    };
+
+    expect(selectPPMSitEstimate(testState)).toEqual(null);
   });
 });

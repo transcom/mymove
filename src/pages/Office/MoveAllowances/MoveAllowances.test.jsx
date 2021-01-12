@@ -77,27 +77,6 @@ jest.mock('hooks/queries', () => ({
           sac: 'E2P3',
         },
       },
-      documents: {
-        2: {
-          id: '2',
-          uploads: [
-            {
-              id: 'z',
-              filename: 'test.pdf',
-              contentType: 'application/pdf',
-              url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-            },
-          ],
-        },
-      },
-      upload: {
-        z: {
-          id: 'z',
-          filename: 'test.pdf',
-          contentType: 'application/pdf',
-          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-        },
-      },
     };
   },
 }));
@@ -109,14 +88,10 @@ describe('MoveAllowances page', () => {
     </MockProviders>,
   );
 
-  it('renders the orders document viewer', () => {
-    expect(wrapper.find('DocumentViewer').exists()).toBe(true);
-  });
-
   it('renders the sidebar elements', () => {
     expect(wrapper.find({ 'data-testid': 'allowances-header' }).text()).toBe('View Allowances');
     // There is only 1 button, but mount-rendering react-uswds Button component has inner buttons
-    expect(wrapper.find({ 'data-testid': 'view-orders-btn' }).at(0).text()).toBe('View Orders');
+    expect(wrapper.find({ 'data-testid': 'view-orders' }).at(0).text()).toBe('View Orders');
   });
 
   it('renders displays the allowances in the sidebar form', () => {

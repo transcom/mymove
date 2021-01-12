@@ -610,8 +610,12 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 	models.SaveMoveDependencies(db, &ppm6.Move)
 }
 
-func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
-	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
+func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation) {
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			Affiliation: &affiliation,
+		},
+	})
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: customer.ID,
@@ -1629,8 +1633,23 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 			MoveTaskOrder: move9,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusReviewed,
+			ReviewedAt:    swag.Time(time.Now()),
 		},
 		Move: move9,
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
+		PaymentRequest: paymentRequest9,
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusDenied,
+		},
+		PaymentRequest: paymentRequest9,
 	})
 
 	assertions9 := testdatagen.Assertions{
@@ -1741,8 +1760,10 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// This allows testing the pagination feature in the TXO queues.
 	// Feel free to comment out the loop if you don't need this many moves.
 	for i := 1; i < 12; i++ {
-		createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger)
+		createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE)
 	}
+	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationMARINES)
+
 	createMoveWithPPMAndHHG(db, userUploader)
 	createHHGMoveWith10ServiceItems(db, userUploader)
 	createHHGMoveWith2PaymentRequests(db, userUploader)

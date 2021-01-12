@@ -69,9 +69,9 @@ jest.mock('hooks/queries', () => ({
 }));
 
 describe('MoveTaskOrder', () => {
-  const testId = 'test-id-123';
+  const moveCode = 'WE31AZ';
   const requiredProps = {
-    match: { params: { moveTaskOrderId: testId } },
+    match: { params: { moveCode } },
     history: { push: jest.fn() },
   };
 

@@ -24,7 +24,7 @@ func NewMoveTaskOrderHider(db *pop.Connection) services.MoveTaskOrderHider {
 func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 	var mtos models.Moves
 	err := o.db.Q().
-		// Note: We may be able to same some queries if we load on demand, but we'll need to
+		// Note: We may be able to save some queries if we load on demand, but we'll need to
 		// refactor the methods that check for valid fake data to pass in the DB connection.
 		Eager(
 			"Orders.ServiceMember.ResidentialAddress",
@@ -61,6 +61,7 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 	for i := range invalidFakeMoves {
 		// Take the address of the slice element to avoid implicit memory aliasing of items from a range statement.
 		mto := invalidFakeMoves[i]
+
 		verrs, updateErr := o.db.ValidateAndUpdate(&mto)
 		if verrs != nil && verrs.HasAny() {
 			return nil, services.NewInvalidInputError(mto.ID, err, verrs, "")

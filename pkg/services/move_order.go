@@ -13,10 +13,10 @@ type MoveOrderFetcher interface {
 	ListMoveOrders(officeUserID uuid.UUID, params *ListMoveOrderParams) ([]models.Move, int, error)
 }
 
-//MoveOrderUpdater is the service object interface for updating fields of a MoveOrder
-//go:generate mockery -name MoveOrderUpdater
-type MoveOrderUpdater interface {
-	UpdateMoveOrder(moveOrderID uuid.UUID, eTag string, moveOrder models.Order) (*models.Order, error)
+//OrderUpdater is the service object interface for updating fields of an Order
+//go:generate mockery -name OrderUpdater
+type OrderUpdater interface {
+	UpdateOrder(eTag string, order models.Order) (*models.Order, error)
 }
 
 // ListMoveOrderParams is a public struct that's used to pass filter arguments to the ListMoveOrders

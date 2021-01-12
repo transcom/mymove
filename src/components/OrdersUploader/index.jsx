@@ -23,7 +23,7 @@ registerPlugin(FilePondImagePreview);
 
 const idleStatuses = [FileStatus.PROCESSING_COMPLETE, FileStatus.PROCESSING_ERROR];
 
-export class OrdersUploader extends Component {
+class OrdersUploader extends Component {
   constructor(props) {
     super(props);
 
@@ -124,14 +124,17 @@ export class OrdersUploader extends Component {
       .then((item) => {
         const response = get(item, 'response', {});
         load(response);
-        // eslint-disable-next-line react/no-access-state-in-setstate
-        const newFiles = reject(this.state.files, (upload) => upload.id === uploadId);
-        this.setState({
-          files: newFiles,
-        });
-        if (onChange) {
-          onChange(newFiles, this.isIdle());
-        }
+        const getNewFiles = (state) => reject(state.files, (upload) => upload.id === uploadId);
+        this.setState(
+          (prevState) => ({
+            files: getNewFiles(prevState),
+          }),
+          () => {
+            if (onChange) {
+              onChange(this.state.files, this.isIdle());
+            }
+          },
+        );
       })
       .catch(error);
   };
@@ -140,17 +143,16 @@ export class OrdersUploader extends Component {
     return this.state.files.length === 0;
   }
 
+  // TODO: Remove isIdle function- the onChange where it is called does not actually expect second argument
   isIdle() {
     // If this component is unloaded quickly, this function can be called after the ref is deleted,
     // so check that the ref still exists before continuing
     if (!this.pond) {
-      return;
+      return false;
     }
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
-    const isIdle = existingFiles.every((f) => idleStatuses.indexOf(f.status) > -1);
-    // eslint-disable-next-line consistent-return
-    return isIdle;
+    return existingFiles.every((f) => idleStatuses.indexOf(f.status) > -1);
   }
 
   clearFiles() {

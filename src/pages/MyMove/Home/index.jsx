@@ -24,19 +24,25 @@ import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
-import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
-import { selectUploadedOrders, selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectIsProfileComplete,
+  selectCurrentOrders,
+  selectCurrentMove,
+  selectMTOShipmentsForCurrentMove,
+  selectUploadsForCurrentOrders,
+} from 'store/entities/selectors';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
-import { selectMTOShipmentsByMoveId, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { MtoShipmentShape, UploadShape, HistoryShape, MoveShape, OrdersShape } from 'types/customerShapes';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -425,28 +431,19 @@ class Home extends Component {
 }
 
 Home.propTypes = {
-  orders: shape({}).isRequired,
+  orders: OrdersShape,
   serviceMember: shape({
     first_name: string,
     last_name: string,
   }),
-  mtoShipments: arrayOf(
-    shape({
-      id: string,
-      shipmentType: string,
-    }),
-  ).isRequired,
+  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   currentPpm: shape({
     id: string,
     shipmentType: string,
   }).isRequired,
-  uploadedOrderDocuments: arrayOf(
-    shape({
-      filename: string.isRequired,
-    }),
-  ).isRequired,
-  history: shape({}).isRequired,
-  move: shape({}).isRequired,
+  uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
+  history: HistoryShape.isRequired,
+  move: MoveShape.isRequired,
   isLoggedIn: bool.isRequired,
   loggedInUserIsLoading: bool.isRequired,
   loggedInUserSuccess: bool.isRequired,
@@ -461,7 +458,7 @@ Home.propTypes = {
       ghcFlow: bool,
     }),
   }),
-  mtoShipment: shape({}).isRequired,
+  mtoShipment: MtoShipmentShape.isRequired,
   signedCertification: shape({
     signature: string,
     created_at: string,
@@ -470,6 +467,7 @@ Home.propTypes = {
 };
 
 Home.defaultProps = {
+  orders: null,
   serviceMember: null,
   selectedMoveType: '',
   lastMoveIsCanceled: false,
@@ -486,7 +484,7 @@ Home.defaultProps = {
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const move = selectActiveOrLatestMove(state);
+  const move = selectCurrentMove(state) || {};
 
   return {
     currentPpm: selectActivePPMForMove(state, move.id),
@@ -494,15 +492,16 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     isProfileComplete: selectIsProfileComplete(state),
-    orders: selectActiveOrLatestOrdersFromEntities(state),
-    uploadedOrderDocuments: selectUploadedOrders(state),
+    orders: selectCurrentOrders(state) || {},
+    uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),
     // TODO: change when we support PPM shipments as well
-    mtoShipments: selectMTOShipmentsByMoveId(state, move.id),
+    mtoShipments: selectMTOShipmentsForCurrentMove(state),
     // TODO: change when we support multiple moves
     move,
+    // TODO - deprecate this prop (need to refactor wizard flow)
     mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
   };
 };

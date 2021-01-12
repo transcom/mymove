@@ -15,7 +15,8 @@ type FakeDataSuite struct {
 }
 
 func (suite *FakeDataSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestFakeDataSuite(t *testing.T) {

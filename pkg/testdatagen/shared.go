@@ -64,6 +64,7 @@ type Assertions struct {
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
+	ReDomesticLinehaulPrice                  models.ReDomesticLinehaulPrice
 	Reimbursement                            models.Reimbursement
 	ReService                                models.ReService
 	ReZip3                                   models.ReZip3
@@ -90,6 +91,7 @@ type Assertions struct {
 	User                                     models.User
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
+	Zip3Distance                             models.Zip3Distance
 }
 
 func stringPointer(s string) *string {

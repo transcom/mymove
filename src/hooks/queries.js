@@ -6,6 +6,7 @@ import {
   getMTOShipments,
   getMTOServiceItems,
   getMoveOrder,
+  getMove,
   getMoveTaskOrderList,
   getDocument,
   getMovesQueue,
@@ -18,6 +19,7 @@ import {
   PAYMENT_REQUESTS,
   MTO_SHIPMENTS,
   MTO_SERVICE_ITEMS,
+  MOVES,
   MOVE_ORDERS,
   MOVE_PAYMENT_REQUESTS,
   MOVE_TASK_ORDERS,
@@ -81,14 +83,20 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   };
 };
 
-export const useMoveTaskOrderQueries = (moveOrderId) => {
+export const useMoveTaskOrderQueries = (moveCode) => {
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const moveOrderId = move?.ordersId;
+
   // get move orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
+    enabled: !!moveOrderId,
+  });
 
   // get move task orders
   const { data: { moveTaskOrders } = {}, ...moveTaskOrderQuery } = useQuery(
     [MOVE_TASK_ORDERS, moveOrderId],
     getMoveTaskOrderList,
+    { enabled: !!moveOrderId },
   );
 
   const moveTaskOrder = moveTaskOrders && Object.values(moveTaskOrders)[0];
@@ -107,6 +115,7 @@ export const useMoveTaskOrderQueries = (moveOrderId) => {
   );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
     moveOrderQuery,
     moveTaskOrderQuery,
     mtoShipmentQuery,
@@ -138,9 +147,16 @@ export const useMoveOrderQueries = (moveOrderId) => {
   };
 };
 
-export const useOrdersDocumentQueries = (moveOrderId) => {
+export const useOrdersDocumentQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+
+  const moveOrderId = move?.ordersId;
+
+  // get orders
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
+    enabled: !!moveOrderId,
+  });
 
   const orders = moveOrders && moveOrders[`${moveOrderId}`];
   // eslint-disable-next-line camelcase
@@ -148,17 +164,23 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
 
   // Get a document
   // TODO - "upload" instead of "uploads" is because of the schema.js entity name. Change to "uploads"
+  const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
+  const cacheTime = staleTime;
   const { data: { documents, upload } = {}, ...ordersDocumentsQuery } = useQuery(
     [ORDERS_DOCUMENTS, documentId],
     getDocument,
     {
       enabled: !!documentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveOrderQuery, ordersDocumentsQuery]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, ordersDocumentsQuery]);
 
   return {
+    move,
     moveOrders,
     documents,
     upload,
@@ -201,9 +223,7 @@ export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], curre
 
 export const useMovePaymentRequestsQueries = (locator) => {
   const { data = {}, ...movePaymentRequestsQuery } = useQuery([MOVE_PAYMENT_REQUESTS, locator], getMovePaymentRequests);
-
   const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery]);
-
   return {
     paymentRequests: data,
     isLoading,
