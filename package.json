@@ -59,7 +59,7 @@
     "react-router-tabs": "^1.1.1",
     "react-scripts": "^4.0.1",
     "react-select": "^3.1.0",
-    "react-table": "^7.6.2",
+    "react-table": "^7.6.3",
     "react-table-6": "^6.11.0",
     "react-tabs": "^3.1.2",
     "reduce-reducers": "^1.0.4",
