@@ -588,4 +588,5 @@
 20201230070814_fix_ecs_user_in_docker.up.sql
 20210104224106_add_reviewed_all_rejected_to_payment_request_status.up.sql
 20210107012144_update_comment_for_move_status.up.sql
+20210108004003_add_permissions_to_docker_roles.up.sql
 20210108174326_fix_city_and_state_data_in_addresses.up.sql
