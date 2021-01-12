@@ -258,47 +258,20 @@ func loadFixtureDataServiceItemParams(db *pop.Connection) {
 	if err != nil {
 		log.Fatalf("importing fixture data <%s>: %+v", bytes, err)
 	}
+
+	fmt.Printf("------------asdfasdfasdfasdfasdfas\n\n\n\n\n\n")
 }
 
 // MakeRealMTOServiceItemWithAllDeps Takes a service code, move, shipment
 // and creates or finds all the needed data to create a service item all its params ready for pricing
 func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.ReServiceCode, mto models.Move, mtoShipment models.MTOShipment) models.MTOServiceItem {
 	loadFixtureDataServiceItemParams(db)
-	serviceParams := fixtureMapOfServiceItemParams()
 
-	// look up the data we need
-	data := serviceParams[serviceCode]
-	if data.ServiceCode == serviceCode {
-		// get or create the ReService
-		reService := FetchOrMakeReService(db, Assertions{
-			ReService: models.ReService{
-				Code: serviceCode,
-			},
-		})
+	// create a service item and return it
+	mtoServiceItem := MakeMTOServiceItem(db, Assertions{
+		Move:        mto,
+		MTOShipment: mtoShipment,
+	})
 
-		// create all params defined for this particular service
-		for _, serviceParamKeyToCreate := range data.ServiceItemParamKeys {
-			serviceItemParamKey := FetchOrMakeServiceItemParamKey(db, Assertions{
-				ServiceItemParamKey: serviceParamKeyToCreate,
-			})
-			_ = MakeServiceParam(db, Assertions{
-				ServiceParam: models.ServiceParam{
-					ServiceID:             reService.ID,
-					ServiceItemParamKeyID: serviceItemParamKey.ID,
-					ServiceItemParamKey:   serviceItemParamKey,
-				},
-			})
-		}
-
-		// create a service item and return it
-		mtoServiceItem := MakeMTOServiceItem(db, Assertions{
-			Move:        mto,
-			MTOShipment: mtoShipment,
-		})
-
-		return mtoServiceItem
-	}
-
-	log.Panicf("couldn't create service item service code %s not defined", serviceCode)
-	return models.MTOServiceItem{}
+	return mtoServiceItem
 }
