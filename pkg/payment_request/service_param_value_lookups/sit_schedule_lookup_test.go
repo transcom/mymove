@@ -70,7 +70,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		},
 	})
 
-	suite.T().Run("lookup origin SITServicesSchedule", func(t *testing.T) {
+	suite.T().Run("lookup SITScheduleOrigin", func(t *testing.T) {
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(originKey)
@@ -78,7 +78,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		suite.Equal(strconv.Itoa(originDomesticServiceArea.SITPDSchedule), valueStr)
 	})
 
-	suite.T().Run("lookup dest SITServicesSchedule", func(t *testing.T) {
+	suite.T().Run("lookup SITScheduleOriginDest", func(t *testing.T) {
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(destKey)
@@ -86,7 +86,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		suite.Equal(strconv.Itoa(destDomesticServiceArea.SITPDSchedule), valueStr)
 	})
 
-	suite.T().Run("lookup origin SITServicesSchedule not found", func(t *testing.T) {
+	suite.T().Run("lookup SITScheduleOrigin not found", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
@@ -103,7 +103,7 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 		suite.Contains(err.Error(), expected)
 	})
 
-	suite.T().Run("lookup dest SITServicesSchedule not found", func(t *testing.T) {
+	suite.T().Run("lookup SITScheduleDest not found", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
