@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -380,8 +379,6 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 
 // PaymentServiceItem payload
 func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServiceItem {
-	fmt.Printf("%v", ps)
-	fmt.Printf("%v", ps.MTOServiceItem)
 	return &ghcmessages.PaymentServiceItem{
 		ID:                 *handlers.FmtUUID(ps.ID),
 		MtoServiceItemID:   *handlers.FmtUUID(ps.MTOServiceItemID),
