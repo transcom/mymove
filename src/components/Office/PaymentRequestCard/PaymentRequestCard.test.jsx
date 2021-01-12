@@ -1,7 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import moment from 'moment';
-import MockDate from 'mockdate';
 
 import PaymentRequestCard from './PaymentRequestCard';
 
@@ -31,6 +29,7 @@ jest.mock('hooks/queries', () => ({
           moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
           paymentRequestNumber: '1843-9061-1',
           status: 'REVIEWED',
+          reviewedAt: '2020-12-01T00:00:00.000Z',
           moveTaskOrder: move,
           serviceItems: [
             {
@@ -157,9 +156,6 @@ describe('PaymentRequestCard', () => {
   });
 
   describe('reviewed payment request', () => {
-    const reviewedAtDate = moment(MockDate);
-    const formattedReviewedAtDate = moment(reviewedAtDate).format('DD MMM YYYY');
-
     const reviewedPaymentRequest = {
       id: '29474c6a-69b6-4501-8e08-670a12512e5f',
       createdAt: '2020-12-01T00:00:00.000Z',
@@ -167,7 +163,7 @@ describe('PaymentRequestCard', () => {
       paymentRequestNumber: '1843-9061-2',
       status: 'REVIEWED',
       moveTaskOrder: move,
-      reviewedAt: reviewedAtDate,
+      reviewedAt: '2020-12-01T00:00:00.000Z',
       serviceItems: [
         {
           id: '09474c6a-69b6-4501-8e08-670a12512a5f',
@@ -193,7 +189,7 @@ describe('PaymentRequestCard', () => {
       moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
       paymentRequestNumber: '1843-9061-2',
       status: 'REVIEWED',
-      reviewedAt: reviewedAtDate,
+      reviewedAt: '2020-12-01T00:00:00.000Z',
       moveTaskOrder: move,
       serviceItems: [
         {
@@ -229,7 +225,7 @@ describe('PaymentRequestCard', () => {
     });
 
     it('displays the reviewed at date', () => {
-      expect(wrapper.find('.amountAccepted span').at(1).contains(formattedReviewedAtDate)).toBe(true);
+      expect(wrapper.find('.amountAccepted span').at(1).text().includes('01 Dec 2020')).toBe(true);
     });
 
     it('sums the rejected service items total', () => {
@@ -237,7 +233,7 @@ describe('PaymentRequestCard', () => {
     });
 
     it('displays the reviewed at date', () => {
-      expect(wrapper.find('.amountRejected span').at(1).contains(formattedReviewedAtDate)).toBe(true);
+      expect(wrapper.find('.amountRejected span').at(1).text().includes('01 Dec 2020')).toBe(true);
     });
 
     it('displays the payment request details ', () => {

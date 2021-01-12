@@ -11,6 +11,7 @@ import { HistoryShape } from 'types/router';
 import { PaymentRequestShape } from 'types';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
+import { groupByShipment } from 'utils/serviceItems';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -28,15 +29,12 @@ const paymentRequestStatusLabel = (status) => {
 };
 
 const PaymentRequestCard = ({ paymentRequest, history }) => {
-  // TODO - Will need to update this when we add support for other shipment types
-  const basicServiceItems = paymentRequest.serviceItems.filter(
-    (item) => item.mtoShipmentType === undefined || item.mtoShipmentType.null,
-  );
+  const sortedShipments = groupByShipment(paymentRequest.serviceItems);
 
   // show details by default if in pending/needs review
-  const defaultShowDetails = paymentRequest.status === 'PENDING' && basicServiceItems.length > 0;
+  const defaultShowDetails = paymentRequest.status === 'PENDING';
   // only show button in reviewed/paid
-  const showRequestDetailsButton = !defaultShowDetails && basicServiceItems.length > 0;
+  const showRequestDetailsButton = !defaultShowDetails;
   // state to toggle between showing details or not
   const [showDetails, setShowDetails] = useState(defaultShowDetails);
   let handleClick = () => {};
@@ -152,7 +150,13 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
       </div>
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
-          <PaymentRequestDetails serviceItems={basicServiceItems} />
+          {sortedShipments.map((serviceItems) => (
+            <PaymentRequestDetails
+              key={serviceItems?.[0]?.mtoShipmentID || 'basicServiceItems'}
+              className={styles.paymentRequestDetails}
+              serviceItems={serviceItems}
+            />
+          ))}
         </div>
       )}
     </div>

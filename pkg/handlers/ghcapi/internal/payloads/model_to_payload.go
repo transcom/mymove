@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -379,11 +380,14 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 
 // PaymentServiceItem payload
 func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServiceItem {
+	fmt.Printf("%v", ps)
+	fmt.Printf("%v", ps.MTOServiceItem)
 	return &ghcmessages.PaymentServiceItem{
 		ID:                 *handlers.FmtUUID(ps.ID),
 		MtoServiceItemID:   *handlers.FmtUUID(ps.MTOServiceItemID),
 		MtoServiceItemName: ps.MTOServiceItem.ReService.Name,
 		MtoShipmentType:    ghcmessages.MTOShipmentType(ps.MTOServiceItem.MTOShipment.ShipmentType),
+		MtoShipmentID:      handlers.FmtUUIDPtr(ps.MTOServiceItem.MTOShipmentID),
 		CreatedAt:          strfmt.DateTime(ps.CreatedAt),
 		PriceCents:         handlers.FmtCost(ps.PriceCents),
 		RejectionReason:    ps.RejectionReason,

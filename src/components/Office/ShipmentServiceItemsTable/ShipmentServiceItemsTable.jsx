@@ -34,8 +34,7 @@ const shipmentTypes = {
 };
 
 const ShipmentServiceItemsTable = ({ shipmentType, className }) => {
-  const shipmentServiceType = shipmentType === SHIPMENT_OPTIONS.NTS ? 'nts' : 'hhg';
-  const shipmentServiceItems = shipmentTypes[`${shipmentServiceType}`];
+  const shipmentServiceItems = shipmentType === SHIPMENT_OPTIONS.NTSR ? shipmentTypes.nts : shipmentTypes.hhg;
 
   return (
     <div className={classNames('container', 'container--gray', className)}>

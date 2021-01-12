@@ -4,20 +4,37 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './PaymentRequestDetails.module.scss';
 
-import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
+import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCents, toDollarString } from 'shared/formatters';
 import { PaymentServiceItemShape } from 'types';
 
+const shipmentHeadingAndStyle = (mtoShipmentType) => {
+  switch (mtoShipmentType) {
+    case undefined:
+    case null:
+      return ['Basic service items', styles.basicServiceType];
+    case SHIPMENT_OPTIONS.HHG:
+    case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
+    case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
+      return ['Household goods', styles.hhgShipmentType];
+    case SHIPMENT_OPTIONS.NTSR:
+      return ['NTS release', styles.ntsrShipmentType];
+    default:
+      return [mtoShipmentType, styles.basicServiceType];
+  }
+};
+
 const PaymentRequestDetails = ({ serviceItems }) => {
+  const [headingType, shipmentStyle] = shipmentHeadingAndStyle(serviceItems?.[0]?.mtoShipmentType);
+
   return (
     serviceItems.length > 0 && (
       <div className={styles.PaymentRequestDetails}>
         <div className="stackedtable-header">
-          {/* TODO this div will become dynamic based on different shipment types */}
           <div className={styles.shipmentType}>
-            <div className={styles.basicServiceType} />
+            <div className={shipmentStyle} />
             <h3>
-              Basic service items ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
+              {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
             </h3>
           </div>
         </div>
@@ -39,9 +56,9 @@ const PaymentRequestDetails = ({ serviceItems }) => {
               return (
                 // eslint-disable-next-line react/no-array-index-key
                 <tr key={item.id}>
-                  <td>{item.mtoServiceItemName}</td>
-                  <td>{toDollarString(formatCents(item.priceCents))}</td>
-                  <td>
+                  <td data-testid="serviceItemName">{item.mtoServiceItemName}</td>
+                  <td data-testid="serviceItemAmount">{toDollarString(formatCents(item.priceCents))}</td>
+                  <td data-testid="serviceItemStatus">
                     {item.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
                       <div className={styles.needsReview}>
                         <FontAwesomeIcon icon="exclamation-circle" />

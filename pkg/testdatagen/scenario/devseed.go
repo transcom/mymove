@@ -755,7 +755,7 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
 			OrdersID:         orders8.ID,
-			Status:           models.MoveStatusSUBMITTED,
+			Status:           models.MoveStatusAPPROVALSREQUESTED,
 			SelectedMoveType: &hhgMoveType,
 		},
 	})
@@ -767,7 +767,7 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+			Status:               models.MTOShipmentStatusApproved,
 		},
 		Move: move8,
 	})
@@ -782,10 +782,12 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 		Move: move8,
 	})
 
+	approvedAt := time.Now()
 	serviceItemMS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("4fba4249-b5aa-4c29-8448-66aa07ac8560"),
-			Status: models.MTOServiceItemStatusApproved,
+			ID:         uuid.FromStringOrNil("4fba4249-b5aa-4c29-8448-66aa07ac8560"),
+			Status:     models.MTOServiceItemStatusApproved,
+			ApprovedAt: &approvedAt,
 		},
 		Move: move8,
 		ReService: models.ReService{
@@ -804,8 +806,9 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 	csCost := unit.Cents(25000)
 	serviceItemCS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("e43c0df3-0dcd-4b70-adaa-46d669e094ad"),
-			Status: models.MTOServiceItemStatusApproved,
+			ID:         uuid.FromStringOrNil("e43c0df3-0dcd-4b70-adaa-46d669e094ad"),
+			Status:     models.MTOServiceItemStatusApproved,
+			ApprovedAt: &approvedAt,
 		},
 		Move: move8,
 		ReService: models.ReService{
