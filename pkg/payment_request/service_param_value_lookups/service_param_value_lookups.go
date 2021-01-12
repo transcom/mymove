@@ -287,6 +287,24 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
+	paramKey = models.ServiceItemParamNameSITScheduleOrigin
+	err = s.setLookup(serviceItemCode, paramKey, SITScheduleLookup{
+		// Will need to be updated after https://dp3.atlassian.net/browse/MB-6257#icft=MB-6257
+		Address: pickupAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameSITScheduleDest
+	err = s.setLookup(serviceItemCode, paramKey, SITScheduleLookup{
+		// Will need to be updated after https://dp3.atlassian.net/browse/MB-6257#icft=MB-6257
+		Address: destinationAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return &s, nil
 }
 
