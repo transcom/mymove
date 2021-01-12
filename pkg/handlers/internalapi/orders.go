@@ -48,6 +48,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		Sac:                 order.SAC,
 		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
 		Status:              internalmessages.OrdersStatus(order.Status),
+		DBAuthorizedWeight:  int64(*order.Entitlement.DBAuthorizedWeight),
 	}
 
 	return payload, nil

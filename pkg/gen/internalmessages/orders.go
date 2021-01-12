@@ -22,6 +22,9 @@ type Orders struct {
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
+	// d b authorized weight
+	DBAuthorizedWeight int64 `json:"dBAuthorizedWeight,omitempty"`
+
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 

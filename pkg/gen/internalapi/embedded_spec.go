@@ -5000,6 +5000,10 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "dBAuthorizedWeight": {
+          "type": "integer",
+          "example": 7000
+        },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
@@ -11610,6 +11614,10 @@ func init() {
         "created_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "dBAuthorizedWeight": {
+          "type": "integer",
+          "example": 7000
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"

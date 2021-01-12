@@ -1,5 +1,6 @@
 import React from 'react';
 import { Alert, CardGroup, CardHeader, CardBody, CardMedia } from '@trussworks/react-uswds';
+import { number } from 'prop-types';
 
 import PPMShipmentImg from 'images/ppm-shipment.jpg';
 import HHGShipmentImg from 'images/hhg-shipment.jpg';
@@ -7,12 +8,13 @@ import MoveCounselorImg from 'images/move-counselor.jpg';
 import MovingTruckImg from 'images/moving-truck.jpg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MilmoveCard from 'components/Customer/MilmoveCard/MilmoveCard';
+// import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 
-export const MovingInfo = () => {
+export const MovingInfo = ({ entitlementWeight }) => {
   return (
     <>
       <h1 data-testid="shipmentsHeader">Tips for planning your shipments</h1>
-      <Alert type="info" heading="You can move 7,000 lbs for free" noIcon>
+      <Alert type="info" heading={`You can move ${entitlementWeight} lbs for free`} noIcon>
         The government will pay to move that much weight. Your whole move, no matter how many shipments it takes.
         <br />
         <br />
@@ -97,4 +99,23 @@ export const MovingInfo = () => {
   );
 };
 
+MovingInfo.propTypes = {
+  entitlementWeight: number,
+};
+
+MovingInfo.defaultProps = {
+  entitlementWeight: 1000,
+};
+
+/*
+function mapStateToProps(state, ownProps) {
+  const { moveId } = ownProps.match.params;
+  const orders = selectOrdersForMove(state, moveId);
+  // const entitlementWeight = orders.entitlementWeight;
+
+  return {
+    orders,
+  };
+}
+*/
 export default MovingInfo;

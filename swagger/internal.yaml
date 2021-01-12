@@ -2190,6 +2190,9 @@ definitions:
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
+      dBAuthorizedWeight:
+        type: integer
+        example: 7000
     required:
       - id
       - service_member_id
