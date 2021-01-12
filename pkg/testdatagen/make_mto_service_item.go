@@ -1,7 +1,11 @@
 package testdatagen
 
 import (
+	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -233,9 +237,33 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 	return serviceParams
 }
 
+func loadFixtureDataServiceItemParams(db *pop.Connection) {
+	// Loads fixture data. This data is pulled from the development migrations using the following pg_dump command
+	// pg_dump --host localhost --username postgres --column-inserts --data-only --table service_params --table re_services --table service_item_param_keys dev_db > pkg/testdatagen/testdata/fixture_service_item_params.sql
+
+	// we don't know where in the pkg dir the tests will be so we have to find pgk
+
+	path, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("==============%s\n\n", filepath.Clean(path))
+	fixtureData := filepath.Join("..", "..", "testdatagen", "testdata", "fixture_service_item_params.sql") // relative path
+	bytes, err := ioutil.ReadFile(filepath.Clean(fixtureData))
+	if err != nil {
+		log.Fatalf("loading fixture data <%s>: %+v", fixtureData, err)
+	}
+
+	err = db.RawQuery(string(bytes)).Exec()
+	if err != nil {
+		log.Fatalf("importing fixture data <%s>: %+v", bytes, err)
+	}
+}
+
 // MakeRealMTOServiceItemWithAllDeps Takes a service code, move, shipment
 // and creates or finds all the needed data to create a service item all its params ready for pricing
 func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.ReServiceCode, mto models.Move, mtoShipment models.MTOShipment) models.MTOServiceItem {
+	loadFixtureDataServiceItemParams(db)
 	serviceParams := fixtureMapOfServiceItemParams()
 
 	// look up the data we need
