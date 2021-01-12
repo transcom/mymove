@@ -14,7 +14,9 @@ import { entitiesReducer } from 'shared/Entities/reducer';
 import uiReducer from 'shared/UI/ducks';
 import { moveReducer } from 'scenes/Moves/ducks';
 import { ppmReducer } from 'scenes/Moves/Ppm/ducks';
+import { serviceMemberReducer } from 'scenes/ServiceMembers/ducks';
 import { ordersReducer } from 'scenes/Orders/ducks';
+import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
 import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
@@ -42,7 +44,9 @@ export const appReducer = (history) =>
     swaggerInternal: swaggerReducerInternal,
     moves: moveReducer,
     ppm: ppmReducer,
+    serviceMember: serviceMemberReducer,
     orders: ordersReducer,
+    signedCertification: signedCertificationReducer,
     upload: documentReducer,
     review: reviewReducer,
     flashMessages: officeFlashMessagesReducer,
