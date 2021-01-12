@@ -519,7 +519,14 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		ReDomesticServiceArea: models.ReDomesticServiceArea{
 			ServiceArea: dlhTestServiceArea,
 		},
-		Address: pickupAddress,
+		ReRateArea: models.ReRateArea{
+			Name: "Alabama",
+		},
+		ReZip3: models.ReZip3{
+			Zip3:          pickupAddress.PostalCode[0:3],
+			BasePointCity: pickupAddress.City,
+			State:         pickupAddress.State,
+		},
 	})
 
 	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{

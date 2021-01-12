@@ -36,18 +36,11 @@ func SetupServiceAreaRateArea(db *pop.Connection, assertions Assertions) (models
 			ReDomesticServiceArea: serviceArea,
 		})
 
-	address := models.Address{
-		City:       "Birmingham",
-		State:      "AL",
-		PostalCode: "35203",
-	}
-	mergeModels(&address, assertions.Address)
-
 	rateArea := models.ReRateArea{
 		ContractID: contractYear.Contract.ID,
 		IsOconus:   false,
 		Code:       "US47",
-		Name:       address.State,
+		Name:       "CA",
 		Contract:   contractYear.Contract,
 	}
 
@@ -61,9 +54,9 @@ func SetupServiceAreaRateArea(db *pop.Connection, assertions Assertions) (models
 
 	reZip3 := models.ReZip3{
 		ContractID:            contractYear.Contract.ID,
-		Zip3:                  address.PostalCode[0:3],
-		BasePointCity:         address.City,
-		State:                 address.State,
+		Zip3:                  "940",
+		BasePointCity:         "San Francisco",
+		State:                 "CA",
 		DomesticServiceAreaID: serviceArea.ID,
 		RateAreaID:            &rateArea.ID,
 		HasMultipleRateAreas:  false,
