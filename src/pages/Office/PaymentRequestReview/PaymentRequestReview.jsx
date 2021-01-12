@@ -90,9 +90,9 @@ export const PaymentRequestReview = ({ history, match }) => {
   const serviceItemCards = paymentServiceItemsArr.map((item) => {
     return {
       id: item.id,
-      shipmentId: item.mtoShipmentID,
-      shipmentType: item.mtoShipmentType,
-      serviceItemName: item.mtoServiceItemName,
+      mtoShipmentID: item.mtoShipmentID,
+      mtoShipmentType: item.mtoShipmentType,
+      mtoServiceItemName: item.mtoServiceItemName,
       amount: item.priceCents ? item.priceCents / 100 : 0,
       createdAt: item.createdAt,
       status: item.status,
