@@ -60,6 +60,9 @@ jest.mock('hooks/queries', () => ({
         1: {
           id: '1',
           mtoServiceItemID: 'a',
+          mtoShipmentID: 'a1',
+          mtoShipmentType: 'HHG',
+          mtoServiceItemName: 'Test Service Item',
           priceCents: 12399,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'APPROVED',
@@ -67,12 +70,18 @@ jest.mock('hooks/queries', () => ({
         2: {
           id: '2',
           mtoServiceItemID: 'b',
+          mtoShipmentID: 'b2',
+          mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          mtoServiceItemName: 'Test Service Item 2',
           priceCents: 45600,
           createdAt: '2020-01-01T00:09:00.999Z',
         },
         3: {
           id: '3',
           mtoServiceItemID: 'c',
+          mtoShipmentID: 'a1',
+          mtoShipmentType: 'HHG',
+          mtoServiceItemName: 'Test Service Item 3',
           priceCents: 12312,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'DENIED',
@@ -81,38 +90,8 @@ jest.mock('hooks/queries', () => ({
           id: '4',
           mtoServiceItemID: 'd',
           priceCents: 99999,
+          mtoServiceItemName: 'Test Service Item 4',
           createdAt: '2020-01-01T00:09:00.999Z',
-        },
-      },
-      mtoShipments: {
-        a1: {
-          id: 'a1',
-          shipmentType: 'HHG',
-        },
-        b2: {
-          id: 'b2',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-        },
-      },
-      mtoServiceItems: {
-        a: {
-          id: 'a',
-          mtoShipmentID: 'a1',
-          reServiceName: 'Test Service Item',
-        },
-        b: {
-          id: 'b',
-          mtoShipmentID: 'b2',
-          reServiceName: 'Test Service Item 2',
-        },
-        c: {
-          id: 'c',
-          mtoShipmentID: 'a1',
-          reServiceName: 'Test Service Item 3',
-        },
-        d: {
-          id: 'd',
-          reServiceName: 'Test Service Item 4',
         },
       },
       isLoading: false,
