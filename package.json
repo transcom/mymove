@@ -74,13 +74,8 @@
     "yup": "^0.32.8"
   },
   "resolutions": {
-    "babel-loader": "8.1.0",
-    "bl": "^4.0.3",
     "kind-of": "^6.0.2",
-    "node-forge": "^0.10.0",
-    "object-path": "^0.11.5",
-    "selfsigned": "^1.10.8",
-    "serialize-javascript": "^3.1.0"
+    "selfsigned": "^1.10.8"
   },
   "name": "client",
   "private": true,
