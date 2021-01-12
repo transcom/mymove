@@ -4,7 +4,6 @@
 @import 'shared/styles/_custom';
 
 .PaymentRequestDetails {
-  @include u-padding-y(2);
   :global .stackedtable-header {
     max-width: unset;
     h3 {
