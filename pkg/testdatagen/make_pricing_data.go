@@ -1,11 +1,9 @@
 package testdatagen
 
 import (
-	"log"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
-	//"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -46,11 +44,10 @@ func SetupServiceAreaRateArea(db *pop.Connection, assertions Assertions) (models
 
 	mergeModels(&rateArea, assertions.ReRateArea)
 
-	mustSave(db, &rateArea)
-	err := db.Q().Where("code = ?", "US47").First(&rateArea)
-	if err != nil {
-		log.Panic(err)
-	}
+	rateArea = FetchOrMakeReRateArea(db, Assertions{
+		ReContractYear: contractYear,
+		ReRateArea:     rateArea,
+	})
 
 	reZip3 := models.ReZip3{
 		ContractID:            contractYear.Contract.ID,
