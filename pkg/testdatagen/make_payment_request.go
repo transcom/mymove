@@ -130,27 +130,33 @@ func MakeMultiPaymentRequestWithItems(db *pop.Connection, assertions Assertions,
 
 // MakeFullDLHMTOServiceItem makes a DLH type service item along with all its expected parameters returns the created move and all service items
 func MakeFullDLHMTOServiceItem(db *pop.Connection, assertions Assertions) (models.Move, models.MTOServiceItems) {
-	mtoShipment := assertions.MTOShipment
-	if mtoShipment.ID == uuid.Nil {
-		mtoShipment = MakeMTOShipment(db, assertions)
-	}
-
 	moveTaskOrder := assertions.Move
+	mtoShipment := assertions.MTOShipment
 	if moveTaskOrder.ID == uuid.Nil {
 		hhgMoveType := models.SelectedMoveTypeHHG
-		selectedMoveType := assertions.Move.SelectedMoveType
-		if selectedMoveType == nil {
-			selectedMoveType = &hhgMoveType
+		moveTaskOrder = models.Move{
+			SelectedMoveType: &hhgMoveType,
 		}
 
-		moveTaskOrder = MakeMoveWithoutMoveType(db, Assertions{
-			Move: models.Move{
-				SelectedMoveType: selectedMoveType,
-				MTOShipments: models.MTOShipments{
-					mtoShipment,
-				},
-			},
+		mergeModels(&moveTaskOrder, assertions.Move)
+
+		moveTaskOrder = MakeMove(db, Assertions{
+			Move: moveTaskOrder,
 		})
+
+		mtoShipment = models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		}
+		mergeModels(&mtoShipment, assertions.MTOShipment)
+
+		mtoShipment = MakeMTOShipment(db, Assertions{
+			Move:        moveTaskOrder,
+			MTOShipment: mtoShipment,
+		})
+
+		moveTaskOrder.MTOShipments = models.MTOShipments{mtoShipment}
+	} else {
+		mtoShipment = moveTaskOrder.MTOShipments[0]
 	}
 
 	var mtoServiceItems models.MTOServiceItems
