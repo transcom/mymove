@@ -38,7 +38,7 @@
     "ra-data-simple-rest": "^3.10.4",
     "ra-language-english": "^3.11.2",
     "react": "^16.14.0",
-    "react-admin": "^3.11.1",
+    "react-admin": "^3.11.2",
     "react-app-polyfill": "^2.0.0",
     "react-day-picker": "=7.4.8",
     "react-dom": "^16.14.0",
@@ -148,7 +148,7 @@
     "mockdate": "^3.0.2",
     "prettier": "2.2.1",
     "react-test-renderer": "^16.14.0",
-    "source-map-explorer": "^2.5.1",
+    "source-map-explorer": "^2.5.2",
     "storybook-addons-abstract": "^5.0.6"
   },
   "browserslist": [

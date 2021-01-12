@@ -127,7 +127,7 @@ describe('PaymentRequestCard', () => {
     );
 
     it('renders the needs review status tag', () => {
-      expect(wrapper.find({ 'data-testid': 'tag' }).contains('Needs Review')).toBe(true);
+      expect(wrapper.find({ 'data-testid': 'tag' }).contains('Needs review')).toBe(true);
     });
 
     it('sums the service items total', () => {
@@ -146,6 +146,13 @@ describe('PaymentRequestCard', () => {
 
       expect(viewLink.contains('View orders')).toBe(true);
       expect(viewLink.prop('href')).toBe('orders');
+    });
+
+    it('renders request details toggle drawer by default and hides button', () => {
+      const showRequestDetailsButton = wrapper.find('button[data-testid="showRequestDetailsButton"]');
+
+      expect(showRequestDetailsButton.length).toBe(0);
+      expect(wrapper.find('[data-testid="toggleDrawer"]').length).toBe(1);
     });
   });
 
@@ -256,6 +263,13 @@ describe('PaymentRequestCard', () => {
 
       expect(rejected.find('.amountRejected h2').contains('$60,000.02')).toBe(true);
       expect(rejected.find('.amountAccepted').exists()).toBe(false);
+    });
+
+    it('renders request details toggle drawer after click', () => {
+      const showRequestDetailsButton = wrapper.find('button[data-testid="showRequestDetailsButton"]');
+      showRequestDetailsButton.simulate('click');
+
+      expect(wrapper.find('[data-testid="toggleDrawer"]').length).toBe(1);
     });
   });
 

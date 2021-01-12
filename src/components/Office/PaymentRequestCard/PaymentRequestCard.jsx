@@ -1,21 +1,21 @@
-import React from 'react';
+import React, { useState, Fragment } from 'react';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
 import { withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { HistoryShape } from '../../../types/router';
-
 import styles from './PaymentRequestCard.module.scss';
 
+import { HistoryShape } from 'types/router';
+import { PaymentRequestShape } from 'types';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
-import { PaymentRequestShape } from 'types/index';
+import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
     case 'PENDING':
-      return 'Needs Review';
+      return 'Needs review';
     case 'REVIEWED':
     case 'SENT_TO_GEX':
     case 'RECEIVED_BY_GEX':
@@ -28,6 +28,17 @@ const paymentRequestStatusLabel = (status) => {
 };
 
 const PaymentRequestCard = ({ paymentRequest, history }) => {
+  // TODO - Will need to update this when we add support for other shipment types
+  const basicServiceItems = paymentRequest.serviceItems.filter(
+    (item) => item.mtoShipmentType === undefined || item.mtoShipmentType.null,
+  );
+
+  // show details by default if in pending/needs review
+  const defaultShowDetails = paymentRequest.status === 'PENDING' && basicServiceItems.length > 0;
+  // only show button in reviewed/paid
+  const showRequestDetailsButton = !defaultShowDetails && basicServiceItems.length > 0;
+  // state to toggle between showing details or not
+  const [showDetails, setShowDetails] = useState(defaultShowDetails);
   let handleClick = () => {};
   let requestedAmount = 0;
   let approvedAmount = 0;
@@ -51,6 +62,9 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
       history.push(`payment-requests/${paymentRequest.id}`);
     };
   }
+
+  const showDetailsChevron = showDetails ? 'chevron-up' : 'chevron-down';
+  const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
 
   return (
     <div className={classnames(styles.PaymentRequestCard, 'container')}>
@@ -128,13 +142,19 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
             </a>
           )}
           <div className={styles.toggleDrawer}>
-            <Button type="button" unstyled>
-              <FontAwesomeIcon icon="chevron-down" /> Show request details
-            </Button>
+            {showRequestDetailsButton && (
+              <Button data-testid="showRequestDetailsButton" type="button" unstyled onClick={handleToggleDetails}>
+                <FontAwesomeIcon icon={showDetailsChevron} /> Show request details
+              </Button>
+            )}
           </div>
         </div>
       </div>
-      <div className={styles.drawer} />
+      {showDetails && (
+        <div data-testid="toggleDrawer" className={styles.drawer}>
+          <PaymentRequestDetails serviceItems={basicServiceItems} />
+        </div>
+      )}
     </div>
   );
 };
