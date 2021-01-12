@@ -148,7 +148,7 @@
     "mockdate": "^3.0.2",
     "prettier": "2.2.1",
     "react-test-renderer": "^16.14.0",
-    "source-map-explorer": "^2.5.1",
+    "source-map-explorer": "^2.5.2",
     "storybook-addons-abstract": "^5.0.6"
   },
   "browserslist": [
