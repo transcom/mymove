@@ -5002,6 +5002,7 @@ func init() {
         },
         "dBAuthorizedWeight": {
           "type": "integer",
+          "x-nullable": true,
           "example": 7000
         },
         "department_indicator": {
@@ -11617,6 +11618,7 @@ func init() {
         },
         "dBAuthorizedWeight": {
           "type": "integer",
+          "x-nullable": true,
           "example": 7000
         },
         "department_indicator": {

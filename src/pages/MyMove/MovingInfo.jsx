@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { Alert, CardGroup, CardHeader, CardBody, CardMedia } from '@trussworks/react-uswds';
 import { number } from 'prop-types';
 
@@ -8,7 +10,7 @@ import MoveCounselorImg from 'images/move-counselor.jpg';
 import MovingTruckImg from 'images/moving-truck.jpg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MilmoveCard from 'components/Customer/MilmoveCard/MilmoveCard';
-// import { selectOrdersForMove } from 'shared/Entities/modules/orders';
+import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 
 export const MovingInfo = ({ entitlementWeight }) => {
   return (
@@ -104,18 +106,17 @@ MovingInfo.propTypes = {
 };
 
 MovingInfo.defaultProps = {
-  entitlementWeight: 1000,
+  entitlementWeight: 900000,
 };
 
-/*
 function mapStateToProps(state, ownProps) {
   const { moveId } = ownProps.match.params;
   const orders = selectOrdersForMove(state, moveId);
-  // const entitlementWeight = orders.entitlementWeight;
+  const entitlementWeight = orders.dBAuthorizedWeight;
 
   return {
-    orders,
+    entitlementWeight,
   };
 }
-*/
-export default MovingInfo;
+
+export default withRouter(connect(mapStateToProps)(MovingInfo));
