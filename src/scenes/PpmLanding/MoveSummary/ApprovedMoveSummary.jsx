@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+
 import ppmCar from 'scenes/PpmLanding/images/ppm-car.svg';
 import PPMStatusTimeline from 'scenes/PpmLanding/PPMStatusTimeline';
 import PpmMoveDetails from 'scenes/PpmLanding/MoveSummary/PpmMoveDetails';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-import { get } from 'lodash';
 
 const ApprovedMoveSummary = ({ ppm, move, weightTicketSets, isMissingWeightTicketDocuments, netWeight }) => {
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
@@ -95,7 +95,6 @@ const ApprovedMoveSummary = ({ ppm, move, weightTicketSets, isMissingWeightTicke
 
 const mapStateToProps = (state, { move }) => ({
   weightTicketSets: selectPPMCloseoutDocumentsForMove(state, move.id, ['WEIGHT_TICKET_SET']),
-  incentiveEstimate: get(state, 'ppm.incentive_estimate_min'),
 });
 
 export default connect(mapStateToProps)(ApprovedMoveSummary);
