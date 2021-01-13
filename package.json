@@ -123,7 +123,7 @@
     "@storybook/addons": "^6.1.12",
     "@storybook/preset-create-react-app": "^3.1.5",
     "@storybook/react": "^6.1.14",
-    "@testing-library/react-hooks": "^4.0.0",
+    "@testing-library/react-hooks": "^4.0.1",
     "babel-loader": "8.1.0",
     "cypress": "^6.2.1",
     "cypress-audit": "^0.3.0",
