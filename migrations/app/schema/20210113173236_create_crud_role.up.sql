@@ -2,7 +2,9 @@
 SET ROLE master;
 
 -- Create a new role named "crud" (CREATE READ UPDATE DELETE).
-CREATE ROLE crud WITH LOGIN;
+-- Use NOINHERIT so that this low privileged user cannot assume the privileges
+-- of a more privileged user.
+CREATE ROLE crud WITH LOGIN NOINHERIT;
 
 -- Reset the role back to the role that is running the migrations.
 RESET ROLE;
