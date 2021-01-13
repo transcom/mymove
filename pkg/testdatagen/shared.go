@@ -66,6 +66,7 @@ type Assertions struct {
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	ReDomesticLinehaulPrice                  models.ReDomesticLinehaulPrice
 	Reimbursement                            models.Reimbursement
+	ReRateArea                               models.ReRateArea
 	ReService                                models.ReService
 	ReZip3                                   models.ReZip3
 	SecondaryPickupAddress                   models.Address

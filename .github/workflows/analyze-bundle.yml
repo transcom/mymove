@@ -1,0 +1,87 @@
+name: F/E bundle diff
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'src/**'
+              - 'yarn.lock'
+
+  build-head:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    name: 'Build head'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v2
+
+      - name: Set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.16.3'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build app
+        run: yarn build --stats
+
+      - name: Upload stats.json
+        uses: actions/upload-artifact@v2
+        with:
+          name: head-stats
+          path: ./build/bundle-stats.json
+
+  build-base:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    name: 'Build base'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out base branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.16.3'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build app
+        run: yarn build --stats
+
+      - name: Upload stats.json
+        uses: actions/upload-artifact@v2
+        with:
+          name: base-stats
+          path: ./build/bundle-stats.json
+
+  compare:
+    name: 'Compare base & head bundle size'
+    runs-on: ubuntu-latest
+    needs: [build-head, build-base]
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+      - name: Diff between base & head
+        uses: chronotruck/webpack-stats-diff-action@1.1.0
+        with:
+          base_stats_path: ./base-stats/bundle-stats.json
+          head_stats_path: ./head-stats/bundle-stats.json
+          token: ${{ secrets.GITHUB_TOKEN }}
