@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@18f/us-federal-holidays": "^1.2.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-regular-svg-icons": "^5.15.1",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
@@ -23,8 +22,6 @@
     "is-mobile": "2.2.2",
     "jest-canvas-mock": "^2.3.0",
     "js-cookie": "^2.2.0",
-    "js-yaml": "^3.14.1",
-    "jwt-decode": "^3.1.2",
     "lodash": "^4.17.20",
     "marked": "^1.2.7",
     "moment": "^2.29.1",
@@ -43,12 +40,10 @@
     "react-day-picker": "=7.4.8",
     "react-dom": "^16.14.0",
     "react-filepond": "^4.0.0",
-    "react-form": "^4.0.1",
     "react-highlight-words": "^0.16.0",
     "react-idle-timer": "^4.5.1",
     "react-imask": "^6.0.5",
     "react-loadable": "^5.3.1",
-    "react-numeric-input": "^2.2.3",
     "react-query": "^2.26.4",
     "react-query-devtools": "^2.6.3",
     "react-rangeslider": "^2.2.0",
@@ -72,7 +67,6 @@
     "redux-thunk": "^2.2.0",
     "regenerator-runtime": "^0.13.7",
     "reselect": "^4.0.0",
-    "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.12.0",
     "swagger-ui-dist": "^3.39.0",
     "uswds": "2.9.0",
@@ -80,13 +74,8 @@
     "yup": "^0.32.8"
   },
   "resolutions": {
-    "babel-loader": "8.1.0",
-    "bl": "^4.0.3",
     "kind-of": "^6.0.2",
-    "node-forge": "^0.10.0",
-    "object-path": "^0.11.5",
-    "selfsigned": "^1.10.8",
-    "serialize-javascript": "^3.1.0"
+    "selfsigned": "^1.10.8"
   },
   "name": "client",
   "private": true,
