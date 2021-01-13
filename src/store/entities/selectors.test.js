@@ -9,6 +9,8 @@ import {
   selectMovesForLoggedInUser,
   selectMovesForCurrentOrders,
   selectCurrentMove,
+  selectPPMEstimateRange,
+  selectPPMSitEstimate,
 } from './selectors';
 
 describe('selectLoggedInUser', () => {
@@ -823,5 +825,58 @@ describe('selectCurrentMove', () => {
     };
 
     expect(selectCurrentMove(testState)).toEqual(testState.entities.moves.move1029);
+  });
+});
+
+describe('selectPPMEstimateRange', () => {
+  it('returns the only PPM estimate range stored in entities', () => {
+    const testState = {
+      entities: {
+        ppmEstimateRanges: {
+          undefined: {
+            range_min: 1000,
+            range_max: 2400,
+          },
+        },
+      },
+    };
+
+    expect(selectPPMEstimateRange(testState)).toEqual(testState.entities.ppmEstimateRanges.undefined);
+  });
+
+  it('returns null if there is no PPM estimate range in entities', () => {
+    const testState = {
+      entities: {
+        ppmEstimateRanges: {},
+      },
+    };
+
+    expect(selectPPMEstimateRange(testState)).toEqual(null);
+  });
+});
+
+describe('selectPPMSitEstimate', () => {
+  it('returns the only PPM SIT estimate stored in entities', () => {
+    const testState = {
+      entities: {
+        ppmSitEstimate: {
+          undefined: {
+            estimate: 12500,
+          },
+        },
+      },
+    };
+
+    expect(selectPPMSitEstimate(testState)).toEqual(testState.entities.ppmSitEstimate.undefined.estimate);
+  });
+
+  it('returns null if there is no PPM SIT estimate in entities', () => {
+    const testState = {
+      entities: {
+        ppmSitEstimate: {},
+      },
+    };
+
+    expect(selectPPMSitEstimate(testState)).toEqual(null);
   });
 });

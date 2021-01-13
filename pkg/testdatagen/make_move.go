@@ -118,6 +118,18 @@ func MakeAvailableMove(db *pop.Connection) models.Move {
 	return move
 }
 
+// MakeApprovalsRequestedMove makes a Move with status 'Approvals Requested'
+func MakeApprovalsRequestedMove(db *pop.Connection) models.Move {
+	now := time.Now()
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+			Status:             models.MoveStatusAPPROVALSREQUESTED,
+		},
+	})
+	return move
+}
+
 // MakeDefaultMove makes a Move with default values
 func MakeDefaultMove(db *pop.Connection) models.Move {
 	return MakeMove(db, Assertions{})

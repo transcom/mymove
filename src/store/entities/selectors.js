@@ -117,3 +117,12 @@ export const selectMTOShipmentsForCurrentMove = (state) => {
 export function selectMTOShipmentById(state, id) {
   return state.entities?.mtoShipments?.[`${id}`] || null;
 }
+
+/** PPMs */
+export function selectPPMEstimateRange(state) {
+  return state.entities?.ppmEstimateRanges?.undefined || null;
+}
+
+export function selectPPMSitEstimate(state) {
+  return state.entities?.ppmSitEstimate?.undefined?.estimate || null;
+}

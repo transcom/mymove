@@ -52,9 +52,6 @@ func initPutTargetFlags(flag *pflag.FlagSet) {
 	// AWS Flags
 	cli.InitAWSFlags(flag)
 
-	// Vault Flags
-	cli.InitVaultFlags(flag)
-
 	// Put Targets Settings
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
 	flag.String(nameFlag, "", fmt.Sprintf("The name of the rule"))
@@ -85,10 +82,6 @@ func checkPutTargetsConfig(v *viper.Viper) error {
 
 	if err := cli.CheckAWSRegionForService(region, cloudwatchevents.ServiceName); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, cloudwatchevents.ServiceName))
-	}
-
-	if err := cli.CheckVault(v); err != nil {
-		return err
 	}
 
 	environmentName := v.GetString(environmentFlag)
@@ -167,9 +160,8 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the AWS configuration so we can build a session
-	awsConfig, err := cli.GetAWSConfig(v, verbose)
-	if err != nil {
-		quit(logger, nil, err)
+	awsConfig := &aws.Config{
+		Region: aws.String(v.GetString(cli.AWSRegionFlag)),
 	}
 	sess, err := awssession.NewSession(awsConfig)
 	if err != nil {
