@@ -40,6 +40,13 @@ export const PaymentRequestReview = ({ history, match }) => {
   const [mutatePaymentServiceItemStatus] = useMutation(patchPaymentServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newPaymentServiceItem = data.paymentServiceItems[variables.paymentServiceItemID];
+      const oldPaymentServiceItem = paymentServiceItems[variables.paymentServiceItemID];
+
+      // We already have this associated data and it won't change on status update and
+      // would be overwritten with null values as they aren't in the payload response
+      newPaymentServiceItem.mtoServiceItemName = oldPaymentServiceItem.mtoServiceItemName;
+      newPaymentServiceItem.mtoShipmentType = oldPaymentServiceItem.mtoShipmentType;
+
       queryCache.setQueryData([PAYMENT_REQUESTS, paymentRequestId], {
         paymentRequests,
         paymentServiceItems: {
