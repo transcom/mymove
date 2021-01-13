@@ -853,6 +853,11 @@ describe('ReviewServiceItems component', () => {
         expect(statusSummary.text()).toBe('Rejected');
         expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
       });
+
+      it('displays the expected status', () => {
+        // TODO update this to expect the  REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED statuses
+        expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
+      });
     });
   });
 });
