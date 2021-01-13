@@ -329,5 +329,5 @@ func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip str
 	// the discount rates are based on BVS rate data which we no longer insert into our system.
 	// this rate data is going to change in outcome 5 so we don't really care what these values are.
 	// hard code discount rates so ppm pricing doesn't fail w/ no data
-	return .044, .042, nil
+	return .505, .5, nil
 }
