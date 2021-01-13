@@ -1,4 +1,5 @@
--- Assume the master role, which has the ability to create roles.
+-- Assume the master role, which has the ability to create roles and grant
+-- group membership to the rds_iam role.
 SET ROLE master;
 
 -- Create a new role named "crud" (CREATE READ UPDATE DELETE).
@@ -6,11 +7,11 @@ SET ROLE master;
 -- of a more privileged user.
 CREATE ROLE crud WITH LOGIN NOINHERIT;
 
--- Reset the role back to the role that is running the migrations.
-RESET ROLE;
-
 -- Allow the crud user to log in via IAM.
 GRANT rds_iam TO crud;
+
+-- Reset the role back to the role that is running the migrations.
+RESET ROLE;
 
 -- Set a password when running this locally.
 DO
