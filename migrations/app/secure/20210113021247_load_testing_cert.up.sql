@@ -25,7 +25,7 @@ INSERT INTO public.client_certs (
 VALUES (
 	'730bf94b-f54e-46c3-b125-0a572d885209',
 	'4bd850a6aa6b6f403c63d876b931afa76159e7eb23bb2ba0d19ee6a937df6240',
-	'C=US, O=U.S. Government, OU=DoD, OU=PKI, OU=USTRANSCOM, CN=orders.exp.move.mil',
+	'CN=orders.exp.move.mil,OU=USTRANSCOM,OU=PKI,OU=DoD,O=U.S. Government,C=US',
 	false,
 	true,
 	now(),
