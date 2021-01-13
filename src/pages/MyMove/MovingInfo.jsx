@@ -16,12 +16,16 @@ export const MovingInfo = ({ entitlementWeight }) => {
   return (
     <>
       <h1 data-testid="shipmentsHeader">Tips for planning your shipments</h1>
-      <Alert type="info" heading={`You can move ${entitlementWeight} lbs for free`} noIcon>
-        The government will pay to move that much weight. Your whole move, no matter how many shipments it takes.
-        <br />
-        <br />
-        If you move more weight, you’ll need to pay for the excess. We’ll tell you if it looks like that could happen.
-      </Alert>
+      {entitlementWeight === 0 ? (
+        <></>
+      ) : (
+        <Alert type="info" heading={`You can move ${entitlementWeight} lbs for free`} noIcon>
+          The government will pay to move that much weight. Your whole move, no matter how many shipments it takes.
+          <br />
+          <br />
+          If you move more weight, you’ll need to pay for the excess. We’ll tell you if it looks like that could happen.
+        </Alert>
+      )}
       <SectionWrapper>
         <CardGroup>
           <MilmoveCard>
@@ -106,7 +110,7 @@ MovingInfo.propTypes = {
 };
 
 MovingInfo.defaultProps = {
-  entitlementWeight: 900000,
+  entitlementWeight: 0,
 };
 
 function mapStateToProps(state, ownProps) {
