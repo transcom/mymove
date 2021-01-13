@@ -21,9 +21,6 @@ const ICNRandomMin int64 = 100000000
 // ICNRandomMax is the largest allowed random-number based ICN (we use random ICN numbers in development)
 const ICNRandomMax int64 = 999999999
 
-// ServiceItemSegmentsSize is the number of fields in the ServiceItemSegments struct
-const ServiceItemSegmentsSize int = 6
-
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
 	ISA          edisegment.ISA
@@ -59,6 +56,9 @@ type InvoiceHeader struct {
 	OriginPostalDetails      edisegment.N4
 	OriginPhone              *edisegment.PER
 }
+
+// ServiceItemSegmentsSize is the number of fields in the ServiceItemSegments struct
+const ServiceItemSegmentsSize int = 7
 
 // ServiceItemSegments holds segments that are required for every service item
 type ServiceItemSegments struct {

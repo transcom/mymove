@@ -7,14 +7,15 @@ import TransportationOfficeContactInfo from 'shared/TransportationOffices/Transp
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
-import { getPpmWeightEstimate } from 'shared/Entities/modules/ppms';
-
 import ApprovedMoveSummary from 'scenes/PpmLanding/MoveSummary/ApprovedMoveSummary';
 import CanceledMoveSummary from 'scenes/PpmLanding/MoveSummary/CanceledMoveSummary';
 import DraftMoveSummary from 'scenes/PpmLanding/MoveSummary/DraftMoveSummary';
 import PaymentRequestedSummary from 'scenes/PpmLanding/MoveSummary/PaymentRequestedSummary';
 import SubmittedPpmMoveSummary from 'scenes/PpmLanding/MoveSummary/SubmittedPpmMoveSummary';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { calculatePPMEstimate } from 'services/internalApi';
+import { updatePPMEstimate } from 'store/entities/actions';
+import { setPPMEstimateError } from 'store/onboarding/actions';
 
 import './PpmSummary.css';
 
@@ -74,15 +75,22 @@ export class PpmSummaryComponent extends React.Component {
           this.setState({ hasEstimateError: true });
         }
         if (!isEmpty(this.props.ppm) && netWeight) {
-          this.props
-            .getPpmWeightEstimate(
-              this.props.ppm.original_move_date,
-              this.props.ppm.pickup_postal_code,
-              this.props.originDutyStationZip,
-              this.props.orders.id,
-              netWeight,
-            )
-            .catch((err) => this.setState({ hasEstimateError: true }));
+          calculatePPMEstimate(
+            this.props.ppm.original_move_date,
+            this.props.ppm.pickup_postal_code,
+            this.props.originDutyStationZip,
+            this.props.orders.id,
+            netWeight,
+          )
+            .then((response) => {
+              this.props.updatePPMEstimate(response);
+              this.props.setPPMEstimateError(null);
+            })
+            .catch((err) => {
+              this.props.setPPMEstimateError(err);
+              this.setState({ hasEstimateError: true });
+            });
+
           this.setState({ netWeight: netWeight });
         }
       });
@@ -181,6 +189,8 @@ function mapStateToProps(state, ownProps) {
 
 const mapDispatchToProps = {
   getMoveDocumentsForMove,
-  getPpmWeightEstimate,
+  updatePPMEstimate,
+  setPPMEstimateError,
 };
+
 export const PpmSummary = connect(mapStateToProps, mapDispatchToProps)(PpmSummaryComponent);

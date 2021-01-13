@@ -1,7 +1,8 @@
-import { SET_CONUS_STATUS } from './actions';
+import { SET_CONUS_STATUS, SET_PPM_ESTIMATE_ERROR } from './actions';
 
 export const initialState = {
   conusStatus: null,
+  ppmEstimateError: null,
 };
 
 const onboardingReducer = (state = initialState, action) => {
@@ -12,6 +13,15 @@ const onboardingReducer = (state = initialState, action) => {
       return {
         ...state,
         conusStatus: moveType,
+      };
+    }
+
+    case SET_PPM_ESTIMATE_ERROR: {
+      const { error } = action;
+
+      return {
+        ...state,
+        ppmEstimateError: error,
       };
     }
 

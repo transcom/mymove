@@ -22,7 +22,8 @@ type HandlerSuite struct {
 
 // SetupTest sets up the test suite by preparing the DB
 func (suite *HandlerSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 // AfterTest completes tests by trying to close open files

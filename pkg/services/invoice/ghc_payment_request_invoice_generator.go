@@ -175,12 +175,17 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	err = g.db.Q().
 		Eager("MTOServiceItem.ReService").
 		Where("payment_request_id = ?", paymentRequest.ID).
+		Where("status = ?", models.PaymentServiceItemStatusApproved).
 		All(&paymentServiceItems)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.ID, "for paayment service items in PaymentRequest")
+			return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.ID, "for payment service items in PaymentRequest")
 		}
-		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("Could not find payment service items: %s", err))
+		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("error while looking for payment service items on payment request: %s", err))
+	}
+
+	if len(paymentServiceItems) == 0 {
+		return ediinvoice.Invoice858C{}, services.NewConflictError(paymentRequest.ID, "this payment request has no approved PaymentServiceItems")
 	}
 
 	if !msOrCsOnly(paymentServiceItems) {
@@ -202,19 +207,24 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		return ediinvoice.Invoice858C{}, err
 	}
 
-	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems, moveTaskOrder.Orders)
+	var l3 edisegment.L3
+	paymentServiceItemSegments, l3, err := g.generatePaymentServiceItemSegments(paymentServiceItems, moveTaskOrder.Orders)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
 	}
 	edi858.ServiceItems = append(edi858.ServiceItems, paymentServiceItemSegments...)
-
-	edi858.L3 = edisegment.L3{
-		PriceCents: 0, // TODO: hard-coded to zero for now
-	}
+	edi858.L3 = l3
 
 	// the total NumberOfIncludedSegments is ST + SE + all segments other than GS, GE, ISA, and IEA
+	stCount := 1
+	l3Count := 1
+	seCount := 1
+	headerSegmentCount := edi858.Header.Size()
+	serviceItemSegmentCount := len(edi858.ServiceItems) * ediinvoice.ServiceItemSegmentsSize
+	totalNumberOfSegments := stCount + headerSegmentCount + serviceItemSegmentCount + l3Count + seCount
+
 	edi858.SE = edisegment.SE{
-		NumberOfIncludedSegments:    2 + edi858.Header.Size() + 1 + len(edi858.ServiceItems)*ediinvoice.ServiceItemSegmentsSize,
+		NumberOfIncludedSegments:    totalNumberOfSegments,
 		TransactionSetControlNumber: "0001",
 	}
 
@@ -568,16 +578,20 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 	return weightFloat, distanceFloat, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems, orders models.Order) ([]ediinvoice.ServiceItemSegments, error) {
+func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems, orders models.Order) ([]ediinvoice.ServiceItemSegments, edisegment.L3, error) {
 	//Initialize empty collection of segments
 	var segments []ediinvoice.ServiceItemSegments
+	l3 := edisegment.L3{
+		PriceCents: 0,
+	}
 	var weightFloat, distanceFloat float64
 	// Iterate over payment service items
 	for idx, serviceItem := range paymentServiceItems {
 		var newSegment ediinvoice.ServiceItemSegments
 		if serviceItem.PriceCents == nil {
-			return segments, services.NewConflictError(serviceItem.ID, "Invalid service item. Must have a PriceCents value")
+			return segments, l3, services.NewConflictError(serviceItem.ID, "Invalid service item. Must have a PriceCents value")
 		}
+		l3.PriceCents += int64(*serviceItem.PriceCents)
 		hierarchicalIDNumber := idx + 1
 		// Build and put together the segments
 		newSegment.HL = edisegment.HL{
@@ -618,7 +632,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			var err error
 			weightFloat, err = g.getWeightParams(serviceItem)
 			if err != nil {
-				return segments, err
+				return segments, l3, err
 			}
 
 			newSegment.L5 = edisegment.L5{
@@ -646,7 +660,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			var err error
 			weightFloat, distanceFloat, err = g.getWeightAndDistanceParams(serviceItem)
 			if err != nil {
-				return segments, err
+				return segments, l3, err
 			}
 
 			newSegment.L5 = edisegment.L5{
@@ -676,14 +690,14 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 		fa1, fa2, err := g.createLoaSegments(orders)
 		if err != nil {
-			return segments, err
+			return segments, l3, err
 		}
 		newSegment.FA1 = fa1
 		newSegment.FA2 = fa2
 		segments = append(segments, newSegment)
 	}
 
-	return segments, nil
+	return segments, l3, nil
 }
 
 func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {

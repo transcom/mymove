@@ -45,13 +45,35 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
 	}
 
+	var move models.Move
+	moveFilter := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", mtoServiceItem.MoveTaskOrderID),
+	}
+	err = p.builder.FetchOne(&move, moveFilter)
+	moveID := mtoServiceItem.MoveTaskOrderID
+	if err != nil {
+		return nil, services.NewNotFoundError(moveID, "MoveID")
+	}
+
+	// Service item status can only be updated if a Move's status is either Approved
+	// or Approvals Requested, so check and fail early.
+	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
+		return nil, services.NewConflictError(
+			move.ID,
+			fmt.Sprintf("Cannot update a service item on a move that is not currently approved. The current status for the move with ID %s is %s", move.ID, move.Status),
+		)
+	}
+
 	mtoServiceItem.Status = status
 	updatedAt := time.Now()
 	mtoServiceItem.UpdatedAt = updatedAt
 
 	if status == models.MTOServiceItemStatusRejected {
 		if rejectionReason == nil {
-			return nil, services.NewConflictError(mtoServiceItemID, "Rejecting an MTO Service item requires a rejection reason")
+			verrs := validate.NewErrors()
+			verrs.Add("rejectionReason", "field must be provided when status is set to REJECTED")
+			err := services.NewInvalidInputError(mtoServiceItemID, nil, verrs, "Invalid input found in the request.")
+			return nil, err
 		}
 		mtoServiceItem.RejectionReason = rejectionReason
 		mtoServiceItem.RejectedAt = &updatedAt
@@ -81,24 +103,27 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		}
 	}
 
-	var move models.Move
-	moveFilter := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoServiceItem.MoveTaskOrderID),
-	}
-	err = p.builder.FetchOne(&move, moveFilter)
-	if err != nil {
-		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
-	}
-
-	// If there are no service items that are SUBMITTED then we need to change the move status to MOVE APPROVED
+	// If there are no service items that are SUBMITTED then we need to change
+	// the move status to APPROVED
 	moveShouldBeMoveApproved := true
-	for _, mtoServiceItem := range move.MTOServiceItems {
-		if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
-			moveShouldBeMoveApproved = false
-			break
+
+	if status == models.MTOServiceItemStatusSubmitted {
+		moveShouldBeMoveApproved = false
+	} else {
+		// Fetch move again since other service items could have been updated
+		err = p.builder.FetchOne(&move, moveFilter)
+		if err != nil {
+			return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
+		}
+
+		for _, mtoServiceItem := range move.MTOServiceItems {
+			if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
+				moveShouldBeMoveApproved = false
+				break
+			}
 		}
 	}
-	// Doing the change
+
 	if moveShouldBeMoveApproved {
 		err = move.Approve()
 		if err != nil {
@@ -115,8 +140,10 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 			}
 		}
 	}
-	// If we didn't set to MOVE APPROVED and we aren't already at APPROVALS REQUESTED we need to get there
-	if move.Status != models.MoveStatusAPPROVALSREQUESTED && move.Status != models.MoveStatusAPPROVED {
+	// If the move should not be APPROVED (due to one or more service items
+	// being in SUBMITTED status) then it needs to be set to APPROVALS REQUESTED
+	// so the TOO can review it.
+	if !moveShouldBeMoveApproved {
 		err = move.SetApprovalsRequested()
 		if err != nil {
 			return nil, err

@@ -205,7 +205,7 @@ paths:
         '200':
           description: Successfully hid MTOs.
           schema:
-            $ref: '#/definitions/MoveTaskOrders'
+            $ref: '#/definitions/MoveTaskOrderIDs'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -308,13 +308,15 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/service-items/{mtoServiceItemID}/status':
+  '/mto-service-items/{mtoServiceItemID}/status':
     parameters:
       - description: UUID of mto service item to use.
         in: path
@@ -351,7 +353,7 @@ paths:
         '200':
           description: Successfully updated service item status for a move task order.
           schema:
-            $ref: '#/definitions/UpdateMTOServiceItemStatus'
+            $ref: '#/definitions/MTOServiceItem'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -792,6 +794,12 @@ definitions:
       - dodID
       - rank
       - agency
+  DimensionType:
+    description: Describes a dimension type for a MTOServiceItemDimension.
+    type: string
+    enum:
+      - ITEM
+      - CRATE
   Document:
     type: object
     properties:
@@ -1027,6 +1035,7 @@ definitions:
       isCanceled:
         type: boolean
         x-nullable: true
+        readOnly: true
         description: Indicated this MoveTaskOrder has been canceled.
       contractorID:
         type: string
@@ -1072,6 +1081,14 @@ definitions:
         type: string
         example: ABC123
         readOnly: true
+  MoveTaskOrderID:
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+  MoveTaskOrderIDs:
+    items:
+      $ref: '#/definitions/MoveTaskOrderID'
+    type: array
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
@@ -1134,56 +1151,225 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        description: ID of the service item
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        description: ID of the associated moveTaskOrder
       mtoShipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        description: ID of the associated mtoShipment
       reServiceName:
         type: string
+        readOnly: true
+        description: Full descriptive name of the service
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
-      description:
-        type: string
-      feeType:
-        enum:
-          - COUNSELING
-          - CRATING
-          - TRUCKING
-          - SHUTTLE
-        type: string
-      quantity:
-        type: integer
-      rate:
-        type: integer
       rejectionReason:
         example: item was too heavy
         type: string
         x-nullable: true
+        description: Reason the service item was rejected by the TOO
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
         type: string
         readOnly: true
+        description: ETag identifier required to update this object
     required:
       - modelType
       - moveTaskOrderID
+  MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a basic service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+        required:
+          - reServiceCode
+  MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DDFSIT # Domestic Destination First Day SIT
+              - DDASIT # Domestic Destination Additional SIT
+          timeMilitary1:
+            type: string
+            example: 1400Z
+            description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+            pattern: '\d{4}Z'
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
+          timeMilitary2:
+            type: string
+            example: 1400Z
+            description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+            pattern: '\d{4}Z'
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            description: Second available date that Prime can deliver SIT service item.
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+            x-nullable: true
+        required:
+          - reServiceCode
+          - timeMilitary1
+          - firstAvailableDeliveryDate1
+          - timeMilitary2
+          - firstAvailableDeliveryDate2
+          - sitEntryDate
+  MTOServiceItemDimension:
+    description: Describes a dimension object for the MTOServiceItem.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/DimensionType'
+      length:
+        description: Length in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      width:
+        description: Width in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      height:
+        description: Height in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+    required:
+      - length
+      - width
+      - height
+  MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service codes allowed for this model type.
+            enum:
+              - DCRT # Domestic Crating
+              - DCRTSA # Domestic Crating - Standalone
+              - DUCRT # Domestic Uncrating
+          item:
+            $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+        required:
+          - reServiceCode
+          - item
+          - crate
+          - description
   MTOServiceItemModelType:
-    description: >
+    description: |
       Describes all model sub-types for a MTOServiceItem model.
-      Prime can only request the following service codes for which they will use the corresponding modelType
-        * DOFSIT - MTOServiceItemOriginSIT
+
+      Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
+        * DOFSIT, DOASIT - MTOServiceItemOriginSIT
+        * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+
+      The documentation will then update with the supported fields.
+
     type: string
     enum:
       - MTOServiceItemBasic
       - MTOServiceItemOriginSIT
+      - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+  MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DOFSIT # Domestic Origin First Day SIT
+              - DOASIT # Domestic Origin Additional SIT
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: Explanation of why Prime is picking up SIT item.
+          sitPostalCode:
+            type: string
+            format: zip
+            example: "90210"
+            pattern: '^(\d{5}([\-]\d{4})?)$'
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            x-nullable: true
+            description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+        required:
+          - reServiceCode
+          - reason
+          - sitPostalCode
+          - sitEntryDate
+  MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a shuttle service item.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service codes allowed for this model type.
+            enum:
+              - DOSHUT # Domestic Origin Shuttle Service
+              - DDSHUT # Domestic Destination Shuttle Service
+          reason:
+            type: string
+            example: Storage items need to be picked up.
+            description: Explanation of why a shuttle service is required.
+          description:
+            type: string
+            example: Things to be moved to the place by shuttle.
+            description: Further details about the shuttle service.
+        required:
+          - reason
+          - reServiceCode
+          - description
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem.
     type: string
@@ -1332,6 +1518,7 @@ definitions:
     enum:
       - PENDING
       - REVIEWED
+      - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
       - SENT_TO_GEX
       - RECEIVED_BY_GEX
       - PAID
@@ -1396,62 +1583,73 @@ definitions:
       - CIVILIAN_EMPLOYEE
       - ACADEMY_CADET
       - MIDSHIPMAN
+  ReServiceCode:
+    type: string
+    description: |
+      This is the full list of service items that can be found on a shipment. Not all service items
+      may be requested by the Prime, but may be returned in a response.
+
+      Documentation of all the service items will be provided.
+    enum:
+      - CS
+      - DBHF
+      - DBTF
+      - DCRT
+      - DCRTSA
+      - DDASIT
+      - DDDSIT
+      - DDFSIT
+      - DDP
+      - DDSHUT
+      - DLH
+      - DMHF
+      - DNPKF
+      - DOASIT
+      - DOFSIT
+      - DOP
+      - DOPSIT
+      - DOSHUT
+      - DPK
+      - DSH
+      - DUCRT
+      - DUPK
+      - FSC
+      - IBHF
+      - IBTF
+      - ICOLH
+      - ICOUB
+      - ICRT
+      - ICRTSA
+      - IDASIT
+      - IDDSIT
+      - IDFSIT
+      - IDSHUT
+      - IHPK
+      - IHUPK
+      - INPKF
+      - IOASIT
+      - IOCLH
+      - IOCUB
+      - IOFSIT
+      - IOOLH
+      - IOOUB
+      - IOPSIT
+      - IOSHUT
+      - IUBPK
+      - IUBUPK
+      - IUCRT
+      - MS
+      - NSTH
+      - NSTUB
   UpdateMTOServiceItemStatus:
     properties:
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      reServiceCode:
-        type: string
-        readOnly: true
-      reServiceName:
-        type: string
-        readOnly: true
-      description:
-        type: string
-        readOnly: true
-      feeType:
-        enum:
-          - COUNSELING
-          - CRATING
-          - TRUCKING
-          - SHUTTLE
-        type: string
-        readOnly: true
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      quantity:
-        type: integer
-        readOnly: true
-      rate:
-        type: integer
-        readOnly: true
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
       rejectionReason:
         example: item was too heavy
         type: string
         x-nullable: true
-      status:
-        $ref: '#/definitions/MTOServiceItemStatus'
-      total:
-        format: cents
-        type: integer
-        readOnly: true
-      eTag:
-        type: string
-        readOnly: true
-    required:
-      - status
-    type: object
+        description: Reason the service item was rejected by the TOO""
   UpdateMTOShipmentStatus:
     properties:
       status:

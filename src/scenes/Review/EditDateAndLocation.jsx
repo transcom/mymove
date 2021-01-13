@@ -1,31 +1,30 @@
+import React, { Component, Fragment } from 'react';
 import { debounce, get, bind, cloneDeep } from 'lodash';
+import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
-import { getFormValues } from 'redux-form';
+import { getFormValues, reduxForm } from 'redux-form';
+
 import SaveCancelButtons from './SaveCancelButtons';
-import React, { Component, Fragment } from 'react';
-import { reduxForm } from 'redux-form';
+import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
+
 import Alert from 'shared/Alert';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import {
-  loadPPMs,
-  updatePPM,
-  selectActivePPMForMove,
-  updatePPMEstimate,
-  getPPMSitEstimate,
-  selectPPMSitEstimate,
-} from 'shared/Entities/modules/ppms';
-import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
+import { formatDateForSwagger } from 'shared/dates';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
-import { selectServiceMemberFromLoggedInUser, selectCurrentMove, selectCurrentOrders } from 'store/entities/selectors';
-
+import { getPPMsForMove, patchPPM, persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
+import { updatePPMs, updatePPM, updatePPMSitEstimate } from 'store/entities/actions';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentMove,
+  selectCurrentOrders,
+  selectPPMSitEstimate,
+} from 'store/entities/selectors';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 
 const sitEstimateDebounceTime = 300;
@@ -111,43 +110,55 @@ EditDateAndLocationForm = reduxForm({ form: editDateAndLocationFormName, enableR
 
 class EditDateAndLocation extends Component {
   handleSubmit = () => {
-    const pendingValues = Object.assign({}, this.props.formValues);
+    const pendingValues = { ...this.props.formValues };
     if (pendingValues) {
+      pendingValues.id = this.props.currentPPM.id;
       pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
       pendingValues.has_sit = pendingValues.has_sit || false;
       if (!pendingValues.has_sit) {
         pendingValues.days_in_storage = null;
       }
+
+      pendingValues.original_move_date = formatDateForSwagger(pendingValues.original_move_date);
+      pendingValues.actual_move_date = formatDateForSwagger(pendingValues.actual_move_date);
+
       const moveId = this.props.match.params.moveId;
-      return this.props.updatePPM(moveId, this.props.currentPPM.id, pendingValues).then(({ response }) => {
-        this.props
-          .updatePPMEstimate(moveId, response.body.id)
-          .then(() => {
-            // This promise resolves regardless of error.
-            if (!this.props.hasSubmitError) {
-              this.props.editSuccessful();
-              this.props.history.goBack();
-            } else {
-              scrollToTop();
-            }
-          })
-          .catch((err) => {
-            // This promise resolves regardless of error.
-            if (!this.props.hasSubmitError) {
-              this.props.editSuccessful();
-              this.props.history.goBack();
-            } else {
-              scrollToTop();
-            }
-            return err;
-          });
-      });
+
+      return patchPPM(moveId, pendingValues)
+        .then((response) => {
+          this.props.updatePPM(response);
+          return response;
+        })
+        .then((response) => persistPPMEstimate(moveId, response.id))
+        .then((response) => this.props.updatePPM(response))
+        .then(() => {
+          // This promise resolves regardless of error.
+          if (!this.props.hasSubmitError) {
+            this.props.editSuccessful();
+            this.props.history.goBack();
+          } else {
+            scrollToTop();
+          }
+        })
+        .catch((err) => {
+          // This promise resolves regardless of error.
+          if (!this.props.hasSubmitError) {
+            this.props.editSuccessful();
+            this.props.history.goBack();
+          } else {
+            scrollToTop();
+          }
+          return err;
+        });
     }
   };
 
   getSitEstimate = (ppmId, moveDate, sitDays, pickupZip, ordersID, weight) => {
     if (sitDays <= 90 && pickupZip.length === 5) {
-      this.props.getPPMSitEstimate(ppmId, moveDate, sitDays, pickupZip, ordersID, weight);
+      const formattedMoveDate = formatDateForSwagger(moveDate);
+      calculatePPMSITEstimate(ppmId, formattedMoveDate, sitDays, pickupZip, ordersID, weight).then((response) =>
+        this.props.updatePPMSitEstimate(response),
+      );
     }
   };
 
@@ -171,21 +182,21 @@ class EditDateAndLocation extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
-    this.props.loadPPMs(this.props.match.params.moveId);
+    getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
     scrollToTop();
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.currentPPM !== this.props.currentPPM && prevProps.currentOrders !== this.props.currentOrders) {
       const currentPPM = this.props.currentPPM;
-      this.props.getPPMSitEstimate(
+      calculatePPMSITEstimate(
         currentPPM.id,
-        currentPPM.original_move_date,
+        formatDateForSwagger(currentPPM.original_move_date),
         currentPPM.days_in_storage,
         currentPPM.pickup_postal_code,
         this.props.currentOrders.id,
         currentPPM.weight_estimate,
-      );
+      ).then((response) => this.props.updatePPMSitEstimate(response));
     }
   }
 
@@ -266,20 +277,14 @@ function mapStateToProps(state) {
   return props;
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-      updatePPM,
-      loadPPMs,
-      getPPMSitEstimate,
-      editBegin,
-      editSuccessful,
-      entitlementChangeBegin,
-      updatePPMEstimate,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  updatePPM,
+  updatePPMs,
+  editBegin,
+  editSuccessful,
+  entitlementChangeBegin,
+  updatePPMSitEstimate,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditDateAndLocation);

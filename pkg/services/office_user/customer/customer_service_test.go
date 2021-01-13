@@ -13,7 +13,8 @@ type CustomerServiceSuite struct {
 }
 
 func (suite *CustomerServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestCustomerServiceSuite(t *testing.T) {

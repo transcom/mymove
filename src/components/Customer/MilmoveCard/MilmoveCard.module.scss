@@ -1,0 +1,30 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+@import 'shared/styles/_variables';
+
+:global(.usa-prose) .MilmoveCard {
+  margin-bottom: 0;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.MilmoveCard + .MilmoveCard {
+  @include u-margin-top(1);
+
+  @include at-media('desktop') {
+    @include u-margin-top(0);
+  }
+}
+
+.CardContainer {
+  border-width: 0;
+  border-bottom: 1px solid #dcdee0;
+  border-radius: 0;
+
+  ul {
+    list-style: disc inside;
+  }
+}

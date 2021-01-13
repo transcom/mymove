@@ -60,7 +60,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		paymentrequest.NewPaymentRequestCreator(
 			context.DB(),
-			context.Planner(),
+			context.GHCPlanner(),
 			ghcrateengine.NewServiceItemPricer(context.DB()),
 		),
 	}
