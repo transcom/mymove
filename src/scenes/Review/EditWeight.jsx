@@ -134,7 +134,7 @@ let EditWeightForm = (props) => {
                   )}
                 </div>
 
-                <div className="display-value">
+                <div className="display-value todo">
                   <p>Estimated Incentive</p>
                   <p className={incentiveClass}>
                     <strong>
