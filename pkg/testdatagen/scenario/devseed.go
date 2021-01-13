@@ -1652,10 +1652,6 @@ func createMoveWithServiceItems(db *pop.Connection, userUploader *uploader.UserU
 		PaymentRequest: paymentRequest9,
 	})
 
-	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest9,
-	})
-
 	assertions9 := testdatagen.Assertions{
 		Move:           move9,
 		MTOShipment:    mtoShipment9,
@@ -1737,8 +1733,6 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 		PaymentRequest: paymentRequest10,
 	})
 
-	//serviceItem.MTOShipment.ShipmentType = models.MTOShipmentNull;
-
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
 			Status: models.PaymentServiceItemStatusApproved,
@@ -1746,6 +1740,7 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 		MTOServiceItem: serviceItemA,
 		PaymentRequest: paymentRequest10,
 	})
+
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
 		PaymentServiceItem: models.PaymentServiceItem{
 			Status: models.PaymentServiceItemStatusDenied,
