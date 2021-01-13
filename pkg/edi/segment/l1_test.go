@@ -10,12 +10,12 @@ func (suite *SegmentSuite) TestValidateL1() {
 		LadingLineItemNumber: 1,
 		FreightRate:          &freightRate,
 		RateValueQualifier:   "LB",
-		Charge:               100.00,
+		Charge:               10000,
 	}
 
 	altValidL1 := L1{
 		LadingLineItemNumber: 12,
-		Charge:               100.00,
+		Charge:               10000,
 	}
 
 	suite.T().Run("validate success", func(t *testing.T) {
@@ -33,14 +33,13 @@ func (suite *SegmentSuite) TestValidateL1() {
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		freightRate := -1
 		l1 := L1{
-			LadingLineItemNumber: -3,           // min
 			FreightRate:          &freightRate, // min
 			RateValueQualifier:   "XX",         // eq
-			Charge:               0,            // required
+			// Charge:                          // required
 		}
 
 		err := suite.validator.Struct(l1)
-		suite.ValidateError(err, "LadingLineItemNumber", "min")
+		suite.ValidateError(err, "LadingLineItemNumber", "required")
 		suite.ValidateError(err, "FreightRate", "min")
 		suite.ValidateError(err, "RateValueQualifier", "eq")
 		suite.ValidateError(err, "Charge", "required")
@@ -50,18 +49,24 @@ func (suite *SegmentSuite) TestValidateL1() {
 	suite.T().Run("validate failure 2", func(t *testing.T) {
 		l1 := validL1
 		l1.LadingLineItemNumber = 1000 // max
+		l1.Charge = 1000000000000 // max
 
 		err := suite.validator.Struct(l1)
 		suite.ValidateError(err, "LadingLineItemNumber", "max")
-		suite.ValidateErrorLen(err, 1)
+		suite.ValidateError(err, "Charge", "max")
+		suite.ValidateErrorLen(err, 2)
 	})
 
 	suite.T().Run("validate failure 3", func(t *testing.T) {
 		l1 := validL1
-		l1.RateValueQualifier = "" // required
+		l1.LadingLineItemNumber = -3 // min
+		l1.RateValueQualifier = ""   // required
+		l1.Charge = -1000000000000   // min
 
 		err := suite.validator.Struct(l1)
+		suite.ValidateError(err, "LadingLineItemNumber", "min")
 		suite.ValidateError(err, "RateValueQualifier", "required_with")
-		suite.ValidateErrorLen(err, 1)
+		suite.ValidateError(err, "Charge", "min")
+		suite.ValidateErrorLen(err, 3)
 	})
 }
