@@ -2442,7 +2442,7 @@
     global "^4.3.2"
     regenerator-runtime "^0.13.7"
 
-"@storybook/addons@6.1.12", "@storybook/addons@^6.1.10":
+"@storybook/addons@6.1.12", "@storybook/addons@^6.1.12":
   version "6.1.12"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.1.12.tgz#e784c1481eaaa3aaf2c819b512a55c1f232cf6be"
   integrity sha512-4GKiHare9Hgg14quGk0fAYqx4e5iZYc4Pp8t+5tbrG8EQ9YEIrjV8FA/gEERwyzu0j3H/7Q82ll0/xy7bt4Btw==
@@ -2469,21 +2469,6 @@
     core-js "^3.0.1"
     global "^4.3.2"
     util-deprecate "^1.0.2"
-
-"@storybook/addons@^6.1.12":
-  version "6.1.12"
-  resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.1.12.tgz#e784c1481eaaa3aaf2c819b512a55c1f232cf6be"
-  integrity sha512-4GKiHare9Hgg14quGk0fAYqx4e5iZYc4Pp8t+5tbrG8EQ9YEIrjV8FA/gEERwyzu0j3H/7Q82ll0/xy7bt4Btw==
-  dependencies:
-    "@storybook/api" "6.1.12"
-    "@storybook/channels" "6.1.12"
-    "@storybook/client-logger" "6.1.12"
-    "@storybook/core-events" "6.1.12"
-    "@storybook/router" "6.1.12"
-    "@storybook/theming" "6.1.12"
-    core-js "^3.0.1"
-    global "^4.3.2"
-    regenerator-runtime "^0.13.7"
 
 "@storybook/api@5.3.0-alpha.11":
   version "5.3.0-alpha.11"
