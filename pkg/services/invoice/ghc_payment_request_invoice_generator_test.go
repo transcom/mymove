@@ -219,9 +219,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("0001", result.ST.TransactionSetControlNumber)
 	})
 
-	suite.T().Run("adds se end segment", func(t *testing.T) {
+	suite.T().Run("se segment has correct value", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(76, result.SE.NumberOfIncludedSegments)
+		suite.Equal(85, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 

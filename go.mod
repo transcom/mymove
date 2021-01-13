@@ -8,7 +8,7 @@ require (
 	github.com/99designs/keyring v1.1.6
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
-	github.com/aws/aws-sdk-go v1.36.24
+	github.com/aws/aws-sdk-go v1.36.25
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -52,7 +52,7 @@ require (
 	github.com/lib/pq v1.8.0
 	github.com/markbates/goth v1.66.1
 	github.com/mattn/go-shellwords v1.0.6 // indirect
-	github.com/mitchellh/mapstructure v1.4.0
+	github.com/mitchellh/mapstructure v1.4.1
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
