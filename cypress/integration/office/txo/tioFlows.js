@@ -26,8 +26,6 @@ describe('TIO user', () => {
       'getSortedPaymentRequests',
     );
     cy.intercept('**/ghc/v1/payment-requests/**').as('getPaymentRequest');
-    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
-    cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
 
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
       'patchPaymentServiceItemStatus',
@@ -53,39 +51,39 @@ describe('TIO user', () => {
 
     // Retaining these tests as comments so that they can be reactivated for service item review flow
     // Payment Request detail page
-    // cy.url().should('include', `/payment-requests/${paymentRequestId}`);
-    // cy.wait(['@getPaymentRequest', '@getMTOShipments', '@getMTOServiceItems']);
-    // cy.get('[data-testid="ReviewServiceItems"]');
+    cy.url().should('include', `/payment-requests/${paymentRequestId}`);
+    cy.wait(['@getPaymentRequest']);
+    cy.get('[data-testid="ReviewServiceItems"]');
 
     // Approve the first service item
-    // cy.get('[data-testid="ServiceItemCard"]').each((el) => {
-    //   completeServiceItemCard(el, true);
-    // });
-    // cy.wait('@patchPaymentServiceItemStatus');
-    // cy.contains('Next').click();
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, true);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.contains('Next').click();
 
     // Reject the second
-    // cy.get('[data-testid="ServiceItemCard"]').each((el) => {
-    //   completeServiceItemCard(el, false);
-    // });
-    // cy.wait('@patchPaymentServiceItemStatus');
-    // cy.contains('Next').click();
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, false);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.contains('Next').click();
 
     // Complete Request
-    // cy.contains('Complete request');
+    cy.contains('Complete request');
 
-    // cy.get('[data-testid="requested"]').contains('$1,099.99');
-    // cy.get('[data-testid="accepted"]').contains('$100.00');
-    // cy.get('[data-testid="rejected"]').contains('$999.99');
-    //
-    // cy.contains('Authorize payment').click();
-    // cy.wait('@patchPaymentRequestStatus');
+    cy.get('[data-testid="requested"]').contains('$1,099.99');
+    cy.get('[data-testid="accepted"]').contains('$100.00');
+    cy.get('[data-testid="rejected"]').contains('$999.99');
+
+    cy.contains('Authorize payment').click();
+    cy.wait('@patchPaymentRequestStatus');
 
     // Go back to queue
-    // cy.contains('Payment requests', { matchCase: false });
-    // cy.contains('Reviewed', { matchCase: false });
-    // cy.get('[data-uuid="' + paymentRequestId + '"]').within(() => {
-    //   cy.get('td').eq(2).contains('Reviewed');
-    // });
+    cy.contains('Payment requests', { matchCase: false });
+    cy.contains('Reviewed', { matchCase: false });
+    cy.get('[data-uuid="' + paymentRequestId + '"]').within(() => {
+      cy.get('td').eq(2).contains('Reviewed');
+    });
   });
 });
