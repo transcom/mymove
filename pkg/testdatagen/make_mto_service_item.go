@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"log"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -74,4 +76,201 @@ func MakeMTOServiceItems(db *pop.Connection) models.MTOServiceItems {
 	var serviceItemList models.MTOServiceItems
 	serviceItemList = append(serviceItemList, MakeDefaultMTOServiceItem(db))
 	return serviceItemList
+}
+
+type realMTOServiceParamData struct {
+	ServiceCode          models.ReServiceCode
+	ServiceItemParamKeys []models.ServiceItemParamKey
+}
+
+func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServiceParamData {
+	serviceParams := make(map[models.ReServiceCode]realMTOServiceParamData)
+	// CS
+	serviceParams[models.ReServiceCodeCS] = realMTOServiceParamData{
+		ServiceCode: models.ReServiceCodeCS,
+		ServiceItemParamKeys: []models.ServiceItemParamKey{
+			{
+				Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Description: "mto available to prime at",
+				Type:        models.ServiceItemParamTypeTimestamp,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+		},
+	}
+	// MS
+	serviceParams[models.ReServiceCodeMS] = realMTOServiceParamData{
+		ServiceCode: models.ReServiceCodeMS,
+		ServiceItemParamKeys: []models.ServiceItemParamKey{
+			{
+				Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				Description: "mto available to prime at",
+				Type:        models.ServiceItemParamTypeTimestamp,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+		},
+	}
+	// DLH
+	serviceParams[models.ReServiceCodeDLH] = realMTOServiceParamData{
+		ServiceCode: models.ReServiceCodeDLH,
+		ServiceItemParamKeys: []models.ServiceItemParamKey{
+			{
+				Key:         models.ServiceItemParamNameWeightEstimated,
+				Description: "estimated weight",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameRequestedPickupDate,
+				Description: "requested pickup date",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameDistanceZip3,
+				Description: "distance zip3",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameZipPickupAddress,
+				Description: "zip pickup address",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameZipDestAddress,
+				Description: "zip destination address",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightBilledActual,
+				Description: "weight billed actual",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightActual,
+				Description: "weight actual",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameServiceAreaOrigin,
+				Description: "service area actual",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+		},
+	}
+	// FSC
+	serviceParams[models.ReServiceCodeFSC] = realMTOServiceParamData{
+		ServiceCode: models.ReServiceCodeFSC,
+		ServiceItemParamKeys: []models.ServiceItemParamKey{
+			{
+				Key:         models.ServiceItemParamNameEIAFuelPrice,
+				Description: "eia fuel price",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameContractCode,
+				Description: "contract code",
+				Type:        models.ServiceItemParamTypeString,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameActualPickupDate,
+				Description: "actual pickup date",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+			{
+				Key:         models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+				Description: "fsc weight based multiplier",
+				Type:        models.ServiceItemParamTypeDecimal,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameDistanceZip3,
+				Description: "distance zip 3",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameDistanceZip5,
+				Description: "distance zip 5",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+			{
+				Key:         models.ServiceItemParamNameWeightBilledActual,
+				Description: "weight billed actual",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+		},
+	}
+
+	return serviceParams
+}
+
+// MakeRealMTOServiceItemWithAllDeps Takes a service code, move, shipment
+// and creates or finds all the needed data to create a service item all its params ready for pricing
+func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.ReServiceCode, mto models.Move, mtoShipment models.MTOShipment) models.MTOServiceItem {
+	serviceParams := fixtureMapOfServiceItemParams()
+
+	// look up the data we need
+	data := serviceParams[serviceCode]
+	if data.ServiceCode == serviceCode {
+		// get or create the ReService
+		reService := FetchOrMakeReService(db, Assertions{
+			ReService: models.ReService{
+				Code: serviceCode,
+			},
+		})
+
+		// create all params defined for this particular service
+		for _, serviceParamKeyToCreate := range data.ServiceItemParamKeys {
+			serviceItemParamKey := FetchOrMakeServiceItemParamKey(db, Assertions{
+				ServiceItemParamKey: serviceParamKeyToCreate,
+			})
+			_ = MakeServiceParam(db, Assertions{
+				ServiceParam: models.ServiceParam{
+					ServiceID:             reService.ID,
+					ServiceItemParamKeyID: serviceItemParamKey.ID,
+					ServiceItemParamKey:   serviceItemParamKey,
+				},
+			})
+		}
+
+		// create a service item and return it
+		mtoServiceItem := MakeMTOServiceItem(db, Assertions{
+			Move:        mto,
+			MTOShipment: mtoShipment,
+		})
+
+		return mtoServiceItem
+	}
+
+	log.Panicf("couldn't create service item service code %s not defined", serviceCode)
+	return models.MTOServiceItem{}
 }
