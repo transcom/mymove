@@ -20,6 +20,7 @@ describe('StackedTableRowForm', () => {
             name="fieldName"
             type="text"
             label="Field Name"
+            id="fieldName"
           />
         </tbody>
       </table>,
@@ -92,7 +93,7 @@ describe('StackedTableRowForm', () => {
       jest.spyOn(React, 'useState').mockReturnValueOnce([true, setShow]).mockReturnValueOnce([{}, jest.fn()]);
       const component = renderStackedTableRowForm();
       expect(component.html()).toBe(
-        '<table class="table--stacked"><tbody><tr class="stacked-table-row"><th scope="row" class="label ">Field Name</th><td><form data-testid="form" class="usa-form"><input data-testid="textInput" class="usa-input" name="fieldName" type="text" value="value"><div class="form-buttons"><button type="submit" class="usa-button" data-testid="button">Submit</button><button type="reset" class="usa-button usa-button--secondary" data-testid="button">Cancel</button></div></form></td></tr></tbody></table>',
+        '<table class="table--stacked"><tbody><tr class="stacked-table-row"><th scope="row" class="label ">Field Name</th><td><form data-testid="form" class="usa-form"><input data-testid="textInput" class="usa-input" id="fieldName" name="fieldName" type="text" value="value"><div class="form-buttons"><button type="submit" class="usa-button" data-testid="button">Submit</button><button type="reset" class="usa-button usa-button--secondary" data-testid="button">Cancel</button></div></form></td></tr></tbody></table>',
       );
     });
 
