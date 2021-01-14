@@ -153,6 +153,11 @@ table {
       @include u-border-left(0.5);
       @include u-border-left('error');
     }
+    td.error{
+      @include u-border-left(0);
+      @include u-text('error');
+      @include u-text('bold');
+    }
   }
 }
 .stackedtable-header {

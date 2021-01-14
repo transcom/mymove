@@ -80,13 +80,17 @@ const AllowancesTable = ({ showEditBtn, info }) => {
             <th className="error" scope="row">
               TAC / MDC
             </th>
-            <td data-testid="dependents">Missing</td>
+            <td className="error" data-testid="dependents">
+              Missing
+            </td>
           </tr>
           <tr>
             <th className="error" scope="row">
               SAC / SDN
             </th>
-            <td data-testid="dependents">Missing</td>
+            <td className="error" data-testid="dependents">
+              Missing
+            </td>
           </tr>
         </tbody>
       </table>
