@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import { Alert, CardGroup, CardHeader, CardBody, CardMedia } from '@trussworks/react-uswds';
 import { func, number, string } from 'prop-types';
 
@@ -11,9 +9,9 @@ import MoveCounselorImg from 'images/move-counselor.jpg';
 import MovingTruckImg from 'images/moving-truck.jpg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import MilmoveCard from 'components/Customer/MilmoveCard/MilmoveCard';
-import { fetchLatestOrders as fetchLatestOrdersAction, selectOrdersForMove } from 'shared/Entities/modules/orders';
+import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
 import { formatWeight } from 'shared/formatters';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 
 export class MovingInfo extends Component {
   componentDidMount() {
@@ -127,9 +125,8 @@ MovingInfo.defaultProps = {
   entitlementWeight: 0,
 };
 
-function mapStateToProps(state, ownProps) {
-  const { moveId } = ownProps.match.params;
-  const orders = selectOrdersForMove(state, moveId);
+function mapStateToProps(state) {
+  const orders = selectCurrentOrders(state);
   const entitlementWeight = orders.dBAuthorizedWeight;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
@@ -140,13 +137,8 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      fetchLatestOrders: fetchLatestOrdersAction,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  fetchLatestOrders: fetchLatestOrdersAction,
+};
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MovingInfo));
+export default connect(mapStateToProps, mapDispatchToProps)(MovingInfo);
