@@ -91,7 +91,7 @@ jest.mock('hooks/queries', () => ({
         },
         b2: {
           id: 'b2',
-          shipmentType: 'NTS',
+          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
         },
       },
       mtoServiceItems: {
@@ -162,7 +162,7 @@ describe('PaymentRequestReview', () => {
         {
           id: '2',
           shipmentId: 'b2',
-          shipmentType: 'NTS',
+          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
           serviceItemName: 'Test Service Item 2',
           amount: 456.0,
           createdAt: '2020-01-01T00:09:00.999Z',

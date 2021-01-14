@@ -216,8 +216,15 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	edi858.L3 = l3
 
 	// the total NumberOfIncludedSegments is ST + SE + all segments other than GS, GE, ISA, and IEA
+	stCount := 1
+	l3Count := 1
+	seCount := 1
+	headerSegmentCount := edi858.Header.Size()
+	serviceItemSegmentCount := len(edi858.ServiceItems) * ediinvoice.ServiceItemSegmentsSize
+	totalNumberOfSegments := stCount + headerSegmentCount + serviceItemSegmentCount + l3Count + seCount
+
 	edi858.SE = edisegment.SE{
-		NumberOfIncludedSegments:    2 + edi858.Header.Size() + 1 + len(edi858.ServiceItems)*ediinvoice.ServiceItemSegmentsSize,
+		NumberOfIncludedSegments:    totalNumberOfSegments,
 		TransactionSetControlNumber: "0001",
 	}
 

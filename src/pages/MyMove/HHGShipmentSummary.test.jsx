@@ -62,6 +62,7 @@ describe('Review -> Hhg Shipment Summary', () => {
           mtoShipment={mtoShipment}
           newDutyStationPostalCode={newDutyStationPostalCode}
           movePath="123"
+          shipmentNumber={1}
         />
       </MockProviders>,
     );

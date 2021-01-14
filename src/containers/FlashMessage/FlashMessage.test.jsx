@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { act } from 'react-dom/test-utils';
 
 import ConnectedFlashMessage, { FlashMessage } from './FlashMessage';
 
@@ -40,7 +41,9 @@ describe('FlashMessage component', () => {
     );
 
     expect(mockClearFlash).toHaveBeenCalledTimes(0);
-    wrapper.unmount();
+    act(() => {
+      wrapper.unmount();
+    });
     expect(mockClearFlash).toHaveBeenCalledTimes(1);
   });
 });
