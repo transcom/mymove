@@ -22,6 +22,8 @@ const paymentRequestStatusLabel = (status) => {
       return 'Reviewed';
     case 'PAID':
       return 'Paid';
+    case 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED':
+      return 'Rejected';
     default:
       return status;
   }
