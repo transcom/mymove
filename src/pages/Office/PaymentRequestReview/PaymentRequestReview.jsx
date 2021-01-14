@@ -46,6 +46,7 @@ export const PaymentRequestReview = ({ history, match }) => {
       // would be overwritten with null values as they aren't in the payload response
       newPaymentServiceItem.mtoServiceItemName = oldPaymentServiceItem.mtoServiceItemName;
       newPaymentServiceItem.mtoShipmentType = oldPaymentServiceItem.mtoShipmentType;
+      newPaymentServiceItem.mtoShipmentID = oldPaymentServiceItem.mtoShipmentID;
 
       queryCache.setQueryData([PAYMENT_REQUESTS, paymentRequestId], {
         paymentRequests,
