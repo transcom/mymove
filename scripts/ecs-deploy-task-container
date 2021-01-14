@@ -54,7 +54,7 @@ dry_run_task_definition_date=$("${DIR}/../bin/ecs-deploy" task-def \
   --dry-run)
 
 dry_run_task_definition=$(echo "${dry_run_task_definition_date}" | cut -d ' ' -f 3)
-echo "${dry_run_task_definition} | jq ."
+echo "${dry_run_task_definition}" | jq .
 
 echo
 echo "Registering ECS task definition for ${name}"

@@ -110,7 +110,7 @@ RejectServiceItemModal.propTypes = {
     createdAt: PropTypes.string,
     rejectedAt: PropTypes.string,
     approvedAt: PropTypes.string,
-    details: {
+    details: PropTypes.shape({
       description: PropTypes.string,
       pickupPostalCode: PropTypes.string,
       reason: PropTypes.string,
@@ -120,7 +120,7 @@ RejectServiceItemModal.propTypes = {
         timeMilitary: PropTypes.string,
         firstAvailableDeliveryDate: PropTypes.string,
       }),
-    },
+    }),
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
