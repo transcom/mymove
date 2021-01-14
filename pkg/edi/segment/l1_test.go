@@ -8,14 +8,14 @@ func (suite *SegmentSuite) TestValidateL1() {
 	freightRate := 0
 	validL1 := L1{
 		LadingLineItemNumber: 1,
-		FreightRate:        &freightRate,
-		RateValueQualifier: "LB",
-		Charge:             100.00,
+		FreightRate:          &freightRate,
+		RateValueQualifier:   "LB",
+		Charge:               100.00,
 	}
 
 	altValidL1 := L1{
 		LadingLineItemNumber: 12,
-		Charge:             100.00,
+		Charge:               100.00,
 	}
 
 	suite.T().Run("validate success", func(t *testing.T) {

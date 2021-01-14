@@ -543,23 +543,23 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 	return paymentServiceItemParam, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.PaymentServiceItem) (float64, error) {
+func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.PaymentServiceItem) (int, error) {
 	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
 		return 0, err
 	}
-	weightFloat, err := strconv.ParseFloat(weight.Value, 64)
+	weightInt, err := strconv.Atoi(weight.Value)
 	if err != nil {
 		return 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
 
-	return weightFloat, nil
+	return weightInt, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceItem models.PaymentServiceItem) (float64, float64, error) {
+func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceItem models.PaymentServiceItem) (int, float64, error) {
 	// TODO: update to have a case statement as different service items may or may not have weight
 	// and the distance key can differ (zip3 v zip5, and distances for SIT)
-	weightFloat, err := g.getWeightParams(serviceItem)
+	weight, err := g.getWeightParams(serviceItem)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -575,7 +575,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 	if err != nil {
 		return 0, 0, fmt.Errorf("Could not parse Distance Zip3 for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
-	return weightFloat, distanceFloat, nil
+	return weight, distanceFloat, nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems, orders models.Order) ([]ediinvoice.ServiceItemSegments, edisegment.L3, error) {
@@ -584,7 +584,6 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 	l3 := edisegment.L3{
 		PriceCents: 0,
 	}
-	var weightFloat, distanceFloat float64
 	// Iterate over payment service items
 	for idx, serviceItem := range paymentServiceItems {
 		var newSegment ediinvoice.ServiceItemSegments
@@ -630,7 +629,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
 			var err error
-			weightFloat, err = g.getWeightParams(serviceItem)
+			weight, err := g.getWeightParams(serviceItem)
 			if err != nil {
 				return segments, l3, err
 			}
@@ -644,21 +643,21 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 			newSegment.L0 = edisegment.L0{
 				LadingLineItemNumber: hierarchicalIDNumber,
-				Weight:               weightFloat,
+				Weight:               float64(weight),
 				WeightQualifier:      "B",
 				WeightUnitCode:       "L",
 			}
 
 			newSegment.L1 = edisegment.L1{
 				LadingLineItemNumber: hierarchicalIDNumber,
-				FreightRate:          int(weightFloat),
+				FreightRate:          &weight,
 				RateValueQualifier:   "LB",
 				Charge:               float64(*serviceItem.PriceCents),
 			}
 
 		default:
 			var err error
-			weightFloat, distanceFloat, err = g.getWeightAndDistanceParams(serviceItem)
+			weight, distanceFloat, err := g.getWeightAndDistanceParams(serviceItem)
 			if err != nil {
 				return segments, l3, err
 			}
@@ -674,14 +673,14 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				LadingLineItemNumber:   hierarchicalIDNumber,
 				BilledRatedAsQuantity:  distanceFloat,
 				BilledRatedAsQualifier: "DM",
-				Weight:                 weightFloat,
+				Weight:                 float64(weight),
 				WeightQualifier:        "B",
 				WeightUnitCode:         "L",
 			}
 
 			newSegment.L1 = edisegment.L1{
 				LadingLineItemNumber: hierarchicalIDNumber,
-				FreightRate:          int(weightFloat),
+				FreightRate:          &weight,
 				RateValueQualifier:   "LB",
 				Charge:               float64(*serviceItem.PriceCents),
 			}
