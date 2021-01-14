@@ -21,6 +21,12 @@ const rankOptions = [
   { key: 'E_9', value: 'E-9' },
 ];
 
+const branchOptions = [
+  { key: 'Army', value: 'Army' },
+  { key: 'Navy', value: 'Navy' },
+  { key: 'Marines', value: 'Marines' },
+];
+
 const entitlements = {
   authorizedWeight: 11000,
   dependentsAuthorized: true,
@@ -37,7 +43,7 @@ describe('AllowancesDetailForm', () => {
   const wrapper = mount(
     <Formik initialValues={initialValues} onSubmit={jest.fn()}>
       <form>
-        <AllowancesDetailForm entitlements={entitlements} rankOptions={rankOptions} />
+        <AllowancesDetailForm entitlements={entitlements} rankOptions={rankOptions} branchOptions={branchOptions} />
       </form>
     </Formik>,
   );
@@ -68,7 +74,7 @@ describe('AllowancesDetailForm', () => {
     const wrapperNoProps = mount(
       <Formik initialValues={{ authorizedWeight: null }} onSubmit={jest.fn()}>
         <form>
-          <AllowancesDetailForm entitlements={{}} rankOptions={[]} />
+          <AllowancesDetailForm entitlements={{}} rankOptions={[]} branchOptions={[]} />
         </form>
       </Formik>,
     );
