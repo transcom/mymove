@@ -1247,7 +1247,7 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db *pop.Co
 			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-ffffffffffff"),
 			OrdersID:           orders7.ID,
 			AvailableToPrimeAt: swag.Time(time.Now()),
-			Status:             models.MoveStatusSUBMITTED,
+			Status:             models.MoveStatusAPPROVED,
 			SelectedMoveType:   &hhgMoveType,
 			Locator:            locatorID,
 		},
@@ -1403,7 +1403,8 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db *pop.Co
 
 	serviceItemFSC7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-ffffffffffff"),
+			ID:     uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-ffffffffffff"),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        mto7,
 		MTOShipment: MTOShipment,
