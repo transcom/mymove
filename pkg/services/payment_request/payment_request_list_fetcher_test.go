@@ -109,6 +109,12 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		},
 	})
 
+	rejectedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status: models.PaymentRequestStatusReviewedAllRejected,
+		},
+	})
+
 	sentToGexPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			Status: models.PaymentRequestStatusSentToGex,
@@ -125,7 +131,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		},
 	})
 
-	allPaymentRequests := []models.PaymentRequest{pendingPaymentRequest, reviewedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, paidPaymentRequest}
+	allPaymentRequests := []models.PaymentRequest{pendingPaymentRequest, reviewedPaymentRequest, rejectedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, paidPaymentRequest}
 
 	suite.T().Run("Returns all payment requests when no status filter is specified", func(t *testing.T) {
 		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
@@ -136,7 +142,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 
 	suite.T().Run("Returns all payment requests when all status filters are selected", func(t *testing.T) {
 		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Status: []string{"Payment requested", "Reviewed", "Paid"}})
+			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Status: []string{"Payment requested", "Reviewed", "Rejected", "Paid"}})
 		suite.NoError(err)
 		suite.Equal(len(allPaymentRequests), actualCount)
 	})
@@ -161,6 +167,14 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 		for _, pr := range reviewed {
 			suite.Contains(reviewedIDs, pr.ID)
 		}
+
+		rejectedPaymentRequests, rejectedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
+			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Status: []string{"Rejected"}})
+		var rejected []models.PaymentRequest
+		rejected = *rejectedPaymentRequests
+		suite.NoError(err)
+		suite.Equal(1, rejectedCount)
+		suite.Equal(rejectedPaymentRequest.ID, rejected[0].ID)
 
 		paidPaymentRequests, paidCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Status: []string{"Paid"}})

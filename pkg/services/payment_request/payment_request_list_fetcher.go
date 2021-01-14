@@ -265,6 +265,9 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 						models.PaymentRequestStatusReviewed.String(),
 						models.PaymentRequestStatusSentToGex.String(),
 						models.PaymentRequestStatusReceivedByGex.String())
+				} else if strings.EqualFold(status, "Rejected") {
+					translatedStatuses = append(translatedStatuses,
+						models.PaymentRequestStatusReviewedAllRejected.String())
 				} else if strings.EqualFold(status, "Paid") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPaid.String())
 				}
