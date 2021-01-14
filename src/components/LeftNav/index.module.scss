@@ -6,7 +6,6 @@
 .LeftNav {
   @include u-font-size('body', 'xs'); //15px
   @include u-text('no-underline');
-  @include u-text('gray-50');
   @include u-border('base-lighter');
   @include u-border('1px');
   @include u-radius('md'); //4px
@@ -14,7 +13,7 @@
   width: 230px;
 
   > a {
-    @include u-text('gray-50');
+    @include u-text('base-darkest');
     @include u-text('no-underline');
 
     @include u-padding-y(1.5); //12px
@@ -28,7 +27,7 @@
       @include u-border-y('base-lighter');
     }
 
-    &:hover {
+    &:hover, &:focus {
       @include u-text('no-underline');
       @include u-text('primary-vivid');
     }
@@ -42,7 +41,7 @@
     }
 
     &:visited {
-      @include u-text('gray-50');
+      @include u-text('base-darkest');
     }
   }
 
