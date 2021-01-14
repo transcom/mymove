@@ -113,7 +113,6 @@
     "@storybook/react": "^6.1.14",
     "@testing-library/react-hooks": "^4.0.1",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.4.1",
-    "babel-loader": "8.1.0",
     "cypress": "^6.2.1",
     "cypress-audit": "^0.3.0",
     "cypress-wait-until": "^1.7.1",
