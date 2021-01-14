@@ -6,12 +6,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// ServicesScheduleLookup does lookup on services schedule origin
-type ServicesScheduleLookup struct {
+// SITScheduleLookup does lookup on services schedule origin
+type SITScheduleLookup struct {
 	Address models.Address
 }
 
-func (s ServicesScheduleLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (s SITScheduleLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
 	db := *keyData.db
 
 	// find the service area by querying for the service area associated with the zip3
@@ -20,5 +20,5 @@ func (s ServicesScheduleLookup) lookup(keyData *ServiceItemParamKeyData) (string
 
 	domesticServiceArea, err := fetchDomesticServiceArea(&db, keyData.ContractCode, zip3)
 
-	return strconv.Itoa(domesticServiceArea.ServicesSchedule), err
+	return strconv.Itoa(domesticServiceArea.SITPDSchedule), err
 }
