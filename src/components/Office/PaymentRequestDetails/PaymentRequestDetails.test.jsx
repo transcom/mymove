@@ -204,7 +204,7 @@ describe('PaymentRequestDetails', () => {
     });
   });
 
-  describe('When given an hhg shipment service items', () => {
+  describe('When given a hhg shipment service items', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails serviceItems={hhgServiceItems} />
