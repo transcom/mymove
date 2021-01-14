@@ -557,6 +557,8 @@ var (
 	QueuePaymentRequestPaymentRequested string = "Payment requested"
 	// QueuePaymentRequestReviewed status Payment request reviewed
 	QueuePaymentRequestReviewed string = "Reviewed"
+	// QueuePaymentRequestRejected status Payment request rejected
+	QueuePaymentRequestRejected string = "Rejected"
 	// QueuePaymentRequestPaid status PaymentRequest paid
 	QueuePaymentRequestPaid string = "Paid"
 )
@@ -573,6 +575,10 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 		paymentRequest.Status == models.PaymentRequestStatusReceivedByGex ||
 		paymentRequest.Status == models.PaymentRequestStatusReviewed {
 		return QueuePaymentRequestReviewed
+	}
+
+	if paymentRequest.Status == models.PaymentRequestStatusReviewedAllRejected {
+		return QueuePaymentRequestRejected
 	}
 
 	return QueuePaymentRequestPaid
