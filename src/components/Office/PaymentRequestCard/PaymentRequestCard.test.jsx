@@ -165,7 +165,7 @@ describe('PaymentRequestCard', () => {
       createdAt: '2020-12-01T00:00:00.000Z',
       moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
       paymentRequestNumber: '1843-9061-2',
-      status: 'REVIEWED',
+      status: 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED',
       moveTaskOrder: move,
       reviewedAt: reviewedAtDate,
       serviceItems: [
@@ -220,8 +220,8 @@ describe('PaymentRequestCard', () => {
       </MockProviders>,
     );
 
-    it('renders the reviewed status tag', () => {
-      expect(wrapper.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
+    it('renders the rejected status tag', () => {
+      expect(wrapper.find({ 'data-testid': 'tag' }).contains('Rejected')).toBe(true);
     });
 
     it('sums the approved service items total', () => {
