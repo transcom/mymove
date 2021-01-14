@@ -1712,6 +1712,7 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 		Move: models.Move{
 			ID:       uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae8"),
 			OrdersID: orders10.ID,
+			Status:   models.MoveStatusAPPROVED,
 		},
 	})
 
@@ -1727,10 +1728,16 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 
 	serviceItemA := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		PaymentRequest: paymentRequest10,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
 	})
 
 	serviceItemB := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		PaymentRequest: paymentRequest10,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
 	})
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{

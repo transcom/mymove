@@ -145,7 +145,13 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
           )}
           <div className={styles.toggleDrawer}>
             {showRequestDetailsButton && (
-              <Button data-testid="showRequestDetailsButton" type="button" unstyled onClick={handleToggleDetails}>
+              <Button
+                aria-expanded={showDetails}
+                data-testid="showRequestDetailsButton"
+                type="button"
+                unstyled
+                onClick={handleToggleDetails}
+              >
                 <FontAwesomeIcon icon={showDetailsChevron} /> {showDetailsText}
               </Button>
             )}
