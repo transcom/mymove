@@ -59,6 +59,7 @@ jest.mock('hooks/queries', () => ({
           mtoShipmentID: '3',
           reServiceName: 'Test Service Item',
           status: 'SUBMITTED',
+          reServiceCode: 'DOFSIT',
         },
       },
       isLoading: false,

@@ -9,8 +9,22 @@ import { MOVE_STATUSES } from 'shared/constants';
 const defaultProps = {
   serviceMember: {
     id: '666',
-    current_station: {},
-    residential_address: {},
+    current_station: {
+      name: 'Test Duty Station',
+    },
+    residential_address: {
+      city: 'New York',
+      postal_code: '10001',
+      state: 'NY',
+      street_address_1: '123 Main St',
+    },
+    affiliation: 'Navy',
+    edipi: '123567890',
+    personal_email: 'test@email.com',
+    first_name: 'Tester',
+    last_name: 'Testing',
+    rank: 'RANK',
+    telephone: '123-555-7890',
   },
   currentOrders: {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
@@ -18,6 +32,7 @@ const defaultProps = {
     issue_date: '2020-08-11',
     moves: ['123'],
     new_duty_station: {
+      name: 'New Test Duty Station',
       address: {
         postal_code: '123456',
       },
@@ -30,7 +45,11 @@ const defaultProps = {
       uploads: [],
     },
   },
-  match: { path: '', url: '/moves/123/review', params: { moveId: '123' } },
+  match: { path: '', isExact: true, url: '/moves/123/review', params: { moveId: '123' } },
+  history: {
+    goBack: jest.fn(),
+    push: jest.fn(),
+  },
   currentMove: {
     id: '123',
     locator: 'CXVV3F',
@@ -40,7 +59,10 @@ const defaultProps = {
   },
   selectedMoveType: 'HHG',
   currentPPM: {},
+  moveIsApproved: false,
+  entitlement: {},
   mtoShipment: {
+    id: 'testMtoShipment789',
     agents: [],
     customerRemarks: 'please be carefule',
     moveTaskOrderID: '123',
@@ -55,6 +77,7 @@ const defaultProps = {
   },
   mtoShipments: [
     {
+      id: 'testMtoShipment789',
       agents: [],
       customerRemarks: 'please be carefule',
       moveTaskOrderID: '123',
