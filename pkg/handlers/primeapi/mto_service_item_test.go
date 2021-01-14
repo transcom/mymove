@@ -673,10 +673,20 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		},
 	})
 
+	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	addr := primemessages.Address{
+		StreetAddress1: &destinationAddress.StreetAddress1,
+		City:           &destinationAddress.City,
+		State:          &destinationAddress.State,
+		PostalCode:     &destinationAddress.PostalCode,
+		Country:        destinationAddress.Country,
+	}
+
 	// Create the payload with the desired update
 	reqPayload := &primemessages.UpdateMTOServiceItemSIT{
-		ReServiceCode:    "DDDSIT",
-		SitDepartureDate: *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
+		ReServiceCode:              "DDDSIT",
+		SitDepartureDate:           *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
+		SitDestinationFinalAddress: &addr,
 	}
 	reqPayload.SetID(strfmt.UUID(dddsit.ID.String()))
 
@@ -716,6 +726,11 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		respPayload := resp1.(*primemessages.MTOServiceItemDestSIT)
 		suite.Equal(reqPayload.ID(), respPayload.ID())
 		suite.Equal(reqPayload.SitDepartureDate.String(), respPayload.SitDepartureDate.String())
+		suite.Equal(reqPayload.SitDestinationFinalAddress.StreetAddress1, respPayload.SitDestinationFinalAddress.StreetAddress1)
+		suite.Equal(reqPayload.SitDestinationFinalAddress.City, respPayload.SitDestinationFinalAddress.City)
+		suite.Equal(reqPayload.SitDestinationFinalAddress.PostalCode, respPayload.SitDestinationFinalAddress.PostalCode)
+		suite.Equal(reqPayload.SitDestinationFinalAddress.State, respPayload.SitDestinationFinalAddress.State)
+		suite.Equal(reqPayload.SitDestinationFinalAddress.Country, respPayload.SitDestinationFinalAddress.Country)
 
 		// Return to good state for next test
 		params.IfMatch = respPayload.ETag()
