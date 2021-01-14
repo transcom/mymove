@@ -1,8 +1,6 @@
 package ghcrateengine
 
 import (
-	"fmt"
-	"math"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -25,26 +23,7 @@ func NewDomesticDestinationFirstDaySITPricer(db *pop.Connection) services.Domest
 
 // Price determines the price for a domestic linehaul
 func (p domesticDestinationFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, error) {
-	if weight < minDomesticWeight {
-		return 0, fmt.Errorf("weight of %d less than the minimum of %d", weight, minDomesticWeight)
-	}
-
-	serviceAreaPrice, err := fetchDomServiceAreaPrice(p.db, contractCode, models.ReServiceCodeDDFSIT, serviceArea, isPeakPeriod)
-	if err != nil {
-		return unit.Cents(0), fmt.Errorf("could not fetch domestic destination first day SIT rate: %w", err)
-	}
-
-	contractYear, err := fetchContractYear(p.db, serviceAreaPrice.ContractID, requestedPickupDate)
-	if err != nil {
-		return unit.Cents(0), fmt.Errorf("could not fetch contract year: %w", err)
-	}
-
-	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
-	escalatedTotalPrice := baseTotalPrice * contractYear.EscalationCompounded
-
-	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
-
-	return totalPriceCents, nil
+	return priceDomesticFirstDaySit(p.db, models.ReServiceCodeDDFSIT, contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea)
 }
 
 // PriceUsingParams determines the price for a domestic linehaul given PaymentServiceItemParams
