@@ -76,6 +76,18 @@ const AllowancesTable = ({ showEditBtn, info }) => {
             <th scope="row">Dependents</th>
             <td data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</td>
           </tr>
+          <tr>
+            <th className="error" scope="row">
+              TAC / MDC
+            </th>
+            <td data-testid="dependents">Missing</td>
+          </tr>
+          <tr>
+            <th className="error" scope="row">
+              SAC / SDN
+            </th>
+            <td data-testid="dependents">Missing</td>
+          </tr>
         </tbody>
       </table>
     </div>
