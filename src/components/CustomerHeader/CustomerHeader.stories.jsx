@@ -1,6 +1,9 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 
 import CustomerHeader from './index';
+
+import { store } from 'shared/store';
 
 export default {
   title: 'Components/Headers/Customer Header',
@@ -11,4 +14,25 @@ export default {
   },
 };
 
-export const Customer = () => <CustomerHeader />;
+const props = {
+  customer: { last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+  moveOrder: {
+    departmentIndicator: 'Navy',
+    grade: 'E-6',
+    originDutyStation: {
+      name: 'JBSA Lackland',
+    },
+    destinationDutyStation: {
+      name: 'JB Lewis-McChord',
+    },
+  },
+};
+
+/* eslint-disable react/jsx-props-no-spreading */
+export const Customer = () => {
+  return (
+    <Provider store={store}>
+      <CustomerHeader {...props} />
+    </Provider>
+  );
+};

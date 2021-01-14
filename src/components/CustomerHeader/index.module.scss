@@ -50,7 +50,7 @@
     }
     p {
       @include u-text('base-lighter');
-      @include u-font-size('body', '3xs')
+      @include u-font-size('body', '3xs');
       margin-bottom: 7px;
     }
 
