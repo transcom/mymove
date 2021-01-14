@@ -1716,6 +1716,10 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 		},
 	})
 
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move10,
+	})
+
 	paymentRequest10 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:            uuid.FromStringOrNil("cfd110d4-1f62-401c-a92c-39987a0b4229"),
@@ -1727,6 +1731,7 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 	})
 
 	serviceItemA := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 		PaymentRequest: paymentRequest10,
 		ReService: models.ReService{
 			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
@@ -1734,6 +1739,7 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 	})
 
 	serviceItemB := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
 		PaymentRequest: paymentRequest10,
 		ReService: models.ReService{
 			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
