@@ -14,7 +14,6 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatDateForSwagger } from 'shared/dates';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
 import { getPPMsForMove, patchPPM, persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
@@ -23,6 +22,7 @@ import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentMove,
   selectCurrentOrders,
+  selectCurrentPPM,
   selectPPMSitEstimate,
 } from 'store/entities/selectors';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
@@ -40,6 +40,7 @@ let EditDateAndLocationForm = (props) => {
     sitReimbursement,
     submitting,
   } = props;
+
   const displayedSitReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
 
   return (
@@ -201,16 +202,7 @@ class EditDateAndLocation extends Component {
   }
 
   render() {
-    const {
-      initialValues,
-      schema,
-      formValues,
-      sitReimbursement,
-      currentOrders,
-      error,
-      sitEstimate,
-      entitiesSitReimbursement,
-    } = this.props;
+    const { initialValues, schema, formValues, sitReimbursement, currentOrders, error, sitEstimate } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -228,11 +220,7 @@ class EditDateAndLocation extends Component {
             initialValues={initialValues}
             schema={schema}
             formValues={formValues}
-            sitReimbursement={
-              sitReimbursement !== entitiesSitReimbursement && sitReimbursement
-                ? sitReimbursement
-                : entitiesSitReimbursement
-            }
+            sitReimbursement={sitReimbursement}
             currentOrders={currentOrders}
             onCancel={this.returnToReview}
           />
@@ -249,20 +237,18 @@ EditDateAndLocation.propTypes = {
 };
 function mapStateToProps(state) {
   const currentMove = selectCurrentMove(state) || {};
-  const moveID = currentMove?.id;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const currentPPM = selectCurrentPPM(state) || {};
 
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     move: currentMove,
     currentOrders: selectCurrentOrders(state) || {},
-    currentPPM: selectActivePPMForMove(state, moveID),
+    currentPPM,
     formValues: getFormValues(editDateAndLocationFormName)(state),
     entitlement: loadEntitlementsFromState(state),
-    error: get(state, 'ppm.error'),
-    hasSubmitError: get(state, 'ppm.hasSubmitError'),
     sitEstimate: selectPPMSitEstimate(state),
-    entitiesSitReimbursement: get(selectActivePPMForMove(state, moveID), 'estimated_storage_reimbursement', ''),
+    sitReimbursement: currentPPM?.estimated_storage_reimbursement,
   };
 
   const defaultPickupZip = serviceMember?.residential_address?.postal_code;

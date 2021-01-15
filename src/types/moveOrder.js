@@ -150,6 +150,6 @@ export const PaymentRequestShape = PropTypes.shape({
   paymentRequestNumber: PropTypes.string,
   status: PropTypes.string,
   eTag: PropTypes.string,
-  serviceItems: PropTypes.arrayOf(PaymentServiceItemShape),
+  serviceItems: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PaymentServiceItemShape])),
   reviewedAt: PropTypes.string,
 });

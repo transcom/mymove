@@ -5,9 +5,9 @@ import { ShipmentOptionsOneOf } from 'types/shipment';
 
 export const ServiceItemCardShape = PropTypes.shape({
   id: PropTypes.string, // service item id
-  shipmentId: PropTypes.string,
-  shipmentType: ShipmentOptionsOneOf,
-  serviceItemName: PropTypes.string,
+  mtoShipmentID: PropTypes.string,
+  mtoShipmentType: ShipmentOptionsOneOf,
+  mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number,
   status: PropTypes.oneOf(Object.values(PAYMENT_SERVICE_ITEM_STATUS)),
   rejectionReason: PropTypes.string,
