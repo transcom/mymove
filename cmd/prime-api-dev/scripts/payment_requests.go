@@ -186,7 +186,16 @@ func cleanup() {
 func (pr *paymentRequestsData) cleanup() {
 	// Defer closing the store until after the API call has completed
 	if pr.store != nil {
-		pr.store.Close()
+		//RA Summary: gosec - errcheck - Unchecked return value
+		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+		//RA: Functions with unchecked return values in the file are used to close an asynchronous connection
+		//RA: Given the functions causing the lint errors are used close an asynchronous connection in order to prevent it
+		//RA: from running indefinitely, it is not deemed a risk
+		//RA Developer Status: Mitigated
+		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+		//RA Validator: jneuner@mitre.org
+		//RA Modified Severity:
+		pr.store.Close() // nolint:errcheck
 	}
 }
 
@@ -684,7 +693,11 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			} else {
 				fmt.Printf("\nShipment update was successfully sent for processing (see reesponse for update success/fail)...\n")
 
-				pr.fetchMTOUpdates()
+				err = pr.fetchMTOUpdates()
+				if err != nil {
+					fmt.Print("Could not fetch MTO updates")
+					return exitApp, MTOMenu, nil
+				}
 
 				// re-display update shipment menu and the current shipment that was updated
 
@@ -933,7 +946,11 @@ func (pr *paymentRequestsData) displayCreatePaymentRequestMenu() (bool, menuType
 			} else {
 				fmt.Printf("\nCreate payment request was successfully sent for processing (see reesponse for update success/fail)...\n")
 
-				pr.fetchMTOUpdates()
+				err = pr.fetchMTOUpdates()
+				if err != nil {
+					fmt.Print("Could not fetch MTO updates")
+					return exitApp, MTOMenu, nil
+				}
 
 				// re-display updated MTO
 
@@ -1051,7 +1068,10 @@ func (pr *paymentRequestsData) displayMTOMenu() (bool, menuType, error) {
 	case UpdateShipment:
 		return exitApp, display[selection].nextMenu, nil
 	case CreatePaymentRequest:
-		pr.displayCreatePaymentRequestMenu()
+		_, _, err := pr.displayCreatePaymentRequestMenu()
+		if err != nil {
+			fmt.Printf("Error with creating payment <%s>", err.Error())
+		}
 		return exitApp, display[selection].nextMenu, nil
 	case PreviousMenu:
 		return exitApp, display[selection].nextMenu, nil

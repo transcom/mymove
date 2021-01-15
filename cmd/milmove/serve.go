@@ -305,7 +305,16 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]interface{}) map[string]interface{} {
 	conn := pool.Get()
-	defer conn.Close()
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used to close an asynchronous connection
+	//RA: Given the functions causing the lint errors are used close an asynchronous connection in order to prevent it
+	//RA: from running indefinitely, it is not deemed a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
+	defer conn.Close() // nolint:errcheck
 
 	pong, err := redis.String(conn.Do("PING"))
 	if err != nil {
@@ -347,7 +356,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 					}
 				})
 			}
-			logger.Sync()
+			//RA Summary: gosec - errcheck - Unchecked return value
+			//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+			//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
+			//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
+			//RA Developer Status: Mitigated
+			//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+			//RA Validator: jneuner@mitre.org
+			//RA Modified Severity:
+			logger.Sync() // nolint:errcheck
 		}
 	}()
 
@@ -1025,7 +1042,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// make sure we flush any pending startup messages
-	logger.Sync()
+	logger.Sync() // nolint:errcheck
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
+	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
 
 	// Create a buffered channel that accepts 1 signal at a time.
 	quit := make(chan os.Signal, 1)
@@ -1039,7 +1064,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Info("received signal for graceful shutdown of server", zap.Any("signal", sig))
 
 	// flush message that we received signal
-	logger.Sync()
+	logger.Sync() // nolint:errcheck
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
+	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
 
 	gracefulShutdownTimeout := v.GetDuration(cli.GracefulShutdownTimeoutFlag)
 
@@ -1049,7 +1082,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Info("Waiting for listeners to be shutdown", zap.Duration("timeout", gracefulShutdownTimeout))
 
 	// flush message that we are waiting on listeners
-	logger.Sync()
+	logger.Sync() // nolint:errcheck
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
+	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
 
 	wg := &sync.WaitGroup{}
 	var shutdownErrors sync.Map
@@ -1080,7 +1121,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	wg.Wait()
 	logger.Info("All listeners are shutdown")
-	logger.Sync()
+	logger.Sync() // nolint:errcheck
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
+	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
 
 	var dbCloseErr error
 	dbClose.Do(func() {
@@ -1115,7 +1164,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Error("error closing redis connections", zap.Error(redisCloseErr))
 	}
 
-	logger.Sync()
+	logger.Sync() // nolint:errcheck
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
+	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
 
 	if shutdownError {
 		os.Exit(1)
