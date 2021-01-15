@@ -23,22 +23,15 @@ type mtoServiceItemQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	CreateOne(model interface{}) (*validate.Errors, error)
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
-	Transaction(fn func(tx *pop.Connection) error) error
 }
 
 type mtoServiceItemUpdater struct {
-	builder          mtoServiceItemQueryBuilder
-	createNewBuilder func(db *pop.Connection) mtoServiceItemQueryBuilder
+	builder mtoServiceItemQueryBuilder
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
 func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder) services.MTOServiceItemUpdater {
-	// used inside a transaction and mocking
-	createNewBuilder := func(db *pop.Connection) mtoServiceItemQueryBuilder {
-		return query.NewQueryBuilder(db)
-	}
-
-	return &mtoServiceItemUpdater{builder: builder, createNewBuilder: createNewBuilder}
+	return &mtoServiceItemUpdater{builder: builder}
 }
 
 func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
@@ -194,21 +187,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 		return nil, services.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
 	}
 
-	if mtoServiceItem.SITDestinationFinalAddress != nil {
-		transactionErr := p.builder.Transaction(func(tx *pop.Connection) error {
-			txBuilder := p.createNewBuilder(tx)
-			verrs, createErr := txBuilder.CreateOne(mtoServiceItem.SITDestinationFinalAddress)
-			if verrs != nil || createErr != nil {
-				return fmt.Errorf("%#v %e", verrs, createErr)
-			}
-			mtoServiceItem.SITDestinationFinalAddressID = &mtoServiceItem.SITDestinationFinalAddress.ID
-			return nil
-		})
-		if transactionErr != nil {
-			return nil, transactionErr
-		}
-	}
-
 	checker := movetaskorder.NewMoveTaskOrderChecker(db)
 	serviceItemData := updateMTOServiceItemData{
 		updatedServiceItem:  *mtoServiceItem,
@@ -227,6 +205,14 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 	encodedUpdatedAt := etag.GenerateEtag(oldServiceItem.UpdatedAt)
 	if encodedUpdatedAt != eTag {
 		return nil, services.NewPreconditionFailedError(validServiceItem.ID, nil)
+	}
+
+	if validServiceItem.SITDestinationFinalAddress != nil {
+		verrs, createErr := p.builder.CreateOne(validServiceItem.SITDestinationFinalAddress)
+		if verrs != nil || createErr != nil {
+			return nil, fmt.Errorf("%#v %e", verrs, createErr)
+		}
+		validServiceItem.SITDestinationFinalAddressID = &validServiceItem.SITDestinationFinalAddress.ID
 	}
 
 	// Make the update and create a InvalidInputError if there were validation issues
