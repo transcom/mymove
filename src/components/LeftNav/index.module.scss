@@ -13,7 +13,7 @@
   width: 230px;
 
   > a {
-    @include u-text('base-darkest');
+    @include u-text('base');
     @include u-text('no-underline');
 
     @include u-padding-y(1.5); //12px
@@ -50,7 +50,7 @@
     }
 
     &:visited {
-      @include u-text('base-darkest');
+      @include u-text('base');
     }
   }
 
