@@ -2190,7 +2190,7 @@ definitions:
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
-      dBAuthorizedWeight:
+      authorizedWeight:
         type: integer
         example: 7000
         x-nullable: true

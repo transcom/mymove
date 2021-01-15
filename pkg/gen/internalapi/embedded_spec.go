@@ -4996,14 +4996,14 @@ func init() {
         "updated_at"
       ],
       "properties": {
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "dBAuthorizedWeight": {
+        "authorizedWeight": {
           "type": "integer",
           "x-nullable": true,
           "example": 7000
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
@@ -11612,14 +11612,14 @@ func init() {
         "updated_at"
       ],
       "properties": {
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "dBAuthorizedWeight": {
+        "authorizedWeight": {
           "type": "integer",
           "x-nullable": true,
           "example": 7000
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"

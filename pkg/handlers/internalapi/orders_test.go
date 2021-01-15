@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
 	suite.Equal(sm.DutyStationID, createdOrder.OriginDutyStationID)
 	suite.Equal((*string)(sm.Rank), createdOrder.Grade)
-	suite.Assertions.Equal(*swag.Int64(8000), *okResponse.Payload.DBAuthorizedWeight)
+	suite.Assertions.Equal(*swag.Int64(8000), *okResponse.Payload.AuthorizedWeight)
 	suite.NotNil(&createdOrder.Entitlement)
 }
 
