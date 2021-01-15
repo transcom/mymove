@@ -21,12 +21,12 @@ func NewDomesticOriginFirstDaySITPricer(db *pop.Connection) services.DomesticOri
 	}
 }
 
-// Price determines the price for a domestic linehaul
+// Price determines the price for domestic origin first day SIT
 func (p domesticOriginFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, error) {
 	return priceDomesticFirstDaySit(p.db, models.ReServiceCodeDOFSIT, contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea)
 }
 
-// PriceUsingParams determines the price for a domestic linehaul given PaymentServiceItemParams
+// PriceUsingParams determines the price for domestic origin first day SIT given PaymentServiceItemParams
 func (p domesticOriginFirstDaySITPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
