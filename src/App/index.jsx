@@ -14,8 +14,8 @@ import { detectFlags } from 'shared/featureFlags';
 import '../icons';
 import './index.css';
 
-const Office = lazy(() => import('pages/Office/index'));
-const MyMove = lazy(() => import('scenes/MyMove/index'));
+const Office = lazy(() => import('pages/Office'));
+const MyMove = lazy(() => import('scenes/MyMove'));
 
 // Will uncomment for program admin
 // const Admin = Loadable({
@@ -24,7 +24,7 @@ const MyMove = lazy(() => import('scenes/MyMove/index'));
 // });
 //
 
-const SystemAdmin = lazy(() => import('scenes/SystemAdmin/index'));
+const SystemAdmin = lazy(() => import('scenes/SystemAdmin'));
 
 const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 

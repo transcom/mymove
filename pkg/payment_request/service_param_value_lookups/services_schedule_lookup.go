@@ -1,8 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"fmt"
-
 	"strconv"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -20,16 +18,7 @@ func (s ServicesScheduleLookup) lookup(keyData *ServiceItemParamKeyData) (string
 	zip := s.Address.PostalCode
 	zip3 := zip[0:3]
 
-	var domesticServiceArea models.ReDomesticServiceArea
-	err := db.Q().
-		Join("re_zip3s", "re_zip3s.domestic_service_area_id = re_domestic_service_areas.id").
-		Join("re_contracts", "re_contracts.id = re_domestic_service_areas.contract_id").
-		Where("re_zip3s.zip3 = ?", zip3).
-		Where("re_contracts.code = ?", keyData.ContractCode).
-		First(&domesticServiceArea)
-	if err != nil {
-		return "", fmt.Errorf("unable to find domestic service area for %s under contract code %s", zip3, keyData.ContractCode)
-	}
+	domesticServiceArea, err := fetchDomesticServiceArea(&db, keyData.ContractCode, zip3)
 
-	return strconv.Itoa(domesticServiceArea.ServicesSchedule), nil
+	return strconv.Itoa(domesticServiceArea.ServicesSchedule), err
 }

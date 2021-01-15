@@ -13,13 +13,13 @@ describe('DocsButton', () => {
     );
   });
   it('should pass props down', () => {
-    const wrapper = shallow(<DocsButton className="sample-class-name" />);
+    const wrapper = shallow(<DocsButton label="my docs button" className="sample-class-name" />);
     expect(wrapper.find(Button).length).toBe(1);
     expect(wrapper.find(Button).prop('className')).toBe('sample-class-name');
   });
   it('onClick works', () => {
     const mockFn = jest.fn();
-    const wrapper = shallow(<DocsButton onClick={mockFn} />);
+    const wrapper = shallow(<DocsButton label="my docs button" onClick={mockFn} />);
     expect(wrapper.find(Button).length).toBe(1);
     expect(wrapper.find(Button).prop('onClick')).toBe(mockFn);
     wrapper.simulate('click');

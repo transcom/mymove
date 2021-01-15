@@ -7,7 +7,6 @@ describe('Weight', () => {
   const moveDate = moment().add(7, 'day');
   const minProps = {
     selectedWeightInfo: { min: 0, max: 0 },
-    hasLoadSuccess: true,
     entitlement: {
       weight: 0,
       pro_gear: 0,

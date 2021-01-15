@@ -585,7 +585,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -3014,7 +3014,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
