@@ -1,19 +1,16 @@
 import React from 'react';
 import { string } from 'prop-types';
-import classNames from 'classnames/bind';
 
 import styles from './index.module.scss';
 
 import { MoveOrderShape, CustomerShape } from 'types/moveOrder';
 import { formatCustomerDate } from 'utils/formatters';
 
-const cx = classNames.bind(styles);
-
 const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
   return (
-    <div className={cx('cust-header')}>
+    <div className={styles.custHeader}>
       <div>
-        <div className={cx('name-block')}>
+        <div className={styles.nameBlock}>
           <h2>
             {customer.last_name}, {customer.first_name}
           </h2>
@@ -21,13 +18,15 @@ const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
         </div>
         <div>
           <p>
-            {moveOrder.departmentIndicator} {moveOrder.grade}
-            <span className={cx('vertical-bar')}>|</span>
-            DoD ID {customer.dodID}
+            <span className={styles.details}>
+              {moveOrder.departmentIndicator} {moveOrder.grade}
+            </span>
+            <span className={styles.verticalBar}>|</span>
+            <span className={styles.details}>DoD ID {customer.dodID}</span>
           </p>
         </div>
       </div>
-      <div className={cx('info-block')}>
+      <div className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>
           <h4>{moveOrder.originDutyStation.name}</h4>

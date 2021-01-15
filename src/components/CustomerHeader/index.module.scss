@@ -4,7 +4,7 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
-.cust-header {
+.custHeader {
   background: $base-darker;
   width: 100vw;
   display: flex;
@@ -15,7 +15,10 @@
   padding-bottom: 13px;
   @include u-text('white');
   height: 80px;
-  .name-block {
+  .details {
+    color: $base-lighter;
+  }
+  .nameBlock {
     display: flex;
     align-items: center;
     h2 {
@@ -23,7 +26,7 @@
       margin-right: 20px;
     }
   }
-  .vertical-bar {
+  .verticalBar {
     color: $mm-periwinkle;
     padding-left: 6px;
     padding-right: 6px;
@@ -34,7 +37,7 @@
     @include u-margin-top('05');
     @include u-font-size('body', '3xs')
   }
-  .info-block {
+  .infoBlock {
     display: flex;
     div {
       border-left: 4px solid $mm-periwinkle;
@@ -47,12 +50,12 @@
     p,
     h4 {
       margin: 0;
+      font-weight: bold;
     }
     p {
       @include u-text('base-lighter');
       @include u-font-size('body', '3xs');
       margin-bottom: 7px;
     }
-
   }
 }

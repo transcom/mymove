@@ -1,9 +1,6 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 
 import CustomerHeader from './index';
-
-import { store } from 'shared/store';
 
 export default {
   title: 'Components/Headers/Customer Header',
@@ -30,11 +27,5 @@ const props = {
   moveCode: 'FKLCTR',
 };
 
-/* eslint-disable react/jsx-props-no-spreading */
-export const Customer = () => {
-  return (
-    <Provider store={store}>
-      <CustomerHeader {...props} />
-    </Provider>
-  );
-};
+// eslint-disable-next-line react/jsx-props-no-spreading
+export const Customer = () => <CustomerHeader {...props} />;
