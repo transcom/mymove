@@ -2,6 +2,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
+import { SHIPMENT_OPTIONS } from '../../../shared/constants';
+
 import { PaymentRequestReview } from './PaymentRequestReview';
 
 const mockPDFUpload = {
@@ -33,6 +35,8 @@ const mockPNGUpload = {
   updatedAt: '11',
   url: '/storage/prime/99/uploads/10?contentType=image%2Fpng',
 };
+
+const mockShipmentOptions = SHIPMENT_OPTIONS;
 
 jest.mock('hooks/queries', () => ({
   usePaymentRequestQueries: () => {
@@ -87,11 +91,11 @@ jest.mock('hooks/queries', () => ({
       mtoShipments: {
         a1: {
           id: 'a1',
-          shipmentType: 'HHG',
+          shipmentType: mockShipmentOptions.HHG,
         },
         b2: {
           id: 'b2',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+          shipmentType: mockShipmentOptions.NTS,
         },
       },
       mtoServiceItems: {
@@ -153,7 +157,7 @@ describe('PaymentRequestReview', () => {
         {
           id: '1',
           shipmentId: 'a1',
-          shipmentType: 'HHG',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
           serviceItemName: 'Test Service Item',
           amount: 123.99,
           createdAt: '2020-01-01T00:09:00.999Z',
@@ -162,7 +166,7 @@ describe('PaymentRequestReview', () => {
         {
           id: '2',
           shipmentId: 'b2',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+          shipmentType: SHIPMENT_OPTIONS.NTS,
           serviceItemName: 'Test Service Item 2',
           amount: 456.0,
           createdAt: '2020-01-01T00:09:00.999Z',
@@ -170,7 +174,7 @@ describe('PaymentRequestReview', () => {
         {
           id: '3',
           shipmentId: 'a1',
-          shipmentType: 'HHG',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
           serviceItemName: 'Test Service Item 3',
           amount: 123.12,
           createdAt: '2020-01-01T00:09:00.999Z',
