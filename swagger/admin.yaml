@@ -154,9 +154,6 @@ definitions:
       userId:
         type: string
         format: uuid
-      organizationId:
-        type: string
-        format: uuid
       active:
         type: boolean
       createdAt:
@@ -167,11 +164,8 @@ definitions:
         format: date-time
     required:
       - id
-      - firstName
-      - lastName
       - email
       - userId
-      - organizationId
       - active
       - createdAt
       - updatedAt

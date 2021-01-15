@@ -21,6 +21,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/access_codes"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/customer_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
@@ -82,6 +83,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		AdminUsersIndexAdminUsersHandler: admin_users.IndexAdminUsersHandlerFunc(func(params admin_users.IndexAdminUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.IndexAdminUsers has not yet been implemented")
+		}),
+		CustomerUsersIndexCustomerUsersHandler: customer_users.IndexCustomerUsersHandlerFunc(func(params customer_users.IndexCustomerUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer_users.IndexCustomerUsers has not yet been implemented")
 		}),
 		ElectronicOrderIndexElectronicOrdersHandler: electronic_order.IndexElectronicOrdersHandlerFunc(func(params electronic_order.IndexElectronicOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation electronic_order.IndexElectronicOrders has not yet been implemented")
@@ -166,6 +170,8 @@ type MymoveAPI struct {
 	AccessCodesIndexAccessCodesHandler access_codes.IndexAccessCodesHandler
 	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
 	AdminUsersIndexAdminUsersHandler admin_users.IndexAdminUsersHandler
+	// CustomerUsersIndexCustomerUsersHandler sets the operation handler for the index customer users operation
+	CustomerUsersIndexCustomerUsersHandler customer_users.IndexCustomerUsersHandler
 	// ElectronicOrderIndexElectronicOrdersHandler sets the operation handler for the index electronic orders operation
 	ElectronicOrderIndexElectronicOrdersHandler electronic_order.IndexElectronicOrdersHandler
 	// MoveIndexMovesHandler sets the operation handler for the index moves operation
@@ -281,6 +287,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.AdminUsersIndexAdminUsersHandler == nil {
 		unregistered = append(unregistered, "admin_users.IndexAdminUsersHandler")
+	}
+	if o.CustomerUsersIndexCustomerUsersHandler == nil {
+		unregistered = append(unregistered, "customer_users.IndexCustomerUsersHandler")
 	}
 	if o.ElectronicOrderIndexElectronicOrdersHandler == nil {
 		unregistered = append(unregistered, "electronic_order.IndexElectronicOrdersHandler")
@@ -440,6 +449,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/admin_users"] = admin_users.NewIndexAdminUsers(o.context, o.AdminUsersIndexAdminUsersHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/customer_users"] = customer_users.NewIndexCustomerUsers(o.context, o.CustomerUsersIndexCustomerUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
