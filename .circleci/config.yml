@@ -1380,7 +1380,7 @@ workflows:
             - build_webhook_client
           filters:
             branches:
-              only: placeholder_branch_name
+              only: placeholder_branch_names
 
       - deploy_exp_migrations:
           requires:
