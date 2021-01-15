@@ -24,9 +24,6 @@ export function setSelectedMoveType(moveType) {
   return { type: SET_SELECTED_MOVE_TYPE, moveType };
 }
 
-//selector
-export const isPpm = (state) => Boolean(get(state, 'ppm.currentPpm', false));
-
 // Reducer
 const initialState = {
   currentMove: null,
