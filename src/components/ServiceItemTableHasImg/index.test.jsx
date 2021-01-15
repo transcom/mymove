@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 
@@ -5,9 +6,12 @@ import { SERVICE_ITEM_STATUS } from '../../shared/constants';
 
 import ServiceItemTableHasImg from './index';
 
-const handleUpdateServiceItemStatus = jest.fn();
-
 describe('ServiceItemTableHasImg', () => {
+  const defaultProps = {
+    handleUpdateMTOServiceItemStatus: jest.fn(),
+    handleShowRejectionDialog: jest.fn(),
+  };
+
   it('should render no details', () => {
     const serviceItems = [
       {
@@ -18,7 +22,13 @@ describe('ServiceItemTableHasImg', () => {
         details: {},
       },
     ];
-    const wrapper = mount(<ServiceItemTableHasImg serviceItems={serviceItems} />);
+    const wrapper = mount(
+      <ServiceItemTableHasImg
+        {...defaultProps}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        serviceItems={serviceItems}
+      />,
+    );
     expect(wrapper.find('td').at(1).text()).toBe('—');
   });
 
@@ -40,9 +50,9 @@ describe('ServiceItemTableHasImg', () => {
 
     const wrapper = mount(
       <ServiceItemTableHasImg
+        {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-        handleUpdateMTOServiceItemStatus={handleUpdateServiceItemStatus}
       />,
     );
 
@@ -70,9 +80,9 @@ describe('ServiceItemTableHasImg', () => {
 
     const wrapper = mount(
       <ServiceItemTableHasImg
+        {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-        handleUpdateMTOServiceItemStatus={handleUpdateServiceItemStatus}
       />,
     );
 
@@ -105,9 +115,9 @@ describe('ServiceItemTableHasImg', () => {
 
     const wrapper = mount(
       <ServiceItemTableHasImg
+        {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-        handleUpdateMTOServiceItemStatus={handleUpdateServiceItemStatus}
       />,
     );
     expect(wrapper.find('dt').at(0).contains('ZIP')).toBe(true);
