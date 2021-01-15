@@ -26,6 +26,7 @@ const props = {
       name: 'JB Lewis-McChord',
     },
   },
+  moveCode: 'FKLCTR',
 };
 
 /* eslint-disable react/jsx-props-no-spreading */

@@ -12,6 +12,7 @@ import {
   getMovesQueue,
   getPaymentRequestsQueue,
   getMovePaymentRequests,
+  getCustomer,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getQueriesStatus } from 'utils/api';
@@ -27,6 +28,7 @@ import {
   MOVES_QUEUE,
   PAYMENT_REQUESTS_QUEUE,
   USER,
+  CUSTOMER,
 } from 'constants/queryKeys';
 
 export const useUserQueries = () => {
@@ -35,6 +37,32 @@ export const useUserQueries = () => {
 
   return {
     data,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useCustomerHeaderQueries = (moveCode) => {
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const moveOrderId = move?.ordersId;
+
+  // get move orders
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
+    enabled: !!moveOrderId,
+  });
+
+  // get customer
+  const customerId = moveOrders?.customerID;
+  const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
+    enabled: !!customerId,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, customerQuery]);
+
+  return {
+    moveOrders,
+    customer,
     isLoading,
     isError,
     isSuccess,
