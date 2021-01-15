@@ -36,6 +36,10 @@ type PaymentServiceItem struct {
 	// mto service item name
 	MtoServiceItemName string `json:"mtoServiceItemName,omitempty"`
 
+	// mto shipment ID
+	// Format: uuid
+	MtoShipmentID *strfmt.UUID `json:"mtoShipmentID,omitempty"`
+
 	// mto shipment type
 	MtoShipmentType MTOShipmentType `json:"mtoShipmentType,omitempty"`
 
@@ -73,6 +77,10 @@ func (m *PaymentServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoServiceItemID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMtoShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -131,6 +139,19 @@ func (m *PaymentServiceItem) validateMtoServiceItemID(formats strfmt.Registry) e
 	}
 
 	if err := validate.FormatOf("mtoServiceItemID", "body", "uuid", m.MtoServiceItemID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MtoShipmentID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID.String(), formats); err != nil {
 		return err
 	}
 

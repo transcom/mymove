@@ -6,11 +6,14 @@ import { object, string, shape, bool, number } from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
 
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
 import { hasShortHaulError } from 'utils/incentives';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentPPM,
+  selectReimbursementById,
+} from 'store/entities/selectors';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
 import './Review.css';
@@ -142,8 +145,6 @@ PPMShipmentSummary.propTypes = {
   movePath: string.isRequired,
   ppmEstimate: shape({
     hasEstimateError: bool.isRequired,
-    hasEstimateSuccess: bool.isRequired,
-    hasEstimateInProgress: bool.isRequired,
     rateEngineError: Error.isRequired,
     originDutyStationZip: string.isRequired,
     incentive_estimate_min: number,
@@ -153,11 +154,9 @@ PPMShipmentSummary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const { ppm } = ownProps;
-  const advance = selectReimbursement(state, ppm.advance);
-  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } = selectActivePPMForMove(
-    state,
-    ppm.move_id,
-  );
+  const advance = selectReimbursementById(state, ppm.advance) || {};
+  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } =
+    selectCurrentPPM(state) || {};
 
   const ppmEstimateError = selectPPMEstimateError(state);
   let hasError = !!ppmEstimateError;
@@ -168,8 +167,6 @@ function mapStateToProps(state, ownProps) {
     advance,
     ppmEstimate: {
       hasEstimateError: hasError,
-      hasEstimateSuccess: state.ppm.hasEstimateSuccess,
-      hasEstimateInProgress: state.ppm.hasEstimateInProgress,
       rateEngineError: ppmEstimateError,
       originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
       incentive_estimate_min,

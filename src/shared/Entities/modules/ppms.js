@@ -1,4 +1,4 @@
-import { get, filter } from 'lodash';
+import { filter } from 'lodash';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { formatDateForSwagger } from 'shared/dates';
@@ -67,10 +67,4 @@ export function selectActivePPMForMove(state, moveId) {
   filter(ppms, (ppm) => ppm.moveId === moveId);
   const activePPM = fetchActivePPM(ppms);
   return activePPM || {};
-}
-
-export function selectReimbursement(state, reimbursementId) {
-  const advanceFromEntities = get(state, `entities.reimbursements.${reimbursementId}`);
-  const advanceFromPpmReducer = get(state, 'ppm.currentPpm.advance');
-  return advanceFromEntities || advanceFromPpmReducer || {};
 }

@@ -2011,6 +2011,11 @@ definitions:
         type: string
       mtoShipmentType:
         $ref: '#/definitions/MTOShipmentType'
+      mtoShipmentID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       status:
         $ref: '#/definitions/PaymentServiceItemStatus'
       priceCents:
@@ -2252,6 +2257,10 @@ definitions:
     example: HHG
     enum:
       - HHG
+      - HHG_LONGHAUL_DOMESTIC
+      - HHG_SHORTHAUL_DOMESTIC
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
     x-display-value:

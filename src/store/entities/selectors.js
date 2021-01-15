@@ -119,10 +119,31 @@ export function selectMTOShipmentById(state, id) {
 }
 
 /** PPMs */
+export const selectPPMForMove = (state, moveId) => {
+  const ppmForMove = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
+  if (['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'].indexOf(ppmForMove?.status) > -1) {
+    return ppmForMove;
+  }
+  return null;
+};
+
+export const selectCurrentPPM = (state) => {
+  const move = selectCurrentMove(state);
+  return selectPPMForMove(state, move?.id);
+};
+
+export const selectHasCurrentPPM = (state) => {
+  return !!selectCurrentPPM(state);
+};
+
 export function selectPPMEstimateRange(state) {
   return state.entities?.ppmEstimateRanges?.undefined || null;
 }
 
 export function selectPPMSitEstimate(state) {
   return state.entities?.ppmSitEstimate?.undefined?.estimate || null;
+}
+
+export function selectReimbursementById(state, reimbursementId) {
+  return state.entities?.reimbursements?.[`${reimbursementId}`] || null;
 }

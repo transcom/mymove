@@ -77,8 +77,9 @@ export class MoveDetails extends Component {
       getMTOShipments,
       getMTOServiceItems,
     } = this.props;
-    const { params } = match;
-    const { moveCode } = params;
+    const {
+      params: { moveCode },
+    } = match;
 
     // TODO - Refactor when we convert this file to use react-query
     getMoveByLocator(moveCode).then(
@@ -157,8 +158,12 @@ export class MoveDetails extends Component {
       moveTaskOrder,
       updateMoveTaskOrderStatus,
       patchMTOShipmentStatus,
-      moveCode,
+      match,
     } = this.props;
+
+    const {
+      params: { moveCode },
+    } = match;
 
     const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
     const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
@@ -294,7 +299,6 @@ MoveDetails.propTypes = {
   mtoAgents: PropTypes.arrayOf(MTOAgentShape),
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   moveTaskOrder: MoveTaskOrderShape,
-  moveCode: PropTypes.string.isRequired,
 };
 
 MoveDetails.defaultProps = {
@@ -308,8 +312,7 @@ MoveDetails.defaultProps = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const { moveCode } = ownProps.match.params;
-  const move = selectMoveByLocator(state, moveCode);
+  const move = selectMoveByLocator(state, ownProps.match.params.moveCode);
   const moveOrderId = move?.ordersId;
   const moveOrder = selectMoveOrder(state, moveOrderId);
   const allowances = moveOrder?.entitlement;
@@ -318,7 +321,6 @@ const mapStateToProps = (state, ownProps) => {
   const moveTaskOrder = moveTaskOrders[0];
 
   return {
-    moveCode,
     moveOrder,
     allowances,
     customer: selectCustomer(state, customerId),

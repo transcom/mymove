@@ -2728,6 +2728,10 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB"
       ],
@@ -3158,6 +3162,12 @@ func init() {
         "mtoServiceItemName": {
           "type": "string",
           "example": "Shipment Mgmt. Services"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mtoShipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -6853,6 +6863,10 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB"
       ],
@@ -7283,6 +7297,12 @@ func init() {
         "mtoServiceItemName": {
           "type": "string",
           "example": "Shipment Mgmt. Services"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mtoShipmentType": {
           "$ref": "#/definitions/MTOShipmentType"

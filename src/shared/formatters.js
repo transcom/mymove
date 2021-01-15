@@ -287,7 +287,7 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       return 'Household goods';
-    case SHIPMENT_OPTIONS.NTS:
+    case SHIPMENT_OPTIONS.NTSR:
       return 'NTS release';
     case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
       return 'Household goods longhaul domestic';
