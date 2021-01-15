@@ -222,14 +222,15 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 	if err != nil {
 		return nil, err
 	}
-	// Make the update and create a InvalidInputError if there were validation issues
-	verrs, err := p.builder.UpdateOne(validServiceItem, &eTag)
 
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(oldServiceItem.UpdatedAt)
 	if encodedUpdatedAt != eTag {
 		return nil, services.NewPreconditionFailedError(validServiceItem.ID, nil)
 	}
+
+	// Make the update and create a InvalidInputError if there were validation issues
+	verrs, err := p.builder.UpdateOne(validServiceItem, &eTag)
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {
