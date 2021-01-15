@@ -56,7 +56,15 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Defer closing the store until after the api call has completed
 	if cacStore != nil {
-		defer cacStore.Close()
+		//RA Summary: gosec - errcheck - Unchecked return value
+		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+		//RA: Functions with unchecked return values in the file are used to close a cmd line client
+		//RA: Given the functions causing the lint errors are used end a local running process, it is not deemed a risk
+		//RA Developer Status: Mitigated
+		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+		//RA Validator: jneuner@mitre.org
+		//RA Modified Severity:
+		defer cacStore.Close() // nolint:errcheck
 	}
 
 	// Create a webhook engine
@@ -70,7 +78,15 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	}
 
 	// Start polling the db for changes
-	go webhookEngine.Start()
+	go webhookEngine.Start() // nolint:errcheck
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Function with unchecked return value in the line is used to start the webhook engine
+	//RA: Due to the start of the webhook engine being a go subroutine, the error handling is handled at the engine level leading to no unexpected states and conditions
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
 
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 5 seconds.

@@ -340,7 +340,10 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				h.logger.Error("failed to reset user's current_x_session_id")
 			}
-			h.sessionManager(session).Destroy(r.Context())
+			err = h.sessionManager(session).Destroy(r.Context())
+			if err != nil {
+				h.logger.Error("failed to destroy session")
+			}
 			auth.DeleteCSRFCookies(w)
 			h.logger.Info("user logged out")
 			fmt.Fprint(w, logoutURL)
@@ -480,8 +483,12 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		auth.DeleteCookie(w, StateCookieName(session))
 
 		// This operation will delete all cookies from the session
-		h.sessionManager(session).Destroy(r.Context())
-
+		err := h.sessionManager(session).Destroy(r.Context())
+		if err != nil {
+			h.logger.Error("Deleting login.gov state cookie", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
 		// set error query
 		landingQuery := landingURL.Query()
 		landingQuery.Add("error", "SIGNIN_ERROR")
@@ -744,7 +751,16 @@ func fetchToken(logger Logger, code string, clientID string, loginGovProvider Lo
 		return nil, err
 	}
 
-	defer response.Body.Close()
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used to close an asynchronous connection
+	//RA: Given the functions causing the lint errors are used close an asynchronous connection in order to prevent it
+	//RA: from running indefinitely, it is not deemed a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
+	defer response.Body.Close() // nolint:errcheck
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		logger.Error("Reading Login.gov token response", zap.Error(err))

@@ -1,3 +1,12 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to generate test data for use in the unit test
+//RA: Creation of test data generation for unit test consumption does not present any unexpected states and conditions
+//RA Developer Status: Mitigated
+//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Validator: jneuner@mitre.org
+//RA Modified Severity:
+// nolint:errcheck
 package webhook
 
 import (

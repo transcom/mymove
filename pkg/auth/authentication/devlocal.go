@@ -56,7 +56,10 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// User is already authenticated, so clear out their current session and have
 		// them try again. This the issue where a developer will get stuck with a stale
 		// session and have to manually clear cookies to get back to the login page.
-		h.sessionManager(session).Destroy(r.Context())
+		err := h.sessionManager(session).Destroy(r.Context())
+		if err != nil {
+			h.logger.Error("Could not destroy session", zap.Error(err))
+		}
 		auth.DeleteCSRFCookies(w)
 
 		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
@@ -401,7 +404,10 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		h.db.Where("role_type = $1", "ppm_office_users").First(&role)
+		err = h.db.Where("role_type = $1", "ppm_office_users").First(&role)
+		if err != nil {
+			h.logger.Error("could not fetch role ppm_office_users", zap.Error(err))
+		}
 
 		usersRole := models.UsersRoles{
 			UserID: user.ID,
@@ -469,7 +475,10 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		h.db.Where("role_type = $1", "transportation_ordering_officer").First(&role)
+		err = h.db.Where("role_type = $1", "transportation_ordering_officer").First(&role)
+		if err != nil {
+			h.logger.Error("could not fetch role transportation_ordering_officer", zap.Error(err))
+		}
 
 		usersRole := models.UsersRoles{
 			UserID: user.ID,
@@ -537,8 +546,10 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		h.db.Where("role_type = $1", "transportation_invoicing_officer").First(&role)
-
+		err = h.db.Where("role_type = $1", "transportation_invoicing_officer").First(&role)
+		if err != nil {
+			h.logger.Error("could not fetch role transporation_invoicing_officer", zap.Error(err))
+		}
 		usersRole := models.UsersRoles{
 			UserID: user.ID,
 			RoleID: role.ID,

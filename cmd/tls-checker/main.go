@@ -309,10 +309,16 @@ func main() {
 	flag.String("log-level", "error", "log level: debug, info, warn, error, dpanic, panic, or fatal")
 	flag.Bool("verbose", false, "output extra information")
 
-	flag.Parse(os.Args[1:])
+	parseErr := flag.Parse(os.Args[1:])
+	if parseErr != nil {
+		log.Fatalf("Could not parse flags: %v\n", parseErr)
+	}
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	bindErr := v.BindPFlags(flag)
+	if bindErr != nil {
+		log.Fatal("failed to bind flags", zap.Error(bindErr))
+	}
 	v.SetEnvPrefix("TLSCHECKER")
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
@@ -329,7 +335,15 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	defer logger.Sync()
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
+	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
+	defer logger.Sync() // nolint:errcheck
 
 	err = checkConfig(v)
 	if err != nil {
