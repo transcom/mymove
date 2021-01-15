@@ -716,8 +716,6 @@ jobs:
       - run: make bin/milmove
       - server_tests_step:
           application: app
-      - server_tests_step:
-          application: orders
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
           destination: test-results
