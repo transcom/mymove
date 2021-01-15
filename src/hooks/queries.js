@@ -43,7 +43,7 @@ export const useUserQueries = () => {
   };
 };
 
-export const useCustomerHeaderQueries = (moveCode) => {
+export const useTXOMoveInfoQueries = (moveCode) => {
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
   const moveOrderId = move?.ordersId;
 
@@ -51,18 +51,18 @@ export const useCustomerHeaderQueries = (moveCode) => {
   const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
     enabled: !!moveOrderId,
   });
-
   // get customer
-  const customerId = moveOrders?.customerID;
+  const moveOrder = moveOrders && Object.values(moveOrders)[0];
+  const customerId = moveOrder?.customerID;
   const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
     enabled: !!customerId,
   });
-
+  const denormalizedCustomer = customer && Object.values(customer)[0];
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, customerQuery]);
 
   return {
-    moveOrders,
-    customer,
+    moveOrder,
+    denormalizedCustomer,
     isLoading,
     isError,
     isSuccess,

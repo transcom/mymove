@@ -6,7 +6,7 @@ import 'styles/office.scss';
 import TabNav from 'components/TabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
-import { useCustomerHeaderQueries } from 'hooks/queries';
+import { useTXOMoveInfoQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
@@ -19,8 +19,7 @@ const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/
 const TXOMoveInfo = () => {
   const { moveCode } = useParams();
   const { pathname } = useLocation();
-  const { moveOrders, customer, isLoading, isError } = useCustomerHeaderQueries(moveCode);
-
+  const { moveOrder, denormalizedCustomer, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
   const hideNav =
     matchPath(pathname, {
       path: '/moves/:moveCode/payment-requests/:id',
@@ -40,7 +39,7 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader moveOrder={moveOrders} customer={customer} moveCode={moveCode} />
+      <CustomerHeader moveOrder={moveOrder} customer={denormalizedCustomer} moveCode={moveCode} />
       {!hideNav && (
         <header className="nav-header">
           <div className="grid-container-desktop-lg">

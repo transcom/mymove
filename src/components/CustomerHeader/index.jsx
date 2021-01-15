@@ -5,6 +5,7 @@ import classNames from 'classnames/bind';
 import styles from './index.module.scss';
 
 import { MoveOrderShape, CustomerShape } from 'types/moveOrder';
+import { formatCustomerDate } from 'utils/formatters';
 
 const cx = classNames.bind(styles);
 
@@ -37,7 +38,7 @@ const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
         </div>
         <div>
           <p>Report by</p>
-          <h4>27 Mar 2020</h4>
+          <h4>{formatCustomerDate(moveOrder.report_by_date)}</h4>
         </div>
       </div>
     </div>

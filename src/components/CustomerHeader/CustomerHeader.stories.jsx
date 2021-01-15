@@ -25,6 +25,7 @@ const props = {
     destinationDutyStation: {
       name: 'JB Lewis-McChord',
     },
+    report_by_date: '2018-08-01',
   },
   moveCode: 'FKLCTR',
 };
