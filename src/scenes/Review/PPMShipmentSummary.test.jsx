@@ -6,7 +6,6 @@ describe('Review -> Ppm Shipment Summary', () => {
   const ppmEst = {
     hasEstimateError: false,
     hasEstimateSuccess: false,
-    hasEstimateInProgress: false,
     rateEngineError: null,
     originDutyStationZip: '',
     incentive_estimate_min: 0,
