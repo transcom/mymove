@@ -20,12 +20,12 @@ import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
   selectPPMEstimateRange,
+  selectCurrentPPM,
 } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
 import { updatePPMs, updatePPM, updatePPMEstimate } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { getPPMsForMove, calculatePPMEstimate, requestPayment } from 'services/internalApi';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 
 import DocumentsUploaded from './DocumentsUploaded';
 import { calcNetWeight } from '../utility';
@@ -225,7 +225,7 @@ const mapStateToProps = (state, props) => {
       weightTickets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     },
     moveId,
-    currentPPM: selectActivePPMForMove(state, moveId),
+    currentPPM: selectCurrentPPM(state) || {},
     incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
