@@ -60,6 +60,21 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 			Show: swag.Bool(false),
 		},
 	})
+	// Marine Corps payment requests should be excluded even if in the same GBLOC
+	marines := models.AffiliationMARINES
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		Move: models.Move{
+			Status: models.MoveStatusSUBMITTED,
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "LKNQ",
+			ID:    uuid.Must(uuid.NewV4()),
+		},
+		ServiceMember: models.ServiceMember{Affiliation: &marines},
+	})
 
 	suite.T().Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func(t *testing.T) {
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
@@ -173,46 +188,62 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 }
 
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() {
+	officeUUID, _ := uuid.NewV4()
+	marines := models.AffiliationMARINES
+	army := models.AffiliationARMY
+
+	paymentRequestUSMC := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "LKNQ",
+			ID:    officeUUID,
+		},
+		Move: models.Move{
+			Status: models.MoveStatusSUBMITTED,
+		},
+		ServiceMember: models.ServiceMember{Affiliation: &marines},
+	})
+
+	paymentRequestUSMC2 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			SequenceNumber: 2,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "LKNQ",
+			ID:    officeUUID,
+		},
+		Move:          paymentRequestUSMC.MoveTaskOrder,
+		ServiceMember: models.ServiceMember{Affiliation: &marines},
+	})
+
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		Move: models.Move{
+			Status: models.MoveStatusSUBMITTED,
+		},
+		ServiceMember: models.ServiceMember{Affiliation: &army},
+	})
+
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUserUSMC := testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
+
 	suite.T().Run("returns USMC payment requests", func(t *testing.T) {
-		officeUUID, _ := uuid.NewV4()
-		marines := models.AffiliationMARINES
-		army := models.AffiliationARMY
-
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "USMC",
-				ID:    officeUUID,
-			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
-			ServiceMember: models.ServiceMember{Affiliation: &marines},
-		})
-
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
-			ServiceMember: models.ServiceMember{Affiliation: &army},
-		})
-
-		officeUserOooRah := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{TransportationOfficeID: officeUUID}})
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-
 		paymentRequestListFetcher := NewPaymentRequestListFetcher(suite.DB())
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUserOooRah.ID,
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUserUSMC.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
-		suite.Equal(1, len(paymentRequests))
+		suite.Equal(2, len(paymentRequests))
 		suite.Equal(models.AffiliationMARINES, *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation)
+		suite.Equal(models.AffiliationMARINES, *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Affiliation)
 
 		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
@@ -221,6 +252,17 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() 
 		suite.NoError(err)
 		suite.Equal(1, len(paymentRequests))
 		suite.Equal(models.AffiliationARMY, *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation)
+	})
+
+	suite.T().Run("returns USMC payment requests for move", func(t *testing.T) {
+		paymentRequestListFetcher := NewPaymentRequestListFetcher(suite.DB())
+		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(officeUserUSMC.ID, paymentRequestUSMC.MoveTaskOrder.Locator)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(paymentRequestUSMC.ID, paymentRequests[0].ID)
+		suite.Equal(paymentRequestUSMC2.ID, paymentRequests[1].ID)
 	})
 }
 

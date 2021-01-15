@@ -42,7 +42,7 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest 
 		}
 
 		if len(paymentServiceItems) > 0 {
-			return nil, services.NewInvalidInputError(id, nil, nil, "All PaymentServiceItems must be approved or denied to review this PaymentRequest")
+			return nil, services.NewConflictError(id, "All PaymentServiceItems must be approved or denied to review this PaymentRequest")
 		}
 	}
 

@@ -1,13 +1,16 @@
 package route
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/viper"
+	"github.com/tiaguinho/gosoap"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
@@ -125,6 +128,25 @@ func InitRoutePlanner(v *viper.Viper, logger Logger) Planner {
 }
 
 // InitGHCRoutePlanner creates a new GHC route planner that adheres to the Planner interface
-func InitGHCRoutePlanner(v *viper.Viper, logger Logger) Planner {
-	return NewGHCPlanner(logger)
+func InitGHCRoutePlanner(v *viper.Viper, logger Logger, db *pop.Connection, tlsConfig *tls.Config) (Planner, error) {
+	tr := &http.Transport{TLSClientConfig: tlsConfig}
+	httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
+
+	dtodWSDL := v.GetString(cli.DTODApiWSDLFlag)
+	dtodURL := v.GetString(cli.DTODApiURLFlag)
+
+	soapClient, err := gosoap.SoapClient(dtodWSDL, httpClient)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create SOAP client: %w", err)
+	}
+	soapClient.URL = dtodURL
+
+	ghcPlanner := NewGHCPlanner(
+		logger,
+		db,
+		soapClient,
+		v.GetString(cli.DTODApiUsernameFlag),
+		v.GetString(cli.DTODApiPasswordFlag))
+
+	return ghcPlanner, nil
 }

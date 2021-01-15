@@ -1190,6 +1190,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
 		},
 	})
+
+	dependentsAuthorized := true
+
+	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
+		Entitlement: models.Entitlement{
+			DependentsAuthorized: &dependentsAuthorized,
+		},
+	})
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988"),
@@ -1197,6 +1205,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ServiceMember:   customer,
 		},
 		UserUploader: userUploader,
+		Entitlement:  entitlements,
 	})
 	mtoSelectedMoveType := models.SelectedMoveTypeHHG
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{

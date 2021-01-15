@@ -13,6 +13,7 @@ schemes:
   - http
 tags:
   - name: queues
+  - name: move
 paths:
   '/customer/{customerID}':
     parameters:
@@ -92,7 +93,7 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - move
-      description: Returns a given move
+      description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
   '/move-orders/{moveOrderID}':
@@ -1397,6 +1398,17 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
+  Contractor:
+    properties:
+      contractNumber:
+        type: string
+      id:
+        format: uuid
+        type: string
+      name:
+        type: string
+      type:
+        type: string
   Customer:
     type: object
     properties:
@@ -1507,6 +1519,23 @@ definitions:
     required:
       - message
     type: object
+  Branch:
+    type: string
+    title: branch
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marines
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      OTHER: OTHER
   Grade:
     type: string
     x-nullable: true
@@ -1575,19 +1604,49 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      orders_id:
+      availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      contractorId:
+        type: string
+        format: uuid
+        x-nullable: true
+      contractor:
+        $ref: '#/definitions/Contractor'
+      locator:
+        type: string
+        example: '1K43AR'
+      ordersId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      locator:
+      orders:
+        $ref: '#/definitions/MoveOrder'
+      referenceId:
+        example: 1001-3456
         type: string
-        example: '1K43A'
-      created_at:
+        x-nullable: true
+      status:
+        $ref: '#/definitions/MoveStatus'
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+      submittedAt:
         type: string
         format: date-time
+        x-nullable: true
+      updatedAt:
+        type: string
+        format: date-time
+  MoveStatus:
+    type: string
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVALS REQUESTED
+      - APPROVED
+      - CANCELED
   DeptIndicator:
     type: string
     title: Dept. indicator
@@ -1643,9 +1702,9 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      confirmation_number:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      moveCode:
         type: string
+        example: 'H2XFJF'
       first_name:
         type: string
         example: John
@@ -1658,7 +1717,7 @@ definitions:
         $ref: '#/definitions/Grade'
       agency:
         type: string
-        example: civilian
+        $ref: '#/definitions/Branch'
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
@@ -1768,12 +1827,19 @@ definitions:
         x-nullable: true
       grade:
         $ref: '#/definitions/Grade'
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
+      agency:
+        description: the branch that the service member belongs to
+        $ref: '#/definitions/Branch'
     required:
       - issueDate
       - reportByDate
       - ordersType
       - newDutyStationId
       - originDutyStationId
+      - agency
   MoveTaskOrder:
     properties:
       id:
@@ -1885,6 +1951,8 @@ definitions:
       isFinal:
         default: false
         type: boolean
+      moveTaskOrder:
+        $ref: '#/definitions/Move'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1937,6 +2005,11 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      mtoServiceItemName:
+        example: Shipment Mgmt. Services
+        type: string
+      mtoShipmentType:
+        $ref: '#/definitions/MTOShipmentType'
       status:
         $ref: '#/definitions/PaymentServiceItemStatus'
       priceCents:
@@ -2145,6 +2218,7 @@ definitions:
     enum:
       - PENDING
       - REVIEWED
+      - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
       - SENT_TO_GEX
       - RECEIVED_BY_GEX
       - PAID
@@ -2171,6 +2245,18 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
+  MTOShipmentType:
+    type: string
+    title: Shipment Type
+    example: HHG
+    enum:
+      - HHG
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+    x-display-value:
+      HHG: HHG
+      INTERNATIONAL_HHG: International HHG
+      INTERNATIONAL_UB: International UB
   MTOShipment:
     properties:
       moveTaskOrderID:

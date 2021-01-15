@@ -13,15 +13,8 @@ import (
 )
 
 func (suite *NotificationSuite) createPaymentReminderMoves(assertions []testdatagen.Assertions) []models.PersonallyProcuredMove {
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return value in the file is used for test database teardown
-	//RA: Given the database is being reset for unit test use, there are no unexpected states and conditions to account for
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	suite.DB().TruncateAll() // nolint:errcheck
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	ppms := make([]models.PersonallyProcuredMove, 0)
 	estimateMin := unit.Cents(1000)
 	estimateMax := unit.Cents(2000)
@@ -49,7 +42,6 @@ func cutoffDate() time.Time {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
-	db := suite.DB()
 	date10DaysAgo := offsetDate(-10)
 	date9DaysAgo := offsetDate(-9)
 
@@ -120,7 +112,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	ppms := suite.createPaymentReminderMoves(moves)
 
-	PaymentReminder, err := NewPaymentReminder(db, suite.logger)
+	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
 	suite.NoError(err)
 	emailInfo, err := PaymentReminder.GetEmailInfo()
 	suite.NoError(err)
@@ -139,7 +131,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
-	db := suite.DB()
 	date10DaysAgo := offsetDate(-10)
 	date9DaysAgo := offsetDate(-9)
 	dateTooOld := cutoffDate()
@@ -166,7 +157,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 
 	suite.createPaymentReminderMoves(moves)
 
-	PaymentReminder, err := NewPaymentReminder(db, suite.logger)
+	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
 	suite.NoError(err)
 	emailInfo, err := PaymentReminder.GetEmailInfo()
 
@@ -175,8 +166,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
-	db := suite.DB()
-
 	date10DaysAgo := offsetDate(-10)
 	dateTooOld := cutoffDate()
 
@@ -192,7 +181,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 	}
 	suite.createPaymentReminderMoves(moves)
 
-	PaymentReminder, err := NewPaymentReminder(db, suite.logger)
+	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
 	suite.NoError(err)
 	emailInfoBeforeSending, err := PaymentReminder.GetEmailInfo()
 	suite.NoError(err)
@@ -206,19 +195,18 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
-	db := suite.DB()
-	sm := testdatagen.MakeDefaultServiceMember(db)
+	sm := testdatagen.MakeDefaultServiceMember(suite.DB())
 	ei := PaymentReminderEmailInfo{
 		ServiceMemberID: sm.ID,
 	}
 
-	PaymentReminder, err := NewPaymentReminder(db, suite.logger)
+	PaymentReminder, err := NewPaymentReminder(suite.DB(), suite.logger)
 	suite.NoError(err)
 	err = PaymentReminder.OnSuccess(ei)("SESID")
 	suite.NoError(err)
 
 	n := models.Notification{}
-	err = db.First(&n)
+	err = suite.DB().First(&n)
 	suite.NoError(err)
 	suite.Equal(sm.ID, n.ServiceMemberID)
 	suite.Equal(models.MovePaymentReminderEmail, n.NotificationType)

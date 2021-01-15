@@ -16,7 +16,7 @@ import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 
 export const PaymentRequestReview = ({ history, match }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
-  const { paymentRequestId, moveOrderId } = match.params;
+  const { paymentRequestId, moveCode } = match.params;
   const {
     paymentRequest,
     paymentRequests,
@@ -35,7 +35,7 @@ export const PaymentRequestReview = ({ history, match }) => {
         paymentServiceItems,
       });
       // TODO - show flash message?
-      history.push(`/`); // Go home
+      history.push(`/moves/${moveCode}/payment-requests`);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -78,21 +78,23 @@ export const PaymentRequestReview = ({ history, match }) => {
     });
   };
 
-  const handleCompleteReview = () => {
+  const handleCompleteReview = (requestRejected = false) => {
     // first reset error if there was one
     if (completeReviewError) setCompleteReviewError(undefined);
 
-    const newPaymentRequest = {
+    const updatedPaymentRequest = {
       paymentRequestID: paymentRequest.id,
       ifMatchETag: paymentRequest.eTag,
-      status: PAYMENT_REQUEST_STATUS.REVIEWED,
+      status: requestRejected
+        ? PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+        : PAYMENT_REQUEST_STATUS.REVIEWED,
     };
 
-    mutatePaymentRequest(newPaymentRequest);
+    mutatePaymentRequest(updatedPaymentRequest);
   };
 
   const handleClose = () => {
-    history.push(`/moves/${moveOrderId}/payment-requests`);
+    history.push(`/moves/${moveCode}/payment-requests`);
   };
 
   const serviceItemCards = paymentServiceItemsArr.map((item) => {

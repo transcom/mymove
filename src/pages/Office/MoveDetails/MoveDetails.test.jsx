@@ -5,6 +5,7 @@ import { shallow } from 'enzyme';
 import { MoveDetails } from './MoveDetails';
 
 describe('MoveDetails page', () => {
+  const testMove = { id: '321', ordersId: '123' };
   const testMoveOrder = {
     id: '123',
     customerID: 'abc',
@@ -57,11 +58,13 @@ describe('MoveDetails page', () => {
 
   const moveDetailsProps = {
     match: {
-      params: { moveOrderId: '123' },
+      params: { moveCode: '8UY81V' },
       isExact: true,
       path: '',
       url: '',
     },
+    moveCode: '8UY81V',
+    getMoveByLocator: jest.fn(() => new Promise((res) => res({ response: { body: testMove } }))),
     getMoveOrder: jest.fn(() => new Promise((res) => res({ response: { body: testMoveOrder } }))),
     getCustomer: jest.fn(),
     getAllMoveTaskOrders: jest.fn(() => new Promise((res) => res({ response: { body: testMoveTaskOrders } }))),
@@ -77,7 +80,8 @@ describe('MoveDetails page', () => {
   const wrapper = shallow(<MoveDetails {...moveDetailsProps} />);
 
   it('loads data from the API', () => {
-    expect(moveDetailsProps.getMoveOrder).toHaveBeenCalledWith(moveDetailsProps.match.params.moveOrderId);
+    expect(moveDetailsProps.getMoveByLocator).toHaveBeenCalledWith(moveDetailsProps.match.params.moveCode);
+    expect(moveDetailsProps.getMoveOrder).toHaveBeenCalledWith('123');
     expect(moveDetailsProps.getCustomer).toHaveBeenCalledWith(testMoveOrder.customerID);
     expect(moveDetailsProps.getAllMoveTaskOrders).toHaveBeenCalledWith(testMoveOrder.id);
     expect(moveDetailsProps.getMTOShipments).toHaveBeenCalledWith(testMoveTaskOrders[0].id);

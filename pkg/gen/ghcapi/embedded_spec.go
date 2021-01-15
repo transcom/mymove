@@ -1074,7 +1074,7 @@ func init() {
     },
     "/move/{locator}": {
       "get": {
-        "description": "Returns a given move",
+        "description": "Returns a given move for a unique alphanumeric locator string",
         "produces": [
           "application/json"
         ],
@@ -1996,6 +1996,26 @@ func init() {
         }
       }
     },
+    "Branch": {
+      "type": "string",
+      "title": "branch",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marines",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -2012,6 +2032,23 @@ func init() {
           "format": "uuid"
         },
         "title": {
+          "type": "string"
+        }
+      }
+    },
+    "Contractor": {
+      "properties": {
+        "contractNumber": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
           "type": "string"
         }
       }
@@ -2685,6 +2722,21 @@ func init() {
         }
       }
     },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
     "MTOShipments": {
       "type": "array",
       "items": {
@@ -2693,7 +2745,20 @@ func init() {
     },
     "Move": {
       "properties": {
-        "created_at": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "contractor": {
+          "$ref": "#/definitions/Contractor"
+        },
+        "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -2704,14 +2769,30 @@ func init() {
         },
         "locator": {
           "type": "string",
-          "example": "1K43A"
+          "example": "1K43AR"
         },
-        "orders_id": {
+        "orders": {
+          "$ref": "#/definitions/MoveOrder"
+        },
+        "ordersId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "updated_at": {
+        "referenceId": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -2722,11 +2803,7 @@ func init() {
       "properties": {
         "agency": {
           "type": "string",
-          "example": "civilian"
-        },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+          "$ref": "#/definitions/Branch"
         },
         "customerID": {
           "type": "string",
@@ -2773,6 +2850,10 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "Doe"
+        },
+        "moveCode": {
+          "type": "string",
+          "example": "H2XFJF"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -2828,6 +2909,16 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveOrder"
       }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVALS REQUESTED",
+        "APPROVED",
+        "CANCELED"
+      ]
     },
     "MoveTaskOrder": {
       "type": "object",
@@ -2990,6 +3081,9 @@ func init() {
           "type": "boolean",
           "default": false
         },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -3027,6 +3121,7 @@ func init() {
       "enum": [
         "PENDING",
         "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID"
@@ -3058,6 +3153,13 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemName": {
+          "type": "string",
+          "example": "Shipment Mgmt. Services"
+        },
+        "mtoShipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "paymentRequestID": {
           "type": "string",
@@ -3464,9 +3566,14 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId"
+        "originDutyStationId",
+        "agency"
       ],
       "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
         "authorizedWeight": {
           "description": "unit is in lbs",
           "type": "integer",
@@ -3478,6 +3585,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -3682,6 +3793,9 @@ func init() {
   "tags": [
     {
       "name": "queues"
+    },
+    {
+      "name": "move"
     }
   ]
 }`))
@@ -4988,7 +5102,7 @@ func init() {
     },
     "/move/{locator}": {
       "get": {
-        "description": "Returns a given move",
+        "description": "Returns a given move for a unique alphanumeric locator string",
         "produces": [
           "application/json"
         ],
@@ -6006,6 +6120,26 @@ func init() {
         }
       }
     },
+    "Branch": {
+      "type": "string",
+      "title": "branch",
+      "enum": [
+        "ARMY",
+        "NAVY",
+        "MARINES",
+        "AIR_FORCE",
+        "COAST_GUARD",
+        "OTHER"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "Air Force",
+        "ARMY": "Army",
+        "COAST_GUARD": "Coast Guard",
+        "MARINES": "Marines",
+        "NAVY": "Navy",
+        "OTHER": "OTHER"
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -6022,6 +6156,23 @@ func init() {
           "format": "uuid"
         },
         "title": {
+          "type": "string"
+        }
+      }
+    },
+    "Contractor": {
+      "properties": {
+        "contractNumber": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
           "type": "string"
         }
       }
@@ -6695,6 +6846,21 @@ func init() {
         }
       }
     },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
     "MTOShipments": {
       "type": "array",
       "items": {
@@ -6703,7 +6869,20 @@ func init() {
     },
     "Move": {
       "properties": {
-        "created_at": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "contractor": {
+          "$ref": "#/definitions/Contractor"
+        },
+        "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -6714,14 +6893,30 @@ func init() {
         },
         "locator": {
           "type": "string",
-          "example": "1K43A"
+          "example": "1K43AR"
         },
-        "orders_id": {
+        "orders": {
+          "$ref": "#/definitions/MoveOrder"
+        },
+        "ordersId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "updated_at": {
+        "referenceId": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -6732,11 +6927,7 @@ func init() {
       "properties": {
         "agency": {
           "type": "string",
-          "example": "civilian"
-        },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+          "$ref": "#/definitions/Branch"
         },
         "customerID": {
           "type": "string",
@@ -6783,6 +6974,10 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "Doe"
+        },
+        "moveCode": {
+          "type": "string",
+          "example": "H2XFJF"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -6838,6 +7033,16 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveOrder"
       }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVALS REQUESTED",
+        "APPROVED",
+        "CANCELED"
+      ]
     },
     "MoveTaskOrder": {
       "type": "object",
@@ -7000,6 +7205,9 @@ func init() {
           "type": "boolean",
           "default": false
         },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -7037,6 +7245,7 @@ func init() {
       "enum": [
         "PENDING",
         "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID"
@@ -7068,6 +7277,13 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemName": {
+          "type": "string",
+          "example": "Shipment Mgmt. Services"
+        },
+        "mtoShipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "paymentRequestID": {
           "type": "string",
@@ -7477,9 +7693,14 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId"
+        "originDutyStationId",
+        "agency"
       ],
       "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
         "authorizedWeight": {
           "description": "unit is in lbs",
           "type": "integer",
@@ -7491,6 +7712,10 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -7698,6 +7923,9 @@ func init() {
   "tags": [
     {
       "name": "queues"
+    },
+    {
+      "name": "move"
     }
   ]
 }`))

@@ -342,14 +342,20 @@ func (v *Float64IsGreaterThan) IsValid(errors *validate.Errors) {
 	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%f is not greater than %f.", v.Field, v.Compared))
 }
 
-// OptionalUUIDIsPresent is a structure for determining if UUID is present, optionally
+// OptionalUUIDIsPresent is a structure for determining if an Optional UUID is valid
+// If it is a nil pointer, it passes validation.
+// If it is a pointer to a valid UUID, it passes validation.
+// If it is a pointer to a non-valid UUID, it fails validation.
 type OptionalUUIDIsPresent struct {
 	Name    string
 	Field   *uuid.UUID
 	Message string
 }
 
-// IsValid adds an error if the field is not a valid uuid
+// IsValid adds an error if an optional UUID is valid.
+// If it is a nil pointer, it passes validation.
+// If it is a pointer to a valid UUID, it passes validation.
+// If it is a pointer to a non-valid UUID, it fails validation.
 func (v *OptionalUUIDIsPresent) IsValid(errors *validate.Errors) {
 	if v.Field == nil {
 		return

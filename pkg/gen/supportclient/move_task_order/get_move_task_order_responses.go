@@ -29,12 +29,6 @@ func (o *GetMoveTaskOrderReader) ReadResponse(response runtime.ClientResponse, c
 			return nil, err
 		}
 		return result, nil
-	case 400:
-		result := NewGetMoveTaskOrderBadRequest()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
 	case 401:
 		result := NewGetMoveTaskOrderUnauthorized()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -89,39 +83,6 @@ func (o *GetMoveTaskOrderOK) GetPayload() *supportmessages.MoveTaskOrder {
 func (o *GetMoveTaskOrderOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(supportmessages.MoveTaskOrder)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewGetMoveTaskOrderBadRequest creates a GetMoveTaskOrderBadRequest with default headers values
-func NewGetMoveTaskOrderBadRequest() *GetMoveTaskOrderBadRequest {
-	return &GetMoveTaskOrderBadRequest{}
-}
-
-/*GetMoveTaskOrderBadRequest handles this case with default header values.
-
-The request payload is invalid.
-*/
-type GetMoveTaskOrderBadRequest struct {
-	Payload *supportmessages.ClientError
-}
-
-func (o *GetMoveTaskOrderBadRequest) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderBadRequest  %+v", 400, o.Payload)
-}
-
-func (o *GetMoveTaskOrderBadRequest) GetPayload() *supportmessages.ClientError {
-	return o.Payload
-}
-
-func (o *GetMoveTaskOrderBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

@@ -7,6 +7,10 @@ import {
   updateMove,
   updateMTOShipment,
   updateOrders,
+  updatePPMs,
+  updatePPM,
+  updatePPMEstimate,
+  updatePPMSitEstimate,
 } from './entities';
 
 import {
@@ -15,6 +19,10 @@ import {
   UPDATE_MOVE,
   UPDATE_MTO_SHIPMENT,
   UPDATE_ORDERS,
+  UPDATE_PPMS,
+  UPDATE_PPM,
+  UPDATE_PPM_ESTIMATE,
+  UPDATE_PPM_SIT_ESTIMATE,
 } from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { addEntities } from 'shared/Entities/actions';
@@ -30,6 +38,10 @@ describe('watchUpdateEntities', () => {
         takeLatest(UPDATE_ORDERS, updateOrders),
         takeLatest(UPDATE_MOVE, updateMove),
         takeLatest(UPDATE_MTO_SHIPMENT, updateMTOShipment),
+        takeLatest(UPDATE_PPMS, updatePPMs),
+        takeLatest(UPDATE_PPM, updatePPM),
+        takeLatest(UPDATE_PPM_ESTIMATE, updatePPMEstimate),
+        takeLatest(UPDATE_PPM_SIT_ESTIMATE, updatePPMSitEstimate),
       ]),
     );
   });
@@ -254,6 +266,101 @@ describe('updateOrders', () => {
 
   it('stores the normalized data in entities', () => {
     expect(generator.next(normalizedOrders).value).toEqual(put(addEntities(normalizedOrders)));
+  });
+
+  it('is done', () => {
+    expect(generator.next().done).toEqual(true);
+  });
+});
+
+describe('updatePPM', () => {
+  const testAction = {
+    payload: {
+      actual_move_date: '2020-12-18',
+      advance_worksheet: {
+        id: '00000000-0000-0000-0000-000000000000',
+        service_member_id: '00000000-0000-0000-0000-000000000000',
+        uploads: [],
+      },
+      approve_date: '2020-12-21T22:45:52.000Z',
+      created_at: '2020-12-21T22:43:48.278Z',
+      destination_postal_code: '99619',
+      has_additional_postal_code: false,
+      has_requested_advance: false,
+      has_sit: false,
+      id: 'd9488eac-eef8-430e-8c4b-05884c3cc6fa',
+      move_id: '2b8198ca-e70a-40b7-822e-be5527bf0606',
+      original_move_date: '2020-12-19',
+      pickup_postal_code: '10002',
+      status: 'PAYMENT_REQUESTED',
+      submit_date: '2020-12-21T22:45:12.100Z',
+      updated_at: '2020-12-21T22:46:50.805Z',
+    },
+  };
+
+  const normalizedPPM = normalizeResponse(testAction.payload, 'personallyProcuredMove');
+
+  const generator = updatePPM(testAction);
+
+  it('normalizes the payload', () => {
+    expect(generator.next().value).toEqual(call(normalizeResponse, testAction.payload, 'personallyProcuredMove'));
+  });
+
+  it('stores the normalized data in entities', () => {
+    expect(generator.next(normalizedPPM).value).toEqual(put(addEntities(normalizedPPM)));
+  });
+
+  it('calls the legacy CREATE_OR_UPDATE_PPM_SUCCESS action with the raw payload', () => {
+    expect(generator.next().value).toEqual(
+      put({
+        type: 'CREATE_OR_UPDATE_PPM_SUCCESS',
+        payload: testAction.payload,
+      }),
+    );
+  });
+
+  it('is done', () => {
+    expect(generator.next().done).toEqual(true);
+  });
+});
+
+describe('updatePPMs', () => {
+  const testAction = {
+    payload: [
+      {
+        actual_move_date: '2020-12-18',
+        advance_worksheet: {
+          id: '00000000-0000-0000-0000-000000000000',
+          service_member_id: '00000000-0000-0000-0000-000000000000',
+          uploads: [],
+        },
+        approve_date: '2020-12-21T22:45:52.000Z',
+        created_at: '2020-12-21T22:43:48.278Z',
+        destination_postal_code: '99619',
+        has_additional_postal_code: false,
+        has_requested_advance: false,
+        has_sit: false,
+        id: 'd9488eac-eef8-430e-8c4b-05884c3cc6fa',
+        move_id: '2b8198ca-e70a-40b7-822e-be5527bf0606',
+        original_move_date: '2020-12-19',
+        pickup_postal_code: '10002',
+        status: 'PAYMENT_REQUESTED',
+        submit_date: '2020-12-21T22:45:12.100Z',
+        updated_at: '2020-12-21T22:46:50.805Z',
+      },
+    ],
+  };
+
+  const normalizedPPM = normalizeResponse(testAction.payload, 'personallyProcuredMoves');
+
+  const generator = updatePPMs(testAction);
+
+  it('normalizes the payload', () => {
+    expect(generator.next().value).toEqual(call(normalizeResponse, testAction.payload, 'personallyProcuredMoves'));
+  });
+
+  it('stores the normalized data in entities', () => {
+    expect(generator.next(normalizedPPM).value).toEqual(put(addEntities(normalizedPPM)));
   });
 
   it('is done', () => {

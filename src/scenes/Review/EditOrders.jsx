@@ -18,7 +18,6 @@ import SaveCancelButtons from './SaveCancelButtons';
 
 import { updateOrders, fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
-import { isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
@@ -28,6 +27,7 @@ import {
   selectCurrentOrders,
   selectMoveIsApproved,
   selectUploadsForCurrentOrders,
+  selectHasCurrentPPM,
 } from 'store/entities/selectors';
 
 import './Review.css';
@@ -225,7 +225,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
     moveIsApproved: selectMoveIsApproved(state),
-    isPpm: isPpm(state),
+    isPpm: selectHasCurrentPPM(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
   };
   return props;

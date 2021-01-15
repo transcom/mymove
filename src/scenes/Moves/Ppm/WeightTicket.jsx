@@ -5,6 +5,7 @@ import { get, map } from 'lodash';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { withLastLocation } from 'react-router-last-location';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -14,12 +15,11 @@ import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
 import { formatDateForSwagger } from 'shared/dates';
 import { documentSizeLimitMsg } from 'shared/constants';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectCurrentPPM } from 'store/entities/selectors';
 
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import carImg from 'shared/images/car_mobile.png';
 import { createWeightTicketSetDocument } from 'shared/Entities/modules/weightTicketSetDocuments';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
@@ -553,7 +553,7 @@ function mapStateToProps(state, ownProps) {
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
-    currentPpm: get(state, 'ppm.currentPpm'),
+    currentPpm: selectCurrentPPM(state) || {},
     weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     transportationOffice: transportationOffice,
     dutyStationId: dutyStationId,

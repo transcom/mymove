@@ -211,3 +211,101 @@ export async function patchMTOShipment(mtoShipmentId, mtoShipment, ifMatchETag) 
     },
   );
 }
+
+/** PPMS */
+export async function getPPMsForMove(moveId) {
+  return makeInternalRequest(
+    'ppm.indexPersonallyProcuredMoves',
+    {
+      moveId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createPPMForMove(moveId, ppm) {
+  return makeInternalRequest(
+    'ppm.createPersonallyProcuredMove',
+    {
+      moveId,
+      createPersonallyProcuredMovePayload: ppm,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchPPM(moveId, ppm) {
+  return makeInternalRequest(
+    'ppm.patchPersonallyProcuredMove',
+    {
+      moveId,
+      personallyProcuredMoveId: ppm.id,
+      patchPersonallyProcuredMovePayload: ppm,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function calculatePPMEstimate(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) {
+  return makeInternalRequest(
+    'ppm.showPPMEstimate',
+    {
+      original_move_date: moveDate,
+      origin_zip: originZip,
+      origin_duty_station_zip: originDutyStationZip,
+      orders_id: ordersId,
+      weight_estimate: weightEstimate,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function persistPPMEstimate(moveId, ppmId) {
+  return makeInternalRequest(
+    'ppm.updatePersonallyProcuredMoveEstimate',
+    {
+      moveId,
+      personallyProcuredMoveId: ppmId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function calculatePPMSITEstimate(ppmId, moveDate, sitDays, originZip, ordersId, weightEstimate) {
+  return makeInternalRequest(
+    'ppm.showPPMSitEstimate',
+    {
+      personally_procured_move_id: ppmId,
+      original_move_date: moveDate,
+      days_in_storage: sitDays,
+      origin_zip: originZip,
+      orders_id: ordersId,
+      weight_estimate: weightEstimate,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function requestPayment(ppmId) {
+  return makeInternalRequest(
+    'ppm.requestPPMPayment',
+    {
+      personallyProcuredMoveId: ppmId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}

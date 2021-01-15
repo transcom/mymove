@@ -76,12 +76,11 @@ func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersP
 // UpdateMoveOrderHandler updates an order via PATCH /move-orders/{moveOrderId}
 type UpdateMoveOrderHandler struct {
 	handlers.HandlerContext
-	moveOrderUpdater services.MoveOrderUpdater
+	orderUpdater services.OrderUpdater
 }
 
 // Handle ... updates an order from a request payload
 func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams) middleware.Responder {
-
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.MoveOrderID.String())
@@ -97,7 +96,8 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 	}
 	newOrder.ID = orderID
 
-	updatedOrder, err := h.moveOrderUpdater.UpdateMoveOrder(orderID, params.IfMatch, newOrder)
+	updatedOrder, err := h.orderUpdater.UpdateOrder(params.IfMatch, newOrder)
+
 	if err != nil {
 		logger.Error("error updating move order", zap.Error(err))
 		switch err.(type) {
@@ -173,13 +173,24 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 		entitlement.DBAuthorizedWeight = swag.Int(int(*payload.AuthorizedWeight))
 	}
 
+	if payload.DependentsAuthorized != nil {
+		entitlement.DependentsAuthorized = payload.DependentsAuthorized
+	}
+
 	var ordersTypeDetail *internalmessages.OrdersTypeDetail
 	if payload.OrdersTypeDetail != nil {
 		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)
 		ordersTypeDetail = &orderTypeDetail
 	}
 
+	var serviceMember models.ServiceMember
+	if payload.Agency != "" {
+		serviceMemberAffiliation := models.ServiceMemberAffiliation(payload.Agency)
+		serviceMember.Affiliation = &serviceMemberAffiliation
+	}
+
 	return models.Order{
+		ServiceMember:       serviceMember,
 		DepartmentIndicator: departmentIndicator,
 		Entitlement:         &entitlement,
 		Grade:               grade,
@@ -193,4 +204,5 @@ func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error)
 		SAC:                 payload.Sac,
 		TAC:                 payload.Tac,
 	}, nil
+
 }

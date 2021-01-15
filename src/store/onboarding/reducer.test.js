@@ -1,5 +1,5 @@
 import onboardingReducer, { initialState } from './reducer';
-import { setConusStatus } from './actions';
+import { setConusStatus, setPPMEstimateError } from './actions';
 
 describe('onboardingReducer', () => {
   it('returns the initial state by default', () => {
@@ -10,6 +10,13 @@ describe('onboardingReducer', () => {
     expect(onboardingReducer(initialState, setConusStatus('CONUS'))).toEqual({
       ...initialState,
       conusStatus: 'CONUS',
+    });
+  });
+
+  it('handles the setPPMEstimateError action', () => {
+    expect(onboardingReducer(initialState, setPPMEstimateError({ message: 'This is a test error' }))).toEqual({
+      ...initialState,
+      ppmEstimateError: { message: 'This is a test error' },
     });
   });
 });

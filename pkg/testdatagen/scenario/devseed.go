@@ -620,8 +620,12 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 	models.SaveMoveDependencies(db, &ppm6.Move)
 }
 
-func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
-	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
+func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation) {
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			Affiliation: &affiliation,
+		},
+	})
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: customer.ID,
@@ -1602,7 +1606,7 @@ func createWebhookSubscriptionForPaymentRequestUpdate(db *pop.Connection) {
 	})
 }
 
-func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.UserUploader) {
+func createMoveWithServiceItems(db *pop.Connection, userUploader *uploader.UserUploader) {
 	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 
 	orders9 := testdatagen.MakeOrder(db, testdatagen.Assertions{
@@ -1639,8 +1643,23 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 			MoveTaskOrder: move9,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusReviewed,
+			ReviewedAt:    swag.Time(time.Now()),
 		},
 		Move: move9,
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
+		PaymentRequest: paymentRequest9,
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusDenied,
+		},
+		PaymentRequest: paymentRequest9,
 	})
 
 	assertions9 := testdatagen.Assertions{
@@ -1686,6 +1705,72 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 		basicPaymentServiceItemParams,
 		assertions9,
 	)
+}
+
+func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.UserUploader) {
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
+	orders10 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("796a0acd-1ccb-4a2f-a9b3-e44906ced699"),
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+		},
+		UserUploader: userUploader,
+	})
+
+	move10 := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:       uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae8"),
+			OrdersID: orders10.ID,
+			Status:   models.MoveStatusAPPROVED,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move10,
+	})
+
+	paymentRequest10 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:            uuid.FromStringOrNil("cfd110d4-1f62-401c-a92c-39987a0b4229"),
+			Status:        models.PaymentRequestStatusReviewed,
+			ReviewedAt:    swag.Time(time.Now()),
+			MoveTaskOrder: move10,
+		},
+		Move: move10,
+	})
+
+	serviceItemA := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+		PaymentRequest: paymentRequest10,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	serviceItemB := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+		PaymentRequest: paymentRequest10,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
+		MTOServiceItem: serviceItemA,
+		PaymentRequest: paymentRequest10,
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusDenied,
+		},
+		MTOServiceItem: serviceItemB,
+		PaymentRequest: paymentRequest10,
+	})
 }
 
 func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
@@ -1751,8 +1836,10 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// This allows testing the pagination feature in the TXO queues.
 	// Feel free to comment out the loop if you don't need this many moves.
 	for i := 1; i < 12; i++ {
-		createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger)
+		createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE)
 	}
+	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationMARINES)
+
 	createMoveWithPPMAndHHG(db, userUploader)
 	createHHGMoveWith10ServiceItems(db, userUploader)
 	createHHGMoveWith2PaymentRequests(db, userUploader)
@@ -1764,6 +1851,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createWebhookSubscriptionForPaymentRequestUpdate(db)
 	// This move below is a PPM move in DRAFT status. It should probably
 	// be changed to an HHG move in SUBMITTED status to reflect reality.
+	createMoveWithServiceItems(db, userUploader)
 	createMoveWithBasicServiceItems(db, userUploader)
 	// Sets up a move with a non-default destination duty station address
 	// (to more easily spot issues with addresses being overwritten).

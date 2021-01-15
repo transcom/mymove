@@ -69,8 +69,6 @@ func main() {
 	}
 	zap.ReplaceGlobals(logger)
 
-	fmt.Println("logger: ", logger)
-
 	err = checkConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))

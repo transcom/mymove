@@ -1,13 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { formatCents } from 'shared/formatters';
-import { formatActualIncentiveRange, formatIncentiveRange } from 'shared/incentive';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { selectPPMEstimateRange, selectReimbursement } from 'shared/Entities/modules/ppms';
-import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import styles from './PpmMoveDetails.module.scss';
+
+import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
+import { formatCents, formatCentsRange } from 'shared/formatters';
+import { getIncentiveRange } from 'utils/incentives';
+import { selectPPMEstimateRange, selectReimbursementById } from 'store/entities/selectors';
+import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 
 const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimateRange, netWeight }) => {
   const privateStorageString = ppm.estimated_storage_reimbursement
@@ -18,8 +19,9 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
       ? `Advance Requested: $${formatCents(advance.requested_amount)}`
       : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
-  const estimatedIncentiveRange = formatIncentiveRange(ppm, estimateRange);
-  const actualIncentiveRange = formatActualIncentiveRange(estimateRange);
+  const estimatedIncentiveRange = getIncentiveRange(ppm, estimateRange);
+  const actualIncentiveRange = formatCentsRange(estimateRange?.range_min, estimateRange?.range_max);
+
   const hasRangeReady = ppm.incentive_estimate_min || estimatedIncentiveRange;
 
   const incentiveNotReady = () => {
@@ -69,7 +71,7 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const advance = selectReimbursement(state, ownProps.ppm.advance);
+  const advance = selectReimbursementById(state, ownProps.ppm.advance) || {};
   const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
     'WEIGHT_TICKET_SET',
   ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);

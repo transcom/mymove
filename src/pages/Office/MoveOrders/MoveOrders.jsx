@@ -9,7 +9,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MoveOrders.module.scss';
 
-import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import { updateMoveOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -39,12 +38,12 @@ const validationSchema = Yup.object({
 
 const MoveOrders = () => {
   const history = useHistory();
-  const { moveOrderId } = useParams();
-
-  const { moveOrders, upload, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
+  const { moveCode } = useParams();
+  const { move, moveOrders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const moveOrderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(`/moves/${moveOrderId}/details`);
+    history.push(`/moves/${moveCode}/details`);
   };
 
   const [mutateOrders] = useMutation(updateMoveOrder, {
@@ -92,6 +91,7 @@ const MoveOrders = () => {
   };
 
   const initialValues = {
+    agency: moveOrder?.agency,
     originDutyStation: moveOrder?.originDutyStation,
     newDutyStation: moveOrder?.destinationDutyStation,
     issueDate: moveOrder?.date_issued,
@@ -104,59 +104,50 @@ const MoveOrders = () => {
     sac: moveOrder?.sac,
   };
 
-  const documentsForViewer = Object.values(upload);
-
   return (
-    <div className={styles.MoveOrders}>
-      {documentsForViewer && (
-        <div className={styles.embed}>
-          <DocumentViewer files={documentsForViewer} />
-        </div>
-      )}
-      <div className={styles.sidebar}>
-        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-          {(formik) => (
-            <form onSubmit={formik.handleSubmit}>
-              <div className={styles.orderDetails}>
-                <div className={styles.top}>
-                  <Button
-                    className={styles.closeButton}
-                    data-testid="closeSidebar"
-                    type="button"
-                    onClick={handleClose}
-                    unstyled
-                  >
-                    <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
-                  </Button>
-                  <h2 className={styles.header}>View Orders</h2>
-                  <div>
-                    <Link className={styles.viewAllowances} data-testid="view-allowances" to="allowances">
-                      View Allowances
-                    </Link>
-                  </div>
-                </div>
-                <div className={styles.body}>
-                  <OrdersDetailForm
-                    deptIndicatorOptions={deptIndicatorDropdownOptions}
-                    ordersTypeOptions={ordersTypeDropdownOptions}
-                    ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
-                  />
-                </div>
-                <div className={styles.bottom}>
-                  <div className={styles.buttonGroup}>
-                    <Button primary type="submit" disabled={formik.isSubmitting}>
-                      Save
-                    </Button>
-                    <Button type="button" secondary onClick={handleClose}>
-                      Cancel
-                    </Button>
-                  </div>
+    <div className={styles.sidebar}>
+      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+        {(formik) => (
+          <form onSubmit={formik.handleSubmit}>
+            <div className={styles.orderDetails}>
+              <div className={styles.top}>
+                <Button
+                  className={styles.closeButton}
+                  data-testid="closeSidebar"
+                  type="button"
+                  onClick={handleClose}
+                  unstyled
+                >
+                  <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
+                </Button>
+                <h2 className={styles.header}>View Orders</h2>
+                <div>
+                  <Link className={styles.viewAllowances} data-testid="view-allowances" to="allowances">
+                    View Allowances
+                  </Link>
                 </div>
               </div>
-            </form>
-          )}
-        </Formik>
-      </div>
+              <div className={styles.body}>
+                <OrdersDetailForm
+                  deptIndicatorOptions={deptIndicatorDropdownOptions}
+                  ordersTypeOptions={ordersTypeDropdownOptions}
+                  ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
+                />
+              </div>
+              <div className={styles.bottom}>
+                <div className={styles.buttonGroup}>
+                  <Button type="submit" disabled={formik.isSubmitting}>
+                    Save
+                  </Button>
+                  <Button type="button" secondary onClick={handleClose}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </form>
+        )}
+      </Formik>
     </div>
   );
 };

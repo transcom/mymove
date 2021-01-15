@@ -1,67 +1,13 @@
-import { get, isEmpty } from 'lodash';
-import { change } from 'redux-form';
-
-import { GetPpm, RequestPayment } from './api.js';
+import { get } from 'lodash';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
-import { selectCurrentMove } from 'store/entities/selectors';
 
 // Types
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
-
-export function setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode) {
-  return function (dispatch) {
-    dispatch(change('ppp_date_and_location', 'original_move_date', originalMoveDate));
-    dispatch(change('ppp_date_and_location', 'pickup_postal_code', pickupPostalCode));
-    dispatch(change('ppp_date_and_location', 'origin_duty_station_zip', originDutyStationZip));
-    dispatch(change('ppp_date_and_location', 'destination_postal_code', destinationPostalCode));
-  };
-}
-
-export function loadPpm(moveId) {
-  const action = ReduxHelpers.generateAsyncActions('GET_PPM');
-  return function (dispatch, getState) {
-    dispatch(action.start);
-    const state = getState();
-    const currentPpm = state.ppm.currentPpm;
-    if (!currentPpm) {
-      return GetPpm(moveId)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
-    }
-    return Promise.resolve();
-  };
-}
-
-const REQUESTED_PAYMENT_ACTION = {
-  type: 'REQUESTED_PAYMENT',
-};
-
-export function submitExpenseDocs(state) {
-  const updateAction = ReduxHelpers.generateAsyncActions('CREATE_OR_UPDATE_PPM');
-  return function (dispatch, getState) {
-    dispatch(updateAction.start());
-    const state = getState();
-    const currentPpm = state.ppm.currentPpm;
-    if (!currentPpm) {
-      console.log('Attempted to request payment on a PPM that did not exist.');
-      return Promise.reject();
-    }
-    return RequestPayment(currentPpm.id)
-      .then((item) => {
-        dispatch(updateAction.success(item));
-        dispatch(REQUESTED_PAYMENT_ACTION);
-      })
-      .catch((error) => {
-        dispatch(updateAction.error(error));
-        return Promise.reject();
-      });
-  };
-}
 
 // Selectors
 export function getMaxAdvance(state) {
@@ -69,39 +15,6 @@ export function getMaxAdvance(state) {
   // we are using 20000000 since it is the largest number MacRae found that could be stored in table
   // and we don't want to block the user from requesting an advance if the rate engine fails
   return maxIncentive ? 0.6 * maxIncentive : 20000000;
-}
-
-export function getPPM(state) {
-  const move = selectCurrentMove(state) || {};
-  const moveId = move.id;
-  const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
-  const tempPPM = state.ppm.currentPpm;
-  // temp fix while redux refactor is in progress when statuses aren't updated on ppms from both places
-  const ppmStates = ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'CANCELED'];
-
-  if (!isEmpty(ppmFromEntities) && !isEmpty(tempPPM)) {
-    const entitiesPPMStatus = ppmFromEntities.status;
-    const tempPPMStatus = tempPPM.status;
-    const indexOfEntitiesPPMStatus = ppmStates.indexOf(entitiesPPMStatus);
-    const indexOfTempPPMStatus = ppmStates.indexOf(tempPPMStatus);
-
-    if (entitiesPPMStatus === 'CANCELED') {
-      return ppmFromEntities;
-    } else if (tempPPMStatus === 'CANCELED') {
-      return tempPPM;
-    }
-
-    if (indexOfEntitiesPPMStatus > indexOfTempPPMStatus) {
-      return ppmFromEntities;
-    }
-    if (indexOfEntitiesPPMStatus < indexOfTempPPMStatus) {
-      return tempPPM;
-    }
-    return ppmFromEntities;
-  } else if (tempPPM) {
-    return tempPPM;
-  }
-  return {};
 }
 
 // Reducer
@@ -155,10 +68,6 @@ export function ppmReducer(state = initialState, action) {
         hasSubmitError: true,
         hasSubmitInProgress: false,
         error: action.error,
-      });
-    case 'REQUESTED_PAYMENT':
-      return Object.assign({}, state, {
-        requestPaymentSuccess: true,
       });
     case GET_PPM.start:
       return Object.assign({}, state, {

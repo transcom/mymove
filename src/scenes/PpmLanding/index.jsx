@@ -13,17 +13,19 @@ import {
   selectCurrentMove,
   selectHasCanceledMove,
   selectMoveType,
+  selectCurrentPPM,
 } from 'store/entities/selectors';
+import { updatePPMs } from 'store/entities/actions';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
-import { getPPM } from 'scenes/Moves/Ppm/ducks';
-import { loadPPMs } from 'shared/Entities/modules/ppms';
+import { getPPMsForMove } from 'services/internalApi';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 export class PpmLanding extends Component {
   componentDidMount() {
@@ -47,7 +49,7 @@ export class PpmLanding extends Component {
 
     if (prevProps.move && prevProps.move.id !== this.props.move.id) {
       this.props.loadMTOShipments(this.props.move.id);
-      this.props.loadPPMs(this.props.move.id);
+      getPPMsForMove(this.props.move.id).then((response) => this.props.updatePPMs(response));
     }
   }
 
@@ -107,7 +109,6 @@ export class PpmLanding extends Component {
       orders,
       move,
       ppm,
-      requestPaymentSuccess,
       location,
     } = this.props;
 
@@ -133,6 +134,8 @@ export class PpmLanding extends Component {
 
     return (
       <div className="grid-container">
+        <ConnectedFlashMessage />
+
         {isProfileComplete && (
           <PpmSummary
             entitlement={entitlement}
@@ -143,7 +146,6 @@ export class PpmLanding extends Component {
             editMove={this.editMove}
             resumeMove={this.resumeMove}
             reviewProfile={this.reviewProfile}
-            requestPaymentSuccess={requestPaymentSuccess}
           />
         )}
       </div>
@@ -183,20 +185,19 @@ const mapStateToProps = (state) => {
     backupContacts: serviceMember?.backup_contacts || [],
     orders: selectCurrentOrders(state) || {},
     move: move,
-    ppm: getPPM(state),
+    ppm: selectCurrentPPM(state) || {},
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     entitlement: loadEntitlementsFromState(state),
-    requestPaymentSuccess: state.ppm.requestPaymentSuccess,
   };
   return props;
 };
 
 const mapDispatchToProps = {
   push,
-  loadPPMs,
   loadMTOShipments,
+  updatePPMs,
   showLoggedInUser: showLoggedInUserAction,
 };
 

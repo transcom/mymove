@@ -1,38 +1,54 @@
-import React from 'react';
-// import PropTypes from 'prop-types';
+import React, { useState, Fragment } from 'react';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
 import { withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { HistoryShape } from '../../../types/router';
-
 import styles from './PaymentRequestCard.module.scss';
 
-import { PaymentRequestShape } from 'types/index';
+import { HistoryShape } from 'types/router';
+import { PaymentRequestShape } from 'types';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
+import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
     case 'PENDING':
-      return 'Needs Review';
+      return 'Needs review';
     case 'REVIEWED':
     case 'SENT_TO_GEX':
     case 'RECEIVED_BY_GEX':
       return 'Reviewed';
     case 'PAID':
       return 'Paid';
+    case 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED':
+      return 'Rejected';
     default:
       return status;
   }
 };
 
 const PaymentRequestCard = ({ paymentRequest, history }) => {
+  // TODO - Will need to update this when we add support for other shipment types
+  const basicServiceItems = paymentRequest.serviceItems.filter(
+    (item) => item.mtoShipmentType === undefined || item.mtoShipmentType.null,
+  );
+
+  // show details by default if in pending/needs review
+  const defaultShowDetails = paymentRequest.status === 'PENDING' && basicServiceItems.length > 0;
+  // only show button in reviewed/paid
+  const showRequestDetailsButton = !defaultShowDetails && basicServiceItems.length > 0;
+
+  // state to toggle between showing details or not
+  const [showDetails, setShowDetails] = useState(defaultShowDetails);
   let handleClick = () => {};
   let requestedAmount = 0;
   let approvedAmount = 0;
   let rejectedAmount = 0;
+
+  const { sac, tac } = paymentRequest.moveTaskOrder.orders;
+  const { contractNumber } = paymentRequest.moveTaskOrder.contractor;
 
   if (paymentRequest.serviceItems) {
     paymentRequest.serviceItems.forEach((item) => {
@@ -49,6 +65,10 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
       history.push(`payment-requests/${paymentRequest.id}`);
     };
   }
+
+  const showDetailsChevron = showDetails ? 'chevron-up' : 'chevron-down';
+  const showDetailsText = showDetails ? 'Hide request details' : 'Show request details';
+  const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
 
   return (
     <div className={classnames(styles.PaymentRequestCard, 'container')}>
@@ -83,6 +103,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
                   <div>
                     <h2>{toDollarString(formatCents(approvedAmount))}</h2>
                     <span>Accepted</span>
+                    <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
                   </div>
                 </div>
               )}
@@ -92,6 +113,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
                   <div>
                     <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
                     <span>Rejected</span>
+                    <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
                   </div>
                 </div>
               )}
@@ -108,12 +130,12 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
         </div>
         <div className={styles.footer}>
           <dl>
-            <dt>Contract Number:</dt>
-            <dd>HTC711-20-D-RO30</dd>
+            <dt>Contract number:</dt>
+            <dd>{contractNumber}</dd>
             <dt>TAC/MDC:</dt>
-            <dd>1234</dd>
+            <dd>{tac}</dd>
             <dt>SAC/SDN:</dt>
-            <dd>1234567890987654</dd>
+            <dd>{sac}</dd>
           </dl>
           {paymentRequest.status === 'PENDING' ? (
             <a href="orders">View orders</a>
@@ -124,13 +146,25 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
             </a>
           )}
           <div className={styles.toggleDrawer}>
-            <Button type="button" unstyled>
-              <FontAwesomeIcon icon="chevron-down" /> Show request details
-            </Button>
+            {showRequestDetailsButton && (
+              <Button
+                aria-expanded={showDetails}
+                data-testid="showRequestDetailsButton"
+                type="button"
+                unstyled
+                onClick={handleToggleDetails}
+              >
+                <FontAwesomeIcon icon={showDetailsChevron} /> {showDetailsText}
+              </Button>
+            )}
           </div>
         </div>
       </div>
-      <div className={styles.drawer} />
+      {showDetails && (
+        <div data-testid="toggleDrawer" className={styles.drawer}>
+          <PaymentRequestDetails serviceItems={basicServiceItems} />
+        </div>
+      )}
     </div>
   );
 };

@@ -144,6 +144,7 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
+		"Moves",
 	).Find(moveOrder, moveOrderID)
 
 	if err != nil {

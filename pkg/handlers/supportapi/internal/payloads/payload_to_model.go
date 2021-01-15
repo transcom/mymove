@@ -18,10 +18,10 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 	}
 	return &models.ServiceMember{
 		ID:            uuid.FromStringOrNil(customer.ID.String()),
-		Affiliation:   (*models.ServiceMemberAffiliation)(&customer.Agency),
-		Edipi:         &customer.DodID,
-		FirstName:     &customer.FirstName,
-		LastName:      &customer.LastName,
+		Affiliation:   (*models.ServiceMemberAffiliation)(customer.Agency),
+		Edipi:         customer.DodID,
+		FirstName:     customer.FirstName,
+		LastName:      customer.LastName,
 		PersonalEmail: customer.Email,
 		Telephone:     customer.Phone,
 	}
@@ -37,10 +37,11 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 	}
 	model := &models.Order{
 		ID:            uuid.FromStringOrNil(moveOrderPayload.ID.String()),
-		Grade:         moveOrderPayload.Rank,
+		Grade:         swag.String((string)(moveOrderPayload.Rank)),
 		OrdersNumber:  moveOrderPayload.OrderNumber,
 		ServiceMember: *CustomerModel(moveOrderPayload.Customer),
 		Entitlement:   EntitlementModel(moveOrderPayload.Entitlement),
+		TAC:           moveOrderPayload.Tac,
 	}
 
 	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
@@ -105,10 +106,6 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	if mtoPayload.AvailableToPrimeAt != nil {
 		availableToPrimeAt := time.Time(*mtoPayload.AvailableToPrimeAt)
 		model.AvailableToPrimeAt = &availableToPrimeAt
-	}
-
-	if mtoPayload.IsCanceled != nil && *mtoPayload.IsCanceled == true {
-		model.Status = models.MoveStatusCANCELED
 	}
 
 	return model
