@@ -57,12 +57,12 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
     enabled: !!customerId,
   });
-  const denormalizedCustomer = customer && Object.values(customer)[0];
+  const customerData = customer && Object.values(customer)[0];
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, customerQuery]);
 
   return {
     moveOrder,
-    denormalizedCustomer,
+    customerData,
     isLoading,
     isError,
     isSuccess,
