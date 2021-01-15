@@ -412,7 +412,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.Equal("PO", n9.ReferenceIdentificationQualifier)
 			suite.Equal(paymentServiceItem.ReferenceID, n9.ReferenceIdentification)
 		})
-		serviceItemPrice := float64(*paymentServiceItem.PriceCents)
+		serviceItemPrice := paymentServiceItem.PriceCents.Int64()
 		serviceCode := paymentServiceItem.MTOServiceItem.ReService.Code
 		switch serviceCode {
 		case models.ReServiceCodeCS, models.ReServiceCodeMS:

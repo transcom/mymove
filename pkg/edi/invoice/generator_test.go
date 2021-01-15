@@ -75,7 +75,7 @@ HL*1**I
 N9*PO*3351-1123c**
 L5*1*CS*TBD*D**
 L0*1**********
-L1*1*0**10000
+L1*1***100
 FA1*DF
 FA2*TA*1234
 L3*300.000*B***100
@@ -188,7 +188,7 @@ func MakeValidEdi() Invoice858C {
 		},
 		L1: edisegment.L1{
 			LadingLineItemNumber: 1,
-			Charge:               float64(100),
+			Charge:               100,
 		},
 		FA1: edisegment.FA1{
 			AgencyQualifierCode: "DF",

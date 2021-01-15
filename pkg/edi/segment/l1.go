@@ -7,10 +7,10 @@ import (
 
 // L1 represents the L1 EDI segment
 type L1 struct {
-	LadingLineItemNumber int     `validate:"required,min=1,max=999"`
-	FreightRate          *int    `validate:"omitempty,min=0"`
-	RateValueQualifier   string  `validate:"required_with=FreightRate,omitempty,eq=LB"`
-	Charge               int64 `validate:"required,min=-999999999999,max=999999999999"` // Supports negative values
+	LadingLineItemNumber int    `validate:"required,min=1,max=999"`
+	FreightRate          *int   `validate:"omitempty,min=0"`
+	RateValueQualifier   string `validate:"required_with=FreightRate,omitempty,eq=LB"`
+	Charge               int64  `validate:"required,min=-999999999999,max=999999999999"` // Supports negative values
 }
 
 // StringArray converts L1 to an array of strings

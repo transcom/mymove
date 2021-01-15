@@ -622,7 +622,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 			newSegment.L1 = edisegment.L1{
 				LadingLineItemNumber: hierarchicalIDNumber,
-				Charge:               float64(*serviceItem.PriceCents),
+				Charge:               serviceItem.PriceCents.Int64(),
 			}
 
 		// pack and unpack, dom dest and dom origin have weight and no distance
@@ -652,7 +652,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				LadingLineItemNumber: hierarchicalIDNumber,
 				FreightRate:          &weight,
 				RateValueQualifier:   "LB",
-				Charge:               float64(*serviceItem.PriceCents),
+				Charge:               serviceItem.PriceCents.Int64(),
 			}
 
 		default:
@@ -682,7 +682,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				LadingLineItemNumber: hierarchicalIDNumber,
 				FreightRate:          &weight,
 				RateValueQualifier:   "LB",
-				Charge:               float64(*serviceItem.PriceCents),
+				Charge:               serviceItem.PriceCents.Int64(),
 			}
 
 		}
