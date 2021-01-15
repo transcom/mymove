@@ -1,4 +1,4 @@
-import { get, filter } from 'lodash';
+import { filter } from 'lodash';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { formatDateForSwagger } from 'shared/dates';
@@ -7,7 +7,6 @@ import { fetchActivePPM } from '../../utils';
 const approvePpmLabel = 'PPMs.approvePPM';
 export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
 const loadPPMsLabel = 'office.loadPPMs';
-const createPPMLabel = 'office.createPPM';
 const updatePPMLabel = 'office.updatePPM';
 const approveReimbursementLabel = 'office.approveReimbursement';
 
@@ -29,25 +28,6 @@ export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveAppro
 export function loadPPMs(moveId, label = loadPPMsLabel) {
   const swaggerTag = 'ppm.indexPersonallyProcuredMoves';
   return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
-}
-
-export function createPPM(
-  moveId,
-  payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
-  label = createPPMLabel,
-) {
-  const swaggerTag = 'ppm.createPersonallyProcuredMove';
-  payload.original_move_date = formatDateForSwagger(payload.original_move_date);
-  payload.actual_move_date = formatDateForSwagger(payload.actual_move_date);
-  return swaggerRequest(
-    getClient,
-    swaggerTag,
-    {
-      moveId,
-      createPersonallyProcuredMovePayload: payload,
-    },
-    { label },
-  );
 }
 
 export function updatePPM(
@@ -87,10 +67,4 @@ export function selectActivePPMForMove(state, moveId) {
   filter(ppms, (ppm) => ppm.moveId === moveId);
   const activePPM = fetchActivePPM(ppms);
   return activePPM || {};
-}
-
-export function selectReimbursement(state, reimbursementId) {
-  const advanceFromEntities = get(state, `entities.reimbursements.${reimbursementId}`);
-  const advanceFromPpmReducer = get(state, 'ppm.currentPpm.advance');
-  return advanceFromEntities || advanceFromPpmReducer || {};
 }

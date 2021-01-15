@@ -15,12 +15,12 @@ import { formatSwaggerDate } from 'shared/formatters';
 import './index.scss';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
-import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
-import { submitMoveForApproval } from 'services/internalApi';
-import { updateMove as updateMoveAction } from 'store/entities/actions';
+import { getPPMsForMove, submitMoveForApproval } from 'services/internalApi';
+import { updatePPMs, updateMove } from 'store/entities/actions';
 import { completeCertificationText } from './legaleseText';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { setFlashMessage } from 'store/flash/actions';
+import { selectCurrentPPM } from 'store/entities/selectors';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
@@ -31,7 +31,7 @@ export class SignedCertification extends Component {
   };
 
   componentDidMount() {
-    this.props.loadPPMs(this.props.moveId);
+    getPPMsForMove(this.props.moveId).then((response) => this.props.updatePPMs(response));
   }
 
   handleSubmit = () => {
@@ -160,19 +160,16 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
-    currentPpm: selectActivePPMForMove(state, moveId),
-    tempPpmId: get(state.ppm, 'currentPpm.id', null),
-    has_sit: get(state.ppm, 'currentPpm.has_sit', false),
-    has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
+    currentPpm: selectCurrentPPM(state) || {},
   };
 }
 
 const mapDispatchToProps = {
   createSignedCertification,
-  loadPPMs,
+  updatePPMs,
+  updateMove,
   push,
-  setFlashMessage: setFlashMessageAction,
-  updateMove: updateMoveAction,
+  setFlashMessage,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignedCertification);

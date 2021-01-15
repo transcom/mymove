@@ -4,9 +4,18 @@
 
 .PaymentRequestCard {
   @include u-margin-x(0);
-}
-
-.summary {
+  @include u-padding-x(4);
+  @include u-padding-top(3);
+  @include u-padding-bottom(2);
+  @include u-margin-y(4);
+  &:first-of-type {
+    @include u-margin-top(3);
+    @include u-margin-bottom(4);
+  }
+  &:last-of-type {
+    @include u-margin-top(4);
+    @include u-margin-bottom(3);
+  }
 }
 
 .header {
@@ -132,9 +141,25 @@
   svg {
     margin-right: 0.5em;
   }
+
+  button {
+    @include u-padding-x(0);
+  }
 }
 
 .drawer {
+  border-top: 1px solid #dcdee0;
+  padding-left: 7.2rem;
+  padding-right: 7.2rem;
+  @include u-margin-top(2);
+
+  > div {
+    @include u-margin-y(5);
+  }
+
+  > div:last-of-type {
+    @include u-margin-bottom(3);
+  }
 }
 
 .docs-icon {

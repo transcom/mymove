@@ -16,12 +16,10 @@ module.exports = {
       viewport: '1024x768',
     }),
     */
-    // TODO - iOS is failing as of updating Storybook to v6. Need to investigate & fix.
-    /*
     'ios-safari': new RemoteBrowserTarget('ios-safari', {
       viewport: '375x667',
+      scrollStitch: true,
     }),
-    */
   },
   plugins: [
     happoPluginStorybook({

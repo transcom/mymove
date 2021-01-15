@@ -14,15 +14,15 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatDateForSwagger } from 'shared/dates';
-import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
-import { persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
-import { updatePPM as updatePPMInRedux, updatePPMSitEstimate } from 'store/entities/actions';
+import { getPPMsForMove, patchPPM, persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
+import { updatePPMs, updatePPM, updatePPMSitEstimate } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentMove,
   selectCurrentOrders,
+  selectCurrentPPM,
   selectPPMSitEstimate,
 } from 'store/entities/selectors';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
@@ -40,6 +40,7 @@ let EditDateAndLocationForm = (props) => {
     sitReimbursement,
     submitting,
   } = props;
+
   const displayedSitReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
 
   return (
@@ -110,37 +111,46 @@ EditDateAndLocationForm = reduxForm({ form: editDateAndLocationFormName, enableR
 
 class EditDateAndLocation extends Component {
   handleSubmit = () => {
-    const pendingValues = Object.assign({}, this.props.formValues);
+    const pendingValues = { ...this.props.formValues };
     if (pendingValues) {
+      pendingValues.id = this.props.currentPPM.id;
       pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
       pendingValues.has_sit = pendingValues.has_sit || false;
       if (!pendingValues.has_sit) {
         pendingValues.days_in_storage = null;
       }
+
+      pendingValues.original_move_date = formatDateForSwagger(pendingValues.original_move_date);
+      pendingValues.actual_move_date = formatDateForSwagger(pendingValues.actual_move_date);
+
       const moveId = this.props.match.params.moveId;
-      return this.props.updatePPM(moveId, this.props.currentPPM.id, pendingValues).then(({ response }) => {
-        persistPPMEstimate(moveId, response.body.id)
-          .then((response) => this.props.updatePPMInRedux(response))
-          .then(() => {
-            // This promise resolves regardless of error.
-            if (!this.props.hasSubmitError) {
-              this.props.editSuccessful();
-              this.props.history.goBack();
-            } else {
-              scrollToTop();
-            }
-          })
-          .catch((err) => {
-            // This promise resolves regardless of error.
-            if (!this.props.hasSubmitError) {
-              this.props.editSuccessful();
-              this.props.history.goBack();
-            } else {
-              scrollToTop();
-            }
-            return err;
-          });
-      });
+
+      return patchPPM(moveId, pendingValues)
+        .then((response) => {
+          this.props.updatePPM(response);
+          return response;
+        })
+        .then((response) => persistPPMEstimate(moveId, response.id))
+        .then((response) => this.props.updatePPM(response))
+        .then(() => {
+          // This promise resolves regardless of error.
+          if (!this.props.hasSubmitError) {
+            this.props.editSuccessful();
+            this.props.history.goBack();
+          } else {
+            scrollToTop();
+          }
+        })
+        .catch((err) => {
+          // This promise resolves regardless of error.
+          if (!this.props.hasSubmitError) {
+            this.props.editSuccessful();
+            this.props.history.goBack();
+          } else {
+            scrollToTop();
+          }
+          return err;
+        });
     }
   };
 
@@ -173,7 +183,7 @@ class EditDateAndLocation extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
-    this.props.loadPPMs(this.props.match.params.moveId);
+    getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
     scrollToTop();
   }
 
@@ -192,16 +202,7 @@ class EditDateAndLocation extends Component {
   }
 
   render() {
-    const {
-      initialValues,
-      schema,
-      formValues,
-      sitReimbursement,
-      currentOrders,
-      error,
-      sitEstimate,
-      entitiesSitReimbursement,
-    } = this.props;
+    const { initialValues, schema, formValues, sitReimbursement, currentOrders, error, sitEstimate } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -219,11 +220,7 @@ class EditDateAndLocation extends Component {
             initialValues={initialValues}
             schema={schema}
             formValues={formValues}
-            sitReimbursement={
-              sitReimbursement !== entitiesSitReimbursement && sitReimbursement
-                ? sitReimbursement
-                : entitiesSitReimbursement
-            }
+            sitReimbursement={sitReimbursement}
             currentOrders={currentOrders}
             onCancel={this.returnToReview}
           />
@@ -240,20 +237,18 @@ EditDateAndLocation.propTypes = {
 };
 function mapStateToProps(state) {
   const currentMove = selectCurrentMove(state) || {};
-  const moveID = currentMove?.id;
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const currentPPM = selectCurrentPPM(state) || {};
 
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     move: currentMove,
     currentOrders: selectCurrentOrders(state) || {},
-    currentPPM: selectActivePPMForMove(state, moveID),
+    currentPPM,
     formValues: getFormValues(editDateAndLocationFormName)(state),
     entitlement: loadEntitlementsFromState(state),
-    error: get(state, 'ppm.error'),
-    hasSubmitError: get(state, 'ppm.hasSubmitError'),
     sitEstimate: selectPPMSitEstimate(state),
-    entitiesSitReimbursement: get(selectActivePPMForMove(state, moveID), 'estimated_storage_reimbursement', ''),
+    sitReimbursement: currentPPM?.estimated_storage_reimbursement,
   };
 
   const defaultPickupZip = serviceMember?.residential_address?.postal_code;
@@ -271,11 +266,10 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   push,
   updatePPM,
-  loadPPMs,
+  updatePPMs,
   editBegin,
   editSuccessful,
   entitlementChangeBegin,
-  updatePPMInRedux,
   updatePPMSitEstimate,
 };
 

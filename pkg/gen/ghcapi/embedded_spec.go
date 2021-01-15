@@ -1777,6 +1777,7 @@ func init() {
               "enum": [
                 "Payment requested",
                 "Reviewed",
+                "Rejected",
                 "Paid"
               ],
               "type": "string"
@@ -2032,6 +2033,23 @@ func init() {
           "format": "uuid"
         },
         "title": {
+          "type": "string"
+        }
+      }
+    },
+    "Contractor": {
+      "properties": {
+        "contractNumber": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
           "type": "string"
         }
       }
@@ -2705,6 +2723,25 @@ func init() {
         }
       }
     },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
     "MTOShipments": {
       "type": "array",
       "items": {
@@ -2717,6 +2754,9 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "contractor": {
+          "$ref": "#/definitions/Contractor"
         },
         "contractorId": {
           "type": "string",
@@ -2735,6 +2775,9 @@ func init() {
         "locator": {
           "type": "string",
           "example": "1K43AR"
+        },
+        "orders": {
+          "$ref": "#/definitions/MoveOrder"
         },
         "ordersId": {
           "type": "string",
@@ -3043,6 +3086,9 @@ func init() {
           "type": "boolean",
           "default": false
         },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -3112,6 +3158,19 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemName": {
+          "type": "string",
+          "example": "Shipment Mgmt. Services"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoShipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "paymentRequestID": {
           "type": "string",
@@ -5847,6 +5906,7 @@ func init() {
               "enum": [
                 "Payment requested",
                 "Reviewed",
+                "Rejected",
                 "Paid"
               ],
               "type": "string"
@@ -6108,6 +6168,23 @@ func init() {
           "format": "uuid"
         },
         "title": {
+          "type": "string"
+        }
+      }
+    },
+    "Contractor": {
+      "properties": {
+        "contractNumber": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
           "type": "string"
         }
       }
@@ -6781,6 +6858,25 @@ func init() {
         }
       }
     },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
     "MTOShipments": {
       "type": "array",
       "items": {
@@ -6793,6 +6889,9 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "contractor": {
+          "$ref": "#/definitions/Contractor"
         },
         "contractorId": {
           "type": "string",
@@ -6811,6 +6910,9 @@ func init() {
         "locator": {
           "type": "string",
           "example": "1K43AR"
+        },
+        "orders": {
+          "$ref": "#/definitions/MoveOrder"
         },
         "ordersId": {
           "type": "string",
@@ -7119,6 +7221,9 @@ func init() {
           "type": "boolean",
           "default": false
         },
+        "moveTaskOrder": {
+          "$ref": "#/definitions/Move"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -7188,6 +7293,19 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemName": {
+          "type": "string",
+          "example": "Shipment Mgmt. Services"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoShipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "paymentRequestID": {
           "type": "string",

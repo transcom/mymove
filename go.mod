@@ -8,7 +8,7 @@ require (
 	github.com/99designs/keyring v1.1.6
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
-	github.com/aws/aws-sdk-go v1.36.23
+	github.com/aws/aws-sdk-go v1.36.26
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -52,7 +52,7 @@ require (
 	github.com/lib/pq v1.8.0
 	github.com/markbates/goth v1.66.1
 	github.com/mattn/go-shellwords v1.0.6 // indirect
-	github.com/mitchellh/mapstructure v1.4.0
+	github.com/mitchellh/mapstructure v1.4.1
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
@@ -63,7 +63,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/objx v0.3.0
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx v1.0.5
 	github.com/tiaguinho/gosoap v1.4.4
@@ -75,7 +75,7 @@ require (
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
-	golang.org/x/text v0.3.4
+	golang.org/x/text v0.3.5
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect

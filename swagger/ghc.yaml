@@ -1191,6 +1191,7 @@ paths:
             enum:
               - Payment requested
               - Reviewed
+              - Rejected
               - Paid
       responses:
         '200':
@@ -1398,6 +1399,17 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
+  Contractor:
+    properties:
+      contractNumber:
+        type: string
+      id:
+        format: uuid
+        type: string
+      name:
+        type: string
+      type:
+        type: string
   Customer:
     type: object
     properties:
@@ -1601,6 +1613,8 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
+      contractor:
+        $ref: '#/definitions/Contractor'
       locator:
         type: string
         example: '1K43AR'
@@ -1608,6 +1622,8 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      orders:
+        $ref: '#/definitions/MoveOrder'
       referenceId:
         example: 1001-3456
         type: string
@@ -1936,6 +1952,8 @@ definitions:
       isFinal:
         default: false
         type: boolean
+      moveTaskOrder:
+        $ref: '#/definitions/Move'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1988,6 +2006,16 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      mtoServiceItemName:
+        example: Shipment Mgmt. Services
+        type: string
+      mtoShipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      mtoShipmentID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       status:
         $ref: '#/definitions/PaymentServiceItemStatus'
       priceCents:
@@ -2223,6 +2251,22 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
+  MTOShipmentType:
+    type: string
+    title: Shipment Type
+    example: HHG
+    enum:
+      - HHG
+      - HHG_LONGHAUL_DOMESTIC
+      - HHG_SHORTHAUL_DOMESTIC
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+    x-display-value:
+      HHG: HHG
+      INTERNATIONAL_HHG: International HHG
+      INTERNATIONAL_UB: International UB
   MTOShipment:
     properties:
       moveTaskOrderID:

@@ -213,6 +213,45 @@ export async function patchMTOShipment(mtoShipmentId, mtoShipment, ifMatchETag) 
 }
 
 /** PPMS */
+export async function getPPMsForMove(moveId) {
+  return makeInternalRequest(
+    'ppm.indexPersonallyProcuredMoves',
+    {
+      moveId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createPPMForMove(moveId, ppm) {
+  return makeInternalRequest(
+    'ppm.createPersonallyProcuredMove',
+    {
+      moveId,
+      createPersonallyProcuredMovePayload: ppm,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchPPM(moveId, ppm) {
+  return makeInternalRequest(
+    'ppm.patchPersonallyProcuredMove',
+    {
+      moveId,
+      personallyProcuredMoveId: ppm.id,
+      patchPersonallyProcuredMovePayload: ppm,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function calculatePPMEstimate(moveDate, originZip, originDutyStationZip, ordersId, weightEstimate) {
   return makeInternalRequest(
     'ppm.showPPMEstimate',

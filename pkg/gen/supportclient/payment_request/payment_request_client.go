@@ -163,7 +163,7 @@ func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRe
 /*
   UpdatePaymentRequestStatus updates payment request status
 
-  Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.
+  Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, or PAID.
 
 A status of REVIEWED can optionally have a `rejectionReason`.
 
