@@ -41,6 +41,13 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	queryBuilder := query.NewQueryBuilder(context.DB())
 	adminAPI.ServeError = handlers.ServeCustomError
 
+	adminAPI.CustomerUsersIndexCustomerUsersHandler = IndexCustomerUsersHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		context,
 		fetch.NewListFetcher(queryBuilder),
