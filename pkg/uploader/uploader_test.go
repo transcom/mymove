@@ -1,3 +1,12 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
+//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
+//RA Developer Status: Mitigated
+//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Validator: jneuner@mitre.org
+//RA Modified Severity:
+// nolint:errcheck
 package uploader_test
 
 import (

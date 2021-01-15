@@ -15,7 +15,16 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 		for line := range lines {
 			// Ignore empty lines when writing to the buffer
 			if len(line) > 0 {
-				in.WriteString(line + "\n")
+				//RA Summary: gosec - errcheck - Unchecked return value
+				//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+				//RA: Function with unchecked return value in the file is used to format a string to ensure it is in multiple lines
+				//RA: Due to the the basic nature of the formatting in which it is adding ensuring the SQL statements provided are in separate lines
+				//RA: there are no unexpected states and conditions in which this could be considered a risk
+				//RA Developer Status: Mitigated
+				//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+				//RA Validator: jneuner@mitre.org
+				//RA Modified Severity:
+				in.WriteString(line + "\n") // nolint:errcheck
 			}
 		}
 		in.Close()

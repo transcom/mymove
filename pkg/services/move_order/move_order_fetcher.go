@@ -118,7 +118,11 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		// cannot eager load the address as "OriginDutyStation.Address" because
 		// OriginDutyStation is a pointer.
 		if moves[i].Orders.OriginDutyStation != nil {
-			f.db.Load(moves[i].Orders.OriginDutyStation, "Address", "TransportationOffice")
+			err := f.db.Load(moves[i].Orders.OriginDutyStation, "Address", "TransportationOffice")
+
+			if err != nil {
+				return moves, count, err
+			}
 		}
 	}
 
@@ -155,7 +159,10 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 	// cannot eager load the address as "OriginDutyStation.Address" because
 	// OriginDutyStation is a pointer.
 	if moveOrder.OriginDutyStation != nil {
-		f.db.Load(moveOrder.OriginDutyStation, "Address")
+		err := f.db.Load(moveOrder.OriginDutyStation, "Address")
+		if err != nil {
+			return moveOrder, err
+		}
 	}
 
 	return moveOrder, nil

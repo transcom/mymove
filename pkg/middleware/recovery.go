@@ -44,7 +44,15 @@ func Recovery(logger Logger) func(inner http.Handler) http.Handler {
 					}{handlers.InternalServerErrMessage, traceID, "An unexpected server error has occurred."})
 					w.Header().Set("Content-Type", "application/json")
 					w.WriteHeader(http.StatusInternalServerError)
-					w.Write(jsonBody)
+					//RA Summary: gosec - errcheck - Unchecked return value
+					//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+					//RA: Function with unchecked return value in the file is used to write a response to the client
+					//RA: Due to the nature of writing to the client being its sole function, any unexpected states and conditons would be inherently handled by the httpResponseWriter
+					//RA Developer Status: Mitigated
+					//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+					//RA Validator: jneuner@mitre.org
+					//RA Modified Severity:
+					w.Write(jsonBody) // nolint:errcheck
 				}
 			}()
 			inner.ServeHTTP(w, r)

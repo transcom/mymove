@@ -64,7 +64,16 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 		LoginGovEmail: userEmail,
 	}
 
-	suite.DB().Create(&newUser)
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+	//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+	//RA: in which this would be considered a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
+	suite.DB().Create(&newUser) // nolint:errcheck
 	err := suite.DB().Create(&sameUser)
 
 	suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "constraint_name"), "Db should have errored on unique constraint for UUID")

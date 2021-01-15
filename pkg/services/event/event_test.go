@@ -232,8 +232,16 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 		// Reinflate the json from the notification payload
 		suite.NotEmpty(notification.Payload)
 		var mtoInPayload MoveTaskOrder
-		json.Unmarshal([]byte(*notification.Payload), &mtoInPayload)
-
+		//RA Summary: gosec - errcheck - Unchecked return value
+		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+		//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+		//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+		//RA: in a unit test, then there is no risk
+		//RA Developer Status: False Positive
+		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+		//RA Validator: jneuner@mitre.org
+		//RA Modified Severity:
+		json.Unmarshal([]byte(*notification.Payload), &mtoInPayload) // nolint:errcheck
 		// Check some params
 		suite.Equal(mto.PPMType, &mtoInPayload.PpmType)
 		suite.Equal(handlers.FmtDateTimePtr(mto.AvailableToPrimeAt).String(), mtoInPayload.AvailableToPrimeAt.String())
@@ -285,8 +293,16 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		// Reinflate the json from the notification payload
 		suite.NotEmpty(notification.Payload)
 		var mtoShipmentInPayload primemessages.MTOShipment
-		json.Unmarshal([]byte(*notification.Payload), &mtoShipmentInPayload)
-
+		//RA Summary: gosec - errcheck - Unchecked return value
+		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+		//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+		//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+		//RA: in a unit test, then there is no risk
+		//RA Developer Status: False Positive
+		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+		//RA Validator: jneuner@mitre.org
+		//RA Modified Severity:
+		json.Unmarshal([]byte(*notification.Payload), &mtoShipmentInPayload) // nolint:errcheck
 		// Check some params
 		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
 		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())

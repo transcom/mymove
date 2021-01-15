@@ -101,17 +101,21 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		}
 	}
 
+	// Get the count
+	count := query.Paginator.TotalEntriesSize
+
 	for i := range paymentRequests {
 		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
 		// cannot eager load the address as "OriginDutyStation.Address" because
 		// OriginDutyStation is a pointer.
 		if originDutyStation := paymentRequests[i].MoveTaskOrder.Orders.OriginDutyStation; originDutyStation != nil {
-			f.db.Load(originDutyStation, "TransportationOffice")
+			err := f.db.Load(originDutyStation, "TransportationOffice")
+
+			if err != nil {
+				return &paymentRequests, count, err
+			}
 		}
 	}
-
-	// Get the count
-	count := query.Paginator.TotalEntriesSize
 
 	return &paymentRequests, count, nil
 }
