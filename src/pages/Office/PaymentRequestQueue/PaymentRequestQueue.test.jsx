@@ -79,6 +79,11 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('thead tr th').at(7).text()).toBe('Origin GBLOC');
   });
 
+  it('renders the correct status filter', () => {
+    const statusFilter = wrapper.find('[data-testid="statusFilter"] MultiSelectCheckBoxFilter');
+    expect(statusFilter.length).toBe(1);
+  });
+
   it('renders the table with data and expected values', () => {
     expect(wrapper.find('Table').exists()).toBe(true);
     expect(wrapper.find('tbody tr').length).toBe(1);

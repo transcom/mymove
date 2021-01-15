@@ -7,7 +7,6 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
@@ -27,7 +26,7 @@ import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
-  selectCurrentMove,
+  selectCurrentPPM,
   selectPPMEstimateRange,
 } from 'store/entities/selectors';
 
@@ -80,38 +79,15 @@ export class PpmWeight extends Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { currentPPM, hasLoadSuccess } = this.props;
-    if (!prevProps.hasLoadSuccess && hasLoadSuccess && currentPPM) {
-      this.setState(
-        {
-          pendingPpmWeight:
-            currentPPM.weight_estimate && currentPPM.weight_estimate !== 0
-              ? currentPPM.weight_estimate
-              : this.getDefaultWeightClassMedian(),
-        },
-        this.updateIncentive,
-      );
-    }
-  }
-
   // this method is used to set the incentive on page load
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive = () => {
-    const { currentPPM, originDutyStationZip, tempCurrentPPM } = this.props;
+    const { currentPPM, originDutyStationZip } = this.props;
     const weight = this.state.pendingPpmWeight;
 
-    // TODO this is a work around till we refactor more SM data...
-    const origMoveDate =
-      currentPPM && currentPPM.hasOwnProperty('original_move_date')
-        ? currentPPM.original_move_date
-        : tempCurrentPPM.original_move_date;
-    // TODO this is a work around till we refactor more SM data...
-    const pickupPostalCode =
-      currentPPM && currentPPM.hasOwnProperty('pickup_postal_code')
-        ? currentPPM.pickup_postal_code
-        : tempCurrentPPM.pickup_postal_code;
+    const origMoveDate = currentPPM?.original_move_date;
+    const pickupPostalCode = currentPPM?.pickup_postal_code;
 
     calculatePPMEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight)
       .then((response) => {
@@ -126,10 +102,8 @@ export class PpmWeight extends Component {
   };
 
   handleSubmit = () => {
-    // TODO this is a work around till we refactor more SM data...
-    const ppmId = this.props.currentPPM.id ? this.props.currentPPM.id : this.props.tempCurrentPPM.id;
-    // TODO this is a work around till we refactor more SM data...
-    const moveId = this.props.currentPPM.move_id ? this.props.currentPPM.move_id : this.props.tempCurrentPPM.move_id;
+    const ppmId = this.props.currentPPM?.id;
+    const moveId = this.props.currentPPM?.move_id;
 
     const ppmBody = {
       id: ppmId,
@@ -284,15 +258,7 @@ export class PpmWeight extends Component {
   }
 
   render() {
-    const {
-      incentiveEstimateMin,
-      incentiveEstimateMax,
-      pages,
-      pageKey,
-      hasEstimateInProgress,
-      error,
-      rateEngineError,
-    } = this.props;
+    const { incentiveEstimateMin, incentiveEstimateMax, pages, pageKey, error, rateEngineError } = this.props;
     const { includesProgear, isProgearMoreThan1000, hasEstimateError } = this.state;
 
     return (
@@ -302,7 +268,6 @@ export class PpmWeight extends Component {
         pageKey={pageKey}
         serverError={error}
         additionalValues={{
-          hasEstimateInProgress,
           incentiveEstimateMax,
         }}
         readyToSubmit={!hasShortHaulError(rateEngineError)}
@@ -426,31 +391,25 @@ PpmWeight.propTypes = {
     weight: PropTypes.number,
     incentive: PropTypes.string,
   }),
-  hasLoadSuccess: PropTypes.bool.isRequired,
   currentPPM: PropTypes.object.isRequired,
 };
 
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const currentMove = selectCurrentMove(state);
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
   const originDutyStationZip = serviceMember?.current_station?.address?.postal_code;
-  const moveID = currentMove?.id;
   const serviceMemberId = serviceMember?.id;
 
   const props = {
-    ...state.ppm,
     rateEngineError: selectPPMEstimateError(state),
     serviceMemberId,
     incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
-    currentPPM: selectActivePPMForMove(state, moveID),
+    currentPPM: selectCurrentPPM(state) || {},
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
     orders: selectCurrentOrders(state) || {},
-    // TODO this is a work around till we refactor more SM data...
-    tempCurrentPPM: get(state, 'ppm.currentPpm'),
   };
 
   return props;

@@ -2,6 +2,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
+import { SHIPMENT_OPTIONS } from '../../../shared/constants';
+
 import { PaymentRequestReview } from './PaymentRequestReview';
 
 const mockPDFUpload = {
@@ -34,6 +36,8 @@ const mockPNGUpload = {
   url: '/storage/prime/99/uploads/10?contentType=image%2Fpng',
 };
 
+const mockShipmentOptions = SHIPMENT_OPTIONS;
+
 jest.mock('hooks/queries', () => ({
   usePaymentRequestQueries: () => {
     const testPaymentRequestId = 'test-payment-id-123';
@@ -60,6 +64,9 @@ jest.mock('hooks/queries', () => ({
         1: {
           id: '1',
           mtoServiceItemID: 'a',
+          mtoShipmentID: 'a1',
+          mtoShipmentType: mockShipmentOptions.HHG,
+          mtoServiceItemName: 'Test Service Item',
           priceCents: 12399,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'APPROVED',
@@ -67,12 +74,18 @@ jest.mock('hooks/queries', () => ({
         2: {
           id: '2',
           mtoServiceItemID: 'b',
+          mtoShipmentID: 'b2',
+          mtoShipmentType: mockShipmentOptions.NTSR,
+          mtoServiceItemName: 'Test Service Item 2',
           priceCents: 45600,
           createdAt: '2020-01-01T00:09:00.999Z',
         },
         3: {
           id: '3',
           mtoServiceItemID: 'c',
+          mtoShipmentID: 'a1',
+          mtoShipmentType: mockShipmentOptions.HHG,
+          mtoServiceItemName: 'Test Service Item 3',
           priceCents: 12312,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'DENIED',
@@ -81,38 +94,8 @@ jest.mock('hooks/queries', () => ({
           id: '4',
           mtoServiceItemID: 'd',
           priceCents: 99999,
+          mtoServiceItemName: 'Test Service Item 4',
           createdAt: '2020-01-01T00:09:00.999Z',
-        },
-      },
-      mtoShipments: {
-        a1: {
-          id: 'a1',
-          shipmentType: 'HHG',
-        },
-        b2: {
-          id: 'b2',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-        },
-      },
-      mtoServiceItems: {
-        a: {
-          id: 'a',
-          mtoShipmentID: 'a1',
-          reServiceName: 'Test Service Item',
-        },
-        b: {
-          id: 'b',
-          mtoShipmentID: 'b2',
-          reServiceName: 'Test Service Item 2',
-        },
-        c: {
-          id: 'c',
-          mtoShipmentID: 'a1',
-          reServiceName: 'Test Service Item 3',
-        },
-        d: {
-          id: 'd',
-          reServiceName: 'Test Service Item 4',
         },
       },
       isLoading: false,
@@ -152,33 +135,33 @@ describe('PaymentRequestReview', () => {
       const expectedServiceItemCards = [
         {
           id: '1',
-          shipmentId: 'a1',
-          shipmentType: 'HHG',
-          serviceItemName: 'Test Service Item',
+          mtoShipmentID: 'a1',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoServiceItemName: 'Test Service Item',
           amount: 123.99,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'APPROVED',
         },
         {
           id: '2',
-          shipmentId: 'b2',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          serviceItemName: 'Test Service Item 2',
+          mtoShipmentID: 'b2',
+          mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
+          mtoServiceItemName: 'Test Service Item 2',
           amount: 456.0,
           createdAt: '2020-01-01T00:09:00.999Z',
         },
         {
           id: '3',
-          shipmentId: 'a1',
-          shipmentType: 'HHG',
-          serviceItemName: 'Test Service Item 3',
+          mtoShipmentID: 'a1',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoServiceItemName: 'Test Service Item 3',
           amount: 123.12,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'DENIED',
         },
         {
           id: '4',
-          serviceItemName: 'Test Service Item 4',
+          mtoServiceItemName: 'Test Service Item 4',
           amount: 999.99,
           createdAt: '2020-01-01T00:09:00.999Z',
         },

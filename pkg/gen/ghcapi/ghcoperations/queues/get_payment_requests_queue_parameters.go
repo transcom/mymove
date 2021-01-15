@@ -370,7 +370,7 @@ func (o *GetPaymentRequestsQueueParams) bindStatus(rawData []string, hasKey bool
 	for i, statusIV := range statusIC {
 		statusI := statusIV
 
-		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"Payment requested", "Reviewed", "Paid"}, true); err != nil {
+		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"Payment requested", "Reviewed", "Rejected", "Paid"}, true); err != nil {
 			return err
 		}
 

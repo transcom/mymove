@@ -3,8 +3,9 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { bindActionCreators } from 'redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import {
-  selectReimbursement,
   approveReimbursement,
   selectActivePPMForMove,
   downloadPPMAttachments,
@@ -14,12 +15,11 @@ import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments
 import { getSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { selectPaymentRequestCertificationForMove } from 'shared/Entities/modules/signed_certifications';
 import { getLastError } from 'shared/Swagger/selectors';
+import { selectReimbursementById } from 'store/entities/selectors';
 
 import { no_op } from 'shared/utils';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { formatCents, formatDate } from 'shared/formatters';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import './PaymentsPanel.css';
 import Alert from 'shared/Alert';
@@ -317,7 +317,7 @@ class PaymentsTable extends Component {
 const mapStateToProps = (state, ownProps) => {
   const { moveId } = ownProps;
   const ppm = selectActivePPMForMove(state, moveId);
-  const advance = selectReimbursement(state, ppm.advance);
+  const advance = selectReimbursementById(state, ppm.advance) || {};
   const signedCertifications = selectPaymentRequestCertificationForMove(state, moveId);
   const moveDocuments = selectAllDocumentsForMove(state, moveId);
   const disableSSW = sswIsDisabled(ppm, signedCertifications);
