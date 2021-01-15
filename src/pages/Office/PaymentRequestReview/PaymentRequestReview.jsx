@@ -17,15 +17,9 @@ import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 export const PaymentRequestReview = ({ history, match }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
   const { paymentRequestId, moveCode } = match.params;
-  const {
-    paymentRequest,
-    paymentRequests,
-    paymentServiceItems,
-    mtoShipments,
-    mtoServiceItems,
-    isLoading,
-    isError,
-  } = usePaymentRequestQueries(paymentRequestId);
+  const { paymentRequest, paymentRequests, paymentServiceItems, isLoading, isError } = usePaymentRequestQueries(
+    paymentRequestId,
+  );
 
   const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
     onSuccess: (data, variables) => {
@@ -46,6 +40,14 @@ export const PaymentRequestReview = ({ history, match }) => {
   const [mutatePaymentServiceItemStatus] = useMutation(patchPaymentServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newPaymentServiceItem = data.paymentServiceItems[variables.paymentServiceItemID];
+      const oldPaymentServiceItem = paymentServiceItems[variables.paymentServiceItemID];
+
+      // We already have this associated data and it won't change on status update and
+      // would be overwritten with null values as they aren't in the payload response
+      newPaymentServiceItem.mtoServiceItemName = oldPaymentServiceItem.mtoServiceItemName;
+      newPaymentServiceItem.mtoShipmentType = oldPaymentServiceItem.mtoShipmentType;
+      newPaymentServiceItem.mtoShipmentID = oldPaymentServiceItem.mtoShipmentID;
+
       queryCache.setQueryData([PAYMENT_REQUESTS, paymentRequestId], {
         paymentRequests,
         paymentServiceItems: {
@@ -63,8 +65,6 @@ export const PaymentRequestReview = ({ history, match }) => {
     ? paymentRequest.proofOfServiceDocs.flatMap((docs) => docs.uploads.flatMap((primeUploads) => primeUploads))
     : [];
   const paymentServiceItemsArr = Object.values(paymentServiceItems);
-  const mtoServiceItemsArr = Object.values(mtoServiceItems);
-  const mtoShipmentsArr = Object.values(mtoShipments);
 
   const handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
     const paymentServiceItemForRequest = paymentServiceItemsArr.find((s) => s.id === paymentServiceItemID);
@@ -98,14 +98,11 @@ export const PaymentRequestReview = ({ history, match }) => {
   };
 
   const serviceItemCards = paymentServiceItemsArr.map((item) => {
-    const mtoServiceItem = mtoServiceItemsArr.find((s) => s.id === item.mtoServiceItemID);
-    const itemShipment = mtoServiceItem && mtoShipmentsArr.find((s) => s.id === mtoServiceItem.mtoShipmentID);
-
     return {
       id: item.id,
-      shipmentId: mtoServiceItem?.mtoShipmentID,
-      shipmentType: itemShipment?.shipmentType,
-      serviceItemName: mtoServiceItem?.reServiceName,
+      mtoShipmentID: item.mtoShipmentID,
+      mtoShipmentType: item.mtoShipmentType,
+      mtoServiceItemName: item.mtoServiceItemName,
       amount: item.priceCents ? item.priceCents / 100 : 0,
       createdAt: item.createdAt,
       status: item.status,
