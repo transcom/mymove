@@ -25,6 +25,7 @@ describe('TIO user', () => {
     cy.intercept('**/ghc/v1/queues/payment-requests?sort=age&order=desc&page=1&perPage=20').as(
       'getSortedPaymentRequests',
     );
+    cy.intercept('**/ghc/v1/moves/**/payment-requests').as('getMovePaymentRequests');
     cy.intercept('**/ghc/v1/payment-requests/**').as('getPaymentRequest');
 
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
@@ -46,6 +47,7 @@ describe('TIO user', () => {
 
     // Payment Requests page
     cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests']);
     cy.get('[data-testid="MovePaymentRequests"]');
     cy.contains('Review service items').click();
 
@@ -79,7 +81,16 @@ describe('TIO user', () => {
     cy.contains('Authorize payment').click();
     cy.wait('@patchPaymentRequestStatus');
 
+    // Returns to payment requests overview for move
+    cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+    cy.get('[data-testid="MovePaymentRequests"] [data-testid="tag"]').contains('Reviewed');
+    cy.contains('Review Service Items').should('not.exist');
+
     // Go back to queue
+    cy.get('a[title="Home"]').click();
+
     cy.contains('Payment requests', { matchCase: false });
     cy.contains('Reviewed', { matchCase: false });
     cy.get('[data-uuid="' + paymentRequestId + '"]').within(() => {
