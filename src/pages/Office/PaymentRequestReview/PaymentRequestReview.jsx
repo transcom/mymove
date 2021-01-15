@@ -29,7 +29,7 @@ export const PaymentRequestReview = ({ history, match }) => {
         paymentServiceItems,
       });
       // TODO - show flash message?
-      history.push(`/`); // Go home
+      history.push(`/moves/${moveCode}/payment-requests`);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -78,17 +78,19 @@ export const PaymentRequestReview = ({ history, match }) => {
     });
   };
 
-  const handleCompleteReview = () => {
+  const handleCompleteReview = (requestRejected = false) => {
     // first reset error if there was one
     if (completeReviewError) setCompleteReviewError(undefined);
 
-    const newPaymentRequest = {
+    const updatedPaymentRequest = {
       paymentRequestID: paymentRequest.id,
       ifMatchETag: paymentRequest.eTag,
-      status: PAYMENT_REQUEST_STATUS.REVIEWED,
+      status: requestRejected
+        ? PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+        : PAYMENT_REQUEST_STATUS.REVIEWED,
     };
 
-    mutatePaymentRequest(newPaymentRequest);
+    mutatePaymentRequest(updatedPaymentRequest);
   };
 
   const handleClose = () => {

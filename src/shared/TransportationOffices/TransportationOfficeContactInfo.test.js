@@ -8,7 +8,10 @@ describe('TransportationOfficeContactInfo tests', () => {
     const loadFn = jest.fn();
     const div = document.createElement('div');
     wrapper = shallow(
-      <TransportationOfficeContactInfo dutyStation={{ id: '123' }} loadDutyStationTransportationOffice={loadFn} />,
+      <TransportationOfficeContactInfo
+        dutyStation={{ id: '123', name: 'Test Duty Station' }}
+        loadDutyStationTransportationOffice={loadFn}
+      />,
       div,
     );
     expect(wrapper.find('div').length).toEqual(3);

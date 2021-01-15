@@ -2,6 +2,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
+import { SHIPMENT_OPTIONS } from '../../../shared/constants';
+
 import { PaymentRequestReview } from './PaymentRequestReview';
 
 const mockPDFUpload = {
@@ -34,6 +36,8 @@ const mockPNGUpload = {
   url: '/storage/prime/99/uploads/10?contentType=image%2Fpng',
 };
 
+const mockShipmentOptions = SHIPMENT_OPTIONS;
+
 jest.mock('hooks/queries', () => ({
   usePaymentRequestQueries: () => {
     const testPaymentRequestId = 'test-payment-id-123';
@@ -61,7 +65,7 @@ jest.mock('hooks/queries', () => ({
           id: '1',
           mtoServiceItemID: 'a',
           mtoShipmentID: 'a1',
-          mtoShipmentType: 'HHG',
+          mtoShipmentType: mockShipmentOptions.HHG,
           mtoServiceItemName: 'Test Service Item',
           priceCents: 12399,
           createdAt: '2020-01-01T00:09:00.999Z',
@@ -71,7 +75,7 @@ jest.mock('hooks/queries', () => ({
           id: '2',
           mtoServiceItemID: 'b',
           mtoShipmentID: 'b2',
-          mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          mtoShipmentType: mockShipmentOptions.NTSR,
           mtoServiceItemName: 'Test Service Item 2',
           priceCents: 45600,
           createdAt: '2020-01-01T00:09:00.999Z',
@@ -80,7 +84,7 @@ jest.mock('hooks/queries', () => ({
           id: '3',
           mtoServiceItemID: 'c',
           mtoShipmentID: 'a1',
-          mtoShipmentType: 'HHG',
+          mtoShipmentType: mockShipmentOptions.HHG,
           mtoServiceItemName: 'Test Service Item 3',
           priceCents: 12312,
           createdAt: '2020-01-01T00:09:00.999Z',
@@ -132,7 +136,7 @@ describe('PaymentRequestReview', () => {
         {
           id: '1',
           mtoShipmentID: 'a1',
-          mtoShipmentType: 'HHG',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoServiceItemName: 'Test Service Item',
           amount: 123.99,
           createdAt: '2020-01-01T00:09:00.999Z',
@@ -141,7 +145,7 @@ describe('PaymentRequestReview', () => {
         {
           id: '2',
           mtoShipmentID: 'b2',
-          mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
           mtoServiceItemName: 'Test Service Item 2',
           amount: 456.0,
           createdAt: '2020-01-01T00:09:00.999Z',
@@ -149,7 +153,7 @@ describe('PaymentRequestReview', () => {
         {
           id: '3',
           mtoShipmentID: 'a1',
-          mtoShipmentType: 'HHG',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoServiceItemName: 'Test Service Item 3',
           amount: 123.12,
           createdAt: '2020-01-01T00:09:00.999Z',

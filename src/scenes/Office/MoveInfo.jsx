@@ -10,7 +10,7 @@ import moment from 'moment';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'containers/PrivateRoute';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert';
 import ToolTip from 'shared/ToolTip';
 import ComboButton from 'shared/ComboButton';
 import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
@@ -30,9 +30,10 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
-import { approvePPM, loadPPMs, selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { approvePPM, loadPPMs, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
+import { selectReimbursementById } from 'store/entities/selectors';
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
 
@@ -455,7 +456,7 @@ const mapStateToProps = (state, ownProps) => {
     moveStatus: selectMoveStatus(state, moveId),
     orders,
     ordersId,
-    ppmAdvance: selectReimbursement(state, ppm.advance),
+    ppmAdvance: selectReimbursementById(state, ppm.advance) || {},
     serviceMember,
     serviceMemberId,
     swaggerError: get(state, 'swagger.hasErrored'),

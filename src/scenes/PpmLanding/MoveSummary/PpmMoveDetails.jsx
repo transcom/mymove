@@ -7,8 +7,7 @@ import styles from './PpmMoveDetails.module.scss';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import { getIncentiveRange } from 'utils/incentives';
-import { selectReimbursement } from 'shared/Entities/modules/ppms';
-import { selectPPMEstimateRange } from 'store/entities/selectors';
+import { selectPPMEstimateRange, selectReimbursementById } from 'store/entities/selectors';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 
 const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimateRange, netWeight }) => {
@@ -72,7 +71,7 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const advance = selectReimbursement(state, ownProps.ppm.advance);
+  const advance = selectReimbursementById(state, ownProps.ppm.advance) || {};
   const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
     'WEIGHT_TICKET_SET',
   ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
