@@ -1658,6 +1658,208 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 	})
 }
 
+func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db *pop.Connection, userUploader *uploader.UserUploader) {
+	/* Customer with two payment requests */
+	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-ffffffffffff"),
+		},
+	})
+
+	orders7 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-ffffffffffff"),
+			ServiceMemberID: customer7.ID,
+			ServiceMember:   customer7,
+		},
+		UserUploader: userUploader,
+	})
+
+	locatorID := "PayRej"
+	mto7 := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-ffffffffffff"),
+			OrdersID:           orders7.ID,
+			AvailableToPrimeAt: swag.Time(time.Now()),
+			Status:             models.MoveStatusAPPROVED,
+			SelectedMoveType:   &hhgMoveType,
+			Locator:            locatorID,
+		},
+	})
+
+	mtoShipmentHHG7 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-ffffffffffff"),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusApproved,
+		},
+		Move: mto7,
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-ffffffffffff"),
+			MTOShipment:   mtoShipmentHHG7,
+			MTOShipmentID: mtoShipmentHHG7.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	reviewedDate := time.Now()
+	paymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:            uuid.FromStringOrNil("ea945ab7-099a-4819-82de-ffffffffffff"),
+			MoveTaskOrder: mto7,
+			IsFinal:       false,
+			Status:        models.PaymentRequestStatusReviewedAllRejected,
+			ReviewedAt:    &reviewedDate,
+		},
+		Move: mto7,
+	})
+
+	// for soft deleted proof of service docs
+	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: paymentRequest7,
+	})
+
+	deletedAt := time.Now()
+	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
+		PrimeUpload: models.PrimeUpload{
+			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-ffffffffffff"),
+			ProofOfServiceDoc:   proofOfService,
+			ProofOfServiceDocID: proofOfService.ID,
+			Contractor: models.Contractor{
+				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+			},
+			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
+			DeletedAt:    &deletedAt,
+		},
+	})
+
+	serviceItemMS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-ffffffffffff"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move: mto7,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	rejectionReason := "Just because."
+	msCost := unit.Cents(10000)
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents:      &msCost,
+			Status:          models.PaymentServiceItemStatusDenied,
+			RejectionReason: &rejectionReason,
+		},
+		PaymentRequest: paymentRequest7,
+		MTOServiceItem: serviceItemMS7,
+	})
+
+	serviceItemDLH7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("aab8df9a-bbc9-4f26-a3ab-ffffffffffff"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move: mto7,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		},
+	})
+
+	dlhCost := unit.Cents(99999)
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents:      &dlhCost,
+			Status:          models.PaymentServiceItemStatusDenied,
+			RejectionReason: &rejectionReason,
+		},
+		PaymentRequest: paymentRequest7,
+		MTOServiceItem: serviceItemDLH7,
+	})
+
+	additionalPaymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-ffffffffffff"),
+			MoveTaskOrder:   mto7,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusReviewedAllRejected,
+			ReviewedAt:      &reviewedDate,
+			RejectionReason: nil,
+			SequenceNumber:  2,
+		},
+		Move: mto7,
+	})
+
+	serviceItemCS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-ffffffffffff"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move: mto7,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	csCost := unit.Cents(25000)
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents:      &csCost,
+			Status:          models.PaymentServiceItemStatusDenied,
+			RejectionReason: &rejectionReason,
+		},
+		PaymentRequest: additionalPaymentRequest7,
+		MTOServiceItem: serviceItemCS7,
+	})
+
+	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-ffffffffffff"),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom, // same as HHG for now
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusApproved,
+		},
+		Move: mto7,
+	})
+
+	serviceItemFSC7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-ffffffffffff"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        mto7,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		},
+	})
+
+	fscCost := unit.Cents(55555)
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents:      &fscCost,
+			Status:          models.PaymentServiceItemStatusDenied,
+			RejectionReason: &rejectionReason,
+		},
+		PaymentRequest: additionalPaymentRequest7,
+		MTOServiceItem: serviceItemFSC7,
+	})
+}
+
 func createTOO(db *pop.Connection) {
 	/* A user with too role */
 	tooRole := roles.Role{}
@@ -2267,6 +2469,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createMoveWithPPMAndHHG(db, userUploader)
 	createHHGMoveWith10ServiceItems(db, userUploader)
 	createHHGMoveWith2PaymentRequests(db, userUploader)
+	createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db, userUploader)
 	createHHGMoveWithTaskOrderServices(db, userUploader)
 	// This one doesn't have submitted shipments. Can we get rid of it?
 	// createRecentlyUpdatedHHGMove(db, userUploader)
