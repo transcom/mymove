@@ -22,7 +22,7 @@ require (
 	github.com/go-openapi/errors v0.19.9
 	github.com/go-openapi/loads v0.20.0
 	github.com/go-openapi/runtime v0.19.24
-	github.com/go-openapi/spec v0.20.0
+	github.com/go-openapi/spec v0.20.1
 	github.com/go-openapi/strfmt v0.19.11
 	github.com/go-openapi/swag v0.19.12
 	github.com/go-openapi/validate v0.20.0
@@ -73,7 +73,7 @@ require (
 	go.uber.org/zap v1.16.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
-	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
+	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/text v0.3.5
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
