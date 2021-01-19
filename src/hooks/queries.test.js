@@ -7,9 +7,14 @@ import {
   useMovesQueueQueries,
   usePaymentRequestQueueQueries,
   useUserQueries,
+  useTXOMoveInfoQueries,
 } from './queries';
 
 jest.mock('services/ghcApi', () => ({
+  getCustomer: (key, id) =>
+    Promise.resolve({
+      customer: { [id]: { id, last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' } },
+    }),
   getPaymentRequest: (key, id) =>
     Promise.resolve({
       paymentRequests: {
@@ -45,13 +50,24 @@ jest.mock('services/ghcApi', () => ({
     Promise.resolve({
       id: '1234',
       ordersId: '4321',
+      locator: 'ABCDEF',
     }),
   getMoveOrder: (key, id) =>
     Promise.resolve({
       moveOrders: {
         [id]: {
           id,
+          customerID: '2468',
           uploaded_order_id: '2',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyStation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyStation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
         },
       },
     }),
@@ -115,6 +131,44 @@ jest.mock('services/internalApi', () => ({
       office_user: { transportation_office: { gbloc: 'LMKG' } },
     }),
 }));
+
+describe('useTXOMoveInfoQueries', () => {
+  it('loads data', async () => {
+    const testMoveCode = 'ABCDEF';
+    const { result, waitForNextUpdate } = renderHook(() => useTXOMoveInfoQueries(testMoveCode));
+
+    expect(result.current).toEqual({
+      moveOrder: undefined,
+      customerData: undefined,
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+    });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+      moveOrder: {
+        id: '4321',
+        customerID: '2468',
+        uploaded_order_id: '2',
+        departmentIndicator: 'Navy',
+        grade: 'E-6',
+        originDutyStation: {
+          name: 'JBSA Lackland',
+        },
+        destinationDutyStation: {
+          name: 'JB Lewis-McChord',
+        },
+        report_by_date: '2018-08-01',
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
 
 describe('usePaymentRequestQueries', () => {
   it('loads data', async () => {
@@ -188,7 +242,17 @@ describe('useMoveTaskOrderQueries', () => {
       moveOrders: {
         4321: {
           id: '4321',
+          customerID: '2468',
           uploaded_order_id: '2',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyStation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyStation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
         },
       },
       moveTaskOrders: {
@@ -227,11 +291,21 @@ describe('useOrdersDocumentQueries', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      move: { id: '1234', ordersId: '4321' },
+      move: { id: '1234', ordersId: '4321', locator: 'ABCDEF' },
       moveOrders: {
         4321: {
           id: '4321',
+          customerID: '2468',
           uploaded_order_id: '2',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyStation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyStation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
         },
       },
       documents: {
