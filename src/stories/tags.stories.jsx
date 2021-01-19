@@ -22,6 +22,7 @@ export const all = () => (
     <Tag className="usa-tag--alert">
       <FontAwesomeIcon icon="exclamation" />
     </Tag>
+    &nbsp;
     <Tag className="usa-tag--teal">INTL</Tag>
     <Tag>3</Tag>
     <Tag className="usa-tag--cyan usa-tag--large">#ABC123K</Tag>
