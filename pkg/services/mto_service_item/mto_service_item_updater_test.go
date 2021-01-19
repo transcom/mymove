@@ -101,7 +101,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(updatedServiceItem.MoveTaskOrderID, serviceItem.MoveTaskOrderID)
 		suite.Equal(updatedServiceItem.Reason, newServiceItem.Reason)
 		suite.Equal(updatedServiceItem.SITEntryDate.Local(), newServiceItem.SITEntryDate.Local())
-		suite.Equal(updatedServiceItem.Status, serviceItem.Status)
+		suite.Equal(updatedServiceItem.Status, serviceItem.Status) // should not have been updated
 		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.StreetAddress1, newAddress.StreetAddress1)
 		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.City, newAddress.City)
 		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.State, newAddress.State)
