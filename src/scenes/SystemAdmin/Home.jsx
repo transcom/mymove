@@ -15,6 +15,7 @@ import OfficeUserShow from './OfficeUsers/OfficeUserShow';
 import AdminUserList from './AdminUsers/AdminUserList';
 import AdminUserShow from './AdminUsers/AdminUserShow';
 import AdminUserCreate from './AdminUsers/AdminUserCreate';
+import CustomerUserList from './CustomerUsers/CustomerUserList';
 import OfficeList from './Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
@@ -72,6 +73,7 @@ const Home = () => (
         create={AdminUserCreate}
         edit={AdminUserEdit}
       />
+      <Resource name="customer_users" options={{ label: 'Customer Users' }} list={CustomerUserList} />
       <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} />
       <Resource
         name="transportation_service_provider_performances"
