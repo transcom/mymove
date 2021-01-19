@@ -53,10 +53,12 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
+// TODO - Convert to functional component
 export class MoveDetails extends Component {
   constructor(props) {
     super(props);
 
+    // TODO - Move these into react hook useState
     this.state = {
       activeSection: '',
       sections: ['orders', 'allowances', 'customer-info'],
@@ -64,6 +66,7 @@ export class MoveDetails extends Component {
   }
 
   componentDidMount() {
+    // TODO - useEffects can be used for for this
     // attach scroll listener
     window.addEventListener('scroll', this.handleScroll);
 
@@ -77,6 +80,8 @@ export class MoveDetails extends Component {
       getMTOShipments,
       getMTOServiceItems,
     } = this.props;
+    // TODO -   const history = useHistory();
+    //   const { moveCode } = useParams();
     const {
       params: { moveCode },
     } = match;
@@ -89,12 +94,17 @@ export class MoveDetails extends Component {
         },
       }) => {
         getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
+          // TODO - getCustomer can be removed since we can update payload of move order to include customer
           getCustomer(moveOrder.customerID);
+          // TODO - getAllMoveTaskOrders can be replaced by the getMove call
           getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
             moveTaskOrder.forEach((item) =>
               getMTOShipments(item.id).then(({ response: { body: mtoShipments } }) => {
+                // TODO - This can be removed once we return service items in mto shipment payload
                 mtoShipments.map((shipment) => getMTOAgentList(shipment.moveTaskOrderID, shipment.id));
+                // TODO - Can probably call this after getting mto shipment data
                 this.checkToAddShipmentsSections(mtoShipments);
+                // TODO - This can be removed once we return service items in mto shipment payload
                 getMTOServiceItems(item.id);
               }),
             );
@@ -104,6 +114,7 @@ export class MoveDetails extends Component {
     );
   }
 
+  // TODO - useEffects can be used for for this
   componentWillUnmount() {
     // remove scroll listener
     window.removeEventListener('scroll', this.handleScroll);
@@ -133,6 +144,7 @@ export class MoveDetails extends Component {
   };
 
   checkToAddShipmentsSections = (shipments) => {
+    // TODO - This is duplicated code, could probably take this out and reuse
     const approvedShipments = shipments.filter((shipment) => shipment.status === 'APPROVED');
     const submittedShipments = shipments.filter((shipment) => shipment.status === 'SUBMITTED');
 
@@ -148,6 +160,7 @@ export class MoveDetails extends Component {
   };
 
   render() {
+    // TODO - will be replaced by the query call
     const {
       moveOrder,
       allowances,
@@ -161,13 +174,16 @@ export class MoveDetails extends Component {
       match,
     } = this.props;
 
+    // TODO - useParam can be used here
     const {
       params: { moveCode },
     } = match;
 
+    // TODO - we can probably reuse this and pass into the checkToAddShipmentsSections()
     const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
     const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
 
+    // TODO - useState call
     const { activeSection, sections } = this.state;
 
     const ordersInfo = {
@@ -218,6 +234,7 @@ export class MoveDetails extends Component {
 
           <GridContainer className={styles.gridContainer} data-testid="too-move-details">
             <h1>Move details</h1>
+            {/* TODO - RequestedShipments could be simplified, if extra time we could tackle this or just write a story to track */}
             {submittedShipments.length > 0 && (
               <div className={styles.section} id="requested-shipments">
                 <RequestedShipments
@@ -252,7 +269,7 @@ export class MoveDetails extends Component {
               <GridContainer>
                 <Grid row gap>
                   <Grid col>
-                    <OrdersTable ordersInfo={ordersInfo} moveCode={moveCode} />
+                    <OrdersTable ordersInfo={ordersInfo} />
                   </Grid>
                 </Grid>
               </GridContainer>
