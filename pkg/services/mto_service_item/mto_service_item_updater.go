@@ -207,7 +207,8 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 		return nil, services.NewPreconditionFailedError(validServiceItem.ID, nil)
 	}
 
-	if validServiceItem.SITDestinationFinalAddress != nil {
+	if validServiceItem.SITDestinationFinalAddress != nil &&
+		(validServiceItem.SITDestinationFinalAddressID == nil || *validServiceItem.SITDestinationFinalAddressID == uuid.Nil) {
 		verrs, createErr := p.builder.CreateOne(validServiceItem.SITDestinationFinalAddress)
 		if verrs != nil || createErr != nil {
 			return nil, fmt.Errorf("%#v %e", verrs, createErr)
