@@ -22,11 +22,6 @@ type IndexCustomerUsersHandler struct {
 }
 
 func payloadForCustomerUserModel(o models.User) *adminmessages.CustomerUser {
-	// var customeruser models.User
-	// // ID is not a pointer,and we need to specify a zero-value uuid with uuid.Nil rather than a nil
-	// if o.ID != uuid.Nil {
-	// 	customeruser = o // the model User is "o"
-	// }
 	payload := &adminmessages.CustomerUser{
 		ID:        handlers.FmtUUID(o.ID),
 		Email:     handlers.FmtString(o.LoginGovEmail),
