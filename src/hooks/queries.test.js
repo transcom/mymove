@@ -50,7 +50,7 @@ jest.mock('services/ghcApi', () => ({
     Promise.resolve({
       id: '1234',
       ordersId: '4321',
-      locator: 'ABCDEF',
+      moveCode: 'ABCDEF',
     }),
   getMoveOrder: (key, id) =>
     Promise.resolve({
@@ -285,13 +285,13 @@ describe('useMoveTaskOrderQueries', () => {
 
 describe('useOrdersDocumentQueries', () => {
   it('loads data', async () => {
-    const testLocatorId = 'a1b2';
+    const testLocatorId = 'ABCDEF';
     const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testLocatorId));
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      move: { id: '1234', ordersId: '4321', locator: 'ABCDEF' },
+      move: { id: '1234', ordersId: '4321', moveCode: testLocatorId },
       moveOrders: {
         4321: {
           id: '4321',
