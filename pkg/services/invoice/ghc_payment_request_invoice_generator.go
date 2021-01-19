@@ -32,7 +32,7 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection, icnSequencer seque
 const dateFormat = "20060102"
 const isaDateFormat = "060102"
 const timeFormat = "1504"
-const maxCityLength = 27
+const maxCityLength = 30
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
@@ -713,7 +713,7 @@ func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {
 }
 
 func truncateStr(str string, cutoff int) string {
-	if len(str) >= cutoff {
+	if len(str) >= cutoff-3 {
 		return str[:cutoff] + "..."
 	}
 	return str

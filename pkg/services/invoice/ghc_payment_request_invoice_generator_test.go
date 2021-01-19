@@ -742,3 +742,14 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 		suite.Equal(int64(0), l3.PriceCents)
 	})
 }
+
+func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
+	longStr := "A super duper long string"
+	cutoff := 10
+	expectedTruncatedStr := "A super du..."
+	suite.Equal(expectedTruncatedStr, truncateStr(longStr, cutoff))
+
+	shortStr := "Short"
+	suite.Equal(shortStr, truncateStr(shortStr, cutoff))
+
+}
