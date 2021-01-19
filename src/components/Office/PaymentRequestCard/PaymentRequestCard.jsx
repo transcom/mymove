@@ -21,10 +21,10 @@ const paymentRequestStatusLabel = (status) => {
     case 'SENT_TO_GEX':
     case 'RECEIVED_BY_GEX':
       return 'Reviewed';
-    case 'PAID':
-      return 'Paid';
     case 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED':
       return 'Rejected';
+    case 'PAID':
+      return 'Paid';
     default:
       return status;
   }

@@ -1777,6 +1777,7 @@ func init() {
               "enum": [
                 "Payment requested",
                 "Reviewed",
+                "Rejected",
                 "Paid"
               ],
               "type": "string"
@@ -5905,6 +5906,7 @@ func init() {
               "enum": [
                 "Payment requested",
                 "Reviewed",
+                "Rejected",
                 "Paid"
               ],
               "type": "string"
