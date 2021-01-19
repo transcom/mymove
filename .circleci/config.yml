@@ -409,7 +409,9 @@ commands:
           environment:
             APPLICATION: '<< parameters.application >>'
             DB_PASSWORD: mysecretpassword
+            DB_PASSWORD_LOW_PRIV: mysecretpassword
             DB_USER: postgres
+            DB_USER_LOW_PRIV: crud
             DB_HOST: localhost
             DB_PORT_TEST: 5433
             DB_PORT: 5432
@@ -714,8 +716,6 @@ jobs:
       - run: make bin/milmove
       - server_tests_step:
           application: app
-      - server_tests_step:
-          application: orders
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
           destination: test-results
@@ -777,9 +777,11 @@ jobs:
             DB_NAME: test_db
             DB_NAME_TEST: test_db
             DB_PASSWORD: mysecretpassword
+            DB_PASSWORD_LOW_PRIV: mysecretpassword
             DB_PORT: 5432
             DB_PORT_TEST: 5432
             DB_USER: postgres
+            DB_USER_LOW_PRIV: crud
       - announce_failure
 
   # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
