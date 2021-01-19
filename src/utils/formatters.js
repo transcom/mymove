@@ -13,6 +13,13 @@ export function formatOrderType(orderType) {
     .join(' ');
 }
 
+export const AGENCIES = {
+  ARMY: 'Army',
+  NAVY: 'Navy',
+  MARINES: 'Marine Corps',
+  AIR_FORCE: 'Air Force',
+  COAST_GUARD: 'Coast Guard',
+};
 // Format the grade (rank) from underscore to dash (ex. E_1 to E-1)
 export function formatGrade(grade) {
   return grade.split('_').join('-');

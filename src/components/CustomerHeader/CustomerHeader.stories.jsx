@@ -14,7 +14,7 @@ export default {
 const props = {
   customer: { last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
   moveOrder: {
-    departmentIndicator: 'Navy',
+    agency: 'MARINES',
     grade: 'E-6',
     originDutyStation: {
       name: 'JBSA Lackland',
