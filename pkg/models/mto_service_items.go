@@ -35,10 +35,6 @@ type MTOServiceItem struct {
 	Status                       MTOServiceItemStatus           `db:"status"`
 	PickupPostalCode             *string                        `db:"pickup_postal_code"`
 	SITPostalCode                *string                        `db:"sit_postal_code"`
-	SITOriginOriginalAddress     *Address                       `belongs_to:"addresses"`
-	SITOriginOriginalAddressID   *uuid.UUID                     `db:"sit_origin_original_address_id"`
-	SITOriginActualAddress       *Address                       `belongs_to:"addresses"`
-	SITOriginActualAddressID     *uuid.UUID                     `db:"sit_origin_actual_address_id"`
 	SITDestinationFinalAddress   *Address                       `belongs_to:"addresses"`
 	SITDestinationFinalAddressID *uuid.UUID                     `db:"sit_destination_final_address_id"`
 	SITEntryDate                 *time.Time                     `db:"sit_entry_date"`
