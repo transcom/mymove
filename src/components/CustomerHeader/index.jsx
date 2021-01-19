@@ -4,7 +4,7 @@ import { string } from 'prop-types';
 import styles from './index.module.scss';
 
 import { MoveOrderShape, CustomerShape } from 'types/moveOrder';
-import { formatCustomerDate } from 'utils/formatters';
+import { formatCustomerDate, formatGrade } from 'utils/formatters';
 
 const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
   return (
@@ -19,7 +19,7 @@ const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
         <div>
           <p>
             <span data-test="deptRank" className={styles.details}>
-              {moveOrder.departmentIndicator} {moveOrder.grade}
+              {moveOrder.departmentIndicator} {formatGrade(moveOrder.grade)}
             </span>
             <span className={styles.verticalBar}>|</span>
             <span data-test="dodId" className={styles.details}>
