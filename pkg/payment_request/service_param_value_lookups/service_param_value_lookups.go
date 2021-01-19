@@ -287,6 +287,22 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
+	paramKey = models.ServiceItemParamNameSITScheduleOrigin
+	err = s.setLookup(serviceItemCode, paramKey, SITScheduleLookup{
+		Address: pickupAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameSITScheduleDest
+	err = s.setLookup(serviceItemCode, paramKey, SITScheduleLookup{
+		Address: destinationAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return &s, nil
 }
 

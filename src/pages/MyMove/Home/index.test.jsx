@@ -11,7 +11,12 @@ import { MOVE_STATUSES } from 'shared/constants';
 
 const defaultProps = {
   serviceMember: {
-    current_station: {},
+    current_station: {
+      transportation_office: {
+        name: 'Test Transportation Office Name',
+        phone_lines: ['555-555-5555'],
+      },
+    },
     weight_allotment: {},
   },
   showLoggedInUser: jest.fn(),
@@ -25,7 +30,10 @@ const defaultProps = {
   currentPpm: {},
   loadMTOShipments: jest.fn(),
   orders: {},
-  history: {},
+  history: {
+    goBack: jest.fn(),
+    push: jest.fn(),
+  },
   location: {},
   move: {},
 };

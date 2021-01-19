@@ -384,6 +384,7 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 		MtoServiceItemID:   *handlers.FmtUUID(ps.MTOServiceItemID),
 		MtoServiceItemName: ps.MTOServiceItem.ReService.Name,
 		MtoShipmentType:    ghcmessages.MTOShipmentType(ps.MTOServiceItem.MTOShipment.ShipmentType),
+		MtoShipmentID:      handlers.FmtUUIDPtr(ps.MTOServiceItem.MTOShipmentID),
 		CreatedAt:          strfmt.DateTime(ps.CreatedAt),
 		PriceCents:         handlers.FmtCost(ps.PriceCents),
 		RejectionReason:    ps.RejectionReason,
@@ -557,6 +558,8 @@ var (
 	QueuePaymentRequestPaymentRequested string = "Payment requested"
 	// QueuePaymentRequestReviewed status Payment request reviewed
 	QueuePaymentRequestReviewed string = "Reviewed"
+	// QueuePaymentRequestRejected status Payment request rejected
+	QueuePaymentRequestRejected string = "Rejected"
 	// QueuePaymentRequestPaid status PaymentRequest paid
 	QueuePaymentRequestPaid string = "Paid"
 )
@@ -573,6 +576,10 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 		paymentRequest.Status == models.PaymentRequestStatusReceivedByGex ||
 		paymentRequest.Status == models.PaymentRequestStatusReviewed {
 		return QueuePaymentRequestReviewed
+	}
+
+	if paymentRequest.Status == models.PaymentRequestStatusReviewedAllRejected {
+		return QueuePaymentRequestRejected
 	}
 
 	return QueuePaymentRequestPaid

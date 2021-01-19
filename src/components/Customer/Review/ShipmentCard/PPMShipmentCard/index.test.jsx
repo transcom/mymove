@@ -7,6 +7,7 @@ import PPMShipmentCard from '.';
 import { formatCustomerDate } from 'utils/formatters';
 
 const defaultProps = {
+  moveId: 'testMove123',
   editPath: '',
   onEditClick: () => {},
   destinationZIP: '11111',
@@ -17,9 +18,10 @@ const defaultProps = {
   originZIP: '00000',
 };
 
-function mountPPMShipmentCard(props = defaultProps) {
-  return mount(<PPMShipmentCard {...props} />);
+function mountPPMShipmentCard(props) {
+  return mount(<PPMShipmentCard {...defaultProps} {...props} />);
 }
+
 describe('PPMShipmentCard component', () => {
   it('renders component with all fields', () => {
     const wrapper = mountPPMShipmentCard();

@@ -179,8 +179,6 @@ describe('usePaymentRequestQueries', () => {
       paymentRequest: undefined,
       paymentRequests: undefined,
       paymentServiceItems: undefined,
-      mtoShipments: undefined,
-      mtoServiceItems: undefined,
       isLoading: true,
       isError: false,
       isSuccess: false,
@@ -198,22 +196,6 @@ describe('usePaymentRequestQueries', () => {
         },
       },
       paymentServiceItems: {},
-      mtoShipments: {
-        a1: {
-          shipmentType: 'HHG',
-        },
-        b2: {
-          shipmentType: 'NTS',
-        },
-      },
-      mtoServiceItems: {
-        a: {
-          reServiceName: 'Test Service Item',
-        },
-        b: {
-          reServiceName: 'Test Service Item 2',
-        },
-      },
       isLoading: false,
       isError: false,
       isSuccess: true,

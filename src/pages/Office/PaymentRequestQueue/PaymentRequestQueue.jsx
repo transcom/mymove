@@ -44,8 +44,12 @@ const columns = (showBranchFilter = true) => [
     {
       id: 'status',
       isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <MultiSelectCheckBoxFilter options={PAYMENT_REQUEST_STATUS_OPTIONS} {...props} />,
+      Filter: (props) => (
+        <div data-testid="statusFilter">
+          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+          <MultiSelectCheckBoxFilter options={PAYMENT_REQUEST_STATUS_OPTIONS} {...props} />
+        </div>
+      ),
     },
   ),
   createHeader(
