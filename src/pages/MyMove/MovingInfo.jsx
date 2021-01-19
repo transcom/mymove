@@ -27,7 +27,12 @@ export class MovingInfo extends Component {
         {entitlementWeight === 0 ? (
           <></>
         ) : (
-          <Alert type="info" heading={`You can move ${formatWeight(entitlementWeight)} for free`} noIcon>
+          <Alert
+            data-testid="shipmentsAlert"
+            type="info"
+            heading={`You can move ${formatWeight(entitlementWeight)} for free`}
+            noIcon
+          >
             The government will pay to move that much weight. Your whole move, no matter how many shipments it takes.
             <br />
             <br />
