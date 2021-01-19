@@ -10,6 +10,6 @@ ALTER TABLE mto_service_items
     ADD CONSTRAINT sit_origin_actual_address_fk FOREIGN KEY (sit_origin_actual_address_id) REFERENCES addresses (id);
 
 -- Column comments
-COMMENT ON COLUMN mto_service_items.sit_destination_final_address_id IS 'Final address for Destination SIT';
-COMMENT ON COLUMN mto_service_items.sit_origin_original_address_id IS 'Original address for Origin SIT';
-COMMENT ON COLUMN mto_service_items.sit_origin_actual_address_id IS 'Actual address for Origin SIT';
+COMMENT ON COLUMN mto_service_items.sit_destination_final_address_id IS 'Final delivery address for Destination SIT';
+COMMENT ON COLUMN mto_service_items.sit_origin_original_address_id IS 'Original pickup address for Origin SIT';
+COMMENT ON COLUMN mto_service_items.sit_origin_actual_address_id IS 'New pickup address for Origin SIT';
