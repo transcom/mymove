@@ -1442,11 +1442,8 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "firstName",
-        "lastName",
         "email",
         "userId",
-        "organizationId",
         "active",
         "createdAt",
         "updatedAt"
@@ -1474,10 +1471,6 @@ func init() {
         },
         "lastName": {
           "type": "string"
-        },
-        "organizationId": {
-          "type": "string",
-          "format": "uuid"
         },
         "updatedAt": {
           "type": "string",
@@ -3656,11 +3649,8 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "firstName",
-        "lastName",
         "email",
         "userId",
-        "organizationId",
         "active",
         "createdAt",
         "updatedAt"
@@ -3688,10 +3678,6 @@ func init() {
         },
         "lastName": {
           "type": "string"
-        },
-        "organizationId": {
-          "type": "string",
-          "format": "uuid"
         },
         "updatedAt": {
           "type": "string",

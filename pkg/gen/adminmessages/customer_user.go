@@ -32,8 +32,7 @@ type CustomerUser struct {
 	Email *string `json:"email"`
 
 	// first name
-	// Required: true
-	FirstName *string `json:"firstName"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// id
 	// Required: true
@@ -41,13 +40,7 @@ type CustomerUser struct {
 	ID *strfmt.UUID `json:"id"`
 
 	// last name
-	// Required: true
-	LastName *string `json:"lastName"`
-
-	// organization Id
-	// Required: true
-	// Format: uuid
-	OrganizationID *strfmt.UUID `json:"organizationId"`
+	LastName string `json:"lastName,omitempty"`
 
 	// updated at
 	// Required: true
@@ -76,19 +69,7 @@ func (m *CustomerUser) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateFirstName(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateLastName(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateOrganizationID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -141,15 +122,6 @@ func (m *CustomerUser) validateEmail(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CustomerUser) validateFirstName(formats strfmt.Registry) error {
-
-	if err := validate.Required("firstName", "body", m.FirstName); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *CustomerUser) validateID(formats strfmt.Registry) error {
 
 	if err := validate.Required("id", "body", m.ID); err != nil {
@@ -157,28 +129,6 @@ func (m *CustomerUser) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CustomerUser) validateLastName(formats strfmt.Registry) error {
-
-	if err := validate.Required("lastName", "body", m.LastName); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CustomerUser) validateOrganizationID(formats strfmt.Registry) error {
-
-	if err := validate.Required("organizationId", "body", m.OrganizationID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("organizationId", "body", "uuid", m.OrganizationID.String(), formats); err != nil {
 		return err
 	}
 
