@@ -7,7 +7,7 @@ import CustomerHeader from './index';
 const props = {
   customer: { last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
   moveOrder: {
-    departmentIndicator: 'Navy',
+    agency: 'NAVY',
     grade: 'E_6',
     originDutyStation: {
       name: 'JBSA Lackland',
