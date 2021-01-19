@@ -412,7 +412,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.Equal("PO", n9.ReferenceIdentificationQualifier)
 			suite.Equal(paymentServiceItem.ReferenceID, n9.ReferenceIdentification)
 		})
-		serviceItemPrice := float64(*paymentServiceItem.PriceCents)
+		serviceItemPrice := paymentServiceItem.PriceCents.Int64()
 		serviceCode := paymentServiceItem.MTOServiceItem.ReService.Code
 		switch serviceCode {
 		case models.ReServiceCodeCS, models.ReServiceCodeMS:
@@ -455,7 +455,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
 				l1 := result.ServiceItems[segmentOffset].L1
 				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
-				suite.Equal(4242, l1.FreightRate)
+				suite.Equal(4242, *l1.FreightRate)
 				suite.Equal("LB", l1.RateValueQualifier)
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
@@ -484,7 +484,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
 				l1 := result.ServiceItems[segmentOffset].L1
 				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
-				suite.Equal(4242, l1.FreightRate)
+				suite.Equal(4242, *l1.FreightRate)
 				suite.Equal("LB", l1.RateValueQualifier)
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
