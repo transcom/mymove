@@ -13,6 +13,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('hooks/queries', () => ({
+  ...jest.requireActual('hooks/queries'),
   useTXOMoveInfoQueries: () => {
     return {
       customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
