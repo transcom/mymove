@@ -10,7 +10,7 @@ const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
   return (
     <div className={styles.custHeader}>
       <div>
-        <div className={styles.nameBlock}>
+        <div data-test="nameBlock" className={styles.nameBlock}>
           <h2>
             {customer.last_name}, {customer.first_name}
           </h2>
@@ -18,15 +18,17 @@ const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
         </div>
         <div>
           <p>
-            <span className={styles.details}>
+            <span data-test="deptRank" className={styles.details}>
               {moveOrder.departmentIndicator} {moveOrder.grade}
             </span>
             <span className={styles.verticalBar}>|</span>
-            <span className={styles.details}>DoD ID {customer.dodID}</span>
+            <span data-test="dodId" className={styles.details}>
+              DoD ID {customer.dodID}
+            </span>
           </p>
         </div>
       </div>
-      <div className={styles.infoBlock}>
+      <div data-test="infoBlock" className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>
           <h4>{moveOrder.originDutyStation.name}</h4>
