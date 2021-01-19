@@ -1,15 +1,8 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { mount } from 'enzyme';
 
 import CustomerHeader from './index';
-
-export default {
-  title: 'Components/Headers/Customer Header',
-  parameters: {
-    abstract: {
-      url: 'https://share.goabstract.com/d9ad20e6-944c-48a2-bbd2-1c7ed8bc1315?mode=design',
-    },
-  },
-};
 
 const props = {
   customer: { last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
@@ -27,5 +20,11 @@ const props = {
   moveCode: 'FKLCTR',
 };
 
-// eslint-disable-next-line react/jsx-props-no-spreading
-export const Customer = () => <CustomerHeader {...props} />;
+const mountCustomerHeader = () => mount(<CustomerHeader {...props} />);
+
+describe('CustomerHeader component', () => {
+  const wrapper = mountCustomerHeader();
+  it('renders without crashing', () => {
+    expect(wrapper.find('CustomerHeader').length).toBe(1);
+  });
+});
