@@ -12,6 +12,7 @@ import {
   getMovesQueue,
   getPaymentRequestsQueue,
   getMovePaymentRequests,
+  getCustomer,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getQueriesStatus } from 'utils/api';
@@ -27,6 +28,7 @@ import {
   MOVES_QUEUE,
   PAYMENT_REQUESTS_QUEUE,
   USER,
+  CUSTOMER,
 } from 'constants/queryKeys';
 
 export const useUserQueries = () => {
@@ -41,6 +43,32 @@ export const useUserQueries = () => {
   };
 };
 
+export const useTXOMoveInfoQueries = (moveCode) => {
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const moveOrderId = move?.ordersId;
+
+  // get move orders
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
+    enabled: !!moveOrderId,
+  });
+  // get customer
+  const moveOrder = moveOrders && Object.values(moveOrders)[0];
+  const customerId = moveOrder?.customerID;
+  const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
+    enabled: !!customerId,
+  });
+  const customerData = customer && Object.values(customer)[0];
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, customerQuery]);
+
+  return {
+    moveOrder,
+    customerData,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const usePaymentRequestQueries = (paymentRequestId) => {
   // get payment request by ID
   const { data: { paymentRequests, paymentServiceItems } = {}, ...paymentRequestQuery } = useQuery(
@@ -49,34 +77,13 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   );
 
   const paymentRequest = paymentRequests && paymentRequests[`${paymentRequestId}`];
-  const mtoID = paymentRequest?.moveTaskOrderID;
 
-  // get MTO shipments
-  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID], getMTOShipments, {
-    enabled: !!mtoID,
-  });
-
-  // get MTO service items
-  const { data: { mtoServiceItems } = {}, ...mtoServiceItemQuery } = useQuery(
-    [MTO_SERVICE_ITEMS, mtoID],
-    getMTOServiceItems,
-    {
-      enabled: !!mtoID,
-    },
-  );
-
-  const { isLoading, isError, isSuccess } = getQueriesStatus([
-    paymentRequestQuery,
-    mtoShipmentQuery,
-    mtoServiceItemQuery,
-  ]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestQuery]);
 
   return {
     paymentRequest,
     paymentRequests,
     paymentServiceItems,
-    mtoShipments,
-    mtoServiceItems,
     isLoading,
     isError,
     isSuccess,

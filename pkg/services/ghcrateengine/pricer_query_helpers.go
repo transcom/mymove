@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -42,4 +43,34 @@ func fetchDomOtherPrice(db *pop.Connection, contractCode string, serviceCode mod
 	}
 
 	return domOtherPrice, nil
+}
+
+func fetchDomServiceAreaPrice(db *pop.Connection, contractCode string, serviceCode models.ReServiceCode, serviceArea string, isPeakPeriod bool) (models.ReDomesticServiceAreaPrice, error) {
+	var domServiceAreaPrice models.ReDomesticServiceAreaPrice
+	err := db.Q().
+		Join("re_domestic_service_areas sa", "domestic_service_area_id = sa.id").
+		Join("re_services", "service_id = re_services.id").
+		Join("re_contracts", "re_contracts.id = re_domestic_service_area_prices.contract_id").
+		Where("sa.service_area = $1", serviceArea).
+		Where("re_services.code = $2", serviceCode).
+		Where("re_contracts.code = $3", contractCode).
+		Where("is_peak_period = $4", isPeakPeriod).
+		First(&domServiceAreaPrice)
+	if err != nil {
+		return models.ReDomesticServiceAreaPrice{}, err
+	}
+
+	return domServiceAreaPrice, nil
+}
+
+func fetchContractYear(db *pop.Connection, contractID uuid.UUID, targetDate time.Time) (models.ReContractYear, error) {
+	var contractYear models.ReContractYear
+	err := db.Where("contract_id = $1", contractID).
+		Where("$2 between start_date and end_date", targetDate).
+		First(&contractYear)
+	if err != nil {
+		return models.ReContractYear{}, err
+	}
+
+	return contractYear, nil
 }

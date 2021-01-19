@@ -15,4 +15,10 @@ module.exports = {
     // 'storybook-addons-abstract',
     '@dump247/storybook-state',
   ],
+  refs: {
+    'design-system': {
+      title: 'ReactUSWDS',
+      url: 'https://trussworks.github.io/react-uswds/',
+    },
+  },
 };

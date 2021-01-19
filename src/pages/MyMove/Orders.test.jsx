@@ -22,7 +22,7 @@ describe('Orders page', () => {
     const wrapper = mount(
       <Orders
         serviceMemberId="123"
-        match={{ params: {} }}
+        match={{ params: { moveId: 'test' }, path: '/orders', url: '/orders', isExact: false }}
         history={mockHistory}
         context={{ flags: { allOrdersTypes: true } }}
       />,
@@ -36,7 +36,7 @@ describe('Orders page', () => {
     const wrapper = mount(
       <Orders
         serviceMemberId="123"
-        match={{ params: {} }}
+        match={{ params: { moveId: 'test' }, path: '/orders', url: '/orders', isExact: false }}
         history={mockHistory}
         context={{ flags: { allOrdersTypes: false } }}
       />,
@@ -76,11 +76,11 @@ describe('Orders page', () => {
       history: mockHistory,
       pages: [],
       pageKey: '',
-      match: { params: {} },
+      match: { params: { moveId: 'test' }, path: '/orders', url: '/orders', isExact: false },
     };
 
     const wrapper = mount(
-      <MockProviders initialState={initialState} initialEntries={['/']}>
+      <MockProviders initialState={initialState} initialEntries={['/orders']}>
         <ConnectedOrders {...testProps} />
       </MockProviders>,
     );

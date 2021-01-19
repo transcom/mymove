@@ -8,7 +8,6 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
@@ -17,7 +16,7 @@ import scrollToTop from 'shared/scrollToTop';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
-  selectCurrentMove,
+  selectCurrentPPM,
   selectPPMEstimateRange,
 } from 'store/entities/selectors';
 import { getPPMsForMove, patchPPM, calculatePPMEstimate, persistPPMEstimate } from 'services/internalApi';
@@ -346,13 +345,12 @@ class EditWeight extends Component {
 }
 
 function mapStateToProps(state) {
-  const currentMove = selectCurrentMove(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
 
   return {
     serviceMemberId,
-    currentPPM: selectActivePPMForMove(state, currentMove?.id),
+    currentPPM: selectCurrentPPM(state) || {},
     incentiveEstimateMin: selectPPMEstimateRange(state)?.range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state)?.range_max,
     entitlement: loadEntitlementsFromState(state),

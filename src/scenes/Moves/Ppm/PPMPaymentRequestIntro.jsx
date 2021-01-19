@@ -13,9 +13,9 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatDateForSwagger } from 'shared/dates';
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getPPMsForMove, patchPPM } from 'services/internalApi';
 import { updatePPMs, updatePPM } from 'store/entities/actions';
+import { selectCurrentPPM } from 'store/entities/selectors';
 
 class PPMPaymentRequestIntro extends Component {
   state = {
@@ -109,11 +109,11 @@ PPMPaymentRequestIntro = reduxForm({
 
 function mapStateToProps(state, ownProps) {
   const moveID = ownProps.match.params.moveId;
-  const currentPPM = selectActivePPMForMove(state, moveID);
+  const currentPPM = selectCurrentPPM(state) || {};
   const actualMoveDate = currentPPM.actual_move_date ? currentPPM.actual_move_date : null;
   return {
-    moveID: moveID,
-    currentPPM: currentPPM,
+    moveID,
+    currentPPM,
     schema: get(state, 'swaggerInternal.spec.definitions.PatchPersonallyProcuredMovePayload'),
     initialValues: { actual_move_date: actualMoveDate },
   };

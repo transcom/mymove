@@ -199,7 +199,10 @@ func sortOrder(sort *string, order *string) QueryOption {
 
 func branchFilter(branch *string) QueryOption {
 	return func(query *pop.Query) {
-		if branch != nil {
+		// When no branch filter is selected we want to filter out Marine Corps payment requests
+		if branch == nil {
+			query = query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
+		} else {
 			query = query.Where("service_members.affiliation = ?", *branch)
 		}
 	}
@@ -265,6 +268,9 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 						models.PaymentRequestStatusReviewed.String(),
 						models.PaymentRequestStatusSentToGex.String(),
 						models.PaymentRequestStatusReceivedByGex.String())
+				} else if strings.EqualFold(status, "Rejected") {
+					translatedStatuses = append(translatedStatuses,
+						models.PaymentRequestStatusReviewedAllRejected.String())
 				} else if strings.EqualFold(status, "Paid") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPaid.String())
 				}

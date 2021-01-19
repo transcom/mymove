@@ -11,4 +11,21 @@ export default {
   },
 };
 
-export const Customer = () => <CustomerHeader />;
+const props = {
+  customer: { last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+  moveOrder: {
+    departmentIndicator: 'Navy',
+    grade: 'E-6',
+    originDutyStation: {
+      name: 'JBSA Lackland',
+    },
+    destinationDutyStation: {
+      name: 'JB Lewis-McChord',
+    },
+    report_by_date: '2018-08-01',
+  },
+  moveCode: 'FKLCTR',
+};
+
+// eslint-disable-next-line react/jsx-props-no-spreading
+export const Customer = () => <CustomerHeader {...props} />;

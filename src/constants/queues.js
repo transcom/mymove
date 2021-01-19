@@ -10,6 +10,7 @@ export const MOVE_STATUS_OPTIONS = [
 export const PAYMENT_REQUEST_STATUS_OPTIONS = [
   { value: 'Payment requested', label: 'Payment requested' },
   { value: 'Reviewed', label: 'Reviewed' },
+  { value: 'Rejected', label: 'Rejected' },
   { value: 'Paid', label: 'Paid' },
 ];
 

@@ -15,6 +15,17 @@ const defaultProps = {
 const initialState = {
   entities: {
     orders: {},
+    user: {
+      testUser: {
+        id: 'testUser',
+        service_member: 'serviceMemberId',
+      },
+    },
+    serviceMembers: {
+      serviceMemberId: {
+        id: 'serviceMemberId',
+      },
+    },
   },
 };
 
