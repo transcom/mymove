@@ -751,16 +751,12 @@ func fetchToken(logger Logger, code string, clientID string, loginGovProvider Lo
 		return nil, err
 	}
 
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used to close an asynchronous connection
-	//RA: Given the functions causing the lint errors are used close an asynchronous connection in order to prevent it
-	//RA: from running indefinitely, it is not deemed a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	defer response.Body.Close() // nolint:errcheck
+	defer func() {
+		if closeErr := response.Body.Close(); closeErr != nil {
+			logger.Error("Error in closing response", zap.Error(closeErr)))
+		}
+	}
+
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		logger.Error("Reading Login.gov token response", zap.Error(err))

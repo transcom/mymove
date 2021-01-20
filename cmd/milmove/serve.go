@@ -305,16 +305,12 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]interface{}) map[string]interface{} {
 	conn := pool.Get()
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used to close an asynchronous connection
-	//RA: Given the functions causing the lint errors are used close an asynchronous connection in order to prevent it
-	//RA: from running indefinitely, it is not deemed a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	defer conn.Close() // nolint:errcheck
+
+	defer func() {
+		if closeErr := conn.Close(); closeErr != nil {
+			logger.Error("Failed to close redis connection", zap.Error(closeErr))
+		}
+	}()
 
 	pong, err := redis.String(conn.Do("PING"))
 	if err != nil {

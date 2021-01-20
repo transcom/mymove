@@ -77,16 +77,11 @@ func (s *NamedServer) ListenAndServeTLS() error {
 	s.IsServerReadyMutex.Lock()
 	s.IsServerReady = true
 	s.IsServerReadyMutex.Unlock()
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used to close an asynchronous connection
-	//RA: Given the functions causing the lint errors are used close an asynchronous connection in order to prevent it
-	//RA: from running indefinitely, it is not deemed a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	defer listener.Close() // nolint:errcheck
+	defer func() {
+		if closeErr := listener.Close(); closeErr != nil {
+			fmt.Println(fmt.Errorf("Failed to close listener due to %w", closeErr))
+		}
+	}()
 	return s.Serve(listener)
 }
 

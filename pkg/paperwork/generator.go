@@ -179,15 +179,12 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 		if err != nil {
 			return nil, errors.Wrap(err, "Downloading file from upload")
 		}
-		//RA Summary: gosec - errcheck - Unchecked return value
-		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-		//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-		//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-		//RA Developer Status: Mitigated
-		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-		//RA Validator: jneuner@mitre.org
-		//RA Modified Severity:
-		defer download.Close() // nolint:errcheck
+
+		defer func() {
+			if downloadErr := download.Close(); downloadErr != nil {
+				g.logger.Debug("Failed to close file", zap.Error(downloadErr))
+			}
+		}()
 
 		outputFile, err := g.newTempFile()
 
@@ -275,15 +272,12 @@ func ReduceUnusedSpace(file afero.File, g *Generator, contentType string) (imgFi
 
 		// Use newFile instead of oldFile
 		file = newFile
-		//RA Summary: gosec - errcheck - Unchecked return value
-		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-		//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-		//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-		//RA Developer Status: Mitigated
-		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-		//RA Validator: jneuner@mitre.org
-		//RA Modified Severity:
-		file.Close() // nolint:errcheck
+
+		fileCloseErr := file.Close()
+		if fileCloseErr != nil {
+			return nil, 0.0, 0.0, errors.Wrap(fileCloseErr, "Encountered an error closing the file")
+		}
+
 		return newFile, w, h, nil
 	}
 	return file, w, h, nil
@@ -317,15 +311,12 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-	//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	defer outputFile.Close() // nolint:errcheck
+
+	defer func() {
+		if closeErr := outputFile.Close(); closeErr != nil {
+			g.logger.Debug("Failed to close file", zap.Error(closeErr))
+		}
+	}()
 
 	var opt gofpdf.ImageOptions
 	for _, img := range images {
@@ -334,15 +325,12 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 		if openErr != nil {
 			return "", errors.Wrap(openErr, "Opening image file")
 		}
-		//RA Summary: gosec - errcheck - Unchecked return value
-		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-		//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-		//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-		//RA Developer Status: Mitigated
-		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-		//RA Validator: jneuner@mitre.org
-		//RA Modified Severity:
-		defer file.Close() // nolint:errcheck
+
+		defer func() {
+			if closeErr := file.Close(); closeErr != nil {
+				g.logger.Debug("Failed to close file", zap.Error(closeErr))
+			}
+		}()
 
 		if img.ContentType == "image/png" {
 			g.logger.Debug("Converting png to 8-bit")
@@ -351,15 +339,12 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 			if newTemplateFileErr != nil {
 				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
 			}
-			//RA Summary: gosec - errcheck - Unchecked return value
-			//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-			//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-			//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-			//RA Developer Status: Mitigated
-			//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-			//RA Validator: jneuner@mitre.org
-			//RA Modified Severity:
-			defer newFile.Close() // nolint:errcheck
+
+			defer func() {
+				if closeErr := newFile.Close(); closeErr != nil {
+					g.logger.Debug("Failed to close file", zap.Error(closeErr))
+				}
+			}()
 
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
 			if convertTo8BitPNGErr != nil {
