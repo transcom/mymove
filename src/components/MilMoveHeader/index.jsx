@@ -1,32 +1,35 @@
 import React from 'react';
-import classNames from 'classnames/bind';
+import { node, func } from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import { ReactComponent as MmLogo } from '../../shared/images/milmove-logo.svg';
 
 import styles from './index.module.scss';
 
-const cx = classNames.bind(styles);
+import { CustomerShape } from 'types/moveOrder';
 
-const MilMoveHeader = () => (
-  <div className={cx('mm-header')}>
+const MilMoveHeader = ({ children, customer, handleLogout }) => (
+  <div className={styles.mmHeader}>
     <MmLogo />
-    <div className={cx('links')}>
+    <div className={styles.links}>
+      {children}
+      <span className={styles.lineAdd}>&nbsp;</span>
       <span>
-        <a href="#">Navigation Link</a>
+        {customer.last_name}, {customer.first_name}
       </span>
       <span>
-        <a href="#">Navigation Link</a>
-      </span>
-      <span>
-        <a href="#">Navigation Link</a>
-      </span>
-      <span className={cx('line-add')}>&nbsp;</span>
-      <span>Baker, Riley</span>
-      <span>
-        <a href="#">Sign out</a>
+        <Button className={styles.signOut} disabled={false} onClick={handleLogout}>
+          <span>Sign out</span>
+        </Button>
       </span>
     </div>
   </div>
 );
+
+MilMoveHeader.propTypes = {
+  children: node.isRequired,
+  customer: CustomerShape.isRequired,
+  handleLogout: func.isRequired,
+};
 
 export default MilMoveHeader;

@@ -4,7 +4,7 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
-.mm-header {
+.mmHeader {
   background: $mm-blue;
   width: 100vw;
   padding: 10px;
@@ -37,7 +37,7 @@
       @include u-text('no-underline');
     }
   }
-  .line-add {
+  .lineAdd {
     padding: 0px;
     background: $base-dark;
     width: 1px;
@@ -45,5 +45,16 @@
     display: inline-block;
     position: absolute;
     top: -13px;
+  }
+  .signOut {
+    color: $link-light;
+  }
+
+  :global(.usa-button) {
+    background-color: transparent;
+    display: inline-block;
+    height: 0;
+    padding: 0;
+    margin: 0;
   }
 }

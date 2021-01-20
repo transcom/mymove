@@ -11,4 +11,23 @@ export default {
   },
 };
 
-export const Milmove = () => <MilMoveHeader />;
+const props = {
+  customer: { last_name: 'Baker', first_name: 'Riley', dodID: '999999999' },
+  handleLogout: () => {},
+};
+
+export const Milmove = () => (
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  <MilMoveHeader {...props}>
+    {' '}
+    <span>
+      <a href="#">Navigation Link</a>
+    </span>
+    <span>
+      <a href="#">Navigation Link</a>
+    </span>
+    <span>
+      <a href="#">Navigation Link</a>
+    </span>
+  </MilMoveHeader>
+);
