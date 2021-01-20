@@ -1,0 +1,20 @@
+import React from 'react';
+import { List, Datagrid, TextField, BooleanField } from 'react-admin';
+
+import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
+
+const defaultSort = { field: 'loginGovEmail', order: 'ASC' };
+
+const CustomerUserList = (props) => (
+  /* eslint-disable-next-line react/jsx-props-no-spreading */
+  <List {...props} pagination={<AdminPagination />} perPage={25} sort={defaultSort} bulkActionButtons={false}>
+    <Datagrid rowClick="show">
+      <TextField source="id" />
+      <TextField source="loginGovEmail" label="Email" />
+      <BooleanField source="active" />
+      <TextField source="createdAt" />
+    </Datagrid>
+  </List>
+);
+
+export default CustomerUserList;
