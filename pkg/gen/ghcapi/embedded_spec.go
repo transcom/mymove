@@ -2816,10 +2816,8 @@ func init() {
           "type": "string",
           "$ref": "#/definitions/Branch"
         },
-        "customerID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "date_issued": {
           "type": "string",
@@ -6957,10 +6955,8 @@ func init() {
           "type": "string",
           "$ref": "#/definitions/Branch"
         },
-        "customerID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "date_issued": {
           "type": "string",

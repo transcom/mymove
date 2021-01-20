@@ -143,7 +143,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 		Agency:                 branch,
-		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
+		Customer:               Customer(&moveOrder.ServiceMember),
 		FirstName:              swag.StringValue(moveOrder.ServiceMember.FirstName),
 		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),
 		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
