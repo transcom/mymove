@@ -2,7 +2,7 @@ import React from 'react';
 import { List, Datagrid, TextField, BooleanField } from 'react-admin';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
-const defaultSort = { field: 'last_name', order: 'ASC' };
+const defaultSort = { field: 'email', order: 'ASC' };
 
 const CustomerUserList = (props) => (
   <List {...props} pagination={<AdminPagination />} perPage={25} sort={defaultSort} bulkActionButtons={false}>
