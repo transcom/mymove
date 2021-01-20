@@ -23,13 +23,13 @@ const (
 )
 
 // Init flags specific to this command
-func initDbWebhookNotifyFlags(flag *pflag.FlagSet) {
+func initWebhookNotifyFlags(flag *pflag.FlagSet) {
 	flag.Int(PeriodFlag, 5, "Period in secs to check for notifications")
 	flag.Int(MaxRetriesFlag, 3, "Number of times to immediately retry")
 	flag.SortFlags = false
 }
 
-func dbWebhookNotify(cmd *cobra.Command, args []string) error {
+func webhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	// Parse flags from command line
