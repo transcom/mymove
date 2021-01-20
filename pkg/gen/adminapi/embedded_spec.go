@@ -287,6 +287,72 @@ func init() {
         }
       }
     },
+    "/customer_users": {
+      "get": {
+        "description": "Returns a list of customers",
+        "tags": [
+          "customer_users"
+        ],
+        "summary": "List customers",
+        "operationId": "indexCustomerUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/CustomerUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "customer users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic_orders": {
       "get": {
         "description": "Returns a list of electronic orders",
@@ -1370,6 +1436,56 @@ func init() {
         "title": {
           "type": "string"
         }
+      }
+    },
+    "CustomerUser": {
+      "type": "object",
+      "required": [
+        "id",
+        "email",
+        "userId",
+        "active",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "CustomerUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CustomerUser"
       }
     },
     "ElectronicOrder": {
@@ -2378,6 +2494,72 @@ func init() {
         }
       }
     },
+    "/customer_users": {
+      "get": {
+        "description": "Returns a list of customers",
+        "tags": [
+          "customer_users"
+        ],
+        "summary": "List customers",
+        "operationId": "indexCustomerUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/CustomerUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "customer users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic_orders": {
       "get": {
         "description": "Returns a list of electronic orders",
@@ -3461,6 +3643,56 @@ func init() {
         "title": {
           "type": "string"
         }
+      }
+    },
+    "CustomerUser": {
+      "type": "object",
+      "required": [
+        "id",
+        "email",
+        "userId",
+        "active",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "CustomerUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CustomerUser"
       }
     },
     "ElectronicOrder": {
