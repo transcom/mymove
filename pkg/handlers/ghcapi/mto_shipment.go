@@ -60,6 +60,8 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
 		query.NewQueryAssociation("MTOServiceItems.ReService"),
 		query.NewQueryAssociation("MTOAgents"),
+		query.NewQueryAssociation("PickupAddress"),
+		query.NewQueryAssociation("DestinationAddress"),
 	})
 
 	var shipments models.MTOShipments

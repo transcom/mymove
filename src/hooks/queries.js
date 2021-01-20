@@ -252,13 +252,15 @@ export const useMoveDetailsQueries = (moveCode) => {
     enabled: !!moveOrderId,
   });
 
-  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId], getMTOShipments, {
+  const moveOrder = Object.values(moveOrders || {})?.[0];
+
+  const { data: mtoShipments = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
     enabled: !!moveId,
   });
 
   // Must account for basic service items here not tied to a shipment
-  const { data: { mtoServiceItems } = {}, ...mtoServiceItemQuery } = useQuery(
-    [MTO_SERVICE_ITEMS, moveId],
+  const { data: mtoServiceItems = {}, ...mtoServiceItemQuery } = useQuery(
+    [MTO_SERVICE_ITEMS, moveId, false],
     getMTOServiceItems,
     { enabled: !!moveId },
   );
@@ -272,7 +274,7 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   return {
     move,
-    moveOrders,
+    moveOrder,
     mtoShipments,
     mtoServiceItems,
     isLoading,

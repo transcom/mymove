@@ -44,12 +44,16 @@ export async function getMoveTaskOrderList(key, moveOrderID) {
   return makeGHCRequest('moveOrder.listMoveTaskOrders', { moveOrderID });
 }
 
-export async function getMTOShipments(key, moveTaskOrderID) {
-  return makeGHCRequest('mtoShipment.listMTOShipments', { moveTaskOrderID }, { schemaKey: 'mtoShipments' });
+export async function getMTOShipments(key, moveTaskOrderID, normalize = true) {
+  return makeGHCRequest('mtoShipment.listMTOShipments', { moveTaskOrderID }, { schemaKey: 'mtoShipments', normalize });
 }
 
-export async function getMTOServiceItems(key, moveTaskOrderID) {
-  return makeGHCRequest('mtoServiceItem.listMTOServiceItems', { moveTaskOrderID }, { schemaKey: 'mtoServiceItems' });
+export async function getMTOServiceItems(key, moveTaskOrderID, normalize = true) {
+  return makeGHCRequest(
+    'mtoServiceItem.listMTOServiceItems',
+    { moveTaskOrderID },
+    { schemaKey: 'mtoServiceItems', normalize },
+  );
 }
 
 export async function getDocument(key, documentId) {

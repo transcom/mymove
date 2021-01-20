@@ -9,13 +9,7 @@ import ShipmentApprovalPreview from '../ShipmentApprovalPreview';
 import styles from './RequestedShipments.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import {
-  MTOAgentShape,
-  MTOShipmentShape,
-  MoveTaskOrderShape,
-  MTOServiceItemShape,
-  OrdersInfoShape,
-} from 'types/moveOrder';
+import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/moveOrder';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
 
@@ -24,7 +18,6 @@ const RequestedShipments = ({
   ordersInfo,
   allowancesInfo,
   customerInfo,
-  mtoAgents,
   shipmentsStatus,
   mtoServiceItems,
   moveTaskOrder,
@@ -123,7 +116,6 @@ const RequestedShipments = ({
               customerInfo={customerInfo}
               setIsModalVisible={setIsModalVisible}
               onSubmit={formik.handleSubmit}
-              mtoAgents={mtoAgents}
               counselingFee={formik.values.counselingFee}
               shipmentManagementFee={formik.values.shipmentManagementFee}
             />
@@ -244,7 +236,6 @@ const RequestedShipments = ({
 
 RequestedShipments.propTypes = {
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
-  mtoAgents: PropTypes.arrayOf(MTOAgentShape),
   shipmentsStatus: PropTypes.string.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   ordersInfo: OrdersInfoShape.isRequired,
@@ -279,7 +270,6 @@ RequestedShipments.propTypes = {
 };
 
 RequestedShipments.defaultProps = {
-  mtoAgents: [],
   mtoServiceItems: [],
   moveTaskOrder: {},
   approveMTO: () => Promise.resolve(),
