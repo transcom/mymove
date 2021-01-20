@@ -151,17 +151,8 @@ func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, servic
 	var responseError error
 
 	// If the passed in function returns an error, the transaction is rolled back
-	dbConnection.Transaction(func(dbConnection *pop.Connection) error { // nolint:errcheck
-		//RA Summary: gosec - errcheck - Unchecked return value
-		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-		//RA: Function with unchecked return value in the file is used to ensure multiple database queries will succeed. If one query does not succeed then
-		//RA: it will rollback all previous queries
-		//RA: Although the direct return value of the transaction is not checked, the error conditions are checked via variables responseVErrors and responseError
-		//RA: which does include the transaction errors, therefore there are no unexpected states and conditions
-		//RA Developer Status: Mitigated
-		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-		//RA Validator: jneuner@mitre.org
-		//RA Modified Severity:
+	transactionErr := dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+
 		transactionError := errors.New("Rollback The transaction")
 
 		if serviceMember.ResidentialAddress != nil {
@@ -190,6 +181,10 @@ func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, servic
 
 		return nil
 	})
+
+	if transactionErr != nil {
+		return responseVErrors, transactionErr
+	}
 
 	return responseVErrors, responseError
 
@@ -233,17 +228,7 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return value in the file is used to ensure multiple database queries will succeed. If one query does not succeed then
-	//RA: it will rollback all previous queries
-	//RA: Although the direct return value of the transaction is not checked, the error conditions are checked via variables responseVErrors and responseError
-	//RA: which does include the transaction errors, therefore there are no unexpected states and conditions
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	db.Transaction(func(dbConnection *pop.Connection) error { // nolint:errcheck
+	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 		uploadedOrders := Document{
 			ServiceMemberID: s.ID,
@@ -287,6 +272,10 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 
 		return nil
 	})
+
+	if transactionErr != nil {
+		return newOrders, responseVErrors, transactionErr
+	}
 
 	return newOrders, responseVErrors, responseError
 }

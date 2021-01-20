@@ -153,17 +153,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure
-	o.builder.Transaction(func(tx *pop.Connection) error { // nolint:errcheck
-		//RA Summary: gosec - errcheck - Unchecked return value
-		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-		//RA: Function with unchecked return value in the file is used to ensure multiple database queries will succeed. If one query does not succeed then
-		//RA: it will rollback all previous queries
-		//RA: Although the direct return value of the transaction is not checked, the error conditions are checked via variables verrs and err
-		//RA: which does include the transaction errors, therefore there are no unexpected states and conditions
-		//RA Developer Status: Mitigated
-		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-		//RA Validator: jneuner@mitre.org
-		//RA Modified Severity:
+	transactionErr := o.builder.Transaction(func(tx *pop.Connection) error {
 
 		// create new builder to use tx
 		txBuilder := o.createNewBuilder(tx)
@@ -213,7 +203,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil
 	})
 
-	if verrs != nil && verrs.HasAny() {
+	if transactionErr != nil {
+		return nil, nil, transactionErr
+	} else if verrs != nil && verrs.HasAny() {
 		return nil, verrs, nil
 	} else if err != nil {
 		return nil, verrs, services.NewQueryError("unknown", err, "")

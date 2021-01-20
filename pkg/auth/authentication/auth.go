@@ -753,9 +753,9 @@ func fetchToken(logger Logger, code string, clientID string, loginGovProvider Lo
 
 	defer func() {
 		if closeErr := response.Body.Close(); closeErr != nil {
-			logger.Error("Error in closing response", zap.Error(closeErr)))
+			logger.Error("Error in closing response", zap.Error(closeErr))
 		}
-	}
+	}()
 
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {

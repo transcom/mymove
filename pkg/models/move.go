@@ -340,17 +340,7 @@ func (m Move) CreateMoveDocument(
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return value in the file is used to ensure multiple database queries will succeed. If one query does not succeed then
-	//RA: it will rollback all previous queries
-	//RA: Although the direct return value of the transaction is not checked, the error conditions are checked via variables responseVErrors and responseError
-	//RA: which does include the transaction errors, therefore there are no unexpected states and conditions
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	db.Transaction(func(db *pop.Connection) error { // nolint:errcheck
+	transactionErr := db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
@@ -369,6 +359,10 @@ func (m Move) CreateMoveDocument(
 		return nil
 
 	})
+
+	if transactionErr != nil {
+		return nil, responseVErrors, transactionErr
+	}
 
 	return newMoveDocument, responseVErrors, responseError
 }
@@ -389,17 +383,7 @@ func (m Move) CreateMovingExpenseDocument(
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return value in the file is used to ensure multiple database queries will succeed. If one query does not succeed then
-	//RA: it will rollback all previous queries
-	//RA: Although the direct return value of the transaction is not checked, the error conditions are checked via variables responseVErrors and responseError
-	//RA: which does include the transaction errors, therefore there are no unexpected states and conditions
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	db.Transaction(func(db *pop.Connection) error { // nolint:errcheck
+	transactionErr := db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		var newMoveDocument *MoveDocument
@@ -435,8 +419,11 @@ func (m Move) CreateMovingExpenseDocument(
 		}
 
 		return nil
-
 	})
+
+	if transactionErr != nil {
+		return nil, responseVErrors, transactionErr
+	}
 
 	return newMovingExpenseDocument, responseVErrors, responseError
 }
@@ -636,17 +623,7 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return value in the file is used to ensure multiple database queries will succeed. If one query does not succeed then
-	//RA: it will rollback all previous queries
-	//RA: Although the direct return value of the transaction is not checked, the error conditions are checked via variables responseVErrors and responseError
-	//RA: which does include the transaction errors, therefore there are no unexpected states and conditions
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	db.Transaction(func(db *pop.Connection) error { // nolint:errcheck
+	transactionErr := db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		for _, ppm := range move.PersonallyProcuredMoves {
@@ -679,6 +656,10 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 		}
 		return nil
 	})
+
+	if transactionErr != nil {
+		return responseVErrors, transactionErr
+	}
 
 	return responseVErrors, responseError
 }
