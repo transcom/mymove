@@ -335,15 +335,11 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
-	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	defer logger.Sync() // nolint:errcheck
+	defer func() {
+		if loggerSyncErr := logger.Sync(); loggerSyncErr != nil {
+			logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
+		}
+	}()
 
 	err = checkConfig(v)
 	if err != nil {

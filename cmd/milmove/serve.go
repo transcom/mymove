@@ -352,15 +352,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 					}
 				})
 			}
-			//RA Summary: gosec - errcheck - Unchecked return value
-			//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-			//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
-			//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
-			//RA Developer Status: Mitigated
-			//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-			//RA Validator: jneuner@mitre.org
-			//RA Modified Severity:
-			logger.Sync() // nolint:errcheck
+
+			loggerSyncErr := logger.Sync()
+			if loggerSyncErr != nil {
+				logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
+			}
 		}
 	}()
 
@@ -1042,15 +1038,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// make sure we flush any pending startup messages
-	logger.Sync() // nolint:errcheck
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
-	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	loggerSyncErr := logger.Sync()
+	if loggerSyncErr != nil {
+		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
+	}
 
 	// Create a buffered channel that accepts 1 signal at a time.
 	quit := make(chan os.Signal, 1)
@@ -1064,15 +1055,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Info("received signal for graceful shutdown of server", zap.Any("signal", sig))
 
 	// flush message that we received signal
-	logger.Sync() // nolint:errcheck
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
-	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	loggerSyncErr = logger.Sync()
+	if loggerSyncErr != nil {
+		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
+	}
 
 	gracefulShutdownTimeout := v.GetDuration(cli.GracefulShutdownTimeoutFlag)
 
@@ -1082,15 +1068,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Info("Waiting for listeners to be shutdown", zap.Duration("timeout", gracefulShutdownTimeout))
 
 	// flush message that we are waiting on listeners
-	logger.Sync() // nolint:errcheck
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
-	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	loggerSyncErr = logger.Sync()
+	if loggerSyncErr != nil {
+		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
+	}
 
 	wg := &sync.WaitGroup{}
 	var shutdownErrors sync.Map
@@ -1121,15 +1102,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	wg.Wait()
 	logger.Info("All listeners are shutdown")
-	logger.Sync() // nolint:errcheck
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
-	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	loggerSyncErr = logger.Sync()
+	if loggerSyncErr != nil {
+		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
+	}
 
 	var dbCloseErr error
 	dbClose.Do(func() {
@@ -1164,15 +1140,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Error("error closing redis connections", zap.Error(redisCloseErr))
 	}
 
-	logger.Sync() // nolint:errcheck
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return values in the line is used to reset logger stack and start from scratch
-	//RA: Given the logger sync is being used to reset the log stack, there are no unexpected states and conditions that present a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	loggerSyncErr = logger.Sync()
+	if loggerSyncErr != nil {
+		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
+	}
 
 	if shutdownError {
 		os.Exit(1)
