@@ -6,7 +6,6 @@
 .LeftNav {
   @include u-font-size('body', 'xs'); //15px
   @include u-text('no-underline');
-  @include u-text('gray-50');
   @include u-border('base-lighter');
   @include u-border('1px');
   @include u-radius('md'); //4px
@@ -14,7 +13,7 @@
   width: 230px;
 
   > a {
-    @include u-text('gray-50');
+    @include u-text('base');
     @include u-text('no-underline');
 
     @include u-padding-y(1.5); //12px
@@ -23,12 +22,21 @@
     display: flex;
     justify-content: space-between;
 
+    &:first-child {
+      border-top-left-radius: 3px;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 3px;
+    }
+
     &:not(:first-child) {
       border-top: 1px solid;
       @include u-border-y('base-lighter');
+      border-top-left-radius: 0px;
     }
 
-    &:hover {
+    &:hover, &:focus {
       @include u-text('no-underline');
       @include u-text('primary-vivid');
     }
@@ -42,7 +50,7 @@
     }
 
     &:visited {
-      @include u-text('gray-50');
+      @include u-text('base');
     }
   }
 

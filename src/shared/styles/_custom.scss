@@ -150,8 +150,15 @@ table {
       vertical-align: middle;
     }
     .error {
+      th {
       @include u-border-left(0.5);
       @include u-border-left('error');
+      }
+      td{
+        @include u-border-left(0);
+        @include u-text('error');
+        @include u-text('bold');
+      }
     }
   }
 }

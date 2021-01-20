@@ -81,6 +81,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	}
 
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		PaymentRequest: models.PaymentRequest{
@@ -374,7 +375,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		// city state info
 		n4 := result.Header.OriginPostalDetails
 		suite.IsType(edisegment.N4{}, n4)
-		suite.Equal(address.City, n4.CityName)
+		if len(n4.CityName) >= maxCityLength {
+			suite.Equal(address.City[:maxCityLength]+"...", n4.CityName)
+		} else {
+			suite.Equal(address.City, n4.CityName)
+		}
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
 		countryCode, err := address.CountryCode()
@@ -412,7 +417,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.Equal("PO", n9.ReferenceIdentificationQualifier)
 			suite.Equal(paymentServiceItem.ReferenceID, n9.ReferenceIdentification)
 		})
-		serviceItemPrice := float64(*paymentServiceItem.PriceCents)
+		serviceItemPrice := paymentServiceItem.PriceCents.Int64()
 		serviceCode := paymentServiceItem.MTOServiceItem.ReService.Code
 		switch serviceCode {
 		case models.ReServiceCodeCS, models.ReServiceCodeMS:
@@ -455,7 +460,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
 				l1 := result.ServiceItems[segmentOffset].L1
 				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
-				suite.Equal(4242, l1.FreightRate)
+				suite.Equal(4242, *l1.FreightRate)
 				suite.Equal("LB", l1.RateValueQualifier)
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
@@ -484,7 +489,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
 				l1 := result.ServiceItems[segmentOffset].L1
 				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
-				suite.Equal(4242, l1.FreightRate)
+				suite.Equal(4242, *l1.FreightRate)
 				suite.Equal("LB", l1.RateValueQualifier)
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
@@ -736,4 +741,16 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 		l3 := result.L3
 		suite.Equal(int64(0), l3.PriceCents)
 	})
+}
+
+func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
+	longStr := "A super duper long string"
+	expectedTruncatedStr := "A super..."
+	suite.Equal(expectedTruncatedStr, truncateStr(longStr, 10))
+
+	suite.Equal("AB", truncateStr("ABCD", 2))
+	suite.Equal("ABC", truncateStr("ABCD", 3))
+	suite.Equal("A...", truncateStr("ABCDEFGHI", 4))
+	suite.Equal("ABC...", truncateStr("ABCDEFGHI", 6))
+	suite.Equal("Too short", truncateStr("Too short", 200))
 }
