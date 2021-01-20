@@ -8,7 +8,7 @@ import ShipmentApprovalPreview from '../ShipmentApprovalPreview';
 
 import styles from './RequestedShipments.module.scss';
 
-import { shipmentTypeLabels } from 'content/shipments';
+import { shipmentTypes } from 'constants/shipments';
 import {
   MTOAgentShape,
   MTOShipmentShape,
@@ -140,7 +140,7 @@ const RequestedShipments = ({
                     shipmentType={shipment.shipmentType}
                     isSubmitted
                     displayInfo={{
-                      heading: shipmentTypeLabels[shipment.shipmentType],
+                      heading: shipmentTypes[shipment.shipmentType],
                       requestedMoveDate: shipment.requestedPickupDate,
                       currentAddress: shipment.pickupAddress,
                       destinationAddress: shipment.destinationAddress || dutyStationPostal,
@@ -196,7 +196,7 @@ const RequestedShipments = ({
                   shipmentId={shipment.id}
                   shipmentType={shipment.shipmentType}
                   displayInfo={{
-                    heading: shipmentTypeLabels[shipment.shipmentType],
+                    heading: shipmentTypes[shipment.shipmentType],
                     requestedMoveDate: shipment.requestedPickupDate,
                     currentAddress: shipment.pickupAddress,
                     destinationAddress: shipment.destinationAddress || dutyStationPostal,

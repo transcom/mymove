@@ -3,11 +3,9 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export const shipmentTypeLabels = {
   [SHIPMENT_OPTIONS.HHG]: 'HHG',
-  [SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC]: 'HHG',
-  [SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC]: 'HHG',
   [SHIPMENT_OPTIONS.PPM]: 'PPM',
   [SHIPMENT_OPTIONS.NTS]: 'NTS',
-  [SHIPMENT_OPTIONS.NTSR]: 'NTSR',
+  [SHIPMENT_OPTIONS.NTSR]: 'NTS-R',
 };
 
 export const shipmentForm = {
