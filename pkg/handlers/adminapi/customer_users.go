@@ -23,10 +23,10 @@ type IndexCustomerUsersHandler struct {
 
 func payloadForCustomerUserModel(o models.User) *adminmessages.CustomerUser {
 	payload := &adminmessages.CustomerUser{
-		ID:        handlers.FmtUUID(o.ID),
-		Email:     handlers.FmtString(o.LoginGovEmail),
-		Active:    handlers.FmtBool(o.Active),
-		CreatedAt: handlers.FmtDateTime(o.CreatedAt),
+		ID:            handlers.FmtUUID(o.ID),
+		LoginGovEmail: handlers.FmtString(o.LoginGovEmail),
+		Active:        handlers.FmtBool(o.Active),
+		CreatedAt:     handlers.FmtDateTime(o.CreatedAt),
 	}
 
 	return payload
@@ -39,12 +39,23 @@ func (h IndexCustomerUsersHandler) Handle(params customeruserop.IndexCustomerUse
 	queryFilters := []services.QueryFilter{}
 
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
+
+	loginEmail := "email"
+	loginGovEmail := "login_gov_email"
+	if params.Sort == &loginEmail {
+		// fmt.Printf("🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙")
+		params.Sort = &loginGovEmail
+	}
+
+	// fmt.Printf("%v BAHHHAHAHAHAHAHAHAHAHAHAHAHAHAHAHHAHA  ", params.Sort)
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 	pagination := h.NewPagination(params.Page, params.PerPage)
 
 	var users models.Users
+
 	err := h.ListFetcher.FetchRecordList(&users, queryFilters, associations, pagination, ordering)
 	if err != nil {
+		fmt.Printf("BAHHHAHAHAHAHAHAHAHAHAHAHAHAHAHAHHAHA")
 		return handlers.ResponseForError(logger, err)
 	}
 
