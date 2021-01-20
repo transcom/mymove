@@ -225,7 +225,7 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	newMTOServiceItem.SITDepartureDate = setOptionalDateField(
 		v.updatedServiceItem.SITDepartureDate, newMTOServiceItem.SITDepartureDate)
 
-	if v.updatedServiceItem.SITDestinationFinalAddressID != nil {
+	if v.updatedServiceItem.SITDestinationFinalAddress != nil {
 		newMTOServiceItem.SITDestinationFinalAddress = v.updatedServiceItem.SITDestinationFinalAddress
 		newMTOServiceItem.SITDestinationFinalAddressID = v.updatedServiceItem.SITDestinationFinalAddressID
 	}
