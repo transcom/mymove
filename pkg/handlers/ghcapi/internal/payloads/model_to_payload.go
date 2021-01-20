@@ -49,6 +49,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		CreatedAt:          strfmt.DateTime(move.CreatedAt),
 		SubmittedAt:        handlers.FmtDateTimePtr(move.SubmittedAt),
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
+		ETag:               etag.GenerateEtag(move.UpdatedAt),
 	}
 
 	return payload

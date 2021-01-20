@@ -1640,6 +1640,8 @@ definitions:
       updatedAt:
         type: string
         format: date-time
+      eTag:
+        type: string
   MoveStatus:
     type: string
     enum:

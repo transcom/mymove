@@ -2773,6 +2773,9 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -6916,6 +6919,9 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
