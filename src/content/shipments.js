@@ -7,7 +7,7 @@ export const shipmentTypeLabels = {
   [SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC]: 'HHG',
   [SHIPMENT_OPTIONS.PPM]: 'PPM',
   [SHIPMENT_OPTIONS.NTS]: 'NTS',
-  [SHIPMENT_OPTIONS.NTSR]: 'NTS-R',
+  [SHIPMENT_OPTIONS.NTSR]: 'NTSR',
 };
 
 export const shipmentForm = {
