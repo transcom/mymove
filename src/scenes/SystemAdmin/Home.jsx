@@ -15,7 +15,7 @@ import OfficeUserShow from './OfficeUsers/OfficeUserShow';
 import AdminUserList from './AdminUsers/AdminUserList';
 import AdminUserShow from './AdminUsers/AdminUserShow';
 import AdminUserCreate from './AdminUsers/AdminUserCreate';
-import CustomerUserList from './CustomerUsers/CustomerUserList';
+import CustomerUserList from 'pages/Admin/CustomerUsers/CustomerUserList';
 import OfficeList from './Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
