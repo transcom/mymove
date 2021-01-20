@@ -23,15 +23,22 @@ type mtoServiceItemQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	CreateOne(model interface{}) (*validate.Errors, error)
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
+	Transaction(fn func(tx *pop.Connection) error) error
 }
 
 type mtoServiceItemUpdater struct {
-	builder mtoServiceItemQueryBuilder
+	builder          mtoServiceItemQueryBuilder
+	createNewBuilder func(db *pop.Connection) mtoServiceItemQueryBuilder
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
 func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder) services.MTOServiceItemUpdater {
-	return &mtoServiceItemUpdater{builder: builder}
+	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
+	createNewBuilder := func(db *pop.Connection) mtoServiceItemQueryBuilder {
+		return query.NewQueryBuilder(db)
+	}
+
+	return &mtoServiceItemUpdater{builder: builder, createNewBuilder: createNewBuilder}
 }
 
 func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
@@ -207,24 +214,34 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 		return nil, services.NewPreconditionFailedError(validServiceItem.ID, nil)
 	}
 
-	if validServiceItem.SITDestinationFinalAddress != nil &&
-		(validServiceItem.SITDestinationFinalAddressID == nil || *validServiceItem.SITDestinationFinalAddressID == uuid.Nil) {
-		verrs, createErr := p.builder.CreateOne(validServiceItem.SITDestinationFinalAddress)
-		if verrs != nil || createErr != nil {
-			return nil, fmt.Errorf("%#v %e", verrs, createErr)
+	// Create address record (if needed) and update service item in a single transaction
+	transactionErr := p.builder.Transaction(func(tx *pop.Connection) error {
+		txBuilder := p.createNewBuilder(tx)
+		if validServiceItem.SITDestinationFinalAddress != nil &&
+			(validServiceItem.SITDestinationFinalAddressID == nil ||
+				*validServiceItem.SITDestinationFinalAddressID == uuid.Nil) {
+
+			verrs, createErr := txBuilder.CreateOne(validServiceItem.SITDestinationFinalAddress)
+			if verrs != nil || createErr != nil {
+				return fmt.Errorf("%#v %e", verrs, createErr)
+			}
+			validServiceItem.SITDestinationFinalAddressID = &validServiceItem.SITDestinationFinalAddress.ID
 		}
-		validServiceItem.SITDestinationFinalAddressID = &validServiceItem.SITDestinationFinalAddress.ID
-	}
+		// Make the update and create a InvalidInputError if there were validation issues
+		verrs, updateErr := tx.ValidateAndUpdate(validServiceItem)
 
-	// Make the update and create a InvalidInputError if there were validation issues
-	verrs, err := p.builder.UpdateOne(validServiceItem, &eTag)
+		// If there were validation errors create an InvalidInputError type
+		if verrs != nil && verrs.HasAny() {
+			return services.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating the service item.")
+		} else if updateErr != nil {
+			// If the error is something else (this is unexpected), we create a QueryError
+			return services.NewQueryError("MTOServiceItem", updateErr, "")
+		}
+		return nil
+	})
 
-	// If there were validation errors create an InvalidInputError type
-	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(validServiceItem.ID, err, verrs, "Invalid input found while updating the service item.")
-	} else if err != nil {
-		// If the error is something else (this is unexpected), we create a QueryError
-		return nil, services.NewQueryError("MTOServiceItem", err, "")
+	if transactionErr != nil {
+		return nil, transactionErr
 	}
 
 	// Get the updated address and return
