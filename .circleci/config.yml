@@ -1368,7 +1368,7 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cj-deploy-master-to-exp
 
       - push_tasks_exp:
           requires:
@@ -1396,46 +1396,25 @@ workflows:
             - push_migrations_exp
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cj-deploy-master-to-exp
 
       - deploy_exp_tasks:
           requires:
-            - pre_deps_golang
-            - pre_test
-            - client_test
-            - server_test
-            - push_app_exp
-            - build_tools
-            - push_tasks_exp
-            - push_migrations_exp
+            - deploy_exp_migrations
           filters:
             branches:
               only: cj-deploy-master-to-exp
 
       - deploy_exp_app:
           requires:
-            - pre_deps_golang
-            - pre_test
-            - client_test
-            - server_test
-            - push_app_exp
-            - build_tools
-            - push_tasks_exp
-            - push_migrations_exp
+            - deploy_exp_migrations
           filters:
             branches:
               only: cj-deploy-master-to-exp
 
       - deploy_exp_app_client_tls:
           requires:
-            - pre_deps_golang
-            - pre_test
-            - client_test
-            - server_test
-            - push_app_exp
-            - build_tools
-            - push_tasks_exp
-            - push_migrations_exp
+            - deploy_exp_migrations
           filters:
             branches:
               only: cj-deploy-master-to-exp
