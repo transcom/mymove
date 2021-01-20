@@ -4,13 +4,14 @@ import { string } from 'prop-types';
 import styles from './index.module.scss';
 
 import { MoveOrderShape, CustomerShape } from 'types/moveOrder';
-import { formatCustomerDate, formatGrade, AGENCIES } from 'utils/formatters';
+import { formatCustomerDate } from 'utils/formatters';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders.js';
 
 const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
   return (
     <div className={styles.custHeader}>
       <div>
-        <div data-test="nameBlock" className={styles.nameBlock}>
+        <div data-testid="nameBlock" className={styles.nameBlock}>
           <h2>
             {customer.last_name}, {customer.first_name}
           </h2>
@@ -18,17 +19,17 @@ const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
         </div>
         <div>
           <p>
-            <span data-test="deptRank" className={styles.details}>
-              {AGENCIES[`${moveOrder.agency}`]} {formatGrade(moveOrder.grade)}
+            <span data-testid="deptRank" className={styles.details}>
+              {ORDERS_BRANCH_OPTIONS[`${moveOrder.agency}`]} {ORDERS_RANK_OPTIONS[`${moveOrder.grade}`]}
             </span>
             <span className={styles.verticalBar}>|</span>
-            <span data-test="dodId" className={styles.details}>
+            <span data-testid="dodId" className={styles.details}>
               DoD ID {customer.dodID}
             </span>
           </p>
         </div>
       </div>
-      <div data-test="infoBlock" className={styles.infoBlock}>
+      <div data-testid="infoBlock" className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>
           <h4>{moveOrder.originDutyStation.name}</h4>
