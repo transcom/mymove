@@ -8,6 +8,7 @@ import {
   usePaymentRequestQueueQueries,
   useUserQueries,
   useTXOMoveInfoQueries,
+  useMoveDetailsQueries,
 } from './queries';
 
 jest.mock('services/ghcApi', () => ({
@@ -29,9 +30,13 @@ jest.mock('services/ghcApi', () => ({
       mtoShipments: {
         a1: {
           shipmentType: 'HHG',
+          // mtoAgents: [],
+          // mtoServiceItems: [],
         },
         b2: {
-          shipmentType: 'NTS',
+          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          // mtoAgents: [],
+          // mtoServiceItems: [],
         },
       },
     }),
@@ -58,6 +63,7 @@ jest.mock('services/ghcApi', () => ({
         [id]: {
           id,
           customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
           departmentIndicator: 'Navy',
           grade: 'E-6',
@@ -152,6 +158,7 @@ describe('useTXOMoveInfoQueries', () => {
       moveOrder: {
         id: '4321',
         customerID: '2468',
+        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
         uploaded_order_id: '2',
         departmentIndicator: 'Navy',
         grade: 'E-6',
@@ -225,6 +232,7 @@ describe('useMoveTaskOrderQueries', () => {
         4321: {
           id: '4321',
           customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
           departmentIndicator: 'Navy',
           grade: 'E-6',
@@ -247,7 +255,7 @@ describe('useMoveTaskOrderQueries', () => {
           shipmentType: 'HHG',
         },
         b2: {
-          shipmentType: 'NTS',
+          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
         },
       },
       mtoServiceItems: {
@@ -256,6 +264,80 @@ describe('useMoveTaskOrderQueries', () => {
         },
         b: {
           reServiceName: 'Test Service Item 2',
+        },
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
+describe('useMoveDetailsQueries', () => {
+  it('loads data', async () => {
+    const moveCode = 'ABCDEF';
+    const { result, waitForNextUpdate } = renderHook(() => useMoveDetailsQueries(moveCode));
+
+    expect(result.current).toEqual({
+      move: {
+        id: '1234',
+        ordersId: '4321',
+        moveCode: 'ABCDEF',
+      },
+      moveOrders: {
+        4321: {
+          id: '4321',
+          customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+          uploaded_order_id: '2',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyStation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyStation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
+        },
+      },
+      mtoShipments: undefined,
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+    });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      move: {
+        id: '1234',
+        ordersId: '4321',
+        moveCode: 'ABCDEF',
+      },
+      moveOrders: {
+        4321: {
+          id: '4321',
+          customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+          uploaded_order_id: '2',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyStation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyStation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
+        },
+      },
+      mtoShipments: {
+        a1: {
+          shipmentType: 'HHG',
+        },
+        b2: {
+          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
         },
       },
       isLoading: false,
@@ -278,6 +360,7 @@ describe('useOrdersDocumentQueries', () => {
         4321: {
           id: '4321',
           customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
           departmentIndicator: 'Navy',
           grade: 'E-6',

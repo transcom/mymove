@@ -240,3 +240,32 @@ export const useMovePaymentRequestsQueries = (locator) => {
     isSuccess,
   };
 };
+
+export const useMoveDetailsQueries = (moveCode) => {
+  // Get the orders info so we can get the uploaded_orders_id (which is a document id)
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+
+  const moveId = move?.id;
+  const moveOrderId = move?.ordersId;
+
+  // get orders
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
+    enabled: !!moveOrderId,
+  });
+
+  // get MTO shipments
+  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId], getMTOShipments, {
+    enabled: !!moveId,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, mtoShipmentQuery]);
+
+  return {
+    move,
+    moveOrders,
+    mtoShipments,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
