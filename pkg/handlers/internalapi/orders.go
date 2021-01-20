@@ -29,6 +29,12 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		moves = append(moves, payload)
 	}
 
+	var dBAuthorizedWeight *int64
+	dBAuthorizedWeight = nil
+	if order.Entitlement != nil {
+		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
+	}
+
 	payload := &internalmessages.Orders{
 		ID:                  handlers.FmtUUID(order.ID),
 		CreatedAt:           handlers.FmtDateTime(order.CreatedAt),
@@ -48,7 +54,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		Sac:                 order.SAC,
 		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
 		Status:              internalmessages.OrdersStatus(order.Status),
-		AuthorizedWeight:    swag.Int64(int64(*order.Entitlement.AuthorizedWeight())),
+		AuthorizedWeight:    dBAuthorizedWeight,
 	}
 
 	return payload, nil
