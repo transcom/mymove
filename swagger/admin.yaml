@@ -147,7 +147,7 @@ definitions:
         type: string
       lastName:
         type: string
-      email:
+      loginGovEmail:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
@@ -164,7 +164,7 @@ definitions:
         format: date-time
     required:
       - id
-      - email
+      - loginGovEmail
       - userId
       - active
       - createdAt

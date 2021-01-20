@@ -1442,7 +1442,7 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "email",
+        "loginGovEmail",
         "userId",
         "active",
         "createdAt",
@@ -1456,11 +1456,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-        },
         "firstName": {
           "type": "string"
         },
@@ -1471,6 +1466,11 @@ func init() {
         },
         "lastName": {
           "type": "string"
+        },
+        "loginGovEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "updatedAt": {
           "type": "string",
@@ -3649,7 +3649,7 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "email",
+        "loginGovEmail",
         "userId",
         "active",
         "createdAt",
@@ -3663,11 +3663,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-        },
         "firstName": {
           "type": "string"
         },
@@ -3678,6 +3673,11 @@ func init() {
         },
         "lastName": {
           "type": "string"
+        },
+        "loginGovEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "updatedAt": {
           "type": "string",

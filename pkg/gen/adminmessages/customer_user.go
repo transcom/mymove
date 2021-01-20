@@ -26,11 +26,6 @@ type CustomerUser struct {
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
-	// email
-	// Required: true
-	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-	Email *string `json:"email"`
-
 	// first name
 	FirstName string `json:"firstName,omitempty"`
 
@@ -41,6 +36,11 @@ type CustomerUser struct {
 
 	// last name
 	LastName string `json:"lastName,omitempty"`
+
+	// login gov email
+	// Required: true
+	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+	LoginGovEmail *string `json:"loginGovEmail"`
 
 	// updated at
 	// Required: true
@@ -65,11 +65,11 @@ func (m *CustomerUser) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateEmail(formats); err != nil {
+	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateID(formats); err != nil {
+	if err := m.validateLoginGovEmail(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -109,19 +109,6 @@ func (m *CustomerUser) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CustomerUser) validateEmail(formats strfmt.Registry) error {
-
-	if err := validate.Required("email", "body", m.Email); err != nil {
-		return err
-	}
-
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *CustomerUser) validateID(formats strfmt.Registry) error {
 
 	if err := validate.Required("id", "body", m.ID); err != nil {
@@ -129,6 +116,19 @@ func (m *CustomerUser) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CustomerUser) validateLoginGovEmail(formats strfmt.Registry) error {
+
+	if err := validate.Required("loginGovEmail", "body", m.LoginGovEmail); err != nil {
+		return err
+	}
+
+	if err := validate.Pattern("loginGovEmail", "body", string(*m.LoginGovEmail), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
