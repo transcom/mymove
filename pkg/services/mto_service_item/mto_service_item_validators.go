@@ -227,7 +227,14 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 
 	if v.updatedServiceItem.SITDestinationFinalAddress != nil {
 		newMTOServiceItem.SITDestinationFinalAddress = v.updatedServiceItem.SITDestinationFinalAddress
-		newMTOServiceItem.SITDestinationFinalAddressID = v.updatedServiceItem.SITDestinationFinalAddressID
+
+		// If the old service item had an address, we need to save its ID
+		// so we can update the existing record instead of making a new one
+		if v.oldServiceItem.SITDestinationFinalAddressID != nil {
+			newMTOServiceItem.SITDestinationFinalAddressID = v.oldServiceItem.SITDestinationFinalAddressID
+		} else {
+			newMTOServiceItem.SITDestinationFinalAddressID = v.updatedServiceItem.SITDestinationFinalAddressID
+		}
 	}
 
 	return &newMTOServiceItem
