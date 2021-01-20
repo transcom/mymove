@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
@@ -40,6 +42,77 @@ func TestWebhookClientTestingSuite(t *testing.T) {
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
+}
+
+func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
+	defer teardownEngineRun(suite)
+
+	// Create a client
+	v := viper.New()
+	// Parse flags from environemnt
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+	client, _, err := utils.CreateClient(v)
+	suite.Nil(err)
+
+	// Create the engine
+	engine := Engine{
+		DB:                  suite.DB(),
+		Logger:              suite.logger,
+		Client:              client,
+		MaxImmediateRetries: 3,
+	}
+	// Create a notification
+	notification := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
+		WebhookNotification: models.WebhookNotification{
+			Status:  models.WebhookNotificationSent,
+			Payload: swag.String("{\"message\":\"This is an updated notification #1\"}"),
+		},
+	})
+	// Create a subscription
+	subscription := testdatagen.MakeWebhookSubscription(suite.DB(), testdatagen.Assertions{
+		WebhookSubscription: models.WebhookSubscription{
+			CallbackURL: "https://api.stg.move.mil/support/v1/webhook-notify",
+		},
+	})
+
+	// TESTCASE SCENARIO
+	// What is being tested: sendOneNotification function
+	// Mocked: None
+	// Behaviour: The function gets passed in 2 models, one for notification
+	// and one for subscription.
+	// It should create a payload from the notification and send it to the url
+	// listed in the subscription. On success or failure, it should update the
+	// notification.Status with SENT or FAILED accordingly
+
+	suite.T().Run("Successful post, updated notification", func(t *testing.T) {
+
+		// Under test: sendOneNotification function
+		// Mocked:     Client
+		// Set up:     We provide a PENDING webhook notification, and point the
+		//             subscription at Staging
+		// Expected outcome:
+		//             Notification would be updated as SENT
+
+		// Set beginning status as pending
+		suite.DB().Find(&notification, notification.ID)
+		notification.Status = models.WebhookNotificationPending
+		suite.DB().ValidateAndUpdate(&notification)
+
+		// Call the engine function.
+		err := engine.sendOneNotification(&notification, &subscription)
+
+		// Check that there was no error
+		suite.Nil(err)
+		// Check that notification Status was set to Sent in the model
+		notif := models.WebhookNotification{}
+		suite.DB().Find(&notif, notification.ID)
+		suite.Equal(models.WebhookNotificationSent, notif.Status)
+		// Check that first attempted at date was set
+		suite.False(notif.FirstAttemptedAt.IsZero())
+
+	})
+
 }
 
 func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
@@ -81,6 +154,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 
 	// TESTCASE SCENARIO
 	// What is being tested: sendOneNotification function
+	// Mocked: Client
 	// Behaviour: The function gets passed in 2 models, one for notification
 	// and one for subscription.
 	// It should create a payload from the notification and send it to the url
