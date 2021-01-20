@@ -714,7 +714,10 @@ func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {
 
 func truncateStr(str string, cutoff int) string {
 	if len(str) >= cutoff {
-		return str[:cutoff-3] + "..."
+		if cutoff-3 > 0 {
+			return str[:cutoff-3] + "..."
+		}
+		return str[:cutoff]
 	}
 	return str
 }

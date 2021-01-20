@@ -745,11 +745,12 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 
 func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
 	longStr := "A super duper long string"
-	cutoff := 10
 	expectedTruncatedStr := "A super..."
-	suite.Equal(expectedTruncatedStr, truncateStr(longStr, cutoff))
+	suite.Equal(expectedTruncatedStr, truncateStr(longStr, 10))
 
-	shortStr := "Short"
-	suite.Equal(shortStr, truncateStr(shortStr, cutoff))
-
+	suite.Equal("AB", truncateStr("ABCD", 2))
+	suite.Equal("ABC", truncateStr("ABCD", 3))
+	suite.Equal("A...", truncateStr("ABCDEFGHI", 4))
+	suite.Equal("ABC...", truncateStr("ABCDEFGHI", 6))
+	suite.Equal("Too short", truncateStr("Too short", 200))
 }
