@@ -120,8 +120,8 @@ const (
 	ServiceItemParamNameZipDestAddress ServiceItemParamName = "ZipDestAddress"
 	// ServiceItemParamNameZipPickupAddress is the param key name ZipPickupAddress
 	ServiceItemParamNameZipPickupAddress ServiceItemParamName = "ZipPickupAddress"
-	// ServiceItemParamNameZipSITAddress is the param key name ZipSITAddress
-	ServiceItemParamNameZipSITAddress ServiceItemParamName = "ZipSITAddress"
+	// ServiceItemParamNameZipSITDestHHGFinalAddress is the param key name ZipSITDestHHGFinalAddress
+	ServiceItemParamNameZipSITDestHHGFinalAddress ServiceItemParamName = "ZipSITDestHHGFinalAddress"
 )
 
 // ServiceItemParamType is a type of service item parameter
@@ -215,7 +215,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameWeightEstimated,
 	ServiceItemParamNameZipDestAddress,
 	ServiceItemParamNameZipPickupAddress,
-	ServiceItemParamNameZipSITAddress,
+	ServiceItemParamNameZipSITDestHHGFinalAddress,
 }
 
 // ValidServiceItemParamNameStrings lists all valid service item param key names
@@ -271,7 +271,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameWeightEstimated),
 	string(ServiceItemParamNameZipDestAddress),
 	string(ServiceItemParamNameZipPickupAddress),
-	string(ServiceItemParamNameZipSITAddress),
+	string(ServiceItemParamNameZipSITDestHHGFinalAddress),
 }
 
 // ValidServiceItemParamTypes lists all valid service item param types

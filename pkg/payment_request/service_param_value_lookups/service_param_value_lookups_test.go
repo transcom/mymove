@@ -295,7 +295,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			suite.FatalNoError(err)
 
 			suite.NotNil(paramLookup.MTOServiceItem)
-			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipSITAddress].(ZipAddressLookup); ok {
+			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipSITDestHHGFinalAddress].(ZipAddressLookup); ok {
 				suite.Equal(mtoServiceItem.SITDestinationFinalAddress.PostalCode, zdal.Address.PostalCode)
 			} else {
 				suite.Fail("lookup not ZipSitAddress destination type")
@@ -324,7 +324,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			suite.FatalNoError(err)
 
 			suite.NotNil(paramLookup.MTOServiceItem)
-			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipSITAddress].(ZipAddressLookup); ok {
+			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipSITDestHHGFinalAddress].(ZipAddressLookup); ok {
 				suite.Equal("", zdal.Address.PostalCode)
 			} else {
 				suite.Fail("lookup not ZipSitAddress destination type")

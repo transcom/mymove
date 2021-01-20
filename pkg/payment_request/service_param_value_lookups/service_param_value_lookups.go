@@ -311,7 +311,7 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
-	paramKey = models.ServiceItemParamNameZipSITAddress
+	paramKey = models.ServiceItemParamNameZipSITDestHHGFinalAddress
 	err = s.setLookup(serviceItemCode, paramKey, ZipAddressLookup{
 		Address: sitDestinationFinalAddress,
 	})

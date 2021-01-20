@@ -2205,7 +2205,7 @@ definitions:
       - WeightEstimated
       - ZipDestAddress
       - ZipPickupAddress
-      - ZipSITAddress
+      - ZipSITDestHHGFinalAddress
   ServiceItemParamOrigin:
     type: string
     enum:
