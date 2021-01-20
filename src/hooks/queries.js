@@ -248,22 +248,33 @@ export const useMoveDetailsQueries = (moveCode) => {
   const moveId = move?.id;
   const moveOrderId = move?.ordersId;
 
-  // get orders
   const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
     enabled: !!moveOrderId,
   });
 
-  // get MTO shipments
   const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId], getMTOShipments, {
     enabled: !!moveId,
   });
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, mtoShipmentQuery]);
+  // Must account for basic service items here not tied to a shipment
+  const { data: { mtoServiceItems } = {}, ...mtoServiceItemQuery } = useQuery(
+    [MTO_SERVICE_ITEMS, moveId],
+    getMTOServiceItems,
+    { enabled: !!moveId },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
+    moveOrderQuery,
+    mtoShipmentQuery,
+    mtoServiceItemQuery,
+  ]);
 
   return {
     move,
     moveOrders,
     mtoShipments,
+    mtoServiceItems,
     isLoading,
     isError,
     isSuccess,

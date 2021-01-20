@@ -23,6 +23,10 @@ type MoveOrder struct {
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
 
+	// customer ID
+	// Format: uuid
+	CustomerID strfmt.UUID `json:"customerID,omitempty"`
+
 	// date issued
 	// Format: date
 	DateIssued strfmt.Date `json:"date_issued,omitempty"`
@@ -103,6 +107,10 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCustomer(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCustomerID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -189,6 +197,19 @@ func (m *MoveOrder) validateCustomer(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateCustomerID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.CustomerID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("customerID", "body", "uuid", m.CustomerID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

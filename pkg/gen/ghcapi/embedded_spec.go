@@ -2819,6 +2819,11 @@ func init() {
         "customer": {
           "$ref": "#/definitions/Customer"
         },
+        "customerID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "date_issued": {
           "type": "string",
           "format": "date",
@@ -6957,6 +6962,11 @@ func init() {
         },
         "customer": {
           "$ref": "#/definitions/Customer"
+        },
+        "customerID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "date_issued": {
           "type": "string",

@@ -30,13 +30,45 @@ jest.mock('services/ghcApi', () => ({
       mtoShipments: {
         a1: {
           shipmentType: 'HHG',
-          // mtoAgents: [],
-          // mtoServiceItems: [],
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: 'Domestic Linehaul',
+            },
+            {
+              reServiceName: 'Fuel Surcharge',
+            },
+          ],
         },
         b2: {
           shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          // mtoAgents: [],
-          // mtoServiceItems: [],
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: 'Domestic Origin Price',
+            },
+            {
+              reServiceName: 'Domestic Unpacking',
+            },
+          ],
         },
       },
     }),
@@ -44,10 +76,10 @@ jest.mock('services/ghcApi', () => ({
     Promise.resolve({
       mtoServiceItems: {
         a: {
-          reServiceName: 'Test Service Item',
+          reServiceName: 'Counseling Services',
         },
         b: {
-          reServiceName: 'Test Service Item 2',
+          reServiceName: 'Shipment Management Services',
         },
       },
     }),
@@ -253,17 +285,53 @@ describe('useMoveTaskOrderQueries', () => {
       mtoShipments: {
         a1: {
           shipmentType: 'HHG',
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: 'Domestic Linehaul',
+            },
+            {
+              reServiceName: 'Fuel Surcharge',
+            },
+          ],
         },
         b2: {
           shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: 'Domestic Origin Price',
+            },
+            {
+              reServiceName: 'Domestic Unpacking',
+            },
+          ],
         },
       },
       mtoServiceItems: {
         a: {
-          reServiceName: 'Test Service Item',
+          reServiceName: 'Counseling Services',
         },
         b: {
-          reServiceName: 'Test Service Item 2',
+          reServiceName: 'Shipment Management Services',
         },
       },
       isLoading: false,
@@ -335,9 +403,53 @@ describe('useMoveDetailsQueries', () => {
       mtoShipments: {
         a1: {
           shipmentType: 'HHG',
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: 'Domestic Linehaul',
+            },
+            {
+              reServiceName: 'Fuel Surcharge',
+            },
+          ],
         },
         b2: {
           shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: 'Domestic Origin Price',
+            },
+            {
+              reServiceName: 'Domestic Unpacking',
+            },
+          ],
+        },
+      },
+      mtoServiceItems: {
+        a: {
+          reServiceName: 'Counseling Services',
+        },
+        b: {
+          reServiceName: 'Shipment Management Services',
         },
       },
       isLoading: false,
