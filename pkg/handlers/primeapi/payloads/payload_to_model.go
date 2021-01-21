@@ -233,6 +233,11 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 		model.SITPostalCode = originsit.SitPostalCode
 
+		model.SITOriginHHGActualAddress = AddressModel(originsit.SitHHGActualOrigin)
+		if model.SITOriginHHGActualAddress != nil {
+			model.SITOriginHHGActualAddressID = &model.SITOriginHHGActualAddress.ID
+		}
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:
 		destsit := mtoServiceItem.(*primemessages.MTOServiceItemDestSIT)
 

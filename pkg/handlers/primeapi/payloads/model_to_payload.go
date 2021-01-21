@@ -419,6 +419,9 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitPostalCode:    mtoServiceItem.SITPostalCode,
 		}
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeDOFSIT || mtoServiceItem.ReService.Code == models.ReServiceCodeDOPSIT {
+			payload.(*primemessages.MTOServiceItemOriginSIT).SitHHGActualOrigin = Address(mtoServiceItem.SITOriginHHGActualAddress)
+		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
 		var sitDepartureDate time.Time
 		if mtoServiceItem.SITDepartureDate != nil {

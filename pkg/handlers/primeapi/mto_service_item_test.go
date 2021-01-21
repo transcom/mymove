@@ -481,7 +481,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 
 	})
 
-	suite.T().Run("Sucessful POST - Create DOASIT with DOFSIT", func(t *testing.T) {
+	suite.T().Run("Successful POST - Create DOASIT with DOFSIT", func(t *testing.T) {
 		// Under test: createMTOServiceItemHandler function
 		// Set up:     We hit the endpoint with a standalone DOASIT MTOServiceItem
 		// Expected outcome:
@@ -517,6 +517,178 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
+	})
+
+}
+
+func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoAddress() {
+	// Under test: createMTOServiceItemHandler function,
+	// - no DOPSIT standalone
+	// -  DOASIT standalone with DOFSIT
+
+	mto := testdatagen.MakeAvailableMove(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+	})
+	testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
+	builder := query.NewQueryBuilder(suite.DB())
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+
+	reason := "lorem ipsum"
+	sitEntryDate := time.Now()
+	sitPostalCode := "00000"
+
+	mtoServiceItem := models.MTOServiceItem{
+		MoveTaskOrderID: mto.ID,
+		MTOShipmentID:   &mtoShipment.ID,
+		ReService:       models.ReService{},
+		Reason:          &reason,
+		SITEntryDate:    &sitEntryDate,
+		SITPostalCode:   &sitPostalCode,
+	}
+
+	suite.T().Run("Successful POST - Create DOFSIT", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a standalone DOFSIT MTOServiceItem
+		// Expected outcome:
+		//             Receive a 404 - Not Found
+		// SETUP
+		// Create the payload
+
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		// CHECK RESULTS
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+	})
+
+}
+
+func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWithAddress() {
+	// Under test: createMTOServiceItemHandler function,
+	// - no DOPSIT standalone
+	// -  DOASIT standalone with DOFSIT
+
+	mto := testdatagen.MakeAvailableMove(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+	})
+	testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
+	builder := query.NewQueryBuilder(suite.DB())
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+
+	reason := "lorem ipsum"
+	sitEntryDate := time.Now()
+	sitPostalCode := "00000"
+
+	// Original customer pickup address
+	originalPickupAddress := mtoShipment.PickupAddress
+	originalPickupAddressID := mtoShipment.PickupAddressID
+
+	// Customer gets new pickup address
+	actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+
+	mtoServiceItem := models.MTOServiceItem{
+		MoveTaskOrderID:             mto.ID,
+		MTOShipmentID:               &mtoShipment.ID,
+		ReService:                   models.ReService{},
+		Reason:                      &reason,
+		SITEntryDate:                &sitEntryDate,
+		SITPostalCode:               &sitPostalCode,
+		SITOriginHHGActualAddress:   &actualPickupAddress,
+		SITOriginHHGActualAddressID: &actualPickupAddress.ID,
+	}
+
+	// Verify the addresses for original pickup and new pickup are not the same
+	suite.NotEqual(originalPickupAddressID, mtoServiceItem.SITOriginHHGActualAddressID, "address ID is not the same")
+	suite.NotEqual(originalPickupAddress.StreetAddress1, mtoServiceItem.SITOriginHHGActualAddress.StreetAddress1, "street address is not the same")
+	suite.NotEqual(originalPickupAddress.City, mtoServiceItem.SITOriginHHGActualAddress.City, "city is not the same")
+	suite.NotEqual(originalPickupAddress.PostalCode, mtoServiceItem.SITOriginHHGActualAddress.PostalCode, "zip is not the same")
+
+	suite.T().Run("Successful POST - Create DOFSIT", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a standalone DOFSIT MTOServiceItem
+		// Expected outcome:
+		//             Receive a 404 - Not Found
+		// SETUP
+		// Create the payload
+
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		// CHECK RESULTS
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+		// Verify address was updated on MTO Shipment
+		var updatedMTOShipment models.MTOShipment
+		suite.NoError(suite.DB().Eager("PickupAddress").Find(&updatedMTOShipment, mtoShipment.ID))
+
+		// Verify the HHG pickup address is the actual address on the shipment
+		suite.NotNil(updatedMTOShipment.PickupAddressID, "address ID is not nil")
+		suite.Equal(actualPickupAddress.StreetAddress1, updatedMTOShipment.PickupAddress.StreetAddress1, "hhg actual street address is the same")
+		suite.Equal(actualPickupAddress.City, updatedMTOShipment.PickupAddress.City, "hhg actual city is the same")
+		suite.Equal(actualPickupAddress.State, updatedMTOShipment.PickupAddress.State, "hhg actual state is the same")
+		suite.Equal(actualPickupAddress.PostalCode, updatedMTOShipment.PickupAddress.PostalCode, "hhg actual zip is the same")
+
+		// Verify address on SIT service item
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		suite.NotZero(okResponse.Payload[0].ID())
+		findDOFSIT := false
+
+		for _, sp := range okResponse.Payload {
+			var serviceItem models.MTOServiceItem
+			id := sp.ID()
+			err := suite.DB().Find(&serviceItem, id)
+			suite.NoError(err)
+			if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+				findDOFSIT = true
+				// Verify the HHG original pickup address is the original address on the service item
+				suite.NotEqual(originalPickupAddressID, mtoServiceItem.SITOriginHHGOriginalAddressID, "original address ID is the same")
+				suite.NotEqual(originalPickupAddress.StreetAddress1, mtoServiceItem.SITOriginHHGOriginalAddress.StreetAddress1, "original street address is the same")
+				suite.NotEqual(originalPickupAddress.City, mtoServiceItem.SITOriginHHGOriginalAddress.City, "original city is the same")
+				suite.NotEqual(originalPickupAddress.State, mtoServiceItem.SITOriginHHGOriginalAddress.State, "original state is the same")
+				suite.NotEqual(originalPickupAddress.PostalCode, mtoServiceItem.SITOriginHHGOriginalAddress.PostalCode, "original zip is the same")
+
+				// Verify the HHG pickup address is the actual address on the service item
+				suite.NotEqual(updatedMTOShipment.PickupAddressID, mtoServiceItem.SITOriginHHGActualAddressID, "shipment actual address ID is the same")
+				suite.NotEqual(updatedMTOShipment.PickupAddress.StreetAddress1, mtoServiceItem.SITOriginHHGActualAddress.StreetAddress1, "shipment actual street address is the same")
+				suite.NotEqual(updatedMTOShipment.PickupAddress.City, mtoServiceItem.SITOriginHHGActualAddress.City, "shipment actual city is the same")
+				suite.NotEqual(updatedMTOShipment.PickupAddress.State, mtoServiceItem.SITOriginHHGActualAddress.State, "shipment actual state is the same")
+				suite.NotEqual(updatedMTOShipment.PickupAddress.PostalCode, mtoServiceItem.SITOriginHHGActualAddress.PostalCode, "shipment actual zip is the same")
+			}
+		}
+		suite.Equal(true, findDOFSIT, "Found expected ReServiceCodeDOFSIT")
 	})
 
 }

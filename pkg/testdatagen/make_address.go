@@ -4,6 +4,8 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 
+	// TODO "github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -28,7 +30,9 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 
 // MakeAddress2 creates a different single Address and associated service member.
 func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
+	// TODO id, _ := uuid.NewV4()
 	address := models.Address{
+		// TODO ID: id,
 		StreetAddress1: "987 Any Avenue",
 		StreetAddress2: swag.String("P.O. Box 9876"),
 		StreetAddress3: swag.String("c/o Some Person"),

@@ -141,10 +141,55 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
 	}
 
+	updateShipment := false
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
 		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(serviceItem)
 		if errSIT != nil {
 			return nil, nil, errSIT
+		}
+
+		// update HHG origin address for ReServiceCodeDOFSIT service item
+		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+
+			// save the HHG shipment original pickup address
+			originalHhgAddress := mtoShipment.PickupAddress
+			originalHhgAddressID := mtoShipment.PickupAddressID
+
+			// When creating a DOFSIT, the prime must provide an HHG actual address for the move in origin (pickup address)
+			if serviceItem.SITOriginHHGActualAddress == nil {
+				verrs = validate.NewErrors()
+				verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
+				return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+					fmt.Sprintf("A service item with reServiceCode %s much have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
+			}
+
+			// save the HHG (new) actual pickup address, coming from the SIT service item
+			actualHhgAddress := serviceItem.SITOriginHHGActualAddress
+			actualHhgAddressID := serviceItem.SITOriginHHGActualAddress.ID //nil error
+
+			// update the SIT service item to track/save the HHG original pickup address (that came from the
+			// MTO shipment
+			serviceItem.SITOriginHHGOriginalAddress = originalHhgAddress
+			serviceItem.SITOriginHHGOriginalAddressID = originalHhgAddressID
+
+			// update the MTO shipment the new (actual) pickup address
+			mtoShipment.PickupAddress = actualHhgAddress
+			mtoShipment.PickupAddressID = &actualHhgAddressID
+
+			// changes were made to the shipment, needs to be saved to the database
+			updateShipment = true
+
+			// Find the DOPSIT service item and update the SIT related address fields. These fields
+			// will be used for pricing when a payment request is created for DOPSIT
+			for _, sitItem := range *extraServiceItems {
+				if sitItem.ReService.Code == models.ReServiceCodeDOPSIT {
+					sitItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress
+					sitItem.SITOriginHHGActualAddressID = serviceItem.SITOriginHHGActualAddressID
+					sitItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
+					sitItem.SITOriginHHGOriginalAddressID = serviceItem.SITOriginHHGOriginalAddressID
+				}
+
+			}
 		}
 
 		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
@@ -184,6 +229,18 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 				if verrs != nil || err != nil {
 					return fmt.Errorf("%#v %e", verrs, err)
 				}
+			}
+		}
+
+		// If updates were made to shipment update it in the database
+		if updateShipment {
+			// TODO do I need to create the etag here?
+			//  encodedUpdatedAt := etag.GenerateEtag(newShipment.UpdatedAt)
+			//  hopefully an etag is NOT needed here or else this UpdateOne has a new transaction inside
+			//  that doesn't seem like the right thing to use here if we need it.
+			verrs, err = txBuilder.UpdateOne(&mtoShipment, nil)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("%#v %e", verrs, err)
 			}
 		}
 
