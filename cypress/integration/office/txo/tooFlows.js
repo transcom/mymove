@@ -240,7 +240,7 @@ describe('TOO user', () => {
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
     // Move Details page
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // Navigate to Edit allowances page
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();

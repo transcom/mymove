@@ -243,7 +243,7 @@ export const useMovePaymentRequestsQueries = (locator) => {
 
 export const useMoveDetailsQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
-  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
 
   const moveId = move?.id;
   const moveOrderId = move?.ordersId;

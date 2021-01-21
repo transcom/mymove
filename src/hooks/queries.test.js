@@ -132,16 +132,14 @@ jest.mock('services/ghcApi', () => ({
         },
       });
     }
-    return Promise.resolve({
-      mtoServiceItems: [
-        {
-          reServiceName: 'Counseling Services',
-        },
-        {
-          reServiceName: 'Shipment Management Services',
-        },
-      ],
-    });
+    return Promise.resolve([
+      {
+        reServiceName: 'Counseling Services',
+      },
+      {
+        reServiceName: 'Shipment Management Services',
+      },
+    ]);
   },
   getMove: () =>
     Promise.resolve({
@@ -501,16 +499,14 @@ describe('useMoveDetailsQueries', () => {
           ],
         },
       ],
-      mtoServiceItems: {
-        mtoServiceItems: [
-          {
-            reServiceName: 'Counseling Services',
-          },
-          {
-            reServiceName: 'Shipment Management Services',
-          },
-        ],
-      },
+      mtoServiceItems: [
+        {
+          reServiceName: 'Counseling Services',
+        },
+        {
+          reServiceName: 'Shipment Management Services',
+        },
+      ],
       isLoading: false,
       isError: false,
       isSuccess: true,
