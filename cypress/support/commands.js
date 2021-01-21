@@ -99,6 +99,12 @@ Cypress.Commands.add('signInAsNewTIOUser', () => {
   cy.signInAsNewUser(TIOOfficeUserType);
 });
 
+Cypress.Commands.add('signInAsNewAdminUser', () => {
+  cy.visit('/devlocal-auth/login');
+  // select the user type and then login as new user
+  cy.get('button[data-hook="new-user-login-admin"]').click();
+});
+
 Cypress.Commands.add('signInAsMultiRoleOfficeUser', () => {
   cy.apiSignInAsUser('9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b', PPMOfficeUserType);
 });
