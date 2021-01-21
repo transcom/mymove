@@ -20,15 +20,8 @@ const props = {
 export const Milmove = () => (
   // eslint-disable-next-line react/jsx-props-no-spreading
   <MilMoveHeader {...props}>
-    {' '}
-    <span>
-      <a href="#">Navigation Link</a>
-    </span>
-    <span>
-      <a href="#">Navigation Link</a>
-    </span>
-    <span>
-      <a href="#">Navigation Link</a>
-    </span>
+    <a href="#">Navigation Link</a>
+    <a href="#">Navigation Link</a>
+    <a href="#">Navigation Link</a>
   </MilMoveHeader>
 );

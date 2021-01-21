@@ -17,15 +17,13 @@ const MilMoveHeader = ({ children, customer, handleLogout }) => (
     </Title>
     <div className={styles.links}>
       {children}
-      <span className={styles.lineAdd}>&nbsp;</span>
+      <div className={styles.verticalLine} />
       <span>
         {customer.last_name}, {customer.first_name}
       </span>
-      <span>
-        <Button unstyled className={styles.signOut} onClick={handleLogout} type="button">
-          Sign out
-        </Button>
-      </span>
+      <Button unstyled className={styles.signOut} onClick={handleLogout} type="button">
+        Sign out
+      </Button>
     </div>
   </div>
 );

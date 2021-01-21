@@ -1,59 +1,59 @@
-// Mm Header styles
-
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
 
 .mmHeader {
   background: $mm-blue;
-  width: 100vw;
-  padding: 10px;
+  width: 100%;
   @include u-padding-x(4);
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 50px;
+
   .links {
-    display: inline-block;
     color: $base-lightest;
     @include u-font-size('body', 'xs');
-    position: relative;
-  }
-  span {
-    @include u-padding-x(3);
-    &:first-child {
-      @include u-padding-left(0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-self: stretch;
+
+    > * {
+      @include u-margin-right(3);
     }
-    &:last-child {
-      @include u-padding-right(0);
+
+    > * + * {
+      @include u-margin-left(3);
+    }
+
+    > :last-child {
+      @include u-margin-right(0);
     }
   }
-  a {
+
+  a,
+  .signOut {
     @include u-text('bold');
     color: $link-light;
+
     &:hover,
     &:focus {
       color: #b7caf0;
       @include u-text('no-underline');
     }
   }
-  .lineAdd {
-    padding: 0px;
+
+  .verticalLine {
+    margin: 0px;
     background: $base-dark;
     width: 1px;
-    height: 50px;
-    display: inline-block;
-    position: absolute;
-    top: -13px;
-  }
-  .signOut {
-    color: $link-light;
+    align-self: stretch;
   }
 
-  :global(.usa-button) {
-    display: inline-block;
-    font-weight: bold;
+  .signOut {
     padding: 0;
+    line-height: inherit;
   }
 
   :global(.usa-logo) {
