@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import classnames from 'classnames';
 import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
-import { patchMTOShipmentStatus } from 'shared/Entities/modules/mtoShipments';
 import 'styles/office.scss';
-import { updateMoveTaskOrderStatus } from 'shared/Entities/modules/moveTaskOrders';
+import { updateMoveTaskOrderStatus, patchMTOShipmentStatus } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
@@ -25,7 +24,6 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-// TODO - Convert to functional component
 const MoveDetails = () => {
   const { moveCode } = useParams();
 
@@ -35,44 +33,6 @@ const MoveDetails = () => {
 
   const { move, moveOrder, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
-  const { customer, entitlement: allowances } = moveOrder;
-
-  const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
-  const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
-
-  const hasSubmittedShipments = sections.includes('requested-shipments');
-  const hasApprovedShipments = sections.includes('approved-shipments');
-
-  if (submittedShipments.length > 0 && approvedShipments.length > 0) {
-    if (!(hasApprovedShipments && hasSubmittedShipments)) {
-      setSections(['approved-shipments', 'requested-shipments', 'orders', 'allowances', 'customer-info']);
-    }
-  } else if (approvedShipments.length > 0 && !hasApprovedShipments) {
-    setSections(['approved-shipments', 'allowances', 'customer-info']);
-  } else if (submittedShipments.length > 0 && !hasSubmittedShipments) {
-    setSections(['requested-shipments', 'allowances', 'customer-info']);
-  }
-
-  /*
-  componentDidMount() {
-    // TODO - useEffects can be used for for this
-    // attach scroll listener
-    window.addEventListener('scroll', this.handleScroll);
-  }
-  */
-
-  /*
-  // TODO - useEffects can be used for for this
-  componentWillUnmount() {
-    // remove scroll listener
-    window.removeEventListener('scroll', this.handleScroll);
-  }
-  */
-
-  /*
   const handleScroll = () => {
     const distanceFromTop = window.scrollY;
     let newActiveSection;
@@ -88,7 +48,37 @@ const MoveDetails = () => {
       setActiveSection(newActiveSection);
     }
   };
-  */
+
+  useEffect(() => {
+    // attach scroll listener
+    window.addEventListener('scroll', handleScroll);
+
+    // remove scroll listener
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  });
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+
+  const { customer, entitlement: allowances } = moveOrder;
+
+  const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
+  const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
+
+  const hasSubmittedShipments = sections.includes('requested-shipments');
+  const hasApprovedShipments = sections.includes('approved-shipments');
+
+  if (submittedShipments.length > 0 && approvedShipments.length > 0) {
+    if (!(hasApprovedShipments && hasSubmittedShipments)) {
+      setSections(['requested-shipments', 'approved-shipments', 'orders', 'allowances', 'customer-info']);
+    }
+  } else if (approvedShipments.length > 0 && !hasApprovedShipments) {
+    setSections(['approved-shipments', 'orders', 'allowances', 'customer-info']);
+  } else if (submittedShipments.length > 0 && !hasSubmittedShipments) {
+    setSections(['requested-shipments', 'orders', 'allowances', 'customer-info']);
+  }
 
   const ordersInfo = {
     newDutyStation: moveOrder.destinationDutyStation,
