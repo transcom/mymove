@@ -51,11 +51,9 @@
   }
 
   :global(.usa-button) {
-    background-color: transparent;
     display: inline-block;
-    height: 0;
+    font-weight: bold;
     padding: 0;
-    margin: 0;
   }
 
   :global(.usa-logo) {

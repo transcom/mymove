@@ -1,7 +1,6 @@
 import React from 'react';
 import { node, func } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
-import { NavLink } from 'react-router-dom';
+import { Button, Title } from '@trussworks/react-uswds';
 
 import MmLogo from '../../shared/images/milmove-logo.svg';
 
@@ -11,13 +10,11 @@ import { CustomerShape } from 'types/moveOrder';
 
 const MilMoveHeader = ({ children, customer, handleLogout }) => (
   <div className={styles.mmHeader}>
-    <div className="usa-logo" id="basic-logo">
-      <em className="usa-logo__text">
-        <NavLink to="/" title="office.move.mil" aria-label="office.move.mil">
-          <img src={MmLogo} alt="MilMove Logo" />
-        </NavLink>
-      </em>
-    </div>
+    <Title>
+      <a href="/" title="office.move.mil" aria-label="office.move.mil">
+        <img src={MmLogo} alt="MilMove Logo" />
+      </a>
+    </Title>
     <div className={styles.links}>
       {children}
       <span className={styles.lineAdd}>&nbsp;</span>
@@ -25,8 +22,8 @@ const MilMoveHeader = ({ children, customer, handleLogout }) => (
         {customer.last_name}, {customer.first_name}
       </span>
       <span>
-        <Button className={styles.signOut} disabled={false} onClick={handleLogout}>
-          <span>Sign out</span>
+        <Button unstyled className={styles.signOut} onClick={handleLogout} type="button">
+          Sign out
         </Button>
       </span>
     </div>
