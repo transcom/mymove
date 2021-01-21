@@ -352,24 +352,23 @@ describe('useMoveDetailsQueries', () => {
         ordersId: '4321',
         moveCode: 'ABCDEF',
       },
-      moveOrders: {
-        4321: {
-          id: '4321',
-          customerID: '2468',
-          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-          uploaded_order_id: '2',
-          departmentIndicator: 'Navy',
-          grade: 'E-6',
-          originDutyStation: {
-            name: 'JBSA Lackland',
-          },
-          destinationDutyStation: {
-            name: 'JB Lewis-McChord',
-          },
-          report_by_date: '2018-08-01',
+      moveOrder: {
+        id: '4321',
+        customerID: '2468',
+        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+        uploaded_order_id: '2',
+        departmentIndicator: 'Navy',
+        grade: 'E-6',
+        originDutyStation: {
+          name: 'JBSA Lackland',
         },
+        destinationDutyStation: {
+          name: 'JB Lewis-McChord',
+        },
+        report_by_date: '2018-08-01',
       },
-      mtoShipments: undefined,
+      mtoShipments: [],
+      mtoServiceItems: [],
       isLoading: true,
       isError: false,
       isSuccess: false,
@@ -383,22 +382,20 @@ describe('useMoveDetailsQueries', () => {
         ordersId: '4321',
         moveCode: 'ABCDEF',
       },
-      moveOrders: {
-        4321: {
-          id: '4321',
-          customerID: '2468',
-          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-          uploaded_order_id: '2',
-          departmentIndicator: 'Navy',
-          grade: 'E-6',
-          originDutyStation: {
-            name: 'JBSA Lackland',
-          },
-          destinationDutyStation: {
-            name: 'JB Lewis-McChord',
-          },
-          report_by_date: '2018-08-01',
+      moveOrder: {
+        id: '4321',
+        customerID: '2468',
+        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+        uploaded_order_id: '2',
+        departmentIndicator: 'Navy',
+        grade: 'E-6',
+        originDutyStation: {
+          name: 'JBSA Lackland',
         },
+        destinationDutyStation: {
+          name: 'JB Lewis-McChord',
+        },
+        report_by_date: '2018-08-01',
       },
       mtoShipments: {
         a1: {
