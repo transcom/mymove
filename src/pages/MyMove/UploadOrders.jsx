@@ -75,7 +75,7 @@ export class UploadOrders extends Component {
   }
 
   render() {
-    const { pages, pageKey, error, currentOrders, uploads, document, additionalParams } = this.props;
+    const { pages, pageKey, error, currentOrders, uploads, additionalParams } = this.props;
     const { newUploads } = this.state;
     const isValid = Boolean(uploads.length || newUploads.length);
     const isDirty = Boolean(newUploads.length);
@@ -106,7 +106,6 @@ export class UploadOrders extends Component {
             <OrdersUploader
               createUpload={this.handleUploadFile}
               deleteUpload={this.handleDeleteFile}
-              document={document}
               onChange={this.onChange}
               options={{ labelIdle: uploaderLabelIdle }}
             />

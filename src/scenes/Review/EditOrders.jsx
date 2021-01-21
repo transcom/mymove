@@ -37,7 +37,7 @@ const editOrdersFormName = 'edit_orders';
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
 let EditOrdersForm = (props) => {
-  const { onDelete, schema, handleSubmit, submitting, valid, initialValues, existingUploads, document } = props;
+  const { onDelete, schema, handleSubmit, submitting, valid, initialValues, existingUploads } = props;
   const showAllOrdersTypes = props.context.flags.allOrdersTypes;
   const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
 
@@ -77,7 +77,6 @@ let EditOrdersForm = (props) => {
                   <OrdersUploader
                     createUpload={props.createUpload}
                     deleteUpload={props.deleteUpload}
-                    document={document}
                     options={{ labelIdle: uploaderLabelIdle }}
                   />
                 </div>
@@ -160,7 +159,7 @@ class EditOrders extends Component {
   }
 
   render() {
-    const { error, schema, currentOrders, document, formValues, existingUploads, moveIsApproved } = this.props;
+    const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -182,7 +181,6 @@ class EditOrders extends Component {
             <EditOrdersForm
               initialValues={currentOrders}
               onSubmit={this.submitOrders}
-              document={document}
               schema={schema}
               createUpload={this.handleUploadFile}
               deleteUpload={this.handleDeleteFile}
