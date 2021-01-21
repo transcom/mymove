@@ -133,7 +133,6 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		moveCode = moveOrder.Moves[0].Locator
 	}
 
-	// TODO - Could pass back the customer struct since we have it fetched, may need to pass in additional eager association
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
