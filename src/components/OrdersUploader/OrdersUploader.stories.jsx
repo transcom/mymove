@@ -5,7 +5,6 @@ import OrdersUploader from './index';
 export default {
   title: 'Customer Components/Orders Uploader',
   component: OrdersUploader,
-  argTypes: { createUpload: { action: 'Create upload' } },
 };
 
 const mockCreateUploadSuccess = () => {

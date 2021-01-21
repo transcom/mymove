@@ -15,7 +15,6 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
 
-import { selectDocument } from 'shared/Entities/modules/documents';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
@@ -105,8 +104,9 @@ EditOrdersForm = withContext(
 
 class EditOrders extends Component {
   handleUploadFile = (file) => {
-    const { document, serviceMemberId, updateOrders } = this.props;
-    return createUploadForDocument(file, document?.id).then(() => {
+    const { currentOrders, serviceMemberId, updateOrders } = this.props;
+    const documentId = currentOrders?.uploaded_orders?.id;
+    return createUploadForDocument(file, documentId).then(() => {
       getOrdersForServiceMember(serviceMemberId).then((response) => {
         updateOrders(response);
       });
@@ -205,7 +205,6 @@ function mapStateToProps(state) {
     currentOrders,
     serviceMemberId,
     existingUploads: uploads,
-    document: selectDocument(state, currentOrders.uploaded_orders),
     error: get(state, 'orders.error'),
     formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),

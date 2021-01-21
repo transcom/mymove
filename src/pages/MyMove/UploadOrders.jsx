@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 
 import './UploadOrders.css';
 
-import { selectDocument } from 'shared/Entities/modules/documents';
 import OrdersUploader from 'components/OrdersUploader/index';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import ConnectedWizardPage from 'shared/WizardPage/index';
@@ -18,14 +17,7 @@ import {
 } from 'store/entities/selectors';
 // eslint-disable-next-line camelcase
 import { no_op as noop } from 'shared/utils';
-import {
-  PageListShape,
-  PageKeyShape,
-  AdditionalParamsShape,
-  OrdersShape,
-  UploadsShape,
-  DocumentShape,
-} from 'types/customerShapes';
+import { PageListShape, PageKeyShape, AdditionalParamsShape, OrdersShape, UploadsShape } from 'types/customerShapes';
 
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
@@ -50,8 +42,9 @@ export class UploadOrders extends Component {
   }
 
   handleUploadFile(file) {
-    const { document, serviceMemberId, updateOrders } = this.props;
-    return createUploadForDocument(file, document?.id).then(() => {
+    const { currentOrders, serviceMemberId, updateOrders } = this.props;
+    const documentId = currentOrders?.uploaded_orders?.id;
+    return createUploadForDocument(file, documentId).then(() => {
       getOrdersForServiceMember(serviceMemberId).then((response) => {
         updateOrders(response);
       });
@@ -125,7 +118,6 @@ UploadOrders.propTypes = {
   currentOrders: OrdersShape,
   error: PropTypes.string,
   uploads: UploadsShape,
-  document: DocumentShape,
   additionalParams: AdditionalParamsShape,
 };
 
@@ -134,7 +126,6 @@ UploadOrders.defaultProps = {
   error: null,
   additionalParams: null,
   uploads: [],
-  document: null,
 };
 
 function mapStateToProps(state) {
@@ -146,7 +137,6 @@ function mapStateToProps(state) {
     serviceMemberId,
     currentOrders,
     uploads: selectUploadsForCurrentOrders(state),
-    document: selectDocument(state, currentOrders?.uploaded_orders),
   };
 
   return props;
