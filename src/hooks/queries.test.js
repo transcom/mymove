@@ -25,64 +25,124 @@ jest.mock('services/ghcApi', () => ({
       },
       paymentServiceItems: {},
     }),
-  getMTOShipments: () =>
-    Promise.resolve({
-      mtoShipments: {
-        a1: {
-          shipmentType: 'HHG',
-          mtoAgents: [
-            {
-              agentType: 'RELEASING_AGENT',
-              mtoShipmentID: 'a1',
-            },
-            {
-              agentType: 'RECEIVING_AGENT',
-              mtoShipmentID: 'a1',
-            },
-          ],
-          mtoServiceItems: [
-            {
-              reServiceName: 'Domestic Linehaul',
-            },
-            {
-              reServiceName: 'Fuel Surcharge',
-            },
-          ],
+  getMTOShipments: (key, id, normalize) => {
+    if (normalize) {
+      return Promise.resolve({
+        mtoShipments: {
+          a1: {
+            shipmentType: 'HHG',
+            mtoAgents: [
+              {
+                agentType: 'RELEASING_AGENT',
+                mtoShipmentID: 'a1',
+              },
+              {
+                agentType: 'RECEIVING_AGENT',
+                mtoShipmentID: 'a1',
+              },
+            ],
+            mtoServiceItems: [
+              {
+                reServiceName: 'Domestic Linehaul',
+              },
+              {
+                reServiceName: 'Fuel Surcharge',
+              },
+            ],
+          },
+          b2: {
+            shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+            mtoAgents: [
+              {
+                agentType: 'RELEASING_AGENT',
+                mtoShipmentID: 'b2',
+              },
+              {
+                agentType: 'RECEIVING_AGENT',
+                mtoShipmentID: 'b2',
+              },
+            ],
+            mtoServiceItems: [
+              {
+                reServiceName: 'Domestic Origin Price',
+              },
+              {
+                reServiceName: 'Domestic Unpacking',
+              },
+            ],
+          },
         },
-        b2: {
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          mtoAgents: [
-            {
-              agentType: 'RELEASING_AGENT',
-              mtoShipmentID: 'b2',
-            },
-            {
-              agentType: 'RECEIVING_AGENT',
-              mtoShipmentID: 'b2',
-            },
-          ],
-          mtoServiceItems: [
-            {
-              reServiceName: 'Domestic Origin Price',
-            },
-            {
-              reServiceName: 'Domestic Unpacking',
-            },
-          ],
-        },
+      });
+    }
+    return Promise.resolve([
+      {
+        shipmentType: 'HHG',
+        mtoAgents: [
+          {
+            agentType: 'RELEASING_AGENT',
+            mtoShipmentID: 'a1',
+          },
+          {
+            agentType: 'RECEIVING_AGENT',
+            mtoShipmentID: 'a1',
+          },
+        ],
+        mtoServiceItems: [
+          {
+            reServiceName: 'Domestic Linehaul',
+          },
+          {
+            reServiceName: 'Fuel Surcharge',
+          },
+        ],
       },
-    }),
-  getMTOServiceItems: () =>
-    Promise.resolve({
-      mtoServiceItems: {
-        a: {
+      {
+        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        mtoAgents: [
+          {
+            agentType: 'RELEASING_AGENT',
+            mtoShipmentID: 'b2',
+          },
+          {
+            agentType: 'RECEIVING_AGENT',
+            mtoShipmentID: 'b2',
+          },
+        ],
+        mtoServiceItems: [
+          {
+            reServiceName: 'Domestic Origin Price',
+          },
+          {
+            reServiceName: 'Domestic Unpacking',
+          },
+        ],
+      },
+    ]);
+  },
+  getMTOServiceItems: (key, id, normalize) => {
+    if (normalize) {
+      return Promise.resolve({
+        mtoServiceItems: {
+          a: {
+            reServiceName: 'Counseling Services',
+          },
+          b: {
+            reServiceName: 'Shipment Management Services',
+          },
+        },
+      });
+    }
+    return Promise.resolve({
+      mtoServiceItems: [
+        {
           reServiceName: 'Counseling Services',
         },
-        b: {
+        {
           reServiceName: 'Shipment Management Services',
         },
-      },
-    }),
+      ],
+    });
+  },
   getMove: () =>
     Promise.resolve({
       id: '1234',
@@ -397,8 +457,8 @@ describe('useMoveDetailsQueries', () => {
         },
         report_by_date: '2018-08-01',
       },
-      mtoShipments: {
-        a1: {
+      mtoShipments: [
+        {
           shipmentType: 'HHG',
           mtoAgents: [
             {
@@ -419,7 +479,7 @@ describe('useMoveDetailsQueries', () => {
             },
           ],
         },
-        b2: {
+        {
           shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
           mtoAgents: [
             {
@@ -440,14 +500,16 @@ describe('useMoveDetailsQueries', () => {
             },
           ],
         },
-      },
+      ],
       mtoServiceItems: {
-        a: {
-          reServiceName: 'Counseling Services',
-        },
-        b: {
-          reServiceName: 'Shipment Management Services',
-        },
+        mtoServiceItems: [
+          {
+            reServiceName: 'Counseling Services',
+          },
+          {
+            reServiceName: 'Shipment Management Services',
+          },
+        ],
       },
       isLoading: false,
       isError: false,

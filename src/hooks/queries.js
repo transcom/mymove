@@ -112,13 +112,13 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   const mtoID = moveTaskOrder?.id;
 
   // get MTO shipments
-  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID], getMTOShipments, {
+  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, true], getMTOShipments, {
     enabled: !!mtoID,
   });
 
   // get MTO service items
   const { data: { mtoServiceItems } = {}, ...mtoServiceItemQuery } = useQuery(
-    [MTO_SERVICE_ITEMS, mtoID],
+    [MTO_SERVICE_ITEMS, mtoID, true],
     getMTOServiceItems,
     { enabled: !!mtoID },
   );
