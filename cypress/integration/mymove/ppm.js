@@ -104,11 +104,9 @@ function SMSubmitsMove() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-date-and-location/);
   });
 
-  cy.get('[data-testid="storage-estimate"]').contains('$726.76');
-
   cy.get('input[name="days_in_storage"]').clear().type('35');
 
-  cy.get('[data-testid="storage-estimate"]').contains('$726.76');
+  cy.get('[data-testid="storage-estimate"]').contains('$736.91');
 
   cy.get('button').contains('Save').click();
 
