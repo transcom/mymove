@@ -115,6 +115,46 @@ export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
 }
 
+export function updateMoveTaskOrderStatus({
+  moveTaskOrderID,
+  ifMatchETag,
+  mtoApprovalServiceItemCodes,
+  normalize = true,
+}) {
+  const operationPath = 'moveTaskOrder.updateMoveTaskOrderStatus';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      'If-Match': ifMatchETag,
+      serviceItemCodes: mtoApprovalServiceItemCodes,
+    },
+    { normalize },
+  );
+}
+
+export function patchMTOShipmentStatus({
+  moveTaskOrderID,
+  shipmentID,
+  shipmentStatus,
+  ifMatchETag,
+  rejectionReason,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+}) {
+  const operationPath = 'mtoShipment.patchMTOShipmentStatus';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      shipmentID,
+      'If-Match': ifMatchETag,
+      body: { status: shipmentStatus, rejectionReason },
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export async function getMovesQueue(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
   const operationPath = 'queues.getMovesQueue';
   const paramFilters = {};
