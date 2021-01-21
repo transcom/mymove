@@ -160,7 +160,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 				verrs = validate.NewErrors()
 				verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
 				return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
-					fmt.Sprintf("A service item with reServiceCode %s much have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
+					fmt.Sprintf("A service item with reServiceCode %s must have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
 			}
 
 			// save the HHG (new) actual pickup address, coming from the SIT service item
