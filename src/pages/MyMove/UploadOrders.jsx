@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 
 import './UploadOrders.css';
 
-import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
 import {
   createUpload as createUploadAction,
   deleteUpload as deleteUploadAction,
@@ -14,6 +13,8 @@ import OrdersUploader from 'components/OrdersUploader/index';
 import ConnectedUploadsTable from 'shared/Uploader/UploadsTable';
 import ConnectedWizardPage from 'shared/WizardPage/index';
 import { documentSizeLimitMsg } from 'shared/constants';
+import { getOrdersForServiceMember } from 'services/internalApi';
+import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -45,13 +46,20 @@ export class UploadOrders extends Component {
   }
 
   componentDidMount() {
-    const { serviceMemberId, fetchLatestOrders } = this.props;
-    fetchLatestOrders(serviceMemberId);
+    const { serviceMemberId, updateOrders } = this.props;
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
   }
 
   onChange(files) {
     this.setState({
       newUploads: files,
+    });
+
+    const { serviceMemberId, updateOrders } = this.props;
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
     });
   }
 
@@ -119,7 +127,7 @@ export class UploadOrders extends Component {
 
 UploadOrders.propTypes = {
   serviceMemberId: PropTypes.string.isRequired,
-  fetchLatestOrders: PropTypes.func.isRequired,
+  updateOrders: PropTypes.func.isRequired,
   createUpload: PropTypes.func.isRequired,
   deleteUpload: PropTypes.func.isRequired,
   pages: PageListShape.isRequired,
@@ -155,9 +163,9 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  fetchLatestOrders: fetchLatestOrdersAction,
   createUpload: createUploadAction,
   deleteUpload: deleteUploadAction,
+  updateOrders: updateOrdersAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);

@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { get, includes, reject } from 'lodash';
-
+import { get } from 'lodash';
 import { push } from 'connected-react-router';
 import { getFormValues, reduxForm, Field } from 'redux-form';
 
@@ -16,12 +15,13 @@ import UploadsTable from 'shared/Uploader/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
 
-import { updateOrders, fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
+import { getOrdersForServiceMember, patchOrders } from 'services/internalApi';
+import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -32,7 +32,6 @@ import {
 
 import './Review.css';
 import profileImage from './images/profile.png';
-import PropTypes from 'prop-types';
 
 const editOrdersFormName = 'edit_orders';
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
@@ -47,12 +46,8 @@ let EditOrdersForm = (props) => {
     valid,
     initialValues,
     existingUploads,
-    deleteQueue,
     document,
   } = props;
-  const visibleUploads = reject(existingUploads, (upload) => {
-    return includes(deleteQueue, upload.id);
-  });
   const showAllOrdersTypes = props.context.flags.allOrdersTypes;
   const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
 
@@ -85,7 +80,7 @@ let EditOrdersForm = (props) => {
               <br />
               <Field name="new_duty_station" component={DutyStationSearchBox} />
               <p>Uploads:</p>
-              {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
+              {Boolean(existingUploads.length) && <UploadsTable uploads={existingUploads} onDelete={onDelete} />}
               {Boolean(get(initialValues, 'uploaded_orders')) && (
                 <div>
                   <p>{documentSizeLimitMsg}</p>
@@ -121,25 +116,19 @@ EditOrdersForm = withContext(
 );
 
 class EditOrders extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      newUploads: [],
-      deleteQueue: [],
-    };
-  }
-
   handleDelete = (e, uploadId) => {
     e.preventDefault();
     this.props.deleteUpload(uploadId);
   };
 
-  handleNewUpload = (uploads) => {
-    this.setState({ newUploads: uploads });
+  handleUploadChange = () => {
+    const { serviceMemberId, updateOrders } = this.props;
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
   };
 
-  updateOrders = (fieldValues) => {
+  submitOrders = (fieldValues) => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
     fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     if (
@@ -148,7 +137,9 @@ class EditOrders extends Component {
     ) {
       this.props.entitlementChanged();
     }
-    return Promise.all([this.props.updateOrders(fieldValues.id, fieldValues)]).then(() => {
+
+    return patchOrders(fieldValues).then((response) => {
+      this.props.updateOrders(response);
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
         this.props.editSuccessful();
@@ -165,8 +156,11 @@ class EditOrders extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
-    const { serviceMemberId } = this.props;
-    this.props.fetchLatestOrders(serviceMemberId);
+
+    const { serviceMemberId, updateOrders } = this.props;
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
   }
 
   render() {
@@ -191,15 +185,13 @@ class EditOrders extends Component {
           <div className="usa-width-one-whole">
             <EditOrdersForm
               initialValues={currentOrders}
-              onSubmit={this.updateOrders}
+              onSubmit={this.submitOrders}
               document={document}
               schema={schema}
               createUpload={this.props.createUpload}
               deleteUpload={this.props.deleteUpload}
               existingUploads={existingUploads}
-              newUploads={this.state.newUploads}
-              deleteQueue={this.state.deleteQueue}
-              onUpload={this.handleNewUpload}
+              onUpload={this.handleUploadChange}
               onDelete={this.handleDelete}
               formValues={formValues}
             />
@@ -231,22 +223,16 @@ function mapStateToProps(state) {
   return props;
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-      updateOrders,
-      createUpload,
-      deleteUpload,
-      fetchLatestOrders,
-      editBegin,
-      entitlementChangeBegin,
-      editSuccessful,
-      entitlementChanged,
-      checkEntitlement,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  updateOrders: updateOrdersAction,
+  createUpload,
+  deleteUpload,
+  editBegin,
+  entitlementChangeBegin,
+  editSuccessful,
+  entitlementChanged,
+  checkEntitlement,
+};
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(EditOrders));
