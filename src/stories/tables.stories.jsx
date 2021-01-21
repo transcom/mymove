@@ -174,8 +174,9 @@ export const TableElements = () => (
         <code>th: error</code>
         <table className="table--stacked">
           <tbody>
-            <tr>
-              <th className="error">Table Cell Content</th>
+            <tr className="error">
+              <th>Table Cell Content</th>
+              <td>Table Cell Content</td>
             </tr>
           </tbody>
         </table>
