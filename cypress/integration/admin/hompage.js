@@ -5,14 +5,14 @@ describe('Admin Home Page', function () {
     cy.prepareAdminApp();
   });
 
+  it('creates new devlocal user', function () {
+    cy.signInAsNewAdminUser();
+  });
+
   it('successfully loads when not logged in', function () {
     cy.logout();
     cy.contains('admin.move.mil');
     cy.contains('Sign In');
-  });
-
-  it('creates new devlocal user', function () {
-    cy.signInAsNewAdminUser();
   });
 
   it('redirects to the office users page after login', function () {
