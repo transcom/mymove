@@ -1,5 +1,8 @@
+/* eslint-disable react/jsx-props-no-spreading */
+
 import React from 'react';
 import { action } from '@storybook/addon-actions';
+import { MemoryRouter } from 'react-router';
 
 import MilMoveHeader from './index';
 
@@ -18,17 +21,18 @@ const props = {
 };
 
 export const Milmove = () => (
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  <MilMoveHeader {...props}>
-    {' '}
-    <span>
-      <a href="#">Navigation Link</a>
-    </span>
-    <span>
-      <a href="#">Navigation Link</a>
-    </span>
-    <span>
-      <a href="#">Navigation Link</a>
-    </span>
-  </MilMoveHeader>
+  <MemoryRouter>
+    <MilMoveHeader {...props}>
+      {' '}
+      <span>
+        <a href="#">Navigation Link</a>
+      </span>
+      <span>
+        <a href="#">Navigation Link</a>
+      </span>
+      <span>
+        <a href="#">Navigation Link</a>
+      </span>
+    </MilMoveHeader>
+  </MemoryRouter>
 );
