@@ -56,15 +56,11 @@ func addMigrationToManifest(migrationManifest string, filename string) error {
 	if err != nil {
 		return errors.Wrap(err, "could not open migration manifest")
 	}
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used to end an asynchronous connection pertaining to file formatting
-	//RA: Given the functions causing the lint errors are used to end a running asynchronous connection, it does not present a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	defer mmf.Close() // nolint:errcheck
+	defer func() {
+		if closeErr := mmf.Close(); closeErr != nil {
+			logger.Error("Could not close mmf file", zap.Error(closeErr))
+		}
+	}()
 
 	_, err = mmf.WriteString(filename + "\n")
 	if err != nil {

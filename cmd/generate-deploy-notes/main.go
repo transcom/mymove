@@ -4,9 +4,8 @@
 //RA: Given the functions causing the lint errors are used to end a running asynchronous connection and
 //RA: the relevant code is used for generating patch notes for internal consumption, it does not present a risk
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-//RA Validator: jneuner@mitre.org
-//RA Modified Severity:
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
 // nolint:errcheck
 package main
 
