@@ -220,8 +220,12 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 		if validServiceItem.SITDestinationFinalAddress != nil {
 			if validServiceItem.SITDestinationFinalAddressID == nil || *validServiceItem.SITDestinationFinalAddressID == uuid.Nil {
 				verrs, createErr := txBuilder.CreateOne(validServiceItem.SITDestinationFinalAddress)
-				if verrs != nil || createErr != nil {
-					return fmt.Errorf("%#v %e", verrs, createErr)
+				if verrs != nil && verrs.HasAny() {
+					return services.NewInvalidInputError(
+						validServiceItem.ID, createErr, verrs, "Invalid input found while creating a final Destination SIT address for service item.")
+				} else if createErr != nil {
+					// If the error is something else (this is unexpected), we create a QueryError
+					return services.NewQueryError("MTOServiceItem", createErr, "")
 				}
 				validServiceItem.SITDestinationFinalAddressID = &validServiceItem.SITDestinationFinalAddress.ID
 			} else {
@@ -229,7 +233,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 				// of creating a new one.
 				verrs, updateErr := tx.ValidateAndUpdate(validServiceItem.SITDestinationFinalAddress)
 				if verrs != nil && verrs.HasAny() {
-					return services.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating the service item.")
+					return services.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating final Destination SIT address for the service item.")
 				} else if updateErr != nil {
 					// If the error is something else (this is unexpected), we create a QueryError
 					return services.NewQueryError("MTOServiceItem", updateErr, "")
