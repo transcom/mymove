@@ -11,16 +11,16 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import OrdersUploader from 'components/OrdersUploader';
-import UploadsTable from 'shared/Uploader/UploadsTable';
+import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
 
-import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
+import { selectDocument } from 'shared/Entities/modules/documents';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
-import { getOrdersForServiceMember, patchOrders } from 'services/internalApi';
+import { getOrdersForServiceMember, patchOrders, createUploadForDocument, deleteUpload } from 'services/internalApi';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -37,17 +37,7 @@ const editOrdersFormName = 'edit_orders';
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
 let EditOrdersForm = (props) => {
-  const {
-    onDelete,
-    onUpload,
-    schema,
-    handleSubmit,
-    submitting,
-    valid,
-    initialValues,
-    existingUploads,
-    document,
-  } = props;
+  const { onDelete, schema, handleSubmit, submitting, valid, initialValues, existingUploads, document } = props;
   const showAllOrdersTypes = props.context.flags.allOrdersTypes;
   const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
 
@@ -88,7 +78,6 @@ let EditOrdersForm = (props) => {
                     createUpload={props.createUpload}
                     deleteUpload={props.deleteUpload}
                     document={document}
-                    onChange={onUpload}
                     options={{ labelIdle: uploaderLabelIdle }}
                   />
                 </div>
@@ -116,15 +105,22 @@ EditOrdersForm = withContext(
 );
 
 class EditOrders extends Component {
-  handleDelete = (e, uploadId) => {
-    e.preventDefault();
-    this.props.deleteUpload(uploadId);
+  handleUploadFile = (file) => {
+    const { document, serviceMemberId, updateOrders } = this.props;
+    return createUploadForDocument(file, document?.id).then(() => {
+      getOrdersForServiceMember(serviceMemberId).then((response) => {
+        updateOrders(response);
+      });
+    });
   };
 
-  handleUploadChange = () => {
+  handleDeleteFile = (uploadId) => {
     const { serviceMemberId, updateOrders } = this.props;
-    getOrdersForServiceMember(serviceMemberId).then((response) => {
-      updateOrders(response);
+
+    return deleteUpload(uploadId).then(() => {
+      getOrdersForServiceMember(serviceMemberId).then((response) => {
+        updateOrders(response);
+      });
     });
   };
 
@@ -188,11 +184,10 @@ class EditOrders extends Component {
               onSubmit={this.submitOrders}
               document={document}
               schema={schema}
-              createUpload={this.props.createUpload}
-              deleteUpload={this.props.deleteUpload}
+              createUpload={this.handleUploadFile}
+              deleteUpload={this.handleDeleteFile}
               existingUploads={existingUploads}
-              onUpload={this.handleUploadChange}
-              onDelete={this.handleDelete}
+              onDelete={this.handleDeleteFile}
               formValues={formValues}
             />
           </div>
@@ -226,8 +221,6 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   push,
   updateOrders: updateOrdersAction,
-  createUpload,
-  deleteUpload,
   editBegin,
   entitlementChangeBegin,
   editSuccessful,
