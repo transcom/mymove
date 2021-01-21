@@ -70,7 +70,7 @@ describe('TOO user', () => {
       // Page refresh
       cy.url().should('include', `/moves/${moveLocator}/details`);
       cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
-      cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+      cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
       cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
       cy.get('#approved-shipments');
       cy.get('#requested-shipments').should('not.exist');
