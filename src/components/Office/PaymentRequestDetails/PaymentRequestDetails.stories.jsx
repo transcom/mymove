@@ -18,10 +18,8 @@ export default {
 };
 
 const addresses = {
-  hhgDestinationAddress: 'Fairfield, CA 94535',
-  hhgPickupAddress: 'Beverly Hills, CA 90210',
-  ntsDestinationAddress: 'Princeton, NJ 08540',
-  ntsPickupAddress: 'Boston, MA 02101',
+  hhgAddress: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  ntsAddress: 'Boston, MA 02101 to Princeton, NJ 08540',
 };
 
 const unreviewedPaymentRequestItems = [

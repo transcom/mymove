@@ -156,11 +156,10 @@ const ntsrServiceItems = [
 ];
 
 const shipmentAddresses = {
-  hhgDestinationAddress: 'Fairfield, CA 94535',
-  hhgPickupAddress: 'Beverly Hills, CA 90210',
-  ntsDestinationAddress: 'Princeton, NJ 08540',
-  ntsPickupAddress: 'Boston, MA 02101',
+  hhgAddress: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  ntsAddress: 'Boston, MA 02101 to Princeton, NJ 08540',
 };
+
 const testMoveLocator = 'AF7K1P';
 
 describe('PaymentRequestDetails', () => {
@@ -221,7 +220,7 @@ describe('PaymentRequestDetails', () => {
   describe('When given a hhg shipment service items', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestDetails serviceItems={hhgServiceItems} />
+        <PaymentRequestDetails serviceItems={hhgServiceItems} shipmentAddresses={shipmentAddresses} />
       </MockProviders>,
     );
 
@@ -232,7 +231,7 @@ describe('PaymentRequestDetails', () => {
     it('does renders the Pickup Address and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' })).toBeTruthy();
       expect(
-        wrapper.find({ 'data-testid': 'pickup-to-destination' }).text().includes('Fairfield, CA 94535'),
+        wrapper.find({ 'data-testid': 'pickup-to-destination' }).at(0).text().includes('Fairfield, CA 94535'),
       ).toBeTruthy();
     });
 
@@ -270,7 +269,7 @@ describe('PaymentRequestDetails', () => {
   describe('When given a ntsr shipment service items', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestDetails serviceItems={ntsrServiceItems} />
+        <PaymentRequestDetails serviceItems={ntsrServiceItems} shipmentAddresses={shipmentAddresses} />
       </MockProviders>,
     );
 
@@ -280,9 +279,8 @@ describe('PaymentRequestDetails', () => {
 
     it('does renders the Pickup Address and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' })).toBeTruthy();
-      // console.log(wrapper.find({ 'data-testid': 'pickup-to-destination' }).text());
       expect(
-        wrapper.find({ 'data-testid': 'pickup-to-destination' }).text().includes('Princeton, NJ 08540'),
+        wrapper.find({ 'data-testid': 'pickup-to-destination' }).at(0).text().includes('Princeton, NJ 08540'),
       ).toBeTruthy();
     });
 

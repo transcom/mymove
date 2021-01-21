@@ -45,7 +45,7 @@ const PaymentRequestCard = ({ paymentRequest, mtoShipments, history }) => {
   const shipmentAddresses = {};
 
   const formatAddressString = (pickupAddress, destinationAddress) =>
-    `${pickupAddress.address.city}, ${pickupAddress.address.state} ${pickupAddress.address.postal_code} to ${destinationAddress.address.city}, ${destinationAddress.address.state} ${destinationAddress.address.postal_code}`;
+    `${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code} to ${destinationAddress.city}, ${destinationAddress.state} ${destinationAddress.postal_code}`;
 
   Object.values(mtoShipments).forEach((shipment) => {
     switch (shipment.shipmentType) {
@@ -66,8 +66,6 @@ const PaymentRequestCard = ({ paymentRequest, mtoShipments, history }) => {
     }
   });
 
-  // console.log(shipmentAddresses);
-  // console.log(paymentRequest);
   let handleClick = () => {};
   let requestedAmount = 0;
   let approvedAmount = 0;
