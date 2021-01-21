@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
+import { Button } from '@trussworks/react-uswds';
 
 import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
@@ -12,22 +13,18 @@ const LoginButton = (props) => {
     return (
       <React.Fragment>
         {props.showDevlocalButton && (
-          <li className="usa-nav__primary-item">
-            <a
-              className="usa-nav__link"
-              data-hook="devlocal-signin"
-              style={{ marginRight: '2em' }}
-              href="/devlocal-auth/login"
-            >
-              Local Sign In
-            </a>
-          </li>
-        )}
-        <li className="usa-nav__primary-item">
-          <a className="usa-nav__link" data-hook="signin" href="/auth/login-gov">
-            Sign In
+          <a
+            className="usa-nav__link"
+            data-hook="devlocal-signin"
+            style={{ marginRight: '2em' }}
+            href="/devlocal-auth/login"
+          >
+            Local Sign In
           </a>
-        </li>
+        )}
+        <a className="usa-nav__link" data-hook="signin" href="/auth/login-gov">
+          Sign In
+        </a>
       </React.Fragment>
     );
   } else {
@@ -37,11 +34,9 @@ const LoginButton = (props) => {
     };
 
     return (
-      <li className="usa-nav__primary-item">
-        <a className="usa-nav__link" href="#" onClick={handleLogOut}>
-          Sign Out
-        </a>
-      </li>
+      <Button unstyled className="usa-nav__link" onClick={handleLogOut}>
+        Sign out
+      </Button>
     );
   }
 };

@@ -21,7 +21,7 @@ import {
 import ConnectedLogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { QueueHeader } from 'shared/Header/Office';
+import MilmoveHeader from 'components/MilMoveHeader';
 import FOUOHeader from 'components/FOUOHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 import { roleTypes } from 'constants/userRoles';
@@ -78,9 +78,9 @@ export class OfficeApp extends Component {
       activeRole,
       userIsLoggedIn,
       userRoles,
+      officeUser,
       location: { pathname },
     } = this.props;
-
     const selectedRole = userIsLoggedIn && activeRole;
 
     // TODO - test login page?
@@ -142,7 +142,15 @@ export class OfficeApp extends Component {
       <div className={siteClasses}>
         <FOUOHeader />
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-        {!hideHeaderPPM && <QueueHeader />}
+        {!hideHeaderPPM && (
+          <MilmoveHeader officeUser={officeUser}>
+            {userIsLoggedIn && (
+              <Link to="/" unstyled>
+                {officeUser.transportation_office.gbloc} moves
+              </Link>
+            )}
+          </MilmoveHeader>
+        )}
         <main role="main" className="site__content site-office__content">
           <ConnectedLogoutOnInactivity />
 
@@ -205,7 +213,7 @@ OfficeApp.propTypes = {
   userIsLoggedIn: PropTypes.bool,
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
-  userInfo: OfficeUserInfoShape.isRequired,
+  officeUser: OfficeUserInfoShape,
 };
 
 OfficeApp.defaultProps = {
@@ -213,6 +221,7 @@ OfficeApp.defaultProps = {
   userIsLoggedIn: false,
   userRoles: [],
   activeRole: null,
+  officeUser: {},
 };
 
 const mapStateToProps = (state) => {
@@ -222,7 +231,7 @@ const mapStateToProps = (state) => {
     userIsLoggedIn: user.isLoggedIn,
     userRoles: user.roles,
     activeRole: state.auth.activeRole,
-    userInfo: user.office_user,
+    officeUser: user.office_user,
   };
 };
 

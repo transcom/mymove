@@ -33,7 +33,7 @@
   }
 
   a,
-  .signOut {
+  :global(.usa-nav__link) {
     @include u-text('bold');
     color: $link-light;
 
@@ -51,7 +51,7 @@
     align-self: stretch;
   }
 
-  .signOut {
+  :global(.usa-nav__link) {
     padding: 0;
     line-height: inherit;
   }
