@@ -232,12 +232,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			}
 		}
 
-		// If updates were made to shipment update it in the database
+		// If updates were made to shipment, save update in the database
 		if updateShipment {
-			// TODO do I need to create the etag here?
-			//  encodedUpdatedAt := etag.GenerateEtag(newShipment.UpdatedAt)
-			//  hopefully an etag is NOT needed here or else this UpdateOne has a new transaction inside
-			//  that doesn't seem like the right thing to use here if we need it.
 			verrs, err = txBuilder.UpdateOne(&mtoShipment, nil)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)

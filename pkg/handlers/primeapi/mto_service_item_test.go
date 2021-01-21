@@ -661,7 +661,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		suite.NoError(suite.DB().Eager("PickupAddress").Find(&updatedMTOShipment, mtoShipment.ID))
 
 		// Verify the HHG pickup address is the actual address on the shipment
-		// TODO remove if not needed: suite.NotNil(updatedMTOShipment.PickupAddressID, "address ID is not nil")
 		suite.Equal(actualPickupAddress.ID, *updatedMTOShipment.PickupAddressID, "hhg actual address id is the same")
 		suite.Equal(actualPickupAddress.StreetAddress1, updatedMTOShipment.PickupAddress.StreetAddress1, "hhg actual street address is the same")
 		suite.Equal(actualPickupAddress.City, updatedMTOShipment.PickupAddress.City, "hhg actual city is the same")
