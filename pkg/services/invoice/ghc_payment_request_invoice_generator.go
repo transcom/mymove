@@ -32,6 +32,7 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection, icnSequencer seque
 const dateFormat = "20060102"
 const isaDateFormat = "060102"
 const timeFormat = "1504"
+const maxCityLength = 30
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
@@ -402,7 +403,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 	// destination city/state/postal
 	header.DestinationPostalDetails = edisegment.N4{
-		CityName:            destinationDutyStation.Address.City,
+		CityName:            truncateStr(destinationDutyStation.Address.City, maxCityLength),
 		StateOrProvinceCode: destinationDutyStation.Address.State,
 		PostalCode:          destinationDutyStation.Address.PostalCode,
 	}
@@ -470,7 +471,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 	// origin city/state/postal
 	header.OriginPostalDetails = edisegment.N4{
-		CityName:            originDutyStation.Address.City,
+		CityName:            truncateStr(originDutyStation.Address.City, maxCityLength),
 		StateOrProvinceCode: originDutyStation.Address.State,
 		PostalCode:          originDutyStation.Address.PostalCode,
 	}
@@ -708,4 +709,14 @@ func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {
 	}
 
 	return true
+}
+
+func truncateStr(str string, cutoff int) string {
+	if len(str) >= cutoff {
+		if cutoff-3 > 0 {
+			return str[:cutoff-3] + "..."
+		}
+		return str[:cutoff]
+	}
+	return str
 }
