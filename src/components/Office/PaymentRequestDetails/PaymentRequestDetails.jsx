@@ -8,7 +8,7 @@ import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants'
 import { formatCents, toDollarString } from 'shared/formatters';
 import { PaymentServiceItemShape } from 'types';
 
-const shipmentHeadingAndStyle = (mtoShipmentType) => {
+const shipmentHeadingAndStyle = (mtoShipmentType, shipmentAddresses) => {
   switch (mtoShipmentType) {
     case undefined:
     case null:
@@ -16,16 +16,20 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
     case SHIPMENT_OPTIONS.HHG:
     case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
     case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
-      return ['Household goods', styles.hhgShipmentType];
+      return ['Household goods', styles.hhgShipmentType, shipmentAddresses.hhgAddress];
+    case SHIPMENT_OPTIONS.NTS:
     case SHIPMENT_OPTIONS.NTSR:
-      return ['NTS release', styles.ntsrShipmentType];
+      return ['NTS release', styles.ntsrShipmentType, shipmentAddresses.ntsAddress];
     default:
       return [mtoShipmentType, styles.basicServiceType];
   }
 };
 
-const PaymentRequestDetails = ({ serviceItems }) => {
-  const [headingType, shipmentStyle] = shipmentHeadingAndStyle(serviceItems?.[0]?.mtoShipmentType);
+const PaymentRequestDetails = ({ serviceItems, shipmentAddresses }) => {
+  const [headingType, shipmentStyle, pickupToDestinationAddress] = shipmentHeadingAndStyle(
+    serviceItems?.[0]?.mtoShipmentType,
+    shipmentAddresses,
+  );
 
   return (
     serviceItems.length > 0 && (
@@ -37,6 +41,7 @@ const PaymentRequestDetails = ({ serviceItems }) => {
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
             </h3>
           </div>
+          {pickupToDestinationAddress && <p data-testid="pickup-to-destination">{pickupToDestinationAddress}</p>}
         </div>
         <table className="table--stacked">
           <colgroup>
@@ -90,6 +95,14 @@ const PaymentRequestDetails = ({ serviceItems }) => {
 
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
+  shipmentAddresses: PropTypes.shape({
+    hhgAddress: PropTypes.string,
+    ntsAddress: PropTypes.string,
+  }),
+};
+
+PaymentRequestDetails.defaultProps = {
+  shipmentAddresses: {},
 };
 
 export default PaymentRequestDetails;

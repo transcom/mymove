@@ -155,13 +155,19 @@ const ntsrServiceItems = [
   },
 ];
 
+const shipmentAddresses = {
+  hhgDestinationAddress: 'Fairfield, CA 94535',
+  hhgPickupAddress: 'Beverly Hills, CA 90210',
+  ntsDestinationAddress: 'Princeton, NJ 08540',
+  ntsPickupAddress: 'Boston, MA 02101',
+};
 const testMoveLocator = 'AF7K1P';
 
 describe('PaymentRequestDetails', () => {
   describe('When given basic service items', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestDetails serviceItems={basicServiceItems} />
+        <PaymentRequestDetails serviceItems={basicServiceItems} shipmentAddresses={shipmentAddresses} />
       </MockProviders>,
     );
 
@@ -190,6 +196,10 @@ describe('PaymentRequestDetails', () => {
       expect(serviceItemStatuses.at(0).text().includes('Accepted')).toBeTruthy();
       expect(serviceItemStatuses.at(1).text().includes('Rejected')).toBeTruthy();
     });
+
+    it('does not render the Pickup Address and Destination Address', async () => {
+      expect(wrapper.find({ 'data-testid': 'pickup-to-destination' }).length).toBe(0);
+    });
   });
 
   describe('When given a single basic service item', () => {
@@ -202,6 +212,10 @@ describe('PaymentRequestDetails', () => {
     it('renders the expected table title', () => {
       expect(wrapper.text().includes('Basic service items (1 item)')).toBeTruthy();
     });
+
+    it('does not render the Pickup Address and Destination Address', async () => {
+      expect(wrapper.find({ 'data-testid': 'pickup-to-destination' }).length).toBe(0);
+    });
   });
 
   describe('When given a hhg shipment service items', () => {
@@ -213,6 +227,13 @@ describe('PaymentRequestDetails', () => {
 
     it('renders the expected table title', () => {
       expect(wrapper.text().includes('Household goods (6 items)')).toBeTruthy();
+    });
+
+    it('does renders the Pickup Address and Destination Address', async () => {
+      expect(wrapper.find({ 'data-testid': 'pickup-to-destination' })).toBeTruthy();
+      expect(
+        wrapper.find({ 'data-testid': 'pickup-to-destination' }).text().includes('Fairfield, CA 94535'),
+      ).toBeTruthy();
     });
 
     it('renders the service item names', () => {
@@ -255,6 +276,14 @@ describe('PaymentRequestDetails', () => {
 
     it('renders the expected table title', () => {
       expect(wrapper.text().includes('NTS release (5 items)')).toBeTruthy();
+    });
+
+    it('does renders the Pickup Address and Destination Address', async () => {
+      expect(wrapper.find({ 'data-testid': 'pickup-to-destination' })).toBeTruthy();
+      // console.log(wrapper.find({ 'data-testid': 'pickup-to-destination' }).text());
+      expect(
+        wrapper.find({ 'data-testid': 'pickup-to-destination' }).text().includes('Princeton, NJ 08540'),
+      ).toBeTruthy();
     });
 
     it('renders the service item names', () => {

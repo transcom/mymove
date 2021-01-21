@@ -7,14 +7,18 @@ import styles from './MovePaymentRequests.module.scss';
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { useMovePaymentRequestsQueries } from 'hooks/queries';
+import { useMovePaymentRequestsQueries, useMoveTaskOrderQueries } from 'hooks/queries';
 
 const MovePaymentRequests = () => {
   const { moveCode } = useParams();
   const { paymentRequests, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  const { mtoShipments, isLoading: mtoShipmentsLoading, isError: mtoShipmentsError } = useMoveTaskOrderQueries(
+    moveCode,
+  );
+
+  if (isLoading || mtoShipmentsLoading) return <LoadingPlaceholder />;
+  if (isError || mtoShipmentsError) return <SomethingWentWrong />;
 
   return (
     <div
@@ -23,7 +27,7 @@ const MovePaymentRequests = () => {
     >
       <h2>Payment Requests</h2>
       {paymentRequests.map((paymentRequest) => (
-        <PaymentRequestCard paymentRequest={paymentRequest} key={paymentRequest.id} />
+        <PaymentRequestCard paymentRequest={paymentRequest} mtoShipments={mtoShipments} key={paymentRequest.id} />
       ))}
     </div>
   );

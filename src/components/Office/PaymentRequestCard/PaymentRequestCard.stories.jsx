@@ -6,6 +6,7 @@ import { isHappoRun } from 'happo-plugin-storybook/register';
 
 import PaymentRequestCard from './PaymentRequestCard';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 
 const mockedDate = '2020-12-08T00:00:00.000Z';
@@ -45,6 +46,20 @@ const contractor = {
 const move = {
   contractor,
   orders: order,
+  locator: '12345',
+};
+
+const mtoShipments = {
+  0: {
+    destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
+    pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+    shipmentType: SHIPMENT_OPTIONS.NTS,
+  },
+  1: {
+    destinationAddress: { city: 'Fairfield', state: 'CA', postal_code: '94535' },
+    pickupAddress: { city: 'Beverly Hills', state: 'CA', postal_code: '90210' },
+    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+  },
 };
 
 const pendingPaymentRequest = {
@@ -170,8 +185,14 @@ const rejectedPaymentRequest = {
   reviewedAt: '2020-12-01T00:00:00.000Z',
 };
 
-export const NeedsReview = () => <PaymentRequestCard paymentRequest={pendingPaymentRequest} />;
+export const NeedsReview = () => (
+  <PaymentRequestCard paymentRequest={pendingPaymentRequest} mtoShipments={mtoShipments} />
+);
 
-export const Reviewed = () => <PaymentRequestCard paymentRequest={reviewedPaymentRequest} />;
+export const Reviewed = () => (
+  <PaymentRequestCard paymentRequest={reviewedPaymentRequest} mtoShipments={mtoShipments} />
+);
 
-export const Rejected = () => <PaymentRequestCard paymentRequest={rejectedPaymentRequest} />;
+export const Rejected = () => (
+  <PaymentRequestCard paymentRequest={rejectedPaymentRequest} mtoShipments={mtoShipments} />
+);

@@ -9,6 +9,8 @@ import styles from './PaymentRequestCard.module.scss';
 
 import { HistoryShape } from 'types/router';
 import { PaymentRequestShape } from 'types';
+import { MtoShipmentShape } from 'types/customerShapes';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import { groupByShipment } from 'utils/serviceItems';
@@ -30,7 +32,7 @@ const paymentRequestStatusLabel = (status) => {
   }
 };
 
-const PaymentRequestCard = ({ paymentRequest, history }) => {
+const PaymentRequestCard = ({ paymentRequest, mtoShipments, history }) => {
   const sortedShipments = groupByShipment(paymentRequest.serviceItems);
 
   // show details by default if in pending/needs review
@@ -39,6 +41,33 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
   const showRequestDetailsButton = !defaultShowDetails;
   // state to toggle between showing details or not
   const [showDetails, setShowDetails] = useState(defaultShowDetails);
+
+  const shipmentAddresses = {};
+
+  const formatAddressString = (pickupAddress, destinationAddress) =>
+    `${pickupAddress.address.city}, ${pickupAddress.address.state} ${pickupAddress.address.postal_code} to ${destinationAddress.address.city}, ${destinationAddress.address.state} ${destinationAddress.address.postal_code}`;
+
+  Object.values(mtoShipments).forEach((shipment) => {
+    switch (shipment.shipmentType) {
+      case undefined:
+      case null:
+        break;
+      case SHIPMENT_OPTIONS.HHG:
+      case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
+      case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
+        shipmentAddresses.hhgAddress = formatAddressString(shipment.pickupAddress, shipment.destinationAddress);
+        break;
+      case SHIPMENT_OPTIONS.NTS:
+      case SHIPMENT_OPTIONS.NTSR:
+        shipmentAddresses.ntsAddress = formatAddressString(shipment.pickupAddress, shipment.destinationAddress);
+        break;
+      default:
+        break;
+    }
+  });
+
+  // console.log(shipmentAddresses);
+  // console.log(paymentRequest);
   let handleClick = () => {};
   let requestedAmount = 0;
   let approvedAmount = 0;
@@ -164,6 +193,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
               key={serviceItems?.[0]?.mtoShipmentID || 'basicServiceItems'}
               className={styles.paymentRequestDetails}
               serviceItems={serviceItems}
+              shipmentAddresses={shipmentAddresses}
             />
           ))}
         </div>
@@ -175,6 +205,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
 PaymentRequestCard.propTypes = {
   history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
+  mtoShipments: MtoShipmentShape.isRequired,
 };
 
 export default withRouter(PaymentRequestCard);
