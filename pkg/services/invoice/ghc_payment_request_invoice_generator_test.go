@@ -81,6 +81,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	}
 
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		PaymentRequest: models.PaymentRequest{
@@ -374,7 +375,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		// city state info
 		n4 := result.Header.OriginPostalDetails
 		suite.IsType(edisegment.N4{}, n4)
-		suite.Equal(address.City, n4.CityName)
+		if len(n4.CityName) >= maxCityLength {
+			suite.Equal(address.City[:maxCityLength]+"...", n4.CityName)
+		} else {
+			suite.Equal(address.City, n4.CityName)
+		}
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
 		countryCode, err := address.CountryCode()
@@ -736,4 +741,16 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 		l3 := result.L3
 		suite.Equal(int64(0), l3.PriceCents)
 	})
+}
+
+func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
+	longStr := "A super duper long string"
+	expectedTruncatedStr := "A super..."
+	suite.Equal(expectedTruncatedStr, truncateStr(longStr, 10))
+
+	suite.Equal("AB", truncateStr("ABCD", 2))
+	suite.Equal("ABC", truncateStr("ABCD", 3))
+	suite.Equal("A...", truncateStr("ABCDEFGHI", 4))
+	suite.Equal("ABC...", truncateStr("ABCDEFGHI", 6))
+	suite.Equal("Too short", truncateStr("Too short", 200))
 }
