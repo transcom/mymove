@@ -19,6 +19,8 @@ func payloadForUserModel(o models.User) *adminmessages.User {
 	return &adminmessages.User{
 		ID:                     *handlers.FmtUUID(o.ID),
 		LoginGovEmail:          handlers.FmtString(o.LoginGovEmail),
+		Active:                 handlers.FmtBool(o.Active),
+		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
 		CurrentAdminSessionID:  handlers.FmtString(o.CurrentAdminSessionID),
 		CurrentMilSessionID:    handlers.FmtString(o.CurrentMilSessionID),
 		CurrentOfficeSessionID: handlers.FmtString(o.CurrentOfficeSessionID),
@@ -43,6 +45,47 @@ func (h GetUserHandler) Handle(params userop.GetUserParams) middleware.Responder
 	}
 	payload := payloadForUserModel(user)
 	return userop.NewGetUserOK().WithPayload(payload)
+}
+
+// IndexUsersHandler returns an user via GET /users/{userID}
+type IndexUsersHandler struct {
+	handlers.HandlerContext
+	services.ListFetcher
+	services.NewQueryFilter
+	services.NewPagination
+}
+
+// Handle lists all users
+func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
+	queryFilters := []services.QueryFilter{}
+
+	associations := query.NewQueryAssociations([]services.QueryAssociation{})
+	ordering := query.NewQueryOrder(params.Sort, params.Order)
+	pagination := h.NewPagination(params.Page, params.PerPage)
+
+	var users models.Users
+
+	err := h.ListFetcher.FetchRecordList(&users, queryFilters, associations, pagination, ordering)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	totalUsersCount, err := h.ListFetcher.FetchRecordCount(&users, queryFilters)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	queriedUsersCount := len(users)
+
+	payload := make(adminmessages.Users, queriedUsersCount)
+
+	for i, s := range users {
+		payload[i] = payloadForUserModel(s)
+	}
+
+	return userop.NewIndexUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedUsersCount, totalUsersCount)).WithPayload(payload)
 }
 
 // RevokeUserSessionHandler is the handler for creating users.
