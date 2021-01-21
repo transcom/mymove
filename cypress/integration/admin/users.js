@@ -1,14 +1,14 @@
 import { adminBaseURL } from '../../support/constants';
 
-describe('Admin Customer Users Page', function () {
+describe('Users Page', function () {
   before(() => {
     cy.prepareAdminApp();
   });
 
-  it('successfully navigates to customer users page', function () {
+  it('successfully navigates to users page', function () {
     cy.signInAsNewAdminUser();
     cy.get('a[href*="customer_users"]').click();
-    cy.url().should('eq', adminBaseURL + '/system/customer_users');
+    cy.url().should('eq', adminBaseURL + '/system/users');
     cy.get('header').contains('Customer users');
 
     const columnLabels = ['Id', 'Email', 'Active', 'Created at'];

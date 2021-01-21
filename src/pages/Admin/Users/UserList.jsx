@@ -5,7 +5,7 @@ import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const defaultSort = { field: 'loginGovEmail', order: 'ASC' };
 
-const CustomerUserList = (props) => (
+const UserList = (props) => (
   /* eslint-disable-next-line react/jsx-props-no-spreading */
   <List {...props} pagination={<AdminPagination />} perPage={25} sort={defaultSort} bulkActionButtons={false}>
     <Datagrid rowClick="show">
@@ -17,4 +17,4 @@ const CustomerUserList = (props) => (
   </List>
 );
 
-export default CustomerUserList;
+export default UserList;
