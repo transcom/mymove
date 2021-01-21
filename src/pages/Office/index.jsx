@@ -27,7 +27,7 @@ import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplic
 import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
-import { LocationShape, UserRolesShape } from 'types/index';
+import { LocationShape, UserRolesShape, OfficeUserInfoShape } from 'types/index';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('shared/User/SignIn'));
@@ -205,6 +205,7 @@ OfficeApp.propTypes = {
   userIsLoggedIn: PropTypes.bool,
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
+  userInfo: OfficeUserInfoShape.isRequired,
 };
 
 OfficeApp.defaultProps = {
@@ -221,6 +222,7 @@ const mapStateToProps = (state) => {
     userIsLoggedIn: user.isLoggedIn,
     userRoles: user.roles,
     activeRole: state.auth.activeRole,
+    userInfo: user.office_user,
   };
 };
 
