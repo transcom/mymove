@@ -227,6 +227,14 @@ definitions:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      active:
+        type: boolean
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
       currentAdminSessionId:
         type: string
         example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
@@ -238,6 +246,9 @@ definitions:
         example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
     required:
       - loginGovEmail
+      - active
+      - createdAt
+      - updatedAt
       - currentAdminSessionId
       - currentMilSessionId
       - currentOfficeSessionId
@@ -902,7 +913,7 @@ paths:
   /customer_users:
     get:
       summary: List customers
-      description: Returns a list of customers
+      description: Returns a list of customers/service members
       operationId: indexCustomerUsers
       tags:
         - customer_users

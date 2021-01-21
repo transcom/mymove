@@ -21,6 +21,7 @@ type IndexCustomerUsersHandler struct {
 	services.NewPagination
 }
 
+// TODO: specify data is being used from service_member Model instead
 func payloadForCustomerUserModel(o models.User) *adminmessages.CustomerUser {
 	payload := &adminmessages.CustomerUser{
 		ID:            handlers.FmtUUID(o.ID),
@@ -40,12 +41,12 @@ func (h IndexCustomerUsersHandler) Handle(params customeruserop.IndexCustomerUse
 
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 
-	loginEmail := "email"
-	loginGovEmail := "login_gov_email"
-	if params.Sort == &loginEmail {
-		// fmt.Printf("🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙")
-		params.Sort = &loginGovEmail
-	}
+	// loginEmail := "email"
+	// loginGovEmail := "login_gov_email"
+	// if params.Sort == &loginEmail {
+	// 	// fmt.Printf("🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙")
+	// 	params.Sort = &loginGovEmail
+	// }
 
 	// fmt.Printf("%v BAHHHAHAHAHAHAHAHAHAHAHAHAHAHAHAHHAHA  ", params.Sort)
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
