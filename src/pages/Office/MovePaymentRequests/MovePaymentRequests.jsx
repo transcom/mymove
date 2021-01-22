@@ -22,7 +22,7 @@ const MovePaymentRequests = () => {
 
   Object.values(mtoShipments).forEach((shipment) => {
     shipmentAddresses.push({
-      id: shipment.id,
+      mtoShipmentID: shipment.id,
       shipmentAddress: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
     });
   });

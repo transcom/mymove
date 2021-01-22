@@ -1308,6 +1308,13 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 		Move: move,
 	})
 
+	ntsrShipment.PickupAddressID = &pickupAddress.ID
+	ntsrShipment.PickupAddress = &pickupAddress
+	saveErr := db.Save(&ntsrShipment)
+	if saveErr != nil {
+		log.Panic("error saving NTSR shipment pickup address")
+	}
+
 	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:            uuid.FromStringOrNil("3806be8d-ec39-43a2-a0ff-83b80bc4ba46"),

@@ -229,7 +229,7 @@ export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], curre
 };
 
 export const useMovePaymentRequestsQueries = (moveCode) => {
-  const { data = {}, ...movePaymentRequestsQuery } = useQuery(
+  const { data = [], ...movePaymentRequestsQuery } = useQuery(
     [MOVE_PAYMENT_REQUESTS, moveCode],
     getMovePaymentRequests,
   );

@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from 'react';
-import { arrayOf, shape } from 'prop-types';
+import PropTypes, { arrayOf, shape } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
@@ -164,10 +164,13 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
           {sortedShipments.map((serviceItems) => {
             let shipmentAddress = '';
 
-            serviceItems.forEach((serviceItem) => {
-              shipmentAddress = shipmentAddresses.find((address) => address.id === serviceItem.mtoShipmentID)
-                ?.shipmentAddress;
-            });
+            if (serviceItems[0].mtoShipmentID !== undefined || serviceItems[0].mtoShipmentID !== null) {
+              serviceItems.forEach((serviceItem) => {
+                shipmentAddress = shipmentAddresses.find(
+                  (address) => address.mtoShipmentID === serviceItem.mtoShipmentID,
+                )?.shipmentAddress;
+              });
+            }
 
             return (
               <PaymentRequestDetails
@@ -187,7 +190,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
 PaymentRequestCard.propTypes = {
   history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
-  shipmentAddresses: arrayOf(shape({})).isRequired,
+  shipmentAddresses: arrayOf(shape({ mtoShipmentId: PropTypes.string, shipmentAddress: PropTypes.string })).isRequired,
 };
 
 export default withRouter(PaymentRequestCard);

@@ -81,8 +81,11 @@ jest.mock('hooks/queries', () => ({
 }));
 
 const shipmentAddresses = [
-  { id: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3', shipmentAddress: 'Columbia, SC 29212 to Princeton, NJ 08540' },
-  { id: '9e8222e4-9cdb-4994-8294-6d918a4c684d', shipmentAddress: 'TBD to Fairfield, CA 94535' },
+  {
+    mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
+    shipmentAddress: 'Columbia, SC 29212 to Princeton, NJ 08540',
+  },
+  { mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d', shipmentAddress: 'TBD to Fairfield, CA 94535' },
 ];
 const testMoveLocator = 'AF7K1P';
 
