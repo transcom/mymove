@@ -93,11 +93,10 @@ func (wr *WebhookRuntime) Post(data []byte, url string) (*http.Response, []byte,
 		url,
 		bufferData,
 	)
-	req.Header.Set("Content-type", wr.ContentType)
-
 	if err != nil {
 		return nil, nil, err
 	}
+	req.Header.Set("Content-type", wr.ContentType)
 
 	// Print out the request when debug mode is on
 	if wr.Debug {
