@@ -144,11 +144,7 @@ export class OfficeApp extends Component {
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
         {!hideHeaderPPM && (
           <MilmoveHeader officeUser={officeUser}>
-            {userIsLoggedIn && (
-              <Link to="/" unstyled>
-                {officeUser.transportation_office.gbloc} moves
-              </Link>
-            )}
+            {userIsLoggedIn && <Link to="/">{officeUser.transportation_office.gbloc} moves</Link>}
           </MilmoveHeader>
         )}
         <main role="main" className="site__content site-office__content">

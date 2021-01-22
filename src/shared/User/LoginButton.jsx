@@ -34,7 +34,7 @@ const LoginButton = (props) => {
     };
 
     return (
-      <Button unstyled className="usa-nav__link" onClick={handleLogOut}>
+      <Button unstyled className="usa-nav__link" onClick={handleLogOut} type="button">
         Sign out
       </Button>
     );
