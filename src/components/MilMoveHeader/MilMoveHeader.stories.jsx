@@ -13,7 +13,8 @@ export default {
 };
 
 const props = {
-  officeUser: { last_name: 'Baker', first_name: 'Riley' },
+  lastName: 'Baker',
+  firstName: 'Riley',
   handleLogout: action('clicked'),
 };
 

@@ -1,15 +1,12 @@
 import React from 'react';
-import { isEmpty } from 'lodash';
-import { func, node } from 'prop-types';
+import { func, string, node } from 'prop-types';
 import { Button, Title } from '@trussworks/react-uswds';
 
 import MmLogo from '../../shared/images/milmove-logo.svg';
 
 import styles from './index.module.scss';
 
-import { OfficeUserInfoShape } from 'types/index';
-
-const MilMoveHeader = ({ children, handleLogout, officeUser }) => (
+const MilMoveHeader = ({ children, handleLogout, firstName, lastName }) => (
   <div className={styles.mmHeader}>
     <Title>
       <a href="/" title="office.move.mil" aria-label="office.move.mil">
@@ -19,9 +16,9 @@ const MilMoveHeader = ({ children, handleLogout, officeUser }) => (
     <div className={styles.links}>
       {children}
       <div className={styles.verticalLine} />
-      {!isEmpty(officeUser) && (
+      {lastName !== '' && firstName !== '' && (
         <span>
-          {officeUser.last_name}, {officeUser.first_name}
+          {lastName}, {firstName}
         </span>
       )}
       <Button unstyled className={styles.signOut} onClick={handleLogout} type="button">
@@ -31,9 +28,15 @@ const MilMoveHeader = ({ children, handleLogout, officeUser }) => (
   </div>
 );
 
+MilMoveHeader.defaultProps = {
+  firstName: '',
+  lastName: '',
+};
+
 MilMoveHeader.propTypes = {
   children: node.isRequired,
-  officeUser: OfficeUserInfoShape.isRequired,
+  firstName: string,
+  lastName: string,
   handleLogout: func.isRequired,
 };
 

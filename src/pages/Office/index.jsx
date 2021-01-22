@@ -149,7 +149,8 @@ export class OfficeApp extends Component {
           <>
             <QueueHeader />
             <MilmoveHeader
-              officeUser={officeUser}
+              lastName={officeUser.last_name}
+              firstName={officeUser.first_name}
               handleLogout={() => {
                 logOut();
                 LogoutUser();
