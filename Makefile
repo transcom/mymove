@@ -902,17 +902,20 @@ webhook_client_start:
 	# More environment variables can be added here that correlate with the command line options for
 	# the webhook-client binary.
 	docker run \
-		-e GODEBUG=netdns=cgo+1 \
 		-e LOGGING_LEVEL=debug \
 		-e DB_HOST="host.docker.internal" \
-		-e DB_NAME \
-		-e DB_PORT \
+		-e DB_NAME=test_db \
+		-e DB_PORT=5433 \
 		-e DB_USER \
 		-e DB_PASSWORD \
+		-e GEX_MTLS_CLIENT_CERT \
+		-e GEX_MTLS_CLIENT_KEY \
+		-e MOVE_MIL_DOD_CA_CERT \
+		-e DOD_CA_PACKAGE \
 		-e PERIOD \
 		--volume $(PWD):/code/ \
-		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest \
-		/bin/webhook-client post-webhook-notify --insecure --hostname primelocal --filename /code/pkg/testdatagen/testdata/webhook_test_data.json
+		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
+		# /bin/webhook-client post-webhook-notify --insecure --hostname primelocal --filename /code/pkg/testdatagen/testdata/webhook_test_data.json
 
 .PHONY: webhook_client_test
 webhook_client_test: db_test_e2e_populate webhook_client_test_standalone
