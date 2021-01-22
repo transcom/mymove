@@ -11,7 +11,7 @@ import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
-import { loadUser as loadUserAction } from 'store/auth/actions';
+import { logOut as logOutAction, loadUser as loadUserAction } from 'store/auth/actions';
 import { selectCurrentUser } from 'shared/Data/users';
 import {
   loadInternalSchema as loadInternalSchemaAction,
@@ -21,6 +21,7 @@ import {
 import ConnectedLogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { QueueHeader } from 'shared/Header/Office';
 import MilmoveHeader from 'components/MilMoveHeader';
 import FOUOHeader from 'components/FOUOHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
@@ -28,6 +29,7 @@ import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape, OfficeUserInfoShape } from 'types/index';
+import { LogoutUser } from 'shared/User/api';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('shared/User/SignIn'));
@@ -80,6 +82,7 @@ export class OfficeApp extends Component {
       userRoles,
       officeUser,
       location: { pathname },
+      logOut,
     } = this.props;
     const selectedRole = userIsLoggedIn && activeRole;
 
@@ -143,9 +146,18 @@ export class OfficeApp extends Component {
         <FOUOHeader />
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
         {!hideHeaderPPM && (
-          <MilmoveHeader officeUser={officeUser}>
-            {userIsLoggedIn && <Link to="/">{officeUser.transportation_office.gbloc} moves</Link>}
-          </MilmoveHeader>
+          <>
+            <QueueHeader />
+            <MilmoveHeader
+              officeUser={officeUser}
+              handleLogout={() => {
+                logOut();
+                LogoutUser();
+              }}
+            >
+              {userIsLoggedIn && <Link to="/">{officeUser.transportation_office.gbloc} moves</Link>}
+            </MilmoveHeader>
+          </>
         )}
         <main role="main" className="site__content site-office__content">
           <ConnectedLogoutOnInactivity />
@@ -210,6 +222,7 @@ OfficeApp.propTypes = {
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
   officeUser: OfficeUserInfoShape,
+  logOut: PropTypes.func.isRequired,
 };
 
 OfficeApp.defaultProps = {
@@ -237,6 +250,7 @@ const mapDispatchToProps = (dispatch) =>
       loadInternalSchema: loadInternalSchemaAction,
       loadPublicSchema: loadPublicSchemaAction,
       loadUser: loadUserAction,
+      logOut: logOutAction,
     },
     dispatch,
   );

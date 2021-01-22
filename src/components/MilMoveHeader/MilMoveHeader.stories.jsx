@@ -1,4 +1,5 @@
 import React from 'react';
+import { action } from '@storybook/addon-actions';
 
 import MilMoveHeader from './index';
 
@@ -13,6 +14,7 @@ export default {
 
 const props = {
   officeUser: { last_name: 'Baker', first_name: 'Riley' },
+  handleLogout: action('clicked'),
 };
 
 export const Milmove = () => (

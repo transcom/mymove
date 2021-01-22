@@ -33,7 +33,7 @@
   }
 
   a,
-  :global(.usa-nav__link) {
+  .signOut {
     @include u-text('bold');
     color: $link-light;
     text-decoration: none;
@@ -43,6 +43,11 @@
       color: #b7caf0;
       @include u-text('no-underline');
     }
+  }
+
+  .signOut {
+    padding: 0;
+    line-height: inherit;
   }
 
   .verticalLine {
