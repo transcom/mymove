@@ -326,31 +326,8 @@ func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
 // originZip and destinationZip.  In case of more than one TSP having the same highest BVS score,
 // we return the one whose TSPP ID comes first alphabetically.
 func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (linehaulDiscount unit.DiscountRate, sitDiscount unit.DiscountRate, err error) {
-	rateArea, err := FetchRateAreaForZip5(db, originZip)
-	if err != nil {
-		return 0.0, 0.0, errors.Wrapf(ErrFetchNotFound, "could not find a rate area for zip %s"+"\n Error from attempt: \n %s", originZip, err.Error())
-	}
-	region, err := FetchRegionForZip5(db, destinationZip)
-	if err != nil {
-		return 0.0, 0.0, errors.Wrapf(ErrFetchNotFound, "could not find a region for zip %s"+"\n Error from attempt: \n %s", destinationZip, err.Error())
-	}
-
-	var tspPerformance TransportationServiceProviderPerformance
-
-	err = db.Q().LeftJoin("traffic_distribution_lists AS tdl", "tdl.id = transportation_service_provider_performances.traffic_distribution_list_id").
-		Where("tdl.source_rate_area = ?", rateArea).
-		Where("tdl.destination_region = ?", region).
-		Where("tdl.code_of_service = ?", cos).
-		Where("? BETWEEN transportation_service_provider_performances.performance_period_start AND transportation_service_provider_performances.performance_period_end", date).
-		// Additional sort by TSPP ID in case of matching BVS (want to be deterministic with the TSPP record returned)
-		Order("transportation_service_provider_performances.best_value_score DESC, transportation_service_provider_performances.id ASC").
-		First(&tspPerformance)
-
-	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
-			return 0.0, 0.0, ErrFetchNotFound
-		}
-		return 0.0, 0.0, errors.Wrap(err, "could find the tsp performance")
-	}
-	return tspPerformance.LinehaulRate, tspPerformance.SITRate, nil
+	// the discount rates are based on BVS rate data which we no longer insert into our system.
+	// this rate data is going to change in outcome 5 so we don't really care what these values are.
+	// hard code discount rates so ppm pricing doesn't fail w/ no data
+	return .505, .5, nil
 }

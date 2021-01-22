@@ -895,13 +895,15 @@ func (suite *ModelSuite) Test_FetchDiscountRatesPerformancePeriodBoundaries() {
 		t.Fatalf("Failed to find tsp performance for first day in performance period: %s", err)
 	}
 
-	if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppStart.Add(time.Hour*-24)); err == nil {
-		t.Fatalf("Should not have found a TSPP for the last day before the start of a performance period: %s", err)
-	}
+	// discount rates are being hard coded so ignore this test
+	// if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppStart.Add(time.Hour*-24)); err == nil {
+	// 	t.Fatalf("Should not have found a TSPP for the last day before the start of a performance period: %s", err)
+	// }
 
-	if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppEnd.Add(time.Hour*24)); err == nil {
-		t.Fatalf("Should not have found a TSPP for the first day following a performance period: %s", err)
-	}
+	// discount rates are being hard coded so ignore this test
+	// if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppEnd.Add(time.Hour*24)); err == nil {
+	// 	t.Fatalf("Should not have found a TSPP for the first day following a performance period: %s", err)
+	// }
 }
 
 func equalUUIDSlice(a []uuid.UUID, b []uuid.UUID) bool {
