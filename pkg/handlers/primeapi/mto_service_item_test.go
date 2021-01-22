@@ -699,8 +699,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			suite.NoError(findServiceItemErr)
 
 			if mtosi.ReService.Code == models.ReServiceCodeDOPSIT || mtosi.ReService.Code == models.ReServiceCodeDOFSIT {
+				suite.IsType(&primemessages.MTOServiceItemOriginSIT{}, serviceItem)
 				sitItem := serviceItem.(*primemessages.MTOServiceItemOriginSIT)
-				suite.IsType(&primemessages.MTOServiceItemOriginSIT{}, sitItem)
 				foundDOFSIT = true
 
 				// Verify the return primemessages payload has the correct addresses
