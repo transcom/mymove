@@ -73,7 +73,7 @@ const Home = () => (
         create={AdminUserCreate}
         edit={AdminUserEdit}
       />
-      <Resource name="users" options={{ label: 'Users' }} list={UserList} />
+      <Resource name="users" options={{ label: 'Users' }} show={UserShow} edit={UserEdit} list={UserList} />
       <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} />
       <Resource
         name="transportation_service_provider_performances"
@@ -84,7 +84,6 @@ const Home = () => (
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
-      <Resource name="users" options={{ label: 'Search User by ID' }} show={UserShow} edit={UserEdit} />
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
     </Admin>

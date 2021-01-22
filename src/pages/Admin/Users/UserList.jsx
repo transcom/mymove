@@ -1,13 +1,27 @@
 import React from 'react';
-import { List, Datagrid, TextField, BooleanField } from 'react-admin';
+import { List, Datagrid, TextField, BooleanField, Filter, TextInput } from 'react-admin';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
+
+const UserFilter = (props) => (
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  <Filter {...props}>
+    <TextInput label="Search by User Id" source="id" resettable alwaysOn />
+  </Filter>
+);
 
 const defaultSort = { field: 'loginGovEmail', order: 'ASC' };
 
 const UserList = (props) => (
-  /* eslint-disable-next-line react/jsx-props-no-spreading */
-  <List {...props} pagination={<AdminPagination />} perPage={25} sort={defaultSort} bulkActionButtons={false}>
+  <List
+    /* eslint-disable-next-line react/jsx-props-no-spreading */
+    {...props}
+    filters={<UserFilter />}
+    pagination={<AdminPagination />}
+    perPage={25}
+    sort={defaultSort}
+    bulkActionButtons={false}
+  >
     <Datagrid rowClick="show">
       <TextField source="id" />
       <TextField source="loginGovEmail" label="Email" />
