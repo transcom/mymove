@@ -6,10 +6,10 @@ import (
 	//RA: This line of code hashes the AWS object to be able to verify data integrity
 	//RA: Purpose of this hash is to protect against environmental risks, it does not
 	//RA: hash any sensitive user provided information such as passwords
+	//RA: AWS S3 API requires use of MD5 to validate data integrity.
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: CAT III
 	"crypto/md5" // #nosec G401
 	"encoding/hex"
 	"fmt"
@@ -64,10 +64,10 @@ func hashObjectMd5(buff *aws.WriteAtBuffer) string {
 	//RA: This line of code hashes the AWS object to be able to verify data integrity
 	//RA: Purpose of this hash is to protect against environmental risks, it does not
 	//RA: hash any sensitive user provided information such as passwords
+	//RA: AWS S3 API requires use of MD5 to validate data integrity.
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: CAT III
 	// Sum the bytes in the buffer
 	hashInBytes := md5.Sum(buff.Bytes()) // #nosec G401
 

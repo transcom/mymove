@@ -5,16 +5,11 @@ import (
 	//RA: This line was flagged because of the use of MD5 hashing
 	//RA: This line of code hashes the AWS object to be able to verify data integrity
 	//RA: Purpose of this hash is to protect against environmental risks, it does not
-	//RA: hash any sensitive user provided information such as passwords
+	//RA: hash any sensitive user provided information such as passwords.
+	//RA: AWS S3 API requires use of MD5 to validate data integrity.
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	/*
-		 we use md5 because it's required by the S3 API for
-		validating data integrity.
-		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
-	*/
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: CAT III
 	"crypto/md5" // #nosec G401
 	"encoding/base64"
 	"io"
@@ -55,15 +50,11 @@ func ComputeChecksum(data io.ReadSeeker) (string, error) {
 	//RA: This line of code hashes the AWS object to be able to verify data integrity
 	//RA: Purpose of this hash is to protect against environmental risks, it does not
 	//RA: hash any sensitive user provided information such as passwords
+	//RA: AWS S3 API requires use of MD5 to validate data integrity.
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	/*
-		#nosec - we use md5 because it's required by the S3 API for
-		validating data integrity.
-		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
-	*/
+	//RA Modified Severity: CAT III
 	hash := md5.New() // #nosec G401
 	if _, err := io.Copy(hash, data); err != nil {
 		return "", errors.Wrap(err, "could not read file")
