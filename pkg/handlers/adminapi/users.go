@@ -85,7 +85,7 @@ func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Res
 		payload[i] = payloadForUserModel(s)
 	}
 
-	return userop.NewIndexUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedUsersCount, totalUsersCount)).WithPayload(payload)
+	return userop.NewIndexUsersOK().WithContentRange(fmt.Sprintf("users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedUsersCount, totalUsersCount)).WithPayload(payload)
 }
 
 // RevokeUserSessionHandler is the handler for creating users.
