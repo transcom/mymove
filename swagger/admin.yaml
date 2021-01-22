@@ -190,6 +190,14 @@ definitions:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      active:
+        type: boolean
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
       currentAdminSessionId:
         type: string
         example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
@@ -201,9 +209,16 @@ definitions:
         example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
     required:
       - loginGovEmail
+      - active
+      - createdAt
+      - updatedAt
       - currentAdminSessionId
       - currentMilSessionId
       - currentOfficeSessionId
+  Users:
+    type: array
+    items:
+      $ref: '#/definitions/User'
   TransportationOffice:
     type: object
     properties:
@@ -1429,6 +1444,48 @@ paths:
           description: request requires user authentication
         404:
           description: not found
+        500:
+          description: server error
+  /users:
+    get:
+      summary: List users
+      description: Returns a list of users
+      operationId: indexUsers
+      tags:
+        - users
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/Users'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: users not found
         500:
           description: server error
   /users/{userId}:
