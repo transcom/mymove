@@ -66,15 +66,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Set up a default move:
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	show := true
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Show: &show,
+		},
+	})
 
 	// Set up the necessary updater objects:
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	updater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
 
-	// Case: Move successfully activated
-	suite.T().Run("Success - Set show field to true", func(t *testing.T) {
-		show := true
+	// Case: Move successfully deactivated
+	suite.T().Run("Success - Set show field to false", func(t *testing.T) {
+		show = false
 		updatedMove, err := updater.ShowHide(move.ID, &show)
 
 		suite.NotNil(updatedMove)
@@ -83,9 +88,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 		suite.Equal(*updatedMove.Show, show)
 	})
 
-	// Case: Move successfully deactivate
-	suite.T().Run("Success - Set show field to false", func(t *testing.T) {
-		show := false
+	// Case: Move successfully activated
+	suite.T().Run("Success - Set show field to true", func(t *testing.T) {
+		show = true
 		updatedMove, err := updater.ShowHide(move.ID, &show)
 
 		suite.NotNil(updatedMove)
@@ -96,7 +101,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Case: Move UUID not found in DB
 	suite.T().Run("Fail - Move not found", func(t *testing.T) {
-		show := true
 		badMoveID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		updatedMove, err := updater.ShowHide(badMoveID, &show)
 
@@ -125,7 +129,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 			mock.Anything,
 		).Return(nil, services.InvalidInputError{})
 
-		show := true
 		updatedMove, err := mockUpdater.ShowHide(move.ID, &show)
 
 		suite.Nil(updatedMove)
@@ -141,7 +144,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 			mock.Anything,
 		).Return(nil, services.QueryError{})
 
-		show := true
 		updatedMove, err := mockUpdater.ShowHide(move.ID, &show)
 
 		suite.Nil(updatedMove)

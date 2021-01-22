@@ -2,6 +2,7 @@ package movetaskorder
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -172,12 +173,18 @@ func (o *moveTaskOrderUpdater) ShowHide(moveID uuid.UUID, show *bool) (*models.M
 	}
 
 	move.Show = show
-	verrs, err := move.ValidateUpdate(o.db)
+	verrs, err := o.db.ValidateAndSave(move)
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(move.ID, err, verrs, "Invalid input found while updating the Move")
 	} else if err != nil {
 		return nil, services.NewQueryError("Move", err, "")
 	}
 
-	return move, nil
+	// Get the updated Move and return
+	updatedMove, err := o.FetchMoveTaskOrder(move.ID)
+	if err != nil {
+		return nil, services.NewQueryError("Move", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+	}
+
+	return updatedMove, nil
 }
