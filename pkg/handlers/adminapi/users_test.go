@@ -10,13 +10,16 @@ import (
 	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	userservice "github.com/transcom/mymove/pkg/services/user"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -121,7 +124,83 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
+func (suite *HandlerSuite) TestIndexUsersHandler() {
+	// replace this with generated UUID when filter param is built out
+	uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
+	// uuidString := "f0ddc118-3f7e-476b-b8be-0f964a5feee2"
+	id, _ := uuid.FromString(uuidString)
+	assertions := testdatagen.Assertions{
+		User: models.User{
+			ID: id,
+		},
+	}
+	testdatagen.MakeUser(suite.DB(), assertions)
+	testdatagen.MakeDefaultUser(suite.DB())
+
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	req := httptest.NewRequest("GET", "/users", nil)
+	req = suite.AuthenticateAdminRequest(req, requestUser)
+
+	// test that everything is wired up
+	suite.T().Run("integration test ok response", func(t *testing.T) {
+		params := userop.IndexUsersParams{
+			HTTPRequest: req,
+		}
+
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		handler := IndexUsersHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			NewQueryFilter: query.NewQueryFilter,
+			ListFetcher:    fetch.NewListFetcher(queryBuilder),
+			NewPagination:  pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&userop.IndexUsersOK{}, response)
+		okResponse := response.(*userop.IndexUsersOK)
+		suite.Len(okResponse.Payload, 2)
+		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
+	})
+
+	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
+		queryFilter := mocks.QueryFilter{}
+		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
+
+		params := userop.IndexUsersParams{
+			HTTPRequest: req,
+		}
+		expectedError := models.ErrFetchNotFound
+		userListFetcher := &mocks.ListFetcher{}
+		userListFetcher.On("FetchRecordList",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+		userListFetcher.On("FetchRecordCount",
+			mock.Anything,
+			mock.Anything,
+		).Return(0, expectedError).Once()
+		handler := IndexUsersHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			NewQueryFilter: newQueryFilter,
+			ListFetcher:    userListFetcher,
+			NewPagination:  pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusNotFound,
+			Err:  expectedError,
+		}
+		suite.Equal(expectedResponse, response)
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateUserHandler() {
 	milSessionID := "mil-session"
 	adminSessionID := "admin-session"
 	officeSessionID := "office-session"
@@ -131,6 +210,7 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 			CurrentMilSessionID:    milSessionID,
 			CurrentAdminSessionID:  adminSessionID,
 			CurrentOfficeSessionID: officeSessionID,
+			Active:                 true,
 		},
 	}
 	user := testdatagen.MakeUser(suite.DB(), assertions)
@@ -147,6 +227,7 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 	revokeMilSession := true
 	revokeAdminSession := false
 	revokeOfficeSession := true
+	userActive := true
 
 	params := userop.UpdateUserParams{
 		HTTPRequest: req,
@@ -154,6 +235,7 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 			RevokeMilSession:    &revokeMilSession,
 			RevokeAdminSession:  &revokeAdminSession,
 			RevokeOfficeSession: &revokeOfficeSession,
+			Active:              &userActive,
 		},
 		UserID: strfmt.UUID(userID.String()),
 	}
@@ -162,7 +244,7 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handlerContext.SetSessionManagers(sessionManagers)
 
-	suite.T().Run("Successful update", func(t *testing.T) {
+	suite.T().Run("Successful update of sessions only", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := UpdateUserHandler{
 			handlerContext,
@@ -178,19 +260,52 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 		suite.Equal("", foundUser.CurrentMilSessionID)
 		suite.Equal(adminSessionID, foundUser.CurrentAdminSessionID)
 		suite.Equal("", foundUser.CurrentOfficeSessionID)
+		suite.Equal(true, foundUser.Active)
+	})
+
+	suite.T().Run("Successful update of setting active to false", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		userActive := false
+		params.User.Active = &userActive
+
+		handler := UpdateUserHandler{
+			handlerContext,
+			userservice.NewUserSessionRevocation(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder),
+			newQueryFilter,
+		}
+
+		response := handler.Handle(params)
+		foundUser, _ := models.GetUser(suite.DB(), userID)
+
+		// When we set Active to false, all user sessions
+		// should be revoked, regardless of what params were
+		// passed in the payload.
+		suite.IsType(&userop.UpdateUserOK{}, response)
+		suite.Equal("", foundUser.CurrentMilSessionID)
+		suite.Equal("", foundUser.CurrentAdminSessionID)
+		suite.Equal("", foundUser.CurrentOfficeSessionID)
+		suite.Equal(false, foundUser.Active)
 	})
 
 	suite.T().Run("Failed update", func(t *testing.T) {
-		userUpdater := &mocks.UserSessionRevocation{}
+		userRevocation := &mocks.UserSessionRevocation{}
+		userUpdater := &mocks.UserUpdater{}
 
-		userUpdater.On("RevokeUserSession",
+		userRevocation.On("RevokeUserSession",
 			mock.Anything,
 			params.User,
 			sessionManagers[0].Store,
 		).Return(&user, nil, nil).Once()
 
+		userUpdater.On("UpdateUser",
+			mock.Anything,
+			params.User,
+		).Return(&user, nil, nil).Once()
+
 		handler := UpdateUserHandler{
 			handlerContext,
+			userRevocation,
 			userUpdater,
 			newQueryFilter,
 		}
@@ -200,17 +315,24 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 		suite.IsType(&userop.UpdateUserOK{}, response)
 	})
 
-	userUpdater := &mocks.UserSessionRevocation{}
+	userRevocation := &mocks.UserSessionRevocation{}
+	userUpdater := &mocks.UserUpdater{}
 	err := validate.NewErrors()
 
-	userUpdater.On("RevokeUserSession",
+	userRevocation.On("RevokeUserSession",
 		mock.Anything,
 		params.User,
 		sessionManagers[0].Store,
 	).Return(nil, err, nil).Once()
 
+	userUpdater.On("UpdateUser",
+		mock.Anything,
+		params.User,
+	).Return(nil, err, nil).Once()
+
 	handler := UpdateUserHandler{
 		handlerContext,
+		userRevocation,
 		userUpdater,
 		newQueryFilter,
 	}
@@ -218,4 +340,5 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 	handler.Handle(params)
 
 	suite.Error(err, "Error saving user")
+
 }

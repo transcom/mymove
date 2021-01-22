@@ -19,6 +19,8 @@ func payloadForUserModel(o models.User) *adminmessages.User {
 	return &adminmessages.User{
 		ID:                     *handlers.FmtUUID(o.ID),
 		LoginGovEmail:          handlers.FmtString(o.LoginGovEmail),
+		Active:                 handlers.FmtBool(o.Active),
+		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
 		CurrentAdminSessionID:  handlers.FmtString(o.CurrentAdminSessionID),
 		CurrentMilSessionID:    handlers.FmtString(o.CurrentMilSessionID),
 		CurrentOfficeSessionID: handlers.FmtString(o.CurrentOfficeSessionID),
@@ -45,7 +47,48 @@ func (h GetUserHandler) Handle(params userop.GetUserParams) middleware.Responder
 	return userop.NewGetUserOK().WithPayload(payload)
 }
 
-// UpdateUserHandler updates and returns a user via PATCH /users/{userID}
+// IndexUsersHandler returns a list of users via GET /users
+type IndexUsersHandler struct {
+	handlers.HandlerContext
+	services.ListFetcher
+	services.NewQueryFilter
+	services.NewPagination
+}
+
+// Handle lists all users
+func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
+	queryFilters := []services.QueryFilter{}
+
+	associations := query.NewQueryAssociations([]services.QueryAssociation{})
+	ordering := query.NewQueryOrder(params.Sort, params.Order)
+	pagination := h.NewPagination(params.Page, params.PerPage)
+
+	var users models.Users
+
+	err := h.ListFetcher.FetchRecordList(&users, queryFilters, associations, pagination, ordering)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	totalUsersCount, err := h.ListFetcher.FetchRecordCount(&users, queryFilters)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	queriedUsersCount := len(users)
+
+	payload := make(adminmessages.Users, queriedUsersCount)
+
+	for i, s := range users {
+		payload[i] = payloadForUserModel(s)
+	}
+
+	return userop.NewIndexUsersOK().WithContentRange(fmt.Sprintf("users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedUsersCount, totalUsersCount)).WithPayload(payload)
+}
+
+// UpdateUserHandler is the handler for updating users.
 type UpdateUserHandler struct {
 	handlers.HandlerContext
 	services.UserSessionRevocation
@@ -66,7 +109,7 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 	// Update all properties from the payload that are not related to revoking a session.
 	// Currently, only updating the Active property is supported.
 	// If you want to add support for additional properties, edit UpdateUser.
-	updatedUser, validationErrors, err := h.UpdateUser(userID, payload)
+	_, validationErrors, err := h.UpdateUser(userID, payload)
 
 	if validationErrors != nil || err != nil {
 		fmt.Printf("%#v", validationErrors)

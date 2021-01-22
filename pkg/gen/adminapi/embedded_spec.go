@@ -979,6 +979,72 @@ func init() {
         }
       }
     },
+    "/users": {
+      "get": {
+        "description": "Returns a list of users",
+        "tags": [
+          "users"
+        ],
+        "summary": "List users",
+        "operationId": "indexUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Users"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/users/{userId}": {
       "get": {
         "description": "Returns the given user and their sessions",
@@ -2039,11 +2105,21 @@ func init() {
       "type": "object",
       "required": [
         "loginGovEmail",
+        "active",
+        "createdAt",
+        "updatedAt",
         "currentAdminSessionId",
         "currentMilSessionId",
         "currentOfficeSessionId"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "currentAdminSessionId": {
           "type": "string",
           "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
@@ -2065,6 +2141,10 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -2087,6 +2167,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         }
+      }
+    },
+    "Users": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/User"
       }
     },
     "ValidationError": {
@@ -3067,6 +3153,72 @@ func init() {
           },
           "404": {
             "description": "upload not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "description": "Returns a list of users",
+        "tags": [
+          "users"
+        ],
+        "summary": "List users",
+        "operationId": "indexUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Users"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "users not found"
           },
           "500": {
             "description": "server error"
@@ -4135,11 +4287,21 @@ func init() {
       "type": "object",
       "required": [
         "loginGovEmail",
+        "active",
+        "createdAt",
+        "updatedAt",
         "currentAdminSessionId",
         "currentMilSessionId",
         "currentOfficeSessionId"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "currentAdminSessionId": {
           "type": "string",
           "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
@@ -4161,6 +4323,10 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -4183,6 +4349,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         }
+      }
+    },
+    "Users": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/User"
       }
     },
     "ValidationError": {

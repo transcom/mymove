@@ -129,6 +129,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation transportation_service_provider_performances.IndexTSPPs has not yet been implemented")
 		})
 	}
+	if api.UsersIndexUsersHandler == nil {
+		api.UsersIndexUsersHandler = users.IndexUsersHandlerFunc(func(params users.IndexUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
+		})
+	}
 	if api.AdminUsersUpdateAdminUserHandler == nil {
 		api.AdminUsersUpdateAdminUserHandler = admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")

@@ -104,6 +104,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		TransportationServiceProviderPerformancesIndexTSPPsHandler: transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_service_provider_performances.IndexTSPPs has not yet been implemented")
 		}),
+		UsersIndexUsersHandler: users.IndexUsersHandlerFunc(func(params users.IndexUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
+		}),
 		AdminUsersUpdateAdminUserHandler: admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
 		}),
@@ -180,6 +183,8 @@ type MymoveAPI struct {
 	OrganizationIndexOrganizationsHandler organization.IndexOrganizationsHandler
 	// TransportationServiceProviderPerformancesIndexTSPPsHandler sets the operation handler for the index t s p ps operation
 	TransportationServiceProviderPerformancesIndexTSPPsHandler transportation_service_provider_performances.IndexTSPPsHandler
+	// UsersIndexUsersHandler sets the operation handler for the index users operation
+	UsersIndexUsersHandler users.IndexUsersHandler
 	// AdminUsersUpdateAdminUserHandler sets the operation handler for the update admin user operation
 	AdminUsersUpdateAdminUserHandler admin_users.UpdateAdminUserHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
@@ -302,6 +307,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
 		unregistered = append(unregistered, "transportation_service_provider_performances.IndexTSPPsHandler")
+	}
+	if o.UsersIndexUsersHandler == nil {
+		unregistered = append(unregistered, "users.IndexUsersHandler")
 	}
 	if o.AdminUsersUpdateAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.UpdateAdminUserHandler")
@@ -468,6 +476,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/transportation_service_provider_performances"] = transportation_service_provider_performances.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancesIndexTSPPsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/users"] = users.NewIndexUsers(o.context, o.UsersIndexUsersHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

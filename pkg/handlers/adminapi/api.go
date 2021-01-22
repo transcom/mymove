@@ -154,6 +154,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.UsersIndexUsersHandler = IndexUsersHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
 		context,
 		upload.NewUploadInformationFetcher(context.DB()),
