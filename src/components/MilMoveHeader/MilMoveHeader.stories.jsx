@@ -1,4 +1,5 @@
 import React from 'react';
+import { action } from '@storybook/addon-actions';
 
 import MilMoveHeader from './index';
 
@@ -11,4 +12,16 @@ export default {
   },
 };
 
-export const Milmove = () => <MilMoveHeader />;
+const props = {
+  customer: { last_name: 'Baker', first_name: 'Riley', dodID: '999999999' },
+  handleLogout: action('clicked'),
+};
+
+export const Milmove = () => (
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  <MilMoveHeader {...props}>
+    <a href="#">Navigation Link</a>
+    <a href="#">Navigation Link</a>
+    <a href="#">Navigation Link</a>
+  </MilMoveHeader>
+);
