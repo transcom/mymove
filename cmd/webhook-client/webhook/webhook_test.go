@@ -47,11 +47,12 @@ func TestWebhookClientTestingSuite(t *testing.T) {
 func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 	defer teardownEngineRun(suite)
 
-	// Create a client
+	// Parse flags from environment
 	v := viper.New()
-	// Parse flags from environemnt
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
+
+	// Create a client
 	client, _, err := utils.CreateClient(v)
 	suite.Nil(err)
 
@@ -65,7 +66,7 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 	// Create a notification
 	notification := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
-			Status:  models.WebhookNotificationSent,
+			Status:  models.WebhookNotificationPending,
 			Payload: swag.String("{\"message\":\"This is an updated notification #1\"}"),
 		},
 	})
@@ -85,19 +86,13 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 	// listed in the subscription. On success or failure, it should update the
 	// notification.Status with SENT or FAILED accordingly
 
-	suite.T().Run("Successful post, updated notification", func(t *testing.T) {
+	suite.T().Run("Successful post to staging", func(t *testing.T) {
 
 		// Under test: sendOneNotification function
-		// Mocked:     Client
 		// Set up:     We provide a PENDING webhook notification, and point the
-		//             subscription at Staging
+		//             subscription at live Staging environment
 		// Expected outcome:
 		//             Notification would be updated as SENT
-
-		// Set beginning status as pending
-		suite.DB().Find(&notification, notification.ID)
-		notification.Status = models.WebhookNotificationPending
-		suite.DB().ValidateAndUpdate(&notification)
 
 		// Call the engine function.
 		err := engine.sendOneNotification(&notification, &subscription)
