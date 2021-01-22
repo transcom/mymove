@@ -9,10 +9,10 @@ describe('SignIn tests', () => {
     const div = document.createElement('div');
     shallow(<SignIn />, div);
   });
-  it('renders errors', () => {
+  it('does not render content of error parameter', () => {
     const context = { siteName: 'TestMove' };
     const location = { search: '?error=SOME_ERROR' };
     const wrapper = mount(<SignIn location={location} />, { context });
-    expect(wrapper.find(Alert).text()).toContain('SOME_ERROR');
+    expect(wrapper.find(Alert).text()).not.toContain('SOME_ERROR');
   });
 });
