@@ -1446,6 +1446,74 @@ paths:
           description: not found
         500:
           description: server error
+  /moves/{moveID}:
+    get:
+      summary: Get information about a move
+      description: Returns the given move and its relevant info
+      operationId: getMove
+      tags:
+        - move
+      parameters:
+        - in: path
+          name: moveID
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/Move'
+        400:
+          description: Invalid request
+        401:
+          description: Must be authenticated to use this endpoint
+        404:
+          description: Move not found
+        500:
+          description: Server error
+        501:
+          description: This endpoint has not yet been implemented
+    patch:
+      summary: Disables or re-enables a move
+      description: >
+        Allows the user to change the `show` field on the selected field to either `True` or `False`.
+        A "shown" move will appear to all users as normal, a "hidden" move will not be returned or editable using any other endpoint
+        (besides those in the Support API), and thus effectively deactivated.
+      operationId: updateMove
+      tags:
+        - move
+      parameters:
+        - in: path
+          name: moveID
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: Move
+          description: Move information
+          required: true
+          schema:
+            type: object
+            properties:
+              showMove:
+                type: boolean
+                description: Indicates if the move should be activated or deactivated
+      responses:
+        200:
+          description: Successfully updated the Move
+          schema:
+            $ref: '#/definitions/Move'
+        400:
+          description: Invalid request
+        401:
+          description: Must be authenticated to use this endpoint
+        403:
+          description: Not authorized to update this move
+        404:
+          description: Move not found
+        500:
+          description: Server error
   /users:
     get:
       summary: List users
