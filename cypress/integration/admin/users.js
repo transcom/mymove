@@ -15,7 +15,5 @@ describe('Users Page', function () {
     columnLabels.forEach((label) => {
       cy.get('table').contains(label);
     });
-
-    //TODO test search functionality
   });
 });
