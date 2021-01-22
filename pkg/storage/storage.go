@@ -1,12 +1,21 @@
 package storage
 
 import (
+	//RA Summary: gosec - G401 - Weak cryptographic hash
+	//RA: This line was flagged because of the use of MD5 hashing
+	//RA: This line of code hashes the AWS object to be able to verify data integrity
+	//RA: Purpose of this hash is to protect against environmental risks, it does not
+	//RA: hash any sensitive user provided information such as passwords
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
 	/*
-		#nosec - we use md5 because it's required by the S3 API for
+		 we use md5 because it's required by the S3 API for
 		validating data integrity.
 		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
 	*/
-	"crypto/md5"
+	"crypto/md5" // #nosec G401
 	"encoding/base64"
 	"io"
 	"net/http"
@@ -37,16 +46,25 @@ type FileStorer interface {
 	Tags(string) (map[string]string, error)
 }
 
-// ComputeChecksum calculates the MD% checksum for the provided data. It expects that
+// ComputeChecksum calculates the MD5 checksum for the provided data. It expects that
 // the passed io object will be seeked to its beginning and will seek back to the
 // beginning after reading its content.
 func ComputeChecksum(data io.ReadSeeker) (string, error) {
+	//RA Summary: gosec - G401 - Weak cryptographic hash
+	//RA: This line was flagged because of the use of MD5 hashing
+	//RA: This line of code hashes the AWS object to be able to verify data integrity
+	//RA: Purpose of this hash is to protect against environmental risks, it does not
+	//RA: hash any sensitive user provided information such as passwords
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
 	/*
 		#nosec - we use md5 because it's required by the S3 API for
 		validating data integrity.
 		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
 	*/
-	hash := md5.New()
+	hash := md5.New() // #nosec G401
 	if _, err := io.Copy(hash, data); err != nil {
 		return "", errors.Wrap(err, "could not read file")
 	}
