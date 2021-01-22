@@ -1,32 +1,37 @@
 import React from 'react';
-import classNames from 'classnames/bind';
+import { node, func } from 'prop-types';
+import { Button, Title } from '@trussworks/react-uswds';
 
-import { ReactComponent as MmLogo } from '../../shared/images/milmove-logo.svg';
+import MmLogo from '../../shared/images/milmove-logo.svg';
 
 import styles from './index.module.scss';
 
-const cx = classNames.bind(styles);
+import { CustomerShape } from 'types/moveOrder';
 
-const MilMoveHeader = () => (
-  <div className={cx('mm-header')}>
-    <MmLogo />
-    <div className={cx('links')}>
+const MilMoveHeader = ({ children, customer, handleLogout }) => (
+  <div className={styles.mmHeader}>
+    <Title>
+      <a href="/" title="office.move.mil" aria-label="office.move.mil">
+        <img src={MmLogo} alt="MilMove Logo" />
+      </a>
+    </Title>
+    <div className={styles.links}>
+      {children}
+      <div className={styles.verticalLine} />
       <span>
-        <a href="#">Navigation Link</a>
+        {customer.last_name}, {customer.first_name}
       </span>
-      <span>
-        <a href="#">Navigation Link</a>
-      </span>
-      <span>
-        <a href="#">Navigation Link</a>
-      </span>
-      <span className={cx('line-add')}>&nbsp;</span>
-      <span>Baker, Riley</span>
-      <span>
-        <a href="#">Sign out</a>
-      </span>
+      <Button unstyled className={styles.signOut} onClick={handleLogout} type="button">
+        Sign out
+      </Button>
     </div>
   </div>
 );
+
+MilMoveHeader.propTypes = {
+  children: node.isRequired,
+  customer: CustomerShape.isRequired,
+  handleLogout: func.isRequired,
+};
 
 export default MilMoveHeader;

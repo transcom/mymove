@@ -7,6 +7,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/gofrs/uuid"
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
@@ -70,6 +72,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
 	suite.Equal(sm.DutyStationID, createdOrder.OriginDutyStationID)
 	suite.Equal((*string)(sm.Rank), createdOrder.Grade)
+	suite.Assertions.Equal(*swag.Int64(8000), *okResponse.Payload.AuthorizedWeight)
 	suite.NotNil(&createdOrder.Entitlement)
 }
 

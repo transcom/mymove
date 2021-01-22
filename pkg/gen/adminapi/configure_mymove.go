@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/access_codes"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/customer_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
@@ -95,11 +94,6 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation admin_users.IndexAdminUsers has not yet been implemented")
 		})
 	}
-	if api.CustomerUsersIndexCustomerUsersHandler == nil {
-		api.CustomerUsersIndexCustomerUsersHandler = customer_users.IndexCustomerUsersHandlerFunc(func(params customer_users.IndexCustomerUsersParams) middleware.Responder {
-			return middleware.NotImplemented("operation customer_users.IndexCustomerUsers has not yet been implemented")
-		})
-	}
 	if api.ElectronicOrderIndexElectronicOrdersHandler == nil {
 		api.ElectronicOrderIndexElectronicOrdersHandler = electronic_order.IndexElectronicOrdersHandlerFunc(func(params electronic_order.IndexElectronicOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation electronic_order.IndexElectronicOrders has not yet been implemented")
@@ -133,6 +127,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
 		api.TransportationServiceProviderPerformancesIndexTSPPsHandler = transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_service_provider_performances.IndexTSPPs has not yet been implemented")
+		})
+	}
+	if api.UsersIndexUsersHandler == nil {
+		api.UsersIndexUsersHandler = users.IndexUsersHandlerFunc(func(params users.IndexUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
 		})
 	}
 	if api.UsersRevokeUserSessionHandler == nil {

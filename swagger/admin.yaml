@@ -136,43 +136,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/OfficeUser'
-  CustomerUser:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      firstName:
-        type: string
-      lastName:
-        type: string
-      loginGovEmail:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-      userId:
-        type: string
-        format: uuid
-      active:
-        type: boolean
-      createdAt:
-        type: string
-        format: date-time
-      updatedAt:
-        type: string
-        format: date-time
-    required:
-      - id
-      - loginGovEmail
-      - userId
-      - active
-      - createdAt
-      - updatedAt
-  CustomerUsers:
-    type: array
-    items:
-      $ref: '#/definitions/CustomerUser'
   AdminUser:
     type: object
     properties:
@@ -227,6 +190,14 @@ definitions:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      active:
+        type: boolean
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
       currentAdminSessionId:
         type: string
         example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
@@ -238,9 +209,16 @@ definitions:
         example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
     required:
       - loginGovEmail
+      - active
+      - createdAt
+      - updatedAt
       - currentAdminSessionId
       - currentMilSessionId
       - currentOfficeSessionId
+  Users:
+    type: array
+    items:
+      $ref: '#/definitions/User'
   TransportationOffice:
     type: object
     properties:
@@ -899,48 +877,6 @@ paths:
           description: access codes not found
         500:
           description: server error
-  /customer_users:
-    get:
-      summary: List customers
-      description: Returns a list of customers
-      operationId: indexCustomerUsers
-      tags:
-        - customer_users
-      parameters:
-        - in: query
-          name: filter
-          type: array
-          items:
-            type: string
-        - in: query
-          name: page
-          type: integer
-        - in: query
-          name: perPage
-          type: integer
-        - in: query
-          name: sort
-          type: string
-        - in: query
-          name: order
-          type: boolean
-      responses:
-        200:
-          description: success
-          headers:
-            Content-Range:
-              type: string
-              description: Used for pagination
-          schema:
-            $ref: '#/definitions/CustomerUsers'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        404:
-          description: customer users not found
-        500:
-          description: server error
   /office_users:
     get:
       summary: List office users
@@ -1508,6 +1444,48 @@ paths:
           description: request requires user authentication
         404:
           description: not found
+        500:
+          description: server error
+  /users:
+    get:
+      summary: List users
+      description: Returns a list of users
+      operationId: indexUsers
+      tags:
+        - users
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/Users'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: users not found
         500:
           description: server error
   /users/{userId}:

@@ -287,72 +287,6 @@ func init() {
         }
       }
     },
-    "/customer_users": {
-      "get": {
-        "description": "Returns a list of customers",
-        "tags": [
-          "customer_users"
-        ],
-        "summary": "List customers",
-        "operationId": "indexCustomerUsers",
-        "parameters": [
-          {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "name": "filter",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "name": "order",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/CustomerUsers"
-            },
-            "headers": {
-              "Content-Range": {
-                "type": "string",
-                "description": "Used for pagination"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "customer users not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/electronic_orders": {
       "get": {
         "description": "Returns a list of electronic orders",
@@ -1045,6 +979,72 @@ func init() {
         }
       }
     },
+    "/users": {
+      "get": {
+        "description": "Returns a list of users",
+        "tags": [
+          "users"
+        ],
+        "summary": "List users",
+        "operationId": "indexUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Users"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/users/{userId}": {
       "get": {
         "description": "Returns the given user and their sessions",
@@ -1436,56 +1436,6 @@ func init() {
         "title": {
           "type": "string"
         }
-      }
-    },
-    "CustomerUser": {
-      "type": "object",
-      "required": [
-        "id",
-        "loginGovEmail",
-        "userId",
-        "active",
-        "createdAt",
-        "updatedAt"
-      ],
-      "properties": {
-        "active": {
-          "type": "boolean"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "firstName": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string"
-        },
-        "loginGovEmail": {
-          "type": "string",
-          "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "userId": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    },
-    "CustomerUsers": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/CustomerUser"
       }
     },
     "ElectronicOrder": {
@@ -2155,11 +2105,21 @@ func init() {
       "type": "object",
       "required": [
         "loginGovEmail",
+        "active",
+        "createdAt",
+        "updatedAt",
         "currentAdminSessionId",
         "currentMilSessionId",
         "currentOfficeSessionId"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "currentAdminSessionId": {
           "type": "string",
           "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
@@ -2181,6 +2141,10 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -2199,6 +2163,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         }
+      }
+    },
+    "Users": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/User"
       }
     },
     "ValidationError": {
@@ -2490,72 +2460,6 @@ func init() {
           },
           "500": {
             "description": "Server error"
-          }
-        }
-      }
-    },
-    "/customer_users": {
-      "get": {
-        "description": "Returns a list of customers",
-        "tags": [
-          "customer_users"
-        ],
-        "summary": "List customers",
-        "operationId": "indexCustomerUsers",
-        "parameters": [
-          {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "name": "filter",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "name": "order",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/CustomerUsers"
-            },
-            "headers": {
-              "Content-Range": {
-                "type": "string",
-                "description": "Used for pagination"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "customer users not found"
-          },
-          "500": {
-            "description": "server error"
           }
         }
       }
@@ -3252,6 +3156,72 @@ func init() {
         }
       }
     },
+    "/users": {
+      "get": {
+        "description": "Returns a list of users",
+        "tags": [
+          "users"
+        ],
+        "summary": "List users",
+        "operationId": "indexUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Users"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/users/{userId}": {
       "get": {
         "description": "Returns the given user and their sessions",
@@ -3643,56 +3613,6 @@ func init() {
         "title": {
           "type": "string"
         }
-      }
-    },
-    "CustomerUser": {
-      "type": "object",
-      "required": [
-        "id",
-        "loginGovEmail",
-        "userId",
-        "active",
-        "createdAt",
-        "updatedAt"
-      ],
-      "properties": {
-        "active": {
-          "type": "boolean"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "firstName": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string"
-        },
-        "loginGovEmail": {
-          "type": "string",
-          "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "userId": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    },
-    "CustomerUsers": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/CustomerUser"
       }
     },
     "ElectronicOrder": {
@@ -4363,11 +4283,21 @@ func init() {
       "type": "object",
       "required": [
         "loginGovEmail",
+        "active",
+        "createdAt",
+        "updatedAt",
         "currentAdminSessionId",
         "currentMilSessionId",
         "currentOfficeSessionId"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "currentAdminSessionId": {
           "type": "string",
           "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
@@ -4389,6 +4319,10 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -4407,6 +4341,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         }
+      }
+    },
+    "Users": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/User"
       }
     },
     "ValidationError": {

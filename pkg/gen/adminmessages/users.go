@@ -13,13 +13,13 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// CustomerUsers customer users
+// Users users
 //
-// swagger:model CustomerUsers
-type CustomerUsers []*CustomerUser
+// swagger:model Users
+type Users []*User
 
-// Validate validates this customer users
-func (m CustomerUsers) Validate(formats strfmt.Registry) error {
+// Validate validates this users
+func (m Users) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {
