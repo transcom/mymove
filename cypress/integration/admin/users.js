@@ -7,7 +7,7 @@ describe('Users Page', function () {
 
   it('successfully navigates to users page', function () {
     cy.signInAsNewAdminUser();
-    cy.get('a[href*="users"]').click();
+    cy.get('a[href*="system/users"]').click();
     cy.url().should('eq', adminBaseURL + '/system/users');
     cy.get('header').contains('Users');
 
