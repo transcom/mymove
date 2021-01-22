@@ -6,7 +6,7 @@ import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 const UserFilter = (props) => (
   // eslint-disable-next-line react/jsx-props-no-spreading
   <Filter {...props}>
-    <TextInput label="Search by User Id" source="id" resettable alwaysOn />
+    <TextInput label="Search by User Id or Email" source="search" resettable alwaysOn />
   </Filter>
 );
 

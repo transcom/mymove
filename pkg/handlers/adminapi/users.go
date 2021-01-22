@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -59,14 +60,13 @@ type IndexUsersHandler struct {
 func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := []services.QueryFilter{}
+	queryFilters := h.generateQueryFilters(params.Filter, logger)
 
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 	pagination := h.NewPagination(params.Page, params.PerPage)
 
 	var users models.Users
-
 	err := h.ListFetcher.FetchRecordList(&users, queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
@@ -86,6 +86,35 @@ func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Res
 	}
 
 	return userop.NewIndexUsersOK().WithContentRange(fmt.Sprintf("users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedUsersCount, totalUsersCount)).WithPayload(payload)
+}
+
+func (h IndexUsersHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
+	type Filter struct {
+		Search string `json:"search"`
+	}
+
+	f := Filter{}
+	var queryFilters []services.QueryFilter
+	if filters == nil {
+		return queryFilters
+	}
+	b := []byte(*filters)
+	err := json.Unmarshal(b, &f)
+	if err != nil {
+		fs := fmt.Sprintf("%v", filters)
+		logger.Warn("unable to decode param", zap.Error(err),
+			zap.String("filters", fs))
+	}
+
+	if f.Search != "" {
+		_, err := uuid.FromString(f.Search)
+		if err != nil {
+			queryFilters = append(queryFilters, query.NewQueryFilter("login_gov_email", "=", f.Search))
+		} else {
+			queryFilters = append(queryFilters, query.NewQueryFilter("id", "=", f.Search))
+		}
+	}
+	return queryFilters
 }
 
 // RevokeUserSessionHandler is the handler for creating users.

@@ -34,7 +34,7 @@ type IndexUsersParams struct {
 	/*
 	  In: query
 	*/
-	Filter []string
+	Filter *string
 	/*
 	  In: query
 	*/
@@ -95,30 +95,20 @@ func (o *IndexUsersParams) BindRequest(r *http.Request, route *middleware.Matche
 	return nil
 }
 
-// bindFilter binds and validates array parameter Filter from query.
-//
-// Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
+// bindFilter binds and validates parameter Filter from query.
 func (o *IndexUsersParams) bindFilter(rawData []string, hasKey bool, formats strfmt.Registry) error {
-
-	var qvFilter string
+	var raw string
 	if len(rawData) > 0 {
-		qvFilter = rawData[len(rawData)-1]
+		raw = rawData[len(rawData)-1]
 	}
 
-	// CollectionFormat:
-	filterIC := swag.SplitByFormat(qvFilter, "")
-	if len(filterIC) == 0 {
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
 		return nil
 	}
 
-	var filterIR []string
-	for _, filterIV := range filterIC {
-		filterI := filterIV
-
-		filterIR = append(filterIR, filterI)
-	}
-
-	o.Filter = filterIR
+	o.Filter = &raw
 
 	return nil
 }
