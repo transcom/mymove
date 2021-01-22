@@ -528,7 +528,7 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
-                "showMove": {
+                "show": {
                   "description": "Indicates if the move should be activated or deactivated",
                   "type": "boolean"
                 }
@@ -538,7 +538,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated the Move",
+            "description": "Successfully updated the Mov",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -554,6 +554,9 @@ func init() {
           },
           "404": {
             "description": "Move not found"
+          },
+          "422": {
+            "description": "Invalid input"
           },
           "500": {
             "description": "Server error"
@@ -2802,7 +2805,7 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
-                "showMove": {
+                "show": {
                   "description": "Indicates if the move should be activated or deactivated",
                   "type": "boolean"
                 }
@@ -2812,7 +2815,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated the Move",
+            "description": "Successfully updated the Mov",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -2828,6 +2831,9 @@ func init() {
           },
           "404": {
             "description": "Move not found"
+          },
+          "422": {
+            "description": "Invalid input"
           },
           "500": {
             "description": "Server error"

@@ -68,7 +68,7 @@ func (o *UpdateMove) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 type UpdateMoveBody struct {
 
 	// Indicates if the move should be activated or deactivated
-	ShowMove bool `json:"showMove,omitempty"`
+	Show bool `json:"show,omitempty"`
 }
 
 // Validate validates this update move body

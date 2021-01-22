@@ -1496,12 +1496,12 @@ paths:
           schema:
             type: object
             properties:
-              showMove:
+              show:
                 type: boolean
                 description: Indicates if the move should be activated or deactivated
       responses:
         200:
-          description: Successfully updated the Move
+          description: Successfully updated the Mov
           schema:
             $ref: '#/definitions/Move'
         400:
@@ -1512,6 +1512,8 @@ paths:
           description: Not authorized to update this move
         404:
           description: Move not found
+        422:
+          description: Invalid input
         500:
           description: Server error
   /users:

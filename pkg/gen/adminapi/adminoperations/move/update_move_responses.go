@@ -16,7 +16,7 @@ import (
 // UpdateMoveOKCode is the HTTP code returned for type UpdateMoveOK
 const UpdateMoveOKCode int = 200
 
-/*UpdateMoveOK Successfully updated the Move
+/*UpdateMoveOK Successfully updated the Mov
 
 swagger:response updateMoveOK
 */
@@ -151,6 +151,30 @@ func (o *UpdateMoveNotFound) WriteResponse(rw http.ResponseWriter, producer runt
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(404)
+}
+
+// UpdateMoveUnprocessableEntityCode is the HTTP code returned for type UpdateMoveUnprocessableEntity
+const UpdateMoveUnprocessableEntityCode int = 422
+
+/*UpdateMoveUnprocessableEntity Invalid input
+
+swagger:response updateMoveUnprocessableEntity
+*/
+type UpdateMoveUnprocessableEntity struct {
+}
+
+// NewUpdateMoveUnprocessableEntity creates UpdateMoveUnprocessableEntity with default headers values
+func NewUpdateMoveUnprocessableEntity() *UpdateMoveUnprocessableEntity {
+
+	return &UpdateMoveUnprocessableEntity{}
+}
+
+// WriteResponse to the client
+func (o *UpdateMoveUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(422)
 }
 
 // UpdateMoveInternalServerErrorCode is the HTTP code returned for type UpdateMoveInternalServerError
