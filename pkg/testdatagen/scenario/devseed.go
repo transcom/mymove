@@ -1253,6 +1253,32 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 	})
 
 	// Create an HHG MTO Shipment
+	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	destinationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Princeton",
+			State:          "NJ",
+			PostalCode:     "08540",
+			Country:        swag.String("US"),
+		},
+	})
+
 	hhgShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.Must(uuid.NewV4()),
@@ -1261,6 +1287,10 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
+			PickupAddress:        &pickupAddress,
+			PickupAddressID:      &pickupAddress.ID,
+			DestinationAddress:   &destinationAddress,
+			DestinationAddressID: &destinationAddress.ID,
 		},
 		Move: move,
 	})
@@ -1277,6 +1307,13 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 		},
 		Move: move,
 	})
+
+	ntsrShipment.PickupAddressID = &pickupAddress.ID
+	ntsrShipment.PickupAddress = &pickupAddress
+	saveErr := db.Save(&ntsrShipment)
+	if saveErr != nil {
+		log.Panic("error saving NTSR shipment pickup address")
+	}
 
 	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
