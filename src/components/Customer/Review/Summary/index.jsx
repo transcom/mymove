@@ -95,6 +95,7 @@ export class Summary extends Component {
             originZIP={shipment.pickup_postal_code}
             shipmentId={shipment.id}
             sitDays={shipment.has_sit ? shipment.days_in_storage : ''}
+            estimatedIncentive="123456.00"
           />
         );
       }

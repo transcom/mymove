@@ -155,7 +155,7 @@ let EditWeightForm = (props) => {
                   <div className="display-value">
                     <p>Advance</p>
                     <p>
-                      <strong>${formatCents(initialValues.advance.requested_amount)}</strong>
+                      <strong>${formatCents(advanceAmt)}</strong>
                     </p>
                   </div>
                 )}
@@ -206,6 +206,14 @@ class EditWeight extends Component {
     this.props.entitlementChangeBegin();
     getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
+    const { currentPPM, originDutyStationZip, orders } = this.props;
+    this.handleWeightChange(
+      currentPPM.original_move_date,
+      currentPPM.pickup_postal_code,
+      originDutyStationZip,
+      orders.id,
+      currentPPM.weight_estimate,
+    );
     scrollToTop();
   }
 
