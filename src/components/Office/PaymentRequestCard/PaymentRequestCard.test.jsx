@@ -85,6 +85,14 @@ const mtoShipments = {
     pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
     shipmentType: SHIPMENT_OPTIONS.HHG,
   },
+  1: {
+    destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
+    shipmentType: SHIPMENT_OPTIONS.HHG,
+  },
+  2: {
+    pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+    shipmentType: SHIPMENT_OPTIONS.HHG,
+  },
 };
 const testMoveLocator = 'AF7K1P';
 

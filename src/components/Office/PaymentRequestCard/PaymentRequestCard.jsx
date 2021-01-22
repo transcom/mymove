@@ -44,8 +44,18 @@ const PaymentRequestCard = ({ paymentRequest, mtoShipments, history }) => {
 
   const shipmentAddresses = {};
 
-  const formatAddressString = (pickupAddress, destinationAddress) =>
-    `${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code} to ${destinationAddress.city}, ${destinationAddress.state} ${destinationAddress.postal_code}`;
+  const formatAddressString = (pickupAddress, destinationAddress) => {
+    if (pickupAddress && destinationAddress) {
+      return `${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code} to ${destinationAddress.city}, ${destinationAddress.state} ${destinationAddress.postal_code}`;
+    }
+    if (pickupAddress && !destinationAddress) {
+      return `${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code} to TBD`;
+    }
+    if (!pickupAddress && destinationAddress) {
+      return `TBD to ${destinationAddress.city}, ${destinationAddress.state} ${destinationAddress.postal_code}`;
+    }
+    return ``;
+  };
 
   Object.values(mtoShipments).forEach((shipment) => {
     switch (shipment.shipmentType) {
