@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+
+	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -108,7 +111,40 @@ type UpdateMoveHandler struct {
 
 // Handle updates a given move
 func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Responder {
-	return nil
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("adminapi.UpdateMoveHandler error - Bad MoveID passed in: %s", params.MoveID), zap.Error(err))
+		return moveop.NewUpdateMoveBadRequest()
+	}
+
+	updatedMove, err := h.MoveTaskOrderUpdater.ShowHide(moveID, &params.Move.Show)
+	if err != nil {
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return moveop.NewUpdateMoveNotFound()
+		case services.InvalidInputError:
+			return moveop.NewUpdateMoveUnprocessableEntity() // todo payload
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("adminapi.UpdateMoveHandler query error", zap.Error(e.Unwrap()))
+			}
+			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError()
+		default:
+			return moveop.NewUpdateMoveInternalServerError()
+		}
+	}
+
+	if updatedMove == nil {
+		logger.Debug(fmt.Sprintf("adminapi.UpdateMoveHandler - No Move returned from ShowHide update, but no error returned either. ID: %s", moveID))
+		return moveop.NewUpdateMoveInternalServerError()
+	}
+
+	movePayload := payloadForMoveModel(*updatedMove)
+
+	return moveop.NewUpdateMoveOK().WithPayload(movePayload)
 }
 
 // GetMoveHandler retrieves the info for a given move
