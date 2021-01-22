@@ -10,10 +10,13 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// UserRevokeSessionPayload user revoke session payload
+// UserUpdatePayload user update payload
 //
-// swagger:model UserRevokeSessionPayload
-type UserRevokeSessionPayload struct {
+// swagger:model UserUpdatePayload
+type UserUpdatePayload struct {
+
+	// active
+	Active *bool `json:"active,omitempty"`
 
 	// revoke admin session
 	RevokeAdminSession *bool `json:"revokeAdminSession,omitempty"`
@@ -25,13 +28,13 @@ type UserRevokeSessionPayload struct {
 	RevokeOfficeSession *bool `json:"revokeOfficeSession,omitempty"`
 }
 
-// Validate validates this user revoke session payload
-func (m *UserRevokeSessionPayload) Validate(formats strfmt.Registry) error {
+// Validate validates this user update payload
+func (m *UserUpdatePayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *UserRevokeSessionPayload) MarshalBinary() ([]byte, error) {
+func (m *UserUpdatePayload) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -39,8 +42,8 @@ func (m *UserRevokeSessionPayload) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *UserRevokeSessionPayload) UnmarshalBinary(b []byte) error {
-	var res UserRevokeSessionPayload
+func (m *UserUpdatePayload) UnmarshalBinary(b []byte) error {
+	var res UserUpdatePayload
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

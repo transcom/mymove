@@ -1021,8 +1021,8 @@ func init() {
         "tags": [
           "users"
         ],
-        "summary": "revokes a user's session on any specified apps",
-        "operationId": "revokeUserSession",
+        "summary": "Update a user's session or active status",
+        "operationId": "updateUser",
         "parameters": [
           {
             "type": "string",
@@ -1037,7 +1037,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserRevokeSessionPayload"
+              "$ref": "#/definitions/UserUpdatePayload"
             }
           }
         ],
@@ -2068,9 +2068,13 @@ func init() {
         }
       }
     },
-    "UserRevokeSessionPayload": {
+    "UserUpdatePayload": {
       "type": "object",
       "properties": {
+        "active": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true
@@ -3112,8 +3116,8 @@ func init() {
         "tags": [
           "users"
         ],
-        "summary": "revokes a user's session on any specified apps",
-        "operationId": "revokeUserSession",
+        "summary": "Update a user's session or active status",
+        "operationId": "updateUser",
         "parameters": [
           {
             "type": "string",
@@ -3128,7 +3132,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserRevokeSessionPayload"
+              "$ref": "#/definitions/UserUpdatePayload"
             }
           }
         ],
@@ -4160,9 +4164,13 @@ func init() {
         }
       }
     },
-    "UserRevokeSessionPayload": {
+    "UserUpdatePayload": {
       "type": "object",
       "properties": {
+        "active": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true

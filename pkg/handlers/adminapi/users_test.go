@@ -148,9 +148,9 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 	revokeAdminSession := false
 	revokeOfficeSession := true
 
-	params := userop.RevokeUserSessionParams{
+	params := userop.UpdateUserParams{
 		HTTPRequest: req,
-		User: &adminmessages.UserRevokeSessionPayload{
+		User: &adminmessages.UserUpdatePayload{
 			RevokeMilSession:    &revokeMilSession,
 			RevokeAdminSession:  &revokeAdminSession,
 			RevokeOfficeSession: &revokeOfficeSession,
@@ -164,16 +164,17 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 
 	suite.T().Run("Successful update", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
-		handler := RevokeUserSessionHandler{
+		handler := UpdateUserHandler{
 			handlerContext,
 			userservice.NewUserSessionRevocation(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder),
 			newQueryFilter,
 		}
 
 		response := handler.Handle(params)
 		foundUser, _ := models.GetUser(suite.DB(), userID)
 
-		suite.IsType(&userop.RevokeUserSessionOK{}, response)
+		suite.IsType(&userop.UpdateUserOK{}, response)
 		suite.Equal("", foundUser.CurrentMilSessionID)
 		suite.Equal(adminSessionID, foundUser.CurrentAdminSessionID)
 		suite.Equal("", foundUser.CurrentOfficeSessionID)
@@ -188,7 +189,7 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 			sessionManagers[0].Store,
 		).Return(&user, nil, nil).Once()
 
-		handler := RevokeUserSessionHandler{
+		handler := UpdateUserHandler{
 			handlerContext,
 			userUpdater,
 			newQueryFilter,
@@ -196,7 +197,7 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 
 		response := handler.Handle(params)
 
-		suite.IsType(&userop.RevokeUserSessionOK{}, response)
+		suite.IsType(&userop.UpdateUserOK{}, response)
 	})
 
 	userUpdater := &mocks.UserSessionRevocation{}
@@ -208,7 +209,7 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 		sessionManagers[0].Store,
 	).Return(nil, err, nil).Once()
 
-	handler := RevokeUserSessionHandler{
+	handler := UpdateUserHandler{
 		handlerContext,
 		userUpdater,
 		newQueryFilter,
