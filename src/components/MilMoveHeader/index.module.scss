@@ -36,6 +36,7 @@
   :global(.usa-nav__link) {
     @include u-text('bold');
     color: $link-light;
+    text-decoration: none;
 
     &:hover,
     &:focus {
@@ -49,11 +50,6 @@
     background: $base-dark;
     width: 1px;
     align-self: stretch;
-  }
-
-  :global(.usa-nav__link) {
-    padding: 0;
-    line-height: inherit;
   }
 
   :global(.usa-logo) {
