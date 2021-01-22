@@ -157,28 +157,25 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 					fmt.Sprintf("A service item with reServiceCode %s must have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
 			}
 
+			// new SIT Origin HHG Actual Address coming from the Prime API call
+			serviceItem.SITOriginHHGActualAddress.ID = uuid.Nil
+			serviceItem.SITOriginHHGActualAddressID = nil
+
 			// save the HHG shipment original pickup address
-			originalHhgAddress := *mtoShipment.PickupAddress
+			originalHhgAddress := mtoShipment.PickupAddress.Copy()
 			originalHhgAddress.ID = uuid.Nil
-			var originalHhgAddressID *uuid.UUID
-			originalHhgAddressID = nil
 
 			// save the HHG (new) actual pickup address, coming from the SIT service item
-			actualHhgAddress := *serviceItem.SITOriginHHGActualAddress
+			actualHhgAddress := serviceItem.SITOriginHHGActualAddress.Copy()
 			actualHhgAddress.ID = uuid.Nil
-			var actualHhgAddressID *uuid.UUID
-			actualHhgAddressID = nil
-
-			serviceItem.SITOriginHHGActualAddress.ID = actualHhgAddress.ID
-			serviceItem.SITOriginHHGActualAddressID = actualHhgAddressID
 
 			// update the SIT service item to track/save the HHG original pickup address (that came from the
 			// MTO shipment
-			serviceItem.SITOriginHHGOriginalAddress = &originalHhgAddress
-			serviceItem.SITOriginHHGOriginalAddressID = originalHhgAddressID
+			serviceItem.SITOriginHHGOriginalAddress = originalHhgAddress.Copy()
+			serviceItem.SITOriginHHGOriginalAddressID = nil
 
 			// update the MTO shipment the new (actual) pickup address
-			mtoShipment.PickupAddress = &actualHhgAddress
+			mtoShipment.PickupAddress = actualHhgAddress.Copy()
 			mtoShipment.PickupAddress.ID = *mtoShipment.PickupAddressID // Keep to same ID to be updated with new values
 
 			// changes were made to the shipment, needs to be saved to the database
@@ -186,12 +183,13 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 			// Find the DOPSIT service item and update the SIT related address fields. These fields
 			// will be used for pricing when a payment request is created for DOPSIT
-			for _, sitItem := range *extraServiceItems {
-				if sitItem.ReService.Code == models.ReServiceCodeDOPSIT {
-					sitItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress
-					sitItem.SITOriginHHGActualAddressID = serviceItem.SITOriginHHGActualAddressID
-					sitItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
-					sitItem.SITOriginHHGOriginalAddressID = serviceItem.SITOriginHHGOriginalAddressID
+			for itemIndex := range *extraServiceItems {
+				sitServiceItem := &(*extraServiceItems)[itemIndex]
+				if sitServiceItem.ReService.Code == models.ReServiceCodeDOPSIT {
+					sitServiceItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress.Copy()
+					sitServiceItem.SITOriginHHGActualAddressID = nil
+					sitServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress.Copy()
+					sitServiceItem.SITOriginHHGOriginalAddressID = nil
 				}
 
 			}
