@@ -47,7 +47,7 @@ func (h GetUserHandler) Handle(params userop.GetUserParams) middleware.Responder
 	return userop.NewGetUserOK().WithPayload(payload)
 }
 
-// IndexUsersHandler returns an user via GET /users/{userID}
+// IndexUsersHandler returns a list of users via GET /users
 type IndexUsersHandler struct {
 	handlers.HandlerContext
 	services.ListFetcher
