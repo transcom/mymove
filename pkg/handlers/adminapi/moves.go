@@ -17,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// IndexMovesHandler returns a list of access codes via GET /moves
+// IndexMovesHandler returns a list of moves/MTOs via GET /moves
 type IndexMovesHandler struct {
 	handlers.HandlerContext
 	services.MoveListFetcher
@@ -43,7 +43,7 @@ func payloadForMoveModel(move models.Move) *adminmessages.Move {
 	}
 }
 
-// Handle retrieves a list of access codes
+// Handle retrieves a list of moves/MTOs
 func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -97,4 +97,28 @@ func (h IndexMovesHandler) generateQueryFilters(filters *string, logger handlers
 	}
 
 	return queryFilters
+}
+
+// UpdateMoveHandler updates a given move
+type UpdateMoveHandler struct {
+	handlers.HandlerContext
+	services.MoveTaskOrderUpdater
+	services.NewQueryFilter
+}
+
+// Handle updates a given move
+func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Responder {
+	return nil
+}
+
+// GetMoveHandler retrieves the info for a given move
+type GetMoveHandler struct {
+	handlers.HandlerContext
+	services.MoveFetcher
+	services.NewQueryFilter
+}
+
+// Handle retrieves a given move
+func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder {
+	return moveop.NewGetMoveNotImplemented()
 }
