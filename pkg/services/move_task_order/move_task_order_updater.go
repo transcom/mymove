@@ -159,3 +159,25 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 
 	return &moveTaskOrder, nil
 }
+
+// ShowHide changes the value in the "Show" field for a Move. This can be either True or False and indicates if the move has been deactivated or not.
+func (o *moveTaskOrderUpdater) ShowHide(moveID uuid.UUID, show *bool) (*models.Move, error) {
+	move, err := o.FetchMoveTaskOrder(moveID)
+	if err != nil {
+		return nil, services.NewNotFoundError(moveID, "while fetching the Move")
+	}
+
+	if show == nil {
+		return nil, services.NewInvalidInputError(moveID, nil, nil, "The 'show' field must be either True or False - it cannot be empty")
+	}
+
+	move.Show = show
+	verrs, err := move.ValidateUpdate(o.db)
+	if verrs != nil && verrs.HasAny() {
+		return nil, services.NewInvalidInputError(move.ID, err, verrs, "Invalid input found while updating the Move")
+	} else if err != nil {
+		return nil, services.NewQueryError("Move", err, "")
+	}
+
+	return move, nil
+}
