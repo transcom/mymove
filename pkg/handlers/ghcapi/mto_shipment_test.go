@@ -39,6 +39,16 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
+	mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipmentID: mtoShipment.ID,
+		},
+	})
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			MTOShipmentID: &mtoShipment.ID,
+		},
+	})
 
 	shipments := models.MTOShipments{mtoShipment}
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -67,6 +77,8 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(shipments[0].ID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(mtoAgent.ID.String(), okResponse.Payload[0].MtoAgents[0].ID.String())
+		suite.Equal(mtoServiceItem.ID.String(), okResponse.Payload[0].MtoServiceItems[0].ID.String())
 	})
 
 	suite.T().Run("Failure list fetch - Internal Server Error", func(t *testing.T) {

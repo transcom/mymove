@@ -2354,6 +2354,9 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move10,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
 	})
 
 	paymentRequest10 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
