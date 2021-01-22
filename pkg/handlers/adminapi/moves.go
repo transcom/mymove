@@ -106,7 +106,6 @@ func (h IndexMovesHandler) generateQueryFilters(filters *string, logger handlers
 type UpdateMoveHandler struct {
 	handlers.HandlerContext
 	services.MoveTaskOrderUpdater
-	services.NewQueryFilter
 }
 
 // Handle updates a given move

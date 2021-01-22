@@ -184,7 +184,6 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	adminAPI.MoveUpdateMoveHandler = UpdateMoveHandler{
 		context,
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
-		query.NewQueryFilter,
 	}
 
 	adminAPI.MoveGetMoveHandler = GetMoveHandler{
