@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services/query"
@@ -419,20 +420,32 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	suite.T().Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT", func(t *testing.T) {
 		// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
 		// creating DOFSIT (SIT origin first day).
-		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+
+		// Do not use testdatagen.MakeAddress, because if the information is coming from the Prime
+		// via the Prime API, the address will not have a valid database ID. And tests needs to ensure
+		// that we properly create the address coming in from the API.
+		actualPickupAddress := models.Address{
+			StreetAddress1: "987 Any Avenue",
+			StreetAddress2: swag.String("P.O. Box 9876"),
+			StreetAddress3: swag.String("c/o Some Person"),
+			City:           "Fairfield",
+			State:          "CA",
+			PostalCode:     "94535",
+			Country:        swag.String("US"),
+		}
 
 		serviceItemDOFSIT := models.MTOServiceItem{
-			MoveTaskOrder:               moveTaskOrder,
-			MoveTaskOrderID:             moveTaskOrder.ID,
-			MTOShipment:                 mtoShipment,
-			MTOShipmentID:               &mtoShipment.ID,
-			ReService:                   reServiceDOFSIT,
-			SITEntryDate:                &sitEntryDate,
-			SITPostalCode:               &sitPostalCode,
-			Reason:                      &reason,
-			SITOriginHHGActualAddress:   &actualPickupAddress,
-			SITOriginHHGActualAddressID: &actualPickupAddress.ID,
+			MoveTaskOrder:             moveTaskOrder,
+			MoveTaskOrderID:           moveTaskOrder.ID,
+			MTOShipment:               mtoShipment,
+			MTOShipmentID:             &mtoShipment.ID,
+			ReService:                 reServiceDOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
 		}
+
 		builder := query.NewQueryBuilder(suite.DB())
 		creator := NewMTOServiceItemCreator(builder)
 
