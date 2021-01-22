@@ -3,57 +3,69 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import IdleTimer from 'react-idle-timer';
 
-import { isProduction } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { selectCurrentUser } from 'shared/Data/users';
 import { LogoutUser } from 'shared/User/api.js';
 
-const fifteenMinutesInMilliseconds = 900000;
-const tenMinutesInMilliseconds = 600000;
-const oneMinuteInMilliseconds = 60000;
+const maxIdleTimeInSeconds = 15 * 60;
+const maxWarningTimeBeforeTimeoutInSeconds = 60;
+const maxIdleTimeInMilliseconds = maxIdleTimeInSeconds * 1000;
+const maxWarningTimeBeforeTimeoutInMilliseconds = maxWarningTimeBeforeTimeoutInSeconds * 1000;
+const timeToDisplayWarningInMilliseconds = maxIdleTimeInMilliseconds - maxWarningTimeBeforeTimeoutInMilliseconds;
+
 export class LogoutOnInactivity extends React.Component {
   state = {
     isIdle: false,
     showLoggedOutAlert: false,
+    timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds,
   };
-  componentDidMount() {
-    this.interval = setInterval(() => fetch(this.props.keepAliveEndpoint), this.props.keepAliveInterval);
-  }
-  componentWillUnmount() {
-    clearInterval(this.interval);
-    if (this.timeout) clearTimeout(this.timeout);
-  }
+
   componentDidUpdate(prevProps) {
     if (!this.props.isLoggedIn && prevProps.isLoggedIn) {
       this.setState({ showLoggedOutAlert: true });
     }
   }
+
   onActive = () => {
+    clearInterval(this.timer);
     this.setState({ isIdle: false });
+    this.setState({ timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds });
   };
   onIdle = () => {
     this.setState({ isIdle: true });
-    this.timeout = setTimeout(() => {
-      if (this.state.isIdle) {
-        LogoutUser();
-      }
-    }, this.props.logoutAfterWarningTimeout);
+    clearInterval(this.timer);
+    this.timer = setInterval(this.countdown, 1000);
   };
+  onAction = () => {
+    fetch(this.props.keepAliveEndpoint);
+  };
+
+  countdown = () => {
+    if (this.state.timeLeftInSeconds === 0) {
+      LogoutUser();
+    } else {
+      this.setState({ timeLeftInSeconds: this.state.timeLeftInSeconds - 1 });
+    }
+  };
+
   render() {
     const props = this.props;
     return (
       <React.Fragment>
-        {isProduction && props.isLoggedIn && (
+        {props.isLoggedIn && (
           <IdleTimer
             ref="idleTimer"
             element={document}
-            activeAction={this.onActive}
-            idleAction={this.onIdle}
-            timeout={this.props.idleTimeout}
+            onActive={this.onActive}
+            onAction={this.onAction}
+            onIdle={this.onIdle}
+            timeout={this.props.warningTimeout}
+            events={['keydown', 'mousedown', 'touchstart', 'MSPointerDown']}
           >
             {this.state.isIdle && (
               <Alert type="warning" heading="Inactive user">
-                You have been inactive and will be logged out shortly.
+                You have been inactive and will be logged out in {this.state.timeLeftInSeconds} seconds unless you touch
+                or click on the page.
               </Alert>
             )}
           </IdleTimer>
@@ -69,15 +81,13 @@ export class LogoutOnInactivity extends React.Component {
   }
 }
 LogoutOnInactivity.defaultProps = {
-  idleTimeout: fifteenMinutesInMilliseconds,
-  keepAliveInterval: tenMinutesInMilliseconds,
-  logoutAfterWarningTimeout: oneMinuteInMilliseconds,
+  warningTimeout: timeToDisplayWarningInMilliseconds,
+  timeRemaining: maxWarningTimeBeforeTimeoutInMilliseconds,
   keepAliveEndpoint: '/internal/swagger.yaml',
 };
 LogoutOnInactivity.propTypes = {
-  idleTimeout: PropTypes.number.isRequired,
-  keepAliveInterval: PropTypes.number.isRequired,
-  logoutAfterWarningTimeout: PropTypes.number.isRequired,
+  warningTimeout: PropTypes.number.isRequired,
+  timeRemaining: PropTypes.number.isRequired,
   keepAliveEndpoint: PropTypes.string.isRequired,
 };
 
@@ -87,4 +97,5 @@ const mapStateToProps = (state) => {
     isLoggedIn: user.isLoggedIn,
   };
 };
+
 export default connect(mapStateToProps)(LogoutOnInactivity);
