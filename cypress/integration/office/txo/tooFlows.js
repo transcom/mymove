@@ -7,7 +7,6 @@ describe('TOO user', () => {
 
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('**/ghc/v1/queues/moves?**').as('getMoveOrders');
     cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedMoveOrders');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('**/ghc/v1/move-orders/**').as('getMoveOrders');

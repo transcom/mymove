@@ -27,11 +27,11 @@ const sectionLabels = {
 const MoveDetails = () => {
   const { moveCode } = useParams();
 
-  // eslint-disable-next-line no-unused-vars
   const [activeSection, setActiveSection] = useState('');
-  const [sections, setSections] = useState(['orders', 'allowances', 'customer-info']);
 
   const { move, moveOrder, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
+
+  let sections = ['orders', 'allowances', 'customer-info'];
 
   const handleScroll = () => {
     const distanceFromTop = window.scrollY;
@@ -67,17 +67,12 @@ const MoveDetails = () => {
   const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
   const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
 
-  const hasSubmittedShipments = sections.includes('requested-shipments');
-  const hasApprovedShipments = sections.includes('approved-shipments');
-
   if (submittedShipments.length > 0 && approvedShipments.length > 0) {
-    if (!(hasApprovedShipments && hasSubmittedShipments)) {
-      setSections(['requested-shipments', 'approved-shipments', 'orders', 'allowances', 'customer-info']);
-    }
-  } else if (approvedShipments.length > 0 && !hasApprovedShipments) {
-    setSections(['approved-shipments', 'orders', 'allowances', 'customer-info']);
-  } else if (submittedShipments.length > 0 && !hasSubmittedShipments) {
-    setSections(['requested-shipments', 'orders', 'allowances', 'customer-info']);
+    sections = ['requested-shipments', 'approved-shipments', ...sections];
+  } else if (approvedShipments.length > 0) {
+    sections = ['approved-shipments', ...sections];
+  } else if (submittedShipments.length > 0) {
+    sections = ['requested-shipments', ...sections];
   }
 
   const ordersInfo = {
@@ -119,8 +114,7 @@ const MoveDetails = () => {
             const classes = classnames({ active: s === activeSection });
             return (
               <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
-                {/* eslint-disable-next-line security/detect-object-injection */}
-                {sectionLabels[s]}
+                {sectionLabels[`${s}`]}
               </a>
             );
           })}
