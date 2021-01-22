@@ -1,4 +1,5 @@
 import React, { useState, Fragment } from 'react';
+import { arrayOf, shape } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
@@ -9,8 +10,6 @@ import styles from './PaymentRequestCard.module.scss';
 
 import { HistoryShape } from 'types/router';
 import { PaymentRequestShape } from 'types';
-import { MtoShipmentShape } from 'types/customerShapes';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import { groupByShipment } from 'utils/serviceItems';
@@ -32,7 +31,7 @@ const paymentRequestStatusLabel = (status) => {
   }
 };
 
-const PaymentRequestCard = ({ paymentRequest, mtoShipments, history }) => {
+const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
   const sortedShipments = groupByShipment(paymentRequest.serviceItems);
 
   // show details by default if in pending/needs review
@@ -41,40 +40,6 @@ const PaymentRequestCard = ({ paymentRequest, mtoShipments, history }) => {
   const showRequestDetailsButton = !defaultShowDetails;
   // state to toggle between showing details or not
   const [showDetails, setShowDetails] = useState(defaultShowDetails);
-
-  const shipmentAddresses = {};
-
-  const formatAddressString = (pickupAddress, destinationAddress) => {
-    if (pickupAddress && destinationAddress) {
-      return `${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code} to ${destinationAddress.city}, ${destinationAddress.state} ${destinationAddress.postal_code}`;
-    }
-    if (pickupAddress && !destinationAddress) {
-      return `${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code} to TBD`;
-    }
-    if (!pickupAddress && destinationAddress) {
-      return `TBD to ${destinationAddress.city}, ${destinationAddress.state} ${destinationAddress.postal_code}`;
-    }
-    return ``;
-  };
-
-  Object.values(mtoShipments).forEach((shipment) => {
-    switch (shipment.shipmentType) {
-      case undefined:
-      case null:
-        break;
-      case SHIPMENT_OPTIONS.HHG:
-      case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
-      case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
-        shipmentAddresses.hhgAddress = formatAddressString(shipment.pickupAddress, shipment.destinationAddress);
-        break;
-      case SHIPMENT_OPTIONS.NTS:
-      case SHIPMENT_OPTIONS.NTSR:
-        shipmentAddresses.ntsAddress = formatAddressString(shipment.pickupAddress, shipment.destinationAddress);
-        break;
-      default:
-        break;
-    }
-  });
 
   let handleClick = () => {};
   let requestedAmount = 0;
@@ -196,14 +161,23 @@ const PaymentRequestCard = ({ paymentRequest, mtoShipments, history }) => {
       </div>
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
-          {sortedShipments.map((serviceItems) => (
-            <PaymentRequestDetails
-              key={serviceItems?.[0]?.mtoShipmentID || 'basicServiceItems'}
-              className={styles.paymentRequestDetails}
-              serviceItems={serviceItems}
-              shipmentAddresses={shipmentAddresses}
-            />
-          ))}
+          {sortedShipments.map((serviceItems) => {
+            let shipmentAddress = '';
+
+            serviceItems.forEach((serviceItem) => {
+              shipmentAddress = shipmentAddresses.find((address) => address.id === serviceItem.mtoShipmentID)
+                ?.shipmentAddress;
+            });
+
+            return (
+              <PaymentRequestDetails
+                key={serviceItems?.[0]?.mtoShipmentID || 'basicServiceItems'}
+                className={styles.paymentRequestDetails}
+                serviceItems={serviceItems}
+                shipmentAddress={shipmentAddress}
+              />
+            );
+          })}
         </div>
       )}
     </div>
@@ -213,7 +187,7 @@ const PaymentRequestCard = ({ paymentRequest, mtoShipments, history }) => {
 PaymentRequestCard.propTypes = {
   history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
-  mtoShipments: MtoShipmentShape.isRequired,
+  shipmentAddresses: arrayOf(shape({})).isRequired,
 };
 
 export default withRouter(PaymentRequestCard);

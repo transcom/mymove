@@ -18,6 +18,7 @@ export default {
 };
 
 const addresses = {
+  basicAddress: '',
   hhgAddress: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
   ntsAddress: 'Boston, MA 02101 to Princeton, NJ 08540',
 };
@@ -198,15 +199,15 @@ export const withUnreviewedBasicServiceItems = () => (
   <PaymentRequestDetails serviceItems={unreviewedPaymentRequestItems} />
 );
 export const withReviewedBasicServiceItems = () => (
-  <PaymentRequestDetails serviceItems={reviewedPaymentRequestItems} shipmentAddresses={addresses} />
+  <PaymentRequestDetails serviceItems={reviewedPaymentRequestItems} shipmentAddress={addresses.basicAddress} />
 );
 export const withSingleBasicServiceItem = () => (
-  <PaymentRequestDetails serviceItems={singleBasicServiceItem} shipmentAddresses={addresses} />
+  <PaymentRequestDetails serviceItems={singleBasicServiceItem} shipmentAddress={addresses.basicAddress} />
 );
 
 export const withHHGShipmentServiceItems = () => (
-  <PaymentRequestDetails serviceItems={hhgRequestedServiceItems} shipmentAddresses={addresses} />
+  <PaymentRequestDetails serviceItems={hhgRequestedServiceItems} shipmentAddress={addresses.hhgAddress} />
 );
 export const withNTSRShipmentServiceItems = () => (
-  <PaymentRequestDetails serviceItems={ntsrRequestedServiceItems} shipmentAddresses={addresses} />
+  <PaymentRequestDetails serviceItems={ntsrRequestedServiceItems} shipmentAddress={addresses.ntsAddress} />
 );

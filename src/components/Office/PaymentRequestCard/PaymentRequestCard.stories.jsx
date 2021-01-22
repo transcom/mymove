@@ -6,7 +6,6 @@ import { isHappoRun } from 'happo-plugin-storybook/register';
 
 import PaymentRequestCard from './PaymentRequestCard';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 
 const mockedDate = '2020-12-08T00:00:00.000Z';
@@ -49,18 +48,10 @@ const move = {
   locator: '12345',
 };
 
-const mtoShipments = {
-  0: {
-    destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
-    pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
-    shipmentType: SHIPMENT_OPTIONS.NTS,
-  },
-  1: {
-    destinationAddress: { city: 'Fairfield', state: 'CA', postal_code: '94535' },
-    pickupAddress: { city: 'Beverly Hills', state: 'CA', postal_code: '90210' },
-    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
-  },
-};
+const shipmentAddresses = [
+  { id: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3', shipmentAddress: 'Columbia, SC 29212 to Princeton, NJ 08540' },
+  { id: '9e8222e4-9cdb-4994-8294-6d918a4c684d', shipmentAddress: 'TBD to Fairfield, CA 94535' },
+];
 
 const pendingPaymentRequest = {
   id: '09474c6a-69b6-4501-8e08-670a12512e5f',
@@ -83,7 +74,7 @@ const pendingPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Dom. Linehaul',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
-      mtoShipmentID: '31aa860a-225b-4cea-bd75-fe8c7c463fd4',
+      mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
       mtoShipmentType: 'HHG',
       priceCents: 4000001,
       status: 'REQUESTED',
@@ -93,7 +84,7 @@ const pendingPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Fuel Surcharge',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbb',
-      mtoShipmentID: 'df393474-bc7c-4e81-8f84-4b656b739d6a',
+      mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
       mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
       priceCents: 6000001,
       status: 'REQUESTED',
@@ -123,7 +114,7 @@ const reviewedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Dom. Linehaul',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
-      mtoShipmentID: '31aa860a-225b-4cea-bd75-fe8c7c463fd4',
+      mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
       mtoShipmentType: 'HHG',
       priceCents: 4000001,
       status: 'DENIED',
@@ -134,7 +125,7 @@ const reviewedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Fuel Surcharge',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbb',
-      mtoShipmentID: 'df393474-bc7c-4e81-8f84-4b656b739d6a',
+      mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
       mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
       priceCents: 6000001,
       status: 'APPROVED',
@@ -164,7 +155,7 @@ const rejectedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Dom. Linehaul',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
-      mtoShipmentID: '31aa860a-225b-4cea-bd75-fe8c7c463fd4',
+      mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
       mtoShipmentType: 'HHG',
       priceCents: 4000001,
       status: 'DENIED',
@@ -175,7 +166,7 @@ const rejectedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Fuel Surcharge',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbb',
-      mtoShipmentID: 'df393474-bc7c-4e81-8f84-4b656b739d6a',
+      mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
       mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
       priceCents: 6000001,
       status: 'DENIED',
@@ -186,13 +177,13 @@ const rejectedPaymentRequest = {
 };
 
 export const NeedsReview = () => (
-  <PaymentRequestCard paymentRequest={pendingPaymentRequest} mtoShipments={mtoShipments} />
+  <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentAddresses={shipmentAddresses} />
 );
 
 export const Reviewed = () => (
-  <PaymentRequestCard paymentRequest={reviewedPaymentRequest} mtoShipments={mtoShipments} />
+  <PaymentRequestCard paymentRequest={reviewedPaymentRequest} shipmentAddresses={shipmentAddresses} />
 );
 
 export const Rejected = () => (
-  <PaymentRequestCard paymentRequest={rejectedPaymentRequest} mtoShipments={mtoShipments} />
+  <PaymentRequestCard paymentRequest={rejectedPaymentRequest} shipmentAddresses={shipmentAddresses} />
 );

@@ -155,10 +155,9 @@ const ntsrServiceItems = [
   },
 ];
 
-const shipmentAddresses = {
-  hhgAddress: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
-  ntsAddress: 'Boston, MA 02101 to Princeton, NJ 08540',
-};
+const shipmentAddressBasic = '';
+const shipmentAddressHHG = 'Beverly Hills, CA 90210 to Fairfield, CA 94535';
+const shipmentAddressNTS = 'Boston, MA 02101 to Princeton, NJ 08540';
 
 const testMoveLocator = 'AF7K1P';
 
@@ -166,7 +165,7 @@ describe('PaymentRequestDetails', () => {
   describe('When given basic service items', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestDetails serviceItems={basicServiceItems} shipmentAddresses={shipmentAddresses} />
+        <PaymentRequestDetails serviceItems={basicServiceItems} shipmentAddress={shipmentAddressBasic} />
       </MockProviders>,
     );
 
@@ -220,7 +219,7 @@ describe('PaymentRequestDetails', () => {
   describe('When given a hhg shipment service items', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestDetails serviceItems={hhgServiceItems} shipmentAddresses={shipmentAddresses} />
+        <PaymentRequestDetails serviceItems={hhgServiceItems} shipmentAddress={shipmentAddressHHG} />
       </MockProviders>,
     );
 
@@ -269,7 +268,7 @@ describe('PaymentRequestDetails', () => {
   describe('When given a ntsr shipment service items', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestDetails serviceItems={ntsrServiceItems} shipmentAddresses={shipmentAddresses} />
+        <PaymentRequestDetails serviceItems={ntsrServiceItems} shipmentAddress={shipmentAddressNTS} />
       </MockProviders>,
     );
 
