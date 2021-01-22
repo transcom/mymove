@@ -22,7 +22,7 @@ func (r DistanceZipSITDestLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 	mtoServiceItemID := keyData.MTOServiceItemID
 	var mtoServiceItem models.MTOServiceItem
 	err := db.
-		Eager("SITDestinationFinalAddress").
+		// Eager("SITDestinationFinalAddress").
 		Find(&mtoServiceItem, mtoServiceItemID)
 	if err != nil {
 		switch err {
@@ -57,7 +57,7 @@ func (r DistanceZipSITDestLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 		distanceMiles, distanceErr = planner.Zip3TransitDistance(destZip, sitDestZip)
 	}
 	if distanceErr != nil {
-		return "", err
+		return "", distanceErr
 	}
 
 	// TODO: Do we need to store the distance anywhere like the other distance lookups?
