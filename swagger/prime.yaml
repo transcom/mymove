@@ -1192,6 +1192,8 @@ definitions:
             type: string
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
             x-nullable: true
+          sitDestinationFinalAddress:
+            $ref: '#/definitions/Address'
         required:
           - reServiceCode
           - timeMilitary1
@@ -1766,6 +1768,8 @@ definitions:
             format: date
             type: string
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination.
+          sitDestinationFinalAddress:
+            $ref: '#/definitions/Address'
   Upload:
     type: object
     properties:

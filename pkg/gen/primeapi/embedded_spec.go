@@ -1302,6 +1302,9 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitDestinationFinalAddress": {
+              "$ref": "#/definitions/Address"
+            },
             "sitEntryDate": {
               "description": "Entry date for the SIT",
               "type": "string",
@@ -2164,6 +2167,9 @@ func init() {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination.",
               "type": "string",
               "format": "date"
+            },
+            "sitDestinationFinalAddress": {
+              "$ref": "#/definitions/Address"
             }
           }
         }
@@ -3768,6 +3774,9 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitDestinationFinalAddress": {
+              "$ref": "#/definitions/Address"
+            },
             "sitEntryDate": {
               "description": "Entry date for the SIT",
               "type": "string",
@@ -4633,6 +4642,9 @@ func init() {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination.",
               "type": "string",
               "format": "date"
+            },
+            "sitDestinationFinalAddress": {
+              "$ref": "#/definitions/Address"
             }
           }
         }
