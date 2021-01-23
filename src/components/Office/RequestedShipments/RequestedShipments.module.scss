@@ -65,13 +65,13 @@
 .serviceItemApproval {
   @include u-height(1rem);
   @include u-width(1rem);
-  fill: #00aa2a;
+  color: $success;
 }
 
 .serviceItemRejection {
   @include u-height(1rem);
   @include u-width(1rem);
-  fill: #da3613;
+  color: $error;
 }
 
 .approveButton {

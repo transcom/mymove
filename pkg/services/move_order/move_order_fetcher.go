@@ -136,7 +136,8 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 	// have an associated move_task_order.
 	moveOrder := &models.Order{}
 	err := f.db.Q().Eager(
-		"ServiceMember",
+		"ServiceMember.BackupContacts",
+		"ServiceMember.ResidentialAddress",
 		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",

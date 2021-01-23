@@ -44,12 +44,16 @@ export async function getMoveTaskOrderList(key, moveOrderID) {
   return makeGHCRequest('moveOrder.listMoveTaskOrders', { moveOrderID });
 }
 
-export async function getMTOShipments(key, moveTaskOrderID) {
-  return makeGHCRequest('mtoShipment.listMTOShipments', { moveTaskOrderID }, { schemaKey: 'mtoShipments' });
+export async function getMTOShipments(key, moveTaskOrderID, normalize = true) {
+  return makeGHCRequest('mtoShipment.listMTOShipments', { moveTaskOrderID }, { schemaKey: 'mtoShipments', normalize });
 }
 
-export async function getMTOServiceItems(key, moveTaskOrderID) {
-  return makeGHCRequest('mtoServiceItem.listMTOServiceItems', { moveTaskOrderID }, { schemaKey: 'mtoServiceItems' });
+export async function getMTOServiceItems(key, moveTaskOrderID, normalize = true) {
+  return makeGHCRequest(
+    'mtoServiceItem.listMTOServiceItems',
+    { moveTaskOrderID },
+    { schemaKey: 'mtoServiceItems', normalize },
+  );
 }
 
 export async function getDocument(key, documentId) {
@@ -109,6 +113,46 @@ export async function patchPaymentServiceItemStatus({
 export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
   const operationPath = 'moveOrder.updateMoveOrder';
   return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
+}
+
+export function updateMoveTaskOrderStatus({
+  moveTaskOrderID,
+  ifMatchETag,
+  mtoApprovalServiceItemCodes,
+  normalize = true,
+}) {
+  const operationPath = 'moveTaskOrder.updateMoveTaskOrderStatus';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      'If-Match': ifMatchETag,
+      serviceItemCodes: mtoApprovalServiceItemCodes,
+    },
+    { normalize },
+  );
+}
+
+export function patchMTOShipmentStatus({
+  moveTaskOrderID,
+  shipmentID,
+  shipmentStatus,
+  ifMatchETag,
+  rejectionReason,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+}) {
+  const operationPath = 'mtoShipment.patchMTOShipmentStatus';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      shipmentID,
+      'If-Match': ifMatchETag,
+      body: { status: shipmentStatus, rejectionReason },
+    },
+    { schemaKey, normalize },
+  );
 }
 
 export async function getMovesQueue(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
