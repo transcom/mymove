@@ -330,6 +330,10 @@ func MTOServiceItemModelFromUpdate(mtoServiceItem primemessages.UpdateMTOService
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
 		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
+		model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
+		if model.SITDestinationFinalAddress != nil {
+			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
+		}
 		return model, nil
 	}
 

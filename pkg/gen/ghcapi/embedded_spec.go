@@ -2667,6 +2667,12 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mtoAgents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "mtoServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
         "pickupAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -2767,6 +2773,9 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2809,6 +2818,9 @@ func init() {
         "agency": {
           "type": "string",
           "$ref": "#/definitions/Branch"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
           "type": "string",
@@ -3505,8 +3517,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
@@ -3549,7 +3561,7 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITAddress"
+        "ZipSITDestHHGFinalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -6802,6 +6814,12 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mtoAgents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "mtoServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
         "pickupAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -6902,6 +6920,9 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -6944,6 +6965,9 @@ func init() {
         "agency": {
           "type": "string",
           "$ref": "#/definitions/Branch"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
           "type": "string",
@@ -7630,8 +7654,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
@@ -7674,7 +7698,7 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITAddress"
+        "ZipSITDestHHGFinalAddress"
       ]
     },
     "ServiceItemParamOrigin": {

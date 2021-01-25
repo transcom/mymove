@@ -436,6 +436,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
 		}
 
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:

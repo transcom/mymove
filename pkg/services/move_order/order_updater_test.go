@@ -135,7 +135,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 		// check that entitlement is not updated as well
 		fetchedEntitlement := models.Entitlement{}
 		_ = suite.DB().Find(&fetchedEntitlement, defaultMoveOrder.Entitlement.ID)
-		suite.Nil(fetchedEntitlement.DBAuthorizedWeight, "DBAuthorizedWeight expected not to be set")
+		suite.NotEqual(20000, *fetchedEntitlement.DBAuthorizedWeight)
 		suite.EqualValues(true, *fetchedEntitlement.DependentsAuthorized)
 	})
 }

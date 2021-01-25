@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
-import { MTOAgentShape, MTOShipmentShape, OrdersInfoShape } from '../../types/moveOrder';
+import { MTOShipmentShape, OrdersInfoShape } from '../../types/moveOrder';
 import { formatAddress } from '../../utils/shipmentDisplay';
 
 import styles from './shipmentApprovalPreview.module.scss';
@@ -19,19 +19,11 @@ const ShipmentApprovalPreview = ({
   ordersInfo,
   allowancesInfo,
   customerInfo,
-  mtoAgents,
   setIsModalVisible,
   onSubmit,
   counselingFee,
   shipmentManagementFee,
 }) => {
-  const getAgents = (shipment) => {
-    return mtoAgents.filter((agent) => agent.shipmentId === shipment.id);
-  };
-  const shipmentsWithAgents = mtoAgents
-    ? mtoShipments.map((shipment) => ({ ...shipment, agents: getAgents(shipment) }))
-    : mtoShipments;
-
   return (
     <div>
       <Overlay />
@@ -65,8 +57,8 @@ const ShipmentApprovalPreview = ({
           <h1 className={classNames(styles.customerName, 'text-normal')}>{customerInfo.name}</h1>
           <div className={classNames(styles.previewContainer, 'container')}>
             <h2>Requested Shipments</h2>
-            {shipmentsWithAgents &&
-              shipmentsWithAgents.map((shipment) => (
+            {mtoShipments &&
+              mtoShipments.map((shipment) => (
                 <ShipmentContainer
                   key={shipment.id}
                   shipmentType={shipment.shipmentType}
@@ -105,8 +97,8 @@ const ShipmentApprovalPreview = ({
                             </th>
                             <td>{shipment.customerRemarks}</td>
                           </tr>
-                          {mtoAgents &&
-                            mtoAgents.map((agent) => (
+                          {shipment.mtoAgents &&
+                            shipment.mtoAgents.map((agent) => (
                               <Fragment key={`${agent.type}-${agent.email}`}>
                                 <tr>
                                   <th className="text-bold" scope="row">
@@ -163,7 +155,6 @@ const ShipmentApprovalPreview = ({
 
 ShipmentApprovalPreview.propTypes = {
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
-  mtoAgents: PropTypes.arrayOf(MTOAgentShape),
   counselingFee: PropTypes.bool.isRequired,
   shipmentManagementFee: PropTypes.bool.isRequired,
   ordersInfo: OrdersInfoShape.isRequired,
@@ -188,16 +179,14 @@ ShipmentApprovalPreview.propTypes = {
       state: PropTypes.string,
       postal_code: PropTypes.string,
     }),
-    backupContactName: PropTypes.string,
-    backupContactPhone: PropTypes.string,
-    backupContactEmail: PropTypes.string,
+    backupContact: {
+      name: PropTypes.string,
+      phone: PropTypes.string,
+      email: PropTypes.string,
+    },
   }).isRequired,
   setIsModalVisible: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-};
-
-ShipmentApprovalPreview.defaultProps = {
-  mtoAgents: [],
 };
 
 export default ShipmentApprovalPreview;

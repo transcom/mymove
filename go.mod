@@ -8,7 +8,7 @@ require (
 	github.com/99designs/keyring v1.1.6
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
-	github.com/aws/aws-sdk-go v1.36.28
+	github.com/aws/aws-sdk-go v1.36.30
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -21,11 +21,11 @@ require (
 	github.com/go-ini/ini v1.49.0 // indirect
 	github.com/go-openapi/errors v0.19.9
 	github.com/go-openapi/loads v0.20.0
-	github.com/go-openapi/runtime v0.19.24
-	github.com/go-openapi/spec v0.20.1
+	github.com/go-openapi/runtime v0.19.26
+	github.com/go-openapi/spec v0.20.2
 	github.com/go-openapi/strfmt v0.20.0
 	github.com/go-openapi/swag v0.19.13
-	github.com/go-openapi/validate v0.20.0
+	github.com/go-openapi/validate v0.20.1
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.1
@@ -73,7 +73,7 @@ require (
 	go.uber.org/zap v1.16.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
-	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
+	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/text v0.3.5
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

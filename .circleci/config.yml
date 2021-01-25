@@ -1315,10 +1315,6 @@ workflows:
             branches:
               ignore: placeholder_branch_name
 
-      - webhook_client_test:
-          requires:
-            - build_tools
-
       - build_app:
           requires:
             - anti_virus
@@ -1351,11 +1347,6 @@ workflows:
           requires:
             - build_tasks
 
-      - build_webhook_client:
-          requires:
-            - anti_virus
-            - webhook_client_test
-
       - push_app_exp:
           requires:
             - build_app
@@ -1373,13 +1364,6 @@ workflows:
       - push_tasks_exp:
           requires:
             - build_tasks
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - push_webhook_client_exp:
-          requires:
-            - build_webhook_client
           filters:
             branches:
               only: placeholder_branch_name
