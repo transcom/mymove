@@ -95,6 +95,7 @@ func ServiceParamLookupInitialize(
 	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT:
 		// load destination address from final address on service item
 		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
+			// TODO: Handle error
 			db.Load(&mtoServiceItem, "SITDestinationFinalAddress")
 			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
 		}
@@ -321,7 +322,8 @@ func ServiceParamLookupInitialize(
 
 	paramKey = models.ServiceItemParamNameDistanceZipSITDest
 	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITDestLookup{
-		DestinationAddress: destinationAddress,
+		DestinationAddress:      destinationAddress,
+		FinalDestinationAddress: sitDestinationFinalAddress,
 	})
 	if err != nil {
 		return nil, err

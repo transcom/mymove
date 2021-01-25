@@ -5,12 +5,10 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -36,16 +34,14 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 			},
 		})
 
-	/* finalDestSameZip3Address := */
-	testdatagen.MakeAddress(suite.DB(),
+	finalDestSameZip3Address := testdatagen.MakeAddress(suite.DB(),
 		testdatagen.Assertions{
 			Address: models.Address{
 				PostalCode: finalDestZipSameZip3,
 			},
 		})
 
-	/* finalDestDiffZip3Address := */
-	testdatagen.MakeAddress(suite.DB(),
+	finalDestDiffZip3Address := testdatagen.MakeAddress(suite.DB(),
 		testdatagen.Assertions{
 			Address: models.Address{
 				PostalCode: finalDestZipDiffZip3,
@@ -70,10 +66,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 			ReService:          reService,
 			Move:               move,
 			MTOShipment:        mtoShipment,
-			//MTOServiceItem: models.MTOServiceItem{
-			//	SITDestinationFinalAddressID: finalDestSameZip3Address.ID,
-			//	SITDestinationFinalAddress: finalDestSameZip3Address,
-			//},
+			MTOServiceItem: models.MTOServiceItem{
+				SITDestinationFinalAddressID: &finalDestSameZip3Address.ID,
+				SITDestinationFinalAddress:   &finalDestSameZip3Address,
+			},
 		},
 	)
 
@@ -83,10 +79,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 			ReService:          reService,
 			Move:               move,
 			MTOShipment:        mtoShipment,
-			//MTOServiceItem: models.MTOServiceItem{
-			//	SITDestinationFinalAddressID: finalDestDiffZip3Address.ID,
-			//	SITDestinationFinalAddress: finalDestDiffZip3Address,
-			//},
+			MTOServiceItem: models.MTOServiceItem{
+				SITDestinationFinalAddressID: &finalDestDiffZip3Address.ID,
+				SITDestinationFinalAddress:   &finalDestDiffZip3Address,
+			},
 		},
 	)
 
@@ -100,24 +96,14 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		suite.Equal(expected, distanceStr)
 	})
 
-	//suite.T().Run("distance when zip3s are different", func(t *testing.T) {
-	//	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-	//	suite.FatalNoError(err)
-	//
-	//	distanceStr, err := paramLookup.ServiceParamValue(key)
-	//	suite.FatalNoError(err)
-	//	expected := strconv.Itoa(defaultZip3Distance)
-	//	suite.Equal(expected, distanceStr)
-	//})
-
-	suite.T().Run("MTOServiceItem not found", func(t *testing.T) {
+	suite.T().Run("distance when zip3s are different", func(t *testing.T) {
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		paramLookup.MTOServiceItemID = uuid.Must(uuid.NewV4())
-		_, err = paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
+		distanceStr, err := paramLookup.ServiceParamValue(key)
+		suite.FatalNoError(err)
+		expected := strconv.Itoa(defaultZip3Distance)
+		suite.Equal(expected, distanceStr)
 	})
 
 	suite.T().Run("bad destination postal code", func(t *testing.T) {
@@ -136,21 +122,21 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		suite.MustSave(&destAddress)
 	})
 
-	//suite.T().Run("bad final destination postal code", func(t *testing.T) {
-	//	oldPostalCode := finalDestDiffZip3Address.PostalCode
-	//	finalDestDiffZip3Address.PostalCode = "5678"
-	//	suite.MustSave(&finalDestDiffZip3Address)
-	//
-	//	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-	//	suite.FatalNoError(err)
-	//
-	//	_, err = paramLookup.ServiceParamValue(key)
-	//	suite.Error(err)
-	//	suite.Contains(err.Error(), "invalid SIT destination postal code")
-	//
-	//	finalDestDiffZip3Address.PostalCode = oldPostalCode
-	//	suite.MustSave(&finalDestDiffZip3Address)
-	//})
+	suite.T().Run("bad final destination postal code", func(t *testing.T) {
+		oldPostalCode := finalDestDiffZip3Address.PostalCode
+		finalDestDiffZip3Address.PostalCode = "5678"
+		suite.MustSave(&finalDestDiffZip3Address)
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		_, err = paramLookup.ServiceParamValue(key)
+		suite.Error(err)
+		suite.Contains(err.Error(), "invalid SIT destination postal code")
+
+		finalDestDiffZip3Address.PostalCode = oldPostalCode
+		suite.MustSave(&finalDestDiffZip3Address)
+	})
 
 	suite.T().Run("planner failure", func(t *testing.T) {
 		errorPlanner := &mocks.Planner{}
