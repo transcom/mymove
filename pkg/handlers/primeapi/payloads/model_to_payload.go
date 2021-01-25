@@ -413,14 +413,12 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
 		payload = &primemessages.MTOServiceItemOriginSIT{
-			ReServiceCode:    handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:           mtoServiceItem.Reason,
-			SitDepartureDate: handlers.FmtDate(sitDepartureDate),
-			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
-			SitPostalCode:    mtoServiceItem.SITPostalCode,
-		}
-		if mtoServiceItem.ReService.Code == models.ReServiceCodeDOFSIT || mtoServiceItem.ReService.Code == models.ReServiceCodeDOPSIT {
-			payload.(*primemessages.MTOServiceItemOriginSIT).SitHHGActualOrigin = Address(mtoServiceItem.SITOriginHHGActualAddress)
+			ReServiceCode:      handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:             mtoServiceItem.Reason,
+			SitDepartureDate:   handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:       handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:      mtoServiceItem.SITPostalCode,
+			SitHHGActualOrigin: Address(mtoServiceItem.SITOriginHHGActualAddress),
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
 		var sitDepartureDate time.Time

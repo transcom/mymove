@@ -149,7 +149,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 		// update HHG origin address for ReServiceCodeDOFSIT service item
 		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
-			// When creating a DOFSIT, the prime must provide an HHG actual address for the move in origin (pickup address)
+			// When creating a DOFSIT, the prime must provide an HHG actual address for the move/shift in origin (pickup address)
 			if serviceItem.SITOriginHHGActualAddress == nil {
 				verrs = validate.NewErrors()
 				verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
@@ -157,25 +157,14 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 					fmt.Sprintf("A service item with reServiceCode %s must have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
 			}
 
-			// new SIT Origin HHG Actual Address coming from the Prime API call
-			serviceItem.SITOriginHHGActualAddress.ID = uuid.Nil
-			serviceItem.SITOriginHHGActualAddressID = nil
-
-			// save the HHG shipment original pickup address
-			originalHhgAddress := mtoShipment.PickupAddress.Copy()
-			originalHhgAddress.ID = uuid.Nil
-
-			// save the HHG (new) actual pickup address, coming from the SIT service item
-			actualHhgAddress := serviceItem.SITOriginHHGActualAddress.Copy()
-			actualHhgAddress.ID = uuid.Nil
-
 			// update the SIT service item to track/save the HHG original pickup address (that came from the
 			// MTO shipment
-			serviceItem.SITOriginHHGOriginalAddress = originalHhgAddress.Copy()
+			serviceItem.SITOriginHHGOriginalAddress = mtoShipment.PickupAddress.Copy()
+			serviceItem.SITOriginHHGOriginalAddress.ID = uuid.Nil
 			serviceItem.SITOriginHHGOriginalAddressID = nil
 
-			// update the MTO shipment the new (actual) pickup address
-			mtoShipment.PickupAddress = actualHhgAddress.Copy()
+			// update the MTO shipment with the new (actual) pickup address
+			mtoShipment.PickupAddress = serviceItem.SITOriginHHGActualAddress.Copy()
 			mtoShipment.PickupAddress.ID = *mtoShipment.PickupAddressID // Keep to same ID to be updated with new values
 
 			// changes were made to the shipment, needs to be saved to the database
@@ -184,12 +173,13 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			// Find the DOPSIT service item and update the SIT related address fields. These fields
 			// will be used for pricing when a payment request is created for DOPSIT
 			for itemIndex := range *extraServiceItems {
-				sitServiceItem := &(*extraServiceItems)[itemIndex]
-				if sitServiceItem.ReService.Code == models.ReServiceCodeDOPSIT {
-					sitServiceItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress.Copy()
-					sitServiceItem.SITOriginHHGActualAddressID = nil
-					sitServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress.Copy()
-					sitServiceItem.SITOriginHHGOriginalAddressID = nil
+				extraServiceItem := &(*extraServiceItems)[itemIndex]
+				if extraServiceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDOASIT {
+					extraServiceItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress
+					extraServiceItem.SITOriginHHGActualAddressID = serviceItem.SITOriginHHGActualAddressID
+					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
+					extraServiceItem.SITOriginHHGOriginalAddressID = serviceItem.SITOriginHHGOriginalAddressID
 				}
 
 			}
@@ -208,22 +198,26 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		for serviceItemIndex := range requestedServiceItems {
 			requestedServiceItem := &requestedServiceItems[serviceItemIndex]
 
-			// create address if any
+			// create address if ID (UUID) is Nil
 			if requestedServiceItem.SITOriginHHGActualAddress != nil {
 				address := requestedServiceItem.SITOriginHHGActualAddress
-				verrs, err = txBuilder.CreateOne(address)
-				if verrs != nil || err != nil {
-					return fmt.Errorf("%#v %e", verrs, err)
+				if address.ID == uuid.Nil {
+					verrs, err = txBuilder.CreateOne(address)
+					if verrs != nil || err != nil {
+						return fmt.Errorf("failed to save SITOriginHHGActualAddress: %#v %e", verrs, err)
+					}
 				}
 				requestedServiceItem.SITOriginHHGActualAddressID = &address.ID
 			}
 
-			// create address if any
+			// create address if ID (UUID) is Nil
 			if requestedServiceItem.SITOriginHHGOriginalAddress != nil {
 				address := requestedServiceItem.SITOriginHHGOriginalAddress
-				verrs, err = txBuilder.CreateOne(address)
-				if verrs != nil || err != nil {
-					return fmt.Errorf("%#v %e", verrs, err)
+				if address.ID == uuid.Nil {
+					verrs, err = txBuilder.CreateOne(address)
+					if verrs != nil || err != nil {
+						return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
+					}
 				}
 				requestedServiceItem.SITOriginHHGOriginalAddressID = &address.ID
 			}
@@ -260,7 +254,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		if updateShipmentPickupAddress {
 			verrs, err = txBuilder.UpdateOne(mtoShipment.PickupAddress, nil)
 			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
+				return fmt.Errorf("failed to update mtoShipment.PickupAddress: %#v %e", verrs, err)
 			}
 		}
 

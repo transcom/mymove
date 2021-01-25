@@ -52,28 +52,29 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
 	// creating DOFSIT (SIT origin first day).
 	//
-	// Do not use testdatagen.MakeAddress, because if the information is coming from the Prime
-	// via the Prime API, the address will not have a valid database ID. And tests needs to ensure
+	// Do not create Address in the database (Assertions.Stub = true), because if the information is coming from the Prime
+	// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 	// that we properly create the address coming in from the API.
-	actualPickupAddress := models.Address{
-		StreetAddress1: "987 Any Avenue",
-		StreetAddress2: swag.String("P.O. Box 9876"),
-		StreetAddress3: swag.String("c/o Some Person"),
-		City:           "Fairfield",
-		State:          "CA",
-		PostalCode:     "94535",
-		Country:        swag.String("US"),
-	}
-
+	actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+	/*
+		actualPickupAddress := models.Address{
+			StreetAddress1: "987 Any Avenue",
+			StreetAddress2: swag.String("P.O. Box 9876"),
+			StreetAddress3: swag.String("c/o Some Person"),
+			City:           "Fairfield",
+			State:          "CA",
+			PostalCode:     "94535",
+			Country:        swag.String("US"),
+		}
+	*/
 	mtoServiceItem := models.MTOServiceItem{
-		MoveTaskOrderID:             mto.ID,
-		MTOShipmentID:               &mtoShipment.ID,
-		ReService:                   models.ReService{Code: models.ReServiceCodeDOFSIT},
-		Reason:                      &reason,
-		SITEntryDate:                &sitEntryDate,
-		SITPostalCode:               &sitPostalCode,
-		SITOriginHHGActualAddress:   &actualPickupAddress,
-		SITOriginHHGActualAddressID: &actualPickupAddress.ID,
+		MoveTaskOrderID:           mto.ID,
+		MTOShipmentID:             &mtoShipment.ID,
+		ReService:                 models.ReService{Code: models.ReServiceCodeDOFSIT},
+		Reason:                    &reason,
+		SITEntryDate:              &sitEntryDate,
+		SITPostalCode:             &sitPostalCode,
+		SITOriginHHGActualAddress: &actualPickupAddress,
 	}
 
 	params := mtoserviceitemops.CreateMTOServiceItemParams{
@@ -559,7 +560,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		SITPostalCode:   &sitPostalCode,
 	}
 
-	suite.T().Run("Successful POST - Create DOFSIT", func(t *testing.T) {
+	suite.T().Run("Failed POST - Does not DOFSIT with missing SitHHGActualOrigin", func(t *testing.T) {
 		// Under test: createMTOServiceItemHandler function
 		// Set up:     We hit the endpoint with a standalone DOFSIT MTOServiceItem
 		// Expected outcome:
@@ -690,6 +691,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		suite.NotZero(okResponse.Payload[0].ID())
 
 		foundDOFSIT := false
+		foundDOPSIT := false
+		foundDOASIT := false
+
 		for _, serviceItem := range okResponse.Payload {
 
 			// Find the matching MTO Service Item from the DB for the returned payload
@@ -698,12 +702,20 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			findServiceItemErr := suite.DB().Eager("ReService", "SITOriginHHGOriginalAddress", "SITOriginHHGActualAddress").Find(&mtosi, &id)
 			suite.NoError(findServiceItemErr)
 
-			if mtosi.ReService.Code == models.ReServiceCodeDOPSIT || mtosi.ReService.Code == models.ReServiceCodeDOFSIT {
+			if mtosi.ReService.Code == models.ReServiceCodeDOPSIT || mtosi.ReService.Code == models.ReServiceCodeDOFSIT || mtosi.ReService.Code == models.ReServiceCodeDOASIT {
 				suite.IsType(&primemessages.MTOServiceItemOriginSIT{}, serviceItem)
 				sitItem := serviceItem.(*primemessages.MTOServiceItemOriginSIT)
-				foundDOFSIT = true
+
+				if mtosi.ReService.Code == models.ReServiceCodeDOPSIT {
+					foundDOPSIT = true
+				} else if mtosi.ReService.Code == models.ReServiceCodeDOFSIT {
+					foundDOFSIT = true
+				} else if mtosi.ReService.Code == models.ReServiceCodeDOASIT {
+					foundDOASIT = true
+				}
 
 				// Verify the return primemessages payload has the correct addresses
+				suite.NotNil(sitItem.SitHHGActualOrigin, "primemessages SitHHGActualOrigin is not Nil")
 				suite.NotEqual(uuid.Nil, sitItem.SitHHGActualOrigin.ID, "primemessages actual address ID is not nil")
 				suite.Equal(updatedMTOShipment.PickupAddress.StreetAddress1, *sitItem.SitHHGActualOrigin.StreetAddress1, "primemessages actual street address is the same")
 				suite.Equal(updatedMTOShipment.PickupAddress.City, *sitItem.SitHHGActualOrigin.City, "primemessages actual city is the same")
@@ -728,6 +740,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			}
 		}
 		suite.Equal(true, foundDOFSIT, "Found expected ReServiceCodeDOFSIT")
+		suite.Equal(true, foundDOPSIT, "Found expected ReServiceCodeDOPSIT")
+		suite.Equal(true, foundDOASIT, "Found expected ReServiceCodeDOASIT")
 	})
 
 }
