@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 	suite.Assertions.IsType(&moveorderop.GetMoveOrderOK{}, response)
 	suite.Equal(moveOrder.ID.String(), moveOrdersPayload.ID.String())
 	suite.Equal(moveTaskOrder.Locator, moveOrdersPayload.MoveCode)
-	suite.Equal(moveOrder.ServiceMemberID.String(), moveOrdersPayload.CustomerID.String())
+	suite.Equal(moveOrder.ServiceMemberID.String(), moveOrdersPayload.Customer.ID.String())
 	suite.Equal(moveOrder.NewDutyStationID.String(), moveOrdersPayload.DestinationDutyStation.ID.String())
 	suite.NotNil(moveOrder.NewDutyStation)
 	payloadEntitlement := moveOrdersPayload.Entitlement

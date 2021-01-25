@@ -45,7 +45,19 @@ const contractor = {
 const move = {
   contractor,
   orders: order,
+  locator: '12345',
 };
+
+const shipmentAddresses = [
+  {
+    mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
+    shipmentAddress: 'Columbia, SC 29212 to Princeton, NJ 08540',
+  },
+  {
+    mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
+    shipmentAddress: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  },
+];
 
 const pendingPaymentRequest = {
   id: '09474c6a-69b6-4501-8e08-670a12512e5f',
@@ -68,7 +80,7 @@ const pendingPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Dom. Linehaul',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
-      mtoShipmentID: '31aa860a-225b-4cea-bd75-fe8c7c463fd4',
+      mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
       mtoShipmentType: 'HHG',
       priceCents: 4000001,
       status: 'REQUESTED',
@@ -78,7 +90,7 @@ const pendingPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Fuel Surcharge',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbb',
-      mtoShipmentID: 'df393474-bc7c-4e81-8f84-4b656b739d6a',
+      mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
       mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
       priceCents: 6000001,
       status: 'REQUESTED',
@@ -108,7 +120,7 @@ const reviewedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Dom. Linehaul',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
-      mtoShipmentID: '31aa860a-225b-4cea-bd75-fe8c7c463fd4',
+      mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
       mtoShipmentType: 'HHG',
       priceCents: 4000001,
       status: 'DENIED',
@@ -119,7 +131,7 @@ const reviewedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Fuel Surcharge',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbb',
-      mtoShipmentID: 'df393474-bc7c-4e81-8f84-4b656b739d6a',
+      mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
       mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
       priceCents: 6000001,
       status: 'APPROVED',
@@ -149,7 +161,7 @@ const rejectedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Dom. Linehaul',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
-      mtoShipmentID: '31aa860a-225b-4cea-bd75-fe8c7c463fd4',
+      mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
       mtoShipmentType: 'HHG',
       priceCents: 4000001,
       status: 'DENIED',
@@ -160,7 +172,7 @@ const rejectedPaymentRequest = {
       createdAt: '2020-12-01T00:00:00.000Z',
       mtoServiceItemName: 'Fuel Surcharge',
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbb',
-      mtoShipmentID: 'df393474-bc7c-4e81-8f84-4b656b739d6a',
+      mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
       mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
       priceCents: 6000001,
       status: 'DENIED',
@@ -170,8 +182,14 @@ const rejectedPaymentRequest = {
   reviewedAt: '2020-12-01T00:00:00.000Z',
 };
 
-export const NeedsReview = () => <PaymentRequestCard paymentRequest={pendingPaymentRequest} />;
+export const NeedsReview = () => (
+  <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentAddresses={shipmentAddresses} />
+);
 
-export const Reviewed = () => <PaymentRequestCard paymentRequest={reviewedPaymentRequest} />;
+export const Reviewed = () => (
+  <PaymentRequestCard paymentRequest={reviewedPaymentRequest} shipmentAddresses={shipmentAddresses} />
+);
 
-export const Rejected = () => <PaymentRequestCard paymentRequest={rejectedPaymentRequest} />;
+export const Rejected = () => (
+  <PaymentRequestCard paymentRequest={rejectedPaymentRequest} shipmentAddresses={shipmentAddresses} />
+);

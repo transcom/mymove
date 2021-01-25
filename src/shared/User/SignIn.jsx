@@ -14,8 +14,6 @@ const SignIn = ({ context, location }) => {
             <div>
               <Alert type="error" heading="An error occurred">
                 There was an error during your last sign in attempt. Please try again.
-                <br />
-                Error code: {error}
               </Alert>
               <br />
             </div>
