@@ -52,6 +52,9 @@ type MTOServiceItemDestSIT struct {
 	// Format: date
 	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
 
+	// sit destination final address
+	SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
+
 	// Entry date for the SIT
 	// Required: true
 	// Format: date
@@ -170,6 +173,9 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
 
+		// sit destination final address
+		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
+
 		// Entry date for the SIT
 		// Required: true
 		// Format: date
@@ -244,6 +250,7 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
 	result.SitDepartureDate = data.SitDepartureDate
+	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
 	result.SitEntryDate = data.SitEntryDate
 	result.TimeMilitary1 = data.TimeMilitary1
 	result.TimeMilitary2 = data.TimeMilitary2
@@ -278,6 +285,9 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
 
+		// sit destination final address
+		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
+
 		// Entry date for the SIT
 		// Required: true
 		// Format: date
@@ -301,6 +311,8 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		ReServiceCode: m.ReServiceCode,
 
 		SitDepartureDate: m.SitDepartureDate,
+
+		SitDestinationFinalAddress: m.SitDestinationFinalAddress,
 
 		SitEntryDate: m.SitEntryDate,
 
@@ -385,6 +397,10 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitDepartureDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitDestinationFinalAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -529,6 +545,24 @@ func (m *MTOServiceItemDestSIT) validateSitDepartureDate(formats strfmt.Registry
 
 	if err := validate.FormatOf("sitDepartureDate", "body", "date", m.SitDepartureDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) validateSitDestinationFinalAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitDestinationFinalAddress) { // not required
+		return nil
+	}
+
+	if m.SitDestinationFinalAddress != nil {
+		if err := m.SitDestinationFinalAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitDestinationFinalAddress")
+			}
+			return err
+		}
 	}
 
 	return nil

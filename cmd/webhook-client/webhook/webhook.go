@@ -218,8 +218,9 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		}
 		// If there was an error response from server, log error and continue
 		if resp.StatusCode != 200 {
-			errmsg := fmt.Sprintf("Failed to send. Response Status: %s. Body: %s", resp.Status, string(body))
-			logger.Debug("Received error on sending webhook", zap.String("Error", errmsg),
+			logger.Debug("Received error on sending notification",
+				zap.String("Response Status", resp.Status),
+				zap.String("Response Body", string(body)),
 				zap.String("notificationID", notif.ID.String()),
 				zap.Int("Retry #", try))
 		}

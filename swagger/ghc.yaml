@@ -1640,6 +1640,8 @@ definitions:
       updatedAt:
         type: string
         format: date-time
+      eTag:
+        type: string
   MoveStatus:
     type: string
     enum:
@@ -1703,6 +1705,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      customer:
+        $ref: '#/definitions/Customer'
       moveCode:
         type: string
         example: 'H2XFJF'
@@ -2161,8 +2165,8 @@ definitions:
       - CubicFeetCrating
       - DistanceZip3
       - DistanceZip5
-      - DistanceZip5SITDest
-      - DistanceZip5SITOrigin
+      - DistanceZipSITDest
+      - DistanceZipSITOrigin
       - EIAFuelPrice
       - FSCWeightBasedDistanceMultiplier
       - MarketDest
@@ -2205,7 +2209,7 @@ definitions:
       - WeightEstimated
       - ZipDestAddress
       - ZipPickupAddress
-      - ZipSITAddress
+      - ZipSITDestHHGFinalAddress
   ServiceItemParamOrigin:
     type: string
     enum:
@@ -2331,6 +2335,10 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+      mtoAgents:
+        $ref: '#/definitions/MTOAgents'
+      mtoServiceItems:
+        $ref: '#/definitions/MTOServiceItems'
       eTag:
         type: string
   MTOShipments:
