@@ -11,7 +11,7 @@ function usage() {
   echo
   echo "If omitted, the optional parameters are set as follows:"
   echo "  hostname = local"
-  echo "  proofs of service = (./tmp/uploads/proof_of_service.png ./tmp/uploads/proof_of_service.jpg ./tmp/uploads/proof_of_service.pdf)"
+  echo "  proofs of service = (./tmp/uploads/proof_of_service.pdf)"
   echo "  # you can specify as many proofs as you want"
   echo
   echo "EXAMPLES:"
@@ -41,7 +41,7 @@ if [ "${#@}" -gt 2 ]; then
   proofs=("$@")
 else
   # if no proofs are passed in set some defaults
-  proofs=(./tmp/uploads/proof_of_service.png ./tmp/uploads/proof_of_service.jpg ./tmp/uploads/proof_of_service.pdf)
+  proofs=(./tmp/uploads/proof_of_service.pdf)
 fi
 
 printf "\nRunning against "
@@ -222,9 +222,35 @@ echo "Updated Shipment eTag: ${shipmentEtag}"
 
 printf "\n==========\n\n"
 
-jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH") or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request.json
+printf "The prime can add a DDFSIT service item:\n\n"
 
-printf "Sending the following create payment request payload for DLH, FSC, MS, and CS:\n\n"
+printf "\n==========\n\n"
+
+cat > tmp/pad_create_ddfsit_service_item.json <<- EOM
+{
+  "body": {
+    "moveTaskOrderID": "${mtoid}",
+    "mtoShipmentID": ${shipmentID},
+    "modelType": "MTOServiceItemDestSIT",
+    "reServiceCode": "DDFSIT",
+    "timeMilitary1": "1705Z",
+    "firstAvailableDeliveryDate1": "2021-01-31",
+    "timeMilitary2": "0719Z",
+    "firstAvailableDeliveryDate2": "2021-02-03",
+    "sitEntryDate": "2021-01-12"
+  }
+}
+EOM
+
+bin/prime-api-client "${primeapiopts[@]}" create-mto-service-item --filename ./tmp/pad_create_ddfsit_service_item.json > tmp/pad_create_ddfsit_response.json
+
+jq . tmp/pad_create_ddfsit_response.json
+
+echo
+
+jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH") or .reServiceCode == "MS" or .reServiceCode == "CS" or .reServiceCode == "DDFSIT"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request.json
+
+printf "Sending the following create payment request payload for DLH, FSC, DDFSIT, MS, and CS:\n\n"
 jq . tmp/pad_create_payment_request.json
 
 echo
