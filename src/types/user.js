@@ -9,12 +9,12 @@ export const UserRoleShape = PropTypes.shape({
 
 export const UserRolesShape = PropTypes.arrayOf(UserRoleShape);
 
-export const TransportationOfficeShape = {
+export const TransportationOfficeShape = PropTypes.shape({
   address: AddressShape,
   gbloc: PropTypes.string,
   name: PropTypes.string,
   phone_lines: PropTypes.string,
-};
+});
 
 export const OfficeUserInfoShape = PropTypes.shape({
   email: PropTypes.string,
