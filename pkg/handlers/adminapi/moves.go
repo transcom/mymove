@@ -40,7 +40,7 @@ func payloadForMoveModel(move models.Move) *adminmessages.Move {
 		ServiceMemberID: *handlers.FmtUUID(move.Orders.ServiceMemberID),
 		Locator:         &move.Locator,
 		Status:          adminmessages.MoveStatus(move.Status),
-		Show:            showMove,
+		Show:            &showMove,
 		CreatedAt:       handlers.FmtDateTime(move.CreatedAt),
 		UpdatedAt:       handlers.FmtDateTime(move.UpdatedAt),
 	}

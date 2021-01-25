@@ -824,6 +824,7 @@ definitions:
         $ref: '#/definitions/MoveStatus'
       show:
         type: boolean
+        x-nullable: true
       createdAt:
         type: string
         format: date-time

@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		// Check values
 		moveOK := response.(*moveop.UpdateMoveOK)
 		suite.Equal(moveOK.Payload.ID.String(), defaultMove.ID.String())
-		suite.Equal(moveOK.Payload.Show, params.Move.Show)
+		suite.Equal(*moveOK.Payload.Show, params.Move.Show)
 	})
 
 	// Case: Move is not found
