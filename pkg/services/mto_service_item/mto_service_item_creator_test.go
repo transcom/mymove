@@ -424,17 +424,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
 		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
-		/*
-			actualPickupAddress := models.Address{
-				StreetAddress1: "987 Any Avenue",
-				StreetAddress2: swag.String("P.O. Box 9876"),
-				StreetAddress3: swag.String("c/o Some Person"),
-				City:           "Fairfield",
-				State:          "CA",
-				PostalCode:     "94535",
-				Country:        swag.String("US"),
-			}
-		*/
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:             moveTaskOrder,

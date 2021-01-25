@@ -56,17 +56,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 	// that we properly create the address coming in from the API.
 	actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
-	/*
-		actualPickupAddress := models.Address{
-			StreetAddress1: "987 Any Avenue",
-			StreetAddress2: swag.String("P.O. Box 9876"),
-			StreetAddress3: swag.String("c/o Some Person"),
-			City:           "Fairfield",
-			State:          "CA",
-			PostalCode:     "94535",
-			Country:        swag.String("US"),
-		}
-	*/
+
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID:           mto.ID,
 		MTOShipmentID:             &mtoShipment.ID,
@@ -617,18 +607,10 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 
 	// Customer gets new pickup address
 
-	// Do not use testdatagen.MakeAddress, because if the information is coming from the Prime
-	// via the Prime API, the address will not have a valid database ID. And tests needs to ensure
+	// Do not create the Address in the database (Assertions.Stub = true), because if the information is coming from the Prime
+	// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 	// that we properly create the address coming in from the API.
-	actualPickupAddress := models.Address{
-		StreetAddress1: "987 Any Avenue",
-		StreetAddress2: swag.String("P.O. Box 9876"),
-		StreetAddress3: swag.String("c/o Some Person"),
-		City:           "Fairfield",
-		State:          "CA",
-		PostalCode:     "94535",
-		Country:        swag.String("US"),
-	}
+	actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID:           mto.ID,
