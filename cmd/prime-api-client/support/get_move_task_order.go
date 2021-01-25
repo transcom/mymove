@@ -73,15 +73,11 @@ func GetMTO(cmd *cobra.Command, args []string) error {
 
 	// Defer closing the store until after the API call has completed
 	if cacStore != nil {
-		//RA Summary: gosec - errcheck - Unchecked return value
-		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-		//RA: Functions with unchecked return values in the file are used to close a cmd line client
-		//RA: Given the functions causing the lint errors are used end a local running process, it is not deemed a risk
-		//RA Developer Status: Mitigated
-		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-		//RA Validator: jneuner@mitre.org
-		//RA Modified Severity:
-		defer cacStore.Close() // nolint:errcheck
+		defer func() {
+			if closeErr := cacStore.Close(); closeErr != nil {
+				fmt.Println(fmt.Errorf("Close store connection failed: %w", closeErr))
+			}
+		}()
 	}
 	getMTOParams.SetTimeout(time.Second * 30)
 

@@ -49,7 +49,11 @@ func HideNonFakeMoveTaskOrders(cmd *cobra.Command, args []string) error {
 	}
 	// Defer closing the store until after the API call has completed
 	if cacStore != nil {
-		defer cacStore.Close()
+		defer func() {
+			if closeErr := cacStore.Close(); closeErr != nil {
+				fmt.Println(fmt.Errorf("Close store connection failed: %w", closeErr))
+			}
+		}()
 	}
 	var params mto.HideNonFakeMoveTaskOrdersParams
 	params.SetTimeout(time.Second * 30)
