@@ -1,7 +1,16 @@
 package main
 
 import (
-	"crypto/md5" // #nosec
+	//RA Summary: gosec - G401 - Weak cryptographic hash
+	//RA: This line was flagged because of the use of MD5 hashing
+	//RA: This line of code hashes the AWS object to be able to verify data integrity
+	//RA: Purpose of this hash is to protect against environmental risks, it does not
+	//RA: hash any sensitive user provided information such as passwords
+	//RA: AWS S3 API requires use of MD5 to validate data integrity.
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: CAT III
+	"crypto/md5" // #nosec G401
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -50,10 +59,17 @@ func initFlags(flag *pflag.FlagSet) {
 }
 
 func hashObjectMd5(buff *aws.WriteAtBuffer) string {
-
+	//RA Summary: gosec - G401 - Weak cryptographic hash
+	//RA: This line was flagged because of the use of MD5 hashing
+	//RA: This line of code hashes the AWS object to be able to verify data integrity
+	//RA: Purpose of this hash is to protect against environmental risks, it does not
+	//RA: hash any sensitive user provided information such as passwords
+	//RA: AWS S3 API requires use of MD5 to validate data integrity.
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: CAT III
 	// Sum the bytes in the buffer
-	// #nosec
-	hashInBytes := md5.Sum(buff.Bytes())
+	hashInBytes := md5.Sum(buff.Bytes()) // #nosec G401
 
 	// Convert the bytes to a string
 	return hex.EncodeToString(hashInBytes[:16])
