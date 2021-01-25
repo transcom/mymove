@@ -62,7 +62,7 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: CAT III
-	// G402
+	// #nosec G402
 	tlsConfig := tls.Config{
 		Certificates:       []tls.Certificate{*cert},
 		InsecureSkipVerify: wr.Insecure,

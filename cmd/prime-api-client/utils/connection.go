@@ -53,7 +53,7 @@ func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: CAT III
-		// G402
+		// #nosec G402
 		tlsConfig := &tls.Config{
 			Certificates:       []tls.Certificate{*cert},
 			InsecureSkipVerify: insecure,
@@ -127,7 +127,7 @@ func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, er
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: CAT III
-		// G402
+		// #nosec G402
 		tlsConfig := &tls.Config{
 			Certificates:       []tls.Certificate{*cert},
 			InsecureSkipVerify: insecure,
@@ -201,7 +201,7 @@ func CreateSupportClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: CAT III
-		// G402
+		//  #nosec G402
 		tlsConfig := &tls.Config{
 			Certificates:       []tls.Certificate{*cert},
 			InsecureSkipVerify: insecure,
