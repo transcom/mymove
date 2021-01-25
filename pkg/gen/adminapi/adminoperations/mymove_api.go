@@ -65,6 +65,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ElectronicOrderGetElectronicOrdersTotalsHandler: electronic_order.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_order.GetElectronicOrdersTotalsParams) middleware.Responder {
 			return middleware.NotImplemented("operation electronic_order.GetElectronicOrdersTotals has not yet been implemented")
 		}),
+		MoveGetMoveHandler: move.GetMoveHandlerFunc(func(params move.GetMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
+		}),
 		OfficeUsersGetOfficeUserHandler: office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		}),
@@ -113,6 +116,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AdminUsersUpdateAdminUserHandler: admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
 		}),
+		MoveUpdateMoveHandler: move.UpdateMoveHandlerFunc(func(params move.UpdateMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.UpdateMove has not yet been implemented")
+		}),
 		OfficeUsersUpdateOfficeUserHandler: office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
 		}),
@@ -157,6 +163,8 @@ type MymoveAPI struct {
 	AdminUsersGetAdminUserHandler admin_users.GetAdminUserHandler
 	// ElectronicOrderGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
 	ElectronicOrderGetElectronicOrdersTotalsHandler electronic_order.GetElectronicOrdersTotalsHandler
+	// MoveGetMoveHandler sets the operation handler for the get move operation
+	MoveGetMoveHandler move.GetMoveHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
 	OfficeUsersGetOfficeUserHandler office_users.GetOfficeUserHandler
 	// TransportationServiceProviderPerformancesGetTSPPHandler sets the operation handler for the get t s p p operation
@@ -189,6 +197,8 @@ type MymoveAPI struct {
 	UsersRevokeUserSessionHandler users.RevokeUserSessionHandler
 	// AdminUsersUpdateAdminUserHandler sets the operation handler for the update admin user operation
 	AdminUsersUpdateAdminUserHandler admin_users.UpdateAdminUserHandler
+	// MoveUpdateMoveHandler sets the operation handler for the update move operation
+	MoveUpdateMoveHandler move.UpdateMoveHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
 	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
 	// ServeError is called when an error is received, there is a default handler
@@ -269,6 +279,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.ElectronicOrderGetElectronicOrdersTotalsHandler == nil {
 		unregistered = append(unregistered, "electronic_order.GetElectronicOrdersTotalsHandler")
 	}
+	if o.MoveGetMoveHandler == nil {
+		unregistered = append(unregistered, "move.GetMoveHandler")
+	}
 	if o.OfficeUsersGetOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.GetOfficeUserHandler")
 	}
@@ -316,6 +329,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.AdminUsersUpdateAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.UpdateAdminUserHandler")
+	}
+	if o.MoveUpdateMoveHandler == nil {
+		unregistered = append(unregistered, "move.UpdateMoveHandler")
 	}
 	if o.OfficeUsersUpdateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.UpdateOfficeUserHandler")
@@ -427,6 +443,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/moves/{moveID}"] = move.NewGetMove(o.context, o.MoveGetMoveHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/office_users/{officeUserId}"] = office_users.NewGetOfficeUser(o.context, o.OfficeUsersGetOfficeUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -488,6 +508,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/admin_users/{adminUserId}"] = admin_users.NewUpdateAdminUser(o.context, o.AdminUsersUpdateAdminUserHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/moves/{moveID}"] = move.NewUpdateMove(o.context, o.MoveUpdateMoveHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

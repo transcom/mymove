@@ -4,6 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 
 	"github.com/transcom/mymove/pkg/services/organization"
@@ -176,6 +179,17 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		move.NewMoveListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+	}
+
+	adminAPI.MoveUpdateMoveHandler = UpdateMoveHandler{
+		context,
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+	}
+
+	adminAPI.MoveGetMoveHandler = GetMoveHandler{
+		context,
+		move.NewMoveFetcher(context.DB()),
+		query.NewQueryFilter,
 	}
 
 	return adminAPI.Serve(nil)
