@@ -123,7 +123,7 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 
 	if !*payload.Active {
 		revoke := true
-		// #TODO: Is there a more concise way to do this?
+
 		payload.RevokeAdminSession = &revoke
 		payload.RevokeOfficeSession = &revoke
 		payload.RevokeMilSession = &revoke
