@@ -253,6 +253,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			newQueryFilter,
 		}
 
+		suite.NoError(params.User.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		foundUser, _ := models.GetUser(suite.DB(), userID)
 
@@ -275,6 +277,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			newQueryFilter,
 		}
 
+		suite.NoError(params.User.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		foundUser, _ := models.GetUser(suite.DB(), userID)
 
@@ -310,6 +313,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			newQueryFilter,
 		}
 
+		suite.NoError(params.User.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		suite.IsType(&userop.UpdateUserOK{}, response)
@@ -337,6 +341,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		newQueryFilter,
 	}
 
+	suite.NoError(params.User.Validate(strfmt.Default))
 	handler.Handle(params)
 
 	suite.Error(err, "Error saving user")
