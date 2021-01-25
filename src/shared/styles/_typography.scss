@@ -80,6 +80,19 @@ a,
   &.focus {
     @include u-outline('05', 'blue-40v');
   }
+  &-light {
+    @include u-text('bold');
+    color: $link-light;
+    &:hover,
+    &.hover {
+      color: #b7caf0;
+      @include u-text('no-underline');
+    }
+    &:focus,
+    &.focus {
+      @include u-outline('05', 'blue-40v');
+    }
+  }
 }
 
 ul {
