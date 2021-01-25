@@ -1,9 +1,9 @@
 import * as child from 'child_process';
 
 /* eslint-disable import/no-extraneous-dependencies */
-import { includes, replace } from 'lodash';
 import { danger, warn, fail } from 'danger';
 import jiraIssue from 'danger-plugin-jira-issue';
+/* eslint-enable import/no-extraneous-dependencies */
 
 const githubChecks = () => {
   if (danger.github) {
@@ -48,9 +48,9 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
   }
 
   // Require new src/components files to include changes to storybook
-  const hasComponentChanges = danger.git.created_files.some((path) => includes(path, 'src/components'));
+  const hasComponentChanges = danger.git.created_files.some((path) => path.includes('src/components'));
   const hasStorybookChanges = allFiles.some(
-    (path) => includes(path, 'src/stories') || !!path.match(/src\/.*\.stories.jsx?/),
+    (path) => path.includes('src/stories') || !!path.match(/src\/.*\.stories.jsx?/),
   );
 
   if (hasComponentChanges && !hasStorybookChanges) {
@@ -58,8 +58,8 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
   }
 
   // Request update of yarn.lock if package.json changed but yarn.lock isn't
-  const packageChanged = includes(allFiles, 'package.json');
-  const lockfileChanged = includes(allFiles, 'yarn.lock');
+  const packageChanged = allFiles.includes('package.json');
+  const lockfileChanged = allFiles.includes('yarn.lock');
   // eslint-disable-next-line no-constant-condition
   if (false && packageChanged && !lockfileChanged) {
     const message = 'Changes were made to package.json, but not to yarn.lock';
@@ -68,26 +68,111 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
   }
 };
 
-const bypassingLinterChecks = async () => {
-  // load all modified and new files
-  const allFiles = danger.git.modified_files.concat(danger.git.created_files);
-  const bypassCodes = ['#nosec', 'eslint-disable', 'eslint-disable-next-line'];
-  let addedByPassCode = false;
-  const diffs = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
+function diffContainsNosec(diffForFile) {
+  return !!diffForFile.includes('#nosec');
+}
 
-  for (let i = 0; i < diffs.length; i += 1) {
-    const diff = diffs[Number(i)];
-    const diffsWithbypassCodes = bypassCodes.find((b) => diff.diff.includes(b));
-    if (diffsWithbypassCodes) {
-      addedByPassCode = true;
+function diffContainsEslint(diffForFile) {
+  return !!diffForFile.includes('eslint-disable');
+}
+
+function doesLineHaveProhibitedOverride(disablingString) {
+  const okBypassRules = [
+    'no-underscore-dangle',
+    'prefer-object-spread',
+    'object-shorthand',
+    'camelcase',
+    'react/jsx-props-no-spreading',
+    'react/destructuring-assignment',
+    'react/forbid-prop-types',
+    'react/prefer-stateless-function',
+    'react/sort-comp',
+    'import/no-extraneous-dependencies',
+    'import/order',
+    'import/prefer-default-export',
+    'import/no-named-as-default',
+  ];
+  let prohibitedOverrideMsg = '';
+  // disablingStringParts format: 'eslint-disable-next-line no-jsx, no-default'
+  // split along commas and/or spaces and remove surrounding spaces
+  const disablingStringParts = disablingString
+    .trim()
+    .split(/[\s,]+/)
+    .map((item) => item.trim());
+  // disablingStringParts format: ['eslint-disable-next-line', 'no-jsx', 'no-default']
+  if (disablingStringParts[0] === 'eslint-disable') {
+    // fail because don't disable whole file please!
+    prohibitedOverrideMsg =
+      'Found `eslint-disable`. This disables the whole file, which is bad practice because it can allow security issues to slip in unnoticed. Please specify exact rules on a line by line basis, eg `eslint-disable-next-line no-underscore-dangle`.';
+  }
+
+  if (disablingStringParts.length === 1) {
+    // fail because rule should be specified
+    prohibitedOverrideMsg = 'Must specify the rule you are disabling';
+    return prohibitedOverrideMsg;
+  }
+
+  // rules format: ['no-jsx', 'no-default']
+  const rules = disablingStringParts.slice(1);
+  for (let r = 0; r < rules.length; r += 1) {
+    const rule = rules[r];
+    if (!okBypassRules.includes(rule)) {
+      prohibitedOverrideMsg = `Contains a rule that is not in the permitted eslint list. You are free to disable only: (\n${okBypassRules.map(
+        (q) => `${q}\n`,
+      )})`;
       break;
     }
   }
+  return prohibitedOverrideMsg;
+}
 
-  if (addedByPassCode === true) {
+function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
+  let badOverrideMsg = '';
+  Object.keys(dangerJSDiffCollection).forEach((d) => {
+    const diffFile = dangerJSDiffCollection[`${d}`];
+    const diff = diffFile.added;
+    if (diffContainsNosec(diff)) {
+      badOverrideMsg = 'Contains prohibited linter override "#nosec".';
+      return;
+    }
+
+    if (!diffContainsEslint(diff)) {
+      return;
+    }
+
+    // split file diffs into lines
+    const lines = diff.split('\n');
+    for (let l = 0; l < lines.length; l += 1) {
+      const line = lines[l];
+      if (diffContainsEslint(line)) {
+        // check for comment marker (// or /*)
+        // eg line: 'const whatever = something() // eslint-disable-line'
+        let lineParts = line.split('//');
+        if (lineParts.length === 1) {
+          lineParts = line.split('/*');
+          if (lineParts.length === 1) {
+            throw new Error('uhhhh, how did we find eslint disable but no // or /*');
+          }
+        }
+
+        // eg lineParts: ['const whatever = something()', 'eslint-disable-line']
+        const stringAfterCommentMarker = lineParts[1];
+        badOverrideMsg = doesLineHaveProhibitedOverride(stringAfterCommentMarker);
+      }
+    }
+  });
+
+  return badOverrideMsg;
+}
+
+const bypassingLinterChecks = async () => {
+  const allFiles = danger.git.modified_files.concat(danger.git.created_files);
+  const diffsByFile = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
+  const dangerMsgSegment = checkPRHasProhibitedLinterOverride(diffsByFile);
+  if (dangerMsgSegment) {
     warn(
-      `It looks like you are attempting to bypass a linter rule, which is not a sustainable solution to meet
-      security compliance rules. Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
+      `It looks like you are attempting to bypass a linter rule, which is not within
+      security compliance rules.\n** ${dangerMsgSegment} **\n Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
     );
   }
 };
@@ -98,50 +183,33 @@ const cypressUpdateChecks = async () => {
 
   // check if relevant package.jsons have changed
   const rootPackageFile = 'package.json';
-  const cypressPackageFile = 'cypress/package.json';
-  const rootPackageChanged = includes(allFiles, rootPackageFile);
-  const cypressPackageChanged = includes(allFiles, 'cypress/package.json');
-  const cypressPackageName = '"cypress":';
-  const versionRegex = /(~|\^|)\d+.\d+.\d+/;
+  const rootPackageChanged = allFiles.includes(rootPackageFile);
+  const cypressPackageNames = [
+    '"cypress":',
+    '"cypress-audit":',
+    '"cypress-multi-reporters":',
+    '"cypress-wait-until":',
+    '"mocha":',
+    '"mocha-junit-reporter":',
+    '"moment":',
+  ];
 
   let hasRootCypressDepChanged = false;
-  let hasCypressPackageCypressDepChanged = false;
-  let rootVersion;
-  let cypressPackageVersion;
 
   // if root changed, check for cypress in diff
   if (rootPackageChanged) {
     const rootPackageDiff = await danger.git.diffForFile(rootPackageFile);
-    if (rootPackageDiff && rootPackageDiff.diff.includes(cypressPackageName)) {
-      hasRootCypressDepChanged = true;
-
-      const diff = rootPackageDiff.diff.split(cypressPackageName)[1]; // we don't care about diff before cypress
-      [rootVersion] = diff.match(versionRegex); // the first version # will be cypress's
-    }
+    cypressPackageNames.forEach((cypressPackageName) => {
+      if (hasRootCypressDepChanged || (rootPackageDiff && rootPackageDiff.diff.includes(cypressPackageName))) {
+        hasRootCypressDepChanged = true;
+      }
+    });
   }
 
-  // if cypress package changed, check for cypress in diff
-  if (cypressPackageChanged) {
-    const cypressPackageDiff = await danger.git.diffForFile(cypressPackageFile);
-    if (cypressPackageDiff && cypressPackageDiff.diff.includes(cypressPackageName)) {
-      hasCypressPackageCypressDepChanged = true;
-
-      const diff = cypressPackageDiff.diff.split(cypressPackageName)[1]; // we don't care about diff before cypress
-      [cypressPackageVersion] = diff.match(versionRegex); // the first version # will be cypress's
-    }
-  }
-
-  if (hasRootCypressDepChanged !== hasCypressPackageCypressDepChanged) {
+  if (hasRootCypressDepChanged) {
     warn(
-      `It looks like you updated the Cypress package dependency in one of two
-required places. Please update it in both the root package.json and the cypress/
-folder's separate package.json`,
-    );
-  } else if (rootVersion !== cypressPackageVersion) {
-    warn(
-      `It looks like there is a Cypress version mismatch between the root
-package.json and the cypress/ folder's separate package.json. Please double
-check they have the same version.`,
+      `It looks like you updated the Cypress package dependency in one of two required places.
+Please update it in both the root package.json and the [cirlcleci-docker/milmove-cypress/](https://github.com/transcom/circleci-docker) folder's separate package.json`,
     );
   }
 };
@@ -167,7 +235,7 @@ const checkYarnAudit = () => {
               `Package ${audit.data.advisory.module_name}\n` +
               `Patched in ${audit.data.advisory.patched_versions}\n` +
               `Dependency of ${audit.data.resolution.path.split('>')[0]}\n` +
-              `Path ${replace(audit.data.resolution.path, />/g, ' > ')}\n` +
+              `Path ${audit.data.resolution.path.replace(/>/g, ' > ')}\n` +
               `More info ${audit.data.advisory.url}\n\n`;
           }
         } catch {

@@ -1,24 +1,23 @@
-/* eslint-disable */
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { get } from 'lodash';
-
-import {
-  fetchLatestOrders,
-  selectActiveOrLatestOrders,
-  selectUploadsForActiveOrders,
-} from 'shared/Entities/modules/orders';
-
-import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
-import OrdersUploader from 'components/OrdersUploader';
-import UploadsTable from 'shared/Uploader/UploadsTable';
-import WizardPage from 'shared/WizardPage';
-import { documentSizeLimitMsg } from 'shared/constants';
 
 import './UploadOrders.css';
-import { no_op } from 'shared/utils';
+
+import OrdersUploader from 'components/OrdersUploader/index';
+import UploadsTable from 'components/UploadsTable/UploadsTable';
+import ConnectedWizardPage from 'shared/WizardPage/index';
+import { documentSizeLimitMsg } from 'shared/constants';
+import { getOrdersForServiceMember, createUploadForDocument, deleteUpload } from 'services/internalApi';
+import { updateOrders as updateOrdersAction } from 'store/entities/actions';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectUploadsForCurrentOrders,
+} from 'store/entities/selectors';
+// eslint-disable-next-line camelcase
+import { no_op as noop } from 'shared/utils';
+import { PageListShape, PageKeyShape, AdditionalParamsShape, OrdersShape, UploadsShape } from 'types/customerShapes';
 
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
@@ -28,21 +27,38 @@ export class UploadOrders extends Component {
 
     this.state = {
       newUploads: [],
-      showAmendedOrders: false,
     };
 
     this.onChange = this.onChange.bind(this);
-    this.deleteFile = this.deleteFile.bind(this);
-    this.setShowAmendedOrders = this.setShowAmendedOrders.bind(this);
+    this.handleUploadFile = this.handleUploadFile.bind(this);
+    this.handleDeleteFile = this.handleDeleteFile.bind(this);
   }
 
   componentDidMount() {
-    const { serviceMemberId } = this.props;
-    this.props.fetchLatestOrders(serviceMemberId);
+    const { serviceMemberId, updateOrders } = this.props;
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
   }
 
-  setShowAmendedOrders(show) {
-    this.setState({ showAmendedOrders: show });
+  handleUploadFile(file) {
+    const { currentOrders, serviceMemberId, updateOrders } = this.props;
+    const documentId = currentOrders?.uploaded_orders?.id;
+    return createUploadForDocument(file, documentId).then(() => {
+      getOrdersForServiceMember(serviceMemberId).then((response) => {
+        updateOrders(response);
+      });
+    });
+  }
+
+  handleDeleteFile(uploadId) {
+    const { serviceMemberId, updateOrders } = this.props;
+
+    return deleteUpload(uploadId).then(() => {
+      getOrdersForServiceMember(serviceMemberId).then((response) => {
+        updateOrders(response);
+      });
+    });
   }
 
   onChange(files) {
@@ -51,23 +67,17 @@ export class UploadOrders extends Component {
     });
   }
 
-  deleteFile(e, uploadId) {
-    e.preventDefault();
-    if (this.props.currentOrders) {
-      this.props.deleteUpload(uploadId);
-    }
-  }
-
   render() {
-    const { pages, pageKey, error, currentOrders, uploads, document, additionalParams } = this.props;
-    const isValid = Boolean(uploads.length || this.state.newUploads.length);
-    const isDirty = Boolean(this.state.newUploads.length);
+    const { pages, pageKey, error, currentOrders, uploads, additionalParams } = this.props;
+    const { newUploads } = this.state;
+    const isValid = Boolean(uploads.length || newUploads.length);
+    const isDirty = Boolean(newUploads.length);
     return (
-      <WizardPage
+      <ConnectedWizardPage
         additionalParams={additionalParams}
         dirty={isDirty}
         error={error}
-        handleSubmit={no_op}
+        handleSubmit={noop}
         pageIsValid={isValid}
         pageKey={pageKey}
         pageList={pages}
@@ -79,65 +89,61 @@ export class UploadOrders extends Component {
           <p>{documentSizeLimitMsg}</p>
         </div>
         {Boolean(uploads.length) && (
-          <Fragment>
+          <>
             <br />
-            <UploadsTable uploads={uploads} onDelete={this.deleteFile} />
-          </Fragment>
+            <UploadsTable uploads={uploads} onDelete={this.handleDeleteFile} />
+          </>
         )}
         {currentOrders && (
           <div className="uploader-box">
             <OrdersUploader
-              createUpload={this.props.createUpload}
-              deleteUpload={this.props.deleteUpload}
-              document={document}
+              createUpload={this.handleUploadFile}
+              deleteUpload={this.handleDeleteFile}
               onChange={this.onChange}
               options={{ labelIdle: uploaderLabelIdle }}
             />
             <div className="hint">(Each page must be clear and legible.)</div>
           </div>
         )}
-
-        {/* TODO: Uncomment when we support upload of amended orders */}
-        {/* <div className="amended-orders">
-          <p>
-            Do you have amended orders? If so, you need to upload those as well.
-          </p>
-          <YesNoBoolean
-            value={showAmendedOrders}
-            onChange={this.setShowAmendedOrders}
-          />
-          {this.state.showAmendedOrders && (
-            <div className="uploader-box">
-              <h4>Upload amended orders</h4>
-              <Uploader document={{}} onChange={no_op} />
-              <div className="hint">(Each page must be clear and legible)</div>
-            </div>
-          )}
-        </div> */}
-      </WizardPage>
+      </ConnectedWizardPage>
     );
   }
 }
 
 UploadOrders.propTypes = {
-  deleteUpload: PropTypes.func.isRequired,
+  serviceMemberId: PropTypes.string.isRequired,
+  updateOrders: PropTypes.func.isRequired,
+  pages: PageListShape.isRequired,
+  pageKey: PageKeyShape.isRequired,
+  currentOrders: OrdersShape,
+  error: PropTypes.string,
+  uploads: UploadsShape,
+  additionalParams: AdditionalParamsShape,
+};
+
+UploadOrders.defaultProps = {
+  currentOrders: null,
+  error: null,
+  additionalParams: null,
+  uploads: [],
 };
 
 function mapStateToProps(state) {
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
-  const currentOrders = selectActiveOrLatestOrders(state);
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const serviceMemberId = serviceMember?.id;
+  const currentOrders = selectCurrentOrders(state);
 
   const props = {
-    serviceMemberId: serviceMemberId,
+    serviceMemberId,
     currentOrders,
-    uploads: selectUploadsForActiveOrders(state),
-    document: selectDocument(state, currentOrders.uploaded_orders),
+    uploads: selectUploadsForCurrentOrders(state),
   };
+
   return props;
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ fetchLatestOrders, createUpload, deleteUpload }, dispatch);
-}
+const mapDispatchToProps = {
+  updateOrders: updateOrdersAction,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);

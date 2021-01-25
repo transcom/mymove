@@ -83,8 +83,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	// Storage
 	cli.InitStorageFlags(flag)
@@ -108,7 +108,7 @@ func main() {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

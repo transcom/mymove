@@ -87,6 +87,7 @@ type Move struct {
 	Show                    *bool                   `json:"show" db:"show"`
 	AvailableToPrimeAt      *time.Time              `db:"available_to_prime_at"`
 	ContractorID            *uuid.UUID              `db:"contractor_id"`
+	Contractor              *Contractor             `belongs_to:"contractors"`
 	PPMEstimatedWeight      *unit.Pound             `db:"ppm_estimated_weight"`
 	PPMType                 *string                 `db:"ppm_type"`
 	MTOServiceItems         MTOServiceItems         `has_many:"mto_service_items"`
@@ -172,8 +173,12 @@ func (m *Move) Approve() error {
 
 // SetApprovalsRequested sets the move to approvals requested
 func (m *Move) SetApprovalsRequested() error {
+	// Do nothing if it's already in the desired state
+	if m.Status == MoveStatusAPPROVALSREQUESTED {
+		return nil
+	}
 	if m.Status != MoveStatusAPPROVED {
-		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to Approvals Requested when the Move is not in an Approved state for status: %s and ID: %s", m.Status, m.ID))
+		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("The status for the Move with ID %s can only be set to 'Approvals Requested' from the 'Approved' status, but its current status is %s.", m.ID, m.Status))
 	}
 	m.Status = MoveStatusAPPROVALSREQUESTED
 	return nil

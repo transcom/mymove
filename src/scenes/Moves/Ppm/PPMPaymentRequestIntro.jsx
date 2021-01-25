@@ -1,18 +1,21 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
+import { get } from 'lodash';
+import { connect } from 'react-redux';
+import { reduxForm } from 'redux-form';
+
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import './PPMPaymentRequest.css';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { get } from 'lodash';
-import { withContext } from 'shared/AppContext';
-import { connect } from 'react-redux';
-import Alert from 'shared/Alert';
-import { reduxForm } from 'redux-form';
 import styles from './PPMPaymentRequestIntro.module.scss';
-import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-import { bindActionCreators } from 'redux';
+
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { formatDateForSwagger } from 'shared/dates';
+import { withContext } from 'shared/AppContext';
+import Alert from 'shared/Alert';
+import { getPPMsForMove, patchPPM } from 'services/internalApi';
+import { updatePPMs, updatePPM } from 'store/entities/actions';
+import { selectCurrentPPM } from 'store/entities/selectors';
 
 class PPMPaymentRequestIntro extends Component {
   state = {
@@ -20,15 +23,16 @@ class PPMPaymentRequestIntro extends Component {
   };
 
   componentDidMount() {
-    this.props.loadPPMs(this.props.moveID);
+    getPPMsForMove(this.props.moveID).then((response) => this.props.updatePPMs(response));
   }
 
   updatePpmDate = (formValues) => {
     const { history, moveID, currentPPM } = this.props;
     if (formValues.actual_move_date && currentPPM) {
-      const updatedPPM = { ...currentPPM, actual_move_date: formValues.actual_move_date };
-      this.props
-        .updatePPM(moveID, updatedPPM.id, updatedPPM)
+      const updatedPPM = { ...currentPPM, actual_move_date: formatDateForSwagger(formValues.actual_move_date) };
+
+      patchPPM(moveID, updatedPPM)
+        .then((response) => this.props.updatePPM(response))
         .then(() => history.push(`/moves/${moveID}/ppm-weight-ticket`))
         .catch(() => {
           this.setState({ ppmUpdateError: true });
@@ -58,7 +62,7 @@ class PPMPaymentRequestIntro extends Component {
               <li>
                 <strong>Weight tickets,</strong> both empty & full, for <em>each</em> vehicle and trip{' '}
                 <Link className="weight-ticket-examples-link usa-link" to="/weight-ticket-examples">
-                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
+                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon="question-circle" />
                 </Link>
               </li>
               <li>
@@ -105,24 +109,19 @@ PPMPaymentRequestIntro = reduxForm({
 
 function mapStateToProps(state, ownProps) {
   const moveID = ownProps.match.params.moveId;
-  const currentPPM = selectActivePPMForMove(state, moveID);
+  const currentPPM = selectCurrentPPM(state) || {};
   const actualMoveDate = currentPPM.actual_move_date ? currentPPM.actual_move_date : null;
   return {
-    moveID: moveID,
-    currentPPM: currentPPM,
+    moveID,
+    currentPPM,
     schema: get(state, 'swaggerInternal.spec.definitions.PatchPersonallyProcuredMovePayload'),
     initialValues: { actual_move_date: actualMoveDate },
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      loadPPMs,
-      updatePPM,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  updatePPM,
+  updatePPMs,
+};
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(PPMPaymentRequestIntro));

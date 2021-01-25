@@ -1,9 +1,6 @@
 package mtoagent
 
 import (
-	"fmt"
-
-	"github.com/getlantern/deepcopy"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -11,15 +8,15 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// UpdateMTOAgentBaseValidator is the key for generic validation on the MTO Agent
-const UpdateMTOAgentBaseValidator string = "UpdateMTOAgentBaseValidator"
+// UpdateMTOAgentBasicValidator is the key for generic validation on the MTO Agent
+const UpdateMTOAgentBasicValidator string = "UpdateMTOAgentBasicValidator"
 
 // UpdateMTOAgentPrimeValidator is the key for validating the MTO Agent for the Prime contractor
 const UpdateMTOAgentPrimeValidator string = "UpdateMTOAgentPrimeValidator"
 
 // UpdateMTOAgentValidators is the map connecting the constant keys to the correct validator
 var UpdateMTOAgentValidators = map[string]updateMTOAgentValidator{
-	UpdateMTOAgentBaseValidator:  new(baseUpdateMTOAgentValidator),
+	UpdateMTOAgentBasicValidator: new(basicUpdateMTOAgentValidator),
 	UpdateMTOAgentPrimeValidator: new(primeUpdateMTOAgentValidator),
 }
 
@@ -27,10 +24,10 @@ type updateMTOAgentValidator interface {
 	validate(agentData *updateMTOAgentData) error
 }
 
-// baseUpdateMTOAgentValidator is the type for validation that should happen no matter who uses this service object
-type baseUpdateMTOAgentValidator struct{}
+// basicUpdateMTOAgentValidator is the type for validation that should happen no matter who uses this service object
+type basicUpdateMTOAgentValidator struct{}
 
-func (v *baseUpdateMTOAgentValidator) validate(agentData *updateMTOAgentData) error {
+func (v *basicUpdateMTOAgentValidator) validate(agentData *updateMTOAgentData) error {
 	err := agentData.checkShipmentID()
 	if err != nil {
 		return err
@@ -140,12 +137,9 @@ func (v *updateMTOAgentData) getVerrs() error {
 }
 
 // setNewMTOAgent compares updatedAgent and oldAgent and updates a new MTOAgent instance with all data
-// (changed and unchanged) filled in
-func (v *updateMTOAgentData) setNewMTOAgent(newAgent *models.MTOAgent) error {
-	err := deepcopy.Copy(&newAgent, &v.oldAgent)
-	if err != nil {
-		return fmt.Errorf("error copying agent data %w", err)
-	}
+// (changed and unchanged) filled in. Does not return an error, data must be checked for validation before this step.
+func (v *updateMTOAgentData) setNewMTOAgent() *models.MTOAgent {
+	newAgent := v.oldAgent
 
 	if v.updatedAgent.MTOAgentType != "" {
 		newAgent.MTOAgentType = v.updatedAgent.MTOAgentType
@@ -179,5 +173,5 @@ func (v *updateMTOAgentData) setNewMTOAgent(newAgent *models.MTOAgent) error {
 		}
 	}
 
-	return nil
+	return &newAgent
 }

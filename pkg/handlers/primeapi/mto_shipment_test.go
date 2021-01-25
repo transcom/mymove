@@ -77,9 +77,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				StreetAddress2: pickupAddress.StreetAddress2,
 				StreetAddress3: pickupAddress.StreetAddress3,
 			},
-			PointOfContact:      "John Doe",
-			RequestedPickupDate: handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
-			ShipmentType:        primemessages.MTOShipmentTypeHHG,
+			PointOfContact:       "John Doe",
+			PrimeEstimatedWeight: 1200,
+			RequestedPickupDate:  handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
+			ShipmentType:         primemessages.MTOShipmentTypeHHG,
 		},
 	}
 
@@ -97,6 +98,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 		// check that the mto shipment status is Submitted
 		suite.Require().Equal(createMTOShipmentPayload.Status, primemessages.MTOShipmentStatusSUBMITTED, "MTO Shipment should have been submitted")
+		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
 	suite.T().Run("POST failure - 500", func(t *testing.T) {
@@ -982,15 +984,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.T().Run("Successful case for valid and complete payload including approved date and re service code", func(t *testing.T) {
-		reServiceID, _ := uuid.NewV4()
 		mto := testdatagen.MakeAvailableMove(suite.DB())
 
-		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				ID:   reServiceID,
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		})
+		reService := testdatagen.MakeDDFSITReService(suite.DB())
 
 		now := time.Now()
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1044,12 +1040,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		responsePayload := okResponse.Payload
 
 		suite.Equal(1, len(responsePayload.MtoServiceItems()))
-		var serviceItemDDFSIT *primemessages.MTOServiceItemDDFSIT
+		var serviceItemDDFSIT *primemessages.MTOServiceItemDestSIT
 		var serviceItemDDFSITCode string
 
 		for _, item := range responsePayload.MtoServiceItems() {
-			if item.ModelType() == primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT {
-				serviceItemDDFSIT = item.(*primemessages.MTOServiceItemDDFSIT)
+			if item.ModelType() == primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT {
+				serviceItemDDFSIT = item.(*primemessages.MTOServiceItemDestSIT)
 				serviceItemDDFSITCode = *serviceItemDDFSIT.ReServiceCode
 				break
 			}

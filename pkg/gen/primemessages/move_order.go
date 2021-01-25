@@ -17,9 +17,6 @@ import (
 // swagger:model MoveOrder
 type MoveOrder struct {
 
-	// confirmation number
-	ConfirmationNumber *string `json:"confirmationNumber,omitempty"`
-
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
 

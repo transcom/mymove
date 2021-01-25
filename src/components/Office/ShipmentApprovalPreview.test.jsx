@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import ShipmentContainer from './ShipmentContainer';
-import AllowancesTable from './AllowancesTable';
+import AllowancesTable from './AllowancesTable/AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 
 const shipments = [
@@ -108,7 +108,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'NTS',
+    shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },

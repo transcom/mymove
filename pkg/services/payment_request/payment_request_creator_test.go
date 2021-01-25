@@ -612,7 +612,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		suite.IsType(&services.BadDataError{}, err)
+		suite.IsType(services.NotFoundError{}, err)
+		suite.Equal("not found Service Item Param Key bogus: FETCH_NOT_FOUND", err.Error())
 	})
 
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {
@@ -671,4 +672,65 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal(expectedPaymentRequestNumber2, paymentRequest2.PaymentRequestNumber)
 		suite.Equal(expectedSequenceNumber2, paymentRequest2.SequenceNumber)
 	})
+
+	suite.T().Run("Payment request number fails due to empty MTO ReferenceID", func(t *testing.T) {
+
+		saveReferenceID := moveTaskOrder.ReferenceID
+		*moveTaskOrder.ReferenceID = ""
+		suite.MustSave(&moveTaskOrder)
+
+		// Create new one
+		paymentRequest1 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							ServiceItemParamKeyID: serviceItemParamKey1.ID,
+							Value:                 "3254",
+						},
+					},
+				},
+			},
+		}
+		_, err := creator.CreatePaymentRequest(&paymentRequest1)
+		suite.Contains(err.Error(), "has missing ReferenceID")
+
+		moveTaskOrder.ReferenceID = saveReferenceID
+		suite.MustSave(&moveTaskOrder)
+	})
+
+	suite.T().Run("Payment request number fails due to nil MTO ReferenceID", func(t *testing.T) {
+
+		saveReferenceID := moveTaskOrder.ReferenceID
+		moveTaskOrder.ReferenceID = nil
+		suite.MustSave(&moveTaskOrder)
+
+		// Create new one
+		paymentRequest1 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							ServiceItemParamKeyID: serviceItemParamKey1.ID,
+							Value:                 "3254",
+						},
+					},
+				},
+			},
+		}
+		_, err := creator.CreatePaymentRequest(&paymentRequest1)
+		suite.Contains(err.Error(), "has missing ReferenceID")
+
+		moveTaskOrder.ReferenceID = saveReferenceID
+		suite.MustSave(&moveTaskOrder)
+	})
+
 }

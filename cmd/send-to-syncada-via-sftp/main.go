@@ -35,11 +35,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
-
-	// DB Config
-	cli.InitSyncadaFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	flag.String("local-file-path", "", "The path where the file to be sent is located")
 	flag.String("syncada-file-name", "", "The name of the file to be stored in Syncada")
@@ -66,20 +63,21 @@ func main() {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		log.Fatalf("failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
-
-	fmt.Println("logger: ", logger)
 
 	err = checkConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
-	syncadaSFTPSession := invoice.NewSyncadaSFTPSession(v.GetString(cli.SyncadaSFTPPortFlag), v.GetString(cli.SyncadaSFTPUserIDFlag), v.GetString(cli.SyncadaSFTPIPAddressFlag), v.GetString(cli.SyncadaSFTPPsswrdFlag), v.GetString(cli.SyncadaSFTPInboundDirectoryFlag))
+	syncadaSFTPSession, err := invoice.InitNewSyncadaSFTPSession()
+	if err != nil {
+		logger.Fatal("couldn't initialize sftp session", zap.Error(err))
+	}
 
 	// open local file
 	localFile, err := os.Open(filepath.Clean(v.GetString("local-file-path")))

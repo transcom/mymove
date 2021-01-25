@@ -20,36 +20,36 @@ const reviewedPaymentRequest = {
 const serviceItemCards = [
   {
     id: '1',
-    shipmentType: SHIPMENT_OPTIONS.HHG,
-    shipmentId: '10',
-    serviceItemName: 'Domestic linehaul',
+    mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+    mtoShipmentID: '10',
+    mtoServiceItemName: 'Domestic linehaul',
     amount: 6423,
     status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
     createdAt: '2020-01-01T00:08:00.999Z',
   },
   {
     id: '2',
-    shipmentType: SHIPMENT_OPTIONS.HHG,
-    shipmentId: '10',
-    serviceItemName: 'Fuel Surcharge',
+    mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+    mtoShipmentID: '10',
+    mtoServiceItemName: 'Fuel Surcharge',
     amount: 50.25,
     createdAt: '2020-01-01T00:08:30.999Z',
     status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
   },
   {
     id: '3',
-    shipmentType: SHIPMENT_OPTIONS.NTS,
-    shipmentId: '20',
-    serviceItemName: 'Domestic linehaul',
+    mtoShipmentType: SHIPMENT_OPTIONS.NTS,
+    mtoShipmentID: '20',
+    mtoServiceItemName: 'Domestic linehaul',
     amount: 0.1,
     createdAt: '2020-01-01T00:09:00.999Z',
     status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
   },
   {
     id: '4',
-    shipmentType: null,
-    shipmentId: null,
-    serviceItemName: 'Counseling Services',
+    mtoShipmentType: null,
+    mtoShipmentID: null,
+    mtoServiceItemName: 'Counseling Services',
     amount: 1000,
     createdAt: '2020-01-01T00:02:00.999Z',
     status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
@@ -59,18 +59,18 @@ const serviceItemCards = [
 const basicServiceItemCards = [
   {
     id: '4',
-    shipmentType: null,
-    shipmentId: null,
-    serviceItemName: 'Counseling Services',
+    mtoShipmentType: null,
+    mtoShipmentID: null,
+    mtoServiceItemName: 'Counseling Services',
     amount: 1000,
     createdAt: '2020-01-01T00:02:00.999Z',
     status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
   },
   {
     id: '5',
-    shipmentType: null,
-    shipmentId: null,
-    serviceItemName: 'Move management',
+    mtoShipmentType: null,
+    mtoShipmentID: null,
+    mtoServiceItemName: 'Move management',
     amount: 1,
     createdAt: '2020-01-01T00:01:00.999Z',
     status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
@@ -78,7 +78,7 @@ const basicServiceItemCards = [
 ];
 
 const compareItem = (component, item) => {
-  expect(component.find('[data-testid="serviceItemName"]').text()).toEqual(item.serviceItemName);
+  expect(component.find('[data-testid="serviceItemName"]').text()).toEqual(item.mtoServiceItemName);
   expect(component.find('[data-testid="serviceItemAmount"]').text()).toEqual(toDollarString(item.amount));
 };
 
@@ -156,36 +156,36 @@ describe('ReviewServiceItems component', () => {
     const cardsWithInitialValues = [
       {
         id: '1',
-        shipmentType: SHIPMENT_OPTIONS.HHG,
-        shipmentId: '10',
-        serviceItemName: 'Domestic linehaul',
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+        mtoShipmentID: '10',
+        mtoServiceItemName: 'Domestic linehaul',
         amount: 6423,
         status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
       {
         id: '2',
-        shipmentType: SHIPMENT_OPTIONS.HHG,
-        shipmentId: '10',
-        serviceItemName: 'Fuel Surcharge',
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+        mtoShipmentID: '10',
+        mtoServiceItemName: 'Fuel Surcharge',
         amount: 50.25,
         createdAt: '2020-01-01T00:08:30.999Z',
         status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
       },
       {
         id: '3',
-        shipmentType: SHIPMENT_OPTIONS.NTS,
-        shipmentId: '20',
-        serviceItemName: 'Domestic linehaul',
+        mtoShipmentType: SHIPMENT_OPTIONS.NTS,
+        mtoShipmentID: '20',
+        mtoServiceItemName: 'Domestic linehaul',
         amount: 0.1,
         createdAt: '2020-01-01T00:09:00.999Z',
         status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
       },
       {
         id: '4',
-        shipmentType: null,
-        shipmentId: null,
-        serviceItemName: 'Counseling Services',
+        mtoShipmentType: null,
+        mtoShipmentID: null,
+        mtoServiceItemName: 'Counseling Services',
         amount: 1000,
         createdAt: '2020-01-01T00:02:00.999Z',
         status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
@@ -333,44 +333,44 @@ describe('ReviewServiceItems component', () => {
     const cardsWithInitialValues = [
       {
         id: '1',
-        shipmentType: SHIPMENT_OPTIONS.HHG,
-        shipmentId: '10',
-        serviceItemName: 'Domestic linehaul',
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+        mtoShipmentID: '10',
+        mtoServiceItemName: 'Domestic linehaul',
         amount: 6423,
         status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
       {
         id: '2',
-        shipmentType: SHIPMENT_OPTIONS.HHG,
-        shipmentId: '10',
-        serviceItemName: 'Fuel Surcharge',
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+        mtoShipmentID: '10',
+        mtoServiceItemName: 'Fuel Surcharge',
         amount: 50.25,
         status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:08:30.999Z',
       },
       {
         id: '3',
-        shipmentType: SHIPMENT_OPTIONS.NTS,
-        shipmentId: '20',
-        serviceItemName: 'Domestic linehaul',
+        mtoShipmentType: SHIPMENT_OPTIONS.NTS,
+        mtoShipmentID: '20',
+        mtoServiceItemName: 'Domestic linehaul',
         amount: 0.1,
         createdAt: '2020-01-01T00:09:00.999Z',
       },
       {
         id: '4',
-        shipmentType: null,
-        shipmentId: null,
-        serviceItemName: 'Counseling Services',
+        mtoShipmentType: null,
+        mtoShipmentID: null,
+        mtoServiceItemName: 'Counseling Services',
         amount: 1000,
         status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:02:00.999Z',
       },
       {
         id: '5',
-        shipmentType: null,
-        shipmentId: null,
-        serviceItemName: 'Move management',
+        mtoShipmentType: null,
+        mtoShipmentID: null,
+        mtoServiceItemName: 'Move management',
         amount: 1,
         status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
         rejectionReason: 'Wrong amount specified',
@@ -390,6 +390,27 @@ describe('ReviewServiceItems component', () => {
     it('calculates the approved sum for items with initial values', () => {
       expect(approvedAmount.text()).toEqual('$1,050.25');
     });
+
+    it('can clear approved amount for an item', async () => {
+      const approveInput = mountedComponent.find(`input[name="status"][value="APPROVED"]`);
+      expect(approveInput.length).toBe(1);
+
+      await act(async () => {
+        approveInput.simulate('change');
+      });
+      mountedComponent.update();
+
+      const clearSelectionButton = mountedComponent.find('button[data-testid="clearStatusButton"]');
+      expect(clearSelectionButton.length).toBe(1);
+
+      await act(async () => {
+        clearSelectionButton.simulate('click');
+      });
+      mountedComponent.update();
+
+      const clearedAmount = mountedComponent.find('[data-testid="approvedAmount"]');
+      expect(clearedAmount.text()).toEqual('$0.00');
+    });
   });
 
   describe('completing the review step', () => {
@@ -397,18 +418,18 @@ describe('ReviewServiceItems component', () => {
       const cardsWithInitialValues = [
         {
           id: '1',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Domestic linehaul',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Domestic linehaul',
           amount: 6423,
           status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
           createdAt: '2020-01-01T00:08:00.999Z',
         },
         {
           id: '2',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Fuel Surcharge',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Fuel Surcharge',
           amount: 50.25,
           status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
           createdAt: '2020-01-01T00:08:30.999Z',
@@ -460,9 +481,9 @@ describe('ReviewServiceItems component', () => {
       const cardWithInitialValues = [
         {
           id: '1',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Domestic linehaul',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Domestic linehaul',
           amount: 6423,
           status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
           createdAt: '2020-01-01T00:08:00.999Z',
@@ -504,27 +525,27 @@ describe('ReviewServiceItems component', () => {
       const cardsWithInitialValues = [
         {
           id: '1',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Domestic linehaul',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Domestic linehaul',
           amount: 6423,
           status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
           createdAt: '2020-01-01T00:08:00.999Z',
         },
         {
           id: '2',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Fuel Surcharge',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Fuel Surcharge',
           amount: 50.25,
           status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
           createdAt: '2020-01-01T00:08:30.999Z',
         },
         {
           id: '3',
-          shipmentType: null,
-          shipmentId: null,
-          serviceItemName: 'Move management',
+          mtoShipmentType: null,
+          mtoShipmentID: null,
+          mtoServiceItemName: 'Move management',
           amount: 10.25,
           status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
           createdAt: '2020-01-01T00:01:30.999Z',
@@ -585,27 +606,27 @@ describe('ReviewServiceItems component', () => {
       const cardsWithInitialValues = [
         {
           id: '1',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Domestic linehaul',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Domestic linehaul',
           amount: 6423,
           status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
           createdAt: '2020-01-01T00:08:00.999Z',
         },
         {
           id: '2',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Fuel Surcharge',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Fuel Surcharge',
           amount: 50.25,
           status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
           createdAt: '2020-01-01T00:08:30.999Z',
         },
         {
           id: '3',
-          shipmentType: null,
-          shipmentId: null,
-          serviceItemName: 'Move management',
+          mtoShipmentType: null,
+          mtoShipmentID: null,
+          mtoServiceItemName: 'Move management',
           amount: 10.25,
           status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
           createdAt: '2020-01-01T00:01:30.999Z',
@@ -701,9 +722,9 @@ describe('ReviewServiceItems component', () => {
       const cardsWithInitialValues = [
         {
           id: '1',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Domestic linehaul',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Domestic linehaul',
           amount: 6423,
           status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
           rejectionReason: 'Duplicate charge',
@@ -711,9 +732,9 @@ describe('ReviewServiceItems component', () => {
         },
         {
           id: '2',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Fuel Surcharge',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Fuel Surcharge',
           amount: 50.25,
           status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
           createdAt: '2020-01-01T00:08:30.999Z',
@@ -752,13 +773,15 @@ describe('ReviewServiceItems component', () => {
         reviewedComponent.update();
 
         let statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
-        expect(statusSummary.text()).toBe('form-checkmark.svgAccepted');
+        expect(statusSummary.find('FontAwesomeIcon').prop('icon')).toEqual('check');
+        expect(statusSummary.text()).toBe('Accepted');
 
         backButton.simulate('click');
         reviewedComponent.update();
 
         statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
-        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(statusSummary.find('FontAwesomeIcon').prop('icon')).toEqual('times');
+        expect(statusSummary.text()).toBe('Rejected');
         expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
       });
     });
@@ -767,9 +790,9 @@ describe('ReviewServiceItems component', () => {
       const cardsWithInitialValues = [
         {
           id: '1',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Domestic linehaul',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Domestic linehaul',
           amount: 6423,
           status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
           rejectionReason: 'Duplicate charge',
@@ -777,9 +800,9 @@ describe('ReviewServiceItems component', () => {
         },
         {
           id: '2',
-          shipmentType: SHIPMENT_OPTIONS.HHG,
-          shipmentId: '10',
-          serviceItemName: 'Fuel Surcharge',
+          mtoShipmentType: SHIPMENT_OPTIONS.HHG,
+          mtoShipmentID: '10',
+          mtoServiceItemName: 'Fuel Surcharge',
           amount: 50.25,
           status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
           rejectionReason: 'Not applicable',
@@ -818,14 +841,20 @@ describe('ReviewServiceItems component', () => {
         reviewedComponent.update();
 
         let statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
-        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(statusSummary.find('FontAwesomeIcon').prop('icon')).toEqual('times');
+        expect(statusSummary.text()).toBe('Rejected');
         expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Not applicable');
 
         backButton.simulate('click');
         reviewedComponent.update();
 
         statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
-        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(statusSummary.find('FontAwesomeIcon').prop('icon')).toEqual('times');
+        expect(statusSummary.text()).toBe('Rejected');
+        expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
+      });
+
+      it('displays the expected status', () => {
         expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
       });
     });

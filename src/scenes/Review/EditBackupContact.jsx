@@ -15,6 +15,7 @@ import SaveCancelButtons from './SaveCancelButtons';
 import './Review.css';
 import profileImage from './images/profile.png';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
+import { selectBackupContacts } from 'store/entities/selectors';
 
 const editBackupContactFormName = 'edit_backup_contact';
 
@@ -97,7 +98,7 @@ class EditBackupContact extends Component {
   };
 
   render() {
-    const { error, schema, backupContacts } = this.props;
+    const { schema, backupContacts } = this.props;
     const { errorMessage } = this.state;
 
     let backupContact = null;
@@ -107,10 +108,10 @@ class EditBackupContact extends Component {
 
     return (
       <div className="usa-grid">
-        {(error || errorMessage) && (
+        {errorMessage && (
           <div className="usa-width-one-whole error-message">
             <Alert type="error" heading="An error occurred">
-              {error?.message || errorMessage}
+              {errorMessage}
             </Alert>
           </div>
         )}
@@ -124,10 +125,7 @@ class EditBackupContact extends Component {
 
 function mapStateToProps(state) {
   return {
-    backupContacts: state.serviceMember.currentBackupContacts,
-    serviceMember: state.serviceMember.currentServiceMember,
-    error: get(state, 'serviceMember.error'),
-    hasSubmitError: get(state, 'serviceMember.updateBackupContactError'),
+    backupContacts: selectBackupContacts(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),
   };
 }

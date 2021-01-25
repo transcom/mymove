@@ -23,8 +23,11 @@ func TestMigrateSuite(t *testing.T) {
 	}
 
 	ms := &MigrateSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite("migrate"),
-		logger:       logger,
+		PopTestSuite: testingsuite.NewPopTestSuite(
+			"migrate",
+			testingsuite.WithHighPrivPSQLRole(),
+		),
+		logger: logger,
 	}
 	suite.Run(t, ms)
 	ms.PopTestSuite.TearDown()

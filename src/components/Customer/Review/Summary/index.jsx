@@ -9,18 +9,10 @@ import { Button } from '@trussworks/react-uswds';
 import styles from './Summary.module.scss';
 
 import { checkEntitlement } from 'scenes/Review/ducks';
-// eslint-disable-next-line import/no-named-as-default
-import PPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import ConnectedPPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
-import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import { selectActiveOrLatestOrdersFromEntities, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
+import { loadMove } from 'shared/Entities/modules/moves';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
-import {
-  moveIsApproved as selectMoveIsApproved,
-  lastMoveIsCanceled,
-  selectedMoveType as selectMoveType,
-} from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatOrderType } from 'utils/formatters';
 import Alert from 'shared/Alert';
@@ -32,7 +24,17 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard';
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectCurrentMove,
+  selectMoveIsApproved,
+  selectHasCanceledMove,
+  selectMoveType,
+  selectMTOShipmentsForCurrentMove,
+  selectCurrentPPM,
+} from 'store/entities/selectors';
+import { OrdersShape, MoveShape, MtoShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -182,7 +184,11 @@ export class Summary extends Component {
 
     const showPPMShipmentSummary = !isReviewPage && Object.keys(currentPPM).length && currentPPM.status !== 'DRAFT';
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
-    const hasPPMorHHG = (isReviewPage && Object.keys(currentPPM).length) || !!mtoShipments.length;
+    const hasPPM = Object.keys(currentPPM).length;
+
+    // customer can add another shipment IFF the move is still draft OR it's not a draft & they don't have a PPM yet
+    // double not is to prevent js from converting false to 0 and displaying said 0 on the page
+    const canAddAnotherShipment = isReviewPage && !!(currentMove.status === MOVE_STATUSES.DRAFT || !hasPPM);
 
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     const shipmentSelectionPath = `/moves/${currentMove.id}/select-type`;
@@ -235,18 +241,26 @@ export class Summary extends Component {
           {showMoveSetup && <h2 className={styles.moveSetup}>Move setup</h2>}
           {isReviewPage && this.renderShipments()}
           {showPPMShipmentSummary && (
-            <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
+            <ConnectedPPMShipmentSummary
+              ppm={currentPPM}
+              movePath={rootReviewAddressWithMoveId}
+              orders={currentOrders}
+            />
           )}
-          {hasPPMorHHG && (
-            <div className="grid-col-row margin-top-5">
-              <span className="float-right">Optional</span>
-              <h3>Add another shipment</h3>
-              <p>Will you move any belongings to or from another location?</p>
-              <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
-                Add another shipment
-              </Button>
-            </div>
-          )}
+          <div className="grid-col-row margin-top-5">
+            <span className="float-right">Optional</span>
+            <h3>Add another shipment</h3>
+            {canAddAnotherShipment ? (
+              <>
+                <p>Do you have more to move, either to or from another location, or by another method?</p>
+                <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
+                  Add another shipment
+                </Button>
+              </>
+            ) : (
+              <p>Talk with your movers directly if you want to add or change shipments.</p>
+            )}
+          </div>
           {moveIsApproved && (
             <div className="approved-edit-warning">
               *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
@@ -260,13 +274,13 @@ export class Summary extends Component {
 }
 
 Summary.propTypes = {
-  currentMove: shape({ id: string.isRequired }).isRequired,
-  currentOrders: shape({}).isRequired,
+  currentMove: MoveShape.isRequired,
+  currentOrders: OrdersShape.isRequired,
   currentPPM: shape({}).isRequired,
-  history: shape({ push: func.isRequired }).isRequired,
-  match: shape({ params: shape({ moveId: string.isRequired }) }).isRequired,
+  history: HistoryShape.isRequired,
+  match: MatchShape.isRequired,
   moveIsApproved: bool.isRequired,
-  mtoShipments: arrayOf(shape({})).isRequired,
+  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   onCheckEntitlement: func.isRequired,
   onDidMount: func.isRequired,
   selectedMoveType: string.isRequired,
@@ -283,27 +297,24 @@ Summary.defaultProps = {
   reviewState: {},
 };
 
-function mapStateToProps(state, ownProps) {
-  const moveID = ownProps.match.params.moveId;
-  const currentOrders = selectActiveOrLatestOrdersFromEntities(state);
-
+function mapStateToProps(state) {
   return {
-    currentPPM: selectActivePPMForMove(state, moveID),
-    mtoShipments: selectMTOShipmentsByMoveId(state, moveID),
-    serviceMember: state.serviceMember.currentServiceMember,
-    currentMove: selectMove(state, moveID),
-    currentOrders,
-    uploads: selectUploadsForActiveOrders(state),
+    currentPPM: selectCurrentPPM(state) || {},
+    mtoShipments: selectMTOShipmentsForCurrentMove(state),
+    serviceMember: selectServiceMemberFromLoggedInUser(state),
+    currentMove: selectCurrentMove(state) || {},
+    currentOrders: selectCurrentOrders(state) || {},
     selectedMoveType: selectMoveType(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
     moveIsApproved: selectMoveIsApproved(state),
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    lastMoveIsCanceled: selectHasCanceledMove(state),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
   };
 }
+
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     onDidMount() {
@@ -317,4 +328,5 @@ function mapDispatchToProps(dispatch, ownProps) {
     showLoggedInUser: showLoggedInUserAction,
   };
 }
+
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));

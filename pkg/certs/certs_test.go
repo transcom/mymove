@@ -47,7 +47,7 @@ func (suite *certTestSuite) SetViper(v *viper.Viper) {
 
 func TestCertSuite(t *testing.T) {
 
-	logger, err := logging.Config("development", true)
+	logger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel("debug"))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

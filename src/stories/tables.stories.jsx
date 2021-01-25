@@ -2,16 +2,13 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
 import { isHappoRun } from 'happo-plugin-storybook/register';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import QueueTable from '../components/QueueTable';
 import ServiceItemTable from '../components/ServiceItemTable';
 import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
 import DataPointGroup from '../components/DataPointGroup';
-
-import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
-import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
-import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
 
 const dataPointBody = (
   <>
@@ -26,7 +23,7 @@ const dataPointBody = (
 // Tables
 
 export default {
-  title: 'Components|Tables',
+  title: 'Components/Tables',
   parameters: {
     abstract: {
       url: 'https://share.goabstract.com/0a7c55ae-8268-4298-be70-4cf0117c6034?mode=design',
@@ -177,8 +174,9 @@ export const TableElements = () => (
         <code>th: error</code>
         <table className="table--stacked">
           <tbody>
-            <tr>
-              <th className="error">Table Cell Content</th>
+            <tr className="error">
+              <th>Table Cell Content</th>
+              <td>Table Cell Content</td>
             </tr>
           </tbody>
         </table>
@@ -192,7 +190,7 @@ export const TableElements = () => (
         <div className="tcontrol--pagination">
           <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
             <span className="icon">
-              <ChevronLeft />
+              <FontAwesomeIcon icon="chevron-left" />
             </span>
             <span>Prev</span>
           </Button>
@@ -204,7 +202,7 @@ export const TableElements = () => (
           <Button className="usa-button--unstyled" onClick={action('clicked')}>
             <span>Next</span>
             <span className="icon">
-              <ChevronRight />
+              <FontAwesomeIcon icon="chevron-right" />
             </span>
           </Button>
         </div>
@@ -294,12 +292,12 @@ export const StandardTables = () => (
           <DataPoint
             columnHeaders={['Authorized addresses', '']}
             dataRow={['San Antonio, TX 78234', 'Tacoma, WA 98421']}
-            Icon={ArrowRight}
+            icon={<FontAwesomeIcon icon="arrow-right" />}
           />
           <DataPoint
             columnHeaders={["Customer's addresses", '']}
             dataRow={['812 S 129th St, San Antonio, TX 78234', '441 SW Rio de la Plata Drive, Tacoma, WA 98421']}
-            Icon={ArrowRight}
+            icon={<FontAwesomeIcon icon="arrow-right" />}
           />
         </DataPointGroup>
       </div>
@@ -327,7 +325,7 @@ export const ServiceItemTables = () => (
             description: "Here's the description",
             itemDimensions: { length: 8400, width: 2600, height: 4200 },
             crateDimensions: { length: 110000, width: 36000, height: 54000 },
-            imgURL: isHappoRun ? null : 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
+            imgURL: isHappoRun() ? null : 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
           },
         },
       ]}

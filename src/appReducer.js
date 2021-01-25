@@ -5,6 +5,8 @@ import { adminReducer } from 'react-admin';
 import defaultMessages from 'ra-language-english';
 
 import authReducer from 'store/auth/reducer';
+import onboardingReducer from 'store/onboarding/reducer';
+import flashReducer from 'store/flash/reducer';
 import userReducer from 'shared/Data/users';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
 import { requestsReducer } from 'shared/Swagger/requestsReducer';
@@ -15,7 +17,6 @@ import { ppmReducer } from 'scenes/Moves/Ppm/ducks';
 import { serviceMemberReducer } from 'scenes/ServiceMembers/ducks';
 import { ordersReducer } from 'scenes/Orders/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
-import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
 import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
@@ -25,6 +26,7 @@ const i18nProvider = () => defaultMessages;
 
 const defaultReducers = {
   auth: authReducer,
+  flash: flashReducer,
   form: formReducer,
   swaggerPublic: swaggerReducerPublic,
   requests: requestsReducer,
@@ -36,6 +38,7 @@ const defaultReducers = {
 export const appReducer = (history) =>
   combineReducers({
     ...defaultReducers,
+    onboarding: onboardingReducer,
     router: connectRouter(history),
     swaggerInternal: swaggerReducerInternal,
     moves: moveReducer,
@@ -43,7 +46,6 @@ export const appReducer = (history) =>
     serviceMember: serviceMemberReducer,
     orders: ordersReducer,
     signedCertification: signedCertificationReducer,
-    upload: documentReducer,
     review: reviewReducer,
     flashMessages: officeFlashMessagesReducer,
     ppmIncentive: officePpmReducer,

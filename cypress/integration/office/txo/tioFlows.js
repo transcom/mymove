@@ -20,18 +20,18 @@ describe('TIO user', () => {
   });
 
   beforeEach(() => {
-    cy.removeFetch();
-    cy.server();
-    cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.route('GET', '/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
-    cy.route('GET', '/ghc/v1/payment-requests/**').as('getPaymentRequest');
-    cy.route('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
-    cy.route('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
+    cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
+    cy.intercept('**/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
+    cy.intercept('**/ghc/v1/queues/payment-requests?sort=age&order=desc&page=1&perPage=20').as(
+      'getSortedPaymentRequests',
+    );
+    cy.intercept('**/ghc/v1/moves/**/payment-requests').as('getMovePaymentRequests');
+    cy.intercept('**/ghc/v1/payment-requests/**').as('getPaymentRequest');
 
-    cy.route('PATCH', '/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
+    cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
       'patchPaymentServiceItemStatus',
     );
-    cy.route('PATCH', '/ghc/v1/payment-requests/**/status').as('patchPaymentRequestStatus');
+    cy.intercept('PATCH', '**/ghc/v1/payment-requests/**/status').as('patchPaymentRequestStatus');
 
     const userId = '3b2cc1b0-31a2-4d1b-874f-0591f9127374';
     cy.apiSignInAsUser(userId, TIOOfficeUserType);
@@ -42,12 +42,19 @@ describe('TIO user', () => {
     const paymentRequestId = 'ea945ab7-099a-4819-82de-6968efe131dc';
 
     // TIO Payment Requests queue
-    cy.wait(['@getGHCClient', '@getPaymentRequests']);
+    cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
     cy.get('[data-uuid="' + paymentRequestId + '"]').click();
 
+    // Payment Requests page
+    cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+    cy.contains('Review service items').click();
+
+    // Retaining these tests as comments so that they can be reactivated for service item review flow
     // Payment Request detail page
     cy.url().should('include', `/payment-requests/${paymentRequestId}`);
-    cy.wait(['@getPaymentRequest', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getPaymentRequest']);
     cy.get('[data-testid="ReviewServiceItems"]');
 
     // Approve the first service item
@@ -74,7 +81,16 @@ describe('TIO user', () => {
     cy.contains('Authorize payment').click();
     cy.wait('@patchPaymentRequestStatus');
 
+    // Returns to payment requests overview for move
+    cy.url().should('include', `/payment-requests`);
+    cy.wait(['@getMovePaymentRequests']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+    cy.get('[data-testid="MovePaymentRequests"] [data-testid="tag"]').contains('Reviewed');
+    cy.contains('Review Service Items').should('not.exist');
+
     // Go back to queue
+    cy.get('a[title="Home"]').click();
+
     cy.contains('Payment requests', { matchCase: false });
     cy.contains('Reviewed', { matchCase: false });
     cy.get('[data-uuid="' + paymentRequestId + '"]').within(() => {

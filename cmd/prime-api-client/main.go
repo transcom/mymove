@@ -15,7 +15,7 @@ import (
 // initRootFlags initializes flags relating to the prime api
 func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitCACFlags(flag)
-	cli.InitVerboseFlags(flag)
+	cli.InitLoggingFlags(flag)
 
 	flag.String(utils.CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
 	flag.String(utils.KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
@@ -254,6 +254,28 @@ func main() {
 	support.InitGetMTOFlags(getMoveTaskOrder.Flags())
 	root.AddCommand(getMoveTaskOrder)
 
+	updateMTOServiceItem := &cobra.Command{
+		Use:   "update-mto-service-item",
+		Short: "Update service item",
+		Long: `
+  	This command updates an MTO service item. It requires the caller to pass in
+	a file using the --filename arg. The file should contain path parameters,
+	headers and a body for the payload.
+
+	Endpoint path: /mto-service-items/{mtoServiceItemID}
+  	The file should contain json as follows:
+ 	  {
+        "mtoServiceItemID": <uuid string>,
+        "ifMatch": <etag>,
+        "body" : <UpdateMTOServiceItem>
+      }
+  	Please see API documentation for full details on the endpoint definition.`,
+		RunE:         prime.UpdateMTOServiceItem,
+		SilenceUsage: false,
+	}
+	prime.InitUpdateMTOServiceItemFlags(updateMTOServiceItem.Flags())
+	root.AddCommand(updateMTOServiceItem)
+
 	updateMTOServiceItemStatus := &cobra.Command{
 		Use:   "support-update-mto-service-item-status",
 		Short: "Update service item status",
@@ -396,6 +418,20 @@ func main() {
 	}
 	support.InitGetPaymentRequestEDIFlags(processReviewedPaymentRequests.Flags())
 	root.AddCommand(processReviewedPaymentRequests)
+
+	hideNonFakeMoveTaskOrdersCommand := &cobra.Command{
+		Use:   "support-hide-non-fake-mtos",
+		Short: "Hide moves not in the fake data spreadsheet",
+		Long: `This command will trigger finding all of the moves in stg and env environments
+		that do not use fake data from the fake names and addresses spreadsheet.
+		To do this, all of the moves that do not match the data in the fake data spreadsheet
+		will set the moves.show field to false.
+		This will cause the move to not appear in the office applications.`,
+		RunE:         support.HideNonFakeMoveTaskOrders,
+		SilenceUsage: true,
+	}
+	support.InitHideNonFakeMoveTaskOrdersFlags(hideNonFakeMoveTaskOrdersCommand.Flags())
+	root.AddCommand(hideNonFakeMoveTaskOrdersCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

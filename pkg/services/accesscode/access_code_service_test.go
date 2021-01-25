@@ -13,7 +13,8 @@ type AccessCodeServiceSuite struct {
 }
 
 func (suite *AccessCodeServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestAccessCodeServiceSuite(t *testing.T) {

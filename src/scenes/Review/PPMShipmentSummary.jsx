@@ -4,16 +4,19 @@ import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 import { object, string, shape, bool, number } from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
+
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
-import { hasShortHaulError } from 'shared/incentive';
-import { getRequestStatus } from 'shared/Swagger/selectors';
+import { hasShortHaulError } from 'utils/incentives';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentPPM,
+  selectReimbursementById,
+} from 'store/entities/selectors';
+import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
 import './Review.css';
-
-const getPPMEstimateLabel = 'ppm.showPPMEstimate';
 
 export class PPMShipmentSummary extends Component {
   chooseEstimateText(ppmEstimate) {
@@ -142,8 +145,6 @@ PPMShipmentSummary.propTypes = {
   movePath: string.isRequired,
   ppmEstimate: shape({
     hasEstimateError: bool.isRequired,
-    hasEstimateSuccess: bool.isRequired,
-    hasEstimateInProgress: bool.isRequired,
     rateEngineError: Error.isRequired,
     originDutyStationZip: string.isRequired,
     incentive_estimate_min: number,
@@ -153,23 +154,21 @@ PPMShipmentSummary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const { ppm } = ownProps;
-  const advance = selectReimbursement(state, ppm.advance);
-  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } = selectActivePPMForMove(
-    state,
-    ppm.move_id,
-  );
-  const ppmEstimateStatus = getRequestStatus(state, getPPMEstimateLabel);
-  let hasError = !!ppmEstimateStatus.error;
+  const advance = selectReimbursementById(state, ppm.advance) || {};
+  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } =
+    selectCurrentPPM(state) || {};
+
+  const ppmEstimateError = selectPPMEstimateError(state);
+  let hasError = !!ppmEstimateError;
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
     ...ownProps,
     advance,
     ppmEstimate: {
       hasEstimateError: hasError,
-      hasEstimateSuccess: state.ppm.hasEstimateSuccess,
-      hasEstimateInProgress: state.ppm.hasEstimateInProgress,
-      rateEngineError: state.ppm.rateEngineError || null,
-      originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+      rateEngineError: ppmEstimateError,
+      originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
       incentive_estimate_min,
       incentive_estimate_max,
     },

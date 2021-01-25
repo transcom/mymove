@@ -29,7 +29,7 @@ func (suite *HandlerSuite) AuthenticateClientCertRequest(req *http.Request, cert
 
 // SetupTest sets up the test suite by preparing the DB
 func (suite *HandlerSuite) SetupTest() {
-	errTruncateAll := suite.DB().TruncateAll()
+	errTruncateAll := suite.TruncateAll()
 	if errTruncateAll != nil {
 		log.Panicf("failed to truncate database: %#v", errTruncateAll)
 	}

@@ -12,10 +12,15 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
-import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectMoveIsApproved,
+  selectCurrentMove,
+  selectHasCurrentPPM,
+} from 'store/entities/selectors';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -146,15 +151,15 @@ class EditProfile extends Component {
   }
 
   render() {
-    const { error, schema, serviceMember, moveIsApproved, schemaAffiliation, schemaRank } = this.props;
+    const { schema, serviceMember, moveIsApproved, schemaAffiliation, schemaRank } = this.props;
     const { errorMessage } = this.state;
 
     return (
       <div className="usa-grid">
-        {(error || errorMessage) && (
+        {errorMessage && (
           <div className="usa-width-one-whole error-message">
             <Alert type="error" heading="An error occurred">
-              {error?.message || errorMessage}
+              {errorMessage}
             </Alert>
           </div>
         )}
@@ -176,14 +181,14 @@ class EditProfile extends Component {
 }
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
-    serviceMember: get(state, 'serviceMember.currentServiceMember'),
-    move: get(state, 'moves.currentMove'),
-    error: get(state, 'serviceMember.error'),
-    hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
+    serviceMember,
+    move: selectCurrentMove(state) || {},
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
-    moveIsApproved: moveIsApproved(state),
-    isPpm: isPpm(state),
+    moveIsApproved: selectMoveIsApproved(state),
+    isPpm: selectHasCurrentPPM(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
   };

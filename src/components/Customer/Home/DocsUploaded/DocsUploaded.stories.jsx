@@ -11,5 +11,5 @@ export const Basic = () => (
 );
 
 export default {
-  title: 'Customer Components | DocsUploaded',
+  title: 'Customer Components / DocsUploaded',
 };

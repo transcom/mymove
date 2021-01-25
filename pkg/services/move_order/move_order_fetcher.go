@@ -48,14 +48,14 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	} else {
 		gblocQuery = gblocFilter(gbloc)
 	}
-	moveIDQuery := moveIDFilter(params.MoveID)
+	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := []QueryOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
+	options := []QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
 
 	query := f.db.Q().Eager(
 		"Orders.ServiceMember",
@@ -70,7 +70,8 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
 		InnerJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
 		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
-		Where("show = ?", swag.Bool(true))
+		Where("show = ?", swag.Bool(true)).
+		Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
 
 	for _, option := range options {
 		if option != nil {
@@ -135,10 +136,12 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 	// have an associated move_task_order.
 	moveOrder := &models.Order{}
 	err := f.db.Q().Eager(
-		"ServiceMember",
+		"ServiceMember.BackupContacts",
+		"ServiceMember.ResidentialAddress",
 		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
+		"Moves",
 	).Find(moveOrder, moveOrderID)
 
 	if err != nil {
@@ -189,10 +192,10 @@ func dodIDFilter(dodID *string) QueryOption {
 	}
 }
 
-func moveIDFilter(moveID *string) QueryOption {
+func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
-		if moveID != nil {
-			query = query.Where("moves.locator = ?", *moveID)
+		if locator != nil {
+			query = query.Where("moves.locator = ?", *locator)
 		}
 	}
 }
@@ -229,7 +232,7 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"lastName":               "service_members.last_name",
 		"dodID":                  "service_members.edipi",
 		"branch":                 "service_members.affiliation",
-		"moveID":                 "moves.locator",
+		"locator":                "moves.locator",
 		"status":                 "moves.status",
 		"destinationDutyStation": "dest_ds.name",
 	}

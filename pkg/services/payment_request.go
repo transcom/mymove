@@ -18,6 +18,7 @@ type PaymentRequestCreator interface {
 //go:generate mockery -name PaymentRequestListFetcher
 type PaymentRequestListFetcher interface {
 	FetchPaymentRequestList(officeUserID uuid.UUID, params *FetchPaymentRequestListParams) (*models.PaymentRequests, int, error)
+	FetchPaymentRequestListByMove(officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error)
 }
 
 // PaymentRequestFetcher is the exported interface for fetching a payment request
@@ -53,7 +54,7 @@ type PaymentRequestReviewedProcessor interface {
 // FetchPaymentRequestListParams is a public struct that's used to pass filter arguments to FetchPaymentRequestList
 type FetchPaymentRequestListParams struct {
 	Branch                 *string
-	MoveID                 *string
+	Locator                *string
 	DodID                  *string
 	LastName               *string
 	DestinationDutyStation *string
@@ -61,4 +62,6 @@ type FetchPaymentRequestListParams struct {
 	Page                   *int64
 	PerPage                *int64
 	SubmittedAt            *string
+	Sort                   *string
+	Order                  *string
 }

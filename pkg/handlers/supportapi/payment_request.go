@@ -114,6 +114,8 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		case services.PreconditionFailedError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+		case services.ConflictError:
+			return paymentrequestop.NewUpdatePaymentRequestStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
 		default:
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
 			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
@@ -208,6 +210,11 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 			return paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity().
 				WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 
+		// ConflictError -> Conflict Error reponse
+		case services.ConflictError:
+			return paymentrequestop.NewGetPaymentRequestEDIConflict().
+				WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+
 		// QueryError -> Internal Server error
 		case services.QueryError:
 			if e.Unwrap() != nil {
@@ -257,8 +264,13 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, sendToSyncada flag required", h.GetTraceID()))
 	}
 	if *sendToSyncada {
-		reviewedPaymentRequestProcessor := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true)
-		err := reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
+		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, h.ICNSequencer())
+		if err != nil {
+			msg := fmt.Sprintf("failed to initialize InitNewPaymentRequestReviewedProcessor")
+			logger.Error(msg, zap.Error(err))
+			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		}
+		err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 		if err != nil {
 			msg := fmt.Sprintf("Error processing reviewed payment requests")
 			logger.Error(msg, zap.Error(err))

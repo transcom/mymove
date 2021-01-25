@@ -18,7 +18,8 @@ type GHCRateEngineServiceSuite struct {
 }
 
 func (suite *GHCRateEngineServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestGHCRateEngineServiceSuite(t *testing.T) {
@@ -79,4 +80,38 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticPackAndUnpackData(code mode
 	domesticPackUnpackNonpeakPrice.IsPeakPeriod = false
 	domesticPackUnpackNonpeakPrice.PriceCents = 127
 	suite.MustSave(&domesticPackUnpackNonpeakPrice)
+}
+
+func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code models.ReServiceCode, serviceAreaCode string, isPeakPeriod bool, priceCents unit.Cents, escalationCompounded float64) {
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EscalationCompounded: escalationCompounded,
+			},
+		})
+
+	service := testdatagen.MakeReService(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+			},
+		})
+
+	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+		testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				Contract:    contractYear.Contract,
+				ServiceArea: serviceAreaCode,
+			},
+		})
+
+	serviceAreaPrice := models.ReDomesticServiceAreaPrice{
+		ContractID:            contractYear.Contract.ID,
+		ServiceID:             service.ID,
+		IsPeakPeriod:          isPeakPeriod,
+		DomesticServiceAreaID: serviceArea.ID,
+		PriceCents:            priceCents,
+	}
+
+	suite.MustSave(&serviceAreaPrice)
 }

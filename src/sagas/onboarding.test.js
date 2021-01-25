@@ -16,6 +16,7 @@ import {
   initOnboardingFailed,
   initOnboardingComplete,
 } from 'store/onboarding/actions';
+import { setFlashMessage } from 'store/flash/actions';
 import {
   getLoggedInUser,
   createServiceMember as createServiceMemberApi,
@@ -271,6 +272,19 @@ describe('createServiceMember saga', () => {
           type: CREATE_SERVICE_MEMBER.failure,
           error,
         }),
+      );
+    });
+
+    it('sets the error flash message', () => {
+      expect(generator.next().value).toEqual(
+        put(
+          setFlashMessage(
+            'SERVICE_MEMBER_CREATE_ERROR',
+            'error',
+            'There was an error creating your profile information.',
+            'An error occurred',
+          ),
+        ),
       );
     });
 

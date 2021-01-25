@@ -7,7 +7,6 @@
   @include u-padding-y(2);
   :global .stackedtable-header {
     max-width: unset;
-
     h4 {
       color: $base-darkest;
     }
@@ -28,7 +27,6 @@
 
   :global .table--stacked {
     width: 100%;
-    //color: $base-darkest;
   }
 
   th {

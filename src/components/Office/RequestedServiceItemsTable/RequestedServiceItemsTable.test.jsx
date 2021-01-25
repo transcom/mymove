@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { shallow, mount } from 'enzyme';
 
@@ -5,7 +6,10 @@ import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
 import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
-const handleUpdateServiceItems = jest.fn();
+const defaultProps = {
+  handleShowRejectionDialog: jest.fn(),
+  handleUpdateMTOServiceItemStatus: jest.fn(),
+};
 
 const serviceItemWithImg = {
   id: 'abc123',
@@ -68,7 +72,7 @@ describe('RequestedServiceItemsTable', () => {
 
     let wrapper = shallow(
       <RequestedServiceItemsTable
-        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
@@ -80,7 +84,7 @@ describe('RequestedServiceItemsTable', () => {
 
     wrapper = shallow(
       <RequestedServiceItemsTable
-        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
@@ -92,7 +96,7 @@ describe('RequestedServiceItemsTable', () => {
     const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
-        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
@@ -112,7 +116,7 @@ describe('RequestedServiceItemsTable', () => {
     const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
-        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
@@ -128,7 +132,7 @@ describe('RequestedServiceItemsTable', () => {
     const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
-        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
@@ -152,7 +156,7 @@ describe('RequestedServiceItemsTable', () => {
     const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
-        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
       />,
@@ -172,7 +176,7 @@ describe('RequestedServiceItemsTable', () => {
     const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
-        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
       />,

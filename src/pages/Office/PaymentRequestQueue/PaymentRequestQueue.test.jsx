@@ -6,6 +6,15 @@ import PaymentRequestQueue from './PaymentRequestQueue';
 import { MockProviders } from 'testUtils';
 
 jest.mock('hooks/queries', () => ({
+  useUserQueries: () => {
+    return {
+      isLoading: false,
+      isError: false,
+      data: {
+        office_user: { transportation_office: { gbloc: 'TEST' } },
+      },
+    };
+  },
   usePaymentRequestQueueQueries: () => {
     return {
       queueResult: {
@@ -70,6 +79,11 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('thead tr th').at(7).text()).toBe('Origin GBLOC');
   });
 
+  it('renders the correct status filter', () => {
+    const statusFilter = wrapper.find('[data-testid="statusFilter"] MultiSelectCheckBoxFilter');
+    expect(statusFilter.length).toBe(1);
+  });
+
   it('renders the table with data and expected values', () => {
     expect(wrapper.find('Table').exists()).toBe(true);
     expect(wrapper.find('tbody tr').length).toBe(1);
@@ -82,5 +96,31 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('tbody tr td').at(5).text()).toBe('R993T7');
     expect(wrapper.find('tbody tr td').at(6).text()).toBe('Army');
     expect(wrapper.find('tbody tr td').at(7).text()).toBe('LKNQ');
+  });
+
+  it('applies the sort to the age column in descending direction', () => {
+    expect(wrapper.find({ 'data-testid': 'age' }).at(0).hasClass('sortDescending')).toBe(true);
+  });
+
+  it('toggles the sort direction when clicked', () => {
+    const ageHeading = wrapper.find({ 'data-testid': 'age' }).at(0);
+
+    ageHeading.simulate('click');
+    wrapper.update();
+
+    // no sort direction should be applied
+    expect(wrapper.find({ 'data-testid': 'age' }).at(0).hasClass('sortAscending')).toBe(false);
+    expect(wrapper.find({ 'data-testid': 'age' }).at(0).hasClass('sortDescending')).toBe(false);
+
+    ageHeading.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'age' }).at(0).hasClass('sortAscending')).toBe(true);
+
+    const nameHeading = wrapper.find({ 'data-testid': 'lastName' }).at(0);
+    nameHeading.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
   });
 });

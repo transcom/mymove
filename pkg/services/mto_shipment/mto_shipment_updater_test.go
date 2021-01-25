@@ -564,4 +564,19 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Equal(models.MTOShipmentStatusRejected, shipment6.Status)
 		suite.Nil(shipment3.ApprovedDate)
 	})
+
+	suite.T().Run("When move is not yet approved, cannot approve shipment", func(t *testing.T) {
+		submittedMTO := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		mtoShipment := submittedMTO.MTOShipments[0]
+		eTag = etag.GenerateEtag(mtoShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(mtoShipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
+		suite.DB().Find(&mtoShipment, mtoShipment.ID)
+
+		suite.Nil(updatedShipment)
+		suite.Equal(models.MTOShipmentStatusSubmitted, mtoShipment.Status)
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
+		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved.")
+	})
 }

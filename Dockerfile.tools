@@ -1,4 +1,4 @@
-FROM alpine:3.12.1
+FROM alpine:3.12.3
 
 COPY bin/generate-test-data /bin/generate-test-data
 COPY bin/prime-api-client /bin/prime-api-client

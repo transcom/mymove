@@ -1,32 +1,34 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { get, isEmpty } from 'lodash';
-import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { formatCents } from 'shared/formatters';
-import { formatIncentiveRange } from 'shared/incentive';
-import { selectPPMEstimateRange, selectReimbursement } from 'shared/Entities/modules/ppms';
-import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
+
 import styles from './PpmMoveDetails.module.scss';
 
-const SubmittedPpmMoveDetails = (props) => {
-  const { advance, ppm, currentPPM, tempCurrentPPM, hasEstimateError, estimateRange } = props;
-  const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
-    ? `(up to ${ppm.estimated_storage_reimbursement})`
-    : '';
-  const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
-  const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
-  const currentPPMToUse = isEmpty(currentPPM) ? tempCurrentPPM : currentPPM;
-  const incentiveRange = formatIncentiveRange(currentPPMToUse, estimateRange);
+import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
+import { formatCents } from 'shared/formatters';
+import { getIncentiveRange } from 'utils/incentives';
+import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
+import { selectCurrentPPM, selectPPMEstimateRange, selectReimbursementById } from 'store/entities/selectors';
+import { selectPPMEstimateError } from 'store/onboarding/selectors';
 
-  const weightEstimate = currentPPMToUse.weight_estimate;
+const SubmittedPpmMoveDetails = (props) => {
+  const { advance, currentPPM, hasEstimateError, estimateRange } = props;
+  const privateStorageString = currentPPM?.estimated_storage_reimbursement
+    ? `(up to ${currentPPM.estimated_storage_reimbursement})`
+    : '';
+  const advanceString = currentPPM?.has_requested_advance
+    ? `Advance Requested: $${formatCents(advance.requested_amount)}`
+    : '';
+  const hasSitString = `Temp. Storage: ${currentPPM?.days_in_storage} days ${privateStorageString}`;
+  const incentiveRange = getIncentiveRange(currentPPM, estimateRange);
+
+  const weightEstimate = currentPPM?.weight_estimate;
   return (
     <div className="titled_block">
       <div className={styles['detail-title']}>Estimated</div>
       <div>Weight: {weightEstimate} lbs</div>
       <div>
         Payment:{' '}
-        {ppm.hasEstimateError || hasEstimateError ? (
+        {!incentiveRange || hasEstimateError ? (
           <>
             Not ready yet{' '}
             <IconWithTooltip
@@ -39,33 +41,25 @@ const SubmittedPpmMoveDetails = (props) => {
           incentiveRange
         )}
       </div>
-      {ppm.has_sit && <div>{hasSitString}</div>}
-      {ppm.has_requested_advance && <div>{advanceString}</div>}
+      {currentPPM?.has_sit && <div>{hasSitString}</div>}
+      {currentPPM?.has_requested_advance && <div>{advanceString}</div>}
     </div>
   );
 };
 
-const mapStateToProps = (state, ownProps) => {
-  const advance = selectReimbursement(state, ownProps.ppm.advance);
-  const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
+const mapStateToProps = (state) => {
+  const currentPPM = selectCurrentPPM(state) || {};
+  const advance = selectReimbursementById(state, currentPPM?.advance) || {};
+  const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, currentPPM?.move_id, [
     'WEIGHT_TICKET_SET',
   ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
-  const moveID = state.moves.currentMove.id;
-  let currentPPM = selectActivePPMForMove(state, moveID);
-  let tempCurrentPPM = get(state, 'ppm.currentPpm');
-  if (isEmpty(currentPPM) && isEmpty(tempCurrentPPM)) {
-    currentPPM = {};
-    tempCurrentPPM = {};
-  }
 
   const props = {
     currentPPM,
-    // TODO this is a work around till we refactor more SM data...
-    tempCurrentPPM,
-    ppm: get(state, 'ppm', {}),
     advance,
     isMissingWeightTicketDocuments,
-    estimateRange: selectPPMEstimateRange(state),
+    estimateRange: selectPPMEstimateRange(state) || {},
+    hasEstimateError: selectPPMEstimateError(state),
   };
   return props;
 };

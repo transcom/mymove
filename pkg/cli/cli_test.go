@@ -46,7 +46,11 @@ func (suite *cliTestSuite) SetViper(v *viper.Viper) {
 
 func TestCLISuite(t *testing.T) {
 
-	logger, err := logging.Config("development", true)
+	logger, err := logging.Config(
+		logging.WithEnvironment("development"),
+		logging.WithLoggingLevel("debug"),
+		logging.WithStacktraceLength(10),
+	)
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

@@ -6,6 +6,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -25,10 +27,10 @@ func payloadForDutyStationModel(station models.DutyStation) *internalmessages.Du
 		Name:        swag.String(station.Name),
 		Affiliation: &station.Affiliation,
 		AddressID:   handlers.FmtUUID(station.AddressID),
-		Address:     payloadForAddressModel(&station.Address),
+		Address:     payloads.Address(&station.Address),
 	}
 
-	payload.TransportationOffice = payloadForTransportationOfficeModel(station.TransportationOffice)
+	payload.TransportationOffice = payloads.TransportationOffice(station.TransportationOffice)
 
 	return &payload
 }

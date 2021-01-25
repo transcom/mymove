@@ -75,4 +75,4 @@ run:
     # - pkg/gen
     # - mocks
   skip-dirs-use-default: true
-  modules-download-mode: readonly
+

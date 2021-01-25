@@ -4,6 +4,7 @@
     "react-app",
     "airbnb",
     "prettier",
+    "prettier/prettier",
     "prettier/react",
     "plugin:security/recommended",
     "plugin:you-dont-need-lodash-underscore/compatible"
@@ -18,9 +19,7 @@
     "jsx-a11y/label-has-associated-control": [
       "error",
       {
-        "labelAttributes": [
-          "htmlFor"
-        ],
+        "labelAttributes": ["htmlFor"],
         "assert": "either",
         "depth": 2
       }

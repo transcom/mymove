@@ -81,7 +81,7 @@ func init() {
         }
       },
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrently this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -131,6 +131,54 @@ func init() {
         }
       }
     },
+    "/move-task-orders/hide": {
+      "patch": {
+        "description": "Updates move task order without fake user data ` + "`" + `show` + "`" + ` to false. No request body required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "hideNonFakeMoveTaskOrders",
+        "operationId": "hideNonFakeMoveTaskOrders",
+        "responses": {
+          "200": {
+            "description": "Successfully hid MTOs.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrderIDs"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n\nThis is a support endpoint and is not available in production.\n",
@@ -148,9 +196,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
             "$ref": "#/responses/PermissionDenied"
@@ -284,6 +329,80 @@ func init() {
           }
         }
       }
+    },
+    "/mto-service-items/{mtoServiceItemID}/status": {
+      "patch": {
+        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "updateMTOServiceItemStatus",
+        "operationId": "updateMTOServiceItemStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated service item status for a move task order.",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "UUID of mto service item to use.",
+          "name": "mtoServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
@@ -442,6 +561,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
           },
@@ -463,7 +585,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -511,78 +633,6 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "UUID of payment request.",
-          "name": "paymentRequestID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/service-items/{mtoServiceItemID}/status": {
-      "patch": {
-        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "updateMTOServiceItemStatus",
-        "operationId": "updateMTOServiceItemStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated service item status for a move task order.",
-            "schema": {
-              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
           "409": {
             "$ref": "#/responses/Conflict"
           },
@@ -600,8 +650,9 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "UUID of mto service item to use.",
-          "name": "mtoServiceItemID",
+          "format": "uuid",
+          "description": "UUID of payment request.",
+          "name": "paymentRequestID",
           "in": "path",
           "required": true
         }
@@ -899,6 +950,13 @@ func init() {
     },
     "Customer": {
       "type": "object",
+      "required": [
+        "firstName",
+        "lastName",
+        "dodID",
+        "rank",
+        "agency"
+      ],
       "properties": {
         "agency": {
           "type": "string",
@@ -940,12 +998,23 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "userID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
+    },
+    "DimensionType": {
+      "description": "Describes a dimension type for a MTOServiceItemDimension.",
+      "type": "string",
+      "enum": [
+        "ITEM",
+        "CRATE"
+      ]
     },
     "Document": {
       "type": "object",
@@ -976,18 +1045,6 @@ func init() {
     "DutyStation": {
       "type": "object",
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "addressID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1150,23 +1207,13 @@ func init() {
         "moveTaskOrderID"
       ],
       "properties": {
-        "description": {
-          "type": "string"
-        },
         "eTag": {
+          "description": "ETag identifier required to update this object",
           "type": "string",
           "readOnly": true
         },
-        "feeType": {
-          "type": "string",
-          "enum": [
-            "COUNSELING",
-            "CRATING",
-            "TRUCKING",
-            "SHUTTLE"
-          ]
-        },
         "id": {
+          "description": "ID of the service item",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -1175,25 +1222,24 @@ func init() {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
+          "description": "ID of the associated moveTaskOrder",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
+          "description": "ID of the associated mtoShipment",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "quantity": {
-          "type": "integer"
-        },
-        "rate": {
-          "type": "integer"
-        },
         "reServiceName": {
-          "type": "string"
+          "description": "Full descriptive name of the service",
+          "type": "string",
+          "readOnly": true
         },
         "rejectionReason": {
+          "description": "Reason the service item was rejected by the TOO",
           "type": "string",
           "x-nullable": true,
           "example": "item was too heavy"
@@ -1204,14 +1250,256 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "MTOServiceItemBasic": {
+      "description": "Describes a basic service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemDestSIT": {
+      "description": "Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "timeMilitary1",
+            "firstAvailableDeliveryDate1",
+            "timeMilitary2",
+            "firstAvailableDeliveryDate2",
+            "sitEntryDate"
+          ],
+          "properties": {
+            "firstAvailableDeliveryDate1": {
+              "description": "First available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date"
+            },
+            "firstAvailableDeliveryDate2": {
+              "description": "Second available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date"
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DDFSIT",
+                "DDASIT"
+              ]
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "timeMilitary1": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "example": "1400Z"
+            },
+            "timeMilitary2": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "example": "1400Z"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemDimension": {
+      "description": "Describes a dimension object for the MTOServiceItem.",
+      "type": "object",
+      "required": [
+        "length",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "height": {
+          "description": "Height in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "description": "Length in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "type": {
+          "$ref": "#/definitions/DimensionType"
+        },
+        "width": {
+          "description": "Width in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        }
+      }
+    },
+    "MTOServiceItemDomesticCrating": {
+      "description": "Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "description": {
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "item": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "reServiceCode": {
+              "description": "Service codes allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DCRT",
+                "DCRTSA",
+                "DUCRT"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT",
+        "MTOServiceItemOriginSIT",
+        "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
+      ]
+    },
+    "MTOServiceItemOriginSIT": {
+      "description": "Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "reason",
+            "sitPostalCode",
+            "sitEntryDate"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DOFSIT",
+                "DOASIT"
+              ]
+            },
+            "reason": {
+              "description": "Explanation of why Prime is picking up SIT item.",
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "sitPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "example": "90210"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemShuttle": {
+      "description": "Describes a shuttle service item.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode",
+            "description"
+          ],
+          "properties": {
+            "description": {
+              "description": "Further details about the shuttle service.",
+              "type": "string",
+              "example": "Things to be moved to the place by shuttle."
+            },
+            "reServiceCode": {
+              "description": "Service codes allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
+            },
+            "reason": {
+              "description": "Explanation of why a shuttle service is required.",
+              "type": "string",
+              "example": "Storage items need to be picked up."
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemStatus": {
@@ -1318,7 +1606,11 @@ func init() {
         "rank",
         "reportByDate",
         "issueDate",
-        "status"
+        "status",
+        "uploadedOrdersID",
+        "tac",
+        "originDutyStationID",
+        "destinationDutyStationID"
       ],
       "properties": {
         "customer": {
@@ -1328,6 +1620,7 @@ func init() {
           "description": "ID of the Customer this MoveOrder belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "destinationDutyStation": {
@@ -1377,9 +1670,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "description": "Rank of the service member, must match specific list of available ranks.",
-          "type": "string",
-          "example": "E_1"
+          "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
           "description": "Date that the service member must report to the new DutyStation by.",
@@ -1388,6 +1679,11 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OrdersStatus"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "example": "F8J1"
         },
         "uploadedOrders": {
           "$ref": "#/definitions/Document"
@@ -1419,7 +1715,8 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "required": [
-        "moveOrder"
+        "moveOrder",
+        "contractorID"
       ],
       "properties": {
         "availableToPrimeAt": {
@@ -1455,11 +1752,13 @@ func init() {
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
-        "locator": {
+        "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
           "type": "string",
+          "readOnly": true,
           "example": "ABC123"
         },
         "moveOrder": {
@@ -1510,6 +1809,17 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
+      }
+    },
+    "MoveTaskOrderID": {
+      "type": "string",
+      "format": "uuid",
+      "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+    },
+    "MoveTaskOrderIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {
@@ -1613,6 +1923,7 @@ func init() {
       "enum": [
         "PENDING",
         "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID"
@@ -1662,76 +1973,106 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "description": "Rank of the service member, must match specific list of available ranks.",
+      "type": "string",
+      "enum": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6",
+        "E_7",
+        "E_8",
+        "E_9",
+        "O_1_ACADEMY_GRADUATE",
+        "O_2",
+        "O_3",
+        "O_4",
+        "O_5",
+        "O_6",
+        "O_7",
+        "O_8",
+        "O_9",
+        "O_10",
+        "W_1",
+        "W_2",
+        "W_3",
+        "W_4",
+        "W_5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ]
+    },
+    "ReServiceCode": {
+      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
+      "type": "string",
+      "enum": [
+        "CS",
+        "DBHF",
+        "DBTF",
+        "DCRT",
+        "DCRTSA",
+        "DDASIT",
+        "DDDSIT",
+        "DDFSIT",
+        "DDP",
+        "DDSHUT",
+        "DLH",
+        "DMHF",
+        "DNPKF",
+        "DOASIT",
+        "DOFSIT",
+        "DOP",
+        "DOPSIT",
+        "DOSHUT",
+        "DPK",
+        "DSH",
+        "DUCRT",
+        "DUPK",
+        "FSC",
+        "IBHF",
+        "IBTF",
+        "ICOLH",
+        "ICOUB",
+        "ICRT",
+        "ICRTSA",
+        "IDASIT",
+        "IDDSIT",
+        "IDFSIT",
+        "IDSHUT",
+        "IHPK",
+        "IHUPK",
+        "INPKF",
+        "IOASIT",
+        "IOCLH",
+        "IOCUB",
+        "IOFSIT",
+        "IOOLH",
+        "IOOUB",
+        "IOPSIT",
+        "IOSHUT",
+        "IUBPK",
+        "IUBUPK",
+        "IUCRT",
+        "MS",
+        "NSTH",
+        "NSTUB"
+      ]
+    },
     "UpdateMTOServiceItemStatus": {
-      "type": "object",
-      "required": [
-        "status"
-      ],
       "properties": {
-        "description": {
-          "type": "string",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "feeType": {
-          "type": "string",
-          "enum": [
-            "COUNSELING",
-            "CRATING",
-            "TRUCKING",
-            "SHUTTLE"
-          ],
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoShipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "quantity": {
-          "type": "integer",
-          "readOnly": true
-        },
-        "rate": {
-          "type": "integer",
-          "readOnly": true
-        },
-        "reServiceCode": {
-          "type": "string",
-          "readOnly": true
-        },
-        "reServiceName": {
-          "type": "string",
-          "readOnly": true
-        },
         "rejectionReason": {
+          "description": "Reason the service item was rejected by the TOO\"\"",
           "type": "string",
           "x-nullable": true,
           "example": "item was too heavy"
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
-        },
-        "total": {
-          "type": "integer",
-          "format": "cents",
-          "readOnly": true
         }
       }
     },
@@ -1992,7 +2333,7 @@ func init() {
         }
       },
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrently this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -2060,6 +2401,78 @@ func init() {
         }
       }
     },
+    "/move-task-orders/hide": {
+      "patch": {
+        "description": "Updates move task order without fake user data ` + "`" + `show` + "`" + ` to false. No request body required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "hideNonFakeMoveTaskOrders",
+        "operationId": "hideNonFakeMoveTaskOrders",
+        "responses": {
+          "200": {
+            "description": "Successfully hid MTOs.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrderIDs"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "There was a conflict with the request.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n\nThis is a support endpoint and is not available in production.\n",
@@ -2076,12 +2489,6 @@ func init() {
             "description": "Successfully retrieve an individual move task order.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -2264,6 +2671,104 @@ func init() {
           }
         }
       }
+    },
+    "/mto-service-items/{mtoServiceItemID}/status": {
+      "patch": {
+        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "updateMTOServiceItemStatus",
+        "operationId": "updateMTOServiceItemStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated service item status for a move task order.",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "There was a conflict with the request.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "UUID of mto service item to use.",
+          "name": "mtoServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
@@ -2476,6 +2981,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "409": {
+            "description": "There was a conflict with the request.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
           "422": {
             "description": "The payload was unprocessable.",
             "schema": {
@@ -2503,7 +3014,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -2563,99 +3074,6 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
-          "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "UUID of payment request.",
-          "name": "paymentRequestID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/service-items/{mtoServiceItemID}/status": {
-      "patch": {
-        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "updateMTOServiceItemStatus",
-        "operationId": "updateMTOServiceItemStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated service item status for a move task order.",
-            "schema": {
-              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "401": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "403": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
           "409": {
             "description": "There was a conflict with the request.",
             "schema": {
@@ -2685,8 +3103,9 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "UUID of mto service item to use.",
-          "name": "mtoServiceItemID",
+          "format": "uuid",
+          "description": "UUID of payment request.",
+          "name": "paymentRequestID",
           "in": "path",
           "required": true
         }
@@ -2984,6 +3403,13 @@ func init() {
     },
     "Customer": {
       "type": "object",
+      "required": [
+        "firstName",
+        "lastName",
+        "dodID",
+        "rank",
+        "agency"
+      ],
       "properties": {
         "agency": {
           "type": "string",
@@ -3025,12 +3451,23 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
         },
+        "rank": {
+          "$ref": "#/definitions/Rank"
+        },
         "userID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
+    },
+    "DimensionType": {
+      "description": "Describes a dimension type for a MTOServiceItemDimension.",
+      "type": "string",
+      "enum": [
+        "ITEM",
+        "CRATE"
+      ]
     },
     "Document": {
       "type": "object",
@@ -3061,18 +3498,6 @@ func init() {
     "DutyStation": {
       "type": "object",
       "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "addressID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -3235,23 +3660,13 @@ func init() {
         "moveTaskOrderID"
       ],
       "properties": {
-        "description": {
-          "type": "string"
-        },
         "eTag": {
+          "description": "ETag identifier required to update this object",
           "type": "string",
           "readOnly": true
         },
-        "feeType": {
-          "type": "string",
-          "enum": [
-            "COUNSELING",
-            "CRATING",
-            "TRUCKING",
-            "SHUTTLE"
-          ]
-        },
         "id": {
+          "description": "ID of the service item",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -3260,25 +3675,24 @@ func init() {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
+          "description": "ID of the associated moveTaskOrder",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
+          "description": "ID of the associated mtoShipment",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "quantity": {
-          "type": "integer"
-        },
-        "rate": {
-          "type": "integer"
-        },
         "reServiceName": {
-          "type": "string"
+          "description": "Full descriptive name of the service",
+          "type": "string",
+          "readOnly": true
         },
         "rejectionReason": {
+          "description": "Reason the service item was rejected by the TOO",
           "type": "string",
           "x-nullable": true,
           "example": "item was too heavy"
@@ -3289,14 +3703,256 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "MTOServiceItemBasic": {
+      "description": "Describes a basic service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemDestSIT": {
+      "description": "Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "timeMilitary1",
+            "firstAvailableDeliveryDate1",
+            "timeMilitary2",
+            "firstAvailableDeliveryDate2",
+            "sitEntryDate"
+          ],
+          "properties": {
+            "firstAvailableDeliveryDate1": {
+              "description": "First available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date"
+            },
+            "firstAvailableDeliveryDate2": {
+              "description": "Second available date that Prime can deliver SIT service item.",
+              "type": "string",
+              "format": "date"
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DDFSIT",
+                "DDASIT"
+              ]
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "timeMilitary1": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "example": "1400Z"
+            },
+            "timeMilitary2": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `, in military format.",
+              "type": "string",
+              "pattern": "\\d{4}Z",
+              "example": "1400Z"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemDimension": {
+      "description": "Describes a dimension object for the MTOServiceItem.",
+      "type": "object",
+      "required": [
+        "length",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "height": {
+          "description": "Height in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "description": "Length in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "type": {
+          "$ref": "#/definitions/DimensionType"
+        },
+        "width": {
+          "description": "Width in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        }
+      }
+    },
+    "MTOServiceItemDomesticCrating": {
+      "description": "Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "description": {
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "item": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "reServiceCode": {
+              "description": "Service codes allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DCRT",
+                "DCRTSA",
+                "DUCRT"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT",
+        "MTOServiceItemOriginSIT",
+        "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
+      ]
+    },
+    "MTOServiceItemOriginSIT": {
+      "description": "Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "reason",
+            "sitPostalCode",
+            "sitEntryDate"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DOFSIT",
+                "DOASIT"
+              ]
+            },
+            "reason": {
+              "description": "Explanation of why Prime is picking up SIT item.",
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "sitPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "example": "90210"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemShuttle": {
+      "description": "Describes a shuttle service item.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode",
+            "description"
+          ],
+          "properties": {
+            "description": {
+              "description": "Further details about the shuttle service.",
+              "type": "string",
+              "example": "Things to be moved to the place by shuttle."
+            },
+            "reServiceCode": {
+              "description": "Service codes allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
+            },
+            "reason": {
+              "description": "Explanation of why a shuttle service is required.",
+              "type": "string",
+              "example": "Storage items need to be picked up."
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemStatus": {
@@ -3403,7 +4059,11 @@ func init() {
         "rank",
         "reportByDate",
         "issueDate",
-        "status"
+        "status",
+        "uploadedOrdersID",
+        "tac",
+        "originDutyStationID",
+        "destinationDutyStationID"
       ],
       "properties": {
         "customer": {
@@ -3413,6 +4073,7 @@ func init() {
           "description": "ID of the Customer this MoveOrder belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "destinationDutyStation": {
@@ -3462,9 +4123,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
-          "description": "Rank of the service member, must match specific list of available ranks.",
-          "type": "string",
-          "example": "E_1"
+          "$ref": "#/definitions/Rank"
         },
         "reportByDate": {
           "description": "Date that the service member must report to the new DutyStation by.",
@@ -3473,6 +4132,11 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OrdersStatus"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "example": "F8J1"
         },
         "uploadedOrders": {
           "$ref": "#/definitions/Document"
@@ -3504,7 +4168,8 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "required": [
-        "moveOrder"
+        "moveOrder",
+        "contractorID"
       ],
       "properties": {
         "availableToPrimeAt": {
@@ -3540,11 +4205,13 @@ func init() {
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
-        "locator": {
+        "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
           "type": "string",
+          "readOnly": true,
           "example": "ABC123"
         },
         "moveOrder": {
@@ -3595,6 +4262,17 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
+      }
+    },
+    "MoveTaskOrderID": {
+      "type": "string",
+      "format": "uuid",
+      "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+    },
+    "MoveTaskOrderIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {
@@ -3698,6 +4376,7 @@ func init() {
       "enum": [
         "PENDING",
         "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID"
@@ -3747,76 +4426,106 @@ func init() {
         }
       }
     },
+    "Rank": {
+      "description": "Rank of the service member, must match specific list of available ranks.",
+      "type": "string",
+      "enum": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6",
+        "E_7",
+        "E_8",
+        "E_9",
+        "O_1_ACADEMY_GRADUATE",
+        "O_2",
+        "O_3",
+        "O_4",
+        "O_5",
+        "O_6",
+        "O_7",
+        "O_8",
+        "O_9",
+        "O_10",
+        "W_1",
+        "W_2",
+        "W_3",
+        "W_4",
+        "W_5",
+        "AVIATION_CADET",
+        "CIVILIAN_EMPLOYEE",
+        "ACADEMY_CADET",
+        "MIDSHIPMAN"
+      ]
+    },
+    "ReServiceCode": {
+      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
+      "type": "string",
+      "enum": [
+        "CS",
+        "DBHF",
+        "DBTF",
+        "DCRT",
+        "DCRTSA",
+        "DDASIT",
+        "DDDSIT",
+        "DDFSIT",
+        "DDP",
+        "DDSHUT",
+        "DLH",
+        "DMHF",
+        "DNPKF",
+        "DOASIT",
+        "DOFSIT",
+        "DOP",
+        "DOPSIT",
+        "DOSHUT",
+        "DPK",
+        "DSH",
+        "DUCRT",
+        "DUPK",
+        "FSC",
+        "IBHF",
+        "IBTF",
+        "ICOLH",
+        "ICOUB",
+        "ICRT",
+        "ICRTSA",
+        "IDASIT",
+        "IDDSIT",
+        "IDFSIT",
+        "IDSHUT",
+        "IHPK",
+        "IHUPK",
+        "INPKF",
+        "IOASIT",
+        "IOCLH",
+        "IOCUB",
+        "IOFSIT",
+        "IOOLH",
+        "IOOUB",
+        "IOPSIT",
+        "IOSHUT",
+        "IUBPK",
+        "IUBUPK",
+        "IUCRT",
+        "MS",
+        "NSTH",
+        "NSTUB"
+      ]
+    },
     "UpdateMTOServiceItemStatus": {
-      "type": "object",
-      "required": [
-        "status"
-      ],
       "properties": {
-        "description": {
-          "type": "string",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "feeType": {
-          "type": "string",
-          "enum": [
-            "COUNSELING",
-            "CRATING",
-            "TRUCKING",
-            "SHUTTLE"
-          ],
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoShipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "quantity": {
-          "type": "integer",
-          "readOnly": true
-        },
-        "rate": {
-          "type": "integer",
-          "readOnly": true
-        },
-        "reServiceCode": {
-          "type": "string",
-          "readOnly": true
-        },
-        "reServiceName": {
-          "type": "string",
-          "readOnly": true
-        },
         "rejectionReason": {
+          "description": "Reason the service item was rejected by the TOO\"\"",
           "type": "string",
           "x-nullable": true,
           "example": "item was too heavy"
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
-        },
-        "total": {
-          "type": "integer",
-          "format": "cents",
-          "readOnly": true
         }
       }
     },

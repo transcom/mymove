@@ -121,10 +121,28 @@ func MakeTOOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 
 	officeUser := MakeOfficeUser(db, Assertions{
 		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
 			User: tooUser,
 		},
 		Stub: assertions.Stub,
 	})
 
 	return officeUser
+}
+
+// MakeOfficeUserWithUSMCGBLOC makes an OfficeUser tied to the USMC GBLOC
+func MakeOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
+	officeUUID, _ := uuid.NewV4()
+	transportationOffice := MakeTransportationOffice(db, Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "USMC",
+			ID:    officeUUID,
+		},
+	})
+
+	return MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			TransportationOffice: transportationOffice,
+		},
+	})
 }

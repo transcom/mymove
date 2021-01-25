@@ -1,23 +1,22 @@
 import React, { Component } from 'react';
-
-import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
-
-import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
-import WizardHeader from '../WizardHeader';
-
-import 'shared/DocumentViewer/DocumentUploader.jsx';
 import { get, isEmpty, map } from 'lodash';
-import { convertDollarsToCents } from 'shared/utils';
 import { withLastLocation } from 'react-router-last-location';
-import RadioButton from 'shared/RadioButton';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
+import { getFormValues, reduxForm } from 'redux-form';
+import { connect } from 'react-redux';
+
+import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
+import WizardHeader from '../WizardHeader';
+
+import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
+import 'shared/DocumentViewer/DocumentUploader.jsx';
+import { convertDollarsToCents } from 'shared/utils';
+import RadioButton from 'shared/RadioButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
 import Checkbox from 'shared/Checkbox';
-import { getFormValues, reduxForm } from 'redux-form';
-import { connect } from 'react-redux';
 import {
   createMovingExpenseDocument,
   selectPPMCloseoutDocumentsForMove,
@@ -25,8 +24,8 @@ import {
 import Alert from 'shared/Alert';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
-import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
 import { documentSizeLimitMsg } from 'shared/constants';
+import { selectCurrentPPM } from 'store/entities/selectors';
 
 const nextPagePath = '/ppm-payment-review';
 const nextBtnLabels = {
@@ -191,7 +190,7 @@ class ExpensesUpload extends Component {
           <p>
             Upload expenses one at a time.{' '}
             <Link to="/allowable-expenses" className="usa-link">
-              <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
+              <FontAwesomeIcon aria-hidden className="color_blue_link" icon="question-circle" />
             </Link>
           </p>
           <form>
@@ -284,7 +283,7 @@ class ExpensesUpload extends Component {
                   <FontAwesomeIcon
                     aria-hidden
                     className="color_blue_link"
-                    icon={faQuestionCircle}
+                    icon="question-circle"
                     onClick={this.handleHowDidYouPayForThis}
                   />
                 </div>
@@ -338,7 +337,7 @@ function mapStateToProps(state, props) {
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     expenseSchema: get(state, 'swaggerInternal.spec.definitions.CreateMovingExpenseDocumentPayload', {}),
-    currentPpm: get(state, 'ppm.currentPpm'),
+    currentPpm: selectCurrentPPM(state) || {},
     expenses: selectPPMCloseoutDocumentsForMove(state, moveId, ['EXPENSE']),
   };
 }

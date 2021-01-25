@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
 import { Checkbox } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSort } from '@fortawesome/free-solid-svg-icons/faSort';
 
 import styles from './MultiSelectCheckBoxFilter.module.scss';
 
@@ -24,7 +23,7 @@ const Option = (props) => {
 const DropdownIndicator = (props) => {
   return (
     <components.DropdownIndicator {...props}>
-      <FontAwesomeIcon className="fas fa-sort" icon={faSort} />
+      <FontAwesomeIcon className="fas fa-sort" icon="sort" />
     </components.DropdownIndicator>
   );
 };
@@ -88,7 +87,6 @@ MultiSelectCheckBoxFilter.propTypes = {
   options: PropTypes.arrayOf(PropTypes.object).isRequired,
   column: PropTypes.shape({
     filterValue: PropTypes.node,
-    preFilteredRows: PropTypes.array,
     setFilter: PropTypes.func,
   }).isRequired,
 };

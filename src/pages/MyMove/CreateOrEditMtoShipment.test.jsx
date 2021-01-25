@@ -29,7 +29,6 @@ const defaultProps = {
     push: jest.fn(),
   },
   fetchCustomerData: jest.fn(),
-  createMTOShipment: jest.fn(),
   updateMTOShipment: jest.fn(),
   selectedMoveType: '',
   mtoShipment: {},

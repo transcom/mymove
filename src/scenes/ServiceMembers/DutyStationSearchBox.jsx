@@ -91,7 +91,7 @@ export class DutyStationSearchBox extends Component {
     return (
       <div {...props.innerProps}>
         <components.Option {...props}>
-          <Highlighter searchWords={[this.state.inputValue]} textToHighlight={props.label} />
+          <Highlighter autoEscape searchWords={[this.state.inputValue]} textToHighlight={props.label} />
         </components.Option>
       </div>
     );

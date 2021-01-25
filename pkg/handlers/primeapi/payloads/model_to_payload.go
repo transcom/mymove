@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"time"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -22,6 +24,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
+		MoveCode:           moveTaskOrder.Locator,
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         moveTaskOrder.IsCanceled(),
@@ -96,6 +99,7 @@ func MoveOrder(moveOrder *models.Order) *primemessages.MoveOrder {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
+
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
 		Customer:               Customer(&moveOrder.ServiceMember),
@@ -106,7 +110,6 @@ func MoveOrder(moveOrder *models.Order) *primemessages.MoveOrder {
 		OrderNumber:            moveOrder.OrdersNumber,
 		LinesOfAccounting:      moveOrder.TAC,
 		Rank:                   moveOrder.Grade,
-		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
 	}
@@ -404,26 +407,41 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	var payload primemessages.MTOServiceItem
 	// here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDOFSIT:
-		payload = &primemessages.MTOServiceItemDOFSIT{
-			ReServiceCode:    handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			PickupPostalCode: mtoServiceItem.PickupPostalCode,
-			Reason:           mtoServiceItem.Reason,
+	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT:
+		var sitDepartureDate time.Time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
-		payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
-	case models.ReServiceCodeDDFSIT:
-		firstContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
-		secondContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
-		payload = &primemessages.MTOServiceItemDDFSIT{
+		payload = &primemessages.MTOServiceItemOriginSIT{
+			ReServiceCode:      handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:             mtoServiceItem.Reason,
+			SitDepartureDate:   handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:       handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:      mtoServiceItem.SITPostalCode,
+			SitHHGActualOrigin: Address(mtoServiceItem.SITOriginHHGActualAddress),
+		}
+	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
+		var sitDepartureDate time.Time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
+		}
+		firstContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
+		secondContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
+
+		payload = &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
+			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
 		}
+
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
-		item := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
-		crate := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
+		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		payload = &primemessages.MTOServiceItemDomesticCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Item: &primemessages.MTOServiceItemDimension{
@@ -461,7 +479,9 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		shipmentIDStr = mtoServiceItem.MTOShipmentID.String()
 	}
 
-	payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
+	one := mtoServiceItem.ID.String()
+	two := strfmt.UUID(one)
+	payload.SetID(two)
 	payload.SetMoveTaskOrderID(handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID))
 	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
@@ -529,8 +549,8 @@ func ClientError(title string, detail string, instance uuid.UUID) *primemessages
 	}
 }
 
-// getDimension will get the first dimension of the passed in type.
-func getDimension(dimensions models.MTOServiceItemDimensions, dimensionType models.DimensionType) models.MTOServiceItemDimension {
+// GetDimension will get the first dimension of the passed in type.
+func GetDimension(dimensions models.MTOServiceItemDimensions, dimensionType models.DimensionType) models.MTOServiceItemDimension {
 	if len(dimensions) == 0 {
 		return models.MTOServiceItemDimension{}
 	}
@@ -544,8 +564,8 @@ func getDimension(dimensions models.MTOServiceItemDimensions, dimensionType mode
 	return models.MTOServiceItemDimension{}
 }
 
-// getFirstCustomerContact will get the first customer contact for destination 1st day SIT based on type.
-func getCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, customerContactType models.CustomerContactType) models.MTOServiceItemCustomerContact {
+// GetCustomerContact will get the first customer contact for destination 1st day SIT based on type.
+func GetCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, customerContactType models.CustomerContactType) models.MTOServiceItemCustomerContact {
 	if len(customerContacts) == 0 {
 		return models.MTOServiceItemCustomerContact{}
 	}

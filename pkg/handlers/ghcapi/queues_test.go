@@ -78,15 +78,61 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 
 	order := hhgMove.Orders
 	result := payload.QueueMoves[0]
-
+	deptIndicator := *result.DepartmentIndicator
 	suite.Len(payload.QueueMoves, 1)
 	suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
-	suite.Equal(*order.DepartmentIndicator, string(result.DepartmentIndicator))
+	suite.Equal(*order.DepartmentIndicator, string(deptIndicator))
 	suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
 	suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
+}
 
+func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
+	suite.Run("displays move attributes for all move types returned by ListMoveOrders", func() {
+		stub := testdatagen.Assertions{Stub: true}
+
+		// Stub HHG move
+		hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), stub)
+
+		// Stub HHG_PPM move
+		hhgPPMMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), stub)
+
+		// Stub NTS move
+		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), stub)
+
+		// Stub NTSR move
+		ntsrMove := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), stub)
+
+		var expectedMoves []models.Move
+		expectedMoves = append(expectedMoves, hhgMove, hhgPPMMove, ntsMove, ntsrMove)
+
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), stub)
+
+		moveOrderFetcher := mocks.MoveOrderFetcher{}
+		moveOrderFetcher.On("ListMoveOrders", officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
+
+		request := httptest.NewRequest("GET", "/queues/moves", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+		}
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := GetMovesQueueHandler{
+			context,
+			&moveOrderFetcher,
+		}
+		response := handler.Handle(params)
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		moves := payload.QueueMoves
+
+		suite.Equal(4, len(moves))
+		for i := range moves {
+			suite.Equal(moves[i].Locator, expectedMoves[i].Locator)
+			suite.Equal(string(moves[i].Status), string(expectedMoves[i].Status))
+			suite.Equal(moves[i].ShipmentsCount, int64(len(expectedMoves[i].MTOShipments)))
+		}
+	})
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
@@ -568,7 +614,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	suite.Run("returns results matching Move ID search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
-			MoveID:      &move1.Locator,
+			Locator:     &move1.Locator,
 		}
 
 		response := handler.Handle(params)
@@ -603,7 +649,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			HTTPRequest:            request,
 			LastName:               models.StringPointer("Dar"),
 			DodID:                  serviceMember1.Edipi,
-			MoveID:                 &move1.Locator,
+			Locator:                &move1.Locator,
 			DestinationDutyStation: &dutyStation1.Name,
 		}
 
@@ -773,12 +819,13 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 
 	createdAt := actualPaymentRequest.CreatedAt
 	age := int64(2)
+	deptIndicator := *paymentRequest.DepartmentIndicator
 
 	suite.Equal(age, paymentRequest.Age)
 	suite.Equal(createdAt.Format("2006-01-02T15:04:05.000Z07:00"), paymentRequest.SubmittedAt.String()) // swagger formats to milliseconds
 	suite.Equal(hhgMove.Locator, paymentRequest.Locator)
 
-	suite.Equal(*hhgMove.Orders.DepartmentIndicator, string(paymentRequest.DepartmentIndicator))
+	suite.Equal(*hhgMove.Orders.DepartmentIndicator, string(deptIndicator))
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {

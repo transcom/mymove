@@ -17,6 +17,9 @@ import (
 // swagger:model Orders
 type Orders struct {
 
+	// authorized weight
+	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
+
 	// created at
 	// Required: true
 	// Format: date-time

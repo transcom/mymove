@@ -18,17 +18,7 @@ type SyncadaSenderSFTPSession struct {
 	remote                  string
 	password                string
 	syncadaInboundDirectory string
-}
-
-// NewSyncadaSFTPSession creates a new SyncadaSFTPSession service object
-func NewSyncadaSFTPSession(port string, userID string, remote string, password string, syncadaInboundDirectory string) services.SyncadaSFTPSender {
-	return &SyncadaSenderSFTPSession{
-		port,
-		userID,
-		remote,
-		password,
-		syncadaInboundDirectory,
-	}
+	hostKey                 ssh.PublicKey
 }
 
 // InitNewSyncadaSFTPSession initialize a NewSyncadaSFTPSession and return services.SyncadaSFTPSender
@@ -58,7 +48,23 @@ func InitNewSyncadaSFTPSession() (services.SyncadaSFTPSender, error) {
 		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_INBOUND_DIRECTORY")
 	}
 
-	return NewSyncadaSFTPSession(port, userID, ipAddress, password, inboundDir), nil
+	hostKeyString := os.Getenv("SYNCADA_SFTP_HOST_KEY")
+	if hostKeyString == "" {
+		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_HOST_KEY")
+	}
+	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse host key %w", err)
+	}
+
+	return &SyncadaSenderSFTPSession{
+		port,
+		userID,
+		ipAddress,
+		password,
+		inboundDir,
+		hostKey,
+	}, nil
 }
 
 // SendToSyncadaViaSFTP copies specified local content to Syncada's SFTP server
@@ -68,11 +74,7 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reade
 		Auth: []ssh.AuthMethod{
 			ssh.Password(s.password),
 		},
-		/* nosec */
-		// The hostKey was removed because authentication is performed using a user ID and password
-		// If hostKey configuration is needed, please see PR #5039: https://github.com/transcom/mymove/pull/5039
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		// HostKeyCallback: ssh.FixedHostKey(hostKey),
+		HostKeyCallback: ssh.FixedHostKey(s.hostKey),
 	}
 
 	// connect

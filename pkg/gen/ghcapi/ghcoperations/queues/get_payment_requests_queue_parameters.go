@@ -52,7 +52,11 @@ type GetPaymentRequestsQueueParams struct {
 	/*
 	  In: query
 	*/
-	MoveID *string
+	Locator *string
+	/*direction of sort order if applied
+	  In: query
+	*/
+	Order *string
 	/*requested page of results
 	  In: query
 	*/
@@ -61,6 +65,10 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	PerPage *int64
+	/*field that results should be sorted by
+	  In: query
+	*/
+	Sort *string
 	/*Filtering for the status.
 	  Unique: true
 	  In: query
@@ -103,8 +111,13 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 		res = append(res, err)
 	}
 
-	qMoveID, qhkMoveID, _ := qs.GetOK("moveID")
-	if err := o.bindMoveID(qMoveID, qhkMoveID, route.Formats); err != nil {
+	qLocator, qhkLocator, _ := qs.GetOK("locator")
+	if err := o.bindLocator(qLocator, qhkLocator, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qOrder, qhkOrder, _ := qs.GetOK("order")
+	if err := o.bindOrder(qOrder, qhkOrder, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -115,6 +128,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qPerPage, qhkPerPage, _ := qs.GetOK("perPage")
 	if err := o.bindPerPage(qPerPage, qhkPerPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qSort, qhkSort, _ := qs.GetOK("sort")
+	if err := o.bindSort(qSort, qhkSort, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -206,8 +224,8 @@ func (o *GetPaymentRequestsQueueParams) bindLastName(rawData []string, hasKey bo
 	return nil
 }
 
-// bindMoveID binds and validates parameter MoveID from query.
-func (o *GetPaymentRequestsQueueParams) bindMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindLocator binds and validates parameter Locator from query.
+func (o *GetPaymentRequestsQueueParams) bindLocator(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -219,7 +237,39 @@ func (o *GetPaymentRequestsQueueParams) bindMoveID(rawData []string, hasKey bool
 		return nil
 	}
 
-	o.MoveID = &raw
+	o.Locator = &raw
+
+	return nil
+}
+
+// bindOrder binds and validates parameter Order from query.
+func (o *GetPaymentRequestsQueueParams) bindOrder(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.Order = &raw
+
+	if err := o.validateOrder(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateOrder carries on validations for parameter Order
+func (o *GetPaymentRequestsQueueParams) validateOrder(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("order", "query", *o.Order, []interface{}{"asc", "desc"}, true); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -268,6 +318,38 @@ func (o *GetPaymentRequestsQueueParams) bindPerPage(rawData []string, hasKey boo
 	return nil
 }
 
+// bindSort binds and validates parameter Sort from query.
+func (o *GetPaymentRequestsQueueParams) bindSort(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.Sort = &raw
+
+	if err := o.validateSort(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateSort carries on validations for parameter Sort
+func (o *GetPaymentRequestsQueueParams) validateSort(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "locator", "submittedAt", "branch", "status", "dodID", "age"}, true); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // bindStatus binds and validates array parameter Status from query.
 //
 // Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
@@ -288,7 +370,7 @@ func (o *GetPaymentRequestsQueueParams) bindStatus(rawData []string, hasKey bool
 	for i, statusIV := range statusIC {
 		statusI := statusIV
 
-		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"Payment requested", "Reviewed", "Paid"}, true); err != nil {
+		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"Payment requested", "Reviewed", "Rejected", "Paid"}, true); err != nil {
 			return err
 		}
 

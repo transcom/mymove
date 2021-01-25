@@ -23,7 +23,7 @@ func NewPreconditionFailedError(id uuid.UUID, err error) PreconditionFailedError
 
 // Error is the string representation of the precondition failed error
 func (e PreconditionFailedError) Error() string {
-	return fmt.Sprintf("id: '%s' could not be updated due to the record being stale", e.id.String())
+	return fmt.Sprintf("Precondition failed on update to object with id: '%s'. The If-Match header value did not match the eTag for this record.", e.id.String())
 }
 
 //NotFoundError is returned when a given struct is not found
@@ -42,6 +42,9 @@ func NewNotFoundError(id uuid.UUID, message string) NotFoundError {
 }
 
 func (e NotFoundError) Error() string {
+	if e.id == uuid.Nil {
+		return fmt.Sprintf("not found %s", e.message)
+	}
 	return fmt.Sprintf("id: %s not found %s", e.id.String(), e.message)
 }
 

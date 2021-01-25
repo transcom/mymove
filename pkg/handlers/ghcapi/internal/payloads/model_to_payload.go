@@ -14,6 +14,22 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+// Contractor payload
+func Contractor(contractor *models.Contractor) *ghcmessages.Contractor {
+	if contractor == nil {
+		return nil
+	}
+
+	payload := &ghcmessages.Contractor{
+		ID:             strfmt.UUID(contractor.ID.String()),
+		ContractNumber: contractor.ContractNumber,
+		Name:           contractor.Name,
+		Type:           contractor.Type,
+	}
+
+	return payload
+}
+
 // Move payload
 func Move(move *models.Move) *ghcmessages.Move {
 	if move == nil {
@@ -21,11 +37,19 @@ func Move(move *models.Move) *ghcmessages.Move {
 	}
 
 	payload := &ghcmessages.Move{
-		CreatedAt: strfmt.DateTime(move.CreatedAt),
-		ID:        strfmt.UUID(move.ID.String()),
-		Locator:   move.Locator,
-		OrdersID:  strfmt.UUID(move.OrdersID.String()),
-		UpdatedAt: strfmt.DateTime(move.UpdatedAt),
+		ID:                 strfmt.UUID(move.ID.String()),
+		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ContractorID:       handlers.FmtUUIDPtr(move.ContractorID),
+		Contractor:         Contractor(move.Contractor),
+		Locator:            move.Locator,
+		OrdersID:           strfmt.UUID(move.OrdersID.String()),
+		Orders:             MoveOrder(&move.Orders),
+		ReferenceID:        handlers.FmtStringPtr(move.ReferenceID),
+		Status:             ghcmessages.MoveStatus(move.Status),
+		CreatedAt:          strfmt.DateTime(move.CreatedAt),
+		SubmittedAt:        handlers.FmtDateTimePtr(move.SubmittedAt),
+		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
+		ETag:               etag.GenerateEtag(move.UpdatedAt),
 	}
 
 	return payload
@@ -79,7 +103,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
-	if moveOrder.Grade != nil {
+	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
@@ -89,37 +113,48 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		deptIndicator = ghcmessages.DeptIndicator(*moveOrder.DepartmentIndicator)
 	}
 
-	var orderTypeDetail ghcmessages.OrdersTypeDetail
+	var ordersTypeDetail ghcmessages.OrdersTypeDetail
 	if moveOrder.OrdersTypeDetail != nil {
-		orderTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
+		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
+	}
+
+	var grade ghcmessages.Grade
+	if moveOrder.Grade != nil {
+		grade = ghcmessages.Grade(*moveOrder.Grade)
+	}
+	//
+	var branch ghcmessages.Branch
+	if moveOrder.ServiceMember.Affiliation != nil {
+		branch = ghcmessages.Branch(*moveOrder.ServiceMember.Affiliation)
+	}
+
+	var moveCode string
+	if moveOrder.Moves != nil && len(moveOrder.Moves) > 0 {
+		moveCode = moveOrder.Moves[0].Locator
 	}
 
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
+		Grade:                  &grade,
 		OrderNumber:            moveOrder.OrdersNumber,
-		OrderTypeDetail:        orderTypeDetail,
+		OrderTypeDetail:        &ordersTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
-		Agency:                 swag.StringValue((*string)(moveOrder.ServiceMember.Affiliation)),
+		Agency:                 branch,
 		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
+		Customer:               Customer(&moveOrder.ServiceMember),
 		FirstName:              swag.StringValue(moveOrder.ServiceMember.FirstName),
 		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),
 		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
 		DateIssued:             strfmt.Date(moveOrder.IssueDate),
 		OrderType:              ghcmessages.OrdersType(moveOrder.OrdersType),
-		DepartmentIndicator:    deptIndicator,
+		DepartmentIndicator:    &deptIndicator,
 		Tac:                    handlers.FmtStringPtr(moveOrder.TAC),
 		Sac:                    handlers.FmtStringPtr(moveOrder.SAC),
 		UploadedOrderID:        strfmt.UUID(moveOrder.UploadedOrdersID.String()),
-	}
-
-	if moveOrder.Grade != nil {
-		payload.Grade = *moveOrder.Grade
-	}
-	if moveOrder.ConfirmationNumber != nil {
-		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
+		MoveCode:               moveCode,
 	}
 
 	return &payload
@@ -131,10 +166,14 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		return nil
 	}
 	var proGearWeight, proGearWeightSpouse, totalWeight int64
-	if entitlement.WeightAllotment() != nil {
-		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
-		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
-		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
+	if weightAllotment := entitlement.WeightAllotment(); weightAllotment != nil {
+		proGearWeight = int64(weightAllotment.ProGearWeight)
+		proGearWeightSpouse = int64(weightAllotment.ProGearWeightSpouse)
+		if *entitlement.DependentsAuthorized {
+			totalWeight = int64(weightAllotment.TotalWeightSelfPlusDependents)
+		} else {
+			totalWeight = int64(weightAllotment.TotalWeightSelf)
+		}
 	}
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {
@@ -237,6 +276,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
 		PrimeEstimatedWeight:     handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
 		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
+		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
+		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
@@ -295,9 +336,25 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 	return &payload
 }
 
+// PaymentRequests payload
+func PaymentRequests(prs *models.PaymentRequests, storer storage.FileStorer) (*ghcmessages.PaymentRequests, error) {
+	payload := make(ghcmessages.PaymentRequests, len(*prs))
+
+	for i, p := range *prs {
+		paymentRequest := p
+		pr, err := PaymentRequest(&paymentRequest, storer)
+		if err != nil {
+			return nil, err
+		}
+		payload[i] = pr
+	}
+	return &payload, nil
+}
+
 // PaymentRequest payload
 func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
 	serviceDocs := make(ghcmessages.ProofOfServiceDocs, len(pr.ProofOfServiceDocs))
+
 	if pr.ProofOfServiceDocs != nil && len(pr.ProofOfServiceDocs) > 0 {
 		for i, proofOfService := range pr.ProofOfServiceDocs {
 			payload, err := ProofOfServiceDoc(proofOfService, storer)
@@ -312,6 +369,7 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ID:                   *handlers.FmtUUID(pr.ID),
 		IsFinal:              &pr.IsFinal,
 		MoveTaskOrderID:      *handlers.FmtUUID(pr.MoveTaskOrderID),
+		MoveTaskOrder:        Move(&pr.MoveTaskOrder),
 		PaymentRequestNumber: pr.PaymentRequestNumber,
 		RejectionReason:      pr.RejectionReason,
 		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
@@ -319,20 +377,24 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
 		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
 		ProofOfServiceDocs:   serviceDocs,
+		CreatedAt:            strfmt.DateTime(pr.CreatedAt),
 	}, nil
 }
 
 // PaymentServiceItem payload
 func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServiceItem {
 	return &ghcmessages.PaymentServiceItem{
-		ID:               *handlers.FmtUUID(ps.ID),
-		MtoServiceItemID: *handlers.FmtUUID(ps.MTOServiceItemID),
-		CreatedAt:        strfmt.DateTime(ps.CreatedAt),
-		PriceCents:       handlers.FmtCost(ps.PriceCents),
-		RejectionReason:  ps.RejectionReason,
-		Status:           ghcmessages.PaymentServiceItemStatus(ps.Status),
-		ReferenceID:      ps.ReferenceID,
-		ETag:             etag.GenerateEtag(ps.UpdatedAt),
+		ID:                 *handlers.FmtUUID(ps.ID),
+		MtoServiceItemID:   *handlers.FmtUUID(ps.MTOServiceItemID),
+		MtoServiceItemName: ps.MTOServiceItem.ReService.Name,
+		MtoShipmentType:    ghcmessages.MTOShipmentType(ps.MTOServiceItem.MTOShipment.ShipmentType),
+		MtoShipmentID:      handlers.FmtUUIDPtr(ps.MTOServiceItem.MTOShipmentID),
+		CreatedAt:          strfmt.DateTime(ps.CreatedAt),
+		PriceCents:         handlers.FmtCost(ps.PriceCents),
+		RejectionReason:    ps.RejectionReason,
+		Status:             ghcmessages.PaymentServiceItemStatus(ps.Status),
+		ReferenceID:        ps.ReferenceID,
+		ETag:               etag.GenerateEtag(ps.UpdatedAt),
 	}
 }
 
@@ -468,30 +530,25 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	queueMoveOrders := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
-		// Finds the first move that is an HHG and use that locator.  Should we include combo HHG_PPM or others?
-		var hhgMove models.Move
-		if *move.SelectedMoveType == models.SelectedMoveTypeHHG {
-			hhgMove = move
-		}
 
 		var validMTOShipments []models.MTOShipment
-		for _, shipment := range hhgMove.MTOShipments {
+		for _, shipment := range move.MTOShipments {
 			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
 		}
 
-		deptIndicator := ""
+		var deptIndicator ghcmessages.DeptIndicator
 		if move.Orders.DepartmentIndicator != nil {
-			deptIndicator = *move.Orders.DepartmentIndicator
+			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
 		}
 
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
-			Status:                 ghcmessages.QueueMoveStatus(hhgMove.Status),
+			Status:                 ghcmessages.QueueMoveStatus(move.Status),
 			ID:                     *handlers.FmtUUID(move.Orders.ID),
-			Locator:                hhgMove.Locator,
-			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
+			Locator:                move.Locator,
+			DepartmentIndicator:    &deptIndicator,
 			ShipmentsCount:         int64(len(validMTOShipments)),
 			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
 			OriginGBLOC:            ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
@@ -505,6 +562,8 @@ var (
 	QueuePaymentRequestPaymentRequested string = "Payment requested"
 	// QueuePaymentRequestReviewed status Payment request reviewed
 	QueuePaymentRequestReviewed string = "Reviewed"
+	// QueuePaymentRequestRejected status Payment request rejected
+	QueuePaymentRequestRejected string = "Rejected"
 	// QueuePaymentRequestPaid status PaymentRequest paid
 	QueuePaymentRequestPaid string = "Paid"
 )
@@ -521,6 +580,10 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 		paymentRequest.Status == models.PaymentRequestStatusReceivedByGex ||
 		paymentRequest.Status == models.PaymentRequestStatusReviewed {
 		return QueuePaymentRequestReviewed
+	}
+
+	if paymentRequest.Status == models.PaymentRequestStatusReviewedAllRejected {
+		return QueuePaymentRequestRejected
 	}
 
 	return QueuePaymentRequestPaid
@@ -545,8 +608,9 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			OriginGBLOC: ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),
 		}
 
-		if deptIndicator := orders.DepartmentIndicator; deptIndicator != nil {
-			queuePaymentRequests[i].DepartmentIndicator = ghcmessages.DeptIndicator(*deptIndicator)
+		if orders.DepartmentIndicator != nil {
+			deptIndicator := ghcmessages.DeptIndicator(*orders.DepartmentIndicator)
+			queuePaymentRequests[i].DepartmentIndicator = &deptIndicator
 		}
 	}
 

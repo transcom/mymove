@@ -1,5 +1,6 @@
 import { get, isNull, sum, isEmpty } from 'lodash';
-import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
+
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 
 export function selectEntitlements(rankEntitlement, hasDependents = false, spouseHasProGear = false) {
   if (!rankEntitlement) {
@@ -19,15 +20,19 @@ export function selectEntitlements(rankEntitlement, hasDependents = false, spous
 
 export function loadEntitlementsFromState(state) {
   // Temp fix until redux refactor finished - get orders from either entities or orders.currentOrders
-  let orders = selectActiveOrLatestOrders(state);
+  let orders = selectCurrentOrders(state);
   if (isEmpty(orders)) {
     return {};
   }
+
   const hasDependents = get(orders, 'has_dependents', null);
   const spouseHasProGear = get(orders, 'spouse_has_pro_gear', null);
-  const weightAllotment = get(state, 'serviceMember.currentServiceMember.weight_allotment', null);
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const weightAllotment = serviceMember?.weight_allotment || null;
+
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(weightAllotment)) {
     return {};
   }
+
   return selectEntitlements(weightAllotment, hasDependents, spouseHasProGear);
 }

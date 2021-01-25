@@ -33,10 +33,15 @@ if [ ! -f "${variables_file}" ]; then
   exit 1
 fi
 
+check_arn() {
+    local arn=$1
+    [[ $arn = arn:* ]] || { echo "Error: Bad ARN: ${arn}"; exit 1; }
+}
+
 echo
 echo "Preparing ECS task definition for ${name}"
 
-"${DIR}/../bin/ecs-deploy" task-def \
+dry_run_task_definition_date=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region "${AWS_DEFAULT_REGION}" \
   --service app-tasks \
@@ -46,12 +51,15 @@ echo "Preparing ECS task definition for ${name}"
   --memory "${RESERVATION_MEM}" \
   --variables-file "${variables_file}" \
   --entrypoint "/bin/milmove-tasks ${name}" \
-  --dry-run | jq .
+  --dry-run)
+
+dry_run_task_definition=$(echo "${dry_run_task_definition_date}" | cut -d ' ' -f 3)
+echo "${dry_run_task_definition}" | jq .
 
 echo
 echo "Registering ECS task definition for ${name}"
 set +e
-task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
+task_definition_date_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region "${AWS_DEFAULT_REGION}" \
   --service app-tasks \
@@ -63,12 +71,14 @@ task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --entrypoint "/bin/milmove-tasks ${name}" \
   --register)
 # shellcheck disable=SC2181
-if [ "$?" != "0" ]; then echo "$task_def_arn"; exit 1; fi
+if [ "$?" != "0" ]; then echo "$task_definition_date_arn"; exit 1; fi
 set -e
 
-readonly task_def_arn
+task_definition_arn=$(echo "${task_definition_date_arn}" | cut -d ' ' -f 3)
+check_arn "$task_definition_arn"
+
 echo
-echo "Registered ECS task definition ${task_def_arn}"
+echo "Registered ECS task definition ${task_definition_arn}"
 
 echo
 echo "Put new CloudWatch Event target for ${name}"
@@ -78,8 +88,8 @@ echo "Put new CloudWatch Event target for ${name}"
   --aws-region "${AWS_DEFAULT_REGION}" \
   --environment "${environment}" \
   --name "${name}" \
-  --task-def-arn "${task_def_arn}" \
+  --task-def-arn "${task_definition_arn}" \
   --put-target
 
 echo
-echo "Successfully put new CloudWatch Event target for ${name} with ECS task definition ${task_def_arn}"
+echo "Successfully put new CloudWatch Event target for ${name} with ECS task definition ${task_definition_arn}"

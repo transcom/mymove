@@ -34,6 +34,9 @@ definitions:
       service_member:
         $ref: '#/definitions/ServiceMemberPayload'
         x-nullable: true
+      office_user:
+        $ref: '#/definitions/OfficeUser'
+        x-nullable: true
       roles:
         type: array
         items:
@@ -1105,6 +1108,54 @@ definitions:
       - full_weight_ticket_missing
       - empty_weight_ticket_missing
       - trailer_ownership_missing
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      user_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      first_name:
+        type: string
+        example: John
+        x-nullable: true
+        title: First name
+      middle_name:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle name
+      last_name:
+        type: string
+        example: Donut
+        x-nullable: true
+        title: Last name
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Personal Email Address
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Best contact phone
+      transportation_office:
+        $ref: '#/definitions/TransportationOffice'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
   ServiceMemberPayload:
     type: object
     properties:
@@ -2139,6 +2190,10 @@ definitions:
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
+      authorizedWeight:
+        type: integer
+        example: 7000
+        x-nullable: true
     required:
       - id
       - service_member_id

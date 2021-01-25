@@ -145,15 +145,24 @@
   }
   &--alert {
     border-radius: 100%;
-    width: 24px;
-    height: 24px;
-    display: inline-block;
+    width: 16px;
+    height: 16px;
+    @include u-padding-top(.5);
+    padding-left: 9px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    @include u-bg('error');
+    margin: auto 0;
     svg {
-      width: 100%;
       vertical-align: sub;
       path {
         fill: #fff;
+        transform: scale(.8);
       }
+    }
+    .svg-inline--fa.fa-w-6 {
+      width: 0.5rem;
     }
     &--small {
       width: 20px;
@@ -244,8 +253,8 @@
     background: white;
     @include u-font-size('body', 'sm');
   }
+
   &:hover {
-    background-image: url('/static/media/arrow-both.0bfe2193.svg'), linear-gradient(transparent, transparent);
     background-color: $link-light;
   }
 }

@@ -1,14 +1,16 @@
 package payloads
 
 import (
+	"time"
+
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	primepayloads "github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -23,12 +25,28 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrd
 	return payload
 }
 
+// MoveTaskOrderIDs payload
+func MoveTaskOrderIDs(moveTaskOrderIDs []uuid.UUID) supportmessages.MoveTaskOrderIDs {
+	payload := make(supportmessages.MoveTaskOrderIDs, len(moveTaskOrderIDs))
+	for i, m := range moveTaskOrderIDs {
+		payload[i] = MoveTaskOrderID(m)
+	}
+	return payload
+}
+
+// MoveTaskOrderID payload
+func MoveTaskOrderID(moveTaskOrderID uuid.UUID) supportmessages.MoveTaskOrderID {
+	return supportmessages.MoveTaskOrderID(strfmt.UUID(moveTaskOrderID.String()))
+}
+
 // MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
 	}
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
+	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
+
 	payload := &supportmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
@@ -36,12 +54,12 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		IsCanceled:         moveTaskOrder.IsCanceled(),
 		MoveOrder:          MoveOrder(&moveTaskOrder.Orders),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
-		ContractorID:       strfmt.UUID(moveTaskOrder.ContractorID.String()),
+		ContractorID:       handlers.FmtUUIDPtr(moveTaskOrder.ContractorID),
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 		Status:             (supportmessages.MoveStatus)(moveTaskOrder.Status),
-		Locator:            moveTaskOrder.Locator,
+		MoveCode:           moveTaskOrder.Locator,
 	}
 
 	if moveTaskOrder.PPMEstimatedWeight != nil {
@@ -52,6 +70,8 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		payload.PpmType = *moveTaskOrder.PPMType
 	}
 
+	payload.SetMtoServiceItems(*mtoServiceItems)
+
 	return payload
 }
 
@@ -61,16 +81,19 @@ func Customer(customer *models.ServiceMember) *supportmessages.Customer {
 		return nil
 	}
 	payload := supportmessages.Customer{
-		Agency:         swag.StringValue((*string)(customer.Affiliation)),
+		Agency:         (*string)(customer.Affiliation),
 		CurrentAddress: Address(customer.ResidentialAddress),
-		DodID:          swag.StringValue(customer.Edipi),
+		DodID:          customer.Edipi,
 		Email:          customer.PersonalEmail,
-		FirstName:      swag.StringValue(customer.FirstName),
+		FirstName:      customer.FirstName,
 		ID:             strfmt.UUID(customer.ID.String()),
-		LastName:       swag.StringValue(customer.LastName),
+		LastName:       customer.LastName,
 		Phone:          customer.Telephone,
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
+	}
+	if customer.Rank != nil {
+		payload.Rank = supportmessages.Rank(*customer.Rank)
 	}
 	return &payload
 }
@@ -91,24 +114,30 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 	issueDate := strfmt.Date(moveOrder.IssueDate)
 
 	payload := supportmessages.MoveOrder{
-		DestinationDutyStation:   destinationDutyStation,
-		DestinationDutyStationID: destinationDutyStation.ID,
-		Entitlement:              Entitlement(moveOrder.Entitlement),
-		Customer:                 Customer(&moveOrder.ServiceMember),
-		OrderNumber:              moveOrder.OrdersNumber,
-		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
-		ID:                       strfmt.UUID(moveOrder.ID.String()),
-		OriginDutyStation:        originDutyStation,
-		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
-		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
-		UploadedOrders:           uploadedOrders,
-		UploadedOrdersID:         strfmt.UUID(uploadedOrders.ID.String()),
-		ReportByDate:             &reportByDate,
-		IssueDate:                &issueDate,
+		DestinationDutyStation: destinationDutyStation,
+		Entitlement:            Entitlement(moveOrder.Entitlement),
+		Customer:               Customer(&moveOrder.ServiceMember),
+		OrderNumber:            moveOrder.OrdersNumber,
+		OrdersType:             supportmessages.OrdersType(moveOrder.OrdersType),
+		ID:                     strfmt.UUID(moveOrder.ID.String()),
+		OriginDutyStation:      originDutyStation,
+		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+		Status:                 supportmessages.OrdersStatus(moveOrder.Status),
+		UploadedOrders:         uploadedOrders,
+		UploadedOrdersID:       uploadedOrders.ID,
+		ReportByDate:           &reportByDate,
+		IssueDate:              &issueDate,
+		Tac:                    moveOrder.TAC,
 	}
 
 	if moveOrder.Grade != nil {
-		payload.Rank = moveOrder.Grade
+		payload.Rank = (supportmessages.Rank)(*moveOrder.Grade)
+	}
+	if destinationDutyStation != nil {
+		payload.DestinationDutyStationID = &(destinationDutyStation.ID)
+	}
+	if originDutyStation != nil {
+		payload.OriginDutyStationID = &(originDutyStation.ID)
 	}
 	return &payload
 }
@@ -157,13 +186,9 @@ func DutyStation(dutyStation *models.DutyStation) *supportmessages.DutyStation {
 	if dutyStation == nil {
 		return nil
 	}
-	address := Address(&dutyStation.Address)
 	payload := supportmessages.DutyStation{
-		Address:   address,
-		AddressID: address.ID,
-		ID:        strfmt.UUID(dutyStation.ID.String()),
-		Name:      dutyStation.Name,
-		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
+		ID:   strfmt.UUID(dutyStation.ID.String()),
+		Name: dutyStation.Name,
 	}
 	return &payload
 }
@@ -236,18 +261,99 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 }
 
 // MTOServiceItem payload
-func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.UpdateMTOServiceItemStatus {
-	strfmt.MarshalFormat = strfmt.RFC3339Micro
-	payload := &supportmessages.UpdateMTOServiceItemStatus{
-		ETag:            etag.GenerateEtag(mtoServiceItem.UpdatedAt),
-		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
-		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),
-		MtoShipmentID:   strfmt.UUID(mtoServiceItem.MTOShipmentID.String()),
-		Status:          supportmessages.MTOServiceItemStatus(mtoServiceItem.Status),
-		RejectionReason: mtoServiceItem.RejectionReason,
+func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOServiceItem {
+	var payload supportmessages.MTOServiceItem
+	// Here we determine which payload model to use based on the re service code
+	switch mtoServiceItem.ReService.Code {
+	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT:
+		var sitDepartureDate time.Time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
+		}
+		payload = &supportmessages.MTOServiceItemOriginSIT{
+			ReServiceCode:    handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:           mtoServiceItem.Reason,
+			SitDepartureDate: handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:    mtoServiceItem.SITPostalCode,
+		}
+	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
+		var sitDepartureDate time.Time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = *mtoServiceItem.SITDepartureDate
+		}
+		firstContact := primepayloads.GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
+		secondContact := primepayloads.GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
+
+		payload = &supportmessages.MTOServiceItemDestSIT{
+			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
+			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
+			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
+			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
+			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+		}
+
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+		item := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
+		payload = &supportmessages.MTOServiceItemDomesticCrating{
+			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Item: &supportmessages.MTOServiceItemDimension{
+				ID:     strfmt.UUID(item.ID.String()),
+				Type:   supportmessages.DimensionType(item.Type),
+				Height: item.Height.Int32Ptr(),
+				Length: item.Length.Int32Ptr(),
+				Width:  item.Width.Int32Ptr(),
+			},
+			Crate: &supportmessages.MTOServiceItemDimension{
+				ID:     strfmt.UUID(crate.ID.String()),
+				Type:   supportmessages.DimensionType(crate.Type),
+				Height: crate.Height.Int32Ptr(),
+				Length: crate.Length.Int32Ptr(),
+				Width:  crate.Width.Int32Ptr(),
+			},
+			Description: mtoServiceItem.Description,
+		}
+	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
+		payload = &supportmessages.MTOServiceItemShuttle{
+			Description:   mtoServiceItem.Description,
+			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:        mtoServiceItem.Reason,
+		}
+	default:
+		// otherwise, basic service item
+		payload = &supportmessages.MTOServiceItemBasic{
+			ReServiceCode: supportmessages.ReServiceCode(mtoServiceItem.ReService.Code),
+		}
 	}
 
+	// set all relevant fields that apply to all service items
+	var shipmentIDStr string
+	if mtoServiceItem.MTOShipmentID != nil {
+		shipmentIDStr = mtoServiceItem.MTOShipmentID.String()
+	}
+
+	payload.SetID(*handlers.FmtUUID(mtoServiceItem.ID))
+	payload.SetMoveTaskOrderID(handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID))
+	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
+	payload.SetReServiceName(mtoServiceItem.ReService.Name)
+	payload.SetStatus(supportmessages.MTOServiceItemStatus(mtoServiceItem.Status))
+	payload.SetRejectionReason(mtoServiceItem.RejectionReason)
+	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
 	return payload
+}
+
+// MTOServiceItems payload
+func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]supportmessages.MTOServiceItem {
+	var payload []supportmessages.MTOServiceItem
+
+	for _, p := range *mtoServiceItems {
+		copyOfP := p // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload = append(payload, MTOServiceItem(&copyOfP))
+	}
+	return &payload
 }
 
 // MTOShipments payload

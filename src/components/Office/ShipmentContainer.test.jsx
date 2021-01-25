@@ -66,7 +66,7 @@ describe('Shipment Container', () => {
   });
   it('renders a container with className container--accent--ntsr', () => {
     const wrapper = shallow(
-      <ShipmentContainer shipmentType="HHG_OUTOF_NTS_DOMESTIC">
+      <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.NTSR}>
         <ShipmentHeading shipmentInfo={headingInfo} />
       </ShipmentContainer>,
     );

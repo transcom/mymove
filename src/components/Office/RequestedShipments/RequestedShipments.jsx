@@ -2,21 +2,15 @@ import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import ShipmentApprovalPreview from '../ShipmentApprovalPreview';
 
 import styles from './RequestedShipments.module.scss';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import {
-  MTOAgentShape,
-  MTOShipmentShape,
-  MoveTaskOrderShape,
-  MTOServiceItemShape,
-  OrdersInfoShape,
-} from 'types/moveOrder';
+import { shipmentTypes } from 'constants/shipments';
+import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/moveOrder';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
-import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
 import { formatDateFromIso } from 'shared/formatters';
 
 const RequestedShipments = ({
@@ -24,7 +18,6 @@ const RequestedShipments = ({
   ordersInfo,
   allowancesInfo,
   customerInfo,
-  mtoAgents,
   shipmentsStatus,
   mtoServiceItems,
   moveTaskOrder,
@@ -45,36 +38,66 @@ const RequestedShipments = ({
       shipments: [],
     },
     onSubmit: (values, { setSubmitting }) => {
-      const requests = [
-        Promise.all(
-          filteredShipments.map((shipment) =>
-            approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
-          ),
-        ),
-      ];
       const mtoApprovalServiceItemCodes = {
         serviceCodeMS: values.shipmentManagementFee,
         serviceCodeCS: values.counselingFee,
       };
 
-      // if mto is not yet approved, add request to approve it
+      // The MTO has not yet been approved so resolve before updating the shipment statuses and creating accessorial service items
       if (!moveTaskOrder.availableToPrimeAt) {
-        requests.push(approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes));
-      }
-
-      Promise.all(requests)
-        .then((results) => {
-          if (results[0].every((shipmentResult) => shipmentResult.response.status === 200)) {
-            if (results[1]?.response?.status === 200) {
-              // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
-              window.location.reload();
-            }
-          }
+        approveMTO({
+          moveTaskOrderID: moveTaskOrder.id,
+          ifMatchETag: moveTaskOrder.eTag,
+          mtoApprovalServiceItemCodes,
+          normalize: false,
         })
-        .catch(() => {
-          // TODO: Decided if we wnat to display an error notice, log error event, or retry
-          setSubmitting(false);
-        });
+          .then(() => {
+            Promise.all(
+              filteredShipments.map((shipment) =>
+                approveMTOShipment({
+                  moveTaskOrderID: moveTaskOrder.id,
+                  shipmentID: shipment.id,
+                  shipmentStatus: 'APPROVED',
+                  ifMatchETag: shipment.eTag,
+                  normalize: false,
+                }),
+              ),
+            )
+              .then(() => {
+                // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
+                window.location.reload();
+              })
+              .catch(() => {
+                // TODO: Decide if we want to display an error notice, log error event, or retry
+                setSubmitting(false);
+              });
+          })
+          .catch(() => {
+            // TODO: Decide if we want to display an error notice, log error event, or retry
+            setSubmitting(false);
+          });
+      } else {
+        // The MTO was previously approved along with at least one shipment, only update the new shipment statuses
+        Promise.all(
+          filteredShipments.map((shipment) =>
+            approveMTOShipment({
+              moveTaskOrderID: moveTaskOrder.id,
+              shipmentID: shipment.id,
+              shipmentStatus: 'APPROVED',
+              ifMatchETag: shipment.eTag,
+              normalize: false,
+            }),
+          ),
+        )
+          .then(() => {
+            // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
+            window.location.reload();
+          })
+          .catch(() => {
+            // TODO: Decide if we want to display an error notice, log error event, or retry
+            setSubmitting(false);
+          });
+      }
     },
   });
 
@@ -104,7 +127,6 @@ const RequestedShipments = ({
               customerInfo={customerInfo}
               setIsModalVisible={setIsModalVisible}
               onSubmit={formik.handleSubmit}
-              mtoAgents={mtoAgents}
               counselingFee={formik.values.counselingFee}
               shipmentManagementFee={formik.values.shipmentManagementFee}
             />
@@ -121,7 +143,7 @@ const RequestedShipments = ({
                     shipmentType={shipment.shipmentType}
                     isSubmitted
                     displayInfo={{
-                      heading: shipment.shipmentType === SHIPMENT_OPTIONS.NTS ? 'NTS' : shipment.shipmentType,
+                      heading: shipmentTypes[shipment.shipmentType],
                       requestedMoveDate: shipment.requestedPickupDate,
                       currentAddress: shipment.pickupAddress,
                       destinationAddress: shipment.destinationAddress || dutyStationPostal,
@@ -177,7 +199,7 @@ const RequestedShipments = ({
                   shipmentId={shipment.id}
                   shipmentType={shipment.shipmentType}
                   displayInfo={{
-                    heading: shipment.shipmentType === SHIPMENT_OPTIONS.NTS ? 'NTS' : shipment.shipmentType,
+                    heading: shipmentTypes[shipment.shipmentType],
                     requestedMoveDate: shipment.requestedPickupDate,
                     currentAddress: shipment.pickupAddress,
                     destinationAddress: shipment.destinationAddress || dutyStationPostal,
@@ -208,7 +230,7 @@ const RequestedShipments = ({
                       <td data-testid="basicServiceItemDate">
                         {serviceItem.status === 'APPROVED' && (
                           <span>
-                            <FormCheckmarkIcon className={styles.serviceItemApproval} />{' '}
+                            <FontAwesomeIcon icon="check" className={styles.serviceItemApproval} />{' '}
                             {formatDateFromIso(serviceItem.approvedAt, 'DD MMM YYYY')}
                           </span>
                         )}
@@ -225,7 +247,6 @@ const RequestedShipments = ({
 
 RequestedShipments.propTypes = {
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
-  mtoAgents: PropTypes.arrayOf(MTOAgentShape),
   shipmentsStatus: PropTypes.string.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   ordersInfo: OrdersInfoShape.isRequired,
@@ -260,7 +281,6 @@ RequestedShipments.propTypes = {
 };
 
 RequestedShipments.defaultProps = {
-  mtoAgents: [],
   mtoServiceItems: [],
   moveTaskOrder: {},
   approveMTO: () => Promise.resolve(),

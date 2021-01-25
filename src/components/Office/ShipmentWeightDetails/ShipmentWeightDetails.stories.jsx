@@ -1,12 +1,10 @@
 import React from 'react';
-import { withKnobs } from '@storybook/addon-knobs';
 
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 export default {
-  title: 'TOO/TIO Components|ShipmentWeightDetails',
+  title: 'Office Components/ShipmentWeightDetails',
   decorators: [
-    withKnobs,
     (storyFn) => (
       <div id="containers" style={{ padding: '20px' }}>
         {storyFn()}

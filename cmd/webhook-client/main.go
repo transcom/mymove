@@ -19,7 +19,8 @@ import (
 // initRootFlags initializes flags relating to the webhook client
 func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitCACFlags(flag)
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
@@ -37,7 +38,11 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
 	// LOGGER SETUP
 	// Get the db env to configure the logger level
 	dbEnv := v.GetString(cli.DbEnvFlag)
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(
+		logging.WithEnvironment(dbEnv),
+		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
+		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
+	)
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -55,7 +60,7 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
 		return nil, logger, err
 	}
 
-	err = cli.CheckVerbose(v)
+	err = cli.CheckLogging(v)
 	if err != nil {
 		return nil, logger, err
 	}
@@ -94,17 +99,18 @@ func main() {
 	initPostWebhookNotifyFlags(postWebhookNotifyCommand.Flags())
 	root.AddCommand(postWebhookNotifyCommand)
 
-	dbWebhookNotifyCommand := &cobra.Command{
-		Use:   "db-webhook-notify",
-		Short: "Database Webhook Notify",
+	webhookNotifyCommand := &cobra.Command{
+		Use:   "webhook-notify",
+		Short: "Webhook Notify",
 		Long: `
-	Database Webhook Notify checks the webhook_notification
-	table and sends the first notification it finds there.`,
-		RunE:         dbWebhookNotify,
+	Webhook Notify launches the engine for webhook notifications.
+	This repeatedly checks the webhook_notification and webhook_subscription tables and
+	sends the notifications every minute.`,
+		RunE:         webhookNotify,
 		SilenceUsage: true,
 	}
-	initDbWebhookNotifyFlags(dbWebhookNotifyCommand.Flags())
-	root.AddCommand(dbWebhookNotifyCommand)
+	initWebhookNotifyFlags(webhookNotifyCommand.Flags())
+	root.AddCommand(webhookNotifyCommand)
 
 	dbConnectionCommand := &cobra.Command{
 		Use:   "db-connection-test",

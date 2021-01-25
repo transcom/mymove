@@ -4211,6 +4211,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "office_user": {
+          "x-nullable": true,
+          "$ref": "#/definitions/OfficeUser"
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -4916,6 +4920,66 @@ func init() {
         "WEIGHING_FEES": "Weighing fees"
       }
     },
+    "OfficeUser": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "title": "Personal Email Address",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
+          "example": "john_bob@example.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First name",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last name",
+          "x-nullable": true,
+          "example": "Donut"
+        },
+        "middle_name": {
+          "type": "string",
+          "title": "Middle name",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "title": "Best contact phone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        },
+        "transportation_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "Orders": {
       "type": "object",
       "required": [
@@ -4932,6 +4996,11 @@ func init() {
         "updated_at"
       ],
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 7000
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
@@ -10756,6 +10825,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "office_user": {
+          "x-nullable": true,
+          "$ref": "#/definitions/OfficeUser"
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -11463,6 +11536,66 @@ func init() {
         "WEIGHING_FEES": "Weighing fees"
       }
     },
+    "OfficeUser": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "title": "Personal Email Address",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
+          "example": "john_bob@example.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First name",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last name",
+          "x-nullable": true,
+          "example": "Donut"
+        },
+        "middle_name": {
+          "type": "string",
+          "title": "Middle name",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "title": "Best contact phone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        },
+        "transportation_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "Orders": {
       "type": "object",
       "required": [
@@ -11479,6 +11612,11 @@ func init() {
         "updated_at"
       ],
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 7000
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"

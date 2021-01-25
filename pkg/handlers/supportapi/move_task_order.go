@@ -1,6 +1,8 @@
 package supportapi
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -74,6 +76,34 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 	return movetaskorderops.NewMakeMoveTaskOrderAvailableOK().WithPayload(moveTaskOrderPayload)
 }
 
+// HideNonFakeMoveTaskOrdersHandlerFunc calls service to hide MTOs that are not using fake data
+type HideNonFakeMoveTaskOrdersHandlerFunc struct {
+	handlers.HandlerContext
+	services.MoveTaskOrderHider
+}
+
+// Handle hides any mto that doesnt have valid fake data
+func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.HideNonFakeMoveTaskOrdersParams) middleware.Responder {
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	hiddenMTOs, err := h.Hide()
+	if err != nil {
+		logger.Error("supportapi.HideNonFakeMoveTaskOrdersHandlerFunc error", zap.Error(err))
+		return movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+	}
+	var hiddenMoveIDs []uuid.UUID
+	for _, mto := range hiddenMTOs {
+		if mto.ContractorID == nil {
+			logger.Warn(fmt.Sprintf("MTO with id %s is missing a ContractorID. It has been hidden but will not appear in the array of returned MTOs", mto.ID))
+		} else {
+			hiddenMoveIDs = append(hiddenMoveIDs, mto.ID)
+		}
+	}
+	payload := payloads.MoveTaskOrderIDs(hiddenMoveIDs)
+
+	return movetaskorderops.NewHideNonFakeMoveTaskOrdersOK().WithPayload(payload)
+}
+
 // GetMoveTaskOrderHandlerFunc updates the status of a Move Task Order
 type GetMoveTaskOrderHandlerFunc struct {
 	handlers.HandlerContext
@@ -88,13 +118,10 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
 		logger.Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
-		switch typedErr := err.(type) {
+		switch err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
-		case services.InvalidInputError:
-			return movetaskorderops.NewCreateMoveTaskOrderUnprocessableEntity().WithPayload(
-				payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors))
 		default:
 			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
@@ -116,6 +143,7 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 	moveTaskOrder, err := h.moveTaskOrderCreator.InternalCreateMoveTaskOrder(*params.Body, logger)
 
 	if err != nil {
+		logger.Error("primeapi.support.CreateMoveTaskOrderHandler error", zap.Error(err))
 		switch typedErr := err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(
@@ -132,6 +160,7 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	}
+
 	moveTaskOrderPayload := payloads.MoveTaskOrder(moveTaskOrder)
 	return movetaskorderops.NewCreateMoveTaskOrderCreated().WithPayload(moveTaskOrderPayload)
 

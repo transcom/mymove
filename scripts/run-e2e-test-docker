@@ -161,10 +161,12 @@ docker logs -f ${CONTAINER_CYPRESS}
 # Stop the app container to release the DB connection
 docker stop ${CONTAINER}
 
-# Copy out the results
-docker cp ${CONTAINER_CYPRESS}:/cypress/results cypress/ 2>/dev/null || echo "No cypress results copied"
-docker cp ${CONTAINER_CYPRESS}:/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
-docker cp ${CONTAINER_CYPRESS}:/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
+# Copy out the results, there are always xml result files so fail if we don't find them
+docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/results cypress/
+# Copy out screenshots, videos, and reports which may or may not be generated, hence we are hiding the errors
+docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
+docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
+docker cp ${CONTAINER_CYPRESS}:/home/circleci/cypress/reports cypress/ 2>/dev/null || echo "No cypress reports copied"
 
 # Grab the exit code from the test container
 EXIT_STATUS=$(docker inspect ${CONTAINER_CYPRESS} --format='{{.State.ExitCode}}')

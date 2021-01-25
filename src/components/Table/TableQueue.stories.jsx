@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { withKnobs } from '@storybook/addon-knobs';
 
 import { createHeader } from './utils';
 import TableQueue from './TableQueue';
@@ -11,9 +10,8 @@ import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 
 export default {
-  title: 'TOO/TIO Components|Table',
+  title: 'Office Components/Table',
   decorators: [
-    withKnobs,
     (storyFn) => (
       <div style={{ margin: '10px', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
         {storyFn()}
@@ -21,19 +19,6 @@ export default {
     ),
   ],
 };
-
-const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
-  value: key,
-  label: MOVE_STATUS_OPTIONS[`${key}`],
-}));
-
-const branchFilterOptions = [
-  { value: '', label: 'All' },
-  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
-    value: key,
-    label: BRANCH_OPTIONS[`${key}`],
-  })),
-];
 
 const data = [
   {
@@ -76,12 +61,12 @@ const columns = (isFilterable = false) => [
   createHeader('DoD ID', 'col2', { isFilterable }),
   createHeader('Status', 'col3', {
     isFilterable,
-    Filter: (props) => <MultiSelectCheckBoxFilter options={moveStatusOptions} {...props} />,
+    Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
   }),
   createHeader('Move Code', 'col4', { isFilterable }),
   createHeader('Branch', 'col5', {
     isFilterable,
-    Filter: (props) => <SelectFilter options={branchFilterOptions} {...props} />,
+    Filter: (props) => <SelectFilter options={BRANCH_OPTIONS} {...props} />,
   }),
   createHeader('# of shipments', 'col6', { isFilterable }),
   createHeader('Destination duty station', 'col7', { isFilterable }),

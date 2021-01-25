@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -18,13 +19,15 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	}
 
 	entitlement := models.Entitlement{
-		DependentsAuthorized:  &truePtr,
+		DependentsAuthorized:  setDependentsAuthorized(assertions.Entitlement.DependentsAuthorized),
 		TotalDependents:       &dependents,
 		NonTemporaryStorage:   &truePtr,
 		PrivatelyOwnedVehicle: &truePtr,
 		StorageInTransit:      &storageInTransit,
 	}
 	entitlement.SetWeightAllotment(*grade)
+	dBAuthorizedWeight := entitlement.AuthorizedWeight()
+	entitlement.DBAuthorizedWeight = dBAuthorizedWeight
 
 	// Overwrite values with those from assertions
 	mergeModels(&entitlement, assertions.Entitlement)
@@ -32,4 +35,12 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	mustCreate(db, &entitlement, assertions.Stub)
 
 	return entitlement
+}
+
+func setDependentsAuthorized(assertionDependentsAuthorized *bool) *bool {
+	dependentsAuthorized := swag.Bool(true)
+	if assertionDependentsAuthorized != nil {
+		dependentsAuthorized = assertionDependentsAuthorized
+	}
+	return dependentsAuthorized
 }
