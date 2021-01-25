@@ -29,6 +29,9 @@ type UpdateMTOServiceItemSIT struct {
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination.
 	// Format: date
 	SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
+	// sit destination final address
+	SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 }
 
 // ID gets the id of this subtype
@@ -61,6 +64,9 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination.
 		// Format: date
 		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
+		// sit destination final address
+		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -96,6 +102,7 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 
 	result.ReServiceCode = data.ReServiceCode
 	result.SitDepartureDate = data.SitDepartureDate
+	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
 
 	*m = result
 
@@ -115,11 +122,16 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination.
 		// Format: date
 		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
+		// sit destination final address
+		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
 	}{
 
 		ReServiceCode: m.ReServiceCode,
 
 		SitDepartureDate: m.SitDepartureDate,
+
+		SitDestinationFinalAddress: m.SitDestinationFinalAddress,
 	})
 	if err != nil {
 		return nil, err
@@ -154,6 +166,10 @@ func (m *UpdateMTOServiceItemSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitDepartureDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitDestinationFinalAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -218,6 +234,24 @@ func (m *UpdateMTOServiceItemSIT) validateSitDepartureDate(formats strfmt.Regist
 
 	if err := validate.FormatOf("sitDepartureDate", "body", "date", m.SitDepartureDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOServiceItemSIT) validateSitDestinationFinalAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitDestinationFinalAddress) { // not required
+		return nil
+	}
+
+	if m.SitDestinationFinalAddress != nil {
+		if err := m.SitDestinationFinalAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitDestinationFinalAddress")
+			}
+			return err
+		}
 	}
 
 	return nil
