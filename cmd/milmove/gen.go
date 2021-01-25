@@ -58,7 +58,7 @@ func addMigrationToManifest(migrationManifest string, filename string) error {
 	}
 	defer func() {
 		if closeErr := mmf.Close(); closeErr != nil {
-			logger.Error("Could not close mmf file", zap.Error(closeErr))
+			log.Println("Could not close mmf file", closeErr)
 		}
 	}()
 
