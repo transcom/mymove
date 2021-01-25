@@ -72,7 +72,7 @@ func UpdateMTOAgent(cmd *cobra.Command, args []string) error {
 	if cacStore != nil {
 		defer func() {
 			if closeErr := cacStore.Close(); closeErr != nil {
-				fmt.Println(fmt.Errorf("Close store connection failed: %w", closeErr))
+				logger.Fatal(closeErr)
 			}
 		}()
 	}

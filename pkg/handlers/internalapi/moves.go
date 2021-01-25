@@ -225,7 +225,7 @@ func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs
 		newSignedCertification.PersonallyProcuredMoveID = &ppmID
 	}
 
-	transactionErr := db.Transaction(func(db *pop.Connection) error { // nolint:errcheck
+	transactionErr := db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 		// TODO: move creation of signed certification into a service
 		verrs, err := db.ValidateAndCreate(&newSignedCertification)

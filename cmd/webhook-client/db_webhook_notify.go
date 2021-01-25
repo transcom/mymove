@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -59,7 +58,7 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	if cacStore != nil {
 		defer func() {
 			if closeErr := cacStore.Close(); closeErr != nil {
-				fmt.Println(fmt.Errorf("Close store connection failed: %w", closeErr))
+				logger.Error("CAC connection close failed", zap.Error(closeErr))
 			}
 		}()
 	}
@@ -75,15 +74,11 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	}
 
 	// Start polling the db for changes
-	go webhookEngine.Start() // nolint:errcheck
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Function with unchecked return value in the line is used to start the webhook engine
-	//RA: Due to the start of the webhook engine being a go subroutine, the error handling is handled at the engine level leading to no unexpected states and conditions
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	go func() {
+		if engineStartFailed := webhookEngine.Start(); engineStartFailed != nil {
+			logger.Error("Engine start failed", zap.Error(err))
+		}
+	}()
 
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 5 seconds.

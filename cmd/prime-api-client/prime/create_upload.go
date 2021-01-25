@@ -73,7 +73,7 @@ func CreatePaymentRequestUpload(cmd *cobra.Command, args []string) error {
 	if cacStore != nil {
 		defer func() {
 			if closeErr := cacStore.Close(); closeErr != nil {
-				fmt.Println(fmt.Errorf("Close store connection failed: %w", closeErr))
+				logger.Fatal(closeErr)
 			}
 		}()
 	}
@@ -85,15 +85,12 @@ func CreatePaymentRequestUpload(cmd *cobra.Command, args []string) error {
 	paymentRequestID := v.GetString(utils.PaymentRequestIDFlag)
 
 	file, fileErr := os.Open(filepath.Clean(filename))
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used to end an asynchronous connection pertaining to file formatting
-	//RA: Given the functions causing the lint errors are used to end a running asynchronous connection, it does not present a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	defer file.Close() // nolint:errcheck
+
+	defer func() {
+		if fileErr := file.Close(); fileErr != nil {
+			logger.Fatal(fileErr)
+		}
+	}()
 
 	if fileErr != nil {
 		logger.Fatal(fileErr)
