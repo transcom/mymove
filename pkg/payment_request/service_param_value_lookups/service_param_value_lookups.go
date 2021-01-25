@@ -95,7 +95,10 @@ func ServiceParamLookupInitialize(
 	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT:
 		// load destination address from final address on service item
 		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
-			db.Load(&mtoServiceItem, "SITDestinationFinalAddress")
+			err = db.Load(&mtoServiceItem, "SITDestinationFinalAddress")
+			if err != nil {
+				return nil, err
+			}
 			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
 		}
 		fallthrough
@@ -314,6 +317,15 @@ func ServiceParamLookupInitialize(
 	paramKey = models.ServiceItemParamNameZipSITDestHHGFinalAddress
 	err = s.setLookup(serviceItemCode, paramKey, ZipAddressLookup{
 		Address: sitDestinationFinalAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameDistanceZipSITDest
+	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITDestLookup{
+		DestinationAddress:      destinationAddress,
+		FinalDestinationAddress: sitDestinationFinalAddress,
 	})
 	if err != nil {
 		return nil, err

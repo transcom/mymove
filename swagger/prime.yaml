@@ -1668,8 +1668,8 @@ definitions:
       - CubicFeetCrating
       - DistanceZip3
       - DistanceZip5
-      - DistanceZip5SITDest
-      - DistanceZip5SITOrigin
+      - DistanceZipSITDest
+      - DistanceZipSITOrigin
       - EIAFuelPrice
       - FSCWeightBasedDistanceMultiplier
       - MarketDest
