@@ -147,17 +147,19 @@ export class OfficeApp extends Component {
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
         {!hideHeaderPPM && (
           <>
-            <QueueHeader />
-            <MilmoveHeader
-              lastName={officeUser.last_name}
-              firstName={officeUser.first_name}
-              handleLogout={() => {
-                logOut();
-                LogoutUser();
-              }}
-            >
-              {userIsLoggedIn && <Link to="/">{officeUser.transportation_office.gbloc} moves</Link>}
-            </MilmoveHeader>
+            {(!userIsLoggedIn || activeRole === roleTypes.TIO) && <QueueHeader />}
+            {userIsLoggedIn && activeRole === roleTypes.TOO && (
+              <MilmoveHeader
+                lastName={officeUser.last_name}
+                firstName={officeUser.first_name}
+                handleLogout={() => {
+                  logOut();
+                  LogoutUser();
+                }}
+              >
+                <Link to="/">{officeUser.transportation_office.gbloc} moves</Link>
+              </MilmoveHeader>
+            )}
           </>
         )}
         <main role="main" className="site__content site-office__content">
