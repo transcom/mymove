@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import isMobile from 'is-mobile';
-import { get, reject } from 'lodash';
 import { FilePond, registerPlugin } from 'react-filepond';
 import { Status } from 'filepond';
 import 'filepond-polyfill/dist/filepond-polyfill';
@@ -26,62 +25,24 @@ registerPlugin(
 // - forwardRef if necessary (props.onRef)
 
 class FileUpload extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      files: [],
-    };
-  }
-
-  handleProcessFile = () => {
-    if (this.props.onChange) {
-      this.props.onChange(this.state.files, this.isIdle());
-    }
-  };
-
-  handleAddFileStart = () => {
-    if (this.props.onAddFile) {
-      this.props.onAddFile();
-    }
-  };
-
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
     const { createUpload } = this.props;
-    const self = this;
+
     createUpload(file)
-      .then((item) => {
-        const response = get(item, 'response.body', {});
+      .then((response) => {
         load(response.id);
-        const newFiles = self.state.files.concat(response);
-        self.setState({
-          files: newFiles,
-        });
       })
       .catch(error);
 
+    // TODO - abort handler?
     return { abort };
   };
 
-  revertFile = (uploadId, load, error) => {
-    const { onChange, deleteUpload } = this.props;
-    deleteUpload(uploadId)
-      .then((item) => {
-        const response = get(item, 'response', {});
-        load(response);
-        const getNewFiles = (state) => reject(state.files, (upload) => upload.id === uploadId);
-        this.setState(
-          (prevState) => ({
-            files: getNewFiles(prevState),
-          }),
-          () => {
-            if (onChange) {
-              onChange(this.state.files, this.isIdle());
-            }
-          },
-        );
-      })
-      .catch(error);
+  handleProcessFile = () => {
+    if (this.props.onChange) {
+      this.props.onChange(this.pond?.getFiles(), this.isIdle());
+    }
+    this.pond?.removeFiles();
   };
 
   isIdle() {
@@ -89,12 +50,13 @@ class FileUpload extends Component {
   }
 
   render() {
-    const { labelIdle, files } = this.props;
+    const { labelIdle } = this.props;
 
     const serverConfig = {
-      url: '/',
+      url: '/internal',
       process: this.processFile,
-      revert: this.revertFile,
+      fetch: null,
+      revert: null,
     };
 
     /**
@@ -105,37 +67,22 @@ class FileUpload extends Component {
     const filePondProps = {
       allowMultiple: true,
       server: serverConfig,
-      iconUndo: this.pond?.iconRemove,
       imagePreviewMaxHeight: 100,
       labelIdle: isMobile() ? '<span class="filepond--label-action">Upload</span>' : labelIdle,
-      labelTapToUndo: 'tap to delete',
       acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
       maxFileSize: '25MB',
     };
 
     /* eslint-disable react/jsx-props-no-spreading */
     return (
-      <div>
-        <FilePond
-          ref={(ref) => {
-            this.pond = ref;
-          }}
-          {...filePondProps}
-          onprocessfile={this.handleProcessFile}
-          onaddfilestart={this.handleAddFileStart}
-          files={files.map((f) => ({
-            source: f.id,
-            options: {
-              type: 'local',
-              file: {
-                name: f.filename,
-                size: f.bytes,
-                type: f.content_type,
-              },
-            },
-          }))}
-        />
-      </div>
+      <FilePond
+        ref={(ref) => {
+          this.pond = ref;
+        }}
+        {...filePondProps}
+        name="file"
+        onprocessfile={this.handleProcessFile}
+      />
     );
     /* eslint-enable react/jsx-props-no-spreading */
   }
@@ -144,20 +91,13 @@ class FileUpload extends Component {
 FileUpload.propTypes = {
   onChange: PropTypes.func,
   createUpload: PropTypes.func.isRequired,
-  deleteUpload: PropTypes.func,
-  onAddFile: PropTypes.func,
   // FilePond instance props
   labelIdle: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
-  files: PropTypes.array,
 };
 
 FileUpload.defaultProps = {
   onChange: undefined,
-  deleteUpload: undefined,
-  onAddFile: undefined,
   labelIdle: 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
-  files: [],
 };
 
 export default FileUpload;

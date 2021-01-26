@@ -35,7 +35,17 @@ import profileImage from './images/profile.png';
 const editOrdersFormName = 'edit_orders';
 
 let EditOrdersForm = (props) => {
-  const { onDelete, schema, handleSubmit, submitting, valid, initialValues, existingUploads } = props;
+  const {
+    createUpload,
+    onDelete,
+    schema,
+    handleSubmit,
+    submitting,
+    valid,
+    initialValues,
+    existingUploads,
+    onUploadComplete,
+  } = props;
   const showAllOrdersTypes = props.context.flags.allOrdersTypes;
   const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
 
@@ -68,13 +78,13 @@ let EditOrdersForm = (props) => {
               <br />
               <Field name="new_duty_station" component={DutyStationSearchBox} />
               <p>Uploads:</p>
-              {Boolean(existingUploads.length) && <UploadsTable uploads={existingUploads} onDelete={onDelete} />}
-              {Boolean(get(initialValues, 'uploaded_orders')) && (
+              {existingUploads?.length > 0 && <UploadsTable uploads={existingUploads} onDelete={onDelete} />}
+              {initialValues?.uploaded_orders && (
                 <div>
                   <p>{documentSizeLimitMsg}</p>
                   <FileUpload
-                    createUpload={props.createUpload}
-                    deleteUpload={props.deleteUpload}
+                    createUpload={createUpload}
+                    onChange={onUploadComplete}
                     labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
                   />
                 </div>
@@ -95,6 +105,7 @@ EditOrdersForm.propTypes = {
     }).isRequired,
   }).isRequired,
 };
+
 EditOrdersForm = withContext(
   reduxForm({
     form: editOrdersFormName,
@@ -103,12 +114,15 @@ EditOrdersForm = withContext(
 
 class EditOrders extends Component {
   handleUploadFile = (file) => {
-    const { currentOrders, serviceMemberId, updateOrders } = this.props;
+    const { currentOrders } = this.props;
     const documentId = currentOrders?.uploaded_orders?.id;
-    return createUploadForDocument(file, documentId).then(() => {
-      getOrdersForServiceMember(serviceMemberId).then((response) => {
-        updateOrders(response);
-      });
+    return createUploadForDocument(file, documentId);
+  };
+
+  handleUploadComplete = () => {
+    const { serviceMemberId, updateOrders } = this.props;
+    return getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
     });
   };
 
@@ -182,7 +196,7 @@ class EditOrders extends Component {
               onSubmit={this.submitOrders}
               schema={schema}
               createUpload={this.handleUploadFile}
-              deleteUpload={this.handleDeleteFile}
+              onUploadComplete={this.handleUploadComplete}
               existingUploads={existingUploads}
               onDelete={this.handleDeleteFile}
               formValues={formValues}

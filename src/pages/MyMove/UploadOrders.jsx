@@ -23,10 +23,6 @@ export class UploadOrders extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      newUploads: [],
-    };
-
     this.onChange = this.onChange.bind(this);
     this.handleUploadFile = this.handleUploadFile.bind(this);
     this.handleDeleteFile = this.handleDeleteFile.bind(this);
@@ -40,12 +36,16 @@ export class UploadOrders extends Component {
   }
 
   handleUploadFile(file) {
-    const { currentOrders, serviceMemberId, updateOrders } = this.props;
+    const { currentOrders } = this.props;
     const documentId = currentOrders?.uploaded_orders?.id;
-    return createUploadForDocument(file, documentId).then(() => {
-      getOrdersForServiceMember(serviceMemberId).then((response) => {
-        updateOrders(response);
-      });
+    return createUploadForDocument(file, documentId);
+  }
+
+  handleUploadComplete() {
+    const { serviceMemberId, updateOrders } = this.props;
+
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
     });
   }
 
@@ -59,21 +59,17 @@ export class UploadOrders extends Component {
     });
   }
 
-  onChange(files) {
-    this.setState({
-      newUploads: files,
-    });
+  onChange() {
+    this.handleUploadComplete();
   }
 
   render() {
     const { pages, pageKey, error, currentOrders, uploads, additionalParams } = this.props;
-    const { newUploads } = this.state;
-    const isValid = Boolean(uploads.length || newUploads.length);
-    const isDirty = Boolean(newUploads.length);
+    const isValid = !!uploads.length;
+
     return (
       <ConnectedWizardPage
         additionalParams={additionalParams}
-        dirty={isDirty}
         error={error}
         handleSubmit={noop}
         pageIsValid={isValid}
@@ -95,9 +91,7 @@ export class UploadOrders extends Component {
         {currentOrders && (
           <div className="uploader-box">
             <FileUpload
-              files={uploads}
               createUpload={this.handleUploadFile}
-              deleteUpload={this.handleDeleteFile}
               onChange={this.onChange}
               labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
             />
