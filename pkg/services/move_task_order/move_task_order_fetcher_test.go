@@ -62,6 +62,16 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
+	// Set up a hidden move so we can check if it's in the output:
+	now := time.Now()
+	hide := false
+	hiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+			Show:               &hide,
+		},
+	})
+
 	suite.T().Run("all move task orders", func(t *testing.T) {
 		testdatagen.MakeDefaultMove(suite.DB())
 		testdatagen.MakeDefaultMove(suite.DB())
@@ -72,10 +82,16 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(false, false, nil)
 		suite.NoError(err)
 
-		mto := moveTaskOrders[0]
-
-		suite.Equal(len(moveTaskOrders), 3)
-		suite.Nil(mto.AvailableToPrimeAt)
+		// The hidden move be in this output list since we weren't excluding hidden MTOs:
+		found := false
+		for _, move := range moveTaskOrders {
+			if move.ID == hiddenMTO.ID {
+				found = true
+				break
+			}
+		}
+		suite.True(found)
+		suite.Equal(len(moveTaskOrders), 4)
 	})
 
 	suite.T().Run("all move task orders that are available to prime and using since", func(t *testing.T) {
@@ -92,6 +108,11 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(true, true, nil)
 		suite.NoError(err)
 		suite.Equal(len(moveTaskOrders), 3)
+
+		// The hidden move should be nowhere in the output list:
+		for _, move := range moveTaskOrders {
+			suite.NotEqual(move.ID, hiddenMTO.ID)
+		}
 
 		// Put 1 Move updatedAt in the past
 		suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
