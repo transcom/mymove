@@ -61,4 +61,12 @@
     margin: 0;
     padding-top: 5px;
   }
+
+  :global(.usa-button.usa-button--unstyled) {
+    color: $link-light;
+    &:hover,
+    &:focus {
+      color: #b7caf0;
+    }
+  }
 }
