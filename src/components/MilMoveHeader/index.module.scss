@@ -44,7 +44,7 @@
 
     &:hover,
     &:focus {
-      color: #b7caf0;
+      color: $link-light-hover;
       @include u-text('no-underline');
     }
   }
@@ -70,7 +70,7 @@
     color: $link-light;
     &:hover,
     &:focus {
-      color: #b7caf0;
+      color: $link-light-hover;
     }
   }
 }
