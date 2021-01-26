@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import classnames from 'classnames';
 import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { queryCache, useMutation } from 'react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -15,6 +16,7 @@ import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { MOVES } from 'constants/queryKeys';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -57,6 +59,13 @@ const MoveDetails = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
+  });
+
+  // use mutation calls
+  const [mutateMoveStatus] = useMutation(updateMoveTaskOrderStatus, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([MOVES, data.locator], data);
+    },
   });
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -132,7 +141,7 @@ const MoveDetails = () => {
                 customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
                 shipmentsStatus="SUBMITTED"
-                approveMTO={updateMoveTaskOrderStatus}
+                approveMTO={mutateMoveStatus}
                 approveMTOShipment={patchMTOShipmentStatus}
                 moveTaskOrder={move}
               />
