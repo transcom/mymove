@@ -31,11 +31,13 @@ export class LogoutOnInactivity extends React.Component {
     this.setState({ isIdle: false });
     this.setState({ timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds });
   };
+
   onIdle = () => {
     this.setState({ isIdle: true });
     clearInterval(this.timer);
     this.timer = setInterval(this.countdown, 1000);
   };
+
   onAction = () => {
     fetch(this.props.keepAliveEndpoint);
   };

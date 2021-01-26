@@ -135,6 +135,7 @@
     "mockdate": "^3.0.2",
     "prettier": "2.2.1",
     "react-test-renderer": "^17.0.1",
+    "sinon":"^9.2.4",
     "source-map-explorer": "^2.5.2",
     "storybook-addons-abstract": "^5.0.6"
   },
