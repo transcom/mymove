@@ -141,14 +141,21 @@ export class OfficeApp extends Component {
       [`site--fullscreen`]: isFullscreenPage,
     });
 
+    let queueText = '';
+    if (activeRole === roleTypes.TOO) {
+      queueText = 'moves';
+    } else if (activeRole === roleTypes.TIO) {
+      queueText = 'payment requests';
+    }
+
     return (
       <div className={siteClasses}>
         <FOUOHeader />
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
         {!hideHeaderPPM && (
           <>
-            {(!userIsLoggedIn || activeRole === roleTypes.TIO) && <QueueHeader />}
-            {userIsLoggedIn && activeRole === roleTypes.TOO && (
+            {!userIsLoggedIn && <QueueHeader />}
+            {userIsLoggedIn && (activeRole === roleTypes.TOO || activeRole === roleTypes.TIO) && (
               <MilmoveHeader
                 lastName={officeUser.last_name}
                 firstName={officeUser.first_name}
@@ -157,7 +164,11 @@ export class OfficeApp extends Component {
                   LogoutUser();
                 }}
               >
-                {officeUser.transportation_office && <Link to="/">{officeUser.transportation_office.gbloc} moves</Link>}
+                {officeUser.transportation_office && (
+                  <Link to="/">
+                    {officeUser.transportation_office.gbloc} {queueText}
+                  </Link>
+                )}
               </MilmoveHeader>
             )}
           </>
