@@ -4,7 +4,7 @@ import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
+// import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
 import { MTOShipmentShape, OrdersInfoShape } from '../../types/moveOrder';
 import { formatAddress } from '../../utils/shipmentDisplay';
 
@@ -13,6 +13,8 @@ import AllowancesTable from './AllowancesTable/AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
+
+import { mtoShipmentTypes } from 'constants/shipments';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -65,7 +67,7 @@ const ShipmentApprovalPreview = ({
                   className={classNames(styles.previewShipments)}
                 >
                   <div className={styles.innerWrapper}>
-                    <h4 className="text-normal">{mtoShipmentTypeToFriendlyDisplay(shipment.shipmentType)}</h4>
+                    <h4 className="text-normal">{mtoShipmentTypes[shipment.shipmentType]}</h4>
                     <div className="display-flex">
                       <table className={classNames('table--stacked', styles.shipmentInfo)}>
                         <tbody>
