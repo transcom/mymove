@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import './UploadOrders.css';
 
-import OrdersUploader from 'components/OrdersUploader/index';
+import FileUpload from 'components/FileUpload/index';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import ConnectedWizardPage from 'shared/WizardPage/index';
 import { documentSizeLimitMsg } from 'shared/constants';
@@ -96,7 +96,7 @@ export class UploadOrders extends Component {
         )}
         {currentOrders && (
           <div className="uploader-box">
-            <OrdersUploader
+            <FileUpload
               createUpload={this.handleUploadFile}
               deleteUpload={this.handleDeleteFile}
               onChange={this.onChange}

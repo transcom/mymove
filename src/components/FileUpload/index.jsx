@@ -23,7 +23,7 @@ registerPlugin(FilePondImagePreview);
 
 const idleStatuses = [FileStatus.PROCESSING_COMPLETE, FileStatus.PROCESSING_ERROR];
 
-class OrdersUploader extends Component {
+class FileUpload extends Component {
   constructor(props) {
     super(props);
 
@@ -185,7 +185,7 @@ class OrdersUploader extends Component {
   }
 }
 
-OrdersUploader.propTypes = {
+FileUpload.propTypes = {
   onChange: PropTypes.func,
   createUpload: PropTypes.func.isRequired,
   onRef: PropTypes.func,
@@ -195,7 +195,7 @@ OrdersUploader.propTypes = {
   options: PropTypes.object,
 };
 
-OrdersUploader.defaultProps = {
+FileUpload.defaultProps = {
   onChange: undefined,
   onRef: undefined,
   deleteUpload: undefined,
@@ -203,4 +203,4 @@ OrdersUploader.defaultProps = {
   options: {},
 };
 
-export default OrdersUploader;
+export default FileUpload;

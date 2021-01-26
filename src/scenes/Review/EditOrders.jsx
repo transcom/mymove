@@ -10,7 +10,7 @@ import { withContext } from 'shared/AppContext';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import OrdersUploader from 'components/OrdersUploader';
+import FileUpload from 'components/FileUpload/index';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
@@ -73,7 +73,7 @@ let EditOrdersForm = (props) => {
               {Boolean(get(initialValues, 'uploaded_orders')) && (
                 <div>
                   <p>{documentSizeLimitMsg}</p>
-                  <OrdersUploader
+                  <FileUpload
                     createUpload={props.createUpload}
                     deleteUpload={props.deleteUpload}
                     options={{ labelIdle: uploaderLabelIdle }}
