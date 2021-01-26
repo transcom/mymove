@@ -4,16 +4,12 @@ import { connect } from 'react-redux';
 
 import './UploadOrders.css';
 
-import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
-import {
-  createUpload as createUploadAction,
-  deleteUpload as deleteUploadAction,
-  selectDocument,
-} from 'shared/Entities/modules/documents';
 import OrdersUploader from 'components/OrdersUploader/index';
-import ConnectedUploadsTable from 'shared/Uploader/UploadsTable';
+import UploadsTable from 'components/UploadsTable/UploadsTable';
 import ConnectedWizardPage from 'shared/WizardPage/index';
 import { documentSizeLimitMsg } from 'shared/constants';
+import { getOrdersForServiceMember, createUploadForDocument, deleteUpload } from 'services/internalApi';
+import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -21,14 +17,7 @@ import {
 } from 'store/entities/selectors';
 // eslint-disable-next-line camelcase
 import { no_op as noop } from 'shared/utils';
-import {
-  PageListShape,
-  PageKeyShape,
-  AdditionalParamsShape,
-  OrdersShape,
-  UploadsShape,
-  DocumentShape,
-} from 'types/customerShapes';
+import { PageListShape, PageKeyShape, AdditionalParamsShape, OrdersShape, UploadsShape } from 'types/customerShapes';
 
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
@@ -41,12 +30,35 @@ export class UploadOrders extends Component {
     };
 
     this.onChange = this.onChange.bind(this);
-    this.deleteFile = this.deleteFile.bind(this);
+    this.handleUploadFile = this.handleUploadFile.bind(this);
+    this.handleDeleteFile = this.handleDeleteFile.bind(this);
   }
 
   componentDidMount() {
-    const { serviceMemberId, fetchLatestOrders } = this.props;
-    fetchLatestOrders(serviceMemberId);
+    const { serviceMemberId, updateOrders } = this.props;
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
+  }
+
+  handleUploadFile(file) {
+    const { currentOrders, serviceMemberId, updateOrders } = this.props;
+    const documentId = currentOrders?.uploaded_orders?.id;
+    return createUploadForDocument(file, documentId).then(() => {
+      getOrdersForServiceMember(serviceMemberId).then((response) => {
+        updateOrders(response);
+      });
+    });
+  }
+
+  handleDeleteFile(uploadId) {
+    const { serviceMemberId, updateOrders } = this.props;
+
+    return deleteUpload(uploadId).then(() => {
+      getOrdersForServiceMember(serviceMemberId).then((response) => {
+        updateOrders(response);
+      });
+    });
   }
 
   onChange(files) {
@@ -55,26 +67,8 @@ export class UploadOrders extends Component {
     });
   }
 
-  deleteFile(e, uploadId) {
-    e.preventDefault();
-    const { currentOrders, deleteUpload } = this.props;
-    if (currentOrders) {
-      deleteUpload(uploadId);
-    }
-  }
-
   render() {
-    const {
-      pages,
-      pageKey,
-      error,
-      currentOrders,
-      uploads,
-      document,
-      additionalParams,
-      createUpload,
-      deleteUpload,
-    } = this.props;
+    const { pages, pageKey, error, currentOrders, uploads, additionalParams } = this.props;
     const { newUploads } = this.state;
     const isValid = Boolean(uploads.length || newUploads.length);
     const isDirty = Boolean(newUploads.length);
@@ -97,15 +91,14 @@ export class UploadOrders extends Component {
         {Boolean(uploads.length) && (
           <>
             <br />
-            <ConnectedUploadsTable uploads={uploads} onDelete={this.deleteFile} />
+            <UploadsTable uploads={uploads} onDelete={this.handleDeleteFile} />
           </>
         )}
         {currentOrders && (
           <div className="uploader-box">
             <OrdersUploader
-              createUpload={createUpload}
-              deleteUpload={deleteUpload}
-              document={document}
+              createUpload={this.handleUploadFile}
+              deleteUpload={this.handleDeleteFile}
               onChange={this.onChange}
               options={{ labelIdle: uploaderLabelIdle }}
             />
@@ -119,15 +112,12 @@ export class UploadOrders extends Component {
 
 UploadOrders.propTypes = {
   serviceMemberId: PropTypes.string.isRequired,
-  fetchLatestOrders: PropTypes.func.isRequired,
-  createUpload: PropTypes.func.isRequired,
-  deleteUpload: PropTypes.func.isRequired,
+  updateOrders: PropTypes.func.isRequired,
   pages: PageListShape.isRequired,
   pageKey: PageKeyShape.isRequired,
   currentOrders: OrdersShape,
   error: PropTypes.string,
   uploads: UploadsShape,
-  document: DocumentShape,
   additionalParams: AdditionalParamsShape,
 };
 
@@ -136,7 +126,6 @@ UploadOrders.defaultProps = {
   error: null,
   additionalParams: null,
   uploads: [],
-  document: null,
 };
 
 function mapStateToProps(state) {
@@ -148,16 +137,13 @@ function mapStateToProps(state) {
     serviceMemberId,
     currentOrders,
     uploads: selectUploadsForCurrentOrders(state),
-    document: selectDocument(state, currentOrders?.uploaded_orders),
   };
 
   return props;
 }
 
 const mapDispatchToProps = {
-  fetchLatestOrders: fetchLatestOrdersAction,
-  createUpload: createUploadAction,
-  deleteUpload: deleteUploadAction,
+  updateOrders: updateOrdersAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);

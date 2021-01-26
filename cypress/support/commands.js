@@ -5,6 +5,7 @@ import 'cypress-audit/commands';
 import {
   milmoveBaseURL,
   officeBaseURL,
+  adminBaseURL,
   milmoveAppName,
   officeAppName,
   milmoveUserType,
@@ -28,6 +29,10 @@ Cypress.Commands.add('prepareCustomerApp', () => {
 
 Cypress.Commands.add('prepareOfficeApp', () => {
   Cypress.config('baseUrl', officeBaseURL);
+});
+
+Cypress.Commands.add('prepareAdminApp', () => {
+  Cypress.config('baseUrl', adminBaseURL);
 });
 
 Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
@@ -92,6 +97,12 @@ Cypress.Commands.add('signInAsNewTOOUser', () => {
 
 Cypress.Commands.add('signInAsNewTIOUser', () => {
   cy.signInAsNewUser(TIOOfficeUserType);
+});
+
+Cypress.Commands.add('signInAsNewAdminUser', () => {
+  cy.visit('/devlocal-auth/login');
+  // select the user type and then login as new user
+  cy.get('button[data-hook="new-user-login-admin"]').click();
 });
 
 Cypress.Commands.add('signInAsMultiRoleOfficeUser', () => {

@@ -26,6 +26,8 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 		StorageInTransit:      &storageInTransit,
 	}
 	entitlement.SetWeightAllotment(*grade)
+	dBAuthorizedWeight := entitlement.AuthorizedWeight()
+	entitlement.DBAuthorizedWeight = dBAuthorizedWeight
 
 	// Overwrite values with those from assertions
 	mergeModels(&entitlement, assertions.Entitlement)

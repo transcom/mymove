@@ -405,11 +405,14 @@ describe('RequestedShipments', () => {
 
     expect(mockOnSubmit).toHaveBeenCalled();
     expect(mockOnSubmit.mock.calls[0]).toEqual([
-      moveTaskOrder.id,
-      moveTaskOrder.eTag,
       {
-        serviceCodeCS: true,
-        serviceCodeMS: true,
+        moveTaskOrderID: moveTaskOrder.id,
+        ifMatchETag: moveTaskOrder.eTag,
+        mtoApprovalServiceItemCodes: {
+          serviceCodeCS: true,
+          serviceCodeMS: true,
+        },
+        normalize: false,
       },
     ]);
   });

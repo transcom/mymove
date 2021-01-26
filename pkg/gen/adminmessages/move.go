@@ -42,7 +42,7 @@ type Move struct {
 	ServiceMemberID strfmt.UUID `json:"serviceMemberId,omitempty"`
 
 	// show
-	Show bool `json:"show,omitempty"`
+	Show *bool `json:"show,omitempty"`
 
 	// status
 	Status MoveStatus `json:"status,omitempty"`

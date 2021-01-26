@@ -44,6 +44,12 @@ type MTOShipment struct {
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
+	// mto agents
+	MtoAgents MTOAgents `json:"mtoAgents,omitempty"`
+
+	// mto service items
+	MtoServiceItems MTOServiceItems `json:"mtoServiceItems,omitempty"`
+
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
@@ -104,6 +110,14 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMtoAgents(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMtoServiceItems(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -205,6 +219,38 @@ func (m *MTOShipment) validateMoveTaskOrderID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateMtoAgents(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MtoAgents) { // not required
+		return nil
+	}
+
+	if err := m.MtoAgents.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mtoAgents")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MtoServiceItems) { // not required
+		return nil
+	}
+
+	if err := m.MtoServiceItems.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mtoServiceItems")
+		}
 		return err
 	}
 

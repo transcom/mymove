@@ -51,6 +51,9 @@ type MTOServiceItemOriginSIT struct {
 	// Format: date
 	SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
+	// sit h h g actual origin
+	SitHHGActualOrigin *Address `json:"sitHHGActualOrigin,omitempty"`
+
 	// sit postal code
 	// Required: true
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
@@ -158,6 +161,9 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 		// Format: date
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
+		// sit h h g actual origin
+		SitHHGActualOrigin *Address `json:"sitHHGActualOrigin,omitempty"`
+
 		// sit postal code
 		// Required: true
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
@@ -222,6 +228,7 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 	result.Reason = data.Reason
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitEntryDate = data.SitEntryDate
+	result.SitHHGActualOrigin = data.SitHHGActualOrigin
 	result.SitPostalCode = data.SitPostalCode
 
 	*m = result
@@ -253,6 +260,9 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		// Format: date
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
+		// sit h h g actual origin
+		SitHHGActualOrigin *Address `json:"sitHHGActualOrigin,omitempty"`
+
 		// sit postal code
 		// Required: true
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
@@ -266,6 +276,8 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		SitDepartureDate: m.SitDepartureDate,
 
 		SitEntryDate: m.SitEntryDate,
+
+		SitHHGActualOrigin: m.SitHHGActualOrigin,
 
 		SitPostalCode: m.SitPostalCode,
 	})
@@ -346,6 +358,10 @@ func (m *MTOServiceItemOriginSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitHHGActualOrigin(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -478,6 +494,24 @@ func (m *MTOServiceItemOriginSIT) validateSitEntryDate(formats strfmt.Registry) 
 
 	if err := validate.FormatOf("sitEntryDate", "body", "date", m.SitEntryDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemOriginSIT) validateSitHHGActualOrigin(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitHHGActualOrigin) { // not required
+		return nil
+	}
+
+	if m.SitHHGActualOrigin != nil {
+		if err := m.SitHHGActualOrigin.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitHHGActualOrigin")
+			}
+			return err
+		}
 	}
 
 	return nil
