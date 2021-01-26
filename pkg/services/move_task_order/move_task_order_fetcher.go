@@ -29,8 +29,8 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]model
 	return moveTaskOrders, nil
 }
 
-//ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime
-func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.Moves, error) {
+//ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime, and may or may not be enabled.
+func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, isVisible bool, since *int64) (models.Moves, error) {
 	var moveTaskOrders models.Moves
 	var err error
 	query := f.db.Q().Eager(
@@ -50,6 +50,10 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, sin
 
 	if isAvailableToPrime {
 		query = query.Where("available_to_prime_at IS NOT NULL")
+	}
+
+	if isVisible {
+		query = query.Where("show = TRUE")
 	}
 
 	if since != nil {

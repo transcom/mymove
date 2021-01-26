@@ -57,7 +57,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(false, nil)
+		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(false, false, nil)
 		suite.NoError(err)
 
 		mto := moveTaskOrders[0]
@@ -77,7 +77,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(true, nil)
+		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(true, true, nil)
 		suite.NoError(err)
 		suite.Equal(len(moveTaskOrders), 3)
 
@@ -85,7 +85,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
 			now.Add(-2*time.Second), oldMTO.ID).Exec())
 		since := now.Unix()
-		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(true, &since)
+		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(true, true, &since)
 		suite.NoError(err)
 		suite.Equal(len(mtosWithSince), 2)
 	})
