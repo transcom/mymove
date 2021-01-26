@@ -88,6 +88,7 @@ func ServiceParamLookupInitialize(
 	var pickupAddress models.Address
 	var destinationAddress models.Address
 	var sitDestinationFinalAddress models.Address
+	var sitOriginActualAddress models.Address
 
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeCS, models.ReServiceCodeMS:
@@ -100,6 +101,16 @@ func ServiceParamLookupInitialize(
 				return nil, err
 			}
 			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
+		}
+		fallthrough
+	case models.ReServiceCodeDOASIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOPSIT:
+		// load updated origin address from service item
+		if mtoServiceItem.SITOriginHHGActualAddressID != nil && *mtoServiceItem.SITOriginHHGActualAddressID != uuid.Nil {
+			err = db.Load(&mtoServiceItem, "SITOriginHHGActualAddress")
+			if err != nil {
+				return nil, err
+			}
+			sitOriginActualAddress = *mtoServiceItem.SITOriginHHGActualAddress
 		}
 		fallthrough
 	default:
@@ -331,6 +342,14 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
+	paramKey = models.ServiceItemParamNameDistanceZipSITOrigin
+	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITOriginLookup{
+		OriginalAddress: pickupAddress,
+		ActualAddress:   sitOriginActualAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
 	return &s, nil
 }
 
