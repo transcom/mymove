@@ -67,10 +67,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 			Move:          move,
 			MTOShipment:   mtoShipment,
 			MTOServiceItem: models.MTOServiceItem{
-				SITOriginHHGOriginalAddressID: &originAddress.ID,
-				SITOriginHHGOriginalAddress:   &originAddress,
-				SITOriginHHGActualAddressID:   &actualOriginSameZip3Address.ID,
-				SITOriginHHGActualAddress:     &actualOriginSameZip3Address,
+				SITOriginHHGActualAddressID: &actualOriginSameZip3Address.ID,
+				SITOriginHHGActualAddress:   &actualOriginSameZip3Address,
 			},
 		},
 	)
@@ -82,10 +80,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 			Move:          move,
 			MTOShipment:   mtoShipment,
 			MTOServiceItem: models.MTOServiceItem{
-				SITOriginHHGOriginalAddressID: &originAddress.ID,
-				SITOriginHHGOriginalAddress:   &originAddress,
-				SITOriginHHGActualAddressID:   &actualOriginDiffZip3Address.ID,
-				SITOriginHHGActualAddress:     &actualOriginDiffZip3Address,
+				SITOriginHHGActualAddressID: &actualOriginDiffZip3Address.ID,
+				SITOriginHHGActualAddress:   &actualOriginDiffZip3Address,
 			},
 		},
 	)
