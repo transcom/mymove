@@ -15,9 +15,15 @@ type moveTaskOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.Move, error) {
+//ListMoveTaskOrders retrieves all MTOs for a specific MoveOrder. Can filter out hidden MTOs (show=False)
+func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, excludeHidden bool) ([]models.Move, error) {
 	var moveTaskOrders []models.Move
-	err := f.db.Where("orders_id = $1", moveOrderID).Eager().All(&moveTaskOrders)
+	query := f.db.Where("orders_id = $1", moveOrderID)
+	if excludeHidden {
+		query = query.Where("show = TRUE")
+	}
+
+	err := query.Eager().All(&moveTaskOrders)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

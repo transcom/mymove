@@ -55,7 +55,7 @@ type ListMoveTaskOrdersHandler struct {
 func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	moveOrderID, _ := uuid.FromString(params.MoveOrderID.String())
-	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID)
+	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID, true)
 	if err != nil {
 		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {

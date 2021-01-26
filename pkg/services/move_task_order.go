@@ -25,7 +25,7 @@ type MoveTaskOrderCreator interface {
 //go:generate mockery -name MoveTaskOrderFetcher
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.Move, error)
-	ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.Move, error)
+	ListMoveTaskOrders(moveOrderID uuid.UUID, excludeHidden bool) ([]models.Move, error)
 	ListAllMoveTaskOrders(isAvailableToPrime bool, isVisible bool, since *int64) (models.Moves, error)
 }
 

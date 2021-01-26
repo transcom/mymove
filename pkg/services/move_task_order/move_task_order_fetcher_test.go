@@ -33,10 +33,22 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: expectedOrder,
 	})
+	hide := false
+	hiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: expectedOrder,
+		Move: models.Move{
+			Show: &hide,
+		},
+	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
-	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID)
+	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, true)
 	suite.NoError(err)
+
+	// The hidden move should be nowhere in the output list:
+	for _, move := range moveTaskOrders {
+		suite.NotEqual(move.ID, hiddenMTO.ID)
+	}
 
 	actualMTO := moveTaskOrders[0]
 
