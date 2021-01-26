@@ -85,7 +85,7 @@ a,
     color: $link-light;
     &:hover,
     &.hover {
-      color: #b7caf0;
+      color: $link-light-hover;
       @include u-text('no-underline');
     }
     &:focus,

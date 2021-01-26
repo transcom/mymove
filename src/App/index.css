@@ -9,7 +9,6 @@
 }
 
 .site__content {
-  padding-top: 30px; /* matches the padding in .usa-grid */
   flex: 1 0 auto; /* using auto fixes a bug in IE11 where the footer would float over everything. */
 }
 
