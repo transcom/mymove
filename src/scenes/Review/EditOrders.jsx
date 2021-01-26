@@ -33,7 +33,6 @@ import './Review.css';
 import profileImage from './images/profile.png';
 
 const editOrdersFormName = 'edit_orders';
-const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
 let EditOrdersForm = (props) => {
   const { onDelete, schema, handleSubmit, submitting, valid, initialValues, existingUploads } = props;
@@ -76,7 +75,7 @@ let EditOrdersForm = (props) => {
                   <FileUpload
                     createUpload={props.createUpload}
                     deleteUpload={props.deleteUpload}
-                    options={{ labelIdle: uploaderLabelIdle }}
+                    labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
                   />
                 </div>
               )}

@@ -19,8 +19,6 @@ import {
 import { no_op as noop } from 'shared/utils';
 import { PageListShape, PageKeyShape, AdditionalParamsShape, OrdersShape, UploadsShape } from 'types/customerShapes';
 
-const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
-
 export class UploadOrders extends Component {
   constructor(props) {
     super(props);
@@ -97,10 +95,11 @@ export class UploadOrders extends Component {
         {currentOrders && (
           <div className="uploader-box">
             <FileUpload
+              files={uploads}
               createUpload={this.handleUploadFile}
               deleteUpload={this.handleDeleteFile}
               onChange={this.onChange}
-              options={{ labelIdle: uploaderLabelIdle }}
+              labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
             />
             <div className="hint">(Each page must be clear and legible.)</div>
           </div>
