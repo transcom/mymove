@@ -92,6 +92,10 @@ a,
     &.focus {
       @include u-outline('05', 'blue-40v');
     }
+    &:visited,
+    &.visited {
+      color: $link-light;
+    }
   }
 }
 
