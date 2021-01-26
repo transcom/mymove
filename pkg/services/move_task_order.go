@@ -26,7 +26,7 @@ type MoveTaskOrderCreator interface {
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.Move, error)
 	ListMoveTaskOrders(moveOrderID uuid.UUID, excludeHidden bool) ([]models.Move, error)
-	ListAllMoveTaskOrders(isAvailableToPrime bool, isVisible bool, since *int64) (models.Moves, error)
+	ListAllMoveTaskOrders(isAvailableToPrime bool, excludeHidden bool, since *int64) (models.Moves, error)
 }
 
 //MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
