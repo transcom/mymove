@@ -83,7 +83,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		}
 	}
 
-	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+	moveTaskOrderPayload := payloads.Move(mto)
 
 	// Audit attempt to make MTO available to prime
 	_, err = audit.Capture(mto, moveTaskOrderPayload, logger, session, params.HTTPRequest)
