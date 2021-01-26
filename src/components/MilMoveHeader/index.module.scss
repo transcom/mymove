@@ -38,6 +38,10 @@
     color: $link-light;
     text-decoration: none;
 
+    &:visited {
+      color: $link-light;
+    }
+
     &:hover,
     &:focus {
       color: #b7caf0;
