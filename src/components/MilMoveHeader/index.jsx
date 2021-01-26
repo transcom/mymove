@@ -29,12 +29,13 @@ const MilMoveHeader = ({ children, handleLogout, firstName, lastName }) => (
 );
 
 MilMoveHeader.defaultProps = {
+  children: null,
   firstName: '',
   lastName: '',
 };
 
 MilMoveHeader.propTypes = {
-  children: node.isRequired,
+  children: node,
   firstName: string,
   lastName: string,
   handleLogout: func.isRequired,

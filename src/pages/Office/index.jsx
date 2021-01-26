@@ -157,7 +157,7 @@ export class OfficeApp extends Component {
                   LogoutUser();
                 }}
               >
-                <Link to="/">{officeUser.transportation_office.gbloc} moves</Link>
+                {officeUser.transportation_office && <Link to="/">{officeUser.transportation_office.gbloc} moves</Link>}
               </MilmoveHeader>
             )}
           </>
