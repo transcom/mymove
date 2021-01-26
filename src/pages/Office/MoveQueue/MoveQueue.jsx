@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
 import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
-import { serviceMemberAgencyLabel } from 'shared/formatters';
+import { serviceMemberAgencyLabel, moveStatusLabel } from 'shared/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS, GBLOC } from 'constants/queues';
@@ -28,13 +28,20 @@ const columns = (showBranchFilter = true) => [
     id: 'dodID',
     isFilterable: true,
   }),
-  createHeader('Status', 'status', {
-    isFilterable: true,
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
-  }),
+  createHeader(
+    'Status',
+    (row) => {
+      return moveStatusLabel(row.status);
+    },
+    {
+      id: 'status',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
+    },
+  ),
   createHeader('Move Code', 'locator', {
-    id: 'moveID',
+    id: 'locator',
     isFilterable: true,
   }),
   createHeader(
@@ -70,7 +77,7 @@ const MoveQueue = ({ history }) => {
   const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
   const handleClick = (values) => {
-    history.push(`/moves/${values.id}/details`);
+    history.push(`/moves/${values.locator}/details`);
   };
 
   if (isLoading) return <LoadingPlaceholder />;

@@ -4,10 +4,9 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Modal as USWDSModal, connectModal as connectUSWDSModal, Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Modal.module.scss';
-
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 
 const Modal = ({ className, ...props }) => {
   const classes = classnames(styles.Modal, className);
@@ -61,7 +60,7 @@ export const ModalClose = ({ handleClick, className, ...buttonProps }) => (
     data-testid="modalCloseButton"
     {...buttonProps}
   >
-    <XLightIcon />
+    <FontAwesomeIcon icon="times" />
   </Button>
 );
 

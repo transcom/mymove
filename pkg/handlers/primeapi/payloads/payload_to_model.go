@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -95,6 +96,13 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		MoveTaskOrderID: uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:    models.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks: mtoShipment.CustomerRemarks,
+	}
+
+	if mtoShipment.PrimeEstimatedWeight > 0 {
+		estimatedWeight := unit.Pound(mtoShipment.PrimeEstimatedWeight)
+		model.PrimeEstimatedWeight = &estimatedWeight
+		recordedDate := time.Now()
+		model.PrimeEstimatedWeightRecordedDate = &recordedDate
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
@@ -208,26 +216,58 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 	// here we initialize more fields below for other service item types. Eg. MTOServiceItemDOFSIT
 	switch mtoServiceItem.ModelType() {
-	case primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:
-		dofsit := mtoServiceItem.(*primemessages.MTOServiceItemDOFSIT)
-		model.ReService.Code = models.ReServiceCodeDOFSIT
-		model.Reason = dofsit.Reason
-		model.PickupPostalCode = dofsit.PickupPostalCode
-	case primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:
-		ddfsit := mtoServiceItem.(*primemessages.MTOServiceItemDDFSIT)
-		model.ReService.Code = models.ReServiceCodeDDFSIT
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemOriginSIT:
+
+		originsit := mtoServiceItem.(*primemessages.MTOServiceItemOriginSIT)
+
+		if originsit.ReServiceCode != nil {
+			model.ReService.Code = models.ReServiceCode(*originsit.ReServiceCode)
+		}
+
+		model.Reason = originsit.Reason
+		sitEntryDate := handlers.FmtDatePtrToPopPtr(originsit.SitEntryDate)
+
+		if sitEntryDate != nil {
+			model.SITEntryDate = sitEntryDate
+		}
+
+		model.SITPostalCode = originsit.SitPostalCode
+
+		model.SITOriginHHGActualAddress = AddressModel(originsit.SitHHGActualOrigin)
+		if model.SITOriginHHGActualAddress != nil {
+			model.SITOriginHHGActualAddressID = &model.SITOriginHHGActualAddress.ID
+		}
+
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:
+		destsit := mtoServiceItem.(*primemessages.MTOServiceItemDestSIT)
+
+		if destsit.ReServiceCode != nil {
+			model.ReService.Code = models.ReServiceCode(*destsit.ReServiceCode)
+		}
+
 		model.CustomerContacts = models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeFirst,
-				TimeMilitary:               *ddfsit.TimeMilitary1,
-				FirstAvailableDeliveryDate: time.Time(*ddfsit.FirstAvailableDeliveryDate1),
+				TimeMilitary:               *destsit.TimeMilitary1,
+				FirstAvailableDeliveryDate: time.Time(*destsit.FirstAvailableDeliveryDate1),
 			},
 			models.MTOServiceItemCustomerContact{
 				Type:                       models.CustomerContactTypeSecond,
-				TimeMilitary:               *ddfsit.TimeMilitary2,
-				FirstAvailableDeliveryDate: time.Time(*ddfsit.FirstAvailableDeliveryDate2),
+				TimeMilitary:               *destsit.TimeMilitary2,
+				FirstAvailableDeliveryDate: time.Time(*destsit.FirstAvailableDeliveryDate2),
 			},
 		}
+
+		sitEntryDate := handlers.FmtDatePtrToPopPtr(destsit.SitEntryDate)
+
+		if sitEntryDate != nil {
+			model.SITEntryDate = sitEntryDate
+		}
+
+		if destsit.SitDepartureDate != nil {
+			model.SITDepartureDate = handlers.FmtDatePtrToPopPtr(destsit.SitDepartureDate)
+		}
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemShuttle)
 		// values to get from payload
@@ -267,6 +307,39 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 	}
 
 	return model, nil
+}
+
+// MTOServiceItemModelFromUpdate converts the payload from UpdateMTOServiceItem to a normal MTOServiceItem model.
+// The payload for this is different than the one for create.
+func MTOServiceItemModelFromUpdate(mtoServiceItem primemessages.UpdateMTOServiceItem) (*models.MTOServiceItem, *validate.Errors) {
+	verrs := validate.NewErrors()
+	if mtoServiceItem == nil {
+		verrs.Add("mtoServiceItem", "was nil")
+		return nil, verrs
+	}
+
+	// Create the service item model
+	model := &models.MTOServiceItem{
+		ID: uuid.FromStringOrNil(mtoServiceItem.ID().String()),
+	}
+
+	// Here we initialize more fields below for the specific model types.
+	// Currently only UpdateMTOServiceItemSIT is supported, more to be expected
+	modelType := mtoServiceItem.ModelType()
+	if modelType == primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT {
+		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
+		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
+		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
+		model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
+		if model.SITDestinationFinalAddress != nil {
+			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
+		}
+		return model, nil
+	}
+
+	verrs.Add("mtoServiceItem", "The model type of the service item is not allowed")
+	return nil, verrs
+
 }
 
 // validateDomesticCrating validates this mto service item domestic crating

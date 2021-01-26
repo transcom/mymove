@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi"
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
@@ -34,8 +35,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
 		HandlerContext: context,
-		Fetcher:        fetch.NewFetcher(queryBuilder),
-		NewQueryFilter: query.NewQueryFilter,
+		MoveFetcher:    move.NewMoveFetcher(context.DB()),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
@@ -55,6 +55,11 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		paymentrequest.NewPaymentRequestFetcher(context.DB()),
 	}
 
+	ghcAPI.PaymentRequestsGetPaymentRequestsForMoveHandler = GetPaymentRequestForMoveHandler{
+		HandlerContext:            context,
+		PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(context.DB()),
+	}
+
 	ghcAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
 		HandlerContext:              context,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
@@ -71,6 +76,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		context,
 		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
 	}
+
 	ghcAPI.CustomerGetCustomerHandler = GetCustomerHandler{
 		context,
 		customer.NewCustomerFetcher(context.DB()),
@@ -81,7 +87,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 	ghcAPI.MoveOrderUpdateMoveOrderHandler = UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(context.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(context.DB()),
 	}
 	ghcAPI.MoveOrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
 

@@ -1,11 +1,11 @@
 import React from 'react';
-import { string } from 'prop-types';
+import { string, bool } from 'prop-types';
 
 import styles from './Contact.module.scss';
 
-const Contact = ({ header, dutyStationName, officeType, telephone }) => (
-  <div className={styles['contact-container']}>
-    <h6 className={styles['contact-header']}>{header}</h6>
+const Contact = ({ header, dutyStationName, moveSubmitted, officeType, telephone }) => (
+  <div className={styles.contactContainer}>
+    <h6 className={styles.contactHeader}>{header}</h6>
     <p>
       <strong>{dutyStationName}</strong>
       <br />
@@ -13,12 +13,18 @@ const Contact = ({ header, dutyStationName, officeType, telephone }) => (
       <br />
       <span>{telephone}</span>
     </p>
+    {moveSubmitted && (
+      <p data-testid="move-submitted-instructions">
+        Talk to your move counselor or directly with your movers if you have questions during your move.
+      </p>
+    )}
   </div>
 );
 
 Contact.propTypes = {
-  header: string.isRequired,
   dutyStationName: string.isRequired,
+  header: string.isRequired,
+  moveSubmitted: bool.isRequired,
   officeType: string.isRequired,
   telephone: string.isRequired,
 };

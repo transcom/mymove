@@ -22,7 +22,7 @@ describe('Orders page', () => {
     const wrapper = mount(
       <Orders
         serviceMemberId="123"
-        match={{ params: {} }}
+        match={{ params: { moveId: 'test' }, path: '/orders', url: '/orders', isExact: false }}
         history={mockHistory}
         context={{ flags: { allOrdersTypes: true } }}
       />,
@@ -36,7 +36,7 @@ describe('Orders page', () => {
     const wrapper = mount(
       <Orders
         serviceMemberId="123"
-        match={{ params: {} }}
+        match={{ params: { moveId: 'test' }, path: '/orders', url: '/orders', isExact: false }}
         history={mockHistory}
         context={{ flags: { allOrdersTypes: false } }}
       />,
@@ -48,25 +48,39 @@ describe('Orders page', () => {
 
   describe('with no existing orders', () => {
     const initialState = {
-      serviceMember: {
-        currentServiceMember: {
-          id: 'testServiceMember123',
+      user: {
+        userInfo: {
+          service_member: {
+            id: 'testServiceMember123',
+          },
+        },
+      },
+      entities: {
+        orders: {},
+        serviceMembers: {
+          testServiceMember123: {
+            id: 'testServiceMember123',
+          },
+        },
+        users: {
+          testUserId: {
+            service_member: 'testServiceMember123',
+          },
         },
       },
     };
 
     const testProps = {
-      fetchLatestOrders: jest.fn(),
       updateOrders: jest.fn(),
-      createOrders: jest.fn(),
+      updateServiceMember: jest.fn(),
       history: mockHistory,
       pages: [],
       pageKey: '',
-      match: { params: {} },
+      match: { params: { moveId: 'test' }, path: '/orders', url: '/orders', isExact: false },
     };
 
     const wrapper = mount(
-      <MockProviders initialState={initialState} initialEntries={['/']}>
+      <MockProviders initialState={initialState} initialEntries={['/orders']}>
         <ConnectedOrders {...testProps} />
       </MockProviders>,
     );
@@ -76,7 +90,7 @@ describe('Orders page', () => {
     });
 
     it('does not fetch latest orders on mount', () => {
-      expect(testProps.fetchLatestOrders).not.toHaveBeenCalled();
+      expect(testProps.updateOrders).not.toHaveBeenCalled();
     });
   });
 
@@ -91,15 +105,20 @@ describe('Orders page', () => {
           },
         },
       },
-      serviceMember: {
-        currentServiceMember: {
-          id: 'testServiceMember123',
-        },
-      },
       entities: {
         orders: {
           orders123: {
             service_member_id: 'testServiceMember123',
+          },
+        },
+        serviceMembers: {
+          testServiceMember123: {
+            id: 'testServiceMember123',
+          },
+        },
+        users: {
+          testUserId: {
+            service_member: 'testServiceMember123',
           },
         },
       },

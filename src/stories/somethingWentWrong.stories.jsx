@@ -1,11 +1,10 @@
 import React from 'react';
-import { withKnobs, text } from '@storybook/addon-knobs';
+import { text } from '@storybook/addon-knobs';
 
 import SomethingWentWrong from '../shared/SomethingWentWrong';
 
 export default {
-  title: 'Components|Something Went Wrong',
-  decorator: withKnobs,
+  title: 'Components/Something Went Wrong',
 };
 
 export const Component = () => (

@@ -233,6 +233,50 @@ func (o *GetPaymentRequestEDINotFound) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// GetPaymentRequestEDIConflictCode is the HTTP code returned for type GetPaymentRequestEDIConflict
+const GetPaymentRequestEDIConflictCode int = 409
+
+/*GetPaymentRequestEDIConflict There was a conflict with the request.
+
+swagger:response getPaymentRequestEDIConflict
+*/
+type GetPaymentRequestEDIConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewGetPaymentRequestEDIConflict creates GetPaymentRequestEDIConflict with default headers values
+func NewGetPaymentRequestEDIConflict() *GetPaymentRequestEDIConflict {
+
+	return &GetPaymentRequestEDIConflict{}
+}
+
+// WithPayload adds the payload to the get payment request e d i conflict response
+func (o *GetPaymentRequestEDIConflict) WithPayload(payload *supportmessages.ClientError) *GetPaymentRequestEDIConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get payment request e d i conflict response
+func (o *GetPaymentRequestEDIConflict) SetPayload(payload *supportmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *GetPaymentRequestEDIConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // GetPaymentRequestEDIUnprocessableEntityCode is the HTTP code returned for type GetPaymentRequestEDIUnprocessableEntity
 const GetPaymentRequestEDIUnprocessableEntityCode int = 422
 

@@ -1,18 +1,22 @@
 /*  react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
 import moment from 'moment';
 
 import Home from '.';
 
 import { MockProviders } from 'testUtils';
-import { store } from 'shared/store';
 import { formatCustomerDate } from 'utils/formatters';
+import { MOVE_STATUSES } from 'shared/constants';
 
 const defaultProps = {
   serviceMember: {
-    current_station: {},
+    current_station: {
+      transportation_office: {
+        name: 'Test Transportation Office Name',
+        phone_lines: ['555-555-5555'],
+      },
+    },
     weight_allotment: {},
   },
   showLoggedInUser: jest.fn(),
@@ -22,29 +26,32 @@ const defaultProps = {
   isLoggedIn: true,
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
-  loggedInUserError: false,
   isProfileComplete: true,
-  moveSubmitSuccess: false,
   currentPpm: {},
   loadMTOShipments: jest.fn(),
   orders: {},
-  history: {},
+  history: {
+    goBack: jest.fn(),
+    push: jest.fn(),
+  },
   location: {},
   move: {},
 };
 
 function mountHome(props = {}) {
   return mount(
-    <Provider store={store}>
+    <MockProviders>
       <Home {...defaultProps} {...props} />
-    </Provider>,
+    </MockProviders>,
   );
 }
+
 describe('Home component', () => {
   describe('with default props', () => {
     const wrapper = mountHome();
 
     it('renders Home with the right amount of components', () => {
+      expect(wrapper.find('ConnectedFlashMessage').length).toBe(1);
       expect(wrapper.find('Step').length).toBe(4);
       expect(wrapper.find('Helper').length).toBe(1);
       expect(wrapper.find('Contact').length).toBe(1);
@@ -71,6 +78,27 @@ describe('Home component', () => {
       expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('HHG 1');
       expect(wrapper.find('ShipmentListItem').at(1).text()).toContain('PPM');
       expect(wrapper.find('ShipmentListItem').at(2).text()).toContain('HHG 2');
+    });
+  });
+
+  describe('contents of Step 4 (user has submitted move)', () => {
+    it('contains contacts box with additional information', () => {
+      const props = {
+        serviceMember: {
+          current_station: {
+            transportation_office: {
+              name: 'Fort Knox',
+              phone_lines: ['(777) 777-7777'],
+            },
+          },
+        },
+        move: {
+          status: MOVE_STATUSES.SUBMITTED,
+        },
+      };
+
+      const wrapper = mountHome(props);
+      expect(wrapper.find('Contact').prop('moveSubmitted')).toEqual(true);
     });
   });
 

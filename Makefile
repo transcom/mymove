@@ -7,10 +7,11 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
-DB_DOCKER_CONTAINER_IMAGE = postgres:12.2
+DB_DOCKER_CONTAINER_IMAGE = postgres:12.4
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
+WEBHOOK_CLIENT_DOCKER_CONTAINER = webhook-client
 export PGPASSWORD=mysecretpassword
 
 # if S3 or CDN access is enabled, wrap webserver in aws-vault command
@@ -21,10 +22,6 @@ endif
 ifeq ($(STORAGE_BACKEND),cdn)
 	USE_AWS:=true
 endif
-ifeq ($(EMAIL_BACKEND),ses)
-	USE_AWS:=true
-endif
-
 ifeq ($(USE_AWS),true)
   AWS_VAULT:=aws-vault exec $(AWS_PROFILE) --
 endif
@@ -236,9 +233,6 @@ bin/generate-deploy-notes: cmd/generate-deploy-notes
 bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
-bin/ecs-service-logs: cmd/ecs-service-logs
-	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
-
 bin/find-guardduty-user: cmd/find-guardduty-user
 	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
 
@@ -321,7 +315,7 @@ server_build: bin/milmove ## Build the server
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
 server_run_standalone: check_log_dir server_build client_build db_dev_run redis_run
-	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
+	./bin/milmove serve 2>&1 | tee -a log/dev.log
 
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
@@ -330,8 +324,8 @@ server_run:
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
 server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run redis_run
-	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) ./bin/gin \
+	INTERFACE=localhost \
+		./bin/gin \
 		--build ./cmd/milmove \
 		--bin /bin/milmove_gin \
 		--laddr 127.0.0.1 --port "$(GIN_PORT)" \
@@ -345,7 +339,10 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run redis_run ## Debug the server
 	scripts/kill-process-on-port 8080
 	scripts/kill-process-on-port 9443
-	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-dev -- \
+	dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
 build_tools: bin/gin \
@@ -356,7 +353,6 @@ build_tools: bin/gin \
 	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
-	bin/ecs-service-logs \
 	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \
@@ -710,6 +706,7 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	rm -rf cypress/results
 	rm -rf cypress/screenshots
 	rm -rf cypress/videos
+	rm -rf cypress/reports
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
@@ -885,6 +882,44 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 
 #
 # ----- END PROD_MIGRATION TARGETS -----
+#
+
+#
+# ----- START WEBHOOK CLIENT TARGETS -----
+#
+
+.PHONY: webhook_client_docker
+webhook_client_docker:
+	docker build -f Dockerfile.webhook_client_local -t $(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest .
+
+.PHONY: webhook_client_start
+webhook_client_start: db_dev_e2e_populate webhook_client_start_standalone
+
+.PHONY: webhook_client_start_standalone
+webhook_client_start_standalone:
+	@echo "Starting the webhook client..."
+	# More environment variables can be added here that correlate with the command line options for
+	# the webhook-client binary.
+	docker run \
+		-e LOGGING_LEVEL=debug \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		-e PERIOD \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
+
+.PHONY: webhook_client_test
+webhook_client_test: db_test_e2e_populate webhook_client_test_standalone
+
+.PHONY: webhook_client_test
+webhook_client_test_standalone:
+	go test -v -count 1 -short ./cmd/webhook-client/webhook
+
+#
+# ----- END WEBHOOK CLIENT TARGETS -----
 #
 
 #

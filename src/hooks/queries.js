@@ -6,10 +6,13 @@ import {
   getMTOShipments,
   getMTOServiceItems,
   getMoveOrder,
+  getMove,
   getMoveTaskOrderList,
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
+  getMovePaymentRequests,
+  getCustomer,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getQueriesStatus } from 'utils/api';
@@ -17,12 +20,15 @@ import {
   PAYMENT_REQUESTS,
   MTO_SHIPMENTS,
   MTO_SERVICE_ITEMS,
+  MOVES,
   MOVE_ORDERS,
+  MOVE_PAYMENT_REQUESTS,
   MOVE_TASK_ORDERS,
   ORDERS_DOCUMENTS,
   MOVES_QUEUE,
   PAYMENT_REQUESTS_QUEUE,
   USER,
+  CUSTOMER,
 } from 'constants/queryKeys';
 
 export const useUserQueries = () => {
@@ -37,6 +43,34 @@ export const useUserQueries = () => {
   };
 };
 
+export const useTXOMoveInfoQueries = (moveCode) => {
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const moveOrderId = move?.ordersId;
+
+  // get move orders
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
+    enabled: !!moveOrderId,
+  });
+
+  // TODO - Need to refactor if we pass include customer in move order payload
+  // get customer
+  const moveOrder = moveOrders && Object.values(moveOrders)[0];
+  const customerId = moveOrder?.customerID;
+  const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
+    enabled: !!customerId,
+  });
+  const customerData = customer && Object.values(customer)[0];
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, customerQuery]);
+
+  return {
+    moveOrder,
+    customerData,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const usePaymentRequestQueries = (paymentRequestId) => {
   // get payment request by ID
   const { data: { paymentRequests, paymentServiceItems } = {}, ...paymentRequestQuery } = useQuery(
@@ -45,66 +79,52 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   );
 
   const paymentRequest = paymentRequests && paymentRequests[`${paymentRequestId}`];
-  const mtoID = paymentRequest?.moveTaskOrderID;
 
-  // get MTO shipments
-  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID], getMTOShipments, {
-    enabled: !!mtoID,
-  });
-
-  // get MTO service items
-  const { data: { mtoServiceItems } = {}, ...mtoServiceItemQuery } = useQuery(
-    [MTO_SERVICE_ITEMS, mtoID],
-    getMTOServiceItems,
-    {
-      enabled: !!mtoID,
-    },
-  );
-
-  const { isLoading, isError, isSuccess } = getQueriesStatus([
-    paymentRequestQuery,
-    mtoShipmentQuery,
-    mtoServiceItemQuery,
-  ]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestQuery]);
 
   return {
     paymentRequest,
     paymentRequests,
     paymentServiceItems,
-    mtoShipments,
-    mtoServiceItems,
     isLoading,
     isError,
     isSuccess,
   };
 };
 
-export const useMoveTaskOrderQueries = (moveOrderId) => {
+export const useMoveTaskOrderQueries = (moveCode) => {
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+  const moveOrderId = move?.ordersId;
+
   // get move orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
+    enabled: !!moveOrderId,
+  });
 
   // get move task orders
   const { data: { moveTaskOrders } = {}, ...moveTaskOrderQuery } = useQuery(
     [MOVE_TASK_ORDERS, moveOrderId],
     getMoveTaskOrderList,
+    { enabled: !!moveOrderId },
   );
 
   const moveTaskOrder = moveTaskOrders && Object.values(moveTaskOrders)[0];
   const mtoID = moveTaskOrder?.id;
 
   // get MTO shipments
-  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID], getMTOShipments, {
+  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, true], getMTOShipments, {
     enabled: !!mtoID,
   });
 
   // get MTO service items
   const { data: { mtoServiceItems } = {}, ...mtoServiceItemQuery } = useQuery(
-    [MTO_SERVICE_ITEMS, mtoID],
+    [MTO_SERVICE_ITEMS, mtoID, true],
     getMTOServiceItems,
     { enabled: !!mtoID },
   );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
     moveOrderQuery,
     moveTaskOrderQuery,
     mtoShipmentQuery,
@@ -136,9 +156,16 @@ export const useMoveOrderQueries = (moveOrderId) => {
   };
 };
 
-export const useOrdersDocumentQueries = (moveOrderId) => {
+export const useOrdersDocumentQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
+  const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+
+  const moveOrderId = move?.ordersId;
+
+  // get orders
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
+    enabled: !!moveOrderId,
+  });
 
   const orders = moveOrders && moveOrders[`${moveOrderId}`];
   //  camelcase
@@ -146,17 +173,23 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
 
   // Get a document
   // TODO - "upload" instead of "uploads" is because of the schema.js entity name. Change to "uploads"
+  const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
+  const cacheTime = staleTime;
   const { data: { documents, upload } = {}, ...ordersDocumentsQuery } = useQuery(
     [ORDERS_DOCUMENTS, documentId],
     getDocument,
     {
       enabled: !!documentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveOrderQuery, ordersDocumentsQuery]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, ordersDocumentsQuery]);
 
   return {
+    move,
     moveOrders,
     documents,
     upload,
@@ -181,9 +214,9 @@ export const useMovesQueueQueries = ({ sort, order, filters = [], currentPage = 
   };
 };
 
-export const usePaymentRequestQueueQueries = ({ filters = [], currentPage = 1, currentPageSize = 20 }) => {
+export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
-    [PAYMENT_REQUESTS_QUEUE, { filters, currentPage, currentPageSize }],
+    [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
     getPaymentRequestsQueue,
   );
 
@@ -191,6 +224,70 @@ export const usePaymentRequestQueueQueries = ({ filters = [], currentPage = 1, c
   const { queuePaymentRequests, ...dataProps } = data;
   return {
     queueResult: { data: queuePaymentRequests, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useMovePaymentRequestsQueries = (moveCode) => {
+  const { data = [], ...movePaymentRequestsQuery } = useQuery(
+    [MOVE_PAYMENT_REQUESTS, moveCode],
+    getMovePaymentRequests,
+  );
+
+  const mtoID = data[0]?.moveTaskOrderID;
+
+  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID], getMTOShipments, {
+    enabled: !!mtoID,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery, mtoShipmentQuery]);
+  return {
+    paymentRequests: data,
+    mtoShipments,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useMoveDetailsQueries = (moveCode) => {
+  // Get the orders info so we can get the uploaded_orders_id (which is a document id)
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+
+  const moveId = move?.id;
+  const moveOrderId = move?.ordersId;
+
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
+    enabled: !!moveOrderId,
+  });
+
+  const moveOrder = Object.values(moveOrders || {})?.[0];
+
+  const { data: mtoShipments = [], ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
+    enabled: !!moveId,
+  });
+
+  // Must account for basic service items here not tied to a shipment
+  const { data: mtoServiceItems = [], ...mtoServiceItemQuery } = useQuery(
+    [MTO_SERVICE_ITEMS, moveId, false],
+    getMTOServiceItems,
+    { enabled: !!moveId },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
+    moveOrderQuery,
+    mtoShipmentQuery,
+    mtoServiceItemQuery,
+  ]);
+
+  return {
+    move,
+    moveOrder,
+    mtoShipments,
+    mtoServiceItems,
     isLoading,
     isError,
     isSuccess,

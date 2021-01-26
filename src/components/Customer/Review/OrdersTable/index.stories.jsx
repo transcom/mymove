@@ -13,7 +13,7 @@ const defaultProps = {
 };
 
 export default {
-  title: 'Customer Components | OrdersTable',
+  title: 'Customer Components / OrdersTable',
 };
 
 export const Basic = () => (

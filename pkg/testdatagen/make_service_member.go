@@ -23,7 +23,10 @@ func randomEdipi() string {
 	return strconv.Itoa(low + int(randInt))
 }
 
-// MakeServiceMember creates a single ServiceMember with associated data.
+// MakeServiceMember creates a single ServiceMember
+// If not provided, it will also create an associated
+// - User
+// - ResidentialAddress
 func MakeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	aServiceMember := assertions.ServiceMember
 	user := aServiceMember.User
@@ -78,12 +81,20 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 }
 
 // MakeDefaultServiceMember returns a service member with default options
+// It will also create an associated
+//   - User
+//   - ResidentialAddress
 func MakeDefaultServiceMember(db *pop.Connection) models.ServiceMember {
 	return MakeServiceMember(db, Assertions{})
 }
 
-// MakeExtendedServiceMember creates a single ServiceMember and associated User, Addresses,
-// and Backup Contact.
+// MakeExtendedServiceMember creates a single ServiceMember
+// If not provided it will also create an associated
+//   - User,
+//   - ResidentialAddress
+//   - BackupMailingAddress
+//   - DutyStation
+//   - BackupContact
 func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	affiliation := assertions.ServiceMember.Affiliation
 	if affiliation == nil {
@@ -122,7 +133,9 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	}
 	backupContact := MakeBackupContact(db, contactAssertions)
 	serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
-	mustSave(db, &serviceMember)
+	if !assertions.Stub {
+		mustSave(db, &serviceMember)
+	}
 
 	return serviceMember
 }

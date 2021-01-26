@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import { func, PropTypes } from 'prop-types';
 
 import SelectableCard from 'components/Customer/SelectableCard';
-import { setConusStatus, selectedConusStatus } from 'scenes/Moves/ducks';
+import { setConusStatus } from 'store/onboarding/actions';
+import { selectConusStatus } from 'store/onboarding/selectors';
 import { CONUS_STATUS } from 'shared/constants';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -63,7 +64,7 @@ ConusOrNot.defaultProps = {
 
 const mapStateToProps = (state) => {
   const props = {
-    conusStatus: selectedConusStatus(state),
+    conusStatus: selectConusStatus(state),
   };
   return props;
 };

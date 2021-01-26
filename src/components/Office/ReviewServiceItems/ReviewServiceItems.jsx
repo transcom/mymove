@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { sortServiceItemsByGroup } from '../../../utils/serviceItems';
 
@@ -15,7 +16,6 @@ import PaymentReviewed from './PaymentReviewed';
 import Alert from 'shared/Alert';
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { toDollarString } from 'shared/formatters';
 import { PaymentRequestShape } from 'types/index';
 
@@ -39,12 +39,12 @@ const ReviewServiceItems = ({
 
   const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
-  const handleClick = (index) => {
+  const handleServiceItemNavBtnClick = (index) => {
     setCardIndex(index);
   };
 
-  const handleAuthorizePayment = () => {
-    onCompleteReview();
+  const handleAuthorizePaymentClick = (allServiceItemsRejected = false) => {
+    onCompleteReview(allServiceItemsRejected);
   };
 
   // calculating the sums
@@ -54,7 +54,7 @@ const ReviewServiceItems = ({
 
   let itemsNeedsReviewLength;
   let showNeedsReview;
-  let showRejectRequest;
+  let allServiceItemsRejected;
   let firstItemNeedsReviewIndex;
   let firstBasicIndex = null;
   let lastBasicIndex = null;
@@ -62,13 +62,13 @@ const ReviewServiceItems = ({
   if (!requestReviewed) {
     itemsNeedsReviewLength = sortedCards.filter((s) => s.status === REQUESTED)?.length;
     showNeedsReview = sortedCards.some((s) => s.status === REQUESTED);
-    showRejectRequest = sortedCards.every((s) => s.status === DENIED);
+    allServiceItemsRejected = sortedCards.every((s) => s.status === DENIED);
     firstItemNeedsReviewIndex = showNeedsReview && sortedCards.findIndex((s) => s.status === REQUESTED);
 
     sortedCards.forEach((serviceItem, index) => {
       // here we want to set the first and last index
       // of basic service items to know the bounds
-      if (!serviceItem.shipmentType) {
+      if (!serviceItem.mtoShipmentType) {
         // no shipemntId, then it is a basic service items
         if (firstBasicIndex === null) {
           // if not set yet, set it the first time we see a basic
@@ -88,7 +88,10 @@ const ReviewServiceItems = ({
   const isBasicServiceItem =
     firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
 
-  let renderCompleteAction = <AuthorizePayment amount={approvedSum} onClick={handleAuthorizePayment} />;
+  // Determines which ReviewDetailsCard will be shown
+  let renderCompleteAction = (
+    <AuthorizePayment amount={approvedSum} onClick={() => handleAuthorizePaymentClick(requestReviewed)} />
+  );
   if (requestReviewed) {
     renderCompleteAction = (
       <PaymentReviewed authorizedAmount={approvedSum} dateAuthorized={paymentRequest?.reviewedAt} />
@@ -97,11 +100,11 @@ const ReviewServiceItems = ({
     renderCompleteAction = (
       <NeedsReview numberOfItems={itemsNeedsReviewLength} onClick={() => setCardIndex(firstItemNeedsReviewIndex)} />
     );
-  } else if (showRejectRequest) {
-    renderCompleteAction = <RejectRequest onClick={handleAuthorizePayment} />;
+  } else if (allServiceItemsRejected) {
+    renderCompleteAction = <RejectRequest onClick={() => handleAuthorizePaymentClick(allServiceItemsRejected)} />;
   }
 
-  // Similar to componentDidMount and componentDidUpdate
+  // Similar to component lifecycle methods
   useEffect(() => {
     if (currentCard) {
       const { id } = sortedCards[parseInt(curCardIndex, 10)];
@@ -118,7 +121,7 @@ const ReviewServiceItems = ({
       <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
         <div className={styles.top}>
           <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-            <XLightIcon />
+            <FontAwesomeIcon icon="times" title="Close Service Item review" aria-label="Close Service Item review" />
           </Button>
           <h2 className={styles.header}>Complete request</h2>
         </div>
@@ -141,7 +144,7 @@ const ReviewServiceItems = ({
           <Button
             data-testid="prevServiceItem"
             type="button"
-            onClick={() => handleClick(curCardIndex - 1)}
+            onClick={() => handleServiceItemNavBtnClick(curCardIndex - 1)}
             secondary
             disabled={curCardIndex === 0}
           >
@@ -155,7 +158,7 @@ const ReviewServiceItems = ({
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <div className={styles.top}>
         <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-          <XLightIcon />
+          <FontAwesomeIcon icon="times" aria-label="Close Service Item review" />
         </Button>
         <div data-testid="itemCount" className={styles.eyebrowTitle}>
           {curCardIndex + 1} OF {totalCards} ITEMS
@@ -188,8 +191,9 @@ const ReviewServiceItems = ({
       <div className={styles.bottom}>
         <Button
           data-testid="prevServiceItem"
+          aria-label="Previous Service Item"
           type="button"
-          onClick={() => handleClick(curCardIndex - 1)}
+          onClick={() => handleServiceItemNavBtnClick(curCardIndex - 1)}
           secondary
           disabled={curCardIndex === 0}
         >
@@ -197,8 +201,9 @@ const ReviewServiceItems = ({
         </Button>
         <Button
           data-testid="nextServiceItem"
+          aria-label="Next Service Item"
           type="button"
-          onClick={() => handleClick(curCardIndex + 1)}
+          onClick={() => handleServiceItemNavBtnClick(curCardIndex + 1)}
           disabled={curCardIndex === totalCards}
         >
           Next

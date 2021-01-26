@@ -24,7 +24,7 @@ const disabledProps = {
 };
 
 export default {
-  title: 'Customer Components | SelectableCard',
+  title: 'Customer Components / SelectableCard',
   component: SelectableCard,
   decorators: [
     (Story) => (

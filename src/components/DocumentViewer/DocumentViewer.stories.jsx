@@ -9,7 +9,7 @@ import png from './sample2.png';
 import gif from './sample3.gif';
 
 export default {
-  title: 'Components|Document Viewer|Document Viewer',
+  title: 'Components/Document Viewer/Document Viewer',
 };
 
 const testPDFFiles = [

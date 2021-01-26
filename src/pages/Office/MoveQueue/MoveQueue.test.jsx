@@ -33,7 +33,7 @@ jest.mock('hooks/queries', () => ({
             locator: 'AB5P',
             departmentIndicator: 'ARMY',
             shipmentsCount: 2,
-            status: 'NEW',
+            status: 'SUBMITTED',
             destinationDutyStation: {
               name: 'Area 51',
             },
@@ -83,8 +83,8 @@ describe('MoveQueue', () => {
     const firstMove = moves.at(0);
     expect(firstMove.find({ 'data-testid': 'lastName-0' }).text()).toBe('test last, test first');
     expect(firstMove.find({ 'data-testid': 'dodID-0' }).text()).toBe('555555555');
-    expect(firstMove.find({ 'data-testid': 'status-0' }).text()).toBe('NEW');
-    expect(firstMove.find({ 'data-testid': 'moveID-0' }).text()).toBe('AB5P');
+    expect(firstMove.find({ 'data-testid': 'status-0' }).text()).toBe('New move');
+    expect(firstMove.find({ 'data-testid': 'locator-0' }).text()).toBe('AB5P');
     expect(firstMove.find({ 'data-testid': 'branch-0' }).text()).toBe('Air Force');
     expect(firstMove.find({ 'data-testid': 'shipmentsCount-0' }).text()).toBe('2');
     expect(firstMove.find({ 'data-testid': 'destinationDutyStation-0' }).text()).toBe('Area 51');
@@ -93,8 +93,8 @@ describe('MoveQueue', () => {
     const secondMove = moves.at(1);
     expect(secondMove.find({ 'data-testid': 'lastName-1' }).text()).toBe('test another last, test another first');
     expect(secondMove.find({ 'data-testid': 'dodID-1' }).text()).toBe('4444444444');
-    expect(secondMove.find({ 'data-testid': 'status-1' }).text()).toBe('APPROVED');
-    expect(secondMove.find({ 'data-testid': 'moveID-1' }).text()).toBe('T12A');
+    expect(secondMove.find({ 'data-testid': 'status-1' }).text()).toBe('Move approved');
+    expect(secondMove.find({ 'data-testid': 'locator-1' }).text()).toBe('T12A');
     expect(secondMove.find({ 'data-testid': 'branch-1' }).text()).toBe('Marine Corps');
     expect(secondMove.find({ 'data-testid': 'shipmentsCount-1' }).text()).toBe('1');
     expect(secondMove.find({ 'data-testid': 'destinationDutyStation-1' }).text()).toBe('Los Alamos');

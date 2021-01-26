@@ -3,7 +3,7 @@ import React from 'react';
 import WizardNavigation from './WizardNavigation';
 
 export default {
-  title: 'Customer Components | Wizard Navigation',
+  title: 'Customer Components / Wizard Navigation',
   component: WizardNavigation,
 };
 

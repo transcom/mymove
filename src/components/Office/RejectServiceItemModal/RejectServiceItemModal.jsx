@@ -4,13 +4,13 @@ import { Modal, Button, ModalContainer, Overlay } from '@trussworks/react-uswds'
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './RejectServiceItemModal.module.scss';
 
 import { Form } from 'components/form';
 import { TextInput } from 'components/form/fields';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { formatDateFromIso } from 'shared/formatters';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
@@ -35,7 +35,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                 className={classNames(styles.rejectReasonClose, 'usa-button--unstyled')}
                 data-testid="closeRejectServiceItem"
               >
-                <XLightIcon />
+                <FontAwesomeIcon icon="times" title="Close" aria-label="Close" />
               </Button>
             </div>
             <Formik
@@ -110,7 +110,7 @@ RejectServiceItemModal.propTypes = {
     createdAt: PropTypes.string,
     rejectedAt: PropTypes.string,
     approvedAt: PropTypes.string,
-    details: {
+    details: PropTypes.shape({
       description: PropTypes.string,
       pickupPostalCode: PropTypes.string,
       reason: PropTypes.string,
@@ -120,7 +120,7 @@ RejectServiceItemModal.propTypes = {
         timeMilitary: PropTypes.string,
         firstAvailableDeliveryDate: PropTypes.string,
       }),
-    },
+    }),
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,

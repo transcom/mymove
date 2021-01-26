@@ -6,7 +6,7 @@ import { mount } from 'enzyme';
 import { EditButton, ErrorMessage, Form, StackedTableRowForm } from './index';
 
 describe('StackedTableRowForm', () => {
-  const renderStackedTableRowForm = (submit, reset, value = 'value') => {
+  const renderStackedTableRowForm = (submit = jest.fn(), reset, value = 'value') => {
     return mount(
       <table className="table--stacked">
         <tbody>
@@ -20,6 +20,7 @@ describe('StackedTableRowForm', () => {
             name="fieldName"
             type="text"
             label="Field Name"
+            id="fieldName"
           />
         </tbody>
       </table>,
@@ -30,14 +31,14 @@ describe('StackedTableRowForm', () => {
     it('renders a tr with correct html', () => {
       const component = renderStackedTableRowForm();
       expect(component.html()).toBe(
-        '<table class="table--stacked"><tbody><tr class="stacked-table-row"><th scope="row" class="label ">Field Name</th><td><span>value</span><button type="button" class="usa-button usa-button--icon usa-button--unstyled float-right" data-testid="button"><span class="icon"><svg>edit.svg</svg></span><span>Edit</span></button></td></tr></tbody></table>',
+        '<table class="table--stacked"><tbody><tr class="stacked-table-row"><th scope="row" class="label ">Field Name</th><td><span>value</span><button type="button" class="usa-button usa-button--icon usa-button--unstyled float-right" data-testid="button"><span class="icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="pen" class="svg-inline--fa fa-pen fa-w-16 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M290.74 93.24l128.02 128.02-277.99 277.99-114.14 12.6C11.35 513.54-1.56 500.62.14 485.34l12.7-114.22 277.9-277.88zm207.2-19.06l-60.11-60.11c-18.75-18.75-49.16-18.75-67.91 0l-56.55 56.55 128.02 128.02 56.55-56.55c18.75-18.76 18.75-49.16 0-67.91z"></path></svg></span><span>Edit</span></button></td></tr></tbody></table>',
       );
     });
 
     it('renders a span with nbsp when no value', () => {
-      const component = renderStackedTableRowForm(null, null, null);
+      const component = renderStackedTableRowForm(jest.fn(), null, null);
       expect(component.html()).toBe(
-        '<table class="table--stacked"><tbody><tr class="stacked-table-row"><th scope="row" class="label ">Field Name</th><td><span>&nbsp;</span><button type="button" class="usa-button usa-button--icon usa-button--unstyled float-right" data-testid="button"><span class="icon"><svg>edit.svg</svg></span><span>Edit</span></button></td></tr></tbody></table>',
+        '<table class="table--stacked"><tbody><tr class="stacked-table-row"><th scope="row" class="label ">Field Name</th><td><span>&nbsp;</span><button type="button" class="usa-button usa-button--icon usa-button--unstyled float-right" data-testid="button"><span class="icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="pen" class="svg-inline--fa fa-pen fa-w-16 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M290.74 93.24l128.02 128.02-277.99 277.99-114.14 12.6C11.35 513.54-1.56 500.62.14 485.34l12.7-114.22 277.9-277.88zm207.2-19.06l-60.11-60.11c-18.75-18.75-49.16-18.75-67.91 0l-56.55 56.55 128.02 128.02 56.55-56.55c18.75-18.76 18.75-49.16 0-67.91z"></path></svg></span><span>Edit</span></button></td></tr></tbody></table>',
       );
     });
 
@@ -92,7 +93,7 @@ describe('StackedTableRowForm', () => {
       jest.spyOn(React, 'useState').mockReturnValueOnce([true, setShow]).mockReturnValueOnce([{}, jest.fn()]);
       const component = renderStackedTableRowForm();
       expect(component.html()).toBe(
-        '<table class="table--stacked"><tbody><tr class="stacked-table-row"><th scope="row" class="label ">Field Name</th><td><form data-testid="form" class="usa-form"><input data-testid="textInput" class="usa-input" name="fieldName" type="text" value="value"><div class="form-buttons"><button type="submit" class="usa-button" data-testid="button">Submit</button><button type="reset" class="usa-button usa-button--secondary" data-testid="button">Cancel</button></div></form></td></tr></tbody></table>',
+        '<table class="table--stacked"><tbody><tr class="stacked-table-row"><th scope="row" class="label ">Field Name</th><td><form data-testid="form" class="usa-form"><input data-testid="textInput" class="usa-input" id="fieldName" name="fieldName" type="text" value="value"><div class="form-buttons"><button type="submit" class="usa-button" data-testid="button">Submit</button><button type="reset" class="usa-button usa-button--secondary" data-testid="button">Cancel</button></div></form></td></tr></tbody></table>',
       );
     });
 

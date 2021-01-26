@@ -217,9 +217,6 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	// AWS Flags
 	cli.InitAWSFlags(flag)
 
-	// Vault Flags
-	cli.InitVaultFlags(flag)
-
 	// Task Definition Settings
 	flag.String(serviceFlag, "app", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
@@ -229,8 +226,8 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.Int(cpuFlag, int(512), "The CPU reservation")
 	flag.Int(memFlag, int(2048), "The memory reservation")
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	// Dry Run or Registration
 	flag.Bool(dryRunFlag, false, "Execute as a dry-run without modifying AWS.")
@@ -270,10 +267,6 @@ func checkTaskDefConfig(v *viper.Viper) error {
 
 	if err := cli.CheckAWSRegionForService(region, ssm.ServiceName); err != nil {
 		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, ssm.ServiceName, err)
-	}
-
-	if err := cli.CheckVault(v); err != nil {
-		return err
 	}
 
 	serviceName := v.GetString(serviceFlag)
@@ -451,7 +444,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	verbose := v.GetBool(cli.VerboseFlag)
+	verbose := cli.LogLevelIsDebug(v)
 	if !verbose {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
 		log.SetOutput(ioutil.Discard)
@@ -467,11 +460,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		quit(logger, flag, checkConfigErr)
 	}
 
-	// Get the AWS configuration so we can build a session
-	awsConfig, err := cli.GetAWSConfig(v, verbose)
-	if err != nil {
-		quit(logger, nil, err)
-	}
+	awsConfig := createAwsConfig(v.GetString(cli.AWSRegionFlag))
 	sess, err := awssession.NewSession(awsConfig)
 	if err != nil {
 		quit(logger, nil, fmt.Errorf("failed to create AWS session: %w", err))
@@ -581,6 +570,17 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	cpu := strconv.Itoa(v.GetInt(cpuFlag))
 	mem := strconv.Itoa(v.GetInt(memFlag))
 
+	// Create the set of secrets and environment variables that will be injected into the
+	// container.
+	secrets := buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName)
+	containerEnvironment := buildContainerEnvironment(environmentName, dbHost, variablesFile)
+
+	// AWS does not permit supplying both a secret and an environment variable that share the same
+	// name into an ECS task. In order to gracefully transition between setting values as secrets
+	// into setting them as environment variables, this function serves to remove any duplicates
+	// that have been transitioned into being set as environment variables.
+	secrets = removeSecretsWithMatchingEnvironmentVariables(secrets, containerEnvironment)
+
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
@@ -589,8 +589,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPointList),
 				Command:     []*string{},
-				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
-				Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
+				Secrets:     secrets,
+				Environment: containerEnvironment,
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
 					Options: map[string]*string{
@@ -636,4 +636,35 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func createAwsConfig(awsRegionFlag string) *aws.Config {
+	awsConfig := &aws.Config{
+		Region: aws.String(awsRegionFlag),
+	}
+	return awsConfig
+}
+
+func removeSecretsWithMatchingEnvironmentVariables(secrets []*ecs.Secret, containerEnvironment []*ecs.KeyValuePair) []*ecs.Secret {
+	// Remove any secrets that share a name with an environment variable. Do this by creating a new
+	// slice of secrets that does not any secrets that share a name with an environment variable.
+	newSecrets := []*ecs.Secret{}
+	for _, secret := range secrets {
+		conflictFound := false
+		for _, envSetting := range containerEnvironment {
+			if *secret.Name == *envSetting.Name {
+				conflictFound = true
+			}
+		}
+
+		if conflictFound {
+			// Report any conflicts that are found.
+			fmt.Fprintln(os.Stderr, "Found a secret with the same name as an environment variable. Discarding secret in favor of the environment variable:", *secret.Name)
+		} else {
+			// If no conflict is found, keep the secret.
+			newSecrets = append(newSecrets, secret)
+		}
+	}
+
+	return newSecrets
 }

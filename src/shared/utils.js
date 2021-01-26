@@ -1,9 +1,7 @@
 import React from 'react';
 import { get, includes, find, mapValues, capitalize } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
-import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
+
 import { formatDateForSwagger } from './dates';
 import './shared.css';
 
@@ -87,16 +85,16 @@ export function renderStatusIcon(status) {
     return;
   }
   if (status === 'AWAITING_REVIEW' || status === 'DRAFT' || status === 'SUBMITTED') {
-    return <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />;
+    return <FontAwesomeIcon className="icon approval-waiting" icon="clock" />;
   }
   if (status === 'OK') {
-    return <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />;
+    return <FontAwesomeIcon className="icon approval-ready" icon="check" />;
   }
   if (status === 'APPROVED' || status === 'INVOICED' || status === 'CONDITIONALLY_APPROVED') {
-    return <FontAwesomeIcon className="icon approved" icon={faCheck} />;
+    return <FontAwesomeIcon className="icon approved" icon="check" />;
   }
   if (status === 'HAS_ISSUE') {
-    return <FontAwesomeIcon className="icon approval-problem" icon={faExclamationCircle} />;
+    return <FontAwesomeIcon className="icon approval-problem" icon="exclamation-circle" />;
   }
 }
 

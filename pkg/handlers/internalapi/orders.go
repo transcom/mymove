@@ -29,6 +29,12 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		moves = append(moves, payload)
 	}
 
+	var dBAuthorizedWeight *int64
+	dBAuthorizedWeight = nil
+	if order.Entitlement != nil {
+		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
+	}
+
 	payload := &internalmessages.Orders{
 		ID:                  handlers.FmtUUID(order.ID),
 		CreatedAt:           handlers.FmtDateTime(order.CreatedAt),
@@ -48,6 +54,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		Sac:                 order.SAC,
 		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
 		Status:              internalmessages.OrdersStatus(order.Status),
+		AuthorizedWeight:    dBAuthorizedWeight,
 	}
 
 	return payload, nil
@@ -87,7 +94,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	originDutyStation := serviceMember.DutyStation
 	grade := (*string)(serviceMember.Rank)
 
-	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents, *payload.SpouseHasProGear)
+	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
 	if entitlementErr != nil {
 		return handlers.ResponseForError(logger, entitlementErr)
 	}

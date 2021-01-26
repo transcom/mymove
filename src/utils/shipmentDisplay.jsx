@@ -26,3 +26,16 @@ export function formatCustomerDestination(destinationLocation, destinationZIP) {
 }
 
 export const getShipmentTypeLabel = (shipmentType) => shipmentOptionLabels.find((l) => l.key === shipmentType)?.label;
+
+export function formatPaymentRequestAddressString(pickupAddress, destinationAddress) {
+  if (pickupAddress && destinationAddress) {
+    return `${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code} to ${destinationAddress.city}, ${destinationAddress.state} ${destinationAddress.postal_code}`;
+  }
+  if (pickupAddress && !destinationAddress) {
+    return `${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code} to TBD`;
+  }
+  if (!pickupAddress && destinationAddress) {
+    return `TBD to ${destinationAddress.city}, ${destinationAddress.state} ${destinationAddress.postal_code}`;
+  }
+  return ``;
+}

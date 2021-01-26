@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import styles from './OrdersTable.module.scss';
+import styles from '../MoveDetailTable.module.scss';
 
 import { OrdersInfoShape } from 'types/moveOrder';
 import { formatDate } from 'shared/dates';
@@ -9,13 +9,13 @@ import { departmentIndicatorReadable, ordersTypeReadable, ordersTypeDetailReadab
 
 function OrdersTable({ ordersInfo }) {
   return (
-    <div className={styles.OrdersTable}>
+    <div className={styles.MoveDetailTable}>
       <div className="stackedtable-header">
         <div>
           <h4>Orders</h4>
         </div>
         <div>
-          <Link className="usa-button usa-button--secondary" to="orders">
+          <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
             View & edit orders
           </Link>
         </div>

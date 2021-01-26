@@ -5,6 +5,7 @@ import { BackupContactShape } from './backupContact';
 
 import dimensionTypes from 'constants/dimensionTypes';
 import customerContactTypes from 'constants/customerContactTypes';
+import { ShipmentOptionsOneOf } from 'types/shipment';
 
 export const DestinationDutyStationShape = PropTypes.shape({
   name: PropTypes.string,
@@ -135,6 +136,8 @@ export const PaymentServiceItemShape = PropTypes.shape({
   id: PropTypes.string,
   createdAt: PropTypes.string,
   mtoServiceItemID: PropTypes.string,
+  mtoServiceItemName: PropTypes.string,
+  mtoShipmentType: ShipmentOptionsOneOf,
   priceCents: PropTypes.number,
   status: PropTypes.string,
   rejectionReason: PropTypes.string,
@@ -142,10 +145,11 @@ export const PaymentServiceItemShape = PropTypes.shape({
 
 export const PaymentRequestShape = PropTypes.shape({
   id: PropTypes.string,
+  createdAt: PropTypes.string,
   moveTaskOrderID: PropTypes.string,
   paymentRequestNumber: PropTypes.string,
   status: PropTypes.string,
   eTag: PropTypes.string,
-  serviceItems: PropTypes.arrayOf(PropTypes.string),
+  serviceItems: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PaymentServiceItemShape])),
   reviewedAt: PropTypes.string,
 });

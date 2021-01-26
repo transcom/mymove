@@ -56,11 +56,9 @@ describe('Office authorization', () => {
 
   describe('multiple role selection', () => {
     beforeEach(() => {
-      cy.removeFetch();
-      cy.server();
-      cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-      cy.route('GET', '/ghc/v1/queues/moves?**').as('getMoveOrders');
-      cy.route('GET', '/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
+      cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
+      cy.intercept('**/ghc/v1/queues/moves?**').as('getMoveOrders');
+      cy.intercept('**/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
     });
 
     it('can switch between TOO & TIO roles', () => {
@@ -89,6 +87,7 @@ describe('Office authorization', () => {
 describe('Queue staleness indicator', () => {
   before(() => {
     cy.prepareOfficeApp();
+    cy.clearAllCookies();
   });
 
   it('displays the correct time ago text', () => {
@@ -96,10 +95,10 @@ describe('Queue staleness indicator', () => {
     cy.signInAsNewPPMOfficeUser();
     cy.patientVisit('/queues/all');
 
-    cy.get('[data-testid=staleness-indicator]').should('have.text', 'Last updated a few seconds ago');
+    cy.get('[data-testid=staleness-indicator]').contains('Last updated a few seconds ago');
 
     cy.tick(120000);
 
-    cy.get('[data-testid=staleness-indicator]').should('have.text', 'Last updated 2 mins ago');
+    cy.get('[data-testid=staleness-indicator]').contains('Last updated 2 mins ago');
   });
 });

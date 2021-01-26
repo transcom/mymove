@@ -7,7 +7,7 @@ import { ErrorMessage } from 'components/form/ErrorMessage';
 import { DropdownArrayOf } from 'types/form';
 
 export const DropdownInput = (props) => {
-  const { label, options } = props;
+  const { label, options, showDropdownPlaceholderText } = props;
   const [field, meta] = useField(props);
   const hasError = meta.touched && !!meta.error;
 
@@ -19,7 +19,7 @@ export const DropdownInput = (props) => {
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
       {/*  react/jsx-props-no-spreading */}
       <Dropdown {...field}>
-        <option value="">- Select -</option>
+        {showDropdownPlaceholderText && <option value="">- Select -</option>}
         {options &&
           options.map(({ key, value }) => (
             <option key={key} value={key}>
@@ -39,6 +39,11 @@ DropdownInput.propTypes = {
   // options for dropdown selection for this input
   // ex: [ { key: 'key', value: 'value' } ]
   options: DropdownArrayOf.isRequired,
+  showDropdownPlaceholderText: PropTypes.bool,
+};
+
+DropdownInput.defaultProps = {
+  showDropdownPlaceholderText: true,
 };
 
 export default DropdownInput;

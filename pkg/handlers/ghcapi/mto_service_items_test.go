@@ -122,6 +122,15 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	})
 }
 
+func (suite *HandlerSuite) createServiceItem() (models.MTOServiceItem, models.Move) {
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB())
+	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	return serviceItem, move
+}
+
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	moveTaskOrderID, _ := uuid.NewV4()
 	serviceItemID, _ := uuid.NewV4()
@@ -250,51 +259,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 
 	// With this we'll do a happy path integration test to ensure that the use of the service object
 	// by the handler is working as expected.
-	suite.T().Run("Successful status update - Integration test", func(t *testing.T) {
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{Move: models.Move{ID: mto.ID}})
-		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
-			moveTaskOrderID, serviceItemID), nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
-
-		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
-			HTTPRequest:      req,
-			IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
-			Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "APPROVED"},
-			MoveTaskOrderID:  mto.ID.String(),
-			MtoServiceItemID: mtoServiceItem.ID.String(),
-		}
-
-		fetcher := fetch.NewFetcher(queryBuilder)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
-
-		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
-			Fetcher:               fetcher,
-		}
-
-		response := handler.Handle(params)
-		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
-		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
-		suite.Equal(ghcmessages.MTOServiceItemstatusStatusAPPROVED, string(okResponse.Payload.Status))
-		suite.NotNil(okResponse.Payload.ApprovedAt)
-
-		impactedMove := models.Move{}
-		_ = suite.DB().Find(&impactedMove, okResponse.Payload.MoveTaskOrderID)
-		suite.Equal(models.MoveStatusAPPROVED, impactedMove.Status)
-
-	})
-
-	// With this we'll do a happy path integration test to ensure that the use of the service object
-	// by the handler is working as expected.
 	suite.T().Run("Successful rejected status update - Integration test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
-		mto := testdatagen.MakeDefaultMove(suite.DB())
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
+		mtoServiceItem, move := suite.createServiceItem()
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
@@ -306,7 +273,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			HTTPRequest:      req,
 			IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 			Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "REJECTED", RejectionReason: &rejectionReason},
-			MoveTaskOrderID:  mto.ID.String(),
+			MoveTaskOrderID:  move.ID.String(),
 			MtoServiceItemID: mtoServiceItem.ID.String(),
 		}
 
@@ -327,12 +294,11 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		suite.Equal(rejectionReason, *okResponse.Payload.RejectionReason)
 	})
 
+	// With this we'll do a happy path integration test to ensure that the use of the service object
+	// by the handler is working as expected.
 	suite.T().Run("Successful status update of MTO service item and event trigger", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
-		availableMove := testdatagen.MakeAvailableMove(suite.DB())
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move: availableMove,
-		})
+		mtoServiceItem, availableMove := suite.createServiceItem()
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		availableMoveID := availableMove.ID
 		mtoServiceItemID := mtoServiceItem.ID
@@ -365,6 +331,11 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
 		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
 		suite.Equal(ghcmessages.MTOServiceItemstatusStatusAPPROVED, string(okResponse.Payload.Status))
+		suite.NotNil(okResponse.Payload.ApprovedAt)
 		suite.HasWebhookNotification(mtoServiceItemID, traceID)
+
+		impactedMove := models.Move{}
+		_ = suite.DB().Find(&impactedMove, okResponse.Payload.MoveTaskOrderID)
+		suite.Equal(models.MoveStatusAPPROVED, impactedMove.Status)
 	})
 }

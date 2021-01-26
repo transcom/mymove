@@ -4,7 +4,7 @@ import classnames from 'classnames';
 
 import styles from './index.module.scss';
 
-const DataPoint = ({ columnHeaders, dataRow, Icon, custClass }) => (
+const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
   <table className={classnames(styles.dataPoint, 'table--data-point', custClass)}>
     <thead className="table--small">
       <tr>
@@ -19,9 +19,9 @@ const DataPoint = ({ columnHeaders, dataRow, Icon, custClass }) => (
         {dataRow.map((cell, i) => (
           //  react/no-array-index-key
           <td key={i}>
-            <div className={classnames({ [`${styles.iconCellContainer}`]: !!Icon && i === 0 })}>
+            <div className={classnames({ [`${styles.iconCellContainer}`]: !!icon && i === 0 })}>
               <span>{cell}</span>
-              {!!Icon && i === 0 && <Icon />}
+              {!!icon && i === 0 && icon}
             </div>
           </td>
         ))}
@@ -33,12 +33,12 @@ const DataPoint = ({ columnHeaders, dataRow, Icon, custClass }) => (
 DataPoint.propTypes = {
   columnHeaders: PropTypes.arrayOf(PropTypes.node).isRequired,
   dataRow: PropTypes.arrayOf(PropTypes.node).isRequired,
-  Icon: PropTypes.elementType,
+  icon: PropTypes.node,
   custClass: PropTypes.string,
 };
 
 DataPoint.defaultProps = {
-  Icon: undefined,
+  icon: null,
   custClass: '',
 };
 

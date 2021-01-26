@@ -23,5 +23,5 @@ export const Basic = () => (
 );
 
 export default {
-  title: 'Customer Components | ShipmentList',
+  title: 'Customer Components / ShipmentList',
 };

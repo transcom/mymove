@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import colors from '../shared/styles/colors.scss';
+import colors from 'styles/colors.module.scss';
 
 const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
 
 // Colors
 
 export default {
-  title: 'Global|Colors',
+  title: 'Global/Colors',
   parameters: {
     abstract: {
       url: 'https://share.goabstract.com/1eff778f-1dc2-431a-8a07-8325aa250071?mode=design',

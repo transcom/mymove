@@ -13,6 +13,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/db/sequence"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -42,8 +44,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -67,7 +69,7 @@ func main() {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		log.Fatalf("failed to initialize Zap logging due to %v", err)
 	}
@@ -89,6 +91,13 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
+	// ICN Sequencer, this script is only intended for development so always use the random sequencer
+	// Also we don't know if the output will be sent to gex or not as that's a separate command
+	icnSequencer, err := sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
+	if err != nil {
+		log.Fatal("Could not create random sequencer for ICN", err)
+	}
+
 	paymentRequestNumber := v.GetString("payment-request-number")
 
 	var paymentRequest models.PaymentRequest
@@ -102,7 +111,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(dbConnection)
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(dbConnection, icnSequencer)
 	edi858c, err := generator.Generate(paymentRequest, false)
 	if err != nil {
 		logger.Fatal(err.Error())

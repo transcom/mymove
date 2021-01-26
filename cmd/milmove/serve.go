@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/redisstore"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -126,14 +127,8 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Middleware
 	cli.InitMiddlewareFlags(flag)
 
-	// aws-vault
-	cli.InitVaultFlags(flag)
-
 	// Logging
 	cli.InitLoggingFlags(flag)
-
-	// Verbose
-	cli.InitVerboseFlags(flag)
 
 	// Feature Flags
 	cli.InitFeatureFlags(flag)
@@ -234,15 +229,7 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
-	if err := cli.CheckVault(v); err != nil {
-		return err
-	}
-
 	if err := cli.CheckLogging(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckVerbose(v); err != nil {
 		return err
 	}
 
@@ -379,7 +366,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err = logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
+	logger, err = logging.Config(
+		logging.WithEnvironment(v.GetString(cli.LoggingEnvFlag)),
+		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
+		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
+	)
+
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -461,9 +453,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") || (v.GetString(cli.StorageBackendFlag) == "cdn") {
-		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
-		if errorConfig != nil {
-			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+		c := &aws.Config{
+			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
 		}
 		s, errorSession := awssession.NewSession(c)
 		if errorSession != nil {
@@ -563,11 +554,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(build))
 
-	// Get route planner for handlers to calculate transit distances
-	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := route.InitRoutePlanner(v, logger)
-	handlerContext.SetPlanner(routePlanner)
-
 	// Set SendProductionInvoice for ediinvoice
 	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
@@ -583,8 +569,21 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Debug("Server DOD Key Pair Loaded")
 	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
 
+	// Get route planner for handlers to calculate transit distances
+	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
+	routePlanner := route.InitRoutePlanner(v, logger)
+	handlerContext.SetPlanner(routePlanner)
+
+	// Create a secondary planner specifically for GHC.
+	routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+	ghcRoutePlanner, initRouteErr := route.InitGHCRoutePlanner(v, logger, dbConnection, routeTLSConfig)
+	if initRouteErr != nil {
+		logger.Fatal("Could not instantiate GHC route planner", zap.Error(initRouteErr))
+	}
+	handlerContext.SetGHCPlanner(ghcRoutePlanner)
+
 	// Set the GexSender() and GexSender fields
-	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+	gexTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
 	var gexRequester services.GexSender
 	gexURL := v.GetString(cli.GEXURLFlag)
 	if len(gexURL) == 0 {
@@ -603,7 +602,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		gexRequester = invoice.NewGexSenderHTTP(
 			gexURL,
 			true,
-			tlsConfig,
+			gexTLSConfig,
 			v.GetString(cli.GEXBasicAuthUsernameFlag),
 			v.GetString(cli.GEXBasicAuthPasswordFlag),
 		)

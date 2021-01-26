@@ -1,5 +1,4 @@
 import React from 'react';
-import { withKnobs } from '@storybook/addon-knobs';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 
@@ -44,10 +43,9 @@ const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 
 export default {
-  title: 'TOO/TIO Components|OrdersDetailForm',
+  title: 'Office Components/OrdersDetailForm',
   component: OrdersDetailForm,
   decorators: [
-    withKnobs,
     (Story) => (
       <div style={{ padding: `20px`, background: `#f0f0f0` }}>
         <Story />

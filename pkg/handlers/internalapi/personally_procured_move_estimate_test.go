@@ -168,8 +168,8 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)
 	cost := okResponse.Payload
 
-	suite.Equal(int64(605203), *cost.RangeMin, "RangeMin was not equal")
-	suite.Equal(int64(668909), *cost.RangeMax, "RangeMax was not equal")
+	suite.Equal(int64(907805), *cost.RangeMin, "RangeMin was not equal")
+	suite.Equal(int64(1003363), *cost.RangeMax, "RangeMax was not equal")
 }
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
@@ -206,6 +206,6 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)
 	cost := okResponse.Payload
 
-	suite.Equal(int64(256739), *cost.RangeMin, "RangeMin was not equal")
-	suite.Equal(int64(283765), *cost.RangeMax, "RangeMax was not equal")
+	suite.Equal(int64(385109), *cost.RangeMin, "RangeMin was not equal")
+	suite.Equal(int64(425647), *cost.RangeMax, "RangeMax was not equal")
 }

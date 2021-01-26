@@ -30,8 +30,8 @@ const (
 
 	// VaultAWSKeychainNameDefault is the aws-vault default keychain name
 	VaultAWSKeychainNameDefault string = "login"
-	// VaultAWSProfileDefault is the aws-vault default profile name
-	VaultAWSProfileDefault string = "transcom-ppp"
+	// VaultAWSProfileTranscomPPP is the aws-vault profile name for transcom-ppp
+	VaultAWSProfileTranscomPPP string = "transcom-ppp"
 	// VaultAWSProfileTranscomComLegacy is the aws-vault profile name for transcom-com-legacy
 	VaultAWSProfileTranscomComLegacy string = "transcom-com-legacy"
 )
@@ -89,7 +89,7 @@ func CheckVault(v *viper.Viper) error {
 
 		awsProfile := v.GetString(VaultAWSProfileFlag)
 		awsProfiles := []string{
-			VaultAWSProfileDefault,
+			VaultAWSProfileTranscomPPP,
 			VaultAWSProfileTranscomComLegacy,
 		}
 		if len(awsProfile) > 0 && !stringSliceContains(awsProfiles, awsProfile) {

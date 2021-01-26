@@ -50,6 +50,7 @@ schema.sql
 cypress/videos
 cypress/screenshots
 cypress/results
+cypress/reports
 
 # XLSX backup files
 ~$*.xlsx

@@ -270,26 +270,14 @@ describe('Office App', () => {
 
       it('handles the TXOMoveInfo URL', () => {
         const app = mount(
-          <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/123']}>
+          <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/AU67C6']}>
             <ConnectedOffice />
           </MockProviders>,
         );
 
         const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
-      });
-
-      it('handles the CustomerDetails URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInTOOState} initialEntries={['/too/123/customer/abc']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/too/:moveOrderId/customer/:customerId');
+        expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
       });
     });
 
@@ -325,14 +313,14 @@ describe('Office App', () => {
 
       it('handles the TXOMoveInfo URL', () => {
         const app = mount(
-          <MockProviders initialState={loggedInTIOState} initialEntries={['/moves/123']}>
+          <MockProviders initialState={loggedInTIOState} initialEntries={['/moves/AU67C6']}>
             <ConnectedOffice />
           </MockProviders>,
         );
 
         const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
+        expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
       });
     });
   });

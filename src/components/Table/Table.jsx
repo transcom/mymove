@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons/';
 
 import styles from './Table.module.scss';
 
@@ -29,18 +28,18 @@ const Table = ({
   pageIndex,
 }) => {
   return (
-    /*  react/jsx-props-no-spreading */
+    /* eslint-disable react/jsx-props-no-spreading */
     <div data-testid="react-table" className={styles.Table}>
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup, hgIndex) => (
             <Fragment key={`headerGroup${hgIndex}`}>
               <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column, headerIndex) => {
+                {headerGroup.headers.map((column) => {
                   const sortProperties = column.canSort ? column.getSortByToggleProps() : {};
                   return (
                     <th
-                      key={`header${headerIndex}`}
+                      key={`header-${column.id}`}
                       className={classNames({
                         [`${styles.sortAscending}`]: column.isSortedDesc === false, // undefined if column is not sorted
                         [`${styles.sortDescending}`]: column.isSortedDesc,
@@ -71,11 +70,10 @@ const Table = ({
             prepareRow(row);
             return (
               <tr data-uuid={row.values.id} onClick={() => handleClick(row.values)} {...row.getRowProps()}>
-                {row.cells.map((cell, index) => {
+                {row.cells.map((cell) => {
                   return (
-                    // react/no-array-index-key
                     <td
-                      key={`cell${index}`}
+                      key={`${row.values.id}-${cell.column.id}`}
                       className={cell.column.id}
                       data-testid={`${cell.column.id}-${cell.row.id}`}
                       {...cell.getCellProps()}
@@ -117,7 +115,7 @@ const Table = ({
               onClick={previousPage}
               disabled={!canPreviousPage}
             >
-              <FontAwesomeIcon className={`${styles.paginationIconLeft} fas fa-chevron-left`} icon={faChevronLeft} />
+              <FontAwesomeIcon className={`${styles.paginationIconLeft} fas fa-chevron-left`} icon="chevron-left" />
               <span>Prev</span>
             </Button>
             <Dropdown
@@ -145,7 +143,7 @@ const Table = ({
               disabled={!canNextPage}
             >
               <span>Next</span>
-              <FontAwesomeIcon className={`${styles.paginationIconRight} fas fa-chevron-right`} icon={faChevronRight} />
+              <FontAwesomeIcon className={`${styles.paginationIconRight} fas fa-chevron-right`} icon="chevron-right" />
             </Button>
           </div>
         </div>

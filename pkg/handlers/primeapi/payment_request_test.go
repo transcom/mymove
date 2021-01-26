@@ -11,6 +11,10 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
@@ -23,8 +27,14 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+)
+
+const (
+	dlhTestServiceArea = "004"
+	dlhTestWeight      = unit.Pound(4000)
 )
 
 func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
@@ -478,5 +488,225 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			assert.Equal(t, "event_type", zapFields[0].Key)
 			assert.Equal(t, "audit_post_payment_requests", eventType)
 		}
+	})
+}
+
+func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOServiceItems) {
+	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "7 Q St",
+			City:           "Birmingham",
+			State:          "AL",
+			PostalCode:     "35203",
+		},
+	})
+	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "148 S East St",
+			City:           "Miami",
+			State:          "FL",
+			PostalCode:     "33130",
+		},
+	})
+	testEstWeight := dlhTestWeight
+	testActualWeight := testEstWeight
+
+	contractYear, serviceArea, _, _ := testdatagen.SetupServiceAreaRateArea(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			Escalation:           1.0197,
+			EscalationCompounded: 1.04071,
+		},
+		ReDomesticServiceArea: models.ReDomesticServiceArea{
+			ServiceArea: dlhTestServiceArea,
+		},
+		ReRateArea: models.ReRateArea{
+			Name: "Alabama",
+		},
+		ReZip3: models.ReZip3{
+			Zip3:          pickupAddress.PostalCode[0:3],
+			BasePointCity: pickupAddress.City,
+			State:         pickupAddress.State,
+		},
+	})
+
+	baseLinehaulPrice := testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+			ContractID:            contractYear.Contract.ID,
+			Contract:              contractYear.Contract,
+			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceArea:   serviceArea,
+			IsPeakPeriod:          false,
+		},
+	})
+
+	_ = testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+			ContractID:            contractYear.Contract.ID,
+			Contract:              contractYear.Contract,
+			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceArea:   serviceArea,
+			IsPeakPeriod:          true,
+			PriceMillicents:       baseLinehaulPrice.PriceMillicents - 2500, // minus $0.025
+		},
+	})
+
+	moveTaskOrder, mtoServiceItems := testdatagen.MakeFullDLHMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &testEstWeight,
+			PrimeActualWeight:    &testActualWeight,
+			PickupAddressID:      &pickupAddress.ID,
+			PickupAddress:        &pickupAddress,
+			DestinationAddressID: &destinationAddress.ID,
+			DestinationAddress:   &destinationAddress,
+		},
+	})
+	return moveTaskOrder, mtoServiceItems
+}
+
+func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreator() {
+	const defaultZip3Distance = 1234
+	const defaultZip5Distance = 48
+
+	move, mtoServiceItems := suite.setupDomesticLinehaulData()
+	moveTaskOrderID := move.ID
+
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+	suite.T().Run("successfully create payment request with real PaymentRequestCreator", func(t *testing.T) {
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		planner := &routemocks.Planner{}
+		planner.On("Zip5TransitDistanceLineHaul",
+			mock.Anything,
+			mock.Anything,
+		).Return(defaultZip5Distance, nil)
+		planner.On("Zip3TransitDistance",
+			mock.Anything,
+			mock.Anything,
+		).Return(defaultZip3Distance, nil)
+		planner.On("Zip5TransitDistance",
+			"90210",
+			"94535",
+		).Return(defaultZip5Distance, nil)
+
+		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+			suite.DB(),
+			planner,
+			ghcrateengine.NewServiceItemPricer(suite.DB()),
+		)
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequest{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				ServiceItems: []*primemessages.ServiceItem{
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
+					},
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[1].ID),
+					},
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[2].ID),
+					},
+					{
+						ID: *handlers.FmtUUID(mtoServiceItems[3].ID),
+					},
+				},
+				PointOfContact: "user@prime.com",
+			},
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestCreated)
+		suite.NotEmpty(typedResponse.Payload.ID.String(), "valid payload ID string")
+		suite.NotEmpty(typedResponse.Payload.MoveTaskOrderID.String(), "valid MTO ID")
+		suite.NotEmpty(typedResponse.Payload.PaymentRequestNumber, "valid Payment Request Number")
+	})
+}
+
+func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID() {
+	const defaultZip3Distance = 1234
+	const defaultZip5Distance = 48
+
+	move, mtoServiceItems := suite.setupDomesticLinehaulData()
+	moveTaskOrderID := move.ID
+
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(defaultZip5Distance, nil)
+	planner.On("Zip3TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(defaultZip3Distance, nil)
+	planner.On("Zip5TransitDistance",
+		"90210",
+		"94535",
+	).Return(defaultZip5Distance, nil)
+
+	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+		suite.DB(),
+		planner,
+		ghcrateengine.NewServiceItemPricer(suite.DB()),
+	)
+
+	handler := CreatePaymentRequestHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		paymentRequestCreator,
+	}
+
+	params := paymentrequestop.CreatePaymentRequestParams{
+		HTTPRequest: req,
+		Body: &primemessages.CreatePaymentRequest{
+			IsFinal:         swag.Bool(false),
+			MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+			ServiceItems: []*primemessages.ServiceItem{
+				{
+					ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
+				},
+			},
+			PointOfContact: "user@prime.com",
+		},
+	}
+
+	suite.T().Run("fail to create payment request with real PaymentRequestCreator and empty MTO Reference ID", func(t *testing.T) {
+
+		// Set Reference ID to an empty string
+		*move.ReferenceID = ""
+		suite.MustSave(&move)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity)
+		suite.Contains(*typedResponse.Payload.Detail, "has missing ReferenceID")
+	})
+	suite.T().Run("fail to create payment request with real PaymentRequestCreator and nil MTO Reference ID", func(t *testing.T) {
+
+		// Set Reference ID to a nil string
+		move.ReferenceID = nil
+		suite.MustSave(&move)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity)
+		suite.Contains(*typedResponse.Payload.Detail, "has missing ReferenceID")
 	})
 }

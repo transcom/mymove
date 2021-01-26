@@ -54,7 +54,6 @@ type Order struct {
 	SAC                 *string                            `json:"sac" db:"sac"`
 	DepartmentIndicator *string                            `json:"department_indicator" db:"department_indicator"`
 	Grade               *string                            `json:"grade" db:"grade"`
-	ConfirmationNumber  *string                            `json:"confirmation_number" db:"confirmation_number"`
 	Entitlement         *Entitlement                       `belongs_to:"entitlements"`
 	EntitlementID       *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
 	OriginDutyStation   *DutyStation                       `belongs_to:"duty_stations"`
@@ -156,7 +155,8 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"NewDutyStation.TransportationOffice",
 		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",
-		"Moves.SignedCertifications").
+		"Moves.SignedCertifications",
+		"Entitlement").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

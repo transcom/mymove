@@ -19,7 +19,7 @@ const defaultProps = {
 };
 
 export default {
-  title: 'Customer Components | ProfileTable',
+  title: 'Customer Components / ProfileTable',
 };
 
 export const Basic = () => (

@@ -46,9 +46,6 @@ func initMigrateFlags(flag *pflag.FlagSet) {
 	// Logging
 	cli.InitLoggingFlags(flag)
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
-
 	// Sort command line flags
 	flag.SortFlags = true
 }
@@ -74,10 +71,6 @@ func checkMigrateConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckLogging(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckVerbose(v); err != nil {
 		return err
 	}
 
@@ -125,7 +118,11 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	loggingEnv := v.GetString(cli.LoggingEnvFlag)
 
-	logger, errLogging := logging.Config(loggingEnv, v.GetBool(cli.VerboseFlag))
+	logger, errLogging := logging.Config(
+		logging.WithEnvironment(loggingEnv),
+		logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)),
+		logging.WithStacktraceLength(v.GetInt(cli.StacktraceLengthFlag)),
+	)
 	if errLogging != nil {
 		return errors.Wrapf(errLogging, "failed to initialize zap logging")
 	}
@@ -195,7 +192,8 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) || s3Migrations {
-		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+		verbose := cli.LogLevelIsDebug(v)
+		c, errorConfig := cli.GetAWSConfig(v, verbose)
 		if errorConfig != nil {
 			return errors.Wrap(errorConfig, "error creating aws config")
 		}

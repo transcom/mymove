@@ -23,7 +23,7 @@ func (p *paymentRequestFetcher) FetchPaymentRequest(paymentRequestID uuid.UUID) 
 
 	// fetch the payment request first with proof of service docs
 	// will error if payment request not found
-	err := p.db.Eager("PaymentServiceItems", "ProofOfServiceDocs").
+	err := p.db.Eager("PaymentServiceItems.MTOServiceItem.MTOShipment", "PaymentServiceItems.MTOServiceItem.ReService", "ProofOfServiceDocs").
 		Find(&paymentRequest, paymentRequestID)
 	if err != nil {
 		return models.PaymentRequest{}, err

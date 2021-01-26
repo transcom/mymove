@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Radio, Textarea, FormGroup, Fieldset, Label, Button, Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './ServiceItemCard.module.scss';
 
@@ -10,15 +11,12 @@ import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
-import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
 
 /** This component represents a Payment Request Service Item */
 const ServiceItemCard = ({
   id,
-  shipmentType,
-  serviceItemName,
+  mtoShipmentType,
+  mtoServiceItemName,
   amount,
   status,
   rejectionReason,
@@ -30,13 +28,13 @@ const ServiceItemCard = ({
   if (requestComplete) {
     return (
       <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
-        <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={shipmentType}>
+        <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
           <h6 className={styles.cardHeader}>
-            {mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}
+            {mtoShipmentTypeToFriendlyDisplay(mtoShipmentType) || 'BASIC SERVICE ITEMS'}
           </h6>
           <dl>
             <dt>Service item</dt>
-            <dd data-testid="serviceItemName">{serviceItemName}</dd>
+            <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
 
             <dt>Amount</dt>
             <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
@@ -45,13 +43,13 @@ const ServiceItemCard = ({
           <div data-testid="completeSummary" className={styles.completeContainer}>
             {status === APPROVED ? (
               <div data-testid="statusHeading" className={classnames(styles.statusHeading, styles.statusApproved)}>
-                <FormCheckmarkIcon />
+                <FontAwesomeIcon icon="check" />
                 Accepted
               </div>
             ) : (
               <>
                 <div data-testid="statusHeading" className={classnames(styles.statusHeading, styles.statusRejected)}>
-                  <XHeavyIcon />
+                  <FontAwesomeIcon icon="times" aria-hidden />
                   Rejected
                 </div>
                 {rejectionReason && (
@@ -83,20 +81,21 @@ const ServiceItemCard = ({
 
           const handleFormReset = () => {
             setValues({
-              status: undefined,
+              status: 'REQUESTED',
               rejectionReason: undefined,
             });
+            submitForm();
           };
 
           return (
             <Form className={styles.form} onSubmit={submitForm}>
-              <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={shipmentType}>
+              <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
                 <h6 className={styles.cardHeader}>
-                  {mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}
+                  {mtoShipmentTypeToFriendlyDisplay(mtoShipmentType) || 'BASIC SERVICE ITEMS'}
                 </h6>
                 <dl>
                   <dt>Service item</dt>
-                  <dd data-testid="serviceItemName">{serviceItemName}</dd>
+                  <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
 
                   <dt>Amount</dt>
                   <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
@@ -161,7 +160,7 @@ const ServiceItemCard = ({
                       onClick={handleFormReset}
                     >
                       <span className="icon">
-                        <XLightIcon />
+                        <FontAwesomeIcon icon="times" title="Clear status" aria-label="Clear status" />
                       </span>
                       Clear selection
                     </Button>
@@ -178,8 +177,8 @@ const ServiceItemCard = ({
 
 ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
-  shipmentType: ShipmentOptionsOneOf,
-  serviceItemName: PropTypes.string,
+  mtoShipmentType: ShipmentOptionsOneOf,
+  mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number.isRequired,
   status: PropTypes.string,
   rejectionReason: PropTypes.string,
@@ -188,8 +187,8 @@ ServiceItemCard.propTypes = {
 };
 
 ServiceItemCard.defaultProps = {
-  shipmentType: null,
-  serviceItemName: null,
+  mtoShipmentType: null,
+  mtoServiceItemName: null,
   status: undefined,
   rejectionReason: '',
   requestComplete: false,

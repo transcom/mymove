@@ -1,6 +1,6 @@
 /*  react/jsx-props-no-spreading */
 import React from 'react';
-import { withKnobs, text, array } from '@storybook/addon-knobs';
+import { text, array } from '@storybook/addon-knobs';
 
 import Helper from './index';
 
@@ -17,8 +17,7 @@ const title = 'Next step: Add your orders';
 const separator = '\n';
 
 export default {
-  title: 'Customer Components | Helper',
-  decorators: [withKnobs],
+  title: 'Customer Components / Helper',
 };
 
 export const Basic = () => (

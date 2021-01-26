@@ -2,6 +2,7 @@ package paymentrequest
 
 import (
 	"errors"
+	"os"
 	"testing"
 	"time"
 
@@ -20,9 +21,9 @@ import (
 
 const testDateFormat = "060102"
 
-func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) {
-
-	for i := 0; i < 4; i++ {
+func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.PaymentRequests {
+	var paymentRequests models.PaymentRequests
+	for i := 0; i < num; i++ {
 		currentTime := time.Now()
 		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 			{
@@ -79,6 +80,9 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) {
 			Move:           mto,
 			MTOShipment:    mtoShipment,
 			PaymentRequest: paymentRequest,
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
 		}
 
 		// dlh
@@ -144,15 +148,27 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) {
 			basicPaymentServiceItemParams,
 			assertions,
 		)
+		paymentRequests = append(paymentRequests, paymentRequest)
 	}
+	return paymentRequests
 }
 
 func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
+	os.Setenv("SYNCADA_SFTP_PORT", "1234")
+	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	// generated fake host key to pass parser used following command and only saved the pub key
+	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
+	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+
 	suite.T().Run("process reviewed payment request successfully (0 Payments to review)", func(t *testing.T) {
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
-		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := false
@@ -170,9 +186,46 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(err)
 	})
 
+	suite.T().Run("process reviewed payment request successfully (1 payment request reviewed all rejected excluded)", func(t *testing.T) {
+		rejectionReason := "Voided"
+		rejectedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewedAllRejected,
+				RejectionReason: &rejectionReason,
+			},
+		})
+
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+		suite.NoError(SFTPSessionError)
+		var gexSender services.GexSender
+		gexSender = nil
+		sendToSyncada := false
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			generator,
+			sendToSyncada,
+			gexSender,
+			SFTPSession)
+		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.NoError(err)
+
+		// Ensure that payment requst was not sent to gex
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		paymentRequest, _ := fetcher.FetchPaymentRequest(rejectedPaymentRequest.ID)
+		suite.Nil(paymentRequest.SentToGexAt)
+		suite.Equal(rejectedPaymentRequest.Status, models.PaymentRequestStatusReviewedAllRejected)
+	})
+
 	suite.T().Run("process reviewed payment request successfully (do not send file)", func(t *testing.T) {
 
-		suite.createPaymentRequest(4)
+		prs := suite.createPaymentRequest(4)
 
 		_ = testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{
@@ -181,8 +234,10 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		})
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
-		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+
+		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := false
@@ -198,14 +253,23 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			SFTPSession)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.NoError(err)
+
+		// Ensure that sent_to_gex_at timestamp has been added
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.NotNil(paymentRequest.SentToGexAt)
+			suite.Equal(false, paymentRequest.SentToGexAt.IsZero())
+		}
 	})
 
 	suite.T().Run("process reviewed payment request, failed EDI generator", func(t *testing.T) {
 
-		suite.createPaymentRequest(4)
+		prs := suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
+		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := false
@@ -226,14 +290,22 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			SFTPSession)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
+
+		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.Nil(paymentRequest.SentToGexAt)
+		}
 	})
 
 	suite.T().Run("process reviewed payment request, failed payment request fetcher", func(t *testing.T) {
 
-		suite.createPaymentRequest(4)
+		prs := suite.createPaymentRequest(4)
 
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
-		SFTPSession, _ := invoice.InitNewSyncadaSFTPSession()
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := false
@@ -255,14 +327,21 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
+
+		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.Nil(paymentRequest.SentToGexAt)
+		}
 	})
 
 	suite.T().Run("process reviewed payment request, fail SFTP send", func(t *testing.T) {
 
-		suite.createPaymentRequest(4)
+		prs := suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
@@ -285,15 +364,20 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "error sending the following EDIs")
-
+		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.Nil(paymentRequest.SentToGexAt)
+		}
 	})
 
 	suite.T().Run("process reviewed payment request, successful SFTP send", func(t *testing.T) {
 
-		suite.createPaymentRequest(4)
+		_ = suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
@@ -319,8 +403,42 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 	})
 
+	suite.T().Run("process reviewed payment request, failed due to both senders being nil", func(t *testing.T) {
+
+		prs := suite.createPaymentRequest(4)
+
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+		var sftpSender services.SyncadaSFTPSender
+		sftpSender = nil
+		var gexSender services.GexSender
+		gexSender = nil
+		sendToSyncada := true
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			ediGenerator,
+			sendToSyncada,
+			gexSender,
+			sftpSender)
+
+		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.Contains(err.Error(), "senders are nil")
+
+		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.Nil(paymentRequest.SentToGexAt)
+		}
+	})
+
 	suite.T().Run("process reviewed payment request, successfully test init function", func(t *testing.T) {
 		// Run init with no issues
-		_ = InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false)
+		_, err := InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false, suite.icnSequencer)
+		suite.NoError(err)
 	})
 }

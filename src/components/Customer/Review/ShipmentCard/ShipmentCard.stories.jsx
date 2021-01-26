@@ -82,7 +82,7 @@ const ppmDefaultProps = {
 };
 
 export default {
-  title: 'Customer Components | ShipmentCard',
+  title: 'Customer Components / ShipmentCard',
 };
 
 export const HHGShipment = () => (

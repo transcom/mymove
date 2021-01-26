@@ -5,6 +5,7 @@ export const fileUploadTimeout = 10000;
 let cypressClientPort = Cypress.env('testClientPort') || 4000; //change this to 3000 to run cypress against dev instance
 export const milmoveBaseURL = `http://milmovelocal:${cypressClientPort}`;
 export const officeBaseURL = `http://officelocal:${cypressClientPort}`;
+export const adminBaseURL = `http://adminlocal:${cypressClientPort}`;
 
 // App Types
 export const milmoveAppName = 'milmove';

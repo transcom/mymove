@@ -1,0 +1,96 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+@import 'shared/styles/_custom';
+
+.PaymentRequestDetails {
+  :global .stackedtable-header {
+    max-width: unset;
+    h3 {
+      margin-top: 10px;
+    }
+  }
+
+  :global .table--stacked {
+    width: 100%;
+
+    th {
+      @include u-font-weight(bold);
+      @include u-font-size('body', '3xs');
+      color: $base-darker;
+      border-top: 0;
+
+      &:not(:first-child) {
+        text-align: right;
+      }
+    }
+
+    td:not(:first-child) {
+      @include u-font-weight(bold);
+      text-align: right;
+    }
+  }
+
+  .accepted {
+    svg {
+      @include u-margin-right(1);
+      height: 18px;
+      width: 18px;
+      display: inline-block;
+      position: relative;
+      top: 2px;
+
+      path {
+        fill: $success;
+      }
+    }
+  }
+
+  .rejected {
+    svg {
+      @include u-margin-right(1);
+      height: 18px;
+      width: 18px;
+      display: inline-block;
+      position: relative;
+      top: 2px;
+
+      path {
+        fill: $error;
+      }
+    }
+  }
+
+  .needsReview {
+    svg {
+      @include u-margin-right(1);
+      height: 18px;
+      width: 18px;
+      display: inline-block;
+      position: relative;
+      top: 2px;
+
+      path {
+        fill: $warning;
+      }
+    }
+  }
+}
+
+.shipmentType {
+  .basicServiceType {
+    width: 34px;
+    height: 6px;
+    background-color: $base-light;
+  }
+  .hhgShipmentType {
+    width: 34px;
+    height: 6px;
+    background-color: $accent-hhg;
+  }
+  .ntsrShipmentType {
+    width: 34px;
+    height: 6px;
+    background-color: $accent-ntsr;
+  }
+}

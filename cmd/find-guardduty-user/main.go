@@ -118,8 +118,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.BoolP("archived", "a", false, "Show archived findings instead of current findings")
 	flag.StringP("output", "o", "json", "Whether to print output as 'text' or 'json'")
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	flag.SortFlags = false
 }
@@ -171,7 +171,7 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(err, "Output check failed")
 	}
 
-	if err := cli.CheckVerbose(v); err != nil {
+	if err := cli.CheckLogging(v); err != nil {
 		return err
 	}
 
@@ -265,7 +265,8 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	if !v.GetBool("verbose") {
+	verbose := cli.LogLevelIsDebug(v)
+	if !verbose {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
 		log.SetOutput(ioutil.Discard)
 		log.SetFlags(0)
@@ -284,7 +285,7 @@ func main() {
 	}
 
 	// Get credentials from environment or AWS Vault
-	c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+	c, errorConfig := cli.GetAWSConfig(v, verbose)
 	if errorConfig != nil {
 		logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
 	}
@@ -360,7 +361,7 @@ func main() {
 
 				// Not all events are from humans and in those cases we skip
 				if finding.Resource.AccessKeyDetails == nil {
-					if v.GetBool("verbose") {
+					if verbose {
 						logger.Println(fmt.Sprintf("\nSkipping Non User Finding ID: %s", aws.StringValue(finding.Id)))
 					}
 					continue

@@ -1,6 +1,8 @@
+import { isNil } from 'lodash';
+
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
-import { get, isNil } from 'lodash';
+import { selectCurrentDutyStation } from 'store/entities/selectors';
 
 export const loadDutyStationTransportationOfficeOperation = 'TransportationOffice.loadDutyStationTransportationOffice';
 const dutyStationTransportationOfficeSchemaKey = 'transportationOffice';
@@ -12,11 +14,6 @@ export function loadDutyStationTransportationOffice(
 ) {
   const swaggerTag = 'transportation_offices.showDutyStationTransportationOffice';
   return swaggerRequest(getClient, swaggerTag, { dutyStationId }, { label, schemaKey });
-}
-
-function selectCurrentDutyStation(state) {
-  // TODO: change when service member is refactored
-  return get(state, 'serviceMember.currentServiceMember.current_station');
 }
 
 export function selectDutyStationTransportationOffice(state) {

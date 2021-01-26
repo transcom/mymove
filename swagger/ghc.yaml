@@ -13,6 +13,7 @@ schemes:
   - http
 tags:
   - name: queues
+  - name: move
 paths:
   '/customer/{customerID}':
     parameters:
@@ -92,7 +93,7 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - move
-      description: Returns a given move
+      description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
   '/move-orders/{moveOrderID}':
@@ -755,6 +756,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error
+          schema:
+            $ref: '#/responses/Conflict'
         '412':
           description: Precondition Failed
           schema:
@@ -915,6 +920,44 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
+  '/moves/{locator}/payment-requests':
+    parameters:
+      - description: move code to identify a move for payment requests
+        format: string
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: '#/definitions/PaymentRequests'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+      description: Fetches payment requests for a move
+      operationId: getPaymentRequestsForMove
+      summary: Fetches payment requests using the move code (locator).
   '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
@@ -1045,18 +1088,18 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, dodID, branch, moveID, status, destinationDutyStation]
+          enum: [lastName, dodID, branch, locator, status, destinationDutyStation]
           description: field that results should be sorted by
         - in: query
           name: order
           type: string
-          enum: [ asc, desc ]
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: branch
           type: string
         - in: query
-          name: moveID
+          name: locator
           type: string
         - in: query
           name: lastName
@@ -1105,12 +1148,12 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [ lastName, moveID, submittedAt, branch, status, dodID, age]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, age]
           description: field that results should be sorted by
         - in: query
           name: order
           type: string
-          enum: [ asc, desc ]
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: page
@@ -1127,7 +1170,7 @@ paths:
           name: branch
           type: string
         - in: query
-          name: moveID
+          name: locator
           type: string
         - in: query
           name: lastName
@@ -1148,6 +1191,7 @@ paths:
             enum:
               - Payment requested
               - Reviewed
+              - Rejected
               - Paid
       responses:
         '200':
@@ -1355,6 +1399,17 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
+  Contractor:
+    properties:
+      contractNumber:
+        type: string
+      id:
+        format: uuid
+        type: string
+      name:
+        type: string
+      type:
+        type: string
   Customer:
     type: object
     properties:
@@ -1465,28 +1520,140 @@ definitions:
     required:
       - message
     type: object
+  Branch:
+    type: string
+    title: branch
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marines
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      OTHER: OTHER
+  Grade:
+    type: string
+    x-nullable: true
+    title: grade
+    enum:
+      - E_1
+      - E_2
+      - E_3
+      - E_4
+      - E_5
+      - E_6
+      - E_7
+      - E_8
+      - E_9
+      - O_1_ACADEMY_GRADUATE
+      - O_2
+      - O_3
+      - O_4
+      - O_5
+      - O_6
+      - O_7
+      - O_8
+      - O_9
+      - O_10
+      - W_1
+      - W_2
+      - W_3
+      - W_4
+      - W_5
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - ACADEMY_CADET
+      - MIDSHIPMAN
+    x-display-value:
+      E_1: E-1
+      E_2: E-2
+      E_3: E-3
+      E_4: E-4
+      E_5: E-5
+      E_6: E-6
+      E_7: E-7
+      E_8: E-8
+      E_9: E-9
+      O_1_ACADEMY_GRADUATE: O-1/Service Academy Graduate
+      O_2: O-2
+      O_3: O-3
+      O_4: O-4
+      O_5: O-5
+      O_6: O-6
+      O_7: O-7
+      O_8: O-8
+      O_9: O-9
+      O_10: O-10
+      W_1: W-1
+      W_2: W-2
+      W_3: W-3
+      W_4: W-4
+      W_5: W-5
+      AVIATION_CADET: Aviation Cadet
+      CIVILIAN_EMPLOYEE: Civilian Employee
+      ACADEMY_CADET: Service Academy Cadet
+      MIDSHIPMAN: Midshipman
   Move:
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      orders_id:
+      availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      contractorId:
+        type: string
+        format: uuid
+        x-nullable: true
+      contractor:
+        $ref: '#/definitions/Contractor'
+      locator:
+        type: string
+        example: '1K43AR'
+      ordersId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      locator:
+      orders:
+        $ref: '#/definitions/MoveOrder'
+      referenceId:
+        example: 1001-3456
         type: string
-        example: '1K43A'
-      created_at:
+        x-nullable: true
+      status:
+        $ref: '#/definitions/MoveStatus'
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+      submittedAt:
         type: string
         format: date-time
+        x-nullable: true
+      updatedAt:
+        type: string
+        format: date-time
+      eTag:
+        type: string
+  MoveStatus:
+    type: string
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVALS REQUESTED
+      - APPROVED
+      - CANCELED
   DeptIndicator:
     type: string
     title: Dept. indicator
+    x-nullable: true
     enum:
       - NAVY_AND_MARINES
       - ARMY
@@ -1511,6 +1678,7 @@ definitions:
   OrdersTypeDetail:
     type: string
     title: Orders type detail
+    x-nullable: true
     enum:
       - HHG_PERMITTED
       - PCS_TDY
@@ -1537,9 +1705,11 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      confirmation_number:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      customer:
+        $ref: '#/definitions/Customer'
+      moveCode:
         type: string
+        example: 'H2XFJF'
       first_name:
         type: string
         example: John
@@ -1549,11 +1719,10 @@ definitions:
         example: Doe
         readOnly: true
       grade:
-        type: string
-        example: E_1
+        $ref: '#/definitions/Grade'
       agency:
         type: string
-        example: civilian
+        $ref: '#/definitions/Branch'
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
@@ -1653,17 +1822,29 @@ definitions:
         x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
+        x-nullable: true
+      authorizedWeight:
+        minimum: 1
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      grade:
+        $ref: '#/definitions/Grade'
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
+      agency:
+        description: the branch that the service member belongs to
+        $ref: '#/definitions/Branch'
     required:
       - issueDate
       - reportByDate
       - ordersType
-      - ordersTypeDetail
       - newDutyStationId
       - originDutyStationId
-      - ordersNumber
-      - tac
-      - sac
-      - departmentIndicator
+      - agency
   MoveTaskOrder:
     properties:
       id:
@@ -1775,6 +1956,8 @@ definitions:
       isFinal:
         default: false
         type: boolean
+      moveTaskOrder:
+        $ref: '#/definitions/Move'
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1797,6 +1980,9 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      createdAt:
+        format: date-time
+        type: string
     type: object
   PaymentRequests:
     items:
@@ -1824,6 +2010,16 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      mtoServiceItemName:
+        example: Shipment Mgmt. Services
+        type: string
+      mtoShipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      mtoShipmentID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       status:
         $ref: '#/definitions/PaymentServiceItemStatus'
       priceCents:
@@ -1969,8 +2165,8 @@ definitions:
       - CubicFeetCrating
       - DistanceZip3
       - DistanceZip5
-      - DistanceZip5SITDest
-      - DistanceZip5SITOrigin
+      - DistanceZipSITDest
+      - DistanceZipSITOrigin
       - EIAFuelPrice
       - FSCWeightBasedDistanceMultiplier
       - MarketDest
@@ -2013,7 +2209,7 @@ definitions:
       - WeightEstimated
       - ZipDestAddress
       - ZipPickupAddress
-      - ZipSITAddress
+      - ZipSITDestHHGFinalAddress
   ServiceItemParamOrigin:
     type: string
     enum:
@@ -2032,6 +2228,7 @@ definitions:
     enum:
       - PENDING
       - REVIEWED
+      - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
       - SENT_TO_GEX
       - RECEIVED_BY_GEX
       - PAID
@@ -2058,6 +2255,22 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
+  MTOShipmentType:
+    type: string
+    title: Shipment Type
+    example: HHG
+    enum:
+      - HHG
+      - HHG_LONGHAUL_DOMESTIC
+      - HHG_SHORTHAUL_DOMESTIC
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+    x-display-value:
+      HHG: HHG
+      INTERNATIONAL_HHG: International HHG
+      INTERNATIONAL_UB: International UB
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -2122,6 +2335,10 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+      mtoAgents:
+        $ref: '#/definitions/MTOAgents'
+      mtoServiceItems:
+        $ref: '#/definitions/MTOServiceItems'
       eTag:
         type: string
   MTOShipments:

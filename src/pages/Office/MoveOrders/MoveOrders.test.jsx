@@ -77,41 +77,16 @@ jest.mock('hooks/queries', () => ({
           sac: 'E2P3',
         },
       },
-      documents: {
-        2: {
-          id: '2',
-          uploads: [
-            {
-              id: 'z',
-              filename: 'test.pdf',
-              contentType: 'application/pdf',
-              url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-            },
-          ],
-        },
-      },
-      upload: {
-        z: {
-          id: 'z',
-          filename: 'test.pdf',
-          contentType: 'application/pdf',
-          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-        },
-      },
     };
   },
 }));
 
 describe('MoveOrders page', () => {
   const wrapper = mount(
-    <MockProviders initialEntries={['moves/1000/orders']}>
+    <MockProviders initialEntries={['moves/FP24I2/orders']}>
       <MoveOrders />
     </MockProviders>,
   );
-
-  it('renders the orders document viewer', () => {
-    expect(wrapper.find('DocumentViewer').exists()).toBe(true);
-  });
 
   it('renders the sidebar orders detail form', () => {
     expect(wrapper.find('OrdersDetailForm').exists()).toBe(true);

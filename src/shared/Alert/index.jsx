@@ -3,8 +3,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './index.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons/faSpinner';
-import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 
 //this is taken from https://designsystem.digital.gov/components/alerts/
 const Alert = (props) => (
@@ -13,7 +11,7 @@ const Alert = (props) => (
       <div className="body--heading">
         {props.type === 'loading' ? (
           <div className="heading--icon">
-            <FontAwesomeIcon icon={faSpinner} spin pulse size="2x" />
+            <FontAwesomeIcon icon="spinner" spin pulse size="2x" />
           </div>
         ) : null}
         <div>
@@ -22,7 +20,7 @@ const Alert = (props) => (
             <FontAwesomeIcon
               className="icon remove-icon actionable actionable-secondary"
               onClick={props.onRemove}
-              icon={faTimes}
+              icon="times"
             />
           )}
           <div className="usa-alert__text">{props.children}</div>

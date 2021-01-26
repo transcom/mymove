@@ -1,15 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
-
-import { ReactComponent as EditIcon } from '../../shared/icon/edit.svg';
-import { ReactComponent as DocsIcon } from '../../shared/icon/documents.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const EditButton = ({ label, ...props }) => (
   /* eslint-disable-next-line  react/jsx-props-no-spreading */
   <Button icon {...props}>
     <span className="icon">
-      <EditIcon />
+      <FontAwesomeIcon icon="pen" />
     </span>
     <span>{label}</span>
   </Button>
@@ -27,7 +25,7 @@ export const DocsButton = ({ label, ...props }) => (
   /* eslint-disable react/jsx-props-no-spreading */
   <Button icon {...props}>
     <span className="icon">
-      <DocsIcon />
+      <FontAwesomeIcon icon="file" />
     </span>
     <span>{label}</span>
   </Button>

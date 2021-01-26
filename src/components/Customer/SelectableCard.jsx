@@ -3,7 +3,6 @@ import { string, func, bool, node } from 'prop-types';
 import { Radio, Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons/faQuestionCircle';
 
 import styles from './SelectableCard.module.scss';
 
@@ -22,7 +21,7 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
         />
         {onHelpClick && (
           <Button data-testid="helpButton" type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
-            <FontAwesomeIcon icon={faQuestionCircle} />
+            <FontAwesomeIcon icon={['far', 'question-circle']} />
           </Button>
         )}
       </div>

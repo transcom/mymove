@@ -425,6 +425,8 @@ const createSchemaField = (
   );
 };
 
-export default {
+const schemaFieldExports = {
   createSchemaField: createSchemaField,
 };
+
+export default schemaFieldExports;

@@ -18,6 +18,7 @@ module.exports = {
     */
     'ios-safari': new RemoteBrowserTarget('ios-safari', {
       viewport: '375x667',
+      scrollStitch: true,
     }),
   },
   plugins: [

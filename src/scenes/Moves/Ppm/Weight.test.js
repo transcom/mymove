@@ -7,7 +7,6 @@ describe('Weight', () => {
   const moveDate = moment().add(7, 'day');
   const minProps = {
     selectedWeightInfo: { min: 0, max: 0 },
-    hasLoadSuccess: true,
     entitlement: {
       weight: 0,
       pro_gear: 0,
@@ -22,12 +21,7 @@ describe('Weight', () => {
       pickup_postal_code: '00000',
     },
     orders: { id: 1 },
-    getPpmWeightEstimate: () =>
-      new Promise((approve, reject) => {
-        approve({});
-      }),
     match: { params: { moveId: 'some id' } },
-    loadPPMs: jest.fn(),
     fetchLatestOrders: jest.fn(),
   };
   it('Component renders', () => {
@@ -182,10 +176,6 @@ describe('Weight', () => {
     const iconAndTextProps = {
       currentPPM: {},
       orders: { id: 1 },
-      getPpmWeightEstimate: () =>
-        new Promise((approve, reject) => {
-          reject({});
-        }),
     };
     it('Should not show an estimate error', () => {
       wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} />);

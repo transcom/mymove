@@ -9,9 +9,9 @@ import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { NULL_UUID } from 'shared/constants';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 
 import './DutyStation.css';
 
@@ -68,7 +68,7 @@ export class DutyStation extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, existingStation, newDutyStation, currentStation } = this.props;
+    const { pages, pageKey, existingStation, newDutyStation, currentStation } = this.props;
     const { errorMessage } = this.state;
 
     let initialValues = null;
@@ -87,7 +87,7 @@ export class DutyStation extends Component {
         pageList={pages}
         pageKey={pageKey}
         initialValues={initialValues}
-        serverError={error || errorMessage}
+        serverError={errorMessage}
       >
         <h1>Current duty station</h1>
         <SectionWrapper>
@@ -104,7 +104,6 @@ export class DutyStation extends Component {
   }
 }
 DutyStation.propTypes = {
-  error: PropTypes.object,
   updateServiceMember: PropTypes.func.isRequired,
 };
 
@@ -114,14 +113,15 @@ const mapDispatchToProps = {
 
 function mapStateToProps(state) {
   const formValues = getFormValues(dutyStationFormName)(state);
-  const orders = selectActiveOrLatestOrders(state);
+  const orders = selectCurrentOrders(state);
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
     values: getFormValues(dutyStationFormName)(state),
-    existingStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
-    ...state.serviceMember,
+    existingStation: serviceMember?.current_station || {},
+    currentServiceMember: serviceMember,
     currentStation: get(formValues, 'current_station', {}),
-    newDutyStation: get(orders, 'new_duty_station', {}),
+    newDutyStation: orders?.new_duty_station || {},
   };
 }
 

@@ -1,7 +1,7 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/_basics';
 
-.contact-container {
+.contactContainer {
   border-radius: 5px;
   border: 1px solid $base-lighter;
   @include u-padding-top(2);
@@ -20,9 +20,13 @@
     line-height: 18px;
     margin: 0px;
   }
+
+  p + p {
+    margin-top: 12px;
+  }
 }
 
-.contact-header {
+.contactHeader {
   @include u-margin-bottom(1);
   text-transform: uppercase;
 }

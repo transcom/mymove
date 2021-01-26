@@ -1,6 +1,5 @@
-/*  no-underscore-dangle */
-/*  react/destructuring-assignment */
-//  no-unused-vars
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable react/destructuring-assignment */
 import React, { Component } from 'react';
 import 'filepond-polyfill/dist/filepond-polyfill';
 import { FilePond, registerPlugin } from 'react-filepond';
@@ -24,7 +23,7 @@ registerPlugin(FilePondImagePreview);
 
 const idleStatuses = [FileStatus.PROCESSING_COMPLETE, FileStatus.PROCESSING_ERROR];
 
-export class OrdersUploader extends Component {
+class OrdersUploader extends Component {
   constructor(props) {
     super(props);
 
@@ -42,6 +41,34 @@ export class OrdersUploader extends Component {
   componentWillUnmount() {
     if (this.props.onRef) {
       this.props.onRef(undefined);
+    }
+  }
+
+  handlePondInit() {
+    // If this component is unloaded quickly, this function can be called after the ref is deleted,
+    // so check that the ref still exists before continuing
+    if (!this.pond) {
+      return;
+    }
+    this.setPondOptions();
+
+    this.pond._pond.on('processfile', () => {
+      if (this.props.onChange) {
+        this.props.onChange(this.state.files, this.isIdle());
+      }
+    });
+
+    this.pond._pond.on('addfilestart', () => {
+      if (this.props.onAddFile) {
+        this.props.onAddFile();
+      }
+    });
+
+    // Don't mention drag and drop if on mobile device
+    if (isMobile()) {
+      this.pond._pond.setOptions({
+        labelIdle: '<span class="filepond--label-action">Upload</span>',
+      });
     }
   }
 
@@ -74,10 +101,9 @@ export class OrdersUploader extends Component {
   }
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
-    const { document, createUpload } = this.props;
+    const { createUpload } = this.props;
     const self = this;
-    const docID = document ? document.id : null;
-    createUpload(file, docID)
+    createUpload(file)
       .then((item) => {
         const response = get(item, 'response.body', {});
         load(response.id);
@@ -97,14 +123,17 @@ export class OrdersUploader extends Component {
       .then((item) => {
         const response = get(item, 'response', {});
         load(response);
-        //  react/no-access-state-in-setstate
-        const newFiles = reject(this.state.files, (upload) => upload.id === uploadId);
-        this.setState({
-          files: newFiles,
-        });
-        if (onChange) {
-          onChange(newFiles, this.isIdle());
-        }
+        const getNewFiles = (state) => reject(state.files, (upload) => upload.id === uploadId);
+        this.setState(
+          (prevState) => ({
+            files: getNewFiles(prevState),
+          }),
+          () => {
+            if (onChange) {
+              onChange(this.state.files, this.isIdle());
+            }
+          },
+        );
       })
       .catch(error);
   };
@@ -113,45 +142,16 @@ export class OrdersUploader extends Component {
     return this.state.files.length === 0;
   }
 
+  // TODO: Remove isIdle function- the onChange where it is called does not actually expect second argument
   isIdle() {
     // If this component is unloaded quickly, this function can be called after the ref is deleted,
     // so check that the ref still exists before continuing
     if (!this.pond) {
-      return;
+      return false;
     }
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
-    const isIdle = existingFiles.every((f) => idleStatuses.indexOf(f.status) > -1);
-    //  consistent-return
-    return isIdle;
-  }
-
-  handlePondInit() {
-    // If this component is unloaded quickly, this function can be called after the ref is deleted,
-    // so check that the ref still exists before continuing
-    if (!this.pond) {
-      return;
-    }
-    this.setPondOptions();
-
-    this.pond._pond.on('processfile', () => {
-      if (this.props.onChange) {
-        this.props.onChange(this.state.files, this.isIdle());
-      }
-    });
-
-    this.pond._pond.on('addfilestart', () => {
-      if (this.props.onAddFile) {
-        this.props.onAddFile();
-      }
-    });
-
-    // Don't mention drag and drop if on mobile device
-    if (isMobile()) {
-      this.pond._pond.setOptions({
-        labelIdle: '<span class="filepond--label-action">Upload</span>',
-      });
-    }
+    return existingFiles.every((f) => idleStatuses.indexOf(f.status) > -1);
   }
 
   clearFiles() {
@@ -186,19 +186,16 @@ export class OrdersUploader extends Component {
 }
 
 OrdersUploader.propTypes = {
-  //  react/forbid-prop-types
-  document: PropTypes.object,
   onChange: PropTypes.func,
   createUpload: PropTypes.func.isRequired,
   onRef: PropTypes.func,
   deleteUpload: PropTypes.func,
   onAddFile: PropTypes.func,
-  //  react/forbid-prop-types
+  // eslint-disable-next-line react/forbid-prop-types
   options: PropTypes.object,
 };
 
 OrdersUploader.defaultProps = {
-  document: {},
   onChange: undefined,
   onRef: undefined,
   deleteUpload: undefined,

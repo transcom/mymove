@@ -2,10 +2,10 @@ import { get } from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
 import { getFormValues } from 'redux-form';
+
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import CertificationText from './CertificationText';
@@ -15,11 +15,12 @@ import { formatSwaggerDate } from 'shared/formatters';
 import './index.scss';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
-import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
-import { submitMoveForApproval } from 'shared/Entities/modules/moves';
+import { getPPMsForMove, submitMoveForApproval } from 'services/internalApi';
+import { updatePPMs, updateMove } from 'store/entities/actions';
 import { completeCertificationText } from './legaleseText';
-import { showSubmitSuccessBanner, removeSubmitSuccessBanner } from './ducks';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { setFlashMessage } from 'store/flash/actions';
+import { selectCurrentPPM } from 'store/entities/selectors';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
@@ -30,7 +31,7 @@ export class SignedCertification extends Component {
   };
 
   componentDidMount() {
-    this.props.loadPPMs(this.props.moveId);
+    getPPMsForMove(this.props.moveId).then((response) => this.props.updatePPMs(response));
   }
 
   handleSubmit = () => {
@@ -46,11 +47,11 @@ export class SignedCertification extends Component {
     };
 
     if (values) {
-      this.props
-        .submitMoveForApproval(moveId, certificate)
-        .then(() => {
-          this.props.showSubmitSuccessBanner();
-          setTimeout(() => this.props.removeSubmitSuccessBanner(), 10000);
+      submitMoveForApproval(moveId, certificate)
+        .then((response) => {
+          // Update Redux with new data
+          this.props.updateMove(response);
+          this.props.setFlashMessage('MOVE_SUBMIT_SUCCESS', 'success', 'You’ve submitted your move request.');
           this.props.push(landingPath);
         })
         .catch(() => this.setState({ hasMoveSubmitError: true }));
@@ -93,7 +94,7 @@ export class SignedCertification extends Component {
               <div className="usa-width-one-whole">
                 <div>
                   <h1>Now for the official part...</h1>
-                  <p className="instructions">{instructionsText}</p>
+                  <div className="instructions">{instructionsText}</div>
                   <SectionWrapper>
                     <span className="box_top">
                       <a className="usa-link pdf" onClick={this.print}>
@@ -149,6 +150,7 @@ SignedCertification.propTypes = {
   hasSubmitError: PropTypes.bool.isRequired,
   hasSubmitSuccess: PropTypes.bool.isRequired,
   ppmId: PropTypes.string,
+  setFlashMessage: PropTypes.func,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -158,25 +160,16 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
-    currentPpm: selectActivePPMForMove(state, moveId),
-    tempPpmId: get(state.ppm, 'currentPpm.id', null),
-    has_sit: get(state.ppm, 'currentPpm.has_sit', false),
-    has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
+    currentPpm: selectCurrentPPM(state) || {},
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      createSignedCertification,
-      loadPPMs,
-      submitMoveForApproval,
-      showSubmitSuccessBanner,
-      removeSubmitSuccessBanner,
-      push,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  createSignedCertification,
+  updatePPMs,
+  updateMove,
+  push,
+  setFlashMessage,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignedCertification);

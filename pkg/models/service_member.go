@@ -99,6 +99,7 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"BackupContacts",
 		"DutyStation.Address",
 		"DutyStation.TransportationOffice",
+		"DutyStation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyStation.TransportationOffice",
 		"Orders.Moves",
 		"Orders.UploadedOrders.UserUploads.Upload",
@@ -323,7 +324,8 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 		"NewDutyStation.Address",
 		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",
-		"Moves.SignedCertifications").
+		"Moves.SignedCertifications",
+		"Entitlement").
 		First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

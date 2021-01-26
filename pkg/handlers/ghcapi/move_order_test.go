@@ -4,19 +4,20 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/gofrs/uuid"
+	"github.com/go-openapi/swag"
 
-	moveorder "github.com/transcom/mymove/pkg/services/move_order"
+	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/strfmt"
-
-	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	moveorderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/services/mocks"
+	moveorder "github.com/transcom/mymove/pkg/services/move_order"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
@@ -40,20 +41,96 @@ func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 
 	suite.Assertions.IsType(&moveorderop.GetMoveOrderOK{}, response)
 	suite.Equal(moveOrder.ID.String(), moveOrdersPayload.ID.String())
-	suite.Equal(moveOrder.ServiceMemberID.String(), moveOrdersPayload.CustomerID.String())
+	suite.Equal(moveTaskOrder.Locator, moveOrdersPayload.MoveCode)
+	suite.Equal(moveOrder.ServiceMemberID.String(), moveOrdersPayload.Customer.ID.String())
 	suite.Equal(moveOrder.NewDutyStationID.String(), moveOrdersPayload.DestinationDutyStation.ID.String())
 	suite.NotNil(moveOrder.NewDutyStation)
 	payloadEntitlement := moveOrdersPayload.Entitlement
 	suite.Equal((*moveOrder.EntitlementID).String(), payloadEntitlement.ID.String())
 	moveOrderEntitlement := moveOrder.Entitlement
 	suite.NotNil(moveOrderEntitlement)
-	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().ProGearWeight), payloadEntitlement.ProGearWeight)
-	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().ProGearWeightSpouse), payloadEntitlement.ProGearWeightSpouse)
-	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().TotalWeightSelf), payloadEntitlement.TotalWeight)
-	suite.Equal(int64(*moveOrderEntitlement.AuthorizedWeight()), *payloadEntitlement.AuthorizedWeight)
 	suite.Equal(moveOrder.OriginDutyStation.ID.String(), moveOrdersPayload.OriginDutyStation.ID.String())
 	suite.NotZero(moveOrder.OriginDutyStation)
 	suite.NotZero(moveOrdersPayload.DateIssued)
+}
+
+func (suite *HandlerSuite) TestWeightAllowances() {
+	suite.Run("With E-1 rank and no dependents", func() {
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+			Order: models.Order{
+				HasDependents: *swag.Bool(false),
+			},
+			Entitlement: models.Entitlement{
+				ID:                   uuid.Must(uuid.NewV4()),
+				DependentsAuthorized: swag.Bool(false),
+			},
+		})
+		request := httptest.NewRequest("GET", "/move-orders/{moveOrderID}", nil)
+		params := moveorderop.GetMoveOrderParams{
+			HTTPRequest: request,
+			MoveOrderID: strfmt.UUID(order.ID.String()),
+		}
+		moveOrderFetcher := mocks.MoveOrderFetcher{}
+		moveOrderFetcher.On("FetchMoveOrder", order.ID).Return(&order, nil)
+
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := GetMoveOrdersHandler{
+			context,
+			&moveOrderFetcher,
+		}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+
+		orderOK := response.(*moveorderop.GetMoveOrderOK)
+		orderPayload := orderOK.Payload
+		payloadEntitlement := orderPayload.Entitlement
+		orderEntitlement := order.Entitlement
+		expectedAllowance := int64(orderEntitlement.WeightAllotment().TotalWeightSelf)
+
+		suite.Equal(int64(orderEntitlement.WeightAllotment().ProGearWeight), payloadEntitlement.ProGearWeight)
+		suite.Equal(int64(orderEntitlement.WeightAllotment().ProGearWeightSpouse), payloadEntitlement.ProGearWeightSpouse)
+		suite.Equal(expectedAllowance, payloadEntitlement.TotalWeight)
+		suite.Equal(int64(*orderEntitlement.AuthorizedWeight()), *payloadEntitlement.AuthorizedWeight)
+	})
+
+	suite.Run("With E-1 rank and dependents", func() {
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+			Order: models.Order{
+				HasDependents: *swag.Bool(true),
+			},
+		})
+
+		request := httptest.NewRequest("GET", "/move-orders/{orderID}", nil)
+		params := moveorderop.GetMoveOrderParams{
+			HTTPRequest: request,
+			MoveOrderID: strfmt.UUID(order.ID.String()),
+		}
+		moveOrderFetcher := mocks.MoveOrderFetcher{}
+		moveOrderFetcher.On("FetchMoveOrder", order.ID).Return(&order, nil)
+
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := GetMoveOrdersHandler{
+			context,
+			&moveOrderFetcher,
+		}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+
+		orderOK := response.(*moveorderop.GetMoveOrderOK)
+		orderPayload := orderOK.Payload
+		payloadEntitlement := orderPayload.Entitlement
+		orderEntitlement := order.Entitlement
+		expectedAllowance := int64(orderEntitlement.WeightAllotment().TotalWeightSelfPlusDependents)
+
+		suite.Equal(int64(orderEntitlement.WeightAllotment().ProGearWeight), payloadEntitlement.ProGearWeight)
+		suite.Equal(int64(orderEntitlement.WeightAllotment().ProGearWeightSpouse), payloadEntitlement.ProGearWeightSpouse)
+		suite.Equal(expectedAllowance, payloadEntitlement.TotalWeight)
+		suite.Equal(int64(*orderEntitlement.AuthorizedWeight()), *payloadEntitlement.AuthorizedWeight)
+	})
 }
 
 func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
@@ -61,23 +138,31 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	moveOrder := moveTaskOrder.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-
 	request := httptest.NewRequest("PATCH", "/move-orders/{moveOrderID}", nil)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 
+	newAuthorizedWeight := int64(10000)
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	affiliation := ghcmessages.BranchAIRFORCE
+	grade := ghcmessages.GradeO5
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 	body := &ghcmessages.UpdateMoveOrderPayload{
-		IssueDate:           handlers.FmtDatePtr(&issueDate),
-		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
-		OrdersType:          "RETIREMENT",
-		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
-		DepartmentIndicator: "COAST_GUARD",
-		OrdersNumber:        handlers.FmtString("ORDER100"),
-		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
-		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("012345678"),
-		Sac:                 handlers.FmtString("987654321"),
+		AuthorizedWeight:     &newAuthorizedWeight,
+		Agency:               affiliation,
+		DependentsAuthorized: swag.Bool(true),
+		Grade:                &grade,
+		IssueDate:            handlers.FmtDatePtr(&issueDate),
+		ReportByDate:         handlers.FmtDatePtr(&reportByDate),
+		OrdersType:           "RETIREMENT",
+		OrdersTypeDetail:     &ordersTypeDetail,
+		DepartmentIndicator:  &deptIndicator,
+		OrdersNumber:         handlers.FmtString("ORDER100"),
+		NewDutyStationID:     handlers.FmtUUID(destinationDutyStation.ID),
+		OriginDutyStationID:  handlers.FmtUUID(originDutyStation.ID),
+		Tac:                  handlers.FmtString("012345678"),
+		Sac:                  handlers.FmtString("987654321"),
 	}
 
 	params := moveorderop.UpdateMoveOrderParams{
@@ -88,10 +173,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(context.DB())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -111,6 +195,10 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	suite.Equal(body.DepartmentIndicator, moveOrdersPayload.DepartmentIndicator)
 	suite.Equal(body.Tac, moveOrdersPayload.Tac)
 	suite.Equal(body.Sac, moveOrdersPayload.Sac)
+	suite.Equal(body.AuthorizedWeight, moveOrdersPayload.Entitlement.AuthorizedWeight)
+	suite.Equal(body.Grade, moveOrdersPayload.Grade)
+	suite.Equal(body.Agency, moveOrdersPayload.Agency)
+	suite.Equal(body.DependentsAuthorized, moveOrdersPayload.Entitlement.DependentsAuthorized)
 }
 
 // Test that a move order notification got stored Successfully
@@ -124,13 +212,15 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
 	body := &ghcmessages.UpdateMoveOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
-		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
-		DepartmentIndicator: "COAST_GUARD",
+		OrdersTypeDetail:    &ordersTypeDetail,
+		DepartmentIndicator: &deptIndicator,
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
@@ -146,11 +236,10 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(context.DB())
 	// Set up handler:
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	traceID, err := uuid.NewV4()
@@ -172,6 +261,8 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
 	params := moveorderop.UpdateMoveOrderParams{
 		HTTPRequest: request,
@@ -181,8 +272,8 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 			IssueDate:           handlers.FmtDatePtr(&issueDate),
 			ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 			OrdersType:          "RETIREMENT",
-			OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
-			DepartmentIndicator: "COAST_GUARD",
+			OrdersTypeDetail:    &ordersTypeDetail,
+			DepartmentIndicator: &deptIndicator,
 			OrdersNumber:        handlers.FmtString("ORDER100"),
 			NewDutyStationID:    handlers.FmtUUID(uuid.Nil),
 			OriginDutyStationID: handlers.FmtUUID(uuid.Nil),
@@ -192,10 +283,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(context.DB())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -213,13 +303,15 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
 	body := &ghcmessages.UpdateMoveOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
-		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
-		DepartmentIndicator: "COAST_GUARD",
+		OrdersTypeDetail:    &ordersTypeDetail,
+		DepartmentIndicator: &deptIndicator,
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
@@ -235,10 +327,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(context.DB())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -255,13 +346,15 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
 	body := &ghcmessages.UpdateMoveOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
-		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
-		DepartmentIndicator: "COAST_GUARD",
+		OrdersTypeDetail:    &ordersTypeDetail,
+		DepartmentIndicator: &deptIndicator,
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(uuid.Nil), // An unknown duty station will result in a invalid input error
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
@@ -277,13 +370,12 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(context.DB())
 	handler := UpdateMoveOrderHandler{
 		context,
-		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+		moveorder.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderBadRequest{}, response)
+	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderPreconditionFailed{}, response)
 }

@@ -28,7 +28,8 @@ type PricingParserSuite struct {
 }
 
 func (suite *PricingParserSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 }
 
 func TestPricingParserSuite(t *testing.T) {

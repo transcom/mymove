@@ -9,10 +9,9 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/services/query"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type createMTOServiceItemQueryBuilder interface {
@@ -43,6 +42,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	err = o.builder.FetchOne(&move, queryFilters)
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(moveID, "in Moves")
+	}
+
+	// Service items can only be created if a Move's status is either Approved
+	// or Approvals Requested, so check and fail early.
+	if move.Status != models.MoveStatusAPPROVED && move.Status != models.MoveStatusAPPROVALSREQUESTED {
+		return nil, nil, services.NewConflictError(
+			move.ID,
+			fmt.Sprintf("Cannot create service items before a move has been approved. The current status for the move with ID %s is %s", move.ID, move.Status),
+		)
 	}
 
 	// find the re service code id
@@ -104,7 +112,14 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 		// DOASIT must be associated with shipment that has DOFSIT
 		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDOFSIT)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
 
+	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
+		// DDASIT must be associated with shipment that has DDFSIT
+		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDDFSIT)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -118,17 +133,56 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
 		verrs = validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
 		return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
 			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+	updateShipmentPickupAddress := false
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
 		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(serviceItem)
 		if errSIT != nil {
 			return nil, nil, errSIT
+		}
+
+		// update HHG origin address for ReServiceCodeDOFSIT service item
+		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+			// When creating a DOFSIT, the prime must provide an HHG actual address for the move/shift in origin (pickup address)
+			if serviceItem.SITOriginHHGActualAddress == nil {
+				verrs = validate.NewErrors()
+				verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
+				return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+					fmt.Sprintf("A service item with reServiceCode %s must have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
+			}
+
+			// update the SIT service item to track/save the HHG original pickup address (that came from the
+			// MTO shipment
+			serviceItem.SITOriginHHGOriginalAddress = mtoShipment.PickupAddress.Copy()
+			serviceItem.SITOriginHHGOriginalAddress.ID = uuid.Nil
+			serviceItem.SITOriginHHGOriginalAddressID = nil
+
+			// update the MTO shipment with the new (actual) pickup address
+			mtoShipment.PickupAddress = serviceItem.SITOriginHHGActualAddress.Copy()
+			mtoShipment.PickupAddress.ID = *mtoShipment.PickupAddressID // Keep to same ID to be updated with new values
+
+			// changes were made to the shipment, needs to be saved to the database
+			updateShipmentPickupAddress = true
+
+			// Find the DOPSIT service item and update the SIT related address fields. These fields
+			// will be used for pricing when a payment request is created for DOPSIT
+			for itemIndex := range *extraServiceItems {
+				extraServiceItem := &(*extraServiceItems)[itemIndex]
+				if extraServiceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDOASIT {
+					extraServiceItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress
+					extraServiceItem.SITOriginHHGActualAddressID = serviceItem.SITOriginHHGActualAddressID
+					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
+					extraServiceItem.SITOriginHHGOriginalAddressID = serviceItem.SITOriginHHGOriginalAddressID
+				}
+
+			}
 		}
 
 		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
@@ -143,6 +197,31 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 		for serviceItemIndex := range requestedServiceItems {
 			requestedServiceItem := &requestedServiceItems[serviceItemIndex]
+
+			// create address if ID (UUID) is Nil
+			if requestedServiceItem.SITOriginHHGActualAddress != nil {
+				address := requestedServiceItem.SITOriginHHGActualAddress
+				if address.ID == uuid.Nil {
+					verrs, err = txBuilder.CreateOne(address)
+					if verrs != nil || err != nil {
+						return fmt.Errorf("failed to save SITOriginHHGActualAddress: %#v %e", verrs, err)
+					}
+				}
+				requestedServiceItem.SITOriginHHGActualAddressID = &address.ID
+			}
+
+			// create address if ID (UUID) is Nil
+			if requestedServiceItem.SITOriginHHGOriginalAddress != nil {
+				address := requestedServiceItem.SITOriginHHGOriginalAddress
+				if address.ID == uuid.Nil {
+					verrs, err = txBuilder.CreateOne(address)
+					if verrs != nil || err != nil {
+						return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
+					}
+				}
+				requestedServiceItem.SITOriginHHGOriginalAddressID = &address.ID
+			}
+
 			verrs, err = txBuilder.CreateOne(requestedServiceItem)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
@@ -171,6 +250,26 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			}
 		}
 
+		// If updates were made to shipment, save update in the database
+		if updateShipmentPickupAddress {
+			verrs, err = txBuilder.UpdateOne(mtoShipment.PickupAddress, nil)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to update mtoShipment.PickupAddress: %#v %e", verrs, err)
+			}
+		}
+
+		// Once the service item is successfully created, the Move's status needs to
+		// be updated to 'Approvals Requested' if it's not already in that state,
+		// which will let the TOO know they need to review it.
+		err = move.SetApprovalsRequested()
+		if err != nil {
+			return fmt.Errorf("%e", err)
+		}
+		verrs, err = txBuilder.UpdateOne(&move, nil)
+		if verrs != nil || err != nil {
+			return fmt.Errorf("%#v %e", verrs, err)
+		}
+
 		return nil
 	})
 
@@ -178,19 +277,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil, verrs, nil
 	} else if err != nil {
 		return nil, verrs, services.NewQueryError("unknown", err, "")
-	}
-
-	// TODO: Fix error message to be conflict error instead of server error so user knows the Move status is wrong
-	// TODO: Determine if this should be in the same transaction as the service items (they get created even if this fails)
-	if move.Status != models.MoveStatusAPPROVALSREQUESTED {
-		err := move.SetApprovalsRequested()
-		if err != nil {
-			return nil, nil, err
-		}
-		verrs, err := o.builder.UpdateOne(&move, nil)
-		if verrs != nil || err != nil {
-			return nil, verrs, err
-		}
 	}
 
 	return &createdServiceItems, nil, nil
@@ -296,7 +382,6 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 	var mtoServiceItem models.MTOServiceItem
 	var mtoShipmentID uuid.UUID
 	var validReService models.ReService
-
 	mtoShipmentID = *serviceItem.MTOShipmentID
 
 	queryFilter := []services.QueryFilter{
@@ -325,6 +410,7 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 
 	// If the required first-day SIT item exists, we can update the related
 	// service item passed in with the parent item's field values
+
 	serviceItem.SITEntryDate = mtoServiceItem.SITEntryDate
 	serviceItem.SITDepartureDate = mtoServiceItem.SITDepartureDate
 	serviceItem.SITPostalCode = mtoServiceItem.SITPostalCode
@@ -345,10 +431,18 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *mode
 
 	// create the extra service items for first day SIT
 	var reServiceCodes []models.ReServiceCode
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+
+	switch serviceItem.ReService.Code {
+	case models.ReServiceCodeDDFSIT:
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT)
-	} else {
+	case models.ReServiceCodeDOFSIT:
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT)
+	default:
+		verrs := validate.NewErrors()
+		verrs.Add("reServiceCode", fmt.Sprintf("%s invalid code", serviceItem.ReService.Code))
+		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+			fmt.Sprintf(fmt.Sprintf("No additional items can be created for this service item with code %s", serviceItem.ReService.Code)))
+
 	}
 
 	for _, code := range reServiceCodes {

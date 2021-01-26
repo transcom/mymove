@@ -1,17 +1,18 @@
-import PropTypes from 'prop-types';
-import WizardPage from 'shared/WizardPage';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'connected-react-router';
-import { withContext } from 'shared/AppContext';
-
-import { selectedMoveType, selectedConusStatus, lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 
 import ServiceMemberSummary from './ServiceMemberSummary';
+
+import { withContext } from 'shared/AppContext';
+import WizardPage from 'shared/WizardPage';
+import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import scrollToTop from 'shared/scrollToTop';
+import { selectConusStatus } from 'store/onboarding/selectors';
+import { selectServiceMemberFromLoggedInUser, selectHasCanceledMove, selectMoveType } from 'store/entities/selectors';
 
 class ProfileReview extends Component {
   componentDidMount() {
@@ -49,7 +50,7 @@ class ProfileReview extends Component {
     });
   };
   render() {
-    const { backupContacts, serviceMember, schemaRank, schemaAffiliation, schemaOrdersType } = this.props;
+    const { serviceMember, schemaRank, schemaAffiliation, schemaOrdersType } = this.props;
     return (
       <WizardPage
         handleSubmit={this.resumeMove}
@@ -60,7 +61,6 @@ class ProfileReview extends Component {
         <h1>Review your Profile</h1>
         <p>Has anything changed since your last move? Please check your info below, especially your Rank.</p>
         <ServiceMemberSummary
-          backupContacts={backupContacts}
           serviceMember={serviceMember}
           schemaRank={schemaRank}
           schemaAffiliation={schemaAffiliation}
@@ -91,18 +91,22 @@ ProfileReview.propTypes = {
 };
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
-    serviceMember: state.serviceMember.currentServiceMember,
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
-    selectedMoveType: selectedMoveType(state),
-    conusStatus: selectedConusStatus(state),
+    serviceMember,
+    lastMoveIsCanceled: selectHasCanceledMove(state),
+    selectedMoveType: selectMoveType(state),
+    conusStatus: selectConusStatus(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
-    backupContacts: state.serviceMember.currentBackupContacts,
+    backupContacts: serviceMember?.backup_contacts || [],
   };
 }
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push }, dispatch);
 }
+
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(ProfileReview));

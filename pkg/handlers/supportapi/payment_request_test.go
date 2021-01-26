@@ -4,12 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
@@ -188,6 +190,34 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed(), response)
 
 	})
+	suite.T().Run("unsuccessful status update of payment request, conflict error (409)", func(t *testing.T) {
+		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, services.ConflictError{}).Once()
+
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
+
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := paymentrequestop.UpdatePaymentRequestStatusParams{
+			HTTPRequest:      req,
+			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
+			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+		}
+
+		handler := UpdatePaymentRequestStatusHandler{
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
+			PaymentRequestFetcher:       paymentRequestFetcher,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusConflict(), response)
+
+	})
 }
 
 func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
@@ -260,10 +290,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 			Value:   "2424",
 		},
 	}
-	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDLH,
 		basicPaymentServiceItemParams,
+		testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusApproved,
+			},
+		},
 	)
 
 	// Add a price to the service item.
@@ -274,10 +309,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	paymentRequestID := paymentServiceItem.PaymentRequestID
 	strfmtPaymentRequestID := strfmt.UUID(paymentRequestID.String())
 
+	icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
 	handler := GetPaymentRequestEDIHandler{
 		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), icnSequencer),
 	}
 
 	urlFormat := "/payment-requests/%s/edi"
@@ -340,6 +376,28 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		response := mockGeneratorHandler.Handle(params)
 
 		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity(), response)
+	})
+
+	suite.T().Run("failure due to a conflict error", func(t *testing.T) {
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+
+		params := paymentrequestop.GetPaymentRequestEDIParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmtPaymentRequestID,
+		}
+
+		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
+		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, services.NewConflictError(paymentRequestID, "conflict error"))
+
+		mockGeneratorHandler := GetPaymentRequestEDIHandler{
+			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
+			GHCPaymentRequestInvoiceGenerator: mockGenerator,
+		}
+
+		response := mockGeneratorHandler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIConflict(), response)
 	})
 
 	suite.T().Run("failure due to payment request ID not found", func(t *testing.T) {
@@ -456,6 +514,16 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 	return prs
 }
 func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
+
+	os.Setenv("SYNCADA_SFTP_PORT", "1234")
+	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	// generated fake host key to pass parser used following command and only saved the pub key
+	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
+	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+
 	reviewedPRs := suite.createPaymentRequest(4)
 
 	sentToGEXTime := time.Now()
@@ -486,13 +554,15 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
 	}
 
+	handler.SetICNSequencer(sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName))
+
 	urlFormat := "/payment-requests/process-reviewed"
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada true", func(t *testing.T) {
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
 
-		sendToSyncada := true
+		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
