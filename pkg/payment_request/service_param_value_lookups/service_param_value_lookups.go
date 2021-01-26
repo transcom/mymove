@@ -90,9 +90,12 @@ func ServiceParamLookupInitialize(
 	var sitDestinationFinalAddress models.Address
 	var sitOriginActualAddress models.Address
 
+	savePickupAndDestinationFromShipment := true
+
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeCS, models.ReServiceCodeMS:
 		// Do nothing, these service items don't use the MTOShipment
+		savePickupAndDestinationFromShipment = false
 	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT:
 		// load destination address from final address on service item
 		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
@@ -102,7 +105,6 @@ func ServiceParamLookupInitialize(
 			}
 			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
 		}
-		fallthrough
 	case models.ReServiceCodeDOASIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOPSIT:
 		// load updated origin address from service item
 		if mtoServiceItem.SITOriginHHGActualAddressID != nil && *mtoServiceItem.SITOriginHHGActualAddressID != uuid.Nil {
@@ -112,8 +114,9 @@ func ServiceParamLookupInitialize(
 			}
 			sitOriginActualAddress = *mtoServiceItem.SITOriginHHGActualAddress
 		}
-		fallthrough
-	default:
+	}
+
+	if savePickupAndDestinationFromShipment {
 		// Make sure there's an MTOShipment since that's nullable
 		if mtoServiceItem.MTOShipmentID == nil {
 			return nil, services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
