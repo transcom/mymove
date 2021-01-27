@@ -28,9 +28,8 @@ func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middlewa
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	searchParams := services.ListMoveTaskOrderParams{
-		IsAvailableToPrime: false,
-		ExcludeHidden:      false,
-		Since:              params.Since,
+		IncludeHidden: true,
+		Since:         params.Since,
 	}
 	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
 

@@ -26,7 +26,6 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	searchParams := services.ListMoveTaskOrderParams{
 		IsAvailableToPrime: true,
-		ExcludeHidden:      true,
 		Since:              params.Since,
 	}
 	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)

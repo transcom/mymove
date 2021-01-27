@@ -46,6 +46,6 @@ type MoveTaskOrderChecker interface {
 // ListMoveTaskOrderParams is a public struct that's used to pass filter arguments to the ListMoveTaskOrders and ListAllMoveTaskOrders queries
 type ListMoveTaskOrderParams struct {
 	IsAvailableToPrime bool   // indicates if all MTOs returned must be Prime-available (only used in ListAllMoveTaskOrders)
-	ExcludeHidden      bool   // indicates if hidden/disabled MTOs should be included in the output
+	IncludeHidden      bool   // indicates if hidden/disabled MTOs should be included in the output
 	Since              *int64 // if filled, only MTOs that have been updated after this timestamp will be returned (only used in ListAllMoveTaskOrders)
 }

@@ -44,10 +44,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
-	suite.T().Run("explicitly non-hidden move task orders", func(t *testing.T) {
-		searchParams := services.ListMoveTaskOrderParams{
-			ExcludeHidden: true,
-		}
+	suite.T().Run("implicitly non-hidden move task orders", func(t *testing.T) {
+		searchParams := services.ListMoveTaskOrderParams{} // should default to IncludeHidden being false
 		moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, &searchParams)
 		suite.NoError(err)
 
@@ -69,7 +67,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 
 	suite.T().Run("include hidden move task orders", func(t *testing.T) {
 		searchParams := services.ListMoveTaskOrderParams{
-			ExcludeHidden: false,
+			IncludeHidden: true,
 		}
 		moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, &searchParams)
 		suite.NoError(err)
@@ -116,7 +114,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 		searchParams := services.ListMoveTaskOrderParams{
 			IsAvailableToPrime: false,
-			ExcludeHidden:      false,
+			IncludeHidden:      true,
 			Since:              nil,
 		}
 
@@ -158,8 +156,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 		searchParams := services.ListMoveTaskOrderParams{
 			IsAvailableToPrime: true,
-			ExcludeHidden:      true,
-			Since:              nil,
+			// IncludeHidden should be false by default
+			Since: nil,
 		}
 
 		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)

@@ -55,8 +55,7 @@ type ListMoveTaskOrdersHandler struct {
 func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	moveOrderID, _ := uuid.FromString(params.MoveOrderID.String())
-	searchParams := services.ListMoveTaskOrderParams{ExcludeHidden: true} // excludes disabled MTOs
-	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID, &searchParams)
+	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID, nil) // nil searchParams exclude disabled MTOs by default
 	if err != nil {
 		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {
