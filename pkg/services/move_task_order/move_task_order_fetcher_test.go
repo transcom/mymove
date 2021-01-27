@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -41,8 +43,11 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 		},
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
+	searchParams := services.ListMoveTaskOrderParams{
+		ExcludeHidden: true,
+	}
 
-	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, true)
+	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, &searchParams)
 	suite.NoError(err)
 
 	// The hidden move should be nowhere in the output list:
@@ -78,8 +83,13 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		testdatagen.MakeDefaultMove(suite.DB())
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
+		searchParams := services.ListMoveTaskOrderParams{
+			IsAvailableToPrime: false,
+			ExcludeHidden:      false,
+			Since:              nil,
+		}
 
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(false, false, nil)
+		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)
 		suite.NoError(err)
 
 		// The hidden move be in this output list since we weren't excluding hidden MTOs:
@@ -104,8 +114,13 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		testdatagen.MakeDefaultMove(suite.DB())
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
+		searchParams := services.ListMoveTaskOrderParams{
+			IsAvailableToPrime: true,
+			ExcludeHidden:      true,
+			Since:              nil,
+		}
 
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(true, true, nil)
+		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)
 		suite.NoError(err)
 		suite.Equal(len(moveTaskOrders), 3)
 
@@ -118,7 +133,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
 			now.Add(-2*time.Second), oldMTO.ID).Exec())
 		since := now.Unix()
-		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(true, true, &since)
+		searchParams.Since = &since
+		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)
 		suite.NoError(err)
 		suite.Equal(len(mtosWithSince), 2)
 	})

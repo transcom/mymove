@@ -24,7 +24,12 @@ type FetchMTOUpdatesHandler struct {
 func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(true, true, params.Since)
+	searchParams := services.ListMoveTaskOrderParams{
+		IsAvailableToPrime: true,
+		ExcludeHidden:      true,
+		Since:              params.Since,
+	}
+	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
 
 	if err != nil {
 		logger.Error("Unexpected error while fetching records:", zap.Error(err))

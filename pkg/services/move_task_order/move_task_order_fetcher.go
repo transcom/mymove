@@ -15,11 +15,13 @@ type moveTaskOrderFetcher struct {
 	db *pop.Connection
 }
 
-//ListMoveTaskOrders retrieves all MTOs for a specific MoveOrder. Can filter out hidden MTOs (show=False)
-func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, excludeHidden bool) ([]models.Move, error) {
+// ListMoveTaskOrders retrieves all MTOs for a specific MoveOrder. Can filter out hidden MTOs (show=False)
+func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, searchParams *services.ListMoveTaskOrderParams) ([]models.Move, error) {
 	var moveTaskOrders []models.Move
 	query := f.db.Where("orders_id = $1", moveOrderID)
-	if excludeHidden {
+
+	// The default behavior of this query is to exclude any disabled moves:
+	if searchParams == nil || searchParams.ExcludeHidden {
 		query = query.Where("show = TRUE")
 	}
 
@@ -35,8 +37,8 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, excludeH
 	return moveTaskOrders, nil
 }
 
-//ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime, and may or may not be enabled.
-func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, excludeHidden bool, since *int64) (models.Moves, error) {
+// ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime, and may or may not be enabled.
+func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.ListMoveTaskOrderParams) (models.Moves, error) {
 	var moveTaskOrders models.Moves
 	var err error
 	query := f.db.Q().Eager(
@@ -54,17 +56,22 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, exc
 		"Orders.NewDutyStation.Address",
 	)
 
-	if isAvailableToPrime {
-		query = query.Where("available_to_prime_at IS NOT NULL")
-	}
-
-	if excludeHidden {
+	// Always exclude hidden moves by default:
+	if searchParams == nil {
 		query = query.Where("show = TRUE")
-	}
+	} else {
+		if searchParams.IsAvailableToPrime {
+			query = query.Where("available_to_prime_at IS NOT NULL")
+		}
 
-	if since != nil {
-		since := time.Unix(*since, 0)
-		query = query.Where("updated_at > ?", since)
+		if searchParams.ExcludeHidden {
+			query = query.Where("show = TRUE")
+		}
+
+		if searchParams.Since != nil {
+			since := time.Unix(*searchParams.Since, 0)
+			query = query.Where("updated_at > ?", since)
+		}
 	}
 
 	err = query.All(&moveTaskOrders)
@@ -82,7 +89,7 @@ func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
 	return &moveTaskOrderFetcher{db}
 }
 
-//FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
+// FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
 func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.Move, error) {
 	mto := &models.Move{}
 	if err := f.db.Eager("PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
