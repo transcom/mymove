@@ -119,13 +119,12 @@ const configureZipField = (swaggerField, props, zipPattern) => {
   if (zipPattern) {
     if (zipPattern === 'USA') {
       // RA Summary: eslint - security/detect-unsafe-regex - Denial of Service: Regular Expression
-      // RA: Untrusted data is passed to the application and used as a regular expression. This can cause the thread to overconsume CPU resources.
-      // RA: Line used for validating a zip code
-      // RA: The regex pattern is a constant string set at compile-time and it is bounded. Therefore, it is not a risk
-      // RA Developer Status: False Positive
-      // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-      // RA Validator: jneuner@mitre.org
-      // RA Modified Severity:
+      // RA: Locates potentially unsafe regular expressions, which may take a very long time to run, blocking the event loop
+      // RA: Per MilMove SSP, predisposing conditions are regex patterns from untrusted sources or unbounded matching.
+      // RA: The regex pattern is a constant string set at compile-time and it is bounded to 10 characters (zip code).
+      // RA Developer Status: Mitigated
+      // RA Validator Status: Mitigated
+      // RA Modified Severity: N/A
       // eslint-disable-next-line security/detect-unsafe-regex
       const zipRegex = '^[0-9]{5}(?:-[0-9]{4})?$';
       props.validate.push(validator.patternMatches(zipRegex, 'Zip code must have 5 or 9 digits.'));
