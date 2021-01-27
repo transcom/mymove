@@ -37,13 +37,13 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*
 	return r0, r1
 }
 
-// ListAllMoveTaskOrders provides a mock function with given fields: isAvailableToPrime, since
-func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.Moves, error) {
-	ret := _m.Called(isAvailableToPrime, since)
+// ListAllMoveTaskOrders provides a mock function with given fields: isAvailableToPrime, excludeHidden, since
+func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, excludeHidden bool, since *int64) (models.Moves, error) {
+	ret := _m.Called(isAvailableToPrime, excludeHidden, since)
 
 	var r0 models.Moves
-	if rf, ok := ret.Get(0).(func(bool, *int64) models.Moves); ok {
-		r0 = rf(isAvailableToPrime, since)
+	if rf, ok := ret.Get(0).(func(bool, bool, *int64) models.Moves); ok {
+		r0 = rf(isAvailableToPrime, excludeHidden, since)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.Moves)
@@ -51,8 +51,8 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, s
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(bool, *int64) error); ok {
-		r1 = rf(isAvailableToPrime, since)
+	if rf, ok := ret.Get(1).(func(bool, bool, *int64) error); ok {
+		r1 = rf(isAvailableToPrime, excludeHidden, since)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -60,13 +60,13 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, s
 	return r0, r1
 }
 
-// ListMoveTaskOrders provides a mock function with given fields: moveOrderID
-func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.Move, error) {
-	ret := _m.Called(moveOrderID)
+// ListMoveTaskOrders provides a mock function with given fields: moveOrderID, excludeHidden
+func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, excludeHidden bool) ([]models.Move, error) {
+	ret := _m.Called(moveOrderID, excludeHidden)
 
 	var r0 []models.Move
-	if rf, ok := ret.Get(0).(func(uuid.UUID) []models.Move); ok {
-		r0 = rf(moveOrderID)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, bool) []models.Move); ok {
+		r0 = rf(moveOrderID, excludeHidden)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.Move)
@@ -74,8 +74,8 @@ func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]mod
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(moveOrderID)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, bool) error); ok {
+		r1 = rf(moveOrderID, excludeHidden)
 	} else {
 		r1 = ret.Error(1)
 	}
