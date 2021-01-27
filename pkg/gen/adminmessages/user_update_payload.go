@@ -6,8 +6,10 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // UserUpdatePayload user update payload
@@ -16,7 +18,8 @@ import (
 type UserUpdatePayload struct {
 
 	// active
-	Active *bool `json:"active,omitempty"`
+	// Required: true
+	Active *bool `json:"active"`
 
 	// revoke admin session
 	RevokeAdminSession *bool `json:"revokeAdminSession,omitempty"`
@@ -30,6 +33,24 @@ type UserUpdatePayload struct {
 
 // Validate validates this user update payload
 func (m *UserUpdatePayload) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateActive(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UserUpdatePayload) validateActive(formats strfmt.Registry) error {
+
+	if err := validate.Required("active", "body", m.Active); err != nil {
+		return err
+	}
+
 	return nil
 }
 

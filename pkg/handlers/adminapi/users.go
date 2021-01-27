@@ -10,6 +10,7 @@ import (
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -101,27 +102,30 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	payload := params.User
 
+	// Check that the uuid provided is valid
 	userID, err := uuid.FromString(params.UserID.String())
 	if err != nil {
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.UserID.String()), zap.Error(err))
 	}
-
 	// Update all properties from the payload that are not related to revoking a session.
 	// Currently, only updating the Active property is supported.
 	// If you want to add support for additional properties, edit UpdateUser.
-	_, validationErrors, err := h.UpdateUser(userID, payload)
+	user, verrs := payloads.UserModel(payload, userID)
 
-	if validationErrors != nil || err != nil {
-		fmt.Printf("%#v", validationErrors)
-		logger.Error("Error updating user's active status", zap.Error(err))
-		return userop.NewUpdateUserInternalServerError()
+	if err != nil {
+		logger.Error(fmt.Sprintf("User Model Parsing for %s", params.UserID.String()), zap.Error(verrs))
+	}
+
+	_, verrs, err = h.UpdateUser(userID, user)
+
+	if verrs != nil || err != nil {
+		logger.Error(fmt.Sprintf("Error updating user %s", params.UserID.String()), zap.Error(err))
 	}
 
 	// If we've set the user's active status to false, we should also revoke their sessions.
 	// Update the payload properties so session revocation is triggered.
 	// Even if updating the active status fails, we can try to revoke their session.
-
-	if !*payload.Active {
+	if !(user.Active) {
 		revoke := true
 
 		payload.RevokeAdminSession = &revoke

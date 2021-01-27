@@ -4,7 +4,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -20,23 +19,24 @@ func NewUserUpdater(builder userQueryBuilder) services.UserUpdater {
 }
 
 // UpdateUser updates any user
-func (o *userUpdater) UpdateUser(id uuid.UUID, payload *adminmessages.UserUpdatePayload) (*models.User, *validate.Errors, error) {
+func (o *userUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
+	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	var foundUser models.User
 
-	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
+	if user == nil {
+		return nil, nil, nil
+	}
+	// Find the existing user to update
 	err := o.builder.FetchOne(&foundUser, filters)
 
 	if err != nil {
 		return nil, nil, err
 	}
 
-	if payload.Active != nil {
-		foundUser.Active = *payload.Active
+	// Update user's new status for Active
+	if &user.Active != nil {
+		foundUser.Active = user.Active
 	}
-
-	// If we are changing Active to False, we are
-	// deactivating the user. We also need to revoke all
-	// sessions for this user.
 
 	verrs, err := o.builder.UpdateOne(&foundUser, nil)
 	if verrs != nil || err != nil {

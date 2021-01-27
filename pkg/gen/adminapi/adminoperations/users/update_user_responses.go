@@ -129,6 +129,50 @@ func (o *UpdateUserForbidden) WriteResponse(rw http.ResponseWriter, producer run
 	rw.WriteHeader(403)
 }
 
+// UpdateUserUnprocessableEntityCode is the HTTP code returned for type UpdateUserUnprocessableEntity
+const UpdateUserUnprocessableEntityCode int = 422
+
+/*UpdateUserUnprocessableEntity Validation error
+
+swagger:response updateUserUnprocessableEntity
+*/
+type UpdateUserUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *adminmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdateUserUnprocessableEntity creates UpdateUserUnprocessableEntity with default headers values
+func NewUpdateUserUnprocessableEntity() *UpdateUserUnprocessableEntity {
+
+	return &UpdateUserUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update user unprocessable entity response
+func (o *UpdateUserUnprocessableEntity) WithPayload(payload *adminmessages.ValidationError) *UpdateUserUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update user unprocessable entity response
+func (o *UpdateUserUnprocessableEntity) SetPayload(payload *adminmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateUserUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateUserInternalServerErrorCode is the HTTP code returned for type UpdateUserInternalServerError
 const UpdateUserInternalServerErrorCode int = 500
 
