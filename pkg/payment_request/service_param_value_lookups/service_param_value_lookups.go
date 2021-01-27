@@ -88,6 +88,7 @@ func ServiceParamLookupInitialize(
 	var pickupAddress models.Address
 	var destinationAddress models.Address
 	var sitDestinationFinalAddress models.Address
+	var sitOriginOriginalAddress models.Address
 	var sitOriginActualAddress models.Address
 
 	savePickupAndDestinationFromShipment := true
@@ -106,6 +107,15 @@ func ServiceParamLookupInitialize(
 			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
 		}
 	case models.ReServiceCodeDOASIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOPSIT:
+		// load original origin address from service item
+		if mtoServiceItem.SITOriginHHGOriginalAddressID != nil && *mtoServiceItem.SITOriginHHGOriginalAddressID != uuid.Nil {
+			err = db.Load(&mtoServiceItem, "SITOriginHHGOriginalAddress")
+			if err != nil {
+				return nil, err
+			}
+			sitOriginOriginalAddress = *mtoServiceItem.SITOriginHHGOriginalAddress
+		}
+
 		// load updated origin address from service item
 		if mtoServiceItem.SITOriginHHGActualAddressID != nil && *mtoServiceItem.SITOriginHHGActualAddressID != uuid.Nil {
 			err = db.Load(&mtoServiceItem, "SITOriginHHGActualAddress")
@@ -347,7 +357,7 @@ func ServiceParamLookupInitialize(
 
 	paramKey = models.ServiceItemParamNameDistanceZipSITOrigin
 	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITOriginLookup{
-		OriginalAddress: pickupAddress,
+		OriginalAddress: sitOriginOriginalAddress,
 		ActualAddress:   sitOriginActualAddress,
 	})
 	if err != nil {

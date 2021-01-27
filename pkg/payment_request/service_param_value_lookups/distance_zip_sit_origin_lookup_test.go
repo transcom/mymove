@@ -50,11 +50,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(),
-		testdatagen.Assertions{
-			PickupAddress: originAddress,
-		})
-
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
 			Move: move,
@@ -62,26 +57,26 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 
 	mtoServiceItemSameZip3 := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
-			PickupAddress: originAddress,
-			ReService:     reService,
-			Move:          move,
-			MTOShipment:   mtoShipment,
+			ReService: reService,
+			Move:      move,
 			MTOServiceItem: models.MTOServiceItem{
-				SITOriginHHGActualAddressID: &actualOriginSameZip3Address.ID,
-				SITOriginHHGActualAddress:   &actualOriginSameZip3Address,
+				SITOriginHHGOriginalAddressID: &originAddress.ID,
+				SITOriginHHGOriginalAddress:   &originAddress,
+				SITOriginHHGActualAddressID:   &actualOriginSameZip3Address.ID,
+				SITOriginHHGActualAddress:     &actualOriginSameZip3Address,
 			},
 		},
 	)
 
 	mtoServiceItemDiffZip3 := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
-			PickupAddress: originAddress,
-			ReService:     reService,
-			Move:          move,
-			MTOShipment:   mtoShipment,
+			ReService: reService,
+			Move:      move,
 			MTOServiceItem: models.MTOServiceItem{
-				SITOriginHHGActualAddressID: &actualOriginDiffZip3Address.ID,
-				SITOriginHHGActualAddress:   &actualOriginDiffZip3Address,
+				SITOriginHHGOriginalAddressID: &originAddress.ID,
+				SITOriginHHGOriginalAddress:   &originAddress,
+				SITOriginHHGActualAddressID:   &actualOriginDiffZip3Address.ID,
+				SITOriginHHGActualAddress:     &actualOriginDiffZip3Address,
 			},
 		},
 	)
