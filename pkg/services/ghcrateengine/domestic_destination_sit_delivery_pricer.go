@@ -56,8 +56,14 @@ func (p domesticDestinationSITDeliveryPricer) Price(contractCode string, request
 
 	// Distance must be greater than 50 miles at this point.  Now examine zip3s.
 
-	// TODO: Validation?
+	if len(zipDest) < 5 {
+		return unit.Cents(0), fmt.Errorf("invalid destination postal code of %s", zipDest)
+	}
 	zip3Dest := zipDest[:3]
+
+	if len(zipSITDest) < 5 {
+		return unit.Cents(0), fmt.Errorf("invalid SIT destination postal code of %s", zipSITDest)
+	}
 	zip3SITDest := zipSITDest[:3]
 
 	// 2) Greater than 50 miles and different zip3s

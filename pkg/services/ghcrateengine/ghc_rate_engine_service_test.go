@@ -82,6 +82,32 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticPackAndUnpackData(code mode
 	suite.MustSave(&domesticPackUnpackNonpeakPrice)
 }
 
+func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReServiceCode, schedule int, isPeakPeriod bool, priceCents unit.Cents, escalationCompounded float64) {
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EscalationCompounded: escalationCompounded,
+			},
+		})
+
+	service := testdatagen.MakeReService(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+			},
+		})
+
+	otherPrice := models.ReDomesticOtherPrice{
+		ContractID:   contractYear.Contract.ID,
+		ServiceID:    service.ID,
+		IsPeakPeriod: isPeakPeriod,
+		Schedule:     schedule,
+		PriceCents:   priceCents,
+	}
+
+	suite.MustSave(&otherPrice)
+}
+
 func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code models.ReServiceCode, serviceAreaCode string, isPeakPeriod bool, priceCents unit.Cents, escalationCompounded float64) {
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
