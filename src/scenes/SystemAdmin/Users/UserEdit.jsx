@@ -33,6 +33,13 @@ const UserEdit = (props) => (
           { id: false, name: 'No' },
         ]}
       />
+      <SelectInput
+        source="active"
+        choices={[
+          { id: true, name: 'Yes' },
+          { id: false, name: 'No' },
+        ]}
+      />
     </SimpleForm>
   </Edit>
 );
