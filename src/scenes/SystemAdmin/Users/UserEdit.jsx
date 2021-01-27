@@ -13,15 +13,6 @@ const UserEdit = (props) => (
       <TextInput source="id" disabled />
       <TextInput source="loginGovEmail" disabled />
       <SelectInput
-        source="active"
-        choices={[
-          { id: true, name: 'Yes' },
-          { id: false, name: 'No' },
-        ]}
-      />
-      <TextInput source="createdAt" disabled />
-      <TextInput source="updatedAt" disabled />
-      <SelectInput
         source="revokeAdminSession"
         choices={[
           { id: true, name: 'Yes' },
