@@ -16,7 +16,7 @@ export async function GetIsLoggedIn() {
   return response.body;
 }
 
-export async function LogoutUser() {
+export async function LogoutUser(timedout) {
   const logoutEndpoint = '/auth/logout';
   const req = {
     url: logoutEndpoint,
@@ -27,7 +27,8 @@ export async function LogoutUser() {
   try {
     // Successful logout should return a redirect url
     let resp = await Swagger.http(req);
-    window.location.href = resp.text;
+    let redirect_url = timedout ? resp.text + '#timedout=true' : resp.text;
+    window.location.href = redirect_url;
   } catch (err) {
     // Failure to logout should return user to homepage
     window.location.href = '/';

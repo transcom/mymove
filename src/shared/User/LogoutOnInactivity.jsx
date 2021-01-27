@@ -20,16 +20,11 @@ export class LogoutOnInactivity extends React.Component {
     timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds,
   };
 
-  componentDidUpdate(prevProps) {
-    if (!this.props.isLoggedIn && prevProps.isLoggedIn) {
-      this.setState({ showLoggedOutAlert: true });
-    }
-  }
-
   onActive = () => {
     clearInterval(this.timer);
     this.setState({ isIdle: false });
     this.setState({ timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds });
+    fetch(this.props.keepAliveEndpoint);
   };
 
   onIdle = () => {
@@ -38,13 +33,10 @@ export class LogoutOnInactivity extends React.Component {
     this.timer = setInterval(this.countdown, 1000);
   };
 
-  onAction = () => {
-    fetch(this.props.keepAliveEndpoint);
-  };
-
   countdown = () => {
+    let timedout = true;
     if (this.state.timeLeftInSeconds === 0) {
-      LogoutUser();
+      LogoutUser(timedout);
     } else {
       this.setState({ timeLeftInSeconds: this.state.timeLeftInSeconds - 1 });
     }
@@ -59,10 +51,9 @@ export class LogoutOnInactivity extends React.Component {
             ref="idleTimer"
             element={document}
             onActive={this.onActive}
-            onAction={this.onAction}
             onIdle={this.onIdle}
             timeout={this.props.warningTimeout}
-            events={['keydown', 'mousedown', 'touchstart', 'MSPointerDown']}
+            events={['blur', 'focus', 'mousedown', 'touchstart', 'MSPointerDown']}
           >
             {this.state.isIdle && (
               <Alert type="warning" heading="Inactive user">
@@ -72,12 +63,6 @@ export class LogoutOnInactivity extends React.Component {
             )}
           </IdleTimer>
         )}
-
-        {this.state.showLoggedOutAlert && (
-          <Alert type="error" heading="Logged out">
-            You have been logged out due to inactivity.
-          </Alert>
-        )}
       </React.Fragment>
     );
   }
@@ -85,7 +70,7 @@ export class LogoutOnInactivity extends React.Component {
 LogoutOnInactivity.defaultProps = {
   warningTimeout: timeToDisplayWarningInMilliseconds,
   timeRemaining: maxWarningTimeBeforeTimeoutInMilliseconds,
-  keepAliveEndpoint: '/internal/swagger.yaml',
+  keepAliveEndpoint: '/internal/users/logged_in',
 };
 LogoutOnInactivity.propTypes = {
   warningTimeout: PropTypes.number.isRequired,
