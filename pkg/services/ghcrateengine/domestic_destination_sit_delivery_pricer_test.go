@@ -11,17 +11,18 @@ import (
 )
 
 const (
-	dddsitTestSchedule                    = 1
-	dddsitTestServiceArea                 = "888"
-	dddsitTestIsPeakPeriod                = false
-	dddsitTestDomesticOtherBasePriceCents = unit.Cents(2518)
-	dddsitTestEscalationCompounded        = 1.03
-	dddsitTestWeight                      = unit.Pound(2250)
-	dddsitTestWeightLower                 = unit.Pound(500)
-	dddsitTestWeightUpper                 = unit.Pound(4999)
-	dddsitTestMilesLower                  = 251
-	dddsitTestMilesUpper                  = 500
-	dddsitTestBasePriceMillicents         = unit.Millicents(6500)
+	dddsitTestSchedule                            = 1
+	dddsitTestServiceArea                         = "888"
+	dddsitTestIsPeakPeriod                        = false
+	dddsitTestEscalationCompounded                = 1.03
+	dddsitTestWeight                              = unit.Pound(2250)
+	dddsitTestWeightLower                         = unit.Pound(500)
+	dddsitTestWeightUpper                         = unit.Pound(4999)
+	dddsitTestMilesLower                          = 251
+	dddsitTestMilesUpper                          = 500
+	dddsitTestDomesticOtherBasePriceCents         = unit.Cents(2518)
+	dddsitTestDomesticLinehaulBasePriceMillicents = unit.Millicents(6500)
+	dddsitTestDomesticServiceAreaBasePriceCents   = unit.Cents(153)
 )
 
 var dddsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.December, 10, 10, 22, 11, 456, time.UTC)
@@ -83,7 +84,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 }
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricerMore50PlusMilesDiffZip3s() {
-	suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestBasePriceMillicents, dddsitTestEscalationCompounded)
+	suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dddsitTestEscalationCompounded)
 
 	zipDest := "30907"
 	zipSITDest := "36106"       // different zip3
@@ -91,7 +92,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 
 	paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, distance)
 	pricer := NewDomesticDestinationSITDeliveryPricer(suite.DB())
-	expectedPriceMillicents := unit.Millicents(45944438) // dddsitTestBasePriceMillicents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
+	expectedPriceMillicents := unit.Millicents(45944438) // dddsitTestDomesticLinehaulBasePriceMillicents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
 	expectedPrice := expectedPriceMillicents.ToCents()
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
@@ -110,6 +111,48 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 		_, err := pricer.Price("BOGUS", dddsitTestRequestedPickupDate, dddsitTestIsPeakPeriod, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not price linehaul")
+	})
+
+	suite.T().Run("bad destination zip", func(t *testing.T) {
+		_, err := pricer.Price(testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestIsPeakPeriod, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, "123", zipSITDest, distance)
+		suite.Error(err)
+		suite.Contains(err.Error(), "invalid destination postal code")
+	})
+
+	suite.T().Run("bad SIT destination zip", func(t *testing.T) {
+		_, err := pricer.Price(testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestIsPeakPeriod, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, "456", distance)
+		suite.Error(err)
+		suite.Contains(err.Error(), "invalid SIT destination postal code")
+	})
+}
+
+func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricerMore50PlusMilesSameZip3s() {
+	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestEscalationCompounded)
+
+	zipDest := "30907"
+	zipSITDest := "30901"      // same zip3
+	distance := unit.Miles(57) // more than 50 miles
+
+	paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, distance)
+	pricer := NewDomesticDestinationSITDeliveryPricer(suite.DB())
+	expectedPrice := unit.Cents(202109) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
+
+	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
+		priceCents, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(expectedPrice, priceCents)
+	})
+
+	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
+		priceCents, err := pricer.Price(testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestIsPeakPeriod, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
+		suite.NoError(err)
+		suite.Equal(expectedPrice, priceCents)
+	})
+
+	suite.T().Run("error from shorthaul pricer", func(t *testing.T) {
+		_, err := pricer.Price("BOGUS", dddsitTestRequestedPickupDate, dddsitTestIsPeakPeriod, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not price shorthaul")
 	})
 }
 
