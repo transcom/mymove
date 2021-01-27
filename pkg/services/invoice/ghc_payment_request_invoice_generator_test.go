@@ -168,8 +168,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		basicPaymentServiceItemParams,
 		assertions,
 	)
+	ddfsit := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDDFSIT,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
 
-	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk)
+	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk, ddfsit)
 
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -222,7 +228,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("se segment has correct value", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(85, result.SE.NumberOfIncludedSegments)
+		suite.Equal(92, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -440,7 +446,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
-			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
+			models.ReServiceCodeDPK, models.ReServiceCodeDDP, models.ReServiceCodeDDFSIT:
 			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
 				l5 := result.ServiceItems[segmentOffset].L5
 				suite.Equal(hierarchicalNumberInt, l5.LadingLineItemNumber)
@@ -509,7 +515,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds l3 service item segment", func(t *testing.T) {
 		l3 := result.L3
-		suite.Equal(int64(7992), l3.PriceCents)
+		suite.Equal(int64(8880), l3.PriceCents)
 	})
 }
 
