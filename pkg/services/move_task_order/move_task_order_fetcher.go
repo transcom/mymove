@@ -22,7 +22,7 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, searchPa
 
 	// The default behavior of this query is to exclude any disabled moves:
 	if searchParams == nil || !searchParams.IncludeHidden {
-		query = query.Where("show = TRUE")
+		query.Where("show = TRUE")
 	}
 
 	err := query.Eager().All(&moveTaskOrders)
@@ -58,20 +58,20 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.ListM
 
 	// Always exclude hidden moves by default:
 	if searchParams == nil {
-		query = query.Where("show = TRUE")
+		query.Where("show = TRUE")
 	} else {
 		if searchParams.IsAvailableToPrime {
-			query = query.Where("available_to_prime_at IS NOT NULL")
+			query.Where("available_to_prime_at IS NOT NULL")
 		}
 
 		// This value defaults to false - we want to make sure including hidden moves needs to be explicitly requested.
 		if !searchParams.IncludeHidden {
-			query = query.Where("show = TRUE")
+			query.Where("show = TRUE")
 		}
 
 		if searchParams.Since != nil {
 			since := time.Unix(*searchParams.Since, 0)
-			query = query.Where("updated_at > ?", since)
+			query.Where("updated_at > ?", since)
 		}
 	}
 
