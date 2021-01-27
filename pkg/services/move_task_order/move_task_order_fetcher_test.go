@@ -43,27 +43,58 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 		},
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
-	searchParams := services.ListMoveTaskOrderParams{
-		ExcludeHidden: true,
-	}
 
-	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, &searchParams)
-	suite.NoError(err)
+	suite.T().Run("explicitly non-hidden move task orders", func(t *testing.T) {
+		searchParams := services.ListMoveTaskOrderParams{
+			ExcludeHidden: true,
+		}
+		moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, &searchParams)
+		suite.NoError(err)
 
-	// The hidden move should be nowhere in the output list:
-	for _, move := range moveTaskOrders {
-		suite.NotEqual(move.ID, hiddenMTO.ID)
-	}
+		// The hidden move should be nowhere in the output list:
+		for _, move := range moveTaskOrders {
+			suite.NotEqual(move.ID, hiddenMTO.ID)
+		}
 
-	actualMTO := moveTaskOrders[0]
+		actualMTO := moveTaskOrders[0]
 
-	suite.NotZero(expectedMTO.ID, actualMTO.ID)
-	suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
-	suite.NotZero(actualMTO.Orders)
-	suite.NotNil(expectedMTO.Locator)
-	suite.NotNil(expectedMTO.ReferenceID)
-	suite.Nil(expectedMTO.AvailableToPrimeAt)
-	suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
+		suite.NotZero(expectedMTO.ID, actualMTO.ID)
+		suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
+		suite.NotZero(actualMTO.Orders)
+		suite.NotNil(expectedMTO.Locator)
+		suite.NotNil(expectedMTO.ReferenceID)
+		suite.Nil(expectedMTO.AvailableToPrimeAt)
+		suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
+	})
+
+	suite.T().Run("include hidden move task orders", func(t *testing.T) {
+		searchParams := services.ListMoveTaskOrderParams{
+			ExcludeHidden: false,
+		}
+		moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, &searchParams)
+		suite.NoError(err)
+
+		// The hidden move be in this output list since we weren't excluding hidden MTOs:
+		found := false
+		for _, move := range moveTaskOrders {
+			if move.ID == hiddenMTO.ID {
+				found = true
+				break
+			}
+		}
+		suite.True(found)
+		suite.Equal(len(moveTaskOrders), 2)
+	})
+
+	suite.T().Run("default search - excludes hidden move task orders", func(t *testing.T) {
+		moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, nil)
+		suite.NoError(err)
+
+		// The hidden move should be nowhere in the output list:
+		for _, move := range moveTaskOrders {
+			suite.NotEqual(move.ID, hiddenMTO.ID)
+		}
+	})
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
@@ -76,13 +107,13 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 			Show:               &hide,
 		},
 	})
+	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
 	suite.T().Run("all move task orders", func(t *testing.T) {
 		testdatagen.MakeDefaultMove(suite.DB())
 		testdatagen.MakeDefaultMove(suite.DB())
 		testdatagen.MakeDefaultMove(suite.DB())
 
-		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 		searchParams := services.ListMoveTaskOrderParams{
 			IsAvailableToPrime: false,
 			ExcludeHidden:      false,
@@ -104,6 +135,18 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		suite.Equal(len(moveTaskOrders), 4)
 	})
 
+	suite.T().Run("default search - excludes hidden move task orders", func(t *testing.T) {
+		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(nil)
+		suite.NoError(err)
+
+		// The hidden move should be nowhere in the output list:
+		for _, move := range moveTaskOrders {
+			suite.NotEqual(move.ID, hiddenMTO.ID)
+		}
+
+		suite.Equal(len(moveTaskOrders), 3) // minus the one hidden MTO
+	})
+
 	suite.T().Run("all move task orders that are available to prime and using since", func(t *testing.T) {
 		now := time.Now()
 
@@ -113,7 +156,6 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		testdatagen.MakeDefaultMove(suite.DB())
 		testdatagen.MakeDefaultMove(suite.DB())
 
-		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 		searchParams := services.ListMoveTaskOrderParams{
 			IsAvailableToPrime: true,
 			ExcludeHidden:      true,
