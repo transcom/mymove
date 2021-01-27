@@ -11,16 +11,23 @@ import (
 )
 
 const (
-	dlhTestServiceArea = "004"
-	dlhTestDistance    = unit.Miles(1200)
-	dlhTestWeight      = unit.Pound(4000)
-	dlhPriceCents      = unit.Cents(249770)
+	dlhTestServiceArea          = "004"
+	dlhTestIsPeakPeriod         = true
+	dlhTestWeightLower          = unit.Pound(500)
+	dlhTestWeightUpper          = unit.Pound(4999)
+	dlhTestMilesLower           = 1001
+	dlhTestMilesUpper           = 1500
+	dlhTestBasePriceMillicents  = unit.Millicents(5000)
+	dlhTestEscalationCompounded = 1.04071
+	dlhTestDistance             = unit.Miles(1200)
+	dlhTestWeight               = unit.Pound(4000)
+	dlhPriceCents               = unit.Cents(249770)
 )
 
 var dlhRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
-	suite.setupDomesticLinehaulData()
+	suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestEscalationCompounded)
 	paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 	linehaulServicePricer := NewDomesticLinehaulPricer(suite.DB())
 
@@ -88,40 +95,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {
-
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
-		testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				Escalation:           1.0197,
-				EscalationCompounded: 1.04071,
-			},
-		})
-
-	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
-		testdatagen.Assertions{
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				Contract:    contractYear.Contract,
-				ServiceArea: dlhTestServiceArea,
-			},
-		})
-
-	baseLinehaulPrice := models.ReDomesticLinehaulPrice{
-		ContractID:            contractYear.Contract.ID,
-		WeightLower:           500,
-		WeightUpper:           4999,
-		MilesLower:            1001,
-		MilesUpper:            1500,
-		IsPeakPeriod:          true,
-		DomesticServiceAreaID: serviceArea.ID,
-	}
-
-	linehaulPricePeak := baseLinehaulPrice
-	linehaulPricePeak.PriceMillicents = 5000 // 0.050
-	suite.MustSave(&linehaulPricePeak)
-
-}
-
 func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() models.PaymentServiceItem {
 	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
@@ -160,7 +133,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() model
 			{
 				Key:     models.ServiceItemParamNameWeightActual,
 				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "1400",
+				Value:   fmt.Sprintf("%d", int(dlhTestWeight)),
 			},
 			{
 				Key:     models.ServiceItemParamNameWeightEstimated,

@@ -141,3 +141,33 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 
 	suite.MustSave(&serviceAreaPrice)
 }
+
+func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCode string, isPeakPeriod bool, weightLower unit.Pound, weightUpper unit.Pound, milesLower int, milesUpper int, priceMillicents unit.Millicents, escalationCompounded float64) {
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EscalationCompounded: escalationCompounded,
+			},
+		})
+
+	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+		testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				Contract:    contractYear.Contract,
+				ServiceArea: serviceAreaCode,
+			},
+		})
+
+	baseLinehaulPrice := models.ReDomesticLinehaulPrice{
+		ContractID:            contractYear.Contract.ID,
+		WeightLower:           weightLower,
+		WeightUpper:           weightUpper,
+		MilesLower:            milesLower,
+		MilesUpper:            milesUpper,
+		IsPeakPeriod:          isPeakPeriod,
+		DomesticServiceAreaID: serviceArea.ID,
+		PriceMillicents:       priceMillicents,
+	}
+
+	suite.MustSave(&baseLinehaulPrice)
+}
