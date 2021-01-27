@@ -64,8 +64,7 @@ func (p domesticDestinationSITDeliveryPricer) Price(contractCode string, request
 	if zip3Dest != zip3SITDest {
 		// Do a normal linehaul calculation
 		linehaulPricer := NewDomesticLinehaulPricer(p.db)
-		// TODO: Fix linehaul pricer to use Pound and Miles
-		totalPriceCents, err := linehaulPricer.Price(contractCode, requestedPickupDate, isPeakPeriod, int(distance), int(weight), serviceArea)
+		totalPriceCents, err := linehaulPricer.Price(contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), fmt.Errorf("could not price linehaul: %w", err)
 		}

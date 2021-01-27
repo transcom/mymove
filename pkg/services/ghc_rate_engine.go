@@ -40,7 +40,7 @@ type CounselingServicesPricer interface {
 // DomesticLinehaulPricer prices domestic linehaul for a GHC move
 //go:generate mockery -name DomesticLinehaulPricer
 type DomesticLinehaulPricer interface {
-	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int, weightBilledActual int, serviceArea string) (unit.Cents, error)
+	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error)
 	ParamsPricer
 }
 
