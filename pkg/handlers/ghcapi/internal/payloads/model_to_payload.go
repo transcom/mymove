@@ -4,6 +4,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
@@ -102,6 +104,10 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 	if moveOrder == nil {
 		return nil
 	}
+	if moveOrder.ID == uuid.Nil {
+		return nil
+	}
+
 	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
 	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
