@@ -7,7 +7,7 @@ import { queryCache, useMutation } from 'react-query';
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
-import { updateMoveTaskOrderStatus, patchMTOShipmentStatus } from 'services/ghcApi';
+import { updateMoveStatus, patchMTOShipmentStatus } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
@@ -62,7 +62,7 @@ const MoveDetails = () => {
   });
 
   // use mutation calls
-  const [mutateMoveStatus] = useMutation(updateMoveTaskOrderStatus, {
+  const [mutateMoveStatus] = useMutation(updateMoveStatus, {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
     },
