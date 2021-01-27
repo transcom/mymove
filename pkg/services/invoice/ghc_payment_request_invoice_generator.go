@@ -537,9 +537,7 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		First(&paymentServiceItemParam)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			fmt.Println("%w", key)
-
-			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, fmt.Sprintf("Could not find PaymentServiceItemParam key (%s) payment service item id (%s)", key, serviceItemID))
+			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, fmt.Sprintf("Could not find PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
 		}
 		return models.PaymentServiceItemParam{}, services.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
 	}
