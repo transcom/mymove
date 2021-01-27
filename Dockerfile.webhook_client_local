@@ -29,4 +29,4 @@ COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-us-gov-w
 # The main webhook-client binary.
 COPY --from=builder --chown=root:root /home/circleci/project/bin/webhook-client /bin/webhook-client
 
-CMD ["/bin/webhook-client", "db-webhook-notify"]
+CMD ["/bin/webhook-client", "webhook-notify"]
