@@ -110,8 +110,8 @@ export class Orders extends Component {
       orders_type: Yup.mixed()
         .oneOf(ordersTypeOptions.map((i) => i.key))
         .required('Required'),
-      issue_date: Yup.date().required('Required'),
-      report_by_date: Yup.date().required('Required'),
+      issue_date: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
+      report_by_date: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
       has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
       new_duty_station: Yup.object()
         .shape({
