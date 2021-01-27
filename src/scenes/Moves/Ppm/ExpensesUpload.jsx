@@ -11,7 +11,6 @@ import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
 import WizardHeader from '../WizardHeader';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
-import 'shared/DocumentViewer/DocumentUploader.jsx';
 import { convertDollarsToCents } from 'shared/utils';
 import RadioButton from 'shared/RadioButton';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';

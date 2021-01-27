@@ -1,6 +1,6 @@
 import React from 'react';
 
-import FileUpload from './index';
+import FileUpload from './FileUpload';
 
 export default {
   title: 'Components/FileUpload',

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import './UploadOrders.css';
 
-import FileUpload from 'components/FileUpload/index';
+import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import ConnectedWizardPage from 'shared/WizardPage/index';
 import { documentSizeLimitMsg } from 'shared/constants';

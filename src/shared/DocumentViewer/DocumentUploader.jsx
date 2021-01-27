@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import Uploader from 'shared/Uploader';
+import FileUpload from 'components/FileUpload/FileUpload';
 import { documentSizeLimitMsg } from 'shared/constants';
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
 
@@ -79,7 +79,7 @@ export class DocumentUploader extends Component {
   };
 
   render() {
-    const { handleSubmit, moveDocSchema, genericMoveDocSchema, formValues, isPublic } = this.props;
+    const { handleSubmit, moveDocSchema, genericMoveDocSchema, formValues /* isPublic */ } = this.props;
     const isExpenseDocument = get(this.props, 'formValues.move_document_type', false) === 'EXPENSE';
     const hasFormFilled = formValues && formValues.move_document_type;
     const hasFiles = this.state.newUploads.length;
@@ -107,12 +107,15 @@ export class DocumentUploader extends Component {
               <p>Upload a PDF or take a picture of each page and upload the images.</p>
               <p>{documentSizeLimitMsg}</p>
             </div>
+            {/*
             <Uploader
               isPublic={isPublic}
               onRef={(ref) => (this.uploader = ref)}
               onChange={this.onChange}
               onAddFile={this.onAddFile}
             />
+            */}
+            <FileUpload onChange={this.onChange} onAddFile={this.onAddFile} />
             <div className="hint">(Each page must be clear and legible)</div>
           </div>
           <button className="usa-button submit" disabled={!isValid}>

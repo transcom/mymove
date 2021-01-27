@@ -38,10 +38,18 @@ class FileUpload extends Component {
     return { abort };
   };
 
+  /*
+  revertFile = (uploadId, load, error) => {
+    // TODO
+  };
+  */
+
   handleProcessFile = () => {
     if (this.props.onChange) {
       this.props.onChange(this.pond?.getFiles(), this.isIdle());
     }
+
+    // TODO - make this an option
     this.pond?.removeFiles();
   };
 
@@ -50,7 +58,7 @@ class FileUpload extends Component {
   }
 
   render() {
-    const { labelIdle } = this.props;
+    const { labelIdle, onAddFile } = this.props;
 
     const serverConfig = {
       url: '/internal',
@@ -82,6 +90,7 @@ class FileUpload extends Component {
         {...filePondProps}
         name="file"
         onprocessfile={this.handleProcessFile}
+        onaddfilestart={onAddFile}
       />
     );
     /* eslint-enable react/jsx-props-no-spreading */
@@ -89,14 +98,16 @@ class FileUpload extends Component {
 }
 
 FileUpload.propTypes = {
-  onChange: PropTypes.func,
   createUpload: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
+  onAddFile: PropTypes.func,
   // FilePond instance props
   labelIdle: PropTypes.string,
 };
 
 FileUpload.defaultProps = {
   onChange: undefined,
+  onAddFile: undefined,
   labelIdle: 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
 };
 
