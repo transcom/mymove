@@ -147,7 +147,7 @@ export class OfficeApp extends Component {
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
         {!hideHeaderPPM && (
           <>
-            {(!userIsLoggedIn || activeRole === roleTypes.TIO) && <QueueHeader />}
+            {(!userIsLoggedIn || activeRole !== roleTypes.TOO) && <QueueHeader />}
             {userIsLoggedIn && activeRole === roleTypes.TOO && (
               <MilmoveHeader
                 lastName={officeUser.last_name}
