@@ -188,8 +188,6 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.MoveGetMoveHandler = GetMoveHandler{
 		context,
-		move.NewMoveFetcher(context.DB()),
-		query.NewQueryFilter,
 	}
 
 	return adminAPI.Serve(nil)

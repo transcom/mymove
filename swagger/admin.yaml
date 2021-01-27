@@ -812,25 +812,8 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      serviceMemberId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      userId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      firstName:
-        type: string
-        title: First Name
-      middleName:
-        type: string
-        title: Middle Name
-      lastName:
-        type: string
-        title: Last Name
+      serviceMember:
+        $ref: '#/definitions/ServiceMember'
       locator:
         type: string
         example: '12432'
@@ -851,6 +834,31 @@ definitions:
       - locator
       - createdAt
       - updatedAt
+  ServiceMember:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      userId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: true
+      middleName:
+        type: string
+        title: Middle Name
+        x-nullable: true
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: true
 paths:
   /access_codes:
     get:
@@ -1487,8 +1495,6 @@ paths:
           description: Move not found
         500:
           description: Server error
-        501:
-          description: This endpoint has not yet been implemented
     patch:
       summary: Disables or re-enables a move
       description: >
