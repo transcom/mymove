@@ -9,7 +9,7 @@ import styles from './index.module.scss';
 const MilMoveHeader = ({ children, handleLogout, firstName, lastName }) => (
   <div className={styles.mmHeader}>
     <Title>
-      <a href="/" title="office.move.mil" aria-label="office.move.mil">
+      <a href="/" title="Home" aria-label="Home">
         <img src={MmLogo} alt="MilMove Logo" />
       </a>
     </Title>
