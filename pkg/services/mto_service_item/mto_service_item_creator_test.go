@@ -417,16 +417,26 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	reason := "lorem ipsum"
 
 	suite.T().Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT", func(t *testing.T) {
+		// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
+		// creating DOFSIT (SIT origin first day).
+
+		// Do not create Address in the database (Assertions.Stub = true) because if the information is coming from the Prime
+		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
+		// that we properly create the address coming in from the API.
+		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+
 		serviceItemDOFSIT := models.MTOServiceItem{
-			MoveTaskOrder:   moveTaskOrder,
-			MoveTaskOrderID: moveTaskOrder.ID,
-			MTOShipment:     mtoShipment,
-			MTOShipmentID:   &mtoShipment.ID,
-			ReService:       reServiceDOFSIT,
-			SITEntryDate:    &sitEntryDate,
-			SITPostalCode:   &sitPostalCode,
-			Reason:          &reason,
+			MoveTaskOrder:             moveTaskOrder,
+			MoveTaskOrderID:           moveTaskOrder.ID,
+			MTOShipment:               mtoShipment,
+			MTOShipmentID:             &mtoShipment.ID,
+			ReService:                 reServiceDOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
 		}
+
 		builder := query.NewQueryBuilder(suite.DB())
 		creator := NewMTOServiceItemCreator(builder)
 
@@ -572,6 +582,46 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
+}
+
+func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCreateDOFSIT() {
+	// Set up data to use for all Origin SIT Service Item tests
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
+	moveTaskOrder.Status = models.MoveStatusAPPROVED
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrder,
+	})
+
+	reServiceDOFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOFSIT,
+		},
+	})
+
+	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+	sitPostalCode := "99999"
+	reason := "lorem ipsum"
+
+	suite.T().Run("Fail to create DOFSIT service item due to missing SITOriginHHGActualAddress", func(t *testing.T) {
+
+		serviceItemDOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:   moveTaskOrder,
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MTOShipment:     mtoShipment,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       reServiceDOFSIT,
+			SITEntryDate:    &sitEntryDate,
+			SITPostalCode:   &sitPostalCode,
+			Reason:          &reason,
+		}
+		builder := query.NewQueryBuilder(suite.DB())
+		creator := NewMTOServiceItemCreator(builder)
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
 }
 
 // TestCreateDestSITServiceItem tests the creation of destination SIT service items

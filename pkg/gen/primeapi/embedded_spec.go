@@ -1451,6 +1451,9 @@ func init() {
               "type": "string",
               "format": "date"
             },
+            "sitHHGActualOrigin": {
+              "$ref": "#/definitions/Address"
+            },
             "sitPostalCode": {
               "type": "string",
               "format": "zip",
@@ -3922,6 +3925,9 @@ func init() {
               "description": "Entry date for the SIT",
               "type": "string",
               "format": "date"
+            },
+            "sitHHGActualOrigin": {
+              "$ref": "#/definitions/Address"
             },
             "sitPostalCode": {
               "type": "string",
