@@ -18,8 +18,8 @@ function usage() {
   echo "$0 --help # prints this help"
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d"
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d local path/to/proof.pdf path/to/proof.jpg"
-  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.staging"
-  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.staging path/to/proof.pdf path/to/proof.jpg"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg path/to/proof.pdf path/to/proof.jpg"
 }
 
 if [ "${#@}" -eq 0 ]; then
@@ -222,9 +222,9 @@ echo "Updated Shipment eTag: ${shipmentEtag}"
 
 printf "\n==========\n\n"
 
-printf "The prime can add a DDFSIT service item:\n\n"
+printf "The prime can add a DDFSIT service item to later request payment for:\n\n"
 
-printf "\n==========\n\n"
+read -p "Ready to continue? Hit enter..." -n 1 -r
 
 cat > tmp/pad_create_ddfsit_service_item.json <<- EOM
 {
@@ -248,14 +248,21 @@ jq . tmp/pad_create_ddfsit_response.json
 
 echo
 
-jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH") or .reServiceCode == "MS" or .reServiceCode == "CS" or .reServiceCode == "DDFSIT"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request.json
+
+bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates | jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/pad_demo_mto.json
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH" or .reServiceCode == "DDFSIT") or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request.json
+
+printf "Now we wait for the TOO to approve the service items.\n\n"
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "Sending the following create payment request payload for DLH, FSC, DDFSIT, MS, and CS:\n\n"
 jq . tmp/pad_create_payment_request.json
 
 echo
-
-read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "\n==========\n\n"
 
@@ -273,7 +280,7 @@ echo "Payment Request Number: ${prNumber}"
 
 printf "\n==========\n\n"
 
-printf "Now add the proof of service docs in three formats: PNG, JPG, and PDF\n\n"
+printf "Now add the proof of service docs in any of the three formats: PNG, JPG, and PDF\n\n"
 
 read -p "Ready to continue? Hit enter..." -n 1 -r
 

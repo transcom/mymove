@@ -2095,21 +2095,21 @@ func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *upload
 			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
 			Locator:            "RDY4PY",
 			AvailableToPrimeAt: swag.Time(time.Now()),
-			Status:             models.MoveStatusSUBMITTED,
+			Status:             models.MoveStatusAPPROVED,
 			SelectedMoveType:   &hhgMoveType,
 		},
 		UserUploader: userUploader,
 	})
 
-	estimated := unit.Pound(1400)
-	actual := unit.Pound(1349)
+	// estimated := unit.Pound(1400)
+	// actual := unit.Pound(1349)
 	mtoShipment4 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("c3a9e368-188b-4828-a64a-204da9b988c2"),
 			RequestedPickupDate:  swag.Time(time.Now()),
 			ScheduledPickupDate:  swag.Time(time.Now().AddDate(0, 0, -1)),
-			PrimeEstimatedWeight: &estimated, // so we can price Dom. Destination Price
-			PrimeActualWeight:    &actual,    // so we can price DLH
+			PrimeEstimatedWeight: nil, // so we can price Dom. Destination Price
+			PrimeActualWeight:    nil, // so we can price DLH
 			Status:               models.MTOShipmentStatusApproved,
 			ApprovedDate:         swag.Time(time.Now()),
 		},
@@ -2120,8 +2120,8 @@ func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *upload
 			ID:                   uuid.FromStringOrNil("01b9671e-b268-4906-967b-ba661a1d3933"),
 			RequestedPickupDate:  swag.Time(time.Now()),
 			ScheduledPickupDate:  swag.Time(time.Now().AddDate(0, 0, -1)),
-			PrimeEstimatedWeight: &estimated, // so we can price DLH
-			PrimeActualWeight:    &actual,    // so we can price DLH
+			PrimeEstimatedWeight: nil,
+			PrimeActualWeight:    nil,
 			Status:               models.MTOShipmentStatusApproved,
 			ApprovedDate:         swag.Time(time.Now()),
 		},

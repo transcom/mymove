@@ -529,7 +529,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 
 func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
 	var paymentServiceItemParam models.PaymentServiceItemParam
-
+	// c7cd28c5-f229-48c4-adb7-e0761d2687a6
 	err := g.db.Q().
 		Join("service_item_param_keys sk", "payment_service_item_params.service_item_param_key_id = sk.id").
 		Where("payment_service_item_id = ?", serviceItemID).
@@ -537,7 +537,9 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		First(&paymentServiceItemParam)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, "for paymentServiceItemParam")
+			fmt.Println("%w", key)
+
+			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, fmt.Sprintf("Could not find PaymentServiceItemParam key (%s) payment service item id (%s)", key, serviceItemID))
 		}
 		return models.PaymentServiceItemParam{}, services.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
 	}
@@ -628,7 +630,8 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 		// pack and unpack, dom dest and dom origin have weight and no distance
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
-			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
+			models.ReServiceCodeDPK, models.ReServiceCodeDDP,
+			models.ReServiceCodeDDFSIT:
 			var err error
 			weight, err := g.getWeightParams(serviceItem)
 			if err != nil {
