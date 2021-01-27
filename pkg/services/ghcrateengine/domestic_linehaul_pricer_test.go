@@ -134,8 +134,8 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() model
 			},
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
-				KeyType: models.ServiceItemParamTypeTimestamp,
-				Value:   dlhRequestedPickupDate.Format(TimestampParamFormat),
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   dlhRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameDistanceZip3,

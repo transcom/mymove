@@ -76,8 +76,8 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationFirstDaySITServi
 			},
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
-				KeyType: models.ServiceItemParamTypeTimestamp,
-				Value:   ddfsitTestRequestedPickupDate.Format(TimestampParamFormat),
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   ddfsitTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameServiceAreaDest,
