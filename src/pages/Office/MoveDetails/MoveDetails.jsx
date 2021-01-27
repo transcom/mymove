@@ -7,7 +7,7 @@ import { queryCache, useMutation } from 'react-query';
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
-import { updateMoveStatus, patchMTOShipmentStatus } from 'services/ghcApi';
+import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
@@ -16,7 +16,7 @@ import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MOVES } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -65,6 +65,12 @@ const MoveDetails = () => {
   const [mutateMoveStatus] = useMutation(updateMoveStatus, {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
+    },
+  });
+
+  const [mutuateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([MTO_SHIPMENTS, data.mtoShipmentID], data);
     },
   });
 
@@ -142,7 +148,7 @@ const MoveDetails = () => {
                 mtoServiceItems={mtoServiceItems}
                 shipmentsStatus="SUBMITTED"
                 approveMTO={mutateMoveStatus}
-                approveMTOShipment={patchMTOShipmentStatus}
+                approveMTOShipment={mutuateMTOShipmentStatus}
                 moveTaskOrder={move}
               />
             </div>
