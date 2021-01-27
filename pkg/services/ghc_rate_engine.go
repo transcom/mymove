@@ -100,6 +100,13 @@ type DomesticDestinationFirstDaySITPricer interface {
 	ParamsPricer
 }
 
+// DomesticDestinationAdditionalDaysSITPricer prices domestic destination additional days SIT for a GHC move
+//go:generate mockery -name DomesticDestinationAdditionalDaysSITPricer
+type DomesticDestinationAdditionalDaysSITPricer interface {
+	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, error)
+	ParamsPricer
+}
+
 // Older pricers below (pre-dates payment requests)
 
 // DomesticServiceAreaPricer domestic prices: origin and destination service area, SIT day 1, SIT Addt'l days
