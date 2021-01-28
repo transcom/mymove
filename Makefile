@@ -344,7 +344,6 @@ build_tools: bin/gin \
 	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
-	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/ghc-pricing-parser \
