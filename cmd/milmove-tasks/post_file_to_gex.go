@@ -153,6 +153,17 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	logger.Info(
 		"Posted to GEX",
 		zap.String("filename", filename),
+		//RA Summary: statuscheck - SA5011 - Null Dereference
+		//RA: The linter flagged this code because it suspects a null-pointer issue which can cause software reliability issues
+		// and cause an attacker to trigger it.
+		//RA: This code logs the status code of the api response.
+		//RA: Because there is a check above that exits with an os.Exit(1) from logger.Fatal if resp is nil,
+		// this flagged code would never get hit, and therefore, resp would never be null.
+		//RA Developer Status: False Positive
+		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+		//RA Validator: jneuner@mitre.org
+		//RA Modified Severity:
+		//lint:ignore SA5011 resp is checked for null above and exits if true, so this code won't ever be hit if resp is nil
 		zap.Int("statusCode", resp.StatusCode),
 		zap.Error(err))
 
