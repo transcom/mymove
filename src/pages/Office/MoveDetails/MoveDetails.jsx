@@ -70,7 +70,8 @@ const MoveDetails = () => {
 
   const [mutuateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.id], updatedMTOShipment);
+      mtoShipments[mtoShipments.indexOf({ id: updatedMTOShipment.id })] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID], mtoShipments);
     },
   });
 
