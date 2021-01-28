@@ -3,8 +3,8 @@ package invoice
 import (
 	"fmt"
 	"strconv"
-	"time"
 
+	"github.com/benbjohnson/clock"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -19,6 +19,7 @@ import (
 type ghcPaymentRequestInvoiceGenerator struct {
 	db           *pop.Connection
 	icnSequencer sequence.Sequencer
+	clock        clock.Clock
 }
 
 // NewGHCPaymentRequestInvoiceGenerator returns an implementation of the GHCPaymentRequestInvoiceGenerator interface
@@ -26,6 +27,7 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection, icnSequencer seque
 	return &ghcPaymentRequestInvoiceGenerator{
 		db:           db,
 		icnSequencer: icnSequencer,
+		clock:        clock.New(),
 	}
 }
 
@@ -81,7 +83,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		}
 	}
 
-	currentTime := time.Now()
+	currentTime := g.clock.Now()
 
 	interchangeControlNumber, err := g.icnSequencer.NextVal()
 	if err != nil {

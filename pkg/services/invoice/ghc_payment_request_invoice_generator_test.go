@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
@@ -49,9 +50,17 @@ const testDateFormat = "20060102"
 const testISADateFormat = "060102"
 const testTimeFormat = "1504"
 
+func (suite *GHCInvoiceSuite) TestGeneratorConstructor() {
+}
+
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
-	currentTime := time.Now()
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	mockClock := clock.NewMock()
+	currentTime := mockClock.Now()
+	generator := &ghcPaymentRequestInvoiceGenerator{
+		db:           suite.DB(),
+		icnSequencer: suite.icnSequencer,
+		clock:        mockClock,
+	}
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -183,6 +192,13 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	// Proceed with full EDI Generation tests
 	result, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
+
+	// test constructor since we don't use it in this file
+	suite.T().Run("generator from constructor doesn't error out", func(t *testing.T) {
+		generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+		_, err := generator.Generate(paymentRequest, false)
+		suite.NoError(err)
+	})
 
 	// Test Invoice Start and End Segments
 	suite.T().Run("adds isa start segment", func(t *testing.T) {
@@ -557,7 +573,8 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 	suite.NoError(err)
 }
 func (suite *GHCInvoiceSuite) TestNilValues() {
-	currentTime := time.Now()
+	mockClock := clock.NewMock()
+	currentTime := mockClock.Now()
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -581,7 +598,11 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		},
 	}
 
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	generator := &ghcPaymentRequestInvoiceGenerator{
+		db:           suite.DB(),
+		icnSequencer: suite.icnSequencer,
+		clock:        mockClock,
+	}
 	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
