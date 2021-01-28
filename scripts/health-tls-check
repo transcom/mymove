@@ -11,43 +11,40 @@ usage() {
   exit 1
 }
 
-readonly environment="${1:-experimental}"
+readonly environment="${1:-exp}"
 
 [[ -z "${environment}" ]] && usage
 
 case "${environment}" in
-  experimental)
+  exp)
     health_check_hosts=my.exp.move.mil,office.exp.move.mil,admin.exp.move.mil
-    tls_health_check_hosts=gex.exp.move.mil,dps.exp.move.mil,orders.exp.move.mil
+    tls_health_check_hosts=gex.exp.move.mil,my.exp.move.mil,orders.exp.move.mil
+    export AWS_ACCOUNT_ID=015681133840
     ;;
-  staging)
+  stg)
     health_check_hosts=my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil
-    tls_health_check_hosts=gex.stg.move.mil,dps.stg.move.mil,orders.stg.move.mil
+    tls_health_check_hosts=gex.stg.move.mil,my.stg.move.mil,orders.stg.move.mil
+    export AWS_ACCOUNT_ID=015932076428
     ;;
-  prod)
+  prd)
     health_check_hosts=my.move.mil,office.move.mil,admin.move.mil
-    tls_health_check_hosts=gex.move.mil,dps.move.mil,orders.move.mil
+    tls_health_check_hosts=gex.move.mil,my.move.mil,orders.move.mil
+    export AWS_ACCOUNT_ID=015533997236
     ;;
   *)
-    echo "<environment> must be one of experimental, staging, or prod"
+    echo "<environment> must be one of exp, stg, or prd"
     exit 1
     ;;
 esac
-
-if [ -z "${AWS_ACCOUNT_ID}" ]; then
-  echo "AWS_ACCOUNT_ID not found!"
-  echo "Please add 'AWS_ACCOUNT_ID' to your .envrc.local"
-  exit 1
-fi
 
 # TLS Hosts
 go run cmd/health-checker/main.go --schemes http,https --hosts "${health_check_hosts}" --tries 10 --backoff 3 --log-level info --timeout 15m --verbose
 go run cmd/tls-checker/main.go --schemes https --hosts "${health_check_hosts}" --log-level info --timeout 15m --verbose
 
 # Mutual TLS Hosts
-KEY=$(chamber read app-experimental move_mil_dod_tls_key -q | base64 -i -)
-CERT=$(chamber read app-experimental move_mil_dod_tls_cert -q | base64 -i -)
-CA=$(chamber read app-experimental move_mil_dod_ca_cert -q | base64 -i -)
+KEY=$(chamber read app-exp move_mil_dod_tls_key -q | base64 -i -)
+CERT=$(chamber read app-exp move_mil_dod_tls_cert -q | base64 -i -)
+CA=$(chamber read app-exp move_mil_dod_ca_cert -q | base64 -i -)
 
 go run cmd/health-checker/main.go --schemes https --hosts "${tls_health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --tries 10 --backoff 3 --log-level info --timeout 15m --verbose
 go run cmd/tls-checker/main.go --schemes https --hosts "${tls_health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --log-level info --timeout 15m --verbose
