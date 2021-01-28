@@ -33,7 +33,7 @@ require (
 	github.com/gobuffalo/fizz v1.13.0
 	github.com/gobuffalo/flect v0.2.2
 	github.com/gobuffalo/nulls v0.4.0 // indirect
-	github.com/gobuffalo/pop/v5 v5.3.1
+	github.com/gobuffalo/pop/v5 v5.3.2
 	github.com/gobuffalo/validate/v3 v3.3.0
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.3
@@ -42,7 +42,6 @@ require (
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.0
 	github.com/imdario/mergo v0.3.10
-	github.com/jackc/pgconn v1.7.0 // indirect
 	github.com/jackc/pgerrcode v0.0.0-20190803225404-afa3381909a6
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
