@@ -68,7 +68,7 @@ const MoveDetails = () => {
     },
   });
 
-  const [mutuateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
+  const [mutateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
@@ -149,7 +149,7 @@ const MoveDetails = () => {
                 mtoServiceItems={mtoServiceItems}
                 shipmentsStatus="SUBMITTED"
                 approveMTO={mutateMoveStatus}
-                approveMTOShipment={mutuateMTOShipmentStatus}
+                approveMTOShipment={mutateMTOShipmentStatus}
                 moveTaskOrder={move}
               />
             </div>
