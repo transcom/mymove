@@ -97,6 +97,9 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         if (paramsDiff.roles) {
           paramsDiff.roles = params.data.roles;
         }
+        if (params.data.active != null) {
+          paramsDiff.active = params.data.active;
+        }
         options.body = JSON.stringify(paramsDiff);
         break;
       case CREATE:
