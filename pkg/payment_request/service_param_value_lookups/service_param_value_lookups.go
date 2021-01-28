@@ -87,10 +87,21 @@ func ServiceParamLookupInitialize(
 	var mtoShipment models.MTOShipment
 	var pickupAddress models.Address
 	var destinationAddress models.Address
+	var sitDestinationFinalAddress models.Address
 
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeCS, models.ReServiceCodeMS:
 		// Do nothing, these service items don't use the MTOShipment
+	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT:
+		// load destination address from final address on service item
+		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
+			err = db.Load(&mtoServiceItem, "SITDestinationFinalAddress")
+			if err != nil {
+				return nil, err
+			}
+			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
+		}
+		fallthrough
 	default:
 		// Make sure there's an MTOShipment since that's nullable
 		if mtoServiceItem.MTOShipmentID == nil {
@@ -298,6 +309,23 @@ func ServiceParamLookupInitialize(
 	paramKey = models.ServiceItemParamNameSITScheduleDest
 	err = s.setLookup(serviceItemCode, paramKey, SITScheduleLookup{
 		Address: destinationAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameZipSITDestHHGFinalAddress
+	err = s.setLookup(serviceItemCode, paramKey, ZipAddressLookup{
+		Address: sitDestinationFinalAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameDistanceZipSITDest
+	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITDestLookup{
+		DestinationAddress:      destinationAddress,
+		FinalDestinationAddress: sitDestinationFinalAddress,
 	})
 	if err != nil {
 		return nil, err

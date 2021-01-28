@@ -1,6 +1,6 @@
 import { mount } from 'enzyme';
 
-import { formatAddress, formatCustomerDestination } from './shipmentDisplay';
+import { formatAddress, formatCustomerDestination, formatPaymentRequestAddressString } from './shipmentDisplay';
 
 describe('shipmentDisplay utils', () => {
   describe('formatAddress', () => {
@@ -59,6 +59,25 @@ describe('shipmentDisplay utils', () => {
 
     it('shows postalCode if address is not provided', () => {
       expect(formatCustomerDestination(null, '11111')).toBe('11111');
+    });
+  });
+  describe('formatPaymentRequestAddressString', () => {
+    const pickupAddress = {
+      city: 'Princeton',
+      state: 'NJ',
+      postal_code: '08540',
+    };
+    const destinationAddress = { city: 'Boston', state: 'MA', postal_code: '02101' };
+    it('shows expected string when both pickupAddress and destinationAddress are present', () => {
+      expect(formatPaymentRequestAddressString(pickupAddress, destinationAddress)).toBe(
+        `Princeton, NJ 08540 to Boston, MA 02101`,
+      );
+    });
+    it('shows expected string when both pickupAddress is missing', () => {
+      expect(formatPaymentRequestAddressString(undefined, destinationAddress)).toBe(`TBD to Boston, MA 02101`);
+    });
+    it('shows expected string when both destinationAddress is missing', () => {
+      expect(formatPaymentRequestAddressString(pickupAddress, undefined)).toBe(`Princeton, NJ 08540 to TBD`);
     });
   });
 });

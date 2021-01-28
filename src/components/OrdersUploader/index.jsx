@@ -101,10 +101,9 @@ class OrdersUploader extends Component {
   }
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
-    const { document, createUpload } = this.props;
+    const { createUpload } = this.props;
     const self = this;
-    const docID = document ? document.id : null;
-    createUpload(file, docID)
+    createUpload(file)
       .then((item) => {
         const response = get(item, 'response.body', {});
         load(response.id);
@@ -187,8 +186,6 @@ class OrdersUploader extends Component {
 }
 
 OrdersUploader.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  document: PropTypes.object,
   onChange: PropTypes.func,
   createUpload: PropTypes.func.isRequired,
   onRef: PropTypes.func,
@@ -199,7 +196,6 @@ OrdersUploader.propTypes = {
 };
 
 OrdersUploader.defaultProps = {
-  document: {},
   onChange: undefined,
   onRef: undefined,
   deleteUpload: undefined,

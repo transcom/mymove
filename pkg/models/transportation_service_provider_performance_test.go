@@ -806,6 +806,7 @@ func (suite *ModelSuite) Test_FetchDiscountRatesSameBVS() {
 	moveDate := date(testdatagen.TestYear, time.May, 26)
 
 	tspPerformance1 := TransportationServiceProviderPerformance{
+		ID:                              uuid.FromStringOrNil("0b5fd285-84c2-450c-a614-585f61cdeff8"),
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
 		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
 		RateCycleStart:                  testdatagen.PeakRateCycleStart,
@@ -817,9 +818,10 @@ func (suite *ModelSuite) Test_FetchDiscountRatesSameBVS() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
-	suite.MustSave(&tspPerformance1)
+	suite.MustCreate(suite.DB(), &tspPerformance1)
 
 	tspPerformance2 := TransportationServiceProviderPerformance{
+		ID:                              uuid.FromStringOrNil("5f5b3950-5962-4d54-a963-e508ef3f3252"),
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
 		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
 		RateCycleStart:                  testdatagen.PeakRateCycleStart,
@@ -831,13 +833,10 @@ func (suite *ModelSuite) Test_FetchDiscountRatesSameBVS() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(55.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(52.0),
 	}
-	suite.MustSave(&tspPerformance2)
+	suite.MustCreate(suite.DB(), &tspPerformance2)
 
 	// Given matching BVS scores, the TSPP with the alphabetically first ID should be returned.  Make that our target.
 	targetTspPerformance := tspPerformance1
-	if tspPerformance1.ID.String() > tspPerformance2.ID.String() {
-		targetTspPerformance = tspPerformance2
-	}
 
 	discountRate, sitRate, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", moveDate)
 	if err != nil {
@@ -895,13 +894,15 @@ func (suite *ModelSuite) Test_FetchDiscountRatesPerformancePeriodBoundaries() {
 		t.Fatalf("Failed to find tsp performance for first day in performance period: %s", err)
 	}
 
-	if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppStart.Add(time.Hour*-24)); err == nil {
-		t.Fatalf("Should not have found a TSPP for the last day before the start of a performance period: %s", err)
-	}
+	// discount rates are being hard coded so ignore this test
+	// if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppStart.Add(time.Hour*-24)); err == nil {
+	// 	t.Fatalf("Should not have found a TSPP for the last day before the start of a performance period: %s", err)
+	// }
 
-	if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppEnd.Add(time.Hour*24)); err == nil {
-		t.Fatalf("Should not have found a TSPP for the first day following a performance period: %s", err)
-	}
+	// discount rates are being hard coded so ignore this test
+	// if _, _, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", ppEnd.Add(time.Hour*24)); err == nil {
+	// 	t.Fatalf("Should not have found a TSPP for the first day following a performance period: %s", err)
+	// }
 }
 
 func equalUUIDSlice(a []uuid.UUID, b []uuid.UUID) bool {
