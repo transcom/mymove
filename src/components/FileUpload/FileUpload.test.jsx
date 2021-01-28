@@ -6,7 +6,7 @@ import FileUpload from './FileUpload';
 
 describe('FileUpload component', () => {
   const testProps = {
-    createUpload: jest.fn(),
+    createUpload: jest.fn(() => Promise.resolve({ id: 'testFileId' })),
   };
 
   it('renders the FilePond component without errors', () => {

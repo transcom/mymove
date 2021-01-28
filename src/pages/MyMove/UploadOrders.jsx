@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -22,6 +22,8 @@ import { PageListShape, PageKeyShape, AdditionalParamsShape, OrdersShape, Upload
 export class UploadOrders extends Component {
   constructor(props) {
     super(props);
+
+    this.filePondEl = createRef();
 
     this.onChange = this.onChange.bind(this);
     this.handleUploadFile = this.handleUploadFile.bind(this);
@@ -60,6 +62,7 @@ export class UploadOrders extends Component {
   }
 
   onChange() {
+    this.filePondEl.current?.removeFiles();
     this.handleUploadComplete();
   }
 
@@ -91,6 +94,7 @@ export class UploadOrders extends Component {
         {currentOrders && (
           <div className="uploader-box">
             <FileUpload
+              ref={this.filePondEl}
               createUpload={this.handleUploadFile}
               onChange={this.onChange}
               labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
