@@ -233,9 +233,6 @@ bin/generate-deploy-notes: cmd/generate-deploy-notes
 bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
-bin/find-guardduty-user: cmd/find-guardduty-user
-	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
-
 bin/generate-access-codes: cmd/generate_access_codes
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
