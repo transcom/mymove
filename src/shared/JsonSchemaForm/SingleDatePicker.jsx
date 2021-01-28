@@ -36,7 +36,12 @@ export default function SingleDatePicker(props) {
       format={format}
       value={formatted}
       dayPickerProps={getDayPickerProps(disabledDays)}
-      inputProps={{ disabled, name, onChange, autoComplete: 'off', className: inputClassName || 'usa-input' }}
+      inputProps={{
+        disabled,
+        name,
+        autoComplete: 'off',
+        className: inputClassName || 'usa-input',
+      }}
     />
   );
 }

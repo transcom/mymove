@@ -21,11 +21,11 @@ type UserSessionRevocation struct {
 }
 
 // RevokeUserSession provides a mock function with given fields: id, payload, sessionStore
-func (_m *UserSessionRevocation) RevokeUserSession(id uuid.UUID, payload *adminmessages.UserRevokeSessionPayload, sessionStore scs.Store) (*models.User, *validate.Errors, error) {
+func (_m *UserSessionRevocation) RevokeUserSession(id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) (*models.User, *validate.Errors, error) {
 	ret := _m.Called(id, payload, sessionStore)
 
 	var r0 *models.User
-	if rf, ok := ret.Get(0).(func(uuid.UUID, *adminmessages.UserRevokeSessionPayload, scs.Store) *models.User); ok {
+	if rf, ok := ret.Get(0).(func(uuid.UUID, *adminmessages.UserUpdatePayload, scs.Store) *models.User); ok {
 		r0 = rf(id, payload, sessionStore)
 	} else {
 		if ret.Get(0) != nil {
@@ -34,7 +34,7 @@ func (_m *UserSessionRevocation) RevokeUserSession(id uuid.UUID, payload *adminm
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(uuid.UUID, *adminmessages.UserRevokeSessionPayload, scs.Store) *validate.Errors); ok {
+	if rf, ok := ret.Get(1).(func(uuid.UUID, *adminmessages.UserUpdatePayload, scs.Store) *validate.Errors); ok {
 		r1 = rf(id, payload, sessionStore)
 	} else {
 		if ret.Get(1) != nil {
@@ -43,7 +43,7 @@ func (_m *UserSessionRevocation) RevokeUserSession(id uuid.UUID, payload *adminm
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(uuid.UUID, *adminmessages.UserRevokeSessionPayload, scs.Store) error); ok {
+	if rf, ok := ret.Get(2).(func(uuid.UUID, *adminmessages.UserUpdatePayload, scs.Store) error); ok {
 		r2 = rf(id, payload, sessionStore)
 	} else {
 		r2 = ret.Error(2)

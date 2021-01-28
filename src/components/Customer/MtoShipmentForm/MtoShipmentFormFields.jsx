@@ -41,7 +41,6 @@ const MtoShipmentFormFields = ({
   const { hasDeliveryAddress } = values;
 
   const optionalLabel = <span className={styles.optional}>Optional</span>;
-
   return (
     <div className={styles.MTOShipmentForm}>
       <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />

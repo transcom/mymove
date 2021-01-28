@@ -273,7 +273,7 @@ describe('PaymentRequestDetails', () => {
     );
 
     it('renders the expected table title', () => {
-      expect(wrapper.text().includes('NTS release (5 items)')).toBeTruthy();
+      expect(wrapper.text().includes('Non-temp storage release (5 items)')).toBeTruthy();
     });
 
     it('does renders the Pickup Address and Destination Address', async () => {
