@@ -3,14 +3,13 @@ import { Show, SimpleShowLayout, TextField, DateField } from 'react-admin';
 import PropTypes from 'prop-types';
 
 const MoveShowTitle = ({ record }) => {
-  return <span>{`${record.serviceMember.firstName} ${record.serviceMember.lastName}`}</span>;
+  return <span>{`Move ID: ${record.serviceMember.id}`}</span>;
 };
 
 MoveShowTitle.propTypes = {
   record: PropTypes.shape({
     serviceMember: PropTypes.shape({
-      firstName: PropTypes.string,
-      lastName: PropTypes.node,
+      id: PropTypes.string,
     }),
   }),
 };
@@ -18,8 +17,7 @@ MoveShowTitle.propTypes = {
 MoveShowTitle.defaultProps = {
   record: {
     serviceMember: {
-      firstName: '',
-      lastName: '',
+      id: '',
     },
   },
 };
