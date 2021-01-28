@@ -1,5 +1,3 @@
-/* eslint-disable no-only-tests/no-only-tests */
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 import sinon from 'sinon';
