@@ -35,7 +35,7 @@ const MoveShow = (props) => {
         <TextField source="show" />
         <TextField source="serviceMember.userId" label="User Id" />
         <TextField source="serviceMember.id" label="Service member Id" />
-        <TextField source="serviceMember.firstName" label="service member first name" />
+        <TextField source="serviceMember.firstName" label="Service member first name" />
         <TextField source="serviceMember.middleName" label="Service member middle name" />
         <TextField source="serviceMember.lastName" label="Service member last name" />
         <DateField source="createdAt" showTime />
