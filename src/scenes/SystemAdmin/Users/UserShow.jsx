@@ -3,9 +3,9 @@ import { Show, SimpleShowLayout, TextField, BooleanField, DateField } from 'reac
 
 const UserShow = (props) => {
   return (
-    <Show {...props} title="title">
+    <Show {...props} title="title" data-testid="user-show-detail">
       <SimpleShowLayout>
-        <TextField source="id" label="user ID" />
+        <TextField data-testid="user-id" source="id" label="user ID" />
         <TextField source="loginGovEmail" label="user email" />
         <BooleanField source="active" />
         <TextField source="currentAdminSessionId" label="user current admin session ID" />
