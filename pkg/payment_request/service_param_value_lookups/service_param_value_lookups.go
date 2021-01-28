@@ -130,21 +130,6 @@ func ServiceParamLookupInitialize(
 			}
 			destinationAddress = *mtoShipment.DestinationAddress
 		}
-
-		if mtoServiceItem.SITOriginHHGOriginalAddressID != nil && *mtoServiceItem.SITOriginHHGOriginalAddressID != uuid.Nil {
-			err = db.Load(&mtoServiceItem, "SITOriginHHGOriginalAddress")
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		// load updated origin address from service item
-		if mtoServiceItem.SITOriginHHGActualAddressID != nil && *mtoServiceItem.SITOriginHHGActualAddressID != uuid.Nil {
-			err = db.Load(&mtoServiceItem, "SITOriginHHGActualAddress")
-			if err != nil {
-				return nil, err
-			}
-		}
 	}
 
 	//

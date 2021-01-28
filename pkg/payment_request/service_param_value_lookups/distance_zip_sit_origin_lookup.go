@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -13,9 +15,25 @@ type DistanceZipSITOriginLookup struct {
 }
 
 func (r DistanceZipSITOriginLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+	db := *keyData.db
 	planner := keyData.planner
-	originalAddress := *r.ServiceItem.SITOriginHHGOriginalAddress
-	actualAddress := *r.ServiceItem.SITOriginHHGActualAddress
+
+	// load updated origin SIT addresses from service item
+	if r.ServiceItem.SITOriginHHGOriginalAddressID != nil && *r.ServiceItem.SITOriginHHGOriginalAddressID != uuid.Nil {
+		err := db.Load(&r.ServiceItem, "SITOriginHHGOriginalAddress")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if r.ServiceItem.SITOriginHHGActualAddressID != nil && *r.ServiceItem.SITOriginHHGActualAddressID != uuid.Nil {
+		err := db.Load(&r.ServiceItem, "SITOriginHHGActualAddress")
+		if err != nil {
+			return "", err
+		}
+	}
+	originalAddress := r.ServiceItem.SITOriginHHGOriginalAddress
+	actualAddress := r.ServiceItem.SITOriginHHGActualAddress
 
 	// If the zip3s are identical, we do a zip3 distance calc (which uses RM).
 	// If they are different, we do a zip5 distance calc (which uses DTOD).
