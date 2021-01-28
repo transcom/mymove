@@ -614,7 +614,9 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 		//             After second failure one minute later - notif still marked as FAILING, subscription severity = 3
 
 		// Update firstAttemptedTime to be a minute ago
-		notifications[0].FirstAttemptedAt = notifications[0].FirstAttemptedAt.Add(-60 * time.Second)
+		firstAttemptedAt := notifications[0].FirstAttemptedAt
+		earlierThanFirstAttemptedAt := (*firstAttemptedAt).Add(-60 * time.Second)
+		notifications[0].FirstAttemptedAt = &earlierThanFirstAttemptedAt
 		suite.DB().ValidateAndUpdate(&notifications[0])
 
 		// RUN TEST
@@ -651,7 +653,9 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// Update firstAttemptedTime to be more than one threshold ago
 		durationOffset := time.Duration(engine.SeverityThresholds[0]) * time.Second
-		notifications[0].FirstAttemptedAt = notifications[0].FirstAttemptedAt.Add(-durationOffset)
+		firstAttemptedAt := notifications[0].FirstAttemptedAt
+		earlierThanFirstAttemptedAt := (*firstAttemptedAt).Add(-durationOffset)
+		notifications[0].FirstAttemptedAt = &earlierThanFirstAttemptedAt
 		suite.DB().ValidateAndUpdate(&notifications[0])
 
 		// RUN TEST
@@ -688,7 +692,9 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// Update firstAttemptedTime to be more than one threshold ago
 		durationOffset := time.Duration(engine.SeverityThresholds[1]) * time.Second
-		notifications[0].FirstAttemptedAt = notifications[0].FirstAttemptedAt.Add(-durationOffset)
+		firstAttemptedAt := notifications[0].FirstAttemptedAt
+		earlierThanFirstAttemptedAt := (*firstAttemptedAt).Add(-durationOffset)
+		notifications[0].FirstAttemptedAt = &earlierThanFirstAttemptedAt
 		suite.DB().ValidateAndUpdate(&notifications[0])
 
 		// RUN TEST
