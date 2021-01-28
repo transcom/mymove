@@ -23,23 +23,16 @@ describe('Users Details Show Page', function () {
     cy.prepareAdminApp();
   });
 
-  //   // Is there a way to pass in any id instead of a specific ID in the URL
-  //   // pullout columnLabels var
-  //   //  Make a note that this test is dependent on the previous test
   it('pulls up details page for a user', function () {
     cy.signInAsNewAdminUser();
     cy.get('a[href*="system/users"]').click();
     cy.url().should('eq', adminBaseURL + '/system/users');
-    // Fix the line below to get any id for any user in the list of users
     cy.get('[data-testid="user-id"]').first().click();
 
-    // cy.get('a[href*="system/users/${id.first()}/show"]').click();
-    // cy.get('a[href*="/show"]').first().click();
-
-    // const pageContent = ['user ID', 'user email', 'Active', 'Created at', 'Updated at'];
-    // pageContent.forEach((string) => {
-    //   cy.get('content').contains(string);
-    // });
     cy.get('.ra-field-id label').contains('user ID');
+    cy.get('.ra-field-loginGovEmail label').contains('user email');
+    cy.get('.ra-field-active label').contains('Active');
+    cy.get('.ra-field-createdAt label').contains('Created at');
+    cy.get('.ra-field-updatedAt label').contains('Updated at');
   });
 });

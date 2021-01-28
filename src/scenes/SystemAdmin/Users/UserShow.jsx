@@ -6,7 +6,7 @@ const UserShow = (props) => {
     <Show {...props} title="title" data-testid="user-show-detail">
       <SimpleShowLayout>
         <TextField data-testid="user-id" source="id" label="user ID" />
-        <TextField source="loginGovEmail" label="user email" />
+        <TextField data-testid="user-gov-email" source="loginGovEmail" label="user email" />
         <BooleanField source="active" />
         <TextField source="currentAdminSessionId" label="user current admin session ID" />
         <TextField source="currentOfficeSessionId" label="user current office session ID" />
