@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import classnames from 'classnames';
 import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { queryCache, useMutation } from 'react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
-import { updateMoveTaskOrderStatus, patchMTOShipmentStatus } from 'services/ghcApi';
+import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
@@ -15,6 +16,7 @@ import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -57,6 +59,20 @@ const MoveDetails = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
+  });
+
+  // use mutation calls
+  const [mutateMoveStatus] = useMutation(updateMoveStatus, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([MOVES, data.locator], data);
+    },
+  });
+
+  const [mutuateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
+    onSuccess: (updatedMTOShipment) => {
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+    },
   });
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -132,8 +148,8 @@ const MoveDetails = () => {
                 customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
                 shipmentsStatus="SUBMITTED"
-                approveMTO={updateMoveTaskOrderStatus}
-                approveMTOShipment={patchMTOShipmentStatus}
+                approveMTO={mutateMoveStatus}
+                approveMTOShipment={mutuateMTOShipmentStatus}
                 moveTaskOrder={move}
               />
             </div>
