@@ -158,6 +158,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	suite.T().Run("200 - OK response", func(t *testing.T) {
 		params := moveop.GetMoveParams{
 			HTTPRequest: req,
+			MoveID:      *handlers.FmtUUID(defaultMove.ID),
 		}
 		handler := GetMoveHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -167,7 +168,6 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 		suite.IsType(&moveop.GetMoveOK{}, response)
 		okResponse := response.(*moveop.GetMoveOK)
-		suite.Len(okResponse.Payload, 1)
 		suite.Equal(defaultMove.ID.String(), okResponse.Payload.ID.String())
 	})
 
@@ -176,6 +176,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		badReq := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", badUUID), nil)
 		params := moveop.GetMoveParams{
 			HTTPRequest: badReq,
+			MoveID:      *handlers.FmtUUID(badUUID),
 		}
 
 		handler := GetMoveHandler{
@@ -183,6 +184,6 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&moveop.GetMoveNotFound{}, response)
+		suite.IsType(&moveop.GetMoveInternalServerError{}, response)
 	})
 }
