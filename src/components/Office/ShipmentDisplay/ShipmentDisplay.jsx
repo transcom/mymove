@@ -59,6 +59,7 @@ ShipmentDisplay.propTypes = {
     SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
     SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     SHIPMENT_OPTIONS.NTS,
+    SHIPMENT_OPTIONS.NTSR,
   ]),
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,

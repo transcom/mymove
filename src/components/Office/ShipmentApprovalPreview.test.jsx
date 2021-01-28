@@ -219,6 +219,9 @@ describe('Shipment preview modal', () => {
     expect(wrapper.find(ShipmentContainer).exists()).toBe(true);
     expect(wrapper.find(AllowancesTable).exists()).toBe(true);
     expect(wrapper.find(CustomerInfoTable).exists()).toBe(true);
+
+    expect(wrapper.find('h4').at(0).text()).toEqual('Household goods');
+    expect(wrapper.find('h4').at(2).text()).toEqual('Non-temp storage release');
   });
   it('renders the modal successfully with mtoAgents provided', () => {
     const wrapper = mount(
