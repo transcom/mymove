@@ -69,8 +69,8 @@ const MoveDetails = () => {
   });
 
   const [mutuateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
-    onSuccess: (data) => {
-      queryCache.setQueryData([MTO_SHIPMENTS, data.mtoShipmentID], data);
+    onSuccess: (updatedMTOShipment) => {
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.id], updatedMTOShipment);
     },
   });
 
