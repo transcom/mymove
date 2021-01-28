@@ -23,11 +23,11 @@ type ghcPaymentRequestInvoiceGenerator struct {
 }
 
 // NewGHCPaymentRequestInvoiceGenerator returns an implementation of the GHCPaymentRequestInvoiceGenerator interface
-func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection, icnSequencer sequence.Sequencer) services.GHCPaymentRequestInvoiceGenerator {
+func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection, icnSequencer sequence.Sequencer, clock clock.Clock) services.GHCPaymentRequestInvoiceGenerator {
 	return &ghcPaymentRequestInvoiceGenerator{
 		db:           db,
 		icnSequencer: icnSequencer,
-		clock:        clock.New(),
+		clock:        clock,
 	}
 }
 

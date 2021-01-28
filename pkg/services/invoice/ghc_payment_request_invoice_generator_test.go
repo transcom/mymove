@@ -56,11 +56,7 @@ func (suite *GHCInvoiceSuite) TestGeneratorConstructor() {
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
-	generator := &ghcPaymentRequestInvoiceGenerator{
-		db:           suite.DB(),
-		icnSequencer: suite.icnSequencer,
-		clock:        mockClock,
-	}
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -192,13 +188,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	// Proceed with full EDI Generation tests
 	result, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
-
-	// test constructor since we don't use it in this file
-	suite.T().Run("generator from constructor doesn't error out", func(t *testing.T) {
-		generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
-		_, err := generator.Generate(paymentRequest, false)
-		suite.NoError(err)
-	})
 
 	// Test Invoice Start and End Segments
 	suite.T().Run("adds isa start segment", func(t *testing.T) {
@@ -530,7 +519,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 }
 
 func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -598,11 +587,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		},
 	}
 
-	generator := &ghcPaymentRequestInvoiceGenerator{
-		db:           suite.DB(),
-		icnSequencer: suite.icnSequencer,
-		clock:        mockClock,
-	}
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
 	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -695,7 +680,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 }
 
 func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
