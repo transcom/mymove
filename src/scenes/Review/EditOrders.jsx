@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
@@ -45,6 +45,7 @@ let EditOrdersForm = (props) => {
     initialValues,
     existingUploads,
     onUploadComplete,
+    filePondEl,
   } = props;
   const showAllOrdersTypes = props.context.flags.allOrdersTypes;
   const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
@@ -83,6 +84,7 @@ let EditOrdersForm = (props) => {
                 <div>
                   <p>{documentSizeLimitMsg}</p>
                   <FileUpload
+                    ref={filePondEl}
                     createUpload={createUpload}
                     onChange={onUploadComplete}
                     labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
@@ -113,6 +115,12 @@ EditOrdersForm = withContext(
 );
 
 class EditOrders extends Component {
+  constructor(props) {
+    super(props);
+
+    this.filePondEl = createRef();
+  }
+
   handleUploadFile = (file) => {
     const { currentOrders } = this.props;
     const documentId = currentOrders?.uploaded_orders?.id;
@@ -121,6 +129,7 @@ class EditOrders extends Component {
 
   handleUploadComplete = () => {
     const { serviceMemberId, updateOrders } = this.props;
+    this.filePondEl.current?.removeFiles();
     return getOrdersForServiceMember(serviceMemberId).then((response) => {
       updateOrders(response);
     });
@@ -195,6 +204,7 @@ class EditOrders extends Component {
               initialValues={currentOrders}
               onSubmit={this.submitOrders}
               schema={schema}
+              filePondEl={this.filePondEl}
               createUpload={this.handleUploadFile}
               onUploadComplete={this.handleUploadComplete}
               existingUploads={existingUploads}
