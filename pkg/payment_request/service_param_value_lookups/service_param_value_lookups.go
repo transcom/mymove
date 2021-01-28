@@ -88,15 +88,10 @@ func ServiceParamLookupInitialize(
 	var pickupAddress models.Address
 	var destinationAddress models.Address
 	var sitDestinationFinalAddress models.Address
-	var sitOriginOriginalAddress models.Address
-	var sitOriginActualAddress models.Address
-
-	savePickupAndDestinationFromShipment := true
 
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeCS, models.ReServiceCodeMS:
 		// Do nothing, these service items don't use the MTOShipment
-		savePickupAndDestinationFromShipment = false
 	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT:
 		// load destination address from final address on service item
 		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
@@ -106,27 +101,8 @@ func ServiceParamLookupInitialize(
 			}
 			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
 		}
-	case models.ReServiceCodeDOASIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOPSIT:
-		// load original origin address from service item
-		if mtoServiceItem.SITOriginHHGOriginalAddressID != nil && *mtoServiceItem.SITOriginHHGOriginalAddressID != uuid.Nil {
-			err = db.Load(&mtoServiceItem, "SITOriginHHGOriginalAddress")
-			if err != nil {
-				return nil, err
-			}
-			sitOriginOriginalAddress = *mtoServiceItem.SITOriginHHGOriginalAddress
-		}
-
-		// load updated origin address from service item
-		if mtoServiceItem.SITOriginHHGActualAddressID != nil && *mtoServiceItem.SITOriginHHGActualAddressID != uuid.Nil {
-			err = db.Load(&mtoServiceItem, "SITOriginHHGActualAddress")
-			if err != nil {
-				return nil, err
-			}
-			sitOriginActualAddress = *mtoServiceItem.SITOriginHHGActualAddress
-		}
-	}
-
-	if savePickupAndDestinationFromShipment {
+		fallthrough
+	default:
 		// Make sure there's an MTOShipment since that's nullable
 		if mtoServiceItem.MTOShipmentID == nil {
 			return nil, services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
@@ -153,6 +129,21 @@ func ServiceParamLookupInitialize(
 				return nil, services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
 			}
 			destinationAddress = *mtoShipment.DestinationAddress
+		}
+
+		if mtoServiceItem.SITOriginHHGOriginalAddressID != nil && *mtoServiceItem.SITOriginHHGOriginalAddressID != uuid.Nil {
+			err = db.Load(&mtoServiceItem, "SITOriginHHGOriginalAddress")
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		// load updated origin address from service item
+		if mtoServiceItem.SITOriginHHGActualAddressID != nil && *mtoServiceItem.SITOriginHHGActualAddressID != uuid.Nil {
+			err = db.Load(&mtoServiceItem, "SITOriginHHGActualAddress")
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -357,8 +348,7 @@ func ServiceParamLookupInitialize(
 
 	paramKey = models.ServiceItemParamNameDistanceZipSITOrigin
 	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITOriginLookup{
-		OriginalAddress: sitOriginOriginalAddress,
-		ActualAddress:   sitOriginActualAddress,
+		ServiceItem: mtoServiceItem,
 	})
 	if err != nil {
 		return nil, err

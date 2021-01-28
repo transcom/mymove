@@ -9,24 +9,25 @@ import (
 
 // DistanceZipSITOriginLookup does the lookup of distance for SIT at origin
 type DistanceZipSITOriginLookup struct {
-	OriginalAddress models.Address
-	ActualAddress   models.Address
+	ServiceItem models.MTOServiceItem
 }
 
 func (r DistanceZipSITOriginLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
 	planner := keyData.planner
+	originalAddress := *r.ServiceItem.SITOriginHHGOriginalAddress
+	actualAddress := *r.ServiceItem.SITOriginHHGActualAddress
 
 	// If the zip3s are identical, we do a zip3 distance calc (which uses RM).
 	// If they are different, we do a zip5 distance calc (which uses DTOD).
 
-	originZip := r.OriginalAddress.PostalCode
+	originZip := originalAddress.PostalCode
 	if len(originZip) < 5 {
 		return "", fmt.Errorf("invalid origin postal code of %s", originZip)
 	}
 
 	originZip3 := originZip[:3]
 
-	actualOriginZip := r.ActualAddress.PostalCode
+	actualOriginZip := actualAddress.PostalCode
 	if len(actualOriginZip) < 5 {
 		return "", fmt.Errorf("invalid SIT origin postal code of %s", actualOriginZip)
 	}
