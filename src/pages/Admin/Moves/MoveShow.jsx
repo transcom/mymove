@@ -2,15 +2,26 @@ import React from 'react';
 import { Show, SimpleShowLayout, TextField, DateField } from 'react-admin';
 import PropTypes from 'prop-types';
 
-const MoveShowTitle = ({ serviceMember }) => {
-  return <span>{`${serviceMember.firstName} ${serviceMember.lastName}`}</span>;
+const MoveShowTitle = ({ record }) => {
+  return <span>{`${record.serviceMember.firstName} ${record.serviceMember.lastName}`}</span>;
 };
 
 MoveShowTitle.propTypes = {
-  serviceMember: PropTypes.shape({
-    firstName: PropTypes.string,
-    lastName: PropTypes.node,
-  }).isRequired,
+  record: PropTypes.shape({
+    serviceMember: PropTypes.shape({
+      firstName: PropTypes.string,
+      lastName: PropTypes.node,
+    }),
+  }),
+};
+
+MoveShowTitle.defaultProps = {
+  record: {
+    serviceMember: {
+      firstName: '',
+      lastName: '',
+    },
+  },
 };
 
 const MoveShow = (props) => {
@@ -22,11 +33,11 @@ const MoveShow = (props) => {
         <TextField source="locator" />
         <TextField source="status" />
         <TextField source="show" />
-        <TextField source="id" label="Service Member Id" reference="moves.serviceMember" />
-        <TextField source="firstname" />
-        {/* <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices" sortBy="name">
-          <TextField component="pre" source="name" />
-        </ReferenceField> */}
+        <TextField source="serviceMember.userId" label="User Id" />
+        <TextField source="serviceMember.id" label="Service member Id" />
+        <TextField source="serviceMember.firstName" label="service member first name" />
+        <TextField source="serviceMember.middleName" label="Service member middle name" />
+        <TextField source="serviceMember.lastName" label="Service member last name" />
         <DateField source="createdAt" showTime />
         <DateField source="updatedAt" showTime />
       </SimpleShowLayout>
