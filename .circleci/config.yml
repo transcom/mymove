@@ -286,6 +286,25 @@ commands:
           name: Check deployed commits
           command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
       - announce_failure
+  deploy_webhook_client_steps:
+    parameters:
+      ecr_env:
+        type: string
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - attach_workspace:
+          at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-webhook-client_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+      - deploy:
+          name: Deploy app-webhook-client service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-webhook-client "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-webhook-client@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/webhook-client webhook-notify"
+          no_output_timeout: 20m
+      - announce_failure
   deploy_app_storybook:
     parameters:
       s3_bucket:
@@ -1146,6 +1165,15 @@ jobs:
           health_check_hosts: gex.exp.move.mil,orders.exp.move.mil
           ecr_env: exp
 
+  deploy_exp_webhook_client:
+    executor: mymove_small
+    environment:
+      APP_ENVIRONMENT: 'exp'
+    steps:
+      - aws_vars_exp
+      - deploy_webhook_client_steps:
+          ecr_env: exp
+
   check_circle_against_stg_sha:
     executor: mymove_small
     steps:
@@ -1343,6 +1371,11 @@ workflows:
           requires:
             - build_tools
 
+      - build_webhook_client:
+          requires:
+            - anti_virus
+            - pre_deps_golang
+
       - push_tasks_legacy:
           requires:
             - build_tasks
@@ -1368,6 +1401,13 @@ workflows:
             branches:
               only: placeholder_branch_name
 
+      - push_webhook_client_exp:
+          requires:
+            - build_webhook_client
+          filters:
+            branches:
+              only: placeholder_branch_name
+
       - deploy_exp_migrations:
           requires:
             - pre_deps_golang
@@ -1378,6 +1418,7 @@ workflows:
             - build_tools
             - push_tasks_exp
             - push_migrations_exp
+            - push_webhook_client_exp
           filters:
             branches:
               only: placeholder_branch_name
@@ -1397,6 +1438,13 @@ workflows:
               only: placeholder_branch_name
 
       - deploy_exp_app_client_tls:
+          requires:
+            - deploy_exp_migrations
+          filters:
+            branches:
+              only: placeholder_branch_name
+
+      - deploy_exp_webhook_client:
           requires:
             - deploy_exp_migrations
           filters:
