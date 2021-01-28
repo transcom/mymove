@@ -180,11 +180,11 @@ ShipmentApprovalPreview.propTypes = {
       state: PropTypes.string,
       postal_code: PropTypes.string,
     }),
-    backupContact: {
+    backupContact: PropTypes.shape({
       name: PropTypes.string,
       phone: PropTypes.string,
       email: PropTypes.string,
-    },
+    }),
   }).isRequired,
   setIsModalVisible: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,

@@ -115,12 +115,7 @@ export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
 }
 
-export function updateMoveTaskOrderStatus({
-  moveTaskOrderID,
-  ifMatchETag,
-  mtoApprovalServiceItemCodes,
-  normalize = true,
-}) {
+export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServiceItemCodes, normalize = true }) {
   const operationPath = 'moveTaskOrder.updateMoveTaskOrderStatus';
   return makeGHCRequest(
     operationPath,

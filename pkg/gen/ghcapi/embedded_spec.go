@@ -1024,7 +1024,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/Move"
             }
           },
           "400": {
@@ -2971,6 +2971,10 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
         },
         "moveOrderID": {
           "type": "string",
@@ -5054,7 +5058,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/Move"
             }
           },
           "400": {
@@ -7118,6 +7122,10 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
         },
         "moveOrderID": {
           "type": "string",

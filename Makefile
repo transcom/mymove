@@ -272,9 +272,6 @@ bin/webhook-client: cmd/webhook-client
 bin/query-cloudwatch-logs: cmd/query-cloudwatch-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
 
-bin/query-lb-logs: cmd/query-lb-logs
-	go build -ldflags "$(LDFLAGS)" -o bin/query-lb-logs ./cmd/query-lb-logs
-
 bin/read-alb-logs: cmd/read-alb-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
@@ -364,7 +361,6 @@ build_tools: bin/gin \
 	bin/model-vet \
 	bin/prime-api-client \
 	bin/query-cloudwatch-logs \
-	bin/query-lb-logs \
 	bin/read-alb-logs \
 	bin/report-ecs \
 	bin/send-to-gex \
