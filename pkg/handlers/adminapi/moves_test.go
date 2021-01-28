@@ -171,7 +171,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		suite.Equal(defaultMove.ID.String(), okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("404 - Move not found", func(t *testing.T) {
+	suite.T().Run("500 - Internal Server Error for No SQL Rows Returned", func(t *testing.T) {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		badReq := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", badUUID), nil)
 		params := moveop.GetMoveParams{
