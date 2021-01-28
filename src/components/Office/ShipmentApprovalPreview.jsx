@@ -4,7 +4,6 @@ import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-// import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
 import { MTOShipmentShape, OrdersInfoShape } from '../../types/moveOrder';
 import { formatAddress } from '../../utils/shipmentDisplay';
 
