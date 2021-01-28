@@ -159,7 +159,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 		//RA: This code logs the status code of the api response.
 		//RA: Because there is a check above that exits with an os.Exit(1) from logger.Fatal if resp is nil,
 		// this flagged code would never get hit, and therefore, resp would never be null.
-		//RA Developer Status: False Positive
+		//RA Developer Status: Mitigated
 		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
 		//RA Validator: jneuner@mitre.org
 		//RA Modified Severity:
