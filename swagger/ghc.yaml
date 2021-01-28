@@ -739,7 +739,7 @@ paths:
         '200':
           description: Successfully updated move task order status
           schema:
-            $ref: '#/definitions/MoveTaskOrder'
+            $ref: '#/definitions/Move'
         '400':
           description: The request payload is invalid
           schema:
@@ -1858,6 +1858,9 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      locator:
+        type: string
+        example: '1K43AR'
       referenceId:
         example: 1001-3456
         type: string
