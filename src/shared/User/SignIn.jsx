@@ -6,7 +6,7 @@ import Alert from 'shared/Alert';
 
 const SignIn = ({ context, location }) => {
   const error = qs.parse(location.search).error;
-  const timedout = qs.parse(location.hash).timedout;
+  const hash = qs.parse(location.hash);
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -19,7 +19,7 @@ const SignIn = ({ context, location }) => {
               <br />
             </div>
           )}
-          {timedout && (
+          {'timedout' in hash && (
             <div>
               <Alert type="error" heading="Logged out">
                 You have been logged out due to inactivity.

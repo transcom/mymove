@@ -1,4 +1,5 @@
 import Swagger from 'swagger-client';
+import qs from 'query-string';
 
 import { getClient, checkResponse, requestInterceptor } from 'shared/Swagger/api';
 
@@ -27,7 +28,7 @@ export async function LogoutUser(timedout) {
   try {
     // Successful logout should return a redirect url
     let resp = await Swagger.http(req);
-    let redirect_url = timedout ? resp.text + '#timedout=true' : resp.text;
+    let redirect_url = timedout ? qs.stringifyUrl({ url: resp.text, fragmentIdentifier: 'timedout' }) : resp.text;
     window.location.href = redirect_url;
   } catch (err) {
     // Failure to logout should return user to homepage

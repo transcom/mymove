@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import sinon from 'sinon';
 import IdleTimer from 'react-idle-timer';
 import { LogoutOnInactivity } from './LogoutOnInactivity';
 
@@ -23,10 +22,9 @@ function mountIdleTimerWithLoggedOutUser(props = {}) {
 describe('LogoutOnInactivity', () => {
   describe('component', () => {
     let component;
-    let clock;
 
     beforeEach(() => {
-      clock = sinon.useFakeTimers();
+      jest.useFakeTimers();
       component = mountIdleTimer();
     });
 
@@ -42,7 +40,7 @@ describe('LogoutOnInactivity', () => {
 
       expect(idleTimer.state().idle).toBe(false);
 
-      clock.tick(14 * 1000 * 60);
+      jest.advanceTimersByTime(14 * 60 * 1000);
 
       expect(component.state().isIdle).toBe(true);
       expect(idleTimer.state().idle).toBe(true);
