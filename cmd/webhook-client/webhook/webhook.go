@@ -55,7 +55,18 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				// If notification send failed, we need to log the severity
 				if err != nil {
 					eng.Logger.Error("Webhook Notification send failed", zap.Error(err))
-					sev = eng.GetSeverity(time.Now(), notif.FirstAttemptedAt)
+					if notif.FirstAttemptedAt == nil {
+						eng.Logger.Error("FirstAttempted at time was not stored", zap.Error(err))
+						// We should not ever get this error, but to recover
+						// we set to current time and let the rest of the flow continue.
+						now := time.Now()
+						notif.FirstAttemptedAt = &now
+						err = eng.updateNotification(&notif)
+						if err != nil {
+							eng.Logger.Error("Webhook Notification update failed to update firstAttemptedAt", zap.Error(err))
+						}
+					}
+					sev = eng.GetSeverity(time.Now(), *notif.FirstAttemptedAt)
 					if sev != sub.Severity {
 						eng.Logger.Error("Raising severity of failure",
 							zap.String("subscriptionEvent", sub.EventKey),
@@ -192,7 +203,8 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		resp, body, err2 := eng.Client.Post(json, url)
 
 		if notif.Status == models.WebhookNotificationPending {
-			notif.FirstAttemptedAt = time.Now()
+			now := time.Now()
+			notif.FirstAttemptedAt = &now
 			// Not writing to db, but should be written within
 			// this function.
 		}
