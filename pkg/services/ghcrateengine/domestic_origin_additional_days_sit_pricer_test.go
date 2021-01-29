@@ -91,7 +91,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		//Value:   doasitTestRequestedPickupDate.Format(TimestampParamFormat),
 		//},
 		//{
-		//Key:     models.ServiceItemParamNameServiceAreaDest,
+		//Key:     models.ServiceItemParamNameServiceAreaOrigin,
 		//KeyType: models.ServiceItemParamTypeString,
 		//Value:   doasitTestServiceArea,
 		//},
@@ -119,7 +119,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		//},
 		{
 			testDescription: "not finding service area dest",
-			expectedError:   "could not find param with key ServiceAreaDest",
+			expectedError:   "could not find param with key ServiceAreaOrigin",
 			psiParams: []testdatagen.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameContractCode,
@@ -208,7 +208,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginAdditionalDaysSITServ
 				Value:   doasitTestRequestedPickupDate.Format(TimestampParamFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameServiceAreaDest,
+				Key:     models.ServiceItemParamNameServiceAreaOrigin,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   doasitTestServiceArea,
 			},
