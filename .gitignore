@@ -1,3 +1,6 @@
+# nix
+.gopath
+
 # direnv
 .envrc.local
 .envrc.chamber
