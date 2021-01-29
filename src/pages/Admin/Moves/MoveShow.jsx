@@ -27,6 +27,7 @@ const MoveShow = (props) => {
         <TextField source="locator" />
         <TextField source="status" />
         <TextField source="show" />
+        <TextField source="ordersId" reference="moves" label="Order Id" />
         <TextField source="serviceMember.userId" label="User Id" />
         <TextField source="serviceMember.id" label="Service member Id" />
         <TextField source="serviceMember.firstName" label="Service member first name" />
