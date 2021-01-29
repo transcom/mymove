@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/facebookgo/clock"
+	"github.com/benbjohnson/clock"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"

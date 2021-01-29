@@ -151,5 +151,39 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 }
 
 func (suite *HandlerSuite) TestGetMoveHandler() {
-	// TODO
+	// test that everything is wired up correctly
+	defaultMove := testdatagen.MakeDefaultMove(suite.DB())
+	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
+
+	suite.T().Run("200 - OK response", func(t *testing.T) {
+		params := moveop.GetMoveParams{
+			HTTPRequest: req,
+			MoveID:      *handlers.FmtUUID(defaultMove.ID),
+		}
+		handler := GetMoveHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&moveop.GetMoveOK{}, response)
+		okResponse := response.(*moveop.GetMoveOK)
+		suite.Equal(defaultMove.ID.String(), okResponse.Payload.ID.String())
+	})
+
+	suite.T().Run("500 - Internal Server Error for No SQL Rows Returned", func(t *testing.T) {
+		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
+		badReq := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", badUUID), nil)
+		params := moveop.GetMoveParams{
+			HTTPRequest: badReq,
+			MoveID:      *handlers.FmtUUID(badUUID),
+		}
+
+		handler := GetMoveHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&moveop.GetMoveInternalServerError{}, response)
+	})
 }

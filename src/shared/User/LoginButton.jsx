@@ -4,7 +4,7 @@ import { get } from 'lodash';
 
 import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
-import { LogoutUser } from 'shared/User/api.js';
+import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
 
 const LoginButton = (props) => {

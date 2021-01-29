@@ -93,7 +93,7 @@ table {
     &.locked {
       @include u-border-bottom(0);
       background-color: rgba(255, 255, 255, 0);
-      @include u-text('gray-40');
+      @include u-text('base-darker');
     }
     &.filter {
       @include u-bg('gray-5');

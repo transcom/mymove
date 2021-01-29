@@ -13,6 +13,7 @@ describe('Office App', () => {
     loadUser: jest.fn(),
     loadInternalSchema: jest.fn(),
     loadPublicSchema: jest.fn(),
+    logOut: jest.fn(),
   };
 
   describe('component', () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './LoginButton.module.scss';
-import { LogoutUser } from 'shared/User/api.js';
+import { LogoutUser } from 'utils/api';
 
 export const LoginButton = (props) => {
   if (!props.isLoggedIn) {
