@@ -18,7 +18,7 @@ import {
   loadPublicSchema as loadPublicSchemaAction,
 } from 'shared/Swagger/ducks';
 // Shared layout components
-import ConnectedLogoutOnInactivity from 'shared/User/LogoutOnInactivity';
+import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { QueueHeader } from 'shared/Header/Office';
@@ -29,7 +29,7 @@ import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape, OfficeUserInfoShape } from 'types/index';
-import { LogoutUser } from 'shared/User/api';
+import { LogoutUser } from 'utils/api';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('shared/User/SignIn'));
