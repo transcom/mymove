@@ -4,6 +4,12 @@
 
 FROM milmove/circleci-docker:milmove-app as builder
 
+# Prepare public DOD certificates.
+COPY config/tls/dod-root-ca-3.cer /usr/local/share/ca-certificates/dod-root-ca-3.crt
+COPY config/tls/dod-sw-ca-60.cer /usr/local/share/ca-certificates/dod-sw-ca-60.crt
+USER root
+RUN update-ca-certificates
+
 ENV CIRCLECI=true
 
 COPY --chown=circleci:circleci . /home/circleci/project
@@ -18,6 +24,9 @@ RUN make bin/webhook-client
 #########
 
 FROM gcr.io/distroless/static:latest
+
+# Copy DOD certs from the builder.
+COPY --from=builder --chown=root:root /etc/ssl/certs /etc/ssl/certs
 
 # mTLS authentication self-signed certificate for use in development and test environments.
 COPY --from=builder --chown=root:root /home/circleci/project/config/tls/devlocal-mtls.cer /config/tls/devlocal-mtls.cer
