@@ -55,6 +55,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		userPayload := internalmessages.LoggedInUserPayload{
 			ID:         handlers.FmtUUID(session.UserID),
 			FirstName:  session.FirstName,
+			LastName:   session.LastName,
 			Email:      session.Email,
 			OfficeUser: payloads.OfficeUser(&officeUser),
 		}
