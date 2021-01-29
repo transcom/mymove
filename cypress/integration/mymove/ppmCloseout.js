@@ -1,4 +1,4 @@
-import { fileUploadTimeout } from '../../../support/constants';
+import { fileUploadTimeout } from '../../support/constants';
 
 describe('allows a SM to request a payment', function () {
   before(() => {
