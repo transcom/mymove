@@ -57,26 +57,30 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 					eng.Logger.Error("Webhook Notification send failed", zap.Error(err))
 					if notif.FirstAttemptedAt == nil {
 						eng.Logger.Error("FirstAttempted at time was not stored", zap.Error(err))
-						// We should not ever get this error, but to recover
-						// we set to current time and let the rest of the flow continue.
-						now := time.Now()
-						notif.FirstAttemptedAt = &now
-						err = eng.updateNotification(&notif)
-						if err != nil {
-							eng.Logger.Error("Webhook Notification update failed to update firstAttemptedAt", zap.Error(err))
-						}
-					}
-					sev = eng.GetSeverity(time.Now(), *notif.FirstAttemptedAt)
-					if sev != sub.Severity {
+						// We should not ever get this error, so we trigger a sev1 failure immediately
+						sev = 1
 						eng.Logger.Error("Raising severity of failure",
 							zap.String("subscriptionEvent", sub.EventKey),
 							zap.Int("severityFrom", sub.Severity),
 							zap.Int("severityTo", sev))
-						if sev == 1 {
-							notif.Status = models.WebhookNotificationFailed
-							err = eng.updateNotification(&notif)
-							if err != nil {
-								eng.Logger.Error("Webhook Notification update failed", zap.Error(err))
+						notif.Status = models.WebhookNotificationFailed
+						err = eng.updateNotification(&notif)
+						if err != nil {
+							eng.Logger.Error("Webhook Notification update failed", zap.Error(err))
+						}
+					} else {
+						sev = eng.GetSeverity(time.Now(), *notif.FirstAttemptedAt)
+						if sev != sub.Severity {
+							eng.Logger.Error("Raising severity of failure",
+								zap.String("subscriptionEvent", sub.EventKey),
+								zap.Int("severityFrom", sub.Severity),
+								zap.Int("severityTo", sev))
+							if sev == 1 {
+								notif.Status = models.WebhookNotificationFailed
+								err = eng.updateNotification(&notif)
+								if err != nil {
+									eng.Logger.Error("Webhook Notification update failed", zap.Error(err))
+								}
 							}
 						}
 					}
