@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/viper"
 	"pault.ag/go/pksigner"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 	"github.com/transcom/mymove/pkg/cli"
 )
 
@@ -155,7 +156,7 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 	var err error
 	var store *pksigner.Store
 
-	insecure := v.GetBool(InsecureFlag)
+	insecure := v.GetBool(utils.InsecureFlag)
 	verbose := cli.LogLevelIsDebug(v)
 	contentType := "application/json; charset=utf-8"
 
@@ -187,10 +188,18 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 func loadCertificate(v *viper.Viper) (*tls.Certificate, error) {
 	var loadCert tls.Certificate
 	var err error
-
-	certString := v.GetString(RecipientMTLSCert)
-	key := v.GetString(RecipientMTLSKey)
-	loadCert, err = tls.X509KeyPair([]byte(certString), []byte(key))
+	// Cert can be provided as a filepath or directly as an string
+	// Note that the path can also be passed in as a flag or environment
+	// variable.
+	if v.GetString(utils.CertPathFlag) != "" {
+		certPath := v.GetString(utils.CertPathFlag)
+		keyPath := v.GetString(utils.KeyPathFlag)
+		loadCert, err = tls.LoadX509KeyPair(certPath, keyPath)
+	} else {
+		certString := v.GetString(RecipientMTLSCert)
+		key := v.GetString(RecipientMTLSKey)
+		loadCert, err = tls.X509KeyPair([]byte(certString), []byte(key))
+	}
 
 	if err != nil {
 		return nil, err
