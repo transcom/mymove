@@ -225,7 +225,7 @@ type FetchMoveParams struct {
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID, searchParams *FetchMoveParams) (*Move, error) {
 	var move Move
-	fmt.Println("🍅Inside FetchMove")
+
 	query := db.Q().Eager("PersonallyProcuredMoves.Advance",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.PickupAddress",

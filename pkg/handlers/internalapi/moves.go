@@ -85,7 +85,7 @@ type ShowMoveHandler struct {
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	fmt.Println("I am in the show move handler 🌶🍉💖")
+
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 	searchParams := models.FetchMoveParams{
