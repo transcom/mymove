@@ -118,7 +118,7 @@ type GetMoveTaskOrderHandlerFunc struct {
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	searchParams := services.FetchMoveTaskOrderParams{
-		IncludeHidden: false,
+		IncludeHidden: true,
 	}
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
