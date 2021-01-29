@@ -628,9 +628,11 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				Charge:               serviceItem.PriceCents.Int64(),
 			}
 
-		// pack and unpack, dom dest and dom origin have weight and no distance
+		// following service items have weight and no distance
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
-			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
+			models.ReServiceCodeDPK, models.ReServiceCodeDDP,
+			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT,
+			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT:
 			var err error
 			weight, err := g.getWeightParams(serviceItem)
 			if err != nil {
