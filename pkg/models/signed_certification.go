@@ -95,7 +95,7 @@ func FetchSignedCertificationsPPMPayment(db *pop.Connection, session *auth.Sessi
 		return nil, errors.Wrap(err, "signed_certification: unable to fetch signed certification")
 	}
 	// Validate the move is associated to the logged-in service member
-	_, fetchErr := FetchMove(db, session, id)
+	_, fetchErr := FetchMove(db, session, id, nil)
 	if fetchErr != nil {
 		return nil, errors.Wrap(ErrFetchForbidden, "signed_certification: unauthorized access")
 	}
@@ -117,7 +117,7 @@ func FetchSignedCertifications(db *pop.Connection, session *auth.Session, id uui
 		return nil, errors.Wrap(err, "signed_certification: unable to fetch signed certification")
 	}
 	// Validate the move is associated to the logged-in service member
-	_, fetchErr := FetchMove(db, session, id)
+	_, fetchErr := FetchMove(db, session, id, nil)
 	if fetchErr != nil {
 		return nil, errors.Wrap(ErrFetchForbidden, "signed_certification: unauthorized access")
 	}

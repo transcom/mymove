@@ -27,7 +27,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	}
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID, nil)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -78,7 +78,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID, nil)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

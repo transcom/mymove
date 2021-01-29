@@ -46,7 +46,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID, nil)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

@@ -85,12 +85,15 @@ type ShowMoveHandler struct {
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
+	fmt.Println("I am in the show move handler 🌶🍉💖")
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
-
+	searchParams := models.FetchMoveParams{
+		IncludeHidden: false,
+	}
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID, &searchParams)
+
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -119,7 +122,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID, nil)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -164,7 +167,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID, nil)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -281,7 +284,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID, nil)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -384,7 +387,7 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID, nil)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

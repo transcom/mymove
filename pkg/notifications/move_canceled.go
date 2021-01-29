@@ -49,7 +49,7 @@ func NewMoveCanceled(db *pop.Connection, logger Logger, session *auth.Session, m
 func (m MoveCanceled) emails(ctx context.Context) ([]emailContent, error) {
 	var emails []emailContent
 
-	move, err := models.FetchMove(m.db, m.session, m.moveID)
+	move, err := models.FetchMove(m.db, m.session, m.moveID, nil)
 	if err != nil {
 		return emails, err
 	}

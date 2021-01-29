@@ -214,19 +214,31 @@ func (m *Move) Cancel(reason string) error {
 	}
 
 	return nil
+
+}
+
+// FetchMoveParams passes search params to filter out hidden moves
+type FetchMoveParams struct {
+	IncludeHidden bool
 }
 
 // FetchMove fetches and validates a Move for this User
-func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
+func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID, searchParams *FetchMoveParams) (*Move, error) {
 	var move Move
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
+	fmt.Println("🍅Inside FetchMove")
+	query := db.Q().Eager("PersonallyProcuredMoves.Advance",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.DestinationAddress",
 		"SignedCertifications",
 		"Orders",
 		"MoveDocuments.Document",
-	).Find(&move, id)
+	)
+	if searchParams == nil || !searchParams.IncludeHidden {
+		query.Where("show = TRUE")
+	}
+
+	err := query.Find(&move, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

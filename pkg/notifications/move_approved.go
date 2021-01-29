@@ -56,7 +56,7 @@ func NewMoveApproved(db *pop.Connection,
 func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 	var emails []emailContent
 
-	move, err := models.FetchMove(m.db, m.session, m.moveID)
+	move, err := models.FetchMove(m.db, m.session, m.moveID, nil)
 	if err != nil {
 		return emails, err
 	}

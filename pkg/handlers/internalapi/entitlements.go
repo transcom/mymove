@@ -59,7 +59,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Fetch move, orders, serviceMember and PPM
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID, nil)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

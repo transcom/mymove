@@ -63,7 +63,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		ptrCertType = &certType
 	}
 
-	move, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID, nil)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -105,7 +105,7 @@ func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertif
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	_, err := models.FetchMove(h.DB(), session, moveID)
+	_, err := models.FetchMove(h.DB(), session, moveID, nil)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

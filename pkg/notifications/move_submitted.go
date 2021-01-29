@@ -49,7 +49,7 @@ func NewMoveSubmitted(db *pop.Connection, logger Logger, session *auth.Session, 
 func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 	var emails []emailContent
 
-	move, err := models.FetchMove(m.db, m.session, m.moveID)
+	move, err := models.FetchMove(m.db, m.session, m.moveID, nil)
 	if err != nil {
 		return emails, err
 	}

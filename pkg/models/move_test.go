@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -37,7 +38,6 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	// Verify valid items are in locator
@@ -72,7 +72,9 @@ func (suite *ModelSuite) TestFetchMove() {
 		ApplicationName: auth.MilApp,
 	}
 	selectedMoveType := SelectedMoveTypeHHG
-
+	searchParams := models.FetchMoveParams{
+		IncludeHidden: false,
+	}
 	moveOptions := MoveOptions{
 		SelectedType: &selectedMoveType,
 		Show:         swag.Bool(true),
@@ -83,7 +85,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	suite.Equal(6, len(move.Locator))
 
 	// All correct
-	fetchedMove, err := FetchMove(suite.DB(), session, move.ID)
+	fetchedMove, err := FetchMove(suite.DB(), session, move.ID, &searchParams)
 	suite.Nil(err, "Expected to get moveResult back.")
 	suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
 
@@ -93,7 +95,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	move.Status = "COMPLETED"
 	suite.DB().Save(move)
 
-	actualMove, err := FetchMove(suite.DB(), session, move.ID)
+	actualMove, err := FetchMove(suite.DB(), session, move.ID, &searchParams)
 
 	suite.NoError(err, "Failed fetching completed move")
 	suite.Equal("COMPLETED", string(actualMove.Status))
@@ -102,13 +104,13 @@ func (suite *ModelSuite) TestFetchMove() {
 	suite.DB().Save(move) // teardown/reset back to draft
 
 	// Bad Move
-	fetchedMove, err = FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
+	fetchedMove, err = FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()), &searchParams)
 	suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
 
 	// Bad User
 	session.UserID = order2.ServiceMember.UserID
 	session.ServiceMemberID = order2.ServiceMemberID
-	fetchedMove, err = FetchMove(suite.DB(), session, move.ID)
+	fetchedMove, err = FetchMove(suite.DB(), session, move.ID, &searchParams)
 	suite.Equal(ErrFetchForbidden, err, "Expected to get a Forbidden back.")
 }
 
