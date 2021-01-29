@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
@@ -68,9 +69,53 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
 		return nil, logger, err
 	}
 
-	if (v.GetString(utils.CertPathFlag) != "" && v.GetString(utils.KeyPathFlag) == "") ||
-		(v.GetString(utils.CertPathFlag) == "" && v.GetString(utils.KeyPathFlag) != "") {
-		return nil, logger, fmt.Errorf("Both TLS certificate and key paths must be provided")
+	var canUseFileCert bool
+	if v.GetString(utils.CertPathFlag) != "" && v.GetString(utils.KeyPathFlag) == "" {
+		return nil, logger, fmt.Errorf(
+			"Must set the %v parameter if %v is set",
+			utils.KeyPathFlag,
+			utils.CertPathFlag,
+		)
+	} else if v.GetString(utils.CertPathFlag) == "" && v.GetString(utils.KeyPathFlag) != "" {
+		return nil, logger, fmt.Errorf(
+			"Must set the %v parameter if %v is set",
+			utils.CertPathFlag,
+			utils.KeyPathFlag,
+		)
+	} else if v.GetString(utils.CertPathFlag) != "" && v.GetString(utils.KeyPathFlag) != "" {
+		canUseFileCert = true
+	}
+
+	var canUseEnvCert bool
+	recipientMTLSCertEnvName := strings.ToUpper(strings.ReplaceAll(utils.RecipientMTLSCert, "-", "_"))
+	recipientMTLSKeyEnvName := strings.ToUpper(strings.ReplaceAll(utils.RecipientMTLSKey, "-", "_"))
+	if v.GetString(utils.RecipientMTLSCert) != "" && v.GetString(utils.RecipientMTLSKey) == "" {
+		return nil, logger, fmt.Errorf(
+			"Must set the %v environment variable if %v is set",
+			recipientMTLSKeyEnvName,
+			recipientMTLSCertEnvName,
+		)
+	} else if v.GetString(utils.RecipientMTLSCert) == "" && v.GetString(utils.RecipientMTLSKey) != "" {
+		return nil, logger, fmt.Errorf(
+			"Must set the %v environment variable if %v is set",
+			recipientMTLSCertEnvName,
+			recipientMTLSKeyEnvName,
+		)
+	} else if v.GetString(utils.RecipientMTLSCert) != "" && v.GetString(utils.RecipientMTLSKey) != "" {
+		canUseEnvCert = true
+	}
+
+	if !canUseFileCert && !canUseEnvCert {
+		return nil, logger, fmt.Errorf(
+			"Must provide %v & %v parameters or set the %v & %v environment variables",
+			utils.CertPathFlag,
+			utils.KeyPathFlag,
+			recipientMTLSCertEnvName,
+			recipientMTLSKeyEnvName,
+		)
+	}
+	if canUseFileCert && canUseEnvCert {
+		logger.Info("A certificate is configured to be loaded from both the filesystem and environment; defaulting to the filesystem certificate")
 	}
 
 	var session *awssession.Session

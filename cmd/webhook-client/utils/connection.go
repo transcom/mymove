@@ -190,7 +190,7 @@ func loadCertificate(v *viper.Viper) (*tls.Certificate, error) {
 	// Cert can be provided as a filepath or directly as an string
 	// Note that the path can also be passed in as a flag or environment
 	// variable.
-	if v.GetString(CertPathFlag) != "" {
+	if v.GetString(CertPathFlag) != "" && v.GetString(KeyPathFlag) != "" {
 		certPath := v.GetString(CertPathFlag)
 		keyPath := v.GetString(KeyPathFlag)
 		loadCert, err = tls.LoadX509KeyPair(certPath, keyPath)
