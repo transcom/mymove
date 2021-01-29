@@ -33,7 +33,7 @@ import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
-import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
+import LogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
@@ -99,7 +99,7 @@ export class AppWrapper extends Component {
             <Header />
             <Tag role="main" className="site__content my-move-container">
               <div className="usa-grid">
-                <LogoutOnInactivity />
+                <LogoutOnInactivity {...props} />
                 {props.swaggerError && (
                   <div className="grid-container">
                     <div className="grid-row">

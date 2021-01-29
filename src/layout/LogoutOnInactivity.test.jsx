@@ -1,22 +1,15 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import IdleTimer from 'react-idle-timer';
+
 import { LogoutOnInactivity } from './LogoutOnInactivity';
 
-const defaultProps = {
-  isLoggedIn: true,
-};
-
-function mountIdleTimer(props = {}) {
-  return mount(<LogoutOnInactivity {...defaultProps} />);
+function mountIdleTimer() {
+  return mount(<LogoutOnInactivity isLoggedIn />);
 }
 
-const loggedOutProps = {
-  isLoggedIn: false,
-};
-
-function mountIdleTimerWithLoggedOutUser(props = {}) {
-  return mount(<LogoutOnInactivity {...loggedOutProps} />);
+function mountIdleTimerWithLoggedOutUser() {
+  return mount(<LogoutOnInactivity />);
 }
 
 describe('LogoutOnInactivity', () => {
@@ -65,11 +58,12 @@ describe('LogoutOnInactivity', () => {
 
   describe('when user is not logged in', () => {
     it('does not render the IdleTimer component', () => {
-      let component;
-      component = mountIdleTimerWithLoggedOutUser();
+      const component = mountIdleTimerWithLoggedOutUser();
       const timer = component.find('IdleTimer');
+      const idleTimer = component.find(IdleTimer);
 
       expect(timer.exists()).toBe(false);
+      expect(idleTimer.exists()).toBe(false);
     });
   });
 });

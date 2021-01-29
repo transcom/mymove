@@ -5,26 +5,34 @@ import IdleTimer from 'react-idle-timer';
 
 import Alert from 'shared/Alert';
 import { selectCurrentUser } from 'shared/Data/users';
-import { LogoutUser } from 'shared/User/api.js';
+import { LogoutUser } from 'utils/api';
 
-const maxIdleTimeInSeconds = 15 * 60;
-const maxWarningTimeBeforeTimeoutInSeconds = 60;
+const maxIdleTimeInSeconds = 10;
+const maxWarningTimeBeforeTimeoutInSeconds = 5;
 const maxIdleTimeInMilliseconds = maxIdleTimeInSeconds * 1000;
 const maxWarningTimeBeforeTimeoutInMilliseconds = maxWarningTimeBeforeTimeoutInSeconds * 1000;
 const timeToDisplayWarningInMilliseconds = maxIdleTimeInMilliseconds - maxWarningTimeBeforeTimeoutInMilliseconds;
+const keepAliveEndpoint = '/internal/users/logged_in';
 
 export class LogoutOnInactivity extends React.Component {
-  state = {
-    isIdle: false,
-    showLoggedOutAlert: false,
-    timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds,
-  };
+  constructor(props) {
+    super(props);
+
+    this.idleTimer = null;
+    this.onActive = this.onActive.bind(this);
+    this.onIdle = this.onIdle.bind(this);
+
+    this.state = {
+      isIdle: false,
+      timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds,
+    };
+  }
 
   onActive = () => {
     clearInterval(this.timer);
     this.setState({ isIdle: false });
     this.setState({ timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds });
-    fetch(this.props.keepAliveEndpoint);
+    fetch(keepAliveEndpoint);
   };
 
   onIdle = () => {
@@ -34,48 +42,49 @@ export class LogoutOnInactivity extends React.Component {
   };
 
   countdown = () => {
-    let timedout = true;
-    if (this.state.timeLeftInSeconds === 0) {
+    const { timeLeftInSeconds } = this.state;
+    const timedout = true;
+
+    if (timeLeftInSeconds === 0) {
       LogoutUser(timedout);
     } else {
-      this.setState({ timeLeftInSeconds: this.state.timeLeftInSeconds - 1 });
+      this.setState({ timeLeftInSeconds: timeLeftInSeconds - 1 });
     }
   };
 
   render() {
-    const props = this.props;
+    const { isLoggedIn } = this.props;
+
+    const { isIdle, timeLeftInSeconds } = this.state;
+
     return (
-      <React.Fragment>
-        {props.isLoggedIn && (
+      <>
+        {isLoggedIn && (
           <IdleTimer
-            ref="idleTimer"
+            ref={(ref) => {
+              this.idleTimer = ref;
+            }}
             element={document}
             onActive={this.onActive}
             onIdle={this.onIdle}
-            timeout={this.props.warningTimeout}
+            timeout={timeToDisplayWarningInMilliseconds}
             events={['blur', 'focus', 'mousedown', 'touchstart', 'MSPointerDown']}
           >
-            {this.state.isIdle && (
+            {isIdle && (
               <Alert type="warning" heading="Inactive user">
-                You have been inactive and will be logged out in {this.state.timeLeftInSeconds} seconds unless you touch
-                or click on the page.
+                You have been inactive and will be logged out in {timeLeftInSeconds} seconds unless you touch or click
+                on the page.
               </Alert>
             )}
           </IdleTimer>
         )}
-      </React.Fragment>
+      </>
     );
   }
 }
-LogoutOnInactivity.defaultProps = {
-  warningTimeout: timeToDisplayWarningInMilliseconds,
-  timeRemaining: maxWarningTimeBeforeTimeoutInMilliseconds,
-  keepAliveEndpoint: '/internal/users/logged_in',
-};
+
 LogoutOnInactivity.propTypes = {
-  warningTimeout: PropTypes.number.isRequired,
-  timeRemaining: PropTypes.number.isRequired,
-  keepAliveEndpoint: PropTypes.string.isRequired,
+  isLoggedIn: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => {
