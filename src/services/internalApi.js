@@ -145,6 +145,18 @@ export async function patchOrders(orders) {
 }
 
 /** UPLOADS */
+export async function createUpload(file) {
+  return makeInternalRequest(
+    'uploads.createUpload',
+    {
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createUploadForDocument(file, documentId) {
   return makeInternalRequest(
     'uploads.createUpload',

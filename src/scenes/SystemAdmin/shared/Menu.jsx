@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { MenuItemLink, getResources } from 'react-admin';
 import { withRouter } from 'react-router-dom';
 import ExitIcon from '@material-ui/icons/PowerSettingsNew';
-import { LogoutUser } from 'shared/User/api';
+import { LogoutUser } from 'utils/api';
 
 const Menu = (props) => {
   const resources = props.resources;

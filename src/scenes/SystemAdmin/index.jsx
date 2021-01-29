@@ -5,7 +5,7 @@ import Home from './Home';
 import SignIn from 'scenes/SystemAdmin/shared/SignIn';
 import { isDevelopment } from 'shared/constants';
 import { LoginButton } from 'scenes/SystemAdmin/shared/LoginButton';
-import { GetLoggedInUser } from 'shared/User/api.js';
+import { GetLoggedInUser } from 'utils/api';
 import FOUOHeader from 'components/FOUOHeader';
 
 class AdminWrapper extends Component {

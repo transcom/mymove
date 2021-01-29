@@ -24,6 +24,10 @@ linters-settings:
             recommendations:
               - github.com/gobuffalo/pop/v5/soda
             reason: "MilMove is now on Pop v5, do not use older versions of this module"
+        - github.com/facebookgo/clock:
+            recommendations:
+              - github.com/benbjohnson/clock
+            reason: "facebookgo/clock is archived and inactive, recommend using original fork repo"
 linters:
   enable:
     - deadcode

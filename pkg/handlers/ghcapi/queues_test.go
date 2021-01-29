@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/mock"
 
@@ -887,7 +888,10 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	})
 
 	suite.Run("returns results matching SubmittedAt date", func() {
-		submittedAtDate := "2020-10-29"
+		submittedAtDate := strfmt.Date{}
+		err := submittedAtDate.UnmarshalText([]byte("2020-10-29"))
+		suite.NoError(err)
+
 		params := queues.GetPaymentRequestsQueueParams{
 			HTTPRequest: request,
 			SubmittedAt: &submittedAtDate,

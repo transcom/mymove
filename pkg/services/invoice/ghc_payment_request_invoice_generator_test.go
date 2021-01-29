@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
@@ -50,8 +51,9 @@ const testISADateFormat = "060102"
 const testTimeFormat = "1504"
 
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
-	currentTime := time.Now()
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	mockClock := clock.NewMock()
+	currentTime := mockClock.Now()
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -514,7 +516,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 }
 
 func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -557,7 +559,8 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 	suite.NoError(err)
 }
 func (suite *GHCInvoiceSuite) TestNilValues() {
-	currentTime := time.Now()
+	mockClock := clock.NewMock()
+	currentTime := mockClock.Now()
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -581,7 +584,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		},
 	}
 
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
 	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -674,7 +677,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 }
 
 func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,

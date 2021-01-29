@@ -128,7 +128,7 @@ export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServ
   );
 }
 
-export function patchMTOShipmentStatus({
+export function updateMTOShipmentStatus({
   moveTaskOrderID,
   shipmentID,
   shipmentStatus,
