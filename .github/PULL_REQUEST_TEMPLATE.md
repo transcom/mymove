@@ -16,12 +16,9 @@ echo "Code goes here"
 
 ## Code Review Verification Steps
 
-
 * [ ] If the change is risky, it has been tested in experimental before merging.
 * [ ] Code follows the guidelines for [Logging](https://github.com/transcom/mymove/wiki/Backend-Programming-Guide#logging)
-* [ ] The requirements listed in
- [Querying the Database Safely](https://github.com/transcom/mymove/wiki/Backend-Programming-Guide#querying-the-database-safely)
- have been satisfied.
+* [ ] The requirements listed in [Querying the Database Safely](https://github.com/transcom/mymove/wiki/Backend-Programming-Guide#querying-the-database-safely) have been satisfied.
 * Any new migrations/schema changes:
   * [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](https://github.com/transcom/mymove/wiki/migrate-the-database#zero-downtime-migrations))
   * [ ] Have been communicated to #g-database

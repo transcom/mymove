@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/benbjohnson/clock"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop/v5"
 
@@ -49,7 +50,7 @@ func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 // InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
 func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, sendToSyncada bool, icnSequencer sequence.Sequencer) (services.PaymentRequestReviewedProcessor, error) {
 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(db)
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(db, icnSequencer)
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(db, icnSequencer, clock.New())
 	var sftpSession services.SyncadaSFTPSender
 	sftpSession, err := invoice.InitNewSyncadaSFTPSession()
 	if err != nil {
