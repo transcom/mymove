@@ -32,7 +32,8 @@ const FileUpload = forwardRef(({ name, createUpload, onChange, labelIdle, onAddF
       })
       .catch(error);
 
-    // TODO - abort handler?
+    // TODO - in order to handle abort, we need to pass an AbortController to SwaggerRequest, implement this as a future story (it's not working as-is)
+    // https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#browser
     return { abort };
   };
 
