@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -20,11 +22,13 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	availableToPrimeAt := time.Now()
 	submittedAt := availableToPrimeAt.Add(-1 * time.Hour)
 
+	ordersID := uuid.Must(uuid.NewV4())
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			Status:             models.MoveStatusAPPROVED,
 			AvailableToPrimeAt: &availableToPrimeAt,
 			SubmittedAt:        &submittedAt,
+			Orders:             models.Order{ID: ordersID},
 		},
 	})
 
@@ -68,6 +72,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		suite.Equal(move.CreatedAt.Format(swaggerTimeFormat), time.Time(payload.CreatedAt).Format(swaggerTimeFormat))
 		suite.Equal(move.SubmittedAt.Format(swaggerTimeFormat), time.Time(*payload.SubmittedAt).Format(swaggerTimeFormat))
 		suite.Equal(move.UpdatedAt.Format(swaggerTimeFormat), time.Time(payload.UpdatedAt).Format(swaggerTimeFormat))
+		suite.Equal(ordersID, move.Orders.ID)
 	})
 
 	suite.T().Run("Unsuccessful move fetch - empty string bad request", func(t *testing.T) {

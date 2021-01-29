@@ -14,8 +14,8 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// RevokeUserSessionURL generates an URL for the revoke user session operation
-type RevokeUserSessionURL struct {
+// UpdateUserURL generates an URL for the update user operation
+type UpdateUserURL struct {
 	UserID strfmt.UUID
 
 	_basePath string
@@ -26,7 +26,7 @@ type RevokeUserSessionURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *RevokeUserSessionURL) WithBasePath(bp string) *RevokeUserSessionURL {
+func (o *UpdateUserURL) WithBasePath(bp string) *UpdateUserURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -34,12 +34,12 @@ func (o *RevokeUserSessionURL) WithBasePath(bp string) *RevokeUserSessionURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *RevokeUserSessionURL) SetBasePath(bp string) {
+func (o *UpdateUserURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *RevokeUserSessionURL) Build() (*url.URL, error) {
+func (o *UpdateUserURL) Build() (*url.URL, error) {
 	var _result url.URL
 
 	var _path = "/users/{userId}"
@@ -48,7 +48,7 @@ func (o *RevokeUserSessionURL) Build() (*url.URL, error) {
 	if userID != "" {
 		_path = strings.Replace(_path, "{userId}", userID, -1)
 	} else {
-		return nil, errors.New("userId is required on RevokeUserSessionURL")
+		return nil, errors.New("userId is required on UpdateUserURL")
 	}
 
 	_basePath := o._basePath
@@ -61,7 +61,7 @@ func (o *RevokeUserSessionURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *RevokeUserSessionURL) Must(u *url.URL, err error) *url.URL {
+func (o *UpdateUserURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -72,17 +72,17 @@ func (o *RevokeUserSessionURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *RevokeUserSessionURL) String() string {
+func (o *UpdateUserURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *RevokeUserSessionURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *UpdateUserURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on RevokeUserSessionURL")
+		return nil, errors.New("scheme is required for a full url on UpdateUserURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on RevokeUserSessionURL")
+		return nil, errors.New("host is required for a full url on UpdateUserURL")
 	}
 
 	base, err := o.Build()
@@ -96,6 +96,6 @@ func (o *RevokeUserSessionURL) BuildFull(scheme, host string) (*url.URL, error) 
 }
 
 // StringFull returns the string representation of a complete url
-func (o *RevokeUserSessionURL) StringFull(scheme, host string) string {
+func (o *UpdateUserURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

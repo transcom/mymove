@@ -70,7 +70,7 @@ a,
 
   &:disabled,
   &.disabled {
-    @include u-text('gray-40');
+    @include u-text('base');
     &:hover {
       @include u-text('no-underline');
     }
@@ -85,7 +85,7 @@ a,
     color: $link-light;
     &:hover,
     &.hover {
-      color: #b7caf0;
+      color: $link-light-hover;
       @include u-text('no-underline');
     }
     &:focus,

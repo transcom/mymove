@@ -568,8 +568,10 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
-  UserRevokeSessionPayload:
+  UserUpdatePayload:
     type: object
+    required:
+      - active
     properties:
       revokeAdminSession:
         type: boolean
@@ -580,6 +582,8 @@ definitions:
       revokeMilSession:
         type: boolean
         x-nullable: true
+      active:
+        type: boolean
   AdminUserUpdatePayload:
     type: object
     properties:
@@ -1584,8 +1588,8 @@ paths:
         500:
           description: server error
     patch:
-      summary: revokes a user's session on any specified apps
-      operationId: revokeUserSession
+      summary: Update a user's session or active status
+      operationId: updateUser
       tags:
         - users
       parameters:
@@ -1599,7 +1603,7 @@ paths:
           description: User information
           required: true
           schema:
-            $ref: '#/definitions/UserRevokeSessionPayload'
+            $ref: '#/definitions/UserUpdatePayload'
       responses:
         200:
           description: Successfully updated User
@@ -1611,5 +1615,9 @@ paths:
           description: Must be authenticated to use this end point
         403:
           description: Not authorized to update this user
+        422:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         500:
           description: Server error
