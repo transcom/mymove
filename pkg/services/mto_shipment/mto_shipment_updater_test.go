@@ -580,3 +580,56 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved.")
 	})
 }
+
+func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
+	now := time.Now()
+	hide := false
+	primeShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+		},
+	})
+	nonPrimeShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+	hiddenPrimeShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+			Show:               &hide,
+		},
+	})
+
+	builder := query.NewQueryBuilder(suite.DB())
+	fetcher := fetch.NewFetcher(builder)
+	planner := &mocks.Planner{}
+	updater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+
+	suite.T().Run("Shipment exists and is available to Prime - success", func(t *testing.T) {
+		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(primeShipment.ID)
+		suite.True(isAvailable)
+		suite.NoError(err)
+	})
+
+	suite.T().Run("Shipment exists but is not available to Prime - failure", func(t *testing.T) {
+		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(nonPrimeShipment.ID)
+		suite.False(isAvailable)
+		suite.Error(err)
+		suite.IsType(err, services.NotFoundError{})
+		suite.Contains(err.Error(), nonPrimeShipment.ID.String())
+	})
+
+	suite.T().Run("Shipment exists, is available, but move is disabled - failure", func(t *testing.T) {
+		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(hiddenPrimeShipment.ID)
+		suite.False(isAvailable)
+		suite.Error(err)
+		suite.IsType(err, services.NotFoundError{})
+		suite.Contains(err.Error(), hiddenPrimeShipment.ID.String())
+	})
+
+	suite.T().Run("Shipment does not exist - failure", func(t *testing.T) {
+		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
+		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(badUUID)
+		suite.False(isAvailable)
+		suite.Error(err)
+		suite.IsType(err, services.NotFoundError{})
+		suite.Contains(err.Error(), badUUID.String())
+	})
+}

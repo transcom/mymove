@@ -331,6 +331,13 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
+	paramKey = models.ServiceItemParamNameDistanceZipSITOrigin
+	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITOriginLookup{
+		ServiceItem: mtoServiceItem,
+	})
+	if err != nil {
+		return nil, err
+	}
 	return &s, nil
 }
 

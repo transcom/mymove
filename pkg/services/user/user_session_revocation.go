@@ -18,7 +18,7 @@ type userSessionRevocation struct {
 }
 
 // RevokeUserSession revokes the user's session
-func (o *userSessionRevocation) RevokeUserSession(id uuid.UUID, payload *adminmessages.UserRevokeSessionPayload, sessionStore scs.Store) (*models.User, *validate.Errors, error) {
+func (o *userSessionRevocation) RevokeUserSession(id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) (*models.User, *validate.Errors, error) {
 	var foundUser models.User
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	err := o.builder.FetchOne(&foundUser, filters)
@@ -40,7 +40,7 @@ func NewUserSessionRevocation(builder userQueryBuilder) services.UserSessionRevo
 	return &userSessionRevocation{builder}
 }
 
-func deleteSessionIDFromRedis(user models.User, payload *adminmessages.UserRevokeSessionPayload, sessionStore scs.Store) error {
+func deleteSessionIDFromRedis(user models.User, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) error {
 	var currentAdminSessionID, currentOfficeSessionID, currentMilSessionID string
 	userID := user.ID
 
@@ -84,7 +84,7 @@ func deleteSessionIDFromRedis(user models.User, payload *adminmessages.UserRevok
 	return nil
 }
 
-func deleteSessionIDFromDB(o *userSessionRevocation, user models.User, payload *adminmessages.UserRevokeSessionPayload) (*models.User, *validate.Errors, error) {
+func deleteSessionIDFromDB(o *userSessionRevocation, user models.User, payload *adminmessages.UserUpdatePayload) (*models.User, *validate.Errors, error) {
 	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession == true {
 		user.CurrentAdminSessionID = ""
 	}

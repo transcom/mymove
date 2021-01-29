@@ -1166,6 +1166,8 @@ paths:
         - in: query
           name: submittedAt
           type: string
+          format: date
+          description: limit results to those matching submitted at date
         - in: query
           name: branch
           type: string

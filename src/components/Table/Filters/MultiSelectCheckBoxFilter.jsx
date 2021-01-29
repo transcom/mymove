@@ -36,19 +36,20 @@ const ValueContainer = ({ children, ...props }) => {
   );
 };
 
-const MultiValueContainer = ({ data: { value } }) => {
-  return <span>{value}</span>;
+const MultiValueContainer = ({ data: { label } }) => {
+  return <span data-testid="multi-value-container">{label}</span>;
 };
 
 const MultiSelectCheckBoxFilter = ({ options, column: { filterValue, setFilter } }) => {
   const selectFilterValue = useMemo(() => {
     return filterValue
       ? filterValue.split(',').map((val) => ({
-          label: val,
+          label: options.find((option) => option.value === val).label,
           value: val,
         }))
       : [];
-  }, [filterValue]);
+  }, [filterValue, options]);
+
   return (
     <div data-testid="MultiSelectCheckBoxFilter">
       <Select
