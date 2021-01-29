@@ -169,7 +169,33 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		assertions,
 	)
 
-	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk)
+	distanceZipSITDestParam := testdatagen.CreatePaymentServiceItemParams{
+		Key:     models.ServiceItemParamNameDistanceZipSITDest,
+		KeyType: models.ServiceItemParamTypeInteger,
+		Value:   "44",
+	}
+	dddsitParams := append(basicPaymentServiceItemParams, distanceZipSITDestParam)
+	dddsit := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDDDSIT,
+		dddsitParams,
+		assertions,
+	)
+
+	distanceZipSITOriginParam := testdatagen.CreatePaymentServiceItemParams{
+		Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+		KeyType: models.ServiceItemParamTypeInteger,
+		Value:   "33",
+	}
+	dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
+	dopsit := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDOPSIT,
+		dopsitParams,
+		assertions,
+	)
+
+	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk, dddsit, dopsit)
 
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -222,7 +248,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("se segment has correct value", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(85, result.SE.NumberOfIncludedSegments)
+		suite.Equal(99, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -476,9 +502,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l0 service item segment", func(t *testing.T) {
 				l0 := result.ServiceItems[segmentOffset].L0
 				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
-				if serviceCode == models.ReServiceCodeDSH {
+
+				switch serviceCode {
+				case models.ReServiceCodeDSH:
 					suite.Equal(float64(24245), l0.BilledRatedAsQuantity)
-				} else {
+				case models.ReServiceCodeDDDSIT:
+					suite.Equal(float64(44), l0.BilledRatedAsQuantity)
+				case models.ReServiceCodeDOPSIT:
+					suite.Equal(float64(33), l0.BilledRatedAsQuantity)
+				default:
 					suite.Equal(float64(2424), l0.BilledRatedAsQuantity)
 				}
 				suite.Equal("DM", l0.BilledRatedAsQualifier)
@@ -509,7 +541,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds l3 service item segment", func(t *testing.T) {
 		l3 := result.L3
-		suite.Equal(int64(7992), l3.PriceCents)
+		suite.Equal(int64(9768), l3.PriceCents)
 	})
 }
 
