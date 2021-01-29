@@ -76,6 +76,10 @@ function diffContainsEslint(diffForFile) {
   return !!diffForFile.includes('eslint-disable');
 }
 
+function diffContainsOldTruncateAll(diffForFile) {
+  return !!diffForFile.includes('suite.DB().TruncateAll()');
+}
+
 function doesLineHaveProhibitedOverride(disablingString) {
   const okBypassRules = [
     'no-underscore-dangle',
@@ -126,6 +130,14 @@ function doesLineHaveProhibitedOverride(disablingString) {
   return prohibitedOverrideMsg;
 }
 
+function prUsesOldTruncateAllFunction(dangerJSDiffCollection) {
+  Object.keys(dangerJSDiffCollection).forEach((d) => {
+    const diffFile = dangerJSDiffCollection[`${d}`];
+    const diff = diffFile.added;
+
+    return diffContainsOldTruncateAll(diff);
+}
+
 function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
   let badOverrideMsg = '';
   Object.keys(dangerJSDiffCollection).forEach((d) => {
@@ -173,6 +185,17 @@ const bypassingLinterChecks = async () => {
     warn(
       `It looks like you are attempting to bypass a linter rule, which is not within
       security compliance rules.\n** ${dangerMsgSegment} **\n Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
+    );
+  }
+};
+
+const usingOldTruncateAllFunction = async () => {
+  const allFiles = danger.git.modified_files.concat(danger.git.created_files);
+  const diffsByFile = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
+  const needsWarning = prUsesOldTruncateAllFunction(diffsByFile);
+  if (needsWarning) {
+    warn(
+      `"suite.DB().TruncateAll()" no longer works. Please replace it with "suite.TruncateAll()".`,
     );
   }
 };
