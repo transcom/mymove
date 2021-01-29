@@ -64,6 +64,7 @@ var servicesToEntryPoints = map[string][]string{
 	},
 	"app-webhook-client": {
 		fmt.Sprintf("%s webhook-notify", binWebhookClient),
+		fmt.Sprintf("%s post-webhook-notify", binWebhookClient),
 	},
 	"orders":            {fmt.Sprintf("%s serve", binOrders)},
 	"orders-migrations": {fmt.Sprintf("%s migrate", binOrders)},
