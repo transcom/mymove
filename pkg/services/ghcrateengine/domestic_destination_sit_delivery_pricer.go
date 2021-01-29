@@ -31,31 +31,6 @@ func (p domesticDestinationSITDeliveryPricer) Price(contractCode string, request
 		return 0, fmt.Errorf("weight of %d less than the minimum of %d", weight, minDomesticWeight)
 	}
 
-	// Three different pricing scenarios below.
-
-	// 1) Less than or equal to 50 miles (if same or different zip3s)
-	if distance <= 50 {
-		// Rate comes from the domestic other price table based on SIT schedule
-		domOtherPrice, err := fetchDomOtherPrice(p.db, contractCode, models.ReServiceCodeDDDSIT, sitSchedule, isPeakPeriod)
-		if err != nil {
-			return unit.Cents(0), fmt.Errorf("could not fetch domestic destination SIT delivery rate: %w", err)
-		}
-
-		contractYear, err := fetchContractYear(p.db, domOtherPrice.ContractID, requestedPickupDate)
-		if err != nil {
-			return unit.Cents(0), fmt.Errorf("could not fetch contract year: %w", err)
-		}
-
-		baseTotalPrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
-		escalatedTotalPrice := baseTotalPrice * contractYear.EscalationCompounded
-
-		totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
-
-		return totalPriceCents, nil
-	}
-
-	// Distance must be greater than 50 miles at this point.  Now examine zip3s.
-
 	if len(zipDest) < 5 {
 		return unit.Cents(0), fmt.Errorf("invalid destination postal code of %s", zipDest)
 	}
@@ -66,8 +41,24 @@ func (p domesticDestinationSITDeliveryPricer) Price(contractCode string, request
 	}
 	zip3SITDest := zipSITDest[:3]
 
-	// 2) Greater than 50 miles and different zip3s
-	if zip3Dest != zip3SITDest {
+	// Three different pricing scenarios below.
+
+	// 1) Zip3 to same zip3
+	if zip3Dest == zip3SITDest {
+		// Do a normal shorthaul calculation
+		shorthaulPricer := NewDomesticShorthaulPricer(p.db)
+		totalPriceCents, err := shorthaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
+		if err != nil {
+			return unit.Cents(0), fmt.Errorf("could not price shorthaul: %w", err)
+		}
+
+		return totalPriceCents, nil
+	}
+
+	// Zip3s must be different at this point.  Now examine distance.
+
+	// 2) Zip3 to different zip3 and > 50 miles
+	if distance > 50 {
 		// Do a normal linehaul calculation
 		linehaulPricer := NewDomesticLinehaulPricer(p.db)
 		totalPriceCents, err := linehaulPricer.Price(contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
@@ -78,14 +69,23 @@ func (p domesticDestinationSITDeliveryPricer) Price(contractCode string, request
 		return totalPriceCents, nil
 	}
 
-	// Distance must be greater than 50 miles and the zip3s are the same at this point.
+	// Zip3s must be different at this point and distance is <= 50.
 
-	// 3) Greater than 50 miles and same zip3s
-	shorthaulPricer := NewDomesticShorthaulPricer(p.db)
-	totalPriceCents, err := shorthaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
+	// 3) Zip3 to different zip3 and <= 50 miles
+
+	// Rate comes from the domestic other price table based on SIT schedule
+	domOtherPrice, err := fetchDomOtherPrice(p.db, contractCode, models.ReServiceCodeDDDSIT, sitSchedule, isPeakPeriod)
 	if err != nil {
-		return unit.Cents(0), fmt.Errorf("could not price shorthaul: %w", err)
+		return unit.Cents(0), fmt.Errorf("could not fetch domestic destination SIT delivery rate: %w", err)
 	}
+	contractYear, err := fetchContractYear(p.db, domOtherPrice.ContractID, requestedPickupDate)
+	if err != nil {
+		return unit.Cents(0), fmt.Errorf("could not fetch contract year: %w", err)
+	}
+
+	baseTotalPrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
+	escalatedTotalPrice := baseTotalPrice * contractYear.EscalationCompounded
+	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
 	return totalPriceCents, nil
 }
