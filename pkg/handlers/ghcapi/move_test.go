@@ -44,8 +44,13 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			MoveFetcher:    &mockFetcher,
 		}
 
+		searchParams := services.MoveFetcherParams{
+			IncludeHidden: false,
+		}
+
 		mockFetcher.On("FetchMove",
 			move.Locator,
+			&searchParams,
 		).Return(&move, nil)
 
 		response := handler.Handle(params)
@@ -85,8 +90,13 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 			MoveFetcher:    &mockFetcher,
 		}
 
+		searchParams := services.MoveFetcherParams{
+			IncludeHidden: false,
+		}
+
 		mockFetcher.On("FetchMove",
 			move.Locator,
+			&searchParams,
 		).Return(&models.Move{}, services.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -95,7 +105,9 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 	suite.T().Run("Unsuccessful move fetch - internal server error", func(t *testing.T) {
 		mockFetcher := mocks.MoveFetcher{}
-
+		searchParams := services.MoveFetcherParams{
+			IncludeHidden: false,
+		}
 		handler := GetMoveHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			MoveFetcher:    &mockFetcher,
@@ -103,6 +115,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 		mockFetcher.On("FetchMove",
 			move.Locator,
+			&searchParams,
 		).Return(&models.Move{}, services.QueryError{})
 
 		response := handler.Handle(params)
