@@ -7,8 +7,8 @@ import Alert from 'shared/Alert';
 import { selectCurrentUser } from 'shared/Data/users';
 import { LogoutUser } from 'utils/api';
 
-const maxIdleTimeInSeconds = 10;
-const maxWarningTimeBeforeTimeoutInSeconds = 5;
+const maxIdleTimeInSeconds = 15 * 60;
+const maxWarningTimeBeforeTimeoutInSeconds = 60;
 const maxIdleTimeInMilliseconds = maxIdleTimeInSeconds * 1000;
 const maxWarningTimeBeforeTimeoutInMilliseconds = maxWarningTimeBeforeTimeoutInSeconds * 1000;
 const timeToDisplayWarningInMilliseconds = maxIdleTimeInMilliseconds - maxWarningTimeBeforeTimeoutInMilliseconds;
