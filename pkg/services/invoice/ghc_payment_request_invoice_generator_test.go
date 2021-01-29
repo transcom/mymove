@@ -50,9 +50,6 @@ const testDateFormat = "20060102"
 const testISADateFormat = "060102"
 const testTimeFormat = "1504"
 
-func (suite *GHCInvoiceSuite) TestGeneratorConstructor() {
-}
-
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
