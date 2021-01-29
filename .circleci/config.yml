@@ -1406,7 +1406,7 @@ workflows:
             - build_webhook_client
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cj-webhook-client-release-new
 
       - deploy_exp_migrations:
           requires:
@@ -1446,10 +1446,11 @@ workflows:
 
       - deploy_exp_webhook_client:
           requires:
-            - deploy_exp_migrations
+            - build_tools
+            - push_webhook_client_exp
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cj-webhook-client-release-new
 
       - push_app_stg:
           requires:
