@@ -18,16 +18,17 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
     case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
       return ['Household goods', styles.hhgShipmentType];
     case SHIPMENT_OPTIONS.NTS:
-      return ['NTS release', styles.ntsrShipmentType];
+      return ['Non-temp storage', styles.ntsrShipmentType];
     case SHIPMENT_OPTIONS.NTSR:
-      return ['NTS release', styles.ntsrShipmentType];
+      return ['Non-temp storage release', styles.ntsrShipmentType];
     default:
       return [mtoShipmentType, styles.basicServiceType];
   }
 };
 
 const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
-  const [headingType, shipmentStyle] = shipmentHeadingAndStyle(serviceItems?.[0]?.mtoShipmentType);
+  const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
+  const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
 
   return (
     serviceItems.length > 0 && (

@@ -233,9 +233,6 @@ bin/generate-deploy-notes: cmd/generate-deploy-notes
 bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
-bin/find-guardduty-user: cmd/find-guardduty-user
-	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
-
 bin/generate-access-codes: cmd/generate_access_codes
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
@@ -268,12 +265,6 @@ bin/prime-api-client: cmd/prime-api-client
 
 bin/webhook-client: cmd/webhook-client
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
-
-bin/query-cloudwatch-logs: cmd/query-cloudwatch-logs
-	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
-
-bin/query-lb-logs: cmd/query-lb-logs
-	go build -ldflags "$(LDFLAGS)" -o bin/query-lb-logs ./cmd/query-lb-logs
 
 bin/read-alb-logs: cmd/read-alb-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
@@ -353,7 +344,6 @@ build_tools: bin/gin \
 	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
-	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/ghc-pricing-parser \
@@ -363,8 +353,6 @@ build_tools: bin/gin \
 	bin/milmove-tasks \
 	bin/model-vet \
 	bin/prime-api-client \
-	bin/query-cloudwatch-logs \
-	bin/query-lb-logs \
 	bin/read-alb-logs \
 	bin/report-ecs \
 	bin/send-to-gex \

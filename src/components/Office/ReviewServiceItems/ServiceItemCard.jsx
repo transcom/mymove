@@ -8,9 +8,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './ServiceItemCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
-import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatters';
+import { toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
+import { mtoShipmentTypes } from 'constants/shipments';
 
 /** This component represents a Payment Request Service Item */
 const ServiceItemCard = ({
@@ -29,9 +30,7 @@ const ServiceItemCard = ({
     return (
       <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
         <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
-          <h6 className={styles.cardHeader}>
-            {mtoShipmentTypeToFriendlyDisplay(mtoShipmentType) || 'BASIC SERVICE ITEMS'}
-          </h6>
+          <h6 className={styles.cardHeader}>{mtoShipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
           <dl>
             <dt>Service item</dt>
             <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
@@ -90,9 +89,7 @@ const ServiceItemCard = ({
           return (
             <Form className={styles.form} onSubmit={submitForm}>
               <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
-                <h6 className={styles.cardHeader}>
-                  {mtoShipmentTypeToFriendlyDisplay(mtoShipmentType) || 'BASIC SERVICE ITEMS'}
-                </h6>
+                <h6 className={styles.cardHeader}>{mtoShipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
                 <dl>
                   <dt>Service item</dt>
                   <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>

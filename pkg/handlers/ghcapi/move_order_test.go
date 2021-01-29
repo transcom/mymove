@@ -59,6 +59,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Stub: true,
 			Order: models.Order{
+				ID:            uuid.Must(uuid.NewV4()),
 				HasDependents: *swag.Bool(false),
 			},
 			Entitlement: models.Entitlement{
@@ -99,6 +100,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Stub: true,
 			Order: models.Order{
+				ID:            uuid.Must(uuid.NewV4()),
 				HasDependents: *swag.Bool(true),
 			},
 		})

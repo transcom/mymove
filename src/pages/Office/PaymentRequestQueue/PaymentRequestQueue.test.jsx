@@ -1,4 +1,5 @@
 import React from 'react';
+import Select from 'react-select';
 import { mount } from 'enzyme';
 
 import PaymentRequestQueue from './PaymentRequestQueue';
@@ -122,5 +123,14 @@ describe('PaymentRequestQueue', () => {
     wrapper.update();
 
     expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
+  });
+
+  it('filters the queue', () => {
+    const input = wrapper.find(Select).at(0).find('input');
+    input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
+    input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
+
+    wrapper.update();
+    expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Payment requested');
   });
 });
