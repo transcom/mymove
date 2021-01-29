@@ -529,7 +529,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 
 func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
 	var paymentServiceItemParam models.PaymentServiceItemParam
-	// c7cd28c5-f229-48c4-adb7-e0761d2687a6
 	err := g.db.Q().
 		Join("service_item_param_keys sk", "payment_service_item_params.service_item_param_key_id = sk.id").
 		Where("payment_service_item_id = ?", serviceItemID).
