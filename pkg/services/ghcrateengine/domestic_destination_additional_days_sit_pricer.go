@@ -50,7 +50,10 @@ func (p domesticDestinationAdditionalDaysSITPricer) PriceUsingParams(params mode
 
 	numberOfDaysInSIT, err := getParamInt(params, models.ServiceItemParamNameNumberDaysSIT)
 	if err != nil {
-		return unit.Cents(0), err
+		// TODO: Hardcoding numberOfDaysInSIT until MB-1564 is done
+		// once MB-1564 is done uncomment below line
+		// return unit.Cents(0), err
+		numberOfDaysInSIT = 29
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
