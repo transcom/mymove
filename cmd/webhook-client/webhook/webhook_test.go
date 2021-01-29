@@ -26,9 +26,7 @@ import (
 // WebhookClientTestingSuite is a suite for testing the webhook client
 type WebhookClientTestingSuite struct {
 	testingsuite.PopTestSuite
-	logger   utils.Logger
-	certPath string
-	keyPath  string
+	logger utils.Logger
 }
 
 func TestWebhookClientTestingSuite(t *testing.T) {
@@ -37,8 +35,6 @@ func TestWebhookClientTestingSuite(t *testing.T) {
 	ts := &WebhookClientTestingSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
-		certPath:     "../../config/tls/devlocal-mtls.cer",
-		keyPath:      "../../config/tls/devlocal-mtls.key",
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

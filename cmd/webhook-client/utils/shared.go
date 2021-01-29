@@ -25,10 +25,6 @@ type Logger interface {
 
 // Root flags that may be used by any command
 const (
-	// CertPathFlag is the path to the client mTLS certificate
-	CertPathFlag string = "certpath"
-	// KeyPathFlag is the path to the key mTLS certificate
-	KeyPathFlag string = "keypath"
 	// HostnameFlag is the hostname to connect to
 	HostnameFlag string = "hostname"
 	// PortFlag is the port to connect to

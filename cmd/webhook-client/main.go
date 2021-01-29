@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -25,8 +28,6 @@ func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitDatabaseFlags(flag)
 
 	// Additional flags pertinent to all commands using this tool
-	flag.String(utils.CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
-	flag.String(utils.KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
 	flag.String(utils.HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(utils.PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(utils.InsecureFlag, false, "Skip TLS verification and validation")
@@ -65,13 +66,35 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
 		return nil, logger, err
 	}
 
-	if (v.GetString(utils.CertPathFlag) != "" && v.GetString(utils.KeyPathFlag) == "") ||
-		(v.GetString(utils.CertPathFlag) == "" && v.GetString(utils.KeyPathFlag) != "") {
-		return nil, logger, fmt.Errorf("Both TLS certificate and key paths must be provided")
+	var session *awssession.Session
+	if v.GetBool(cli.DbIamFlag) {
+		verbose := cli.LogLevelIsDebug(v)
+		c, errorConfig := cli.GetAWSConfig(v, verbose)
+		if errorConfig != nil {
+			logger.Fatal("error creating aws config", zap.Error(errorConfig))
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			logger.Fatal("error creating aws session", zap.Error(errorSession))
+		}
+		session = s
+	}
+
+	var dbCreds *credentials.Credentials
+	if v.GetBool(cli.DbIamFlag) {
+		if session != nil {
+			// We want to get the credentials from the logged in AWS session rather than create directly,
+			// because the session conflates the environment, shared, and container metadata config
+			// within NewSession.  With stscreds, we use the Secure Token Service,
+			// to assume the given role (that has rds db connect permissions).
+			dbIamRole := v.GetString(cli.DbIamRoleFlag)
+			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
+			dbCreds = stscreds.NewCredentials(session, dbIamRole)
+		}
 	}
 
 	// DB CONNECTION CHECK
-	dbConnection, err := cli.InitDatabase(v, nil, logger)
+	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
 	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
