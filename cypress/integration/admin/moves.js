@@ -11,7 +11,16 @@ describe('Moves Page', function () {
     cy.url().should('eq', adminBaseURL + '/system/moves');
     cy.get('header').contains('Moves');
 
-    const columnLabels = ['Id', 'Orders', 'Service Member Id', 'Locator', 'Status', 'Show', 'Created at', 'Updated at'];
+    const columnLabels = [
+      'Id',
+      'Order Id',
+      'Service Member Id',
+      'Locator',
+      'Status',
+      'Show',
+      'Created at',
+      'Updated at',
+    ];
     columnLabels.forEach((label) => {
       cy.get('table').contains(label);
     });
@@ -34,6 +43,7 @@ describe('Moves Details Show Page', function () {
       'Locator',
       'Status',
       'Show',
+      'Order Id',
       'Created at',
       'Updated at',
       'Service member Id',
