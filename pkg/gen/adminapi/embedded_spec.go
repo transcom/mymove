@@ -499,9 +499,6 @@ func init() {
           },
           "500": {
             "description": "Server error"
-          },
-          "501": {
-            "description": "This endpoint has not yet been implemented"
           }
         }
       },
@@ -1184,8 +1181,8 @@ func init() {
         "tags": [
           "users"
         ],
-        "summary": "revokes a user's session on any specified apps",
-        "operationId": "revokeUserSession",
+        "summary": "Update a user's session or active status",
+        "operationId": "updateUser",
         "parameters": [
           {
             "type": "string",
@@ -1200,7 +1197,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserRevokeSessionPayload"
+              "$ref": "#/definitions/UserUpdatePayload"
             }
           }
         ],
@@ -1219,6 +1216,12 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update this user"
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "description": "Server error"
@@ -1632,11 +1635,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "serviceMemberId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "serviceMember": {
+          "$ref": "#/definitions/ServiceMember"
         },
         "show": {
           "type": "boolean",
@@ -1964,6 +1964,38 @@ func init() {
         }
       }
     },
+    "ServiceMember": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleName": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -2246,9 +2278,15 @@ func init() {
         }
       }
     },
-    "UserRevokeSessionPayload": {
+    "UserUpdatePayload": {
       "type": "object",
+      "required": [
+        "active"
+      ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true
@@ -2774,9 +2812,6 @@ func init() {
           },
           "500": {
             "description": "Server error"
-          },
-          "501": {
-            "description": "This endpoint has not yet been implemented"
           }
         }
       },
@@ -3459,8 +3494,8 @@ func init() {
         "tags": [
           "users"
         ],
-        "summary": "revokes a user's session on any specified apps",
-        "operationId": "revokeUserSession",
+        "summary": "Update a user's session or active status",
+        "operationId": "updateUser",
         "parameters": [
           {
             "type": "string",
@@ -3475,7 +3510,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserRevokeSessionPayload"
+              "$ref": "#/definitions/UserUpdatePayload"
             }
           }
         ],
@@ -3494,6 +3529,12 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update this user"
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "description": "Server error"
@@ -3908,11 +3949,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "serviceMemberId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "serviceMember": {
+          "$ref": "#/definitions/ServiceMember"
         },
         "show": {
           "type": "boolean",
@@ -4240,6 +4278,38 @@ func init() {
         }
       }
     },
+    "ServiceMember": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleName": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -4522,9 +4592,15 @@ func init() {
         }
       }
     },
-    "UserRevokeSessionPayload": {
+    "UserUpdatePayload": {
       "type": "object",
+      "required": [
+        "active"
+      ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true
