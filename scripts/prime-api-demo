@@ -87,33 +87,18 @@ else
   fi
 fi
 
-jq . tmp/pad_demo_mto.json
-
-printf "\n-----\n\n"
-
-echo "MTO Shipment IDs:"
-jq -r '.mtoShipments | map(.id)' tmp/pad_demo_mto.json
 
 shipmentID=$(jq '.mtoShipments | .[0] | .id' tmp/pad_demo_mto.json)
 shipmentEtag=$(jq '.mtoShipments | .[0] | .eTag' tmp/pad_demo_mto.json)
-echo
-echo "Using:"
-echo "MTO Shipment ID: ${shipmentID}"
-echo "eTag: ${shipmentEtag}"
 
-printf "\n==========\n\n"
 
-printf "It's time for the prime to update dates and destination address:\n\n"
 destDutyZip=$(jq '.moveOrder.destinationDutyStation.address.postalCode' tmp/pad_demo_mto.json | tr -d '"')
 destDutyCity=$(jq '.moveOrder.destinationDutyStation.address.city' tmp/pad_demo_mto.json | tr -d '"')
 destDutyState=$(jq '.moveOrder.destinationDutyStation.address.state' tmp/pad_demo_mto.json | tr -d '"')
-read -p "Provide a scheduled pickup date (yyyy-mm-dd): " -r scheduledPickupDate
-read -p "Provide an actual pickup date (yyyy-mm-dd): " -r actualPickupDate
-echo "Provide the customer's destination address. defaults from new duty station address"
-read -p "  street address: " -r destStreetAddress1
-read -p "  city (default ${destDutyCity}): " -r destCity
-read -p "  state (default ${destDutyState}): " -r destState
-read -p "  zip (default ${destDutyZip}): " -r destZip
+destStreetAddress1="7 Q St"
+scheduledPickupDate="2021-01-01"
+actualPickupDate="2021-01-01"
+
 
 cat > tmp/pad_update_mto_shipment.json <<- EOM
 {
@@ -133,18 +118,12 @@ cat > tmp/pad_update_mto_shipment.json <<- EOM
 }
 EOM
 
-printf "We will be sending this payload to milmove:\n\n"
-jq . tmp/pad_update_mto_shipment.json
-
-echo
 
 read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "\n==========\n\n"
 
 bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_mto_shipment.json > tmp/pad_update_response_mto_shipment.json
-
-jq . tmp/pad_update_response_mto_shipment.json
 
 printf "\n-----\n\n"
 
@@ -154,14 +133,10 @@ echo "Updated Shipment eTag: ${shipmentEtag}"
 printf "\n==========\n\n"
 
 printf "The prime will also update weights:\n\n"
-
+estimatedWeight="1600"
+actualWeight="1540"
 if jq -e '.primeEstimatedWeight' tmp/pad_update_response_mto_shipment.json > tmp/pad_estimated_weight; then
   # estimated weight is set already
-  echo "Prime Estimated Weight Set Already: $(cat tmp/pad_estimated_weight)"
-  read -p "Provide the actual weight: " -r actualWeight
-
-  echo
-
   cat > tmp/pad_update_weights.json <<- EOM
 {
   "mtoShipmentID": ${shipmentID},
@@ -171,24 +146,10 @@ if jq -e '.primeEstimatedWeight' tmp/pad_update_response_mto_shipment.json > tmp
   }
 }
 EOM
-
-  printf "Sending the following update payload:\n\n"
-
-  jq . tmp/pad_update_weights.json
-
-  echo
-
-  read -p "Ready to continue? Hit enter..." -n 1 -r
-
-  printf "\n==========\n\n"
+  printf "Prime is updating weights"
 
   bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response_weights.json
 else # estimated weight not set
-  read -p "Provide the estimated weight: " -r estimatedWeight
-  read -p "Provide the actual weight: " -r actualWeight
-
-  echo
-
   cat > tmp/pad_update_weights.json <<- EOM
 {
   "mtoShipmentID": ${shipmentID},
@@ -200,26 +161,13 @@ else # estimated weight not set
 }
 EOM
 
-  printf "Sending the following update payload:\n\n"
-
-  jq . tmp/pad_update_weights.json
-
-  echo
-
-  read -p "Ready to continue? Hit enter..." -n 1 -r
-
-  printf "\n==========\n\n"
+  printf "\nPrime is updating the shipment weights \n\n"
 
   bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response_weights.json
 fi
 
-jq . tmp/pad_update_response_weights.json
-
-printf "\n-----\n\n"
 
 shipmentEtag=$(jq '.eTag' tmp/pad_update_response_weights.json)
-echo "Updated Shipment eTag: ${shipmentEtag}"
-
 printf "\n==========\n\n"
 
 printf "The prime can add a DDFSIT service item to later request payment for:\n\n"
