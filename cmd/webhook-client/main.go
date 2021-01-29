@@ -28,8 +28,8 @@ func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitDatabaseFlags(flag)
 
 	// Additional flags pertinent to all commands using this tool
-	flag.String(utils.CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
-	flag.String(utils.KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
+	flag.String(utils.CertPathFlag, "", "Path to the public cert")
+	flag.String(utils.KeyPathFlag, "", "Path to the private key")
 	flag.String(utils.HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(utils.PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(utils.InsecureFlag, false, "Skip TLS verification and validation")
