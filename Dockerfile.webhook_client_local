@@ -11,8 +11,9 @@ WORKDIR /home/circleci/project
 
 # Add CA files
 USER root
-ADD dod-sw-ca-60.cer /usr/local/share/ca-certificates/dod-sw-ca-60.cer
-ADD dod-root-ca-3.cer /usr/local/share/ca-certificates/dod-root-ca-3.cer
+ADD dod-root-ca-3.cer /usr/local/share/ca-certificates/dod-root-ca-3.crt
+ADD dod-sw-ca-60.cer /usr/local/share/ca-certificates/dod-sw-ca-60.crt
+
 RUN update-ca-certificates
 
 RUN make clean
@@ -29,6 +30,7 @@ RUN go test ./cmd/webhook-client/webhook -c
 FROM gcr.io/distroless/base:latest
 
 COPY --from=builder --chown=root:root /etc/ssl/certs /etc/ssl/certs
+
 # mTLS authentication self-signed certificate for use in development and test environments.
 COPY --from=builder --chown=root:root /home/circleci/project/config/tls/devlocal-mtls.cer /config/tls/devlocal-mtls.cer
 COPY --from=builder --chown=root:root /home/circleci/project/config/tls/devlocal-mtls.key /config/tls/devlocal-mtls.key
@@ -44,4 +46,4 @@ COPY --from=builder --chown=root:root /home/circleci/project/webhook.test /bin/w
 ENV HOSTALIASES=/etc/host.aliases
 COPY --from=builder --chown=root:root /home/circleci/project/config/docker/etc/host.aliases /etc/host.aliases
 
-CMD ["bin/webhook.test"]
+CMD ["./bin/webhook.test"]

@@ -158,8 +158,6 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 	var store *pksigner.Store
 
 	insecure := v.GetBool(utils.InsecureFlag)
-	insecure = true
-	fmt.Println("insecure is", insecure)
 	verbose := cli.LogLevelIsDebug(v)
 	contentType := "application/json; charset=utf-8"
 
