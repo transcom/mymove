@@ -499,9 +499,6 @@ func init() {
           },
           "500": {
             "description": "Server error"
-          },
-          "501": {
-            "description": "This endpoint has not yet been implemented"
           }
         }
       },
@@ -1638,11 +1635,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "serviceMemberId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "serviceMember": {
+          "$ref": "#/definitions/ServiceMember"
         },
         "show": {
           "type": "boolean",
@@ -1967,6 +1961,38 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "ServiceMember": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleName": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -2786,9 +2812,6 @@ func init() {
           },
           "500": {
             "description": "Server error"
-          },
-          "501": {
-            "description": "This endpoint has not yet been implemented"
           }
         }
       },
@@ -3926,11 +3949,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "serviceMemberId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "serviceMember": {
+          "$ref": "#/definitions/ServiceMember"
         },
         "show": {
           "type": "boolean",
@@ -4255,6 +4275,38 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "ServiceMember": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleName": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },

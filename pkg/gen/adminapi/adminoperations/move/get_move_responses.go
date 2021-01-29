@@ -152,27 +152,3 @@ func (o *GetMoveInternalServerError) WriteResponse(rw http.ResponseWriter, produ
 
 	rw.WriteHeader(500)
 }
-
-// GetMoveNotImplementedCode is the HTTP code returned for type GetMoveNotImplemented
-const GetMoveNotImplementedCode int = 501
-
-/*GetMoveNotImplemented This endpoint has not yet been implemented
-
-swagger:response getMoveNotImplemented
-*/
-type GetMoveNotImplemented struct {
-}
-
-// NewGetMoveNotImplemented creates GetMoveNotImplemented with default headers values
-func NewGetMoveNotImplemented() *GetMoveNotImplemented {
-
-	return &GetMoveNotImplemented{}
-}
-
-// WriteResponse to the client
-func (o *GetMoveNotImplemented) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(501)
-}
