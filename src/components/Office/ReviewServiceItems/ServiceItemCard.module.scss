@@ -39,7 +39,7 @@
     text-transform: uppercase;
     @include u-margin-top(2);
     @include u-margin-bottom(2);
-    @include u-text('gray-40');
+    @include u-text('base');
   }
 
   .statusOption {

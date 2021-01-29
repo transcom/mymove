@@ -126,9 +126,10 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
-	adminAPI.UsersRevokeUserSessionHandler = RevokeUserSessionHandler{
+	adminAPI.UsersUpdateUserHandler = UpdateUserHandler{
 		context,
 		user.NewUserSessionRevocation(queryBuilder),
+		user.NewUserUpdater(queryBuilder),
 		query.NewQueryFilter,
 	}
 

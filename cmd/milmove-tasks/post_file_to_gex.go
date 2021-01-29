@@ -148,13 +148,13 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 
 	if resp == nil {
 		logger.Fatal("Gex Sender had no response", zap.Error(err))
+	} else {
+		logger.Info(
+			"Posted to GEX",
+			zap.String("filename", filename),
+			zap.Int("statusCode", resp.StatusCode),
+			zap.Error(err))
 	}
-
-	logger.Info(
-		"Posted to GEX",
-		zap.String("filename", filename),
-		zap.Int("statusCode", resp.StatusCode),
-		zap.Error(err))
 
 	return nil
 }

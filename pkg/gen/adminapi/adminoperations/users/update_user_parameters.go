@@ -18,18 +18,18 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 )
 
-// NewRevokeUserSessionParams creates a new RevokeUserSessionParams object
+// NewUpdateUserParams creates a new UpdateUserParams object
 // no default values defined in spec.
-func NewRevokeUserSessionParams() RevokeUserSessionParams {
+func NewUpdateUserParams() UpdateUserParams {
 
-	return RevokeUserSessionParams{}
+	return UpdateUserParams{}
 }
 
-// RevokeUserSessionParams contains all the bound params for the revoke user session operation
+// UpdateUserParams contains all the bound params for the update user operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters revokeUserSession
-type RevokeUserSessionParams struct {
+// swagger:parameters updateUser
+type UpdateUserParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -38,7 +38,7 @@ type RevokeUserSessionParams struct {
 	  Required: true
 	  In: body
 	*/
-	User *adminmessages.UserRevokeSessionPayload
+	User *adminmessages.UserUpdatePayload
 	/*
 	  Required: true
 	  In: path
@@ -49,15 +49,15 @@ type RevokeUserSessionParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewRevokeUserSessionParams() beforehand.
-func (o *RevokeUserSessionParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewUpdateUserParams() beforehand.
+func (o *UpdateUserParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body adminmessages.UserRevokeSessionPayload
+		var body adminmessages.UserUpdatePayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("user", "body", ""))
@@ -89,7 +89,7 @@ func (o *RevokeUserSessionParams) BindRequest(r *http.Request, route *middleware
 }
 
 // bindUserID binds and validates parameter UserID from path.
-func (o *RevokeUserSessionParams) bindUserID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateUserParams) bindUserID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -113,7 +113,7 @@ func (o *RevokeUserSessionParams) bindUserID(rawData []string, hasKey bool, form
 }
 
 // validateUserID carries on validations for parameter UserID
-func (o *RevokeUserSessionParams) validateUserID(formats strfmt.Registry) error {
+func (o *UpdateUserParams) validateUserID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("userId", "path", "uuid", o.UserID.String(), formats); err != nil {
 		return err
