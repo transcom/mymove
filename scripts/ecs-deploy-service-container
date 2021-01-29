@@ -44,8 +44,8 @@ update_service() {
     local network_config
     network_config=$(aws ecs describe-services --services "${name}" --cluster "${cluster}" --query 'services[0].networkConfiguration')
 
-    echo "* Waiting for service to be stable before updating"
-    time aws ecs wait services-stable --services "${name}" --cluster "${cluster}"
+    # echo "* Waiting for service to be stable before updating"
+    # time aws ecs wait services-stable --services "${name}" --cluster "${cluster}"
     echo "* Currently running ECS tasks:"
     aws ecs list-tasks --service "${name}" --cluster "${cluster}" --desired-status=RUNNING
     echo "* Updating ${name} service to use ${arn}"
