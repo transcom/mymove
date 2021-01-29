@@ -40,6 +40,14 @@ These scripts are used for interacting with AWS or secrets in the AWS System Man
 
 These scripts are used to operate the system.
 
+You will need to specify which account you're using. Do so by pre-pending
+`DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec AWS_ACCOUNT --` to the script command.
+For example, to run the `health-tls-check` script, you'd run:
+
+```bash
+DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/health-tls-check
+```
+
 | Script Name             | Description                                                             |
 | ----------------------- | ----------------------------------------------------------------------- |
 | `download-alb-logs`     | Download alb logs for the given environment and dates to a local folder |
