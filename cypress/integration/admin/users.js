@@ -29,10 +29,9 @@ describe('Users Details Show Page', function () {
     cy.url().should('eq', adminBaseURL + '/system/users');
     cy.get('[data-testid="user-id"]').first().click();
 
-    cy.get('.ra-field-id label').contains('user ID');
-    cy.get('.ra-field-loginGovEmail label').contains('user email');
-    cy.get('.ra-field-active label').contains('Active');
-    cy.get('.ra-field-createdAt label').contains('Created at');
-    cy.get('.ra-field-updatedAt label').contains('Updated at');
+    const pageContent = ['user ID', 'user email', 'Active', 'Created at', 'Updated at'];
+    pageContent.forEach((label) => {
+      cy.get('label').contains(label);
+    });
   });
 });
