@@ -29,7 +29,7 @@ describe('Users Details Show Page', function () {
     cy.url().should('eq', adminBaseURL + '/system/users');
     cy.get('[data-testid="user-id"]').first().click();
 
-    const pageContent = ['user ID', 'user email', 'Active', 'Created at', 'Updated at'];
+    const pageContent = ['User ID', 'User email', 'Active', 'Created at', 'Updated at'];
     pageContent.forEach((label) => {
       cy.get('label').contains(label);
     });
