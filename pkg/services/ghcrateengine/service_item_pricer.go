@@ -61,6 +61,10 @@ func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services
 		return NewDomesticOriginFirstDaySITPricer(p.db), nil
 	case models.ReServiceCodeDDFSIT:
 		return NewDomesticDestinationFirstDaySITPricer(p.db), nil
+	case models.ReServiceCodeDOASIT:
+		return NewDomesticOriginAdditionalDaysSITPricer(p.db), nil
+	case models.ReServiceCodeDDASIT:
+		return NewDomesticDestinationAdditionalDaysSITPricer(p.db), nil
 	case models.ReServiceCodeDDDSIT:
 		return NewDomesticDestinationSITDeliveryPricer(p.db), nil
 	default:
