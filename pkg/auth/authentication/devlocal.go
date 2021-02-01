@@ -676,7 +676,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		return nil, errors.New("Deactivated user requesting authentication")
 	}
 
-	if userIdentity.ServiceMemberID != nil {
+	if session.IsMilApp() && userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 

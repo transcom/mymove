@@ -33,10 +33,6 @@ type LoggedInUserPayload struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
-	// last name
-	// Read Only: true
-	LastName string `json:"last_name,omitempty"`
-
 	// office user
 	OfficeUser *OfficeUser `json:"office_user,omitempty"`
 
