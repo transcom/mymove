@@ -5,9 +5,9 @@
 FROM milmove/circleci-docker:milmove-app as builder
 
 # Prepare public DOD certificates.
-COPY config/tls/dod-root-ca-3.cer /usr/local/share/ca-certificates/dod-root-ca-3.crt
-COPY config/tls/dod-sw-ca-60.cer /usr/local/share/ca-certificates/dod-sw-ca-60.crt
 USER root
+COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /tmp/all-public-dod-certs.der.p7b
+RUN openssl pkcs7 -print_certs -inform der -in /tmp/all-public-dod-certs.der.p7b -out /usr/local/share/ca-certificates/all-public-dod-certs.crt
 RUN update-ca-certificates
 
 #########
