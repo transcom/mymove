@@ -35,14 +35,20 @@ func payloadForMoveModel(move models.Move) *adminmessages.Move {
 	}
 
 	return &adminmessages.Move{
-		ID:              handlers.FmtUUID(move.ID),
-		OrdersID:        handlers.FmtUUID(move.OrdersID),
-		ServiceMemberID: *handlers.FmtUUID(move.Orders.ServiceMemberID),
-		Locator:         &move.Locator,
-		Status:          adminmessages.MoveStatus(move.Status),
-		Show:            &showMove,
-		CreatedAt:       handlers.FmtDateTime(move.CreatedAt),
-		UpdatedAt:       handlers.FmtDateTime(move.UpdatedAt),
+		ID:       handlers.FmtUUID(move.ID),
+		OrdersID: handlers.FmtUUID(move.OrdersID),
+		Locator:  &move.Locator,
+		ServiceMember: &adminmessages.ServiceMember{
+			ID:         *handlers.FmtUUID(move.Orders.ServiceMember.ID),
+			UserID:     *handlers.FmtUUID(move.Orders.ServiceMember.UserID),
+			FirstName:  move.Orders.ServiceMember.FirstName,
+			MiddleName: move.Orders.ServiceMember.MiddleName,
+			LastName:   move.Orders.ServiceMember.LastName,
+		},
+		Status:    adminmessages.MoveStatus(move.Status),
+		Show:      &showMove,
+		CreatedAt: handlers.FmtDateTime(move.CreatedAt),
+		UpdatedAt: handlers.FmtDateTime(move.UpdatedAt),
 	}
 }
 
@@ -149,11 +155,33 @@ func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Res
 // GetMoveHandler retrieves the info for a given move
 type GetMoveHandler struct {
 	handlers.HandlerContext
-	services.MoveFetcher
-	services.NewQueryFilter
 }
 
-// Handle retrieves a given move
+// Handle retrieves a given move by move id
 func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder {
-	return moveop.NewGetMoveNotImplemented()
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	move := models.Move{}
+	// Returns move by id and associated order and the service memeber associated with the order
+	err := h.DB().Eager("Orders", "Orders.ServiceMember").Find(&move, params.MoveID.String())
+
+	if err != nil {
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return moveop.NewGetMoveNotFound()
+		case services.InvalidInputError:
+			return moveop.NewGetMoveBadRequest()
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("adminapi.GetMoveHandler query error", zap.Error(e.Unwrap()))
+			}
+			return moveop.NewGetMoveInternalServerError()
+		default:
+			return moveop.NewGetMoveInternalServerError()
+		}
+	}
+
+	payload := payloadForMoveModel(move)
+	return moveop.NewGetMoveOK().WithPayload(payload)
 }

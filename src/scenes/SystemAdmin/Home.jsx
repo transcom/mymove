@@ -6,7 +6,7 @@ import Menu from './shared/Menu';
 import FOUOHeader from 'components/FOUOHeader';
 import AccessCodeList from './AccessCodes/AccessCodeList';
 import UploadShow from './Uploads/UploadShow';
-import UserShow from './Users/UserShow';
+import UserShow from '../../pages/Admin/Users/UserShow';
 import UserEdit from './Users/UserEdit';
 import OfficeUserList from './OfficeUsers/OfficeUserList';
 import OfficeUserCreate from './OfficeUsers/OfficeUserCreate';
@@ -20,7 +20,8 @@ import OfficeList from './Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
-import MoveList from './Moves/MoveList';
+import MoveList from 'pages/Admin/Moves/MoveList';
+import MoveShow from 'pages/Admin/Moves/MoveShow';
 
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
@@ -74,7 +75,7 @@ const Home = () => (
         edit={AdminUserEdit}
       />
       <Resource name="users" options={{ label: 'Users' }} show={UserShow} edit={UserEdit} list={UserList} />
-      <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} />
+      <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} />
       <Resource
         name="transportation_service_provider_performances"
         options={{ label: 'TSPPs' }}

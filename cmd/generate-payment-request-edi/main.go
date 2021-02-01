@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/benbjohnson/clock"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -111,7 +112,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(dbConnection, icnSequencer)
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(dbConnection, icnSequencer, clock.New())
 	edi858c, err := generator.Generate(paymentRequest, false)
 	if err != nil {
 		logger.Fatal(err.Error())

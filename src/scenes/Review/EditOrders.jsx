@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
@@ -10,7 +10,7 @@ import { withContext } from 'shared/AppContext';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import OrdersUploader from 'components/OrdersUploader';
+import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
@@ -33,10 +33,20 @@ import './Review.css';
 import profileImage from './images/profile.png';
 
 const editOrdersFormName = 'edit_orders';
-const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
 let EditOrdersForm = (props) => {
-  const { onDelete, schema, handleSubmit, submitting, valid, initialValues, existingUploads } = props;
+  const {
+    createUpload,
+    onDelete,
+    schema,
+    handleSubmit,
+    submitting,
+    valid,
+    initialValues,
+    existingUploads,
+    onUploadComplete,
+    filePondEl,
+  } = props;
   const showAllOrdersTypes = props.context.flags.allOrdersTypes;
   const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
 
@@ -69,14 +79,15 @@ let EditOrdersForm = (props) => {
               <br />
               <Field name="new_duty_station" component={DutyStationSearchBox} />
               <p>Uploads:</p>
-              {Boolean(existingUploads.length) && <UploadsTable uploads={existingUploads} onDelete={onDelete} />}
-              {Boolean(get(initialValues, 'uploaded_orders')) && (
+              {existingUploads?.length > 0 && <UploadsTable uploads={existingUploads} onDelete={onDelete} />}
+              {initialValues?.uploaded_orders && (
                 <div>
                   <p>{documentSizeLimitMsg}</p>
-                  <OrdersUploader
-                    createUpload={props.createUpload}
-                    deleteUpload={props.deleteUpload}
-                    options={{ labelIdle: uploaderLabelIdle }}
+                  <FileUpload
+                    ref={filePondEl}
+                    createUpload={createUpload}
+                    onChange={onUploadComplete}
+                    labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
                   />
                 </div>
               )}
@@ -96,6 +107,7 @@ EditOrdersForm.propTypes = {
     }).isRequired,
   }).isRequired,
 };
+
 EditOrdersForm = withContext(
   reduxForm({
     form: editOrdersFormName,
@@ -103,13 +115,23 @@ EditOrdersForm = withContext(
 );
 
 class EditOrders extends Component {
+  constructor(props) {
+    super(props);
+
+    this.filePondEl = createRef();
+  }
+
   handleUploadFile = (file) => {
-    const { currentOrders, serviceMemberId, updateOrders } = this.props;
+    const { currentOrders } = this.props;
     const documentId = currentOrders?.uploaded_orders?.id;
-    return createUploadForDocument(file, documentId).then(() => {
-      getOrdersForServiceMember(serviceMemberId).then((response) => {
-        updateOrders(response);
-      });
+    return createUploadForDocument(file, documentId);
+  };
+
+  handleUploadComplete = () => {
+    const { serviceMemberId, updateOrders } = this.props;
+    this.filePondEl.current?.removeFiles();
+    return getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
     });
   };
 
@@ -182,8 +204,9 @@ class EditOrders extends Component {
               initialValues={currentOrders}
               onSubmit={this.submitOrders}
               schema={schema}
+              filePondEl={this.filePondEl}
               createUpload={this.handleUploadFile}
-              deleteUpload={this.handleDeleteFile}
+              onUploadComplete={this.handleUploadComplete}
               existingUploads={existingUploads}
               onDelete={this.handleDeleteFile}
               formValues={formValues}

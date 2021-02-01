@@ -22,13 +22,7 @@ import { patchMTOServiceItemStatus } from 'services/ghcApi';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 import dimensionTypes from 'constants/dimensionTypes';
 import customerContactTypes from 'constants/customerContactTypes';
-
-function formatShipmentType(shipmentType) {
-  if (shipmentType === 'HHG') {
-    return 'Household Goods';
-  }
-  return shipmentType;
-}
+import { mtoShipmentTypes } from 'constants/shipments';
 
 function formatShipmentDate(shipmentDateString) {
   const dateObj = new Date(shipmentDateString);
@@ -178,7 +172,6 @@ export const MoveTaskOrder = ({ match }) => {
           );
           // eslint-disable-next-line camelcase
           const dutyStationPostal = { postal_code: moveOrder.destinationDutyStation.address.postal_code };
-
           return (
             <ShipmentContainer
               key={mtoShipment.id}
@@ -188,7 +181,7 @@ export const MoveTaskOrder = ({ match }) => {
               <ShipmentHeading
                 key={mtoShipment.id}
                 shipmentInfo={{
-                  shipmentType: formatShipmentType(mtoShipment.shipmentType),
+                  shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
                   originCity: get(mtoShipment.pickupAddress, 'city'),
                   originState: get(mtoShipment.pickupAddress, 'state'),
                   originPostalCode: get(mtoShipment.pickupAddress, 'postal_code'),

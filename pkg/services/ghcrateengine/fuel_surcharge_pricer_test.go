@@ -72,8 +72,8 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 			},
 			{
 				Key:     models.ServiceItemParamNameActualPickupDate,
-				KeyType: models.ServiceItemParamTypeTimestamp,
-				Value:   fscActualPickupDate.Format(TimestampParamFormat),
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   fscActualPickupDate.Format(DateParamFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameDistanceZip3,

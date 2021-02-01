@@ -25,7 +25,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 		return moveop.NewGetMoveBadRequest()
 	}
 
-	move, err := h.FetchMove(locator)
+	move, err := h.FetchMove(locator, nil)
 
 	if err != nil {
 		logger.Error("Error retrieving move by locator", zap.Error(err))

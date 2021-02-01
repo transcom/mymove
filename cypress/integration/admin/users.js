@@ -17,3 +17,22 @@ describe('Users Page', function () {
     });
   });
 });
+
+describe('Users Details Show Page', function () {
+  before(() => {
+    cy.prepareAdminApp();
+  });
+
+  it('pulls up details page for a user', function () {
+    cy.signInAsNewAdminUser();
+    failOnStatusCode: false;
+    cy.get('a[href*="system/users"]').click();
+    cy.url().should('eq', adminBaseURL + '/system/users');
+    cy.get('[data-testid="user-id"]').first().click();
+
+    const pageContent = ['User ID', 'User email', 'Active', 'Created at', 'Updated at'];
+    pageContent.forEach((label) => {
+      cy.get('label').contains(label);
+    });
+  });
+});
