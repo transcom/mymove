@@ -3,6 +3,7 @@ import { Show, SimpleShowLayout, TextField, BooleanField, DateField } from 'reac
 
 const UserShow = (props) => {
   return (
+    // eslint-disable-next-line
     <Show {...props} title="title" data-testid="user-show-detail">
       <SimpleShowLayout>
         <TextField source="id" label="User ID" />

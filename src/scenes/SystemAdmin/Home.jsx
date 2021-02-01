@@ -6,7 +6,7 @@ import Menu from './shared/Menu';
 import FOUOHeader from 'components/FOUOHeader';
 import AccessCodeList from './AccessCodes/AccessCodeList';
 import UploadShow from './Uploads/UploadShow';
-import UserShow from './Users/UserShow';
+import UserShow from '../../pages/Admin/Users/UserShow';
 import UserEdit from './Users/UserEdit';
 import OfficeUserList from './OfficeUsers/OfficeUserList';
 import OfficeUserCreate from './OfficeUsers/OfficeUserCreate';
