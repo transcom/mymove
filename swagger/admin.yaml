@@ -863,6 +863,51 @@ definitions:
         type: string
         title: Last Name
         x-nullable: true
+  WebhookSubscriptionStatus:
+    type: string
+    title: Webhook subscription status
+    enum:
+      - ACTIVE
+      - FAILING
+      - DISABLED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      CANCELED: Canceled
+  WebhookSubscriptions:
+    type: array
+    items:
+      $ref: '#/definitions/WebhookSubscription'
+  WebhookSubscription:
+    type: object
+    description: >-
+      Represents subscribers who expect certain notifications to be pushed to their servers.
+      Used for the Prime and Prime-related events specifically.
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      status:
+        $ref: '#/definitions/WebhookSubscriptionStatus'
+      callbackUrl:
+        type: string
+        description: The URL to which the notifications for this subscription will be pushed to.
+      severity:
+        type: integer
+      eventKey:
+        type: string
+        description: >-
+          A string used to represent which events this subscriber expects to be notified about.
+          Corresponds to the possible event_kek values in webhook_notifications.
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
 paths:
   /access_codes:
     get:
