@@ -10,7 +10,7 @@ const MilMoveHeader = ({ children, handleLogout, firstName, lastName }) => (
   <div className={styles.mmHeader}>
     <Title>
       <a href="/" title="Home" aria-label="Home">
-        <img src={MmLogo} alt="MilMove Logo" />
+        <img src={MmLogo} alt="MilMove" />
       </a>
     </Title>
     <div className={styles.links}>
