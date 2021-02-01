@@ -117,9 +117,11 @@ type GetMoveTaskOrderHandlerFunc struct {
 // Handle updates the status of a MoveTaskOrder
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-
+	searchParams := services.FetchMoveTaskOrderParams{
+		IncludeHidden: true,
+	}
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
 	if err != nil {
 		logger.Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {

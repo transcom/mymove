@@ -18,10 +18,17 @@ func NewMoveFetcher(db *pop.Connection) services.MoveFetcher {
 	return &moveFetcher{db}
 }
 
-//FetchMoveOrder retrieves a Move for a given locator
-func (f moveFetcher) FetchMove(locator string) (*models.Move, error) {
+//FetchMoveOrder retrieves a Move if it is visible for a given locator
+func (f moveFetcher) FetchMove(locator string, searchParams *services.MoveFetcherParams) (*models.Move, error) {
 	move := &models.Move{}
-	if err := f.db.Where("locator = $1", locator).First(move); err != nil {
+	query := f.db.Where("locator = $1", locator)
+
+	if searchParams == nil || !searchParams.IncludeHidden {
+		query.Where("show = TRUE")
+	}
+
+	err := query.First(move)
+	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			// Not found error expects an id but we're querying by locator
