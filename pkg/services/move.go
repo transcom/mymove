@@ -14,5 +14,11 @@ type MoveListFetcher interface {
 // MoveFetcher is the exported interface for fetching a move by locator
 //go:generate mockery -name MoveFetcher
 type MoveFetcher interface {
-	FetchMove(locator string) (*models.Move, error)
+	FetchMove(locator string, searchParams *MoveFetcherParams) (*models.Move, error)
+}
+
+// MoveFetcherParams is  public struct that's used to pass filter arguments to
+// MoveFetcher queries
+type MoveFetcherParams struct {
+	IncludeHidden bool // indicates if a hidden/disabled move can be returned
 }

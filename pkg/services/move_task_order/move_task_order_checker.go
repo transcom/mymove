@@ -19,10 +19,10 @@ func NewMoveTaskOrderChecker(db *pop.Connection) services.MoveTaskOrderChecker {
 	return &moveTaskOrderChecker{db}
 }
 
-//MTOAvailableToPrime retrieves a Move for a given UUID and checks if it is available to prime
+//MTOAvailableToPrime retrieves a Move for a given UUID and checks if it is visible and available to prime
 func (f moveTaskOrderChecker) MTOAvailableToPrime(moveTaskOrderID uuid.UUID) (bool, error) {
 	mto := &models.Move{}
-	err := f.db.RawQuery("SELECT * from moves WHERE id = $1", moveTaskOrderID).First(mto)
+	err := f.db.RawQuery("SELECT * FROM moves WHERE id = $1 AND show = TRUE", moveTaskOrderID).First(mto)
 
 	if err != nil {
 		switch err {

@@ -4211,6 +4211,11 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "last_name": {
+          "type": "string",
+          "readOnly": true,
+          "example": "Doe"
+        },
         "office_user": {
           "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
@@ -4996,6 +5001,11 @@ func init() {
         "updated_at"
       ],
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 7000
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
@@ -10820,6 +10830,11 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "last_name": {
+          "type": "string",
+          "readOnly": true,
+          "example": "Doe"
+        },
         "office_user": {
           "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
@@ -11607,6 +11622,11 @@ func init() {
         "updated_at"
       ],
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 7000
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"

@@ -4,6 +4,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
@@ -49,6 +51,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		CreatedAt:          strfmt.DateTime(move.CreatedAt),
 		SubmittedAt:        handlers.FmtDateTimePtr(move.SubmittedAt),
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
+		ETag:               etag.GenerateEtag(move.UpdatedAt),
 	}
 
 	return payload
@@ -69,6 +72,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *ghcmessages.MoveTaskOrder {
 		ReferenceID:        *moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		Locator:            moveTaskOrder.Locator,
 	}
 	return payload
 }
@@ -100,6 +104,10 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 	if moveOrder == nil {
 		return nil
 	}
+	if moveOrder.ID == uuid.Nil {
+		return nil
+	}
+
 	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
 	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
@@ -143,6 +151,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 		Agency:                 branch,
 		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
+		Customer:               Customer(&moveOrder.ServiceMember),
 		FirstName:              swag.StringValue(moveOrder.ServiceMember.FirstName),
 		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),
 		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
@@ -274,6 +283,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
 		PrimeEstimatedWeight:     handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
 		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
+		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
+		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),

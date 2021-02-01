@@ -64,6 +64,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation electronic_order.GetElectronicOrdersTotals has not yet been implemented")
 		})
 	}
+	if api.MoveGetMoveHandler == nil {
+		api.MoveGetMoveHandler = move.GetMoveHandlerFunc(func(params move.GetMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
+		})
+	}
 	if api.OfficeUsersGetOfficeUserHandler == nil {
 		api.OfficeUsersGetOfficeUserHandler = office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
@@ -129,9 +134,9 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation transportation_service_provider_performances.IndexTSPPs has not yet been implemented")
 		})
 	}
-	if api.UsersRevokeUserSessionHandler == nil {
-		api.UsersRevokeUserSessionHandler = users.RevokeUserSessionHandlerFunc(func(params users.RevokeUserSessionParams) middleware.Responder {
-			return middleware.NotImplemented("operation users.RevokeUserSession has not yet been implemented")
+	if api.UsersIndexUsersHandler == nil {
+		api.UsersIndexUsersHandler = users.IndexUsersHandlerFunc(func(params users.IndexUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
 		})
 	}
 	if api.AdminUsersUpdateAdminUserHandler == nil {
@@ -139,9 +144,19 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
 		})
 	}
+	if api.MoveUpdateMoveHandler == nil {
+		api.MoveUpdateMoveHandler = move.UpdateMoveHandlerFunc(func(params move.UpdateMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.UpdateMove has not yet been implemented")
+		})
+	}
 	if api.OfficeUsersUpdateOfficeUserHandler == nil {
 		api.OfficeUsersUpdateOfficeUserHandler = office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
+		})
+	}
+	if api.UsersUpdateUserHandler == nil {
+		api.UsersUpdateUserHandler = users.UpdateUserHandlerFunc(func(params users.UpdateUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.UpdateUser has not yet been implemented")
 		})
 	}
 

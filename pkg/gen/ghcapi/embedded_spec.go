@@ -1024,7 +1024,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/Move"
             }
           },
           "400": {
@@ -1742,6 +1742,8 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date",
+            "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
           },
@@ -2667,6 +2669,12 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mtoAgents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "mtoServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
         "pickupAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -2767,6 +2775,9 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2809,6 +2820,9 @@ func init() {
         "agency": {
           "type": "string",
           "$ref": "#/definitions/Branch"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
           "type": "string",
@@ -2959,6 +2973,10 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
         },
         "moveOrderID": {
           "type": "string",
@@ -3505,8 +3523,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
@@ -3549,7 +3567,7 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITAddress"
+        "ZipSITDestHHGFinalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -5042,7 +5060,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/Move"
             }
           },
           "400": {
@@ -5871,6 +5889,8 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date",
+            "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
           },
@@ -6802,6 +6822,12 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mtoAgents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "mtoServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
         "pickupAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -6902,6 +6928,9 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -6944,6 +6973,9 @@ func init() {
         "agency": {
           "type": "string",
           "$ref": "#/definitions/Branch"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
           "type": "string",
@@ -7094,6 +7126,10 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
         },
         "moveOrderID": {
           "type": "string",
@@ -7630,8 +7666,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
@@ -7674,7 +7710,7 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITAddress"
+        "ZipSITDestHHGFinalAddress"
       ]
     },
     "ServiceItemParamOrigin": {

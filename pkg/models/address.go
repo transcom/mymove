@@ -168,3 +168,12 @@ func (a *Address) CountryCode() (*string, error) {
 	}
 	return nil, nil
 }
+
+// Copy returns a pointer that is a copy of the original pointer Address
+func (a *Address) Copy() *Address {
+	if a != nil {
+		address := *a
+		return &address
+	}
+	return nil
+}

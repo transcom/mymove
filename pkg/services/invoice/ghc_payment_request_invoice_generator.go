@@ -3,8 +3,8 @@ package invoice
 import (
 	"fmt"
 	"strconv"
-	"time"
 
+	"github.com/benbjohnson/clock"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -19,13 +19,15 @@ import (
 type ghcPaymentRequestInvoiceGenerator struct {
 	db           *pop.Connection
 	icnSequencer sequence.Sequencer
+	clock        clock.Clock
 }
 
 // NewGHCPaymentRequestInvoiceGenerator returns an implementation of the GHCPaymentRequestInvoiceGenerator interface
-func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection, icnSequencer sequence.Sequencer) services.GHCPaymentRequestInvoiceGenerator {
+func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection, icnSequencer sequence.Sequencer, clock clock.Clock) services.GHCPaymentRequestInvoiceGenerator {
 	return &ghcPaymentRequestInvoiceGenerator{
 		db:           db,
 		icnSequencer: icnSequencer,
+		clock:        clock,
 	}
 }
 
@@ -81,7 +83,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		}
 	}
 
-	currentTime := time.Now()
+	currentTime := g.clock.Now()
 
 	interchangeControlNumber, err := g.icnSequencer.NextVal()
 	if err != nil {
@@ -529,6 +531,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 
 func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
 	var paymentServiceItemParam models.PaymentServiceItemParam
+
 	err := g.db.Q().
 		Join("service_item_param_keys sk", "payment_service_item_params.service_item_param_key_id = sk.id").
 		Where("payment_service_item_id = ?", serviceItemID).
@@ -536,7 +539,7 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		First(&paymentServiceItemParam)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
-			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, fmt.Sprintf("Could not find PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
+			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, "for paymentServiceItemParam")
 		}
 		return models.PaymentServiceItemParam{}, services.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
 	}
@@ -557,16 +560,23 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.Pa
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceItem models.PaymentServiceItem) (int, float64, error) {
-	// TODO: update to have a case statement as different service items may or may not have weight
-	// and the distance key can differ (zip3 v zip5, and distances for SIT)
 	weight, err := g.getWeightParams(serviceItem)
 	if err != nil {
 		return 0, 0, err
 	}
-	distanceModel := models.ServiceItemParamNameDistanceZip3
-	if serviceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDSH {
+
+	var distanceModel models.ServiceItemParamName
+	switch serviceItem.MTOServiceItem.ReService.Code {
+	case models.ReServiceCodeDSH:
 		distanceModel = models.ServiceItemParamNameDistanceZip5
+	case models.ReServiceCodeDDDSIT:
+		distanceModel = models.ServiceItemParamNameDistanceZipSITDest
+	case models.ReServiceCodeDOPSIT:
+		distanceModel = models.ServiceItemParamNameDistanceZipSITOrigin
+	default:
+		distanceModel = models.ServiceItemParamNameDistanceZip3
 	}
+
 	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, distanceModel)
 	if err != nil {
 		return 0, 0, err
@@ -625,10 +635,11 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				Charge:               serviceItem.PriceCents.Int64(),
 			}
 
-		// pack and unpack, dom dest and dom origin have weight and no distance
+		// following service items have weight and no distance
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP,
-			models.ReServiceCodeDDFSIT:
+			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT,
+			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT:
 			var err error
 			weight, err := g.getWeightParams(serviceItem)
 			if err != nil {

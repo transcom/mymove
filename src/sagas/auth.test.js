@@ -4,7 +4,7 @@ import watchFetchUser, { fetchUser } from './auth';
 
 import { LOAD_USER } from 'store/auth/actions';
 import { setFlashMessage } from 'store/flash/actions';
-import { GetIsLoggedIn, GetLoggedInUser } from 'shared/User/api';
+import { GetIsLoggedIn, GetLoggedInUser } from 'utils/api';
 import { getLoggedInActions } from 'shared/Data/users';
 import { addEntities } from 'shared/Entities/actions';
 

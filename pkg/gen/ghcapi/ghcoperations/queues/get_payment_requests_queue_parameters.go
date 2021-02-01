@@ -74,10 +74,10 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	Status []string
-	/*
+	/*limit results to those matching submitted at date
 	  In: query
 	*/
-	SubmittedAt *string
+	SubmittedAt *strfmt.Date
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -409,7 +409,25 @@ func (o *GetPaymentRequestsQueueParams) bindSubmittedAt(rawData []string, hasKey
 		return nil
 	}
 
-	o.SubmittedAt = &raw
+	// Format: date
+	value, err := formats.Parse("date", raw)
+	if err != nil {
+		return errors.InvalidType("submittedAt", "query", "strfmt.Date", raw)
+	}
+	o.SubmittedAt = (value.(*strfmt.Date))
 
+	if err := o.validateSubmittedAt(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateSubmittedAt carries on validations for parameter SubmittedAt
+func (o *GetPaymentRequestsQueueParams) validateSubmittedAt(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("submittedAt", "query", "date", o.SubmittedAt.String(), formats); err != nil {
+		return err
+	}
 	return nil
 }

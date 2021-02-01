@@ -3,7 +3,7 @@ import { normalize } from 'normalizr';
 
 import { LOAD_USER } from 'store/auth/actions';
 import { setFlashMessage } from 'store/flash/actions';
-import { GetIsLoggedIn, GetLoggedInUser } from 'shared/User/api';
+import { GetIsLoggedIn, GetLoggedInUser } from 'utils/api';
 import { loggedInUser } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 import { getLoggedInActions } from 'shared/Data/users';

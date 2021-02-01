@@ -15,11 +15,13 @@ import OfficeUserShow from './OfficeUsers/OfficeUserShow';
 import AdminUserList from './AdminUsers/AdminUserList';
 import AdminUserShow from './AdminUsers/AdminUserShow';
 import AdminUserCreate from './AdminUsers/AdminUserCreate';
+import UserList from 'pages/Admin/Users/UserList';
 import OfficeList from './Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
-import MoveList from './Moves/MoveList';
+import MoveList from 'pages/Admin/Moves/MoveList';
+import MoveShow from 'pages/Admin/Moves/MoveShow';
 
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
@@ -72,7 +74,8 @@ const Home = () => (
         create={AdminUserCreate}
         edit={AdminUserEdit}
       />
-      <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} />
+      <Resource name="users" options={{ label: 'Users' }} show={UserShow} edit={UserEdit} list={UserList} />
+      <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} />
       <Resource
         name="transportation_service_provider_performances"
         options={{ label: 'TSPPs' }}
@@ -82,7 +85,6 @@ const Home = () => (
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
-      <Resource name="users" options={{ label: 'Search User by ID' }} show={UserShow} edit={UserEdit} />
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
     </Admin>
