@@ -25,6 +25,7 @@ describe('Users Details Show Page', function () {
 
   it('pulls up details page for a user', function () {
     cy.signInAsNewAdminUser();
+    failOnStatusCode: false;
     cy.get('a[href*="system/users"]').click();
     cy.url().should('eq', adminBaseURL + '/system/users');
     cy.get('[data-testid="user-id"]').first().click();
