@@ -91,6 +91,7 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
+
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

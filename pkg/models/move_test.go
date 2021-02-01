@@ -37,7 +37,6 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	// Verify valid items are in locator

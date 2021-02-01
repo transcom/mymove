@@ -214,11 +214,13 @@ func (m *Move) Cancel(reason string) error {
 	}
 
 	return nil
+
 }
 
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
+
 	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.PickupAddress",
