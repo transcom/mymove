@@ -42,7 +42,7 @@ type WebhookNotification struct {
 	Status           WebhookNotificationStatus `db:"status"`
 	CreatedAt        time.Time                 `db:"created_at"`
 	UpdatedAt        time.Time                 `db:"updated_at"`
-	FirstAttemptedAt time.Time                 `db:"first_attempted_at"`
+	FirstAttemptedAt *time.Time                `db:"first_attempted_at"`
 }
 
 // String is not required by pop and may be deleted
