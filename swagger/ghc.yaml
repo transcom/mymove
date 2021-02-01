@@ -98,7 +98,7 @@ paths:
       operationId: getMove
   '/move-orders/{moveOrderID}':
     parameters:
-      - description: ID of customer to use
+      - description: ID of move order to use
         in: path
         name: moveOrderID
         required: true
@@ -1208,6 +1208,45 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
+  '/tac/valid':
+      get:
+        summary: Validation of a TAC value
+        description: Returns a boolean based on whether a tac value is valid or not
+        operationId: tacValidation
+        tags:
+          - tac
+          - moveOrder
+        parameters:
+          - in: query
+            name: tac
+            type: string
+            required: true
+            description: The tac value to validate
+        responses:
+          '200':
+            description: Successfully retrieved validation status
+            schema:
+              $ref: '#/definitions/TacValid'
+          '400':
+            description: The request payload is invalid
+            schema:
+              $ref: '#/responses/InvalidRequest'
+          '401':
+            description: The request was denied
+            schema:
+              $ref: '#/responses/PermissionDenied'
+          '403':
+            description: The request was denied
+            schema:
+              $ref: '#/responses/PermissionDenied'
+          '404':
+            description: The requested resource wasn't found
+            schema:
+              $ref: '#/responses/NotFound'
+          '500':
+            description: A server error occurred
+            schema:
+              $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -2553,6 +2592,12 @@ definitions:
       serviceCodeMS:
         example: true
         type: boolean
+    type: object
+  TacValid:
+    properties:
+      isValid:
+        type: boolean
+        x-nullable: false
     type: object
   UpdatePaymentRequestPayload:
     properties:

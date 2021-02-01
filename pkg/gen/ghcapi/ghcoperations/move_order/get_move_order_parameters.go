@@ -30,7 +30,7 @@ type GetMoveOrderParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*ID of customer to use
+	/*ID of move order to use
 	  Required: true
 	  In: path
 	*/
