@@ -72,6 +72,7 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 		{models.ReServiceCodeDDFSIT, &domesticDestinationFirstDaySITPricer{}},
 		{models.ReServiceCodeDOASIT, &domesticOriginAdditionalDaysSITPricer{}},
 		{models.ReServiceCodeDDASIT, &domesticDestinationAdditionalDaysSITPricer{}},
+		{models.ReServiceCodeDDDSIT, &domesticDestinationSITDeliveryPricer{}},
 	}
 
 	for _, testCase := range testCases {

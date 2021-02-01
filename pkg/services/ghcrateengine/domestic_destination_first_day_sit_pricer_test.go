@@ -76,8 +76,8 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationFirstDaySITServi
 			},
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
-				KeyType: models.ServiceItemParamTypeTimestamp,
-				Value:   ddfsitTestRequestedPickupDate.Format(TimestampParamFormat),
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   ddfsitTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameServiceAreaDest,
@@ -87,7 +87,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationFirstDaySITServi
 			{
 				Key:     models.ServiceItemParamNameWeightActual,
 				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   "2700",
+				Value:   fmt.Sprintf("%d", int(ddfsitTestWeight)),
 			},
 			{
 				Key:     models.ServiceItemParamNameWeightBilledActual,
