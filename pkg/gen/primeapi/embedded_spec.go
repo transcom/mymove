@@ -1451,6 +1451,9 @@ func init() {
               "type": "string",
               "format": "date"
             },
+            "sitHHGActualOrigin": {
+              "$ref": "#/definitions/Address"
+            },
             "sitPostalCode": {
               "type": "string",
               "format": "zip",
@@ -2055,8 +2058,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
@@ -3923,6 +3926,9 @@ func init() {
               "type": "string",
               "format": "date"
             },
+            "sitHHGActualOrigin": {
+              "$ref": "#/definitions/Address"
+            },
             "sitPostalCode": {
               "type": "string",
               "format": "zip",
@@ -4517,8 +4523,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",

@@ -1024,7 +1024,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/Move"
             }
           },
           "400": {
@@ -1742,6 +1742,8 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date",
+            "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
           },
@@ -2972,6 +2974,10 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
+        },
         "moveOrderID": {
           "type": "string",
           "format": "uuid",
@@ -3517,8 +3523,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
@@ -5054,7 +5060,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/Move"
             }
           },
           "400": {
@@ -5883,6 +5889,8 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date",
+            "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
           },
@@ -7119,6 +7127,10 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
+        },
         "moveOrderID": {
           "type": "string",
           "format": "uuid",
@@ -7654,8 +7666,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",

@@ -26,8 +26,12 @@ const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAIL
 const validationSchema = Yup.object({
   originDutyStation: Yup.object().defined('Required'),
   newDutyStation: Yup.object().required('Required'),
-  issueDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
-  reportByDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
+  issueDate: Yup.date()
+    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
+    .required('Required'),
+  reportByDate: Yup.date()
+    .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
+    .required('Required'),
   departmentIndicator: Yup.string().required('Required'),
   ordersNumber: Yup.string().required('Required'),
   ordersType: Yup.string().required('Required'),

@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/benbjohnson/clock"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -313,7 +314,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	handler := GetPaymentRequestEDIHandler{
 		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), icnSequencer),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), icnSequencer, clock.NewMock()),
 	}
 
 	urlFormat := "/payment-requests/%s/edi"

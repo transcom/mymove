@@ -16,20 +16,20 @@ type DomesticLinehaulPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: contractCode, requestedPickupDate, isPeakPeriod, distance, weightBilledActual, serviceArea
-func (_m *DomesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int, weightBilledActual int, serviceArea string) (unit.Cents, error) {
-	ret := _m.Called(contractCode, requestedPickupDate, isPeakPeriod, distance, weightBilledActual, serviceArea)
+// Price provides a mock function with given fields: contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea
+func (_m *DomesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error) {
+	ret := _m.Called(contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(string, time.Time, bool, int, int, string) unit.Cents); ok {
-		r0 = rf(contractCode, requestedPickupDate, isPeakPeriod, distance, weightBilledActual, serviceArea)
+	if rf, ok := ret.Get(0).(func(string, time.Time, bool, unit.Miles, unit.Pound, string) unit.Cents); ok {
+		r0 = rf(contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, time.Time, bool, int, int, string) error); ok {
-		r1 = rf(contractCode, requestedPickupDate, isPeakPeriod, distance, weightBilledActual, serviceArea)
+	if rf, ok := ret.Get(1).(func(string, time.Time, bool, unit.Miles, unit.Pound, string) error); ok {
+		r1 = rf(contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
 	} else {
 		r1 = ret.Error(1)
 	}

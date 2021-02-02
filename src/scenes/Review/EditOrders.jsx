@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
+import React, { Component, createRef } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { get, includes, reject } from 'lodash';
-
+import { get } from 'lodash';
 import { push } from 'connected-react-router';
 import { getFormValues, reduxForm, Field } from 'redux-form';
 
@@ -11,17 +10,17 @@ import { withContext } from 'shared/AppContext';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import OrdersUploader from 'components/OrdersUploader';
-import UploadsTable from 'shared/Uploader/UploadsTable';
+import FileUpload from 'components/FileUpload/FileUpload';
+import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
 
-import { updateOrders, fetchLatestOrders } from 'shared/Entities/modules/orders';
-import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
+import { getOrdersForServiceMember, patchOrders, createUploadForDocument, deleteUpload } from 'services/internalApi';
+import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -32,27 +31,22 @@ import {
 
 import './Review.css';
 import profileImage from './images/profile.png';
-import PropTypes from 'prop-types';
 
 const editOrdersFormName = 'edit_orders';
-const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
 let EditOrdersForm = (props) => {
   const {
+    createUpload,
     onDelete,
-    onUpload,
     schema,
     handleSubmit,
     submitting,
     valid,
     initialValues,
     existingUploads,
-    deleteQueue,
-    document,
+    onUploadComplete,
+    filePondEl,
   } = props;
-  const visibleUploads = reject(existingUploads, (upload) => {
-    return includes(deleteQueue, upload.id);
-  });
   const showAllOrdersTypes = props.context.flags.allOrdersTypes;
   const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
 
@@ -85,16 +79,15 @@ let EditOrdersForm = (props) => {
               <br />
               <Field name="new_duty_station" component={DutyStationSearchBox} />
               <p>Uploads:</p>
-              {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
-              {Boolean(get(initialValues, 'uploaded_orders')) && (
+              {existingUploads?.length > 0 && <UploadsTable uploads={existingUploads} onDelete={onDelete} />}
+              {initialValues?.uploaded_orders && (
                 <div>
                   <p>{documentSizeLimitMsg}</p>
-                  <OrdersUploader
-                    createUpload={props.createUpload}
-                    deleteUpload={props.deleteUpload}
-                    document={document}
-                    onChange={onUpload}
-                    options={{ labelIdle: uploaderLabelIdle }}
+                  <FileUpload
+                    ref={filePondEl}
+                    createUpload={createUpload}
+                    onChange={onUploadComplete}
+                    labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
                   />
                 </div>
               )}
@@ -114,6 +107,7 @@ EditOrdersForm.propTypes = {
     }).isRequired,
   }).isRequired,
 };
+
 EditOrdersForm = withContext(
   reduxForm({
     form: editOrdersFormName,
@@ -124,22 +118,34 @@ class EditOrders extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      newUploads: [],
-      deleteQueue: [],
-    };
+    this.filePondEl = createRef();
   }
 
-  handleDelete = (e, uploadId) => {
-    e.preventDefault();
-    this.props.deleteUpload(uploadId);
+  handleUploadFile = (file) => {
+    const { currentOrders } = this.props;
+    const documentId = currentOrders?.uploaded_orders?.id;
+    return createUploadForDocument(file, documentId);
   };
 
-  handleNewUpload = (uploads) => {
-    this.setState({ newUploads: uploads });
+  handleUploadComplete = () => {
+    const { serviceMemberId, updateOrders } = this.props;
+    this.filePondEl.current?.removeFiles();
+    return getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
   };
 
-  updateOrders = (fieldValues) => {
+  handleDeleteFile = (uploadId) => {
+    const { serviceMemberId, updateOrders } = this.props;
+
+    return deleteUpload(uploadId).then(() => {
+      getOrdersForServiceMember(serviceMemberId).then((response) => {
+        updateOrders(response);
+      });
+    });
+  };
+
+  submitOrders = (fieldValues) => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
     fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     if (
@@ -148,7 +154,9 @@ class EditOrders extends Component {
     ) {
       this.props.entitlementChanged();
     }
-    return Promise.all([this.props.updateOrders(fieldValues.id, fieldValues)]).then(() => {
+
+    return patchOrders(fieldValues).then((response) => {
+      this.props.updateOrders(response);
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
         this.props.editSuccessful();
@@ -165,12 +173,15 @@ class EditOrders extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
-    const { serviceMemberId } = this.props;
-    this.props.fetchLatestOrders(serviceMemberId);
+
+    const { serviceMemberId, updateOrders } = this.props;
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
   }
 
   render() {
-    const { error, schema, currentOrders, document, formValues, existingUploads, moveIsApproved } = this.props;
+    const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -191,16 +202,13 @@ class EditOrders extends Component {
           <div className="usa-width-one-whole">
             <EditOrdersForm
               initialValues={currentOrders}
-              onSubmit={this.updateOrders}
-              document={document}
+              onSubmit={this.submitOrders}
               schema={schema}
-              createUpload={this.props.createUpload}
-              deleteUpload={this.props.deleteUpload}
+              filePondEl={this.filePondEl}
+              createUpload={this.handleUploadFile}
+              onUploadComplete={this.handleUploadComplete}
               existingUploads={existingUploads}
-              newUploads={this.state.newUploads}
-              deleteQueue={this.state.deleteQueue}
-              onUpload={this.handleNewUpload}
-              onDelete={this.handleDelete}
+              onDelete={this.handleDeleteFile}
               formValues={formValues}
             />
           </div>
@@ -220,7 +228,6 @@ function mapStateToProps(state) {
     currentOrders,
     serviceMemberId,
     existingUploads: uploads,
-    document: selectDocument(state, currentOrders.uploaded_orders),
     error: get(state, 'orders.error'),
     formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
@@ -231,22 +238,14 @@ function mapStateToProps(state) {
   return props;
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-      updateOrders,
-      createUpload,
-      deleteUpload,
-      fetchLatestOrders,
-      editBegin,
-      entitlementChangeBegin,
-      editSuccessful,
-      entitlementChanged,
-      checkEntitlement,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  updateOrders: updateOrdersAction,
+  editBegin,
+  entitlementChangeBegin,
+  editSuccessful,
+  entitlementChanged,
+  checkEntitlement,
+};
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(EditOrders));

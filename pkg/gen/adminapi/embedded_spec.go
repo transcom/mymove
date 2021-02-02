@@ -464,6 +464,103 @@ func init() {
         }
       }
     },
+    "/moves/{moveID}": {
+      "get": {
+        "description": "Returns the given move and its relevant info",
+        "tags": [
+          "move"
+        ],
+        "summary": "Get information about a move",
+        "operationId": "getMove",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this endpoint"
+          },
+          "404": {
+            "description": "Move not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "patch": {
+        "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
+        "tags": [
+          "move"
+        ],
+        "summary": "Disables or re-enables a move",
+        "operationId": "updateMove",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Move information",
+            "name": "Move",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "show": {
+                  "description": "Indicates if the move should be activated or deactivated",
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the Mov",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "Not authorized to update this move"
+          },
+          "404": {
+            "description": "Move not found"
+          },
+          "422": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/notifications": {
       "get": {
         "description": "Returns a list of notifications that have been sent to service members",
@@ -989,10 +1086,7 @@ func init() {
         "operationId": "indexUsers",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -1087,8 +1181,8 @@ func init() {
         "tags": [
           "users"
         ],
-        "summary": "revokes a user's session on any specified apps",
-        "operationId": "revokeUserSession",
+        "summary": "Update a user's session or active status",
+        "operationId": "updateUser",
         "parameters": [
           {
             "type": "string",
@@ -1103,7 +1197,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserRevokeSessionPayload"
+              "$ref": "#/definitions/UserUpdatePayload"
             }
           }
         ],
@@ -1122,6 +1216,12 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update this user"
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "description": "Server error"
@@ -1535,14 +1635,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "serviceMemberId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "serviceMember": {
+          "$ref": "#/definitions/ServiceMember"
         },
         "show": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
@@ -1866,6 +1964,38 @@ func init() {
         }
       }
     },
+    "ServiceMember": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleName": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -2148,9 +2278,15 @@ func init() {
         }
       }
     },
-    "UserRevokeSessionPayload": {
+    "UserUpdatePayload": {
       "type": "object",
+      "required": [
+        "active"
+      ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true
@@ -2641,6 +2777,103 @@ func init() {
         }
       }
     },
+    "/moves/{moveID}": {
+      "get": {
+        "description": "Returns the given move and its relevant info",
+        "tags": [
+          "move"
+        ],
+        "summary": "Get information about a move",
+        "operationId": "getMove",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this endpoint"
+          },
+          "404": {
+            "description": "Move not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "patch": {
+        "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
+        "tags": [
+          "move"
+        ],
+        "summary": "Disables or re-enables a move",
+        "operationId": "updateMove",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Move information",
+            "name": "Move",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "show": {
+                  "description": "Indicates if the move should be activated or deactivated",
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the Mov",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "Not authorized to update this move"
+          },
+          "404": {
+            "description": "Move not found"
+          },
+          "422": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/notifications": {
       "get": {
         "description": "Returns a list of notifications that have been sent to service members",
@@ -3166,10 +3399,7 @@ func init() {
         "operationId": "indexUsers",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -3264,8 +3494,8 @@ func init() {
         "tags": [
           "users"
         ],
-        "summary": "revokes a user's session on any specified apps",
-        "operationId": "revokeUserSession",
+        "summary": "Update a user's session or active status",
+        "operationId": "updateUser",
         "parameters": [
           {
             "type": "string",
@@ -3280,7 +3510,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserRevokeSessionPayload"
+              "$ref": "#/definitions/UserUpdatePayload"
             }
           }
         ],
@@ -3299,6 +3529,12 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update this user"
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "description": "Server error"
@@ -3713,14 +3949,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "serviceMemberId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "serviceMember": {
+          "$ref": "#/definitions/ServiceMember"
         },
         "show": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
@@ -4044,6 +4278,38 @@ func init() {
         }
       }
     },
+    "ServiceMember": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleName": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -4326,9 +4592,15 @@ func init() {
         }
       }
     },
-    "UserRevokeSessionPayload": {
+    "UserUpdatePayload": {
       "type": "object",
+      "required": [
+        "active"
+      ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true

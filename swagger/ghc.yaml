@@ -739,7 +739,7 @@ paths:
         '200':
           description: Successfully updated move task order status
           schema:
-            $ref: '#/definitions/MoveTaskOrder'
+            $ref: '#/definitions/Move'
         '400':
           description: The request payload is invalid
           schema:
@@ -1166,6 +1166,8 @@ paths:
         - in: query
           name: submittedAt
           type: string
+          format: date
+          description: limit results to those matching submitted at date
         - in: query
           name: branch
           type: string
@@ -1858,6 +1860,9 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      locator:
+        type: string
+        example: '1K43AR'
       referenceId:
         example: 1001-3456
         type: string
@@ -2165,8 +2170,8 @@ definitions:
       - CubicFeetCrating
       - DistanceZip3
       - DistanceZip5
-      - DistanceZip5SITDest
-      - DistanceZip5SITOrigin
+      - DistanceZipSITDest
+      - DistanceZipSITOrigin
       - EIAFuelPrice
       - FSCWeightBasedDistanceMultiplier
       - MarketDest

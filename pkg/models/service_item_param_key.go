@@ -32,10 +32,10 @@ const (
 	ServiceItemParamNameDistanceZip3 ServiceItemParamName = "DistanceZip3"
 	// ServiceItemParamNameDistanceZip5 is the param key name DistanceZip5
 	ServiceItemParamNameDistanceZip5 ServiceItemParamName = "DistanceZip5"
-	// ServiceItemParamNameDistanceZip5SITDest is the param key name DistanceZip5SITDest
-	ServiceItemParamNameDistanceZip5SITDest ServiceItemParamName = "DistanceZip5SITDest"
-	// ServiceItemParamNameDistanceZip5SITOrigin is the param key name DistanceZip5SITOrigin
-	ServiceItemParamNameDistanceZip5SITOrigin ServiceItemParamName = "DistanceZip5SITOrigin"
+	// ServiceItemParamNameDistanceZipSITDest is the param key name DistanceZipSITDest
+	ServiceItemParamNameDistanceZipSITDest ServiceItemParamName = "DistanceZipSITDest"
+	// ServiceItemParamNameDistanceZipSITOrigin is the param key name DistanceZipSITOrigin
+	ServiceItemParamNameDistanceZipSITOrigin ServiceItemParamName = "DistanceZipSITOrigin"
 	// ServiceItemParamNameEIAFuelPrice is the param key name EIAFuelPrice
 	ServiceItemParamNameEIAFuelPrice ServiceItemParamName = "EIAFuelPrice"
 	// ServiceItemParamNameMarketDest is the param key name MarketDest
@@ -120,8 +120,14 @@ const (
 	ServiceItemParamNameZipDestAddress ServiceItemParamName = "ZipDestAddress"
 	// ServiceItemParamNameZipPickupAddress is the param key name ZipPickupAddress
 	ServiceItemParamNameZipPickupAddress ServiceItemParamName = "ZipPickupAddress"
+	// ServiceItemParamNameZipSITAddress is the param key name ZipSITAddress
+	ServiceItemParamNameZipSITAddress ServiceItemParamName = "ZipSITAddress"
 	// ServiceItemParamNameZipSITDestHHGFinalAddress is the param key name ZipSITDestHHGFinalAddress
 	ServiceItemParamNameZipSITDestHHGFinalAddress ServiceItemParamName = "ZipSITDestHHGFinalAddress"
+	// ServiceItemParamNameZipSITOriginHHGOriginalAddress is the param key name ZipSITOriginHHGOriginalAddress
+	ServiceItemParamNameZipSITOriginHHGOriginalAddress = "ZipSITOriginHHGOriginalAddress"
+	// ServiceItemParamNameZipSITOriginHHGActualAddress is the param key name ZipSITOriginHHGActualAddress
+	ServiceItemParamNameZipSITOriginHHGActualAddress = "ZipSITOriginHHGActualAddress"
 )
 
 // ServiceItemParamType is a type of service item parameter
@@ -170,8 +176,8 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameCubicFeetCrating,
 	ServiceItemParamNameDistanceZip3,
 	ServiceItemParamNameDistanceZip5,
-	ServiceItemParamNameDistanceZip5SITDest,
-	ServiceItemParamNameDistanceZip5SITOrigin,
+	ServiceItemParamNameDistanceZipSITDest,
+	ServiceItemParamNameDistanceZipSITOrigin,
 	ServiceItemParamNameEIAFuelPrice,
 	ServiceItemParamNameMarketDest,
 	ServiceItemParamNameMarketOrigin,
@@ -215,7 +221,10 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameWeightEstimated,
 	ServiceItemParamNameZipDestAddress,
 	ServiceItemParamNameZipPickupAddress,
+	ServiceItemParamNameZipSITAddress,
 	ServiceItemParamNameZipSITDestHHGFinalAddress,
+	ServiceItemParamNameZipSITOriginHHGOriginalAddress,
+	ServiceItemParamNameZipSITOriginHHGActualAddress,
 }
 
 // ValidServiceItemParamNameStrings lists all valid service item param key names
@@ -226,8 +235,8 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameCubicFeetCrating),
 	string(ServiceItemParamNameDistanceZip3),
 	string(ServiceItemParamNameDistanceZip5),
-	string(ServiceItemParamNameDistanceZip5SITDest),
-	string(ServiceItemParamNameDistanceZip5SITOrigin),
+	string(ServiceItemParamNameDistanceZipSITDest),
+	string(ServiceItemParamNameDistanceZipSITOrigin),
 	string(ServiceItemParamNameEIAFuelPrice),
 	string(ServiceItemParamNameMarketDest),
 	string(ServiceItemParamNameMarketOrigin),
@@ -271,7 +280,10 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameWeightEstimated),
 	string(ServiceItemParamNameZipDestAddress),
 	string(ServiceItemParamNameZipPickupAddress),
+	string(ServiceItemParamNameZipSITAddress),
 	string(ServiceItemParamNameZipSITDestHHGFinalAddress),
+	string(ServiceItemParamNameZipSITOriginHHGOriginalAddress),
+	string(ServiceItemParamNameZipSITOriginHHGActualAddress),
 }
 
 // ValidServiceItemParamTypes lists all valid service item param types

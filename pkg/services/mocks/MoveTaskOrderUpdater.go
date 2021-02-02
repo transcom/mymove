@@ -39,6 +39,29 @@ func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, 
 	return r0, r1
 }
 
+// ShowHide provides a mock function with given fields: moveTaskOrderID, show
+func (_m *MoveTaskOrderUpdater) ShowHide(moveTaskOrderID uuid.UUID, show *bool) (*models.Move, error) {
+	ret := _m.Called(moveTaskOrderID, show)
+
+	var r0 *models.Move
+	if rf, ok := ret.Get(0).(func(uuid.UUID, *bool) *models.Move); ok {
+		r0 = rf(moveTaskOrderID, show)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Move)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID, *bool) error); ok {
+		r1 = rf(moveTaskOrderID, show)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdatePostCounselingInfo provides a mock function with given fields: moveTaskOrderID, body, eTag
 func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body move_task_order.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	ret := _m.Called(moveTaskOrderID, body, eTag)
