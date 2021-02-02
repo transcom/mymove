@@ -1228,6 +1228,69 @@ func init() {
           }
         }
       }
+    },
+    "/webhookSubscriptions": {
+      "get": {
+        "description": "Returns a list of uwebhook subscriptions",
+        "tags": [
+          "webhookSubscriptions"
+        ],
+        "summary": "Lists webhook subscriptions",
+        "operationId": "indexWebhookSubscriptions",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscriptions"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Not authenticated for this endpoint"
+          },
+          "404": {
+            "description": "Webhook subscriptions not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -3596,6 +3659,69 @@ func init() {
           }
         }
       }
+    },
+    "/webhookSubscriptions": {
+      "get": {
+        "description": "Returns a list of uwebhook subscriptions",
+        "tags": [
+          "webhookSubscriptions"
+        ],
+        "summary": "Lists webhook subscriptions",
+        "operationId": "indexWebhookSubscriptions",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscriptions"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Not authenticated for this endpoint"
+          },
+          "404": {
+            "description": "Webhook subscriptions not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -4723,7 +4849,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "severity": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0
         },
         "status": {
           "$ref": "#/definitions/WebhookSubscriptionStatus"

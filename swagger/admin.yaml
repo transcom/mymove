@@ -897,6 +897,7 @@ definitions:
         description: The URL to which the notifications for this subscription will be pushed to.
       severity:
         type: integer
+        minimum: 0
       eventKey:
         type: string
         description: >-
@@ -1684,5 +1685,45 @@ paths:
           description: Validation error
           schema:
             $ref: '#/definitions/ValidationError'
+        500:
+          description: Server error
+  /webhookSubscriptions:
+    get:
+      summary: Lists webhook subscriptions
+      description: Returns a list of uwebhook subscriptions
+      operationId: indexWebhookSubscriptions
+      tags:
+        - webhookSubscriptions
+      parameters:
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/WebhookSubscriptions'
+        400:
+          description: Invalid request
+        401:
+          description: Not authenticated for this endpoint
+        404:
+          description: Webhook subscriptions not found
         500:
           description: Server error

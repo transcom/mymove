@@ -33,7 +33,8 @@ type WebhookSubscription struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// severity
-	Severity int64 `json:"severity,omitempty"`
+	// Minimum: 0
+	Severity *int64 `json:"severity,omitempty"`
 
 	// status
 	Status WebhookSubscriptionStatus `json:"status,omitempty"`
@@ -52,6 +53,10 @@ func (m *WebhookSubscription) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSeverity(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -89,6 +94,19 @@ func (m *WebhookSubscription) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookSubscription) validateSeverity(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Severity) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("severity", "body", int64(*m.Severity), 0, false); err != nil {
 		return err
 	}
 
