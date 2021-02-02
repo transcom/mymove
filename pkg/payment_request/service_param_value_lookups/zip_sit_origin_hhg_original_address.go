@@ -23,7 +23,7 @@ func (z ZipSITOriginHHGOriginalAddressLookup) lookup(keyData *ServiceItemParamKe
 		}
 	}
 
-	if z.ServiceItem.SITOriginHHGOriginalAddress != nil {
+	if z.ServiceItem.SITOriginHHGOriginalAddress == nil {
 		return "", fmt.Errorf("db load for SITOriginHHGOriginalAddress failed service item ID %s", z.ServiceItem.ID.String())
 	}
 
