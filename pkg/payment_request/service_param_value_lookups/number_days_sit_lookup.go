@@ -28,7 +28,7 @@ func (s NumberDaysSITLookup) lookup(keyData *ServiceItemParamKeyData) (string, e
 	}
 
 	// remainingSITDays := 90
-	originSITDays, destinationSITDays, sitDays := 0, 0, 0
+	// originSITDays, destinationSITDays, sitDays := 0, 0, 0
 
 	var originSITEntryDate time.Time
 	var destinationSITEntryDate time.Time
@@ -36,42 +36,50 @@ func (s NumberDaysSITLookup) lookup(keyData *ServiceItemParamKeyData) (string, e
 	// var destinationSITDepartureDate time.Time
 
 	for _, sitPaymentServiceItem := range allSITPaymentServiceItems {
-		if isDomesticOrigin(sitPaymentServiceItem.MTOServiceItem) && sitPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
-			sitEntryDate := sitPaymentServiceItem.MTOServiceItem.SITEntryDate
-			if originSITEntryDate.IsZero() || originSITEntryDate == *sitEntryDate {
-				originSITEntryDate = *sitEntryDate
-			} else {
-				return "", fmt.Errorf("MTO Shipment with ID %v has multiple Origin MTO Service Items with different SIT Entry Dates", sitPaymentServiceItem.MTOServiceItem.MTOShipment.ID)
+		if isDomesticOrigin(sitPaymentServiceItem.MTOServiceItem) {
+			if isDomesticOrigin(keyData.MTOServiceItem) && sitPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
+				return "", fmt.Errorf("MTO Shipment %v already has an Origin MTO Service Item %v with a SIT Departure Date of %v", sitPaymentServiceItem.MTOServiceItem.MTOShipment.ID, sitPaymentServiceItem.ID, sitPaymentServiceItem.MTOServiceItem.SITDepartureDate)
+			} else if sitPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
+				sitEntryDate := sitPaymentServiceItem.MTOServiceItem.SITEntryDate
+				if originSITEntryDate.IsZero() || originSITEntryDate == *sitEntryDate {
+					originSITEntryDate = *sitEntryDate
+				} else {
+					return "", fmt.Errorf("MTO Shipment %v has multiple Origin MTO Service Items with different SIT Entry Dates", sitPaymentServiceItem.MTOServiceItem.MTOShipment.ID)
+				}
 			}
-		} else if isDomesticDestination(keyData.MTOServiceItem) && isDomesticDestination(sitPaymentServiceItem.MTOServiceItem) && sitPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
-			sitEntryDate := sitPaymentServiceItem.MTOServiceItem.SITEntryDate
-			if destinationSITEntryDate.IsZero() || destinationSITEntryDate == *sitEntryDate {
-				destinationSITEntryDate = *sitEntryDate
-			} else {
-				return "", fmt.Errorf("MTO Shipment with ID %v has multiple Destination MTO Service Items with different SIT Entry Dates", sitPaymentServiceItem.MTOServiceItem.MTOShipment.ID)
+		} else if isDomesticDestination(sitPaymentServiceItem.MTOServiceItem) {
+			if isDomesticDestination(keyData.MTOServiceItem) && sitPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
+				return "", fmt.Errorf("MTO Shipment %v already has a Destination MTO Service Item %v with a SIT Departure Date of %v", sitPaymentServiceItem.MTOServiceItem.MTOShipment.ID, sitPaymentServiceItem.ID, sitPaymentServiceItem.MTOServiceItem.SITDepartureDate)
+			} else if sitPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
+				sitEntryDate := sitPaymentServiceItem.MTOServiceItem.SITEntryDate
+				if destinationSITEntryDate.IsZero() || destinationSITEntryDate == *sitEntryDate {
+					destinationSITEntryDate = *sitEntryDate
+				} else {
+					return "", fmt.Errorf("MTO Shipment %v has multiple Destination MTO Service Items with different SIT Entry Dates", sitPaymentServiceItem.MTOServiceItem.MTOShipment.ID)
+				}
 			}
 		}
 	}
 
 	if isDomesticOrigin(keyData.MTOServiceItem) && !originSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate != nil && originSITEntryDate != *keyData.MTOServiceItem.SITEntryDate {
-		return "", fmt.Errorf("MTO Shipment with ID %v already has an Origin MTO Service Item with a different SIT Entry Date of %v", keyData.MTOServiceItem.MTOShipment.ID, originSITEntryDate)
+		return "", fmt.Errorf("MTO Shipment %v already has an Origin MTO Service Item with a different SIT Entry Date of %v", keyData.MTOServiceItem.MTOShipment.ID, originSITEntryDate)
 	} else if isDomesticDestination(keyData.MTOServiceItem) && !destinationSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate != nil && destinationSITEntryDate != *keyData.MTOServiceItem.SITEntryDate {
-		return "", fmt.Errorf("MTO Shipment with ID %v already has a Destination MTO Service Item with a different SIT Entry Date of %v", keyData.MTOServiceItem.MTOShipment.ID, originSITEntryDate)
+		return "", fmt.Errorf("MTO Shipment %v already has a Destination MTO Service Item with a different SIT Entry Date of %v", keyData.MTOServiceItem.MTOShipment.ID, originSITEntryDate)
 	}
 
 	if isDomesticOrigin(keyData.MTOServiceItem) && originSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate == nil {
-		return "", fmt.Errorf("MTO Shipment with ID %v does not have an Origin MTO Service Item with a SIT Entry Date", keyData.MTOServiceItem.MTOShipment.ID)
+		return "", fmt.Errorf("MTO Shipment %v does not have an Origin MTO Service Item with a SIT Entry Date", keyData.MTOServiceItem.MTOShipment.ID)
 	} else if isDomesticOrigin(keyData.MTOServiceItem) && originSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate != nil {
 		sitEntryDate := keyData.MTOServiceItem.SITEntryDate
 		originSITEntryDate = *sitEntryDate
 	} else if isDomesticDestination(keyData.MTOServiceItem) && destinationSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate == nil {
-		return "", fmt.Errorf("MTO Shipment with ID %v does not have a Destination MTO Service Item with a SIT Entry Date", keyData.MTOServiceItem.MTOShipment.ID)
+		return "", fmt.Errorf("MTO Shipment %v does not have a Destination MTO Service Item with a SIT Entry Date", keyData.MTOServiceItem.MTOShipment.ID)
 	} else if isDomesticDestination(keyData.MTOServiceItem) && destinationSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate != nil {
 		sitEntryDate := keyData.MTOServiceItem.SITEntryDate
 		destinationSITEntryDate = *sitEntryDate
 	}
 
-	return strconv.Itoa(sitDays), nil
+	return strconv.Itoa(0), nil
 }
 
 func isDomesticOrigin(msi models.MTOServiceItem) bool {
