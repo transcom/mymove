@@ -16,120 +16,162 @@ type NumberDaysSITLookup struct {
 func (s NumberDaysSITLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
 	db := *keyData.db
 
-	fmt.Printf("%v", keyData.MTOServiceItem.SITEntryDate)
-	fmt.Println()
-	fmt.Printf("%v", keyData.MTOServiceItem.SITDepartureDate)
-	fmt.Println()
-
 	var allSITPaymentServiceItems models.PaymentServiceItems
 	err := db.Q().
 		Join("mto_service_items msi", "msi.id = payment_service_items.mto_service_item_id").
 		Join("re_services rs", "rs.id = msi.re_service_id").
 		Eager("MTOServiceItem.ReService").
-		Where("payment_service_items.status IN ($1, $2, $3, $4) AND msi.move_id = ($5) AND rs.code IN ($6, $7, $8, $9)", models.PaymentServiceItemStatusRequested, models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid, s.MTOShipment.MoveTaskOrderID, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT).
+		Where("payment_service_items.status IN ($1, $2, $3, $4) AND msi.mto_shipment_id = ($5) AND rs.code IN ($6, $7, $8, $9)", models.PaymentServiceItemStatusRequested, models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid, s.MTOShipment.ID, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT).
 		All(&allSITPaymentServiceItems)
 	if err != nil {
 		return "", err
 	}
 
-	remainingSITDays := 90
-	originSITDays, destinationSITDays := 0, 0
+	// remainingSITDays := 90
+	originSITDays, destinationSITDays, sitDays := 0, 0, 0
 
 	var originSITEntryDate time.Time
-	var originSITDepartureDate time.Time
 	var destinationSITEntryDate time.Time
-	var destinationSITDepartureDate time.Time
+	// var originSITDepartureDate time.Time
+	// var destinationSITDepartureDate time.Time
 
 	for _, sitPaymentServiceItem := range allSITPaymentServiceItems {
-		if (keyData.MTOServiceItem.ReService.Code == models.ReServiceCodeDOFSIT || keyData.MTOServiceItem.ReService.Code == models.ReServiceCodeDOASIT) && (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOASIT) && (sitPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil) {
-			return "", fmt.Errorf("a previous Origin SIT MTO Service Item already has a departure date of %v", sitPaymentServiceItem.MTOServiceItem.SITDepartureDate)
-		} else if (keyData.MTOServiceItem.ReService.Code == models.ReServiceCodeDDFSIT || keyData.MTOServiceItem.ReService.Code == models.ReServiceCodeDDASIT) && (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDASIT) && sitPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
-			return "", fmt.Errorf("a previous Destination SIT MTO Service Item already has a departure date of %v", sitPaymentServiceItem.MTOServiceItem.SITDepartureDate)
-		}
-
-		if (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOASIT) && sitPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
+		if isDomesticOrigin(sitPaymentServiceItem.MTOServiceItem) && sitPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
 			sitEntryDate := sitPaymentServiceItem.MTOServiceItem.SITEntryDate
 			if originSITEntryDate.IsZero() || originSITEntryDate == *sitEntryDate {
 				originSITEntryDate = *sitEntryDate
 			} else {
-				return "", fmt.Errorf("a different SIT Entry Date for SIT Origin MTO Service Items already exists: %v", originSITEntryDate)
+				return "", fmt.Errorf("MTO Shipment with ID %v has multiple Origin MTO Service Items with different SIT Entry Dates", sitPaymentServiceItem.MTOServiceItem.MTOShipment.ID)
 			}
-		} else if (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDASIT) && sitPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
+		} else if isDomesticDestination(keyData.MTOServiceItem) && isDomesticDestination(sitPaymentServiceItem.MTOServiceItem) && sitPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
 			sitEntryDate := sitPaymentServiceItem.MTOServiceItem.SITEntryDate
 			if destinationSITEntryDate.IsZero() || destinationSITEntryDate == *sitEntryDate {
 				destinationSITEntryDate = *sitEntryDate
 			} else {
-				return "", fmt.Errorf("a different SIT Entry Date for SIT Destination MTO Service Items already exists: %v", destinationSITEntryDate)
+				return "", fmt.Errorf("MTO Shipment with ID %v has multiple Destination MTO Service Items with different SIT Entry Dates", sitPaymentServiceItem.MTOServiceItem.MTOShipment.ID)
 			}
-		}
-
-		if (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOASIT) && sitPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
-			sitDepartureDate := sitPaymentServiceItem.MTOServiceItem.SITDepartureDate
-			if originSITDepartureDate.IsZero() || originSITDepartureDate == *sitDepartureDate {
-				originSITDepartureDate = *sitDepartureDate
-			} else {
-				return "", fmt.Errorf("a different SIT Departure Date for SIT Origin MTO Service Items already exists: %v", originSITDepartureDate)
-			}
-		} else if (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDASIT) && sitPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
-			sitDepartureDate := sitPaymentServiceItem.MTOServiceItem.SITDepartureDate
-			if destinationSITDepartureDate.IsZero() || destinationSITDepartureDate == *sitDepartureDate {
-				destinationSITDepartureDate = *sitDepartureDate
-			} else {
-				return "", fmt.Errorf("a different SIT Departure Date for SIT Destination MTO Service Items already exists: %v", destinationSITDepartureDate)
-			}
-		}
-
-		if sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOFSIT {
-			// fmt.Println(string(sitPaymentServiceItem.MTOServiceItem.ReService.Code))
-			originSITDays++
-			// fmt.Printf("Origin SIT Days requested: %s", strconv.Itoa(originSITDays))
-			// fmt.Println()
-		} else if sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOASIT {
-			// fmt.Println(string(sitPaymentServiceItem.MTOServiceItem.ReService.Code))
-			originSITDays += 29
-			// fmt.Printf("Origin SIT Days requested: %s", strconv.Itoa(originSITDays))
-			// fmt.Println()
-		} else if sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDFSIT {
-			// fmt.Println(string(sitPaymentServiceItem.MTOServiceItem.ReService.Code))
-			destinationSITDays++
-			// fmt.Printf("Destination SIT Days requested: %s", strconv.Itoa(destinationSITDays))
-			// fmt.Println()
-		} else if sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDASIT {
-			// fmt.Println(string(sitPaymentServiceItem.MTOServiceItem.ReService.Code))
-			destinationSITDays += 29
-			// fmt.Printf("Destination SIT Days requested: %s", strconv.Itoa(destinationSITDays))
-			// fmt.Println()
 		}
 	}
 
-	remainingSITDays = remainingSITDays - originSITDays - destinationSITDays
+	if isDomesticOrigin(keyData.MTOServiceItem) && !originSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate != nil && originSITEntryDate != *keyData.MTOServiceItem.SITEntryDate {
+		return "", fmt.Errorf("MTO Shipment with ID %v already has an Origin MTO Service Item with a different SIT Entry Date of %v", keyData.MTOServiceItem.MTOShipment.ID, originSITEntryDate)
+	} else if isDomesticDestination(keyData.MTOServiceItem) && !destinationSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate != nil && destinationSITEntryDate != *keyData.MTOServiceItem.SITEntryDate {
+		return "", fmt.Errorf("MTO Shipment with ID %v already has a Destination MTO Service Item with a different SIT Entry Date of %v", keyData.MTOServiceItem.MTOShipment.ID, originSITEntryDate)
+	}
 
-	fmt.Println()
-	fmt.Println()
-	fmt.Println()
-	fmt.Printf("ORIGIN SIT ENTRY DATE: %v", originSITEntryDate)
-	fmt.Println()
-	fmt.Printf("ORIGIN SIT DEPARTURE DATE: %v", originSITDepartureDate)
-	fmt.Println()
-	fmt.Printf("DESTINATION SIT ENTRY DATE: %v", destinationSITEntryDate)
-	fmt.Println()
-	fmt.Printf("DESTINATION SIT DEPARTURE DATE: %v", destinationSITDepartureDate)
-	fmt.Println()
-	fmt.Println()
-	fmt.Println()
+	if isDomesticOrigin(keyData.MTOServiceItem) && originSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate == nil {
+		return "", fmt.Errorf("MTO Shipment with ID %v does not have an Origin MTO Service Item with a SIT Entry Date", keyData.MTOServiceItem.MTOShipment.ID)
+	} else if isDomesticOrigin(keyData.MTOServiceItem) && originSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate != nil {
+		sitEntryDate := keyData.MTOServiceItem.SITEntryDate
+		originSITEntryDate = *sitEntryDate
+	} else if isDomesticDestination(keyData.MTOServiceItem) && destinationSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate == nil {
+		return "", fmt.Errorf("MTO Shipment with ID %v does not have a Destination MTO Service Item with a SIT Entry Date", keyData.MTOServiceItem.MTOShipment.ID)
+	} else if isDomesticDestination(keyData.MTOServiceItem) && destinationSITEntryDate.IsZero() && keyData.MTOServiceItem.SITEntryDate != nil {
+		sitEntryDate := keyData.MTOServiceItem.SITEntryDate
+		destinationSITEntryDate = *sitEntryDate
+	}
 
-	fmt.Printf("Total Origin SIT Days requested: %s", strconv.Itoa(originSITDays))
-	fmt.Println()
-	fmt.Printf("Total Destination SIT Days requested: %s", strconv.Itoa(destinationSITDays))
-	fmt.Println()
-	fmt.Printf("Total SIT Days requested: %s", strconv.Itoa(originSITDays+destinationSITDays))
-	fmt.Println()
-	fmt.Printf("Number of SIT days remaining: %s", strconv.Itoa(remainingSITDays))
-	fmt.Println()
-	fmt.Println()
-
-	return strconv.Itoa(len(allSITPaymentServiceItems)), nil
+	return strconv.Itoa(sitDays), nil
 }
+
+func isDomesticOrigin(msi models.MTOServiceItem) bool {
+	if msi.ReService.Code == models.ReServiceCodeDOFSIT || msi.ReService.Code == models.ReServiceCodeDOASIT {
+		return true
+	}
+	return false
+}
+
+func isDomesticDestination(msi models.MTOServiceItem) bool {
+	if msi.ReService.Code == models.ReServiceCodeDDFSIT || msi.ReService.Code == models.ReServiceCodeDDASIT {
+		return true
+	}
+	return false
+}
+
+// 	else if (keyData.MTOServiceItem.ReService.Code == models.ReServiceCodeDDFSIT || keyData.MTOServiceItem.ReService.Code == models.ReServiceCodeDDASIT) && (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDASIT) && sitPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
+// 		return "", fmt.Errorf("a previous Destination SIT MTO Service Item already has a departure date of %v", sitPaymentServiceItem.MTOServiceItem.SITDepartureDate)
+// 	}
+
+// 	if (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOASIT) && sitPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
+// 		sitEntryDate := sitPaymentServiceItem.MTOServiceItem.SITEntryDate
+// 		if originSITEntryDate.IsZero() || originSITEntryDate == *sitEntryDate {
+// 			originSITEntryDate = *sitEntryDate
+// 		} else {
+// 			return "", fmt.Errorf("a different SIT Entry Date for SIT Origin MTO Service Items already exists: %v", originSITEntryDate)
+// 		}
+// 	} else if (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDASIT) && sitPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
+// 		sitEntryDate := sitPaymentServiceItem.MTOServiceItem.SITEntryDate
+// 		if destinationSITEntryDate.IsZero() || destinationSITEntryDate == *sitEntryDate {
+// 			destinationSITEntryDate = *sitEntryDate
+// 		} else {
+// 			return "", fmt.Errorf("a different SIT Entry Date for SIT Destination MTO Service Items already exists: %v", destinationSITEntryDate)
+// 		}
+// 	}
+
+// 	if (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOASIT) && sitPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
+// 		sitDepartureDate := sitPaymentServiceItem.MTOServiceItem.SITDepartureDate
+// 		if originSITDepartureDate.IsZero() || originSITDepartureDate == *sitDepartureDate {
+// 			originSITDepartureDate = *sitDepartureDate
+// 		} else {
+// 			return "", fmt.Errorf("a different SIT Departure Date for SIT Origin MTO Service Items already exists: %v", originSITDepartureDate)
+// 		}
+// 	} else if (sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDFSIT || sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDASIT) && sitPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
+// 		sitDepartureDate := sitPaymentServiceItem.MTOServiceItem.SITDepartureDate
+// 		if destinationSITDepartureDate.IsZero() || destinationSITDepartureDate == *sitDepartureDate {
+// 			destinationSITDepartureDate = *sitDepartureDate
+// 		} else {
+// 			return "", fmt.Errorf("a different SIT Departure Date for SIT Destination MTO Service Items already exists: %v versus %v", destinationSITDepartureDate, *sitDepartureDate)
+// 		}
+// 	}
+
+// 	if sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+// 		// fmt.Println(string(sitPaymentServiceItem.MTOServiceItem.ReService.Code))
+// 		originSITDays++
+// 		// fmt.Printf("Origin SIT Days requested: %s", strconv.Itoa(originSITDays))
+// 		// fmt.Println()
+// 	} else if sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDOASIT {
+// 		// fmt.Println(string(sitPaymentServiceItem.MTOServiceItem.ReService.Code))
+// 		originSITDays += 29
+// 		// fmt.Printf("Origin SIT Days requested: %s", strconv.Itoa(originSITDays))
+// 		// fmt.Println()
+// 	} else if sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+// 		// fmt.Println(string(sitPaymentServiceItem.MTOServiceItem.ReService.Code))
+// 		destinationSITDays++
+// 		// fmt.Printf("Destination SIT Days requested: %s", strconv.Itoa(destinationSITDays))
+// 		// fmt.Println()
+// 	} else if sitPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDDASIT {
+// 		// fmt.Println(string(sitPaymentServiceItem.MTOServiceItem.ReService.Code))
+// 		destinationSITDays += 29
+// 		// fmt.Printf("Destination SIT Days requested: %s", strconv.Itoa(destinationSITDays))
+// 		// fmt.Println()
+// 	}
+// }
+
+// remainingSITDays = remainingSITDays - originSITDays - destinationSITDays
+
+// fmt.Println()
+// fmt.Println()
+// fmt.Println()
+// fmt.Printf("ORIGIN SIT ENTRY DATE: %v", originSITEntryDate)
+// fmt.Println()
+// fmt.Printf("ORIGIN SIT DEPARTURE DATE: %v", originSITDepartureDate)
+// fmt.Println()
+// fmt.Printf("DESTINATION SIT ENTRY DATE: %v", destinationSITEntryDate)
+// fmt.Println()
+// fmt.Printf("DESTINATION SIT DEPARTURE DATE: %v", destinationSITDepartureDate)
+// fmt.Println()
+// fmt.Println()
+// fmt.Println()
+
+// fmt.Printf("Total Origin SIT Days requested: %s", strconv.Itoa(originSITDays))
+// fmt.Println()
+// fmt.Printf("Total Destination SIT Days requested: %s", strconv.Itoa(destinationSITDays))
+// fmt.Println()
+// fmt.Printf("Total SIT Days requested: %s", strconv.Itoa(originSITDays+destinationSITDays))
+// fmt.Println()
+// fmt.Printf("Number of SIT days remaining: %s", strconv.Itoa(remainingSITDays))
+// fmt.Println()
+// fmt.Println()
 
 // Happy path OriginSIT no departure date
 // Happy path OriginSIT with departure date
@@ -146,3 +188,4 @@ func (s NumberDaysSITLookup) lookup(keyData *ServiceItemParamKeyData) (string, e
 // The business logic for remaining SIT days - multiple discussions with Jacquie and the documentation that came out of that
 // GO syntax - Date
 // How to write query to retreive appropriate records
+// TODO: What is the right way to assign a payment request to a lookup?
