@@ -11,6 +11,7 @@ export default {
 
 const eulaProps = {
   acceptTerms: action('clicked'),
+  closeModal: action('clicked'),
 };
 
 export const StorageInfoModalStory = () => <StorageInfoModal />;
