@@ -21,8 +21,24 @@ func (h TacValidationHandler) Handle(params tacop.TacValidationParams) middlewar
 		return tacop.NewTacValidationUnauthorized()
 	}
 
+	isValid := false
+	invalidTACs := [4]string{
+		"2LGT",
+		"4EVR",
+		"5ALV",
+		"14DA$",
+	}
+
+	for _, code := range invalidTACs {
+		if code == params.Tac {
+			isValid = false
+			break
+		}
+		isValid = true
+	}
+
 	tacValidationPayload := &ghcmessages.TacValid{
-		IsValid: true,
+		IsValid: isValid,
 	}
 
 	return tacop.NewTacValidationOK().WithPayload(tacValidationPayload)
