@@ -91,9 +91,10 @@ func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
 }
 
 // FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
-func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.Move, error) {
+func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *services.FetchMoveTaskOrderParams) (*models.Move, error) {
 	mto := &models.Move{}
-	if err := f.db.Eager("PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+
+	query := f.db.Eager("PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.CustomerContacts",
@@ -104,7 +105,14 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mo
 		"MTOShipments.MTOAgents",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
-		"Orders.NewDutyStation.Address").Find(mto, moveTaskOrderID); err != nil {
+		"Orders.NewDutyStation.Address").Where("id = $1", moveTaskOrderID)
+
+	if searchParams == nil || !searchParams.IncludeHidden {
+		query.Where("show = TRUE")
+	}
+
+	err := query.First(mto)
+	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			return &models.Move{}, services.NewNotFoundError(moveTaskOrderID, "")

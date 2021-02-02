@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -50,6 +51,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 		mockFetcher.On("FetchMove",
 			move.Locator,
+			mock.Anything,
 		).Return(&move, nil)
 
 		response := handler.Handle(params)
@@ -92,6 +94,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 		mockFetcher.On("FetchMove",
 			move.Locator,
+			mock.Anything,
 		).Return(&models.Move{}, services.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -108,6 +111,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 		mockFetcher.On("FetchMove",
 			move.Locator,
+			mock.Anything,
 		).Return(&models.Move{}, services.QueryError{})
 
 		response := handler.Handle(params)

@@ -2132,7 +2132,7 @@ func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *upload
 			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
 			Locator:            "RDY4PY",
 			AvailableToPrimeAt: swag.Time(time.Now()),
-			Status:             models.MoveStatusSUBMITTED,
+			Status:             models.MoveStatusAPPROVED,
 			SelectedMoveType:   &hhgMoveType,
 		},
 		UserUploader: userUploader,
@@ -2157,8 +2157,8 @@ func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *upload
 			ID:                   uuid.FromStringOrNil("01b9671e-b268-4906-967b-ba661a1d3933"),
 			RequestedPickupDate:  swag.Time(time.Now()),
 			ScheduledPickupDate:  swag.Time(time.Now().AddDate(0, 0, -1)),
-			PrimeEstimatedWeight: &estimated, // so we can price DLH
-			PrimeActualWeight:    &actual,    // so we can price DLH
+			PrimeEstimatedWeight: &estimated,
+			PrimeActualWeight:    &actual,
 			Status:               models.MTOShipmentStatusApproved,
 			ApprovedDate:         swag.Time(time.Now()),
 		},

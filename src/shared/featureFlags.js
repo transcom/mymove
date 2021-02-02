@@ -75,13 +75,13 @@ export function detectEnvironment(nodeEnv, host) {
     case 'my.move.mil':
     case 'admin.move.mil:':
       return 'production';
-    case 'office.staging.move.mil':
-    case 'my.staging.move.mil':
-    case 'admin.staging.move.mil':
+    case 'office.stg.move.mil':
+    case 'my.stg.move.mil':
+    case 'admin.stg.move.mil':
       return 'staging';
-    case 'my.experimental.move.mil':
-    case 'office.experimental.move.mil':
-    case 'admin.experimental.move.mil':
+    case 'my.exp.move.mil':
+    case 'office.exp.move.mil':
+    case 'admin.exp.move.mil':
       return 'experimental';
     default:
       return 'development';

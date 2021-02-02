@@ -6,6 +6,7 @@ import Alert from 'shared/Alert';
 
 const SignIn = ({ context, location }) => {
   const error = qs.parse(location.search).error;
+  const hash = qs.parse(location.hash);
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -18,6 +19,14 @@ const SignIn = ({ context, location }) => {
               <br />
             </div>
           )}
+          {'timedout' in hash && (
+            <div>
+              <Alert type="error" heading="Logged out">
+                You have been logged out due to inactivity.
+              </Alert>
+            </div>
+          )}
+
           <h1 className="align-center">Welcome to {context.siteName}!</h1>
           <p>This is a new system from USTRANSCOM to support the relocation of families during PCS.</p>
           {context.showLoginWarning && (

@@ -560,16 +560,23 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.Pa
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceItem models.PaymentServiceItem) (int, float64, error) {
-	// TODO: update to have a case statement as different service items may or may not have weight
-	// and the distance key can differ (zip3 v zip5, and distances for SIT)
 	weight, err := g.getWeightParams(serviceItem)
 	if err != nil {
 		return 0, 0, err
 	}
-	distanceModel := models.ServiceItemParamNameDistanceZip3
-	if serviceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDSH {
+
+	var distanceModel models.ServiceItemParamName
+	switch serviceItem.MTOServiceItem.ReService.Code {
+	case models.ReServiceCodeDSH:
 		distanceModel = models.ServiceItemParamNameDistanceZip5
+	case models.ReServiceCodeDDDSIT:
+		distanceModel = models.ServiceItemParamNameDistanceZipSITDest
+	case models.ReServiceCodeDOPSIT:
+		distanceModel = models.ServiceItemParamNameDistanceZipSITOrigin
+	default:
+		distanceModel = models.ServiceItemParamNameDistanceZip3
 	}
+
 	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, distanceModel)
 	if err != nil {
 		return 0, 0, err
@@ -628,9 +635,11 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				Charge:               serviceItem.PriceCents.Int64(),
 			}
 
-		// pack and unpack, dom dest and dom origin have weight and no distance
+		// following service items have weight and no distance
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
-			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
+			models.ReServiceCodeDPK, models.ReServiceCodeDDP,
+			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT,
+			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT:
 			var err error
 			weight, err := g.getWeightParams(serviceItem)
 			if err != nil {

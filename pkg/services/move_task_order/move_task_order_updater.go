@@ -35,7 +35,10 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 	var err error
 	var verrs *validate.Errors
 
-	mto, err := o.FetchMoveTaskOrder(moveTaskOrderID)
+	searchParams := services.FetchMoveTaskOrderParams{
+		IncludeHidden: false,
+	}
+	mto, err := o.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
 	if err != nil {
 		return &models.Move{}, err
 	}
@@ -112,7 +115,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 
 		// CreateMTOServiceItem may have updated the mto status so refetch as to not return incorrect status
 		// TODO: Modify CreateMTOServiceItem to return the updated move or refactor to operate on the passed in reference
-		mto, err = o.FetchMoveTaskOrder(moveTaskOrderID)
+		mto, err = o.FetchMoveTaskOrder(moveTaskOrderID, nil)
 		if err != nil {
 			return &models.Move{}, err
 		}
@@ -163,7 +166,10 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 
 // ShowHide changes the value in the "Show" field for a Move. This can be either True or False and indicates if the move has been deactivated or not.
 func (o *moveTaskOrderUpdater) ShowHide(moveID uuid.UUID, show *bool) (*models.Move, error) {
-	move, err := o.FetchMoveTaskOrder(moveID)
+	searchParams := services.FetchMoveTaskOrderParams{
+		IncludeHidden: true, // We need to search every move to change its status
+	}
+	move, err := o.FetchMoveTaskOrder(moveID, &searchParams)
 	if err != nil {
 		return nil, services.NewNotFoundError(moveID, "while fetching the Move")
 	}
@@ -181,7 +187,7 @@ func (o *moveTaskOrderUpdater) ShowHide(moveID uuid.UUID, show *bool) (*models.M
 	}
 
 	// Get the updated Move and return
-	updatedMove, err := o.FetchMoveTaskOrder(move.ID)
+	updatedMove, err := o.FetchMoveTaskOrder(move.ID, &searchParams)
 	if err != nil {
 		return nil, services.NewQueryError("Move", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}

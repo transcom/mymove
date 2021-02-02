@@ -18,7 +18,7 @@ import {
   loadPublicSchema as loadPublicSchemaAction,
 } from 'shared/Swagger/ducks';
 // Shared layout components
-import ConnectedLogoutOnInactivity from 'shared/User/LogoutOnInactivity';
+import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { QueueHeader } from 'shared/Header/Office';
@@ -28,8 +28,8 @@ import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplic
 import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
-import { LocationShape, UserRolesShape, OfficeUserInfoShape } from 'types/index';
-import { LogoutUser } from 'shared/User/api';
+import { LocationShape, UserRolesShape, UserShape } from 'types/index';
+import { LogoutUser } from 'utils/api';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('shared/User/SignIn'));
@@ -80,7 +80,7 @@ export class OfficeApp extends Component {
       activeRole,
       userIsLoggedIn,
       userRoles,
-      officeUser,
+      user,
       location: { pathname },
       logOut,
     } = this.props;
@@ -158,16 +158,16 @@ export class OfficeApp extends Component {
               <QueueHeader />
             ) : (
               <MilmoveHeader
-                lastName={officeUser.last_name}
-                firstName={officeUser.first_name}
+                lastName={user.last_name}
+                firstName={user.first_name}
                 handleLogout={() => {
                   logOut();
                   LogoutUser();
                 }}
               >
-                {officeUser.transportation_office && (
+                {user?.office_user?.transportation_office && (
                   <Link to="/">
-                    {officeUser.transportation_office.gbloc} {queueText}
+                    {user?.office_user?.transportation_office.gbloc} {queueText}
                   </Link>
                 )}
               </MilmoveHeader>
@@ -236,7 +236,7 @@ OfficeApp.propTypes = {
   userIsLoggedIn: PropTypes.bool,
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
-  officeUser: OfficeUserInfoShape,
+  user: UserShape,
   logOut: PropTypes.func.isRequired,
 };
 
@@ -245,7 +245,7 @@ OfficeApp.defaultProps = {
   userIsLoggedIn: false,
   userRoles: [],
   activeRole: null,
-  officeUser: {},
+  user: {},
 };
 
 const mapStateToProps = (state) => {
@@ -255,7 +255,7 @@ const mapStateToProps = (state) => {
     userIsLoggedIn: user.isLoggedIn,
     userRoles: user.roles,
     activeRole: state.auth.activeRole,
-    officeUser: user.office_user,
+    user,
   };
 };
 
