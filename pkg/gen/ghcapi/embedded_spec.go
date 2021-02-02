@@ -1742,6 +1742,8 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date",
+            "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
           },
@@ -5887,6 +5889,8 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date",
+            "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
           },

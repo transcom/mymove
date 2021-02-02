@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/facebookgo/clock"
+	"github.com/benbjohnson/clock"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"

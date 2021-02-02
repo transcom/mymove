@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import './UploadOrders.css';
 
-import OrdersUploader from 'components/OrdersUploader/index';
+import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import ConnectedWizardPage from 'shared/WizardPage/index';
 import { documentSizeLimitMsg } from 'shared/constants';
@@ -19,15 +19,11 @@ import {
 import { no_op as noop } from 'shared/utils';
 import { PageListShape, PageKeyShape, AdditionalParamsShape, OrdersShape, UploadsShape } from 'types/customerShapes';
 
-const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
-
 export class UploadOrders extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      newUploads: [],
-    };
+    this.filePondEl = createRef();
 
     this.onChange = this.onChange.bind(this);
     this.handleUploadFile = this.handleUploadFile.bind(this);
@@ -42,12 +38,16 @@ export class UploadOrders extends Component {
   }
 
   handleUploadFile(file) {
-    const { currentOrders, serviceMemberId, updateOrders } = this.props;
+    const { currentOrders } = this.props;
     const documentId = currentOrders?.uploaded_orders?.id;
-    return createUploadForDocument(file, documentId).then(() => {
-      getOrdersForServiceMember(serviceMemberId).then((response) => {
-        updateOrders(response);
-      });
+    return createUploadForDocument(file, documentId);
+  }
+
+  handleUploadComplete() {
+    const { serviceMemberId, updateOrders } = this.props;
+
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
     });
   }
 
@@ -61,21 +61,18 @@ export class UploadOrders extends Component {
     });
   }
 
-  onChange(files) {
-    this.setState({
-      newUploads: files,
-    });
+  onChange() {
+    this.filePondEl.current?.removeFiles();
+    this.handleUploadComplete();
   }
 
   render() {
     const { pages, pageKey, error, currentOrders, uploads, additionalParams } = this.props;
-    const { newUploads } = this.state;
-    const isValid = Boolean(uploads.length || newUploads.length);
-    const isDirty = Boolean(newUploads.length);
+    const isValid = !!uploads.length;
+
     return (
       <ConnectedWizardPage
         additionalParams={additionalParams}
-        dirty={isDirty}
         error={error}
         handleSubmit={noop}
         pageIsValid={isValid}
@@ -96,11 +93,11 @@ export class UploadOrders extends Component {
         )}
         {currentOrders && (
           <div className="uploader-box">
-            <OrdersUploader
+            <FileUpload
+              ref={this.filePondEl}
               createUpload={this.handleUploadFile}
-              deleteUpload={this.handleDeleteFile}
               onChange={this.onChange}
-              options={{ labelIdle: uploaderLabelIdle }}
+              labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
             />
             <div className="hint">(Each page must be clear and legible.)</div>
           </div>

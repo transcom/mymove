@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/facebookgo/clock"
+	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgerrcode"
 

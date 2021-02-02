@@ -27,7 +27,11 @@ type ListMTOsHandler struct {
 func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(false, params.Since)
+	searchParams := services.ListMoveTaskOrderParams{
+		IncludeHidden: true,
+		Since:         params.Since,
+	}
+	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))

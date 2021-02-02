@@ -95,6 +95,12 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		return queues.NewGetPaymentRequestsQueueForbidden()
 	}
 
+	var submittedAt *string
+	if params.SubmittedAt != nil {
+		str := params.SubmittedAt.String()
+		submittedAt = &str
+	}
+
 	listPaymentRequestParams := services.FetchPaymentRequestListParams{
 		Branch:                 params.Branch,
 		Locator:                params.Locator,
@@ -104,7 +110,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		Status:                 params.Status,
 		Page:                   params.Page,
 		PerPage:                params.PerPage,
-		SubmittedAt:            params.SubmittedAt,
+		SubmittedAt:            submittedAt,
 		Sort:                   params.Sort,
 		Order:                  params.Order,
 	}
