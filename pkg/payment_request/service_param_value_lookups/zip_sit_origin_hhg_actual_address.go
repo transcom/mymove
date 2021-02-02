@@ -19,6 +19,8 @@ func (z ZipSITOriginHHGActualAddressLookup) lookup(keyData *ServiceItemParamKeyD
 		if err != nil {
 			return "", err
 		}
+	} else {
+		return "", fmt.Errorf("nil SITOriginHHGActualAddressID for service item ID %s", z.ServiceItem.ID.String())
 	}
 
 	if z.ServiceItem.SITOriginHHGActualAddress == nil {
