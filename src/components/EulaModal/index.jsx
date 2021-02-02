@@ -37,10 +37,10 @@ export const EulaModal = ({ closeModal, acceptTerms }) => (
       </li>
     </ul>
     <ModalActions>
-      <Button type="button" onClick={acceptTerms}>
+      <Button aria-label="Accept EULA Terms" type="button" onClick={acceptTerms}>
         Accept terms
       </Button>
-      <Button secondary type="button" onClick={closeModal}>
+      <Button aria-label="Cancel" secondary type="button" onClick={closeModal}>
         Cancel
       </Button>
     </ModalActions>
