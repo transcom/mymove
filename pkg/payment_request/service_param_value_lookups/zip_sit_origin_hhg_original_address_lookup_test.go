@@ -7,8 +7,8 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGActualAddressLookup() {
-	key := models.ServiceItemParamNameZipSITOriginHHGActualAddress
+func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLookup() {
+	key := models.ServiceItemParamNameZipSITOriginHHGOriginalAddress
 
 	originZip := "30901"
 	actualOriginZipSameZip3 := "30907"
@@ -63,23 +63,24 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGActualAddressLook
 		},
 	)
 
-	suite.T().Run("success SIT origin actual zip lookup", func(t *testing.T) {
+	suite.T().Run("success SIT origin original zip lookup", func(t *testing.T) {
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemWithSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		sitOriginZipActual, err := paramLookup.ServiceParamValue(key)
+		sitOriginZipOriginal, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
-		expected := mtoServiceItemWithSITOriginZips.SITOriginHHGActualAddress.PostalCode
-		suite.Equal(expected, sitOriginZipActual)
+		expected := mtoServiceItemWithSITOriginZips.SITOriginHHGOriginalAddress.PostalCode
+		suite.Equal(expected, sitOriginZipOriginal)
 	})
 
-	suite.T().Run("fail to find SIT origin actual zip lookup", func(t *testing.T) {
+	suite.T().Run("fail to find SIT origin original zip lookup", func(t *testing.T) {
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemNoSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		sitOriginZipActual, err := paramLookup.ServiceParamValue(key)
+		sitOriginZipOriginal, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
-		suite.Equal("", sitOriginZipActual)
+		suite.Equal("", sitOriginZipOriginal)
+		suite.Contains(err.Error(), "nil SITOriginHHGOriginalAddressID")
 	})
 
 }

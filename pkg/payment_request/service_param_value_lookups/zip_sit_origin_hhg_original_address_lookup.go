@@ -29,7 +29,6 @@ func (z ZipSITOriginHHGOriginalAddressLookup) lookup(keyData *ServiceItemParamKe
 		return "", fmt.Errorf("db load for SITOriginHHGOriginalAddress failed service item ID %s", z.ServiceItem.ID.String())
 	}
 
-	value := fmt.Sprintf("%s", z.ServiceItem.SITOriginHHGOriginalAddress.PostalCode)
-
+	value := z.ServiceItem.SITOriginHHGOriginalAddress.PostalCode
 	return value, nil
 }
