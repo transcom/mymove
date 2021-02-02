@@ -4,8 +4,10 @@ import { string } from 'prop-types';
 import styles from './index.module.scss';
 
 const BypassBlock = ({ anchorLink }) => (
-  <div className={styles.bypassBlock}>
-    <a href={anchorLink}>Skip to Content</a>
+  <div>
+    <a className={styles.bypassBlock} href={anchorLink}>
+      Skip to Content
+    </a>
   </div>
 );
 

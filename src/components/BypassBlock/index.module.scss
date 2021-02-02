@@ -1,0 +1,9 @@
+a.bypassBlock {
+    left: -100%;
+    position: absolute;
+    transition: left 0.5s;
+}
+
+a.bypassBlock:focus {
+  left:0;
+}
