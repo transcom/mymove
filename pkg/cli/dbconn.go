@@ -146,7 +146,7 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.String(DbNameFlag, "dev_db", "Database Name")
 	flag.String(DbHostFlag, "localhost", "Database Hostname")
 	flag.Int(DbPortFlag, 5432, "Database Port")
-	flag.String(DbUserFlag, "postgres", "Database Username")
+	flag.String(DbUserFlag, "crud", "Database Username")
 	flag.String(DbPasswordFlag, "", "Database Password")
 	flag.Int(DbPoolFlag, DbPoolDefault, "Database Pool or max DB connections")
 	flag.Int(DbIdlePoolFlag, DbIdlePoolDefault, "Database Idle Pool or max DB idle connections")
