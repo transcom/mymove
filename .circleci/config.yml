@@ -630,7 +630,6 @@ jobs:
   acceptance_tests:
     executor: mymove_medium
     steps:
-      - aws_vars_legacy
       - checkout
       - restore_cache:
           keys:
