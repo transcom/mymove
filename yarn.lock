@@ -2446,16 +2446,16 @@
     react-select "^3.0.8"
     regenerator-runtime "^0.13.7"
 
-"@storybook/addon-links@^6.1.15":
-  version "6.1.15"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.1.15.tgz#6f5d3c0526ce14a90bde031cf561f1c47249e2ca"
-  integrity sha512-wlAVvcrKSii5pwcP9/OMUZ6zvRZnR1M86OHLVOQblNKoLgOrf8Xd8sDLFesr4HolRN1VKKFq/4VGRlqRqYDF/w==
+"@storybook/addon-links@^6.1.16":
+  version "6.1.16"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.1.16.tgz#b7312fcf3cd583b9abf3ea5812f13e094749d3d8"
+  integrity sha512-LNN+KDbKUE/L8F57XLzgxayPLDZ835yOEiOmb/OvibdmIg8SRgz896iQF+w5XYR5Q2YTBzuIP/QHmZ/bbcenyg==
   dependencies:
-    "@storybook/addons" "6.1.15"
-    "@storybook/client-logger" "6.1.15"
-    "@storybook/core-events" "6.1.15"
+    "@storybook/addons" "6.1.16"
+    "@storybook/client-logger" "6.1.16"
+    "@storybook/core-events" "6.1.16"
     "@storybook/csf" "0.0.1"
-    "@storybook/router" "6.1.15"
+    "@storybook/router" "6.1.16"
     "@types/qs" "^6.9.0"
     core-js "^3.0.1"
     global "^4.3.2"
@@ -2507,20 +2507,7 @@
     global "^4.3.2"
     regenerator-runtime "^0.13.7"
 
-"@storybook/addons@^5.2.8":
-  version "5.3.19"
-  resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-5.3.19.tgz#3a7010697afd6df9a41b8c8a7351d9a06ff490a4"
-  integrity sha512-Ky/k22p6i6FVNvs1VhuFyGvYJdcp+FgXqFgnPyY/OXJW/vPDapdElpTpHJZLFI9I2FQBDcygBPU5RXkumQ+KUQ==
-  dependencies:
-    "@storybook/api" "5.3.19"
-    "@storybook/channels" "5.3.19"
-    "@storybook/client-logger" "5.3.19"
-    "@storybook/core-events" "5.3.19"
-    core-js "^3.0.1"
-    global "^4.3.2"
-    util-deprecate "^1.0.2"
-
-"@storybook/addons@^6.1.16":
+"@storybook/addons@6.1.16", "@storybook/addons@^6.1.16":
   version "6.1.16"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.1.16.tgz#d5a5b940efeda4031fd406d8064b6774124543f4"
   integrity sha512-UefxKL4JHd7wTlCGXq+YZzmUgv6GvSSUHMPS39OTtrZUGTL1Vr88h6wITnQPUi/MFtj0VAZ0Fnj3N+PK3fxYzQ==
@@ -2534,6 +2521,19 @@
     core-js "^3.0.1"
     global "^4.3.2"
     regenerator-runtime "^0.13.7"
+
+"@storybook/addons@^5.2.8":
+  version "5.3.19"
+  resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-5.3.19.tgz#3a7010697afd6df9a41b8c8a7351d9a06ff490a4"
+  integrity sha512-Ky/k22p6i6FVNvs1VhuFyGvYJdcp+FgXqFgnPyY/OXJW/vPDapdElpTpHJZLFI9I2FQBDcygBPU5RXkumQ+KUQ==
+  dependencies:
+    "@storybook/api" "5.3.19"
+    "@storybook/channels" "5.3.19"
+    "@storybook/client-logger" "5.3.19"
+    "@storybook/core-events" "5.3.19"
+    core-js "^3.0.1"
+    global "^4.3.2"
+    util-deprecate "^1.0.2"
 
 "@storybook/api@5.3.0-alpha.11":
   version "5.3.0-alpha.11"
