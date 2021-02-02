@@ -1,13 +1,16 @@
 @import 'shared/styles/colors.scss';
 
 a.bypassBlock {
-    left: -100%;
+    display: block;
     position: absolute;
+    left: -999px;
+    top: -999px;
     background: white;
     font-weight: bold;
     padding: 8px;
 }
 
 a.bypassBlock:focus {
-  left:0;
+    left: 8px;
+    top: 8px;
 }

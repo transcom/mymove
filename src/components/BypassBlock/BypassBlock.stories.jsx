@@ -9,11 +9,6 @@ export default {
 export const BypassBlockLink = () => (
   <div>
     <BypassBlock />
-    <nav>
-      Sample Navigation
-      <a href="#">Link</a>
-      <a href="#">Link</a>
-      <a href="#">Link</a>
-    </nav>
+    <p>Press the Tab key to focus the bypass block.</p>
   </div>
 );
