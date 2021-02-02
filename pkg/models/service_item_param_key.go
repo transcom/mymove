@@ -125,9 +125,9 @@ const (
 	// ServiceItemParamNameZipSITDestHHGFinalAddress is the param key name ZipSITDestHHGFinalAddress
 	ServiceItemParamNameZipSITDestHHGFinalAddress ServiceItemParamName = "ZipSITDestHHGFinalAddress"
 	// ServiceItemParamNameZipSITOriginHHGOriginalAddress is the param key name ZipSITOriginHHGOriginalAddress
-	ServiceItemParamNameZipSITOriginHHGOriginalAddress = "ZipSITOriginHHGOriginalAddress"
+	ServiceItemParamNameZipSITOriginHHGOriginalAddress ServiceItemParamName = "ZipSITOriginHHGOriginalAddress"
 	// ServiceItemParamNameZipSITOriginHHGActualAddress is the param key name ZipSITOriginHHGActualAddress
-	ServiceItemParamNameZipSITOriginHHGActualAddress = "ZipSITOriginHHGActualAddress"
+	ServiceItemParamNameZipSITOriginHHGActualAddress ServiceItemParamName = "ZipSITOriginHHGActualAddress"
 )
 
 // ServiceItemParamType is a type of service item parameter
