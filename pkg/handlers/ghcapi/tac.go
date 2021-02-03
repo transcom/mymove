@@ -21,12 +21,18 @@ func (h TacValidationHandler) Handle(params tacop.TacValidationParams) middlewar
 		return tacop.NewTacValidationUnauthorized()
 	}
 
+	if !session.IsOfficeApp() || !session.IsOfficeUser() {
+		return tacop.NewTacValidationForbidden()
+	}
+
+	// TODO: when we have access to TAC data in the db, replace this with an actual query
+	// stub tac codes to use when we want to return invalid status
 	isValid := false
 	invalidTACs := [4]string{
 		"2LGT",
 		"4EVR",
 		"5ALV",
-		"14DA$",
+		"MOBTR",
 	}
 
 	for _, code := range invalidTACs {
