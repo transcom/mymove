@@ -89,7 +89,7 @@ const Home = () => (
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
       <Resource
-        name="webhookSubscriptions"
+        name="webhook_subscriptions"
         options={{ label: 'Webhook Subscriptions' }}
         list={WebhookSubscriptionList}
       />
