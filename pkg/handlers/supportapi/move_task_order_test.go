@@ -90,8 +90,8 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		suite.IsNotErrResponse(response)
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersOK(), response)
 
-		for i, mtoID := range mtoIDsRequestsPayload {
-			suite.Equal(supportmessages.MoveTaskOrderID(strfmt.UUID(moves[i].ID.String())), mtoID)
+		for i, m := range mtoIDsRequestsPayload.Moves {
+			suite.Equal(moves[i].ID.String(), m.MoveTaskOrderID.String())
 		}
 	})
 
@@ -129,8 +129,8 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
 		// Ensure that mto without a contractorID is NOT included in the payload
-		for i, mtoID := range moveTaskOrdersPayload {
-			suite.Equal(supportmessages.MoveTaskOrderID(strfmt.UUID(moves[i].ID.String())), mtoID)
+		for i, mto := range moveTaskOrdersPayload.Moves {
+			suite.Equal(supportmessages.MoveTaskOrderID(strfmt.UUID(moves[i].ID.String())), mto.MoveTaskOrderID)
 		}
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersOK(), response)
 	})

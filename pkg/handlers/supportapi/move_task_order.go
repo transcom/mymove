@@ -1,8 +1,6 @@
 package supportapi
 
 import (
-	"fmt"
-
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -91,15 +89,7 @@ func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.Hid
 		logger.Error("supportapi.HideNonFakeMoveTaskOrdersHandlerFunc error", zap.Error(err))
 		return movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 	}
-	var hiddenMoveIDs []uuid.UUID
-	for _, mto := range hiddenMTOs {
-		if mto.ContractorID == nil {
-			logger.Warn(fmt.Sprintf("MTO with id %s is missing a ContractorID. It has been hidden but will not appear in the array of returned MTOs", mto.ID))
-		} else {
-			hiddenMoveIDs = append(hiddenMoveIDs, mto.ID)
-		}
-	}
-	payload := payloads.MoveTaskOrderIDs(hiddenMoveIDs)
+	payload := payloads.MTOHideMovesResponse(hiddenMTOs)
 
 	return movetaskorderops.NewHideNonFakeMoveTaskOrdersOK().WithPayload(payload)
 }
