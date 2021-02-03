@@ -31,11 +31,12 @@ import (
 )
 
 const (
-	binMilMove      string = "/bin/milmove"
-	binMilMoveTasks string = "/bin/milmove-tasks"
-	binOrders       string = "/bin/orders"
-	digestSeparator string = "@"
-	tagSeparator    string = ":"
+	binMilMove       string = "/bin/milmove"
+	binMilMoveTasks  string = "/bin/milmove-tasks"
+	binOrders        string = "/bin/orders"
+	binWebhookClient string = "/bin/webhook-client"
+	digestSeparator  string = "@"
+	tagSeparator     string = ":"
 )
 
 // Valid services names
@@ -44,6 +45,7 @@ var services = []string{
 	"app-client-tls",
 	"app-migrations",
 	"app-tasks",
+	"app-webhook-client",
 	"orders",
 	"orders-migrations",
 }
@@ -59,6 +61,9 @@ var servicesToEntryPoints = map[string][]string{
 		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
 		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
 		fmt.Sprintf("%s post-file-to-gex", binMilMoveTasks),
+	},
+	"app-webhook-client": {
+		fmt.Sprintf("%s webhook-notify", binWebhookClient),
 	},
 	"orders":            {fmt.Sprintf("%s serve", binOrders)},
 	"orders-migrations": {fmt.Sprintf("%s migrate", binOrders)},
@@ -540,6 +545,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		// This is `ecs-task-role-app-migration-experimental` vs `ecs-task-role-app-migration(s)-experimental`
 		// This needs to be fixed in terraform and then rolled out
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-migration-%s", serviceNameShort, environmentName)
+	} else if commandName == binWebhookClient {
+		awsLogsStreamPrefix = serviceName
+		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
+		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
 	} else {
 		awsLogsStreamPrefix = serviceNameShort
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
