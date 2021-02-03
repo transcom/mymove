@@ -11,21 +11,21 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticFirstDaySit(db *pop.Connection, firstDaySitCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, error) {
+func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, error) {
 	var sitType string
-	if firstDaySitCode == models.ReServiceCodeDDFSIT {
+	if firstDaySITCode == models.ReServiceCodeDDFSIT {
 		sitType = "destination"
-	} else if firstDaySitCode == models.ReServiceCodeDOFSIT {
+	} else if firstDaySITCode == models.ReServiceCodeDOFSIT {
 		sitType = "origin"
 	} else {
-		return 0, fmt.Errorf("unsupported first day sit code of %s", firstDaySitCode)
+		return 0, fmt.Errorf("unsupported first day sit code of %s", firstDaySITCode)
 	}
 
 	if weight < minDomesticWeight {
 		return 0, fmt.Errorf("weight of %d less than the minimum of %d", weight, minDomesticWeight)
 	}
 
-	serviceAreaPrice, err := fetchDomServiceAreaPrice(db, contractCode, firstDaySitCode, serviceArea, isPeakPeriod)
+	serviceAreaPrice, err := fetchDomServiceAreaPrice(db, contractCode, firstDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), fmt.Errorf("could not fetch domestic %s first day SIT rate: %w", sitType, err)
 	}
@@ -43,21 +43,21 @@ func priceDomesticFirstDaySit(db *pop.Connection, firstDaySitCode models.ReServi
 	return totalPriceCents, nil
 }
 
-func priceDomesticAdditionalDaysSit(db *pop.Connection, additionalDaySitCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, error) {
+func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, error) {
 	var sitType string
-	if additionalDaySitCode == models.ReServiceCodeDDASIT {
+	if additionalDaySITCode == models.ReServiceCodeDDASIT {
 		sitType = "destination"
-	} else if additionalDaySitCode == models.ReServiceCodeDOASIT {
+	} else if additionalDaySITCode == models.ReServiceCodeDOASIT {
 		sitType = "origin"
 	} else {
-		return 0, fmt.Errorf("unsupported additional day sit code of %s", additionalDaySitCode)
+		return 0, fmt.Errorf("unsupported additional day sit code of %s", additionalDaySITCode)
 	}
 
 	if weight < minDomesticWeight {
 		return 0, fmt.Errorf("weight of %d less than the minimum of %d", weight, minDomesticWeight)
 	}
 
-	serviceAreaPrice, err := fetchDomServiceAreaPrice(db, contractCode, additionalDaySitCode, serviceArea, isPeakPeriod)
+	serviceAreaPrice, err := fetchDomServiceAreaPrice(db, contractCode, additionalDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), fmt.Errorf("could not fetch domestic %s additional days SIT rate: %w", sitType, err)
 	}
