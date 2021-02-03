@@ -221,9 +221,6 @@ bin/rds-ca-us-gov-west-1-2017-root.pem:
 bin/big-cat: cmd/big-cat
 	go build -ldflags "$(LDFLAGS)" -o bin/big-cat ./cmd/big-cat
 
-bin/compare-secure-migrations: cmd/compare-secure-migrations
-	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
-
 bin/model-vet: cmd/model-vet
 	go build -ldflags "$(LDFLAGS)" -o bin/model-vet ./cmd/model-vet
 
@@ -341,7 +338,6 @@ build_tools: bin/gin \
 	bin/rds-ca-2019-root.pem \
 	bin/rds-ca-us-gov-west-1-2017-root.pem \
 	bin/big-cat \
-	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
 	bin/generate-access-codes \
