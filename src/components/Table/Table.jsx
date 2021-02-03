@@ -1,4 +1,3 @@
-/* eslint-disable react/no-array-index-key */
 import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -33,6 +32,8 @@ const Table = ({
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup, hgIndex) => (
+            /* Does not have any unique properties that can be used as key */
+            /* eslint-disable-next-line react/no-array-index-key */
             <Fragment key={`headerGroup${hgIndex}`}>
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => {
@@ -53,9 +54,11 @@ const Table = ({
                 })}
               </tr>
               {showFilters && (
+                /* Does not have any unique properties that can be used as key */
+                /* eslint-disable-next-line react/no-array-index-key */
                 <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
-                  {headerGroup.headers.map((column, headerIndex) => (
-                    <th key={`headerFilter${headerIndex}`} data-testid={column.id}>
+                  {headerGroup.headers.map((column) => (
+                    <th key={column.id} data-testid={column.id}>
                       {/* isFilterable is a custom prop that can be set in the Column object */}
                       <div>{column.isFilterable ? column.render('Filter') : null}</div>
                     </th>
@@ -99,8 +102,8 @@ const Table = ({
                 setPageSize(Number(e.target.value));
               }}
             >
-              {perPage.map((page, index) => (
-                <option value={page} key={`page-size-${index}`}>
+              {perPage.map((page) => (
+                <option value={page} key={page}>
                   {page}
                 </option>
               ))}
@@ -126,8 +129,8 @@ const Table = ({
               onChange={(e) => gotoPage(Number(e.target.value))}
             >
               {pageOptions.length > 0 ? (
-                pageOptions.map((pageOption, index) => (
-                  <option value={pageOption} key={`page-options-${index}`}>
+                pageOptions.map((pageOption) => (
+                  <option value={pageOption} key={pageOption}>
                     {pageOption + 1}
                   </option>
                 ))

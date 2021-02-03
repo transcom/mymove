@@ -8,16 +8,16 @@ const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
   <table className={classnames(styles.dataPoint, 'table--data-point', custClass)}>
     <thead className="table--small">
       <tr>
-        {columnHeaders.map((header, i) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <th key={i}>{header}</th>
+        {columnHeaders.map((header) => (
+          <th key={header}>{header}</th>
         ))}
       </tr>
     </thead>
     <tbody>
       <tr>
+        {/* eslint-disable react/no-array-index-key */}
+        {/* no unique identifier that can be used as a key, cell values can be duplicates (e.g. Dates) */}
         {dataRow.map((cell, i) => (
-          // eslint-disable-next-line react/no-array-index-key
           <td key={i}>
             <div className={classnames({ [`${styles.iconCellContainer}`]: !!icon && i === 0 })}>
               <span>{cell}</span>
@@ -25,6 +25,7 @@ const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
             </div>
           </td>
         ))}
+        {/* eslint-enable react/no-array-index-key */}
       </tr>
     </tbody>
   </table>
