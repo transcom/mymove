@@ -1229,11 +1229,11 @@ func init() {
         }
       }
     },
-    "/webhookSubscriptions": {
+    "/webhook_subscriptions": {
       "get": {
         "description": "Returns a list of uwebhook subscriptions",
         "tags": [
-          "webhookSubscriptions"
+          "webhook_subscriptions"
         ],
         "summary": "Lists webhook subscriptions",
         "operationId": "indexWebhookSubscriptions",
@@ -3660,11 +3660,11 @@ func init() {
         }
       }
     },
-    "/webhookSubscriptions": {
+    "/webhook_subscriptions": {
       "get": {
         "description": "Returns a list of uwebhook subscriptions",
         "tags": [
-          "webhookSubscriptions"
+          "webhook_subscriptions"
         ],
         "summary": "Lists webhook subscriptions",
         "operationId": "indexWebhookSubscriptions",
