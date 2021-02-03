@@ -36,3 +36,30 @@ describe('Users Details Show Page', function () {
     });
   });
 });
+
+describe('Users Details Edit Page', function () {
+  before(() => {
+    cy.prepareAdminApp();
+  });
+
+  it('pulls up edit page for a user', function () {
+    cy.signInAsNewAdminUser();
+    failOnStatusCode: false;
+    cy.get('a[href*="system/users"]').click();
+    cy.url().should('eq', adminBaseURL + '/system/users');
+    cy.get('[data-testid="user-id"]').first().click();
+    cy.get('a').contains('Edit').click();
+
+    const pageContent = [
+      'Id',
+      'Login gov email',
+      'Active',
+      'Revoke admin session',
+      'Revoke office session',
+      'Revoke mil session',
+    ];
+    pageContent.forEach((label) => {
+      cy.get('label').contains(label);
+    });
+  });
+});
