@@ -20,7 +20,7 @@ import (
 func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 	// test that everything is wired up correctly
 	m := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
-	req := httptest.NewRequest("GET", "/webhookSubscriptions", nil)
+	req := httptest.NewRequest("GET", "/webhook_subscriptions", nil)
 
 	suite.T().Run("200 - OK response", func(t *testing.T) {
 		params := webhooksubscriptionop.IndexWebhookSubscriptionsParams{
