@@ -59,7 +59,8 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 		badWeight := unit.Pound(250)
 		_, err := pricer.Price(testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestIsPeakPeriod, badWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
 		suite.Error(err)
-		suite.Contains(err.Error(), "weight of 250 less than the minimum")
+		expectedError := fmt.Sprintf("weight of %d less than the minimum", badWeight)
+		suite.Contains(err.Error(), expectedError)
 	})
 
 	suite.T().Run("bad destination zip", func(t *testing.T) {
@@ -86,7 +87,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 
 	zipDest := "30907"
 	zipSITDest := "36106"       // different zip3
-	distance := unit.Miles(305) // more than 50 miles
+	distance := unit.Miles(305) // > 50 miles
 
 	paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, distance)
 	pricer := NewDomesticDestinationSITDeliveryPricer(suite.DB())
@@ -117,7 +118,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 
 	zipDest := "30907"
 	zipSITDest := "29801"      // different zip3
-	distance := unit.Miles(37) // less than 50 miles
+	distance := unit.Miles(37) // <= 50 miles
 
 	paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, distance)
 	pricer := NewDomesticDestinationSITDeliveryPricer(suite.DB())
