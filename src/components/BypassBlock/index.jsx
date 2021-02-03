@@ -6,7 +6,7 @@ import styles from './index.module.scss';
 const BypassBlock = ({ anchorLink }) => (
   <div>
     <a className={styles.bypassBlock} href={anchorLink}>
-      Skip to Content
+      Skip to content
     </a>
   </div>
 );
