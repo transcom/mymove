@@ -99,13 +99,21 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		var moves models.Moves
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 		moves = append(moves, move)
+		var hiddenMoves services.HiddenMoves
+		for _, m := range moves {
+			hm := services.HiddenMove{
+				MTOID:  m.ID,
+				Reason: "move is hidden",
+			}
+			hiddenMoves = append(hiddenMoves, hm)
+		}
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
 			context,
 			mockHider,
 		}
 
-		mockHider.On("Hide").Return(moves, errors.New("MTOs not retrieved"))
+		mockHider.On("Hide").Return(hiddenMoves, errors.New("MTOs not retrieved"))
 
 		response := handler.Handle(params)
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError(), response)
@@ -116,13 +124,21 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 		mto.ContractorID = nil
 		moves = append(moves, mto)
+		var hiddenMoves services.HiddenMoves
+		for _, m := range moves {
+			hm := services.HiddenMove{
+				MTOID:  m.ID,
+				Reason: "move is hidden",
+			}
+			hiddenMoves = append(hiddenMoves, hm)
+		}
 
 		mockHider := &mocks.MoveTaskOrderHider{}
 		handler := HideNonFakeMoveTaskOrdersHandlerFunc{
 			context,
 			mockHider,
 		}
-		mockHider.On("Hide").Return(moves, nil)
+		mockHider.On("Hide").Return(hiddenMoves, nil)
 
 		response := handler.Handle(params)
 		moveTaskOrdersResponse := response.(*movetaskorderops.HideNonFakeMoveTaskOrdersOK)
@@ -130,7 +146,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 
 		// Ensure that mto without a contractorID is NOT included in the payload
 		for i, mto := range moveTaskOrdersPayload.Moves {
-			suite.Equal(supportmessages.MoveTaskOrderID(strfmt.UUID(moves[i].ID.String())), mto.MoveTaskOrderID)
+			suite.Equal(moves[i].ID.String(), mto.MoveTaskOrderID.String())
 		}
 		suite.IsType(movetaskorderops.NewHideNonFakeMoveTaskOrdersOK(), response)
 	})
