@@ -1231,7 +1231,7 @@ func init() {
     },
     "/webhook_subscriptions": {
       "get": {
-        "description": "Returns a list of uwebhook subscriptions",
+        "description": "Returns a list of webhook subscriptions",
         "tags": [
           "webhook_subscriptions"
         ],
@@ -2404,7 +2404,7 @@ func init() {
           "format": "date-time"
         },
         "eventKey": {
-          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_kek values in webhook_notifications.",
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
           "type": "string"
         },
         "id": {
@@ -3662,7 +3662,7 @@ func init() {
     },
     "/webhook_subscriptions": {
       "get": {
-        "description": "Returns a list of uwebhook subscriptions",
+        "description": "Returns a list of webhook subscriptions",
         "tags": [
           "webhook_subscriptions"
         ],
@@ -4839,7 +4839,7 @@ func init() {
           "format": "date-time"
         },
         "eventKey": {
-          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_kek values in webhook_notifications.",
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
           "type": "string"
         },
         "id": {

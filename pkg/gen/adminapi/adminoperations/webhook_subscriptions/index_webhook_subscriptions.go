@@ -33,7 +33,7 @@ func NewIndexWebhookSubscriptions(ctx *middleware.Context, handler IndexWebhookS
 
 Lists webhook subscriptions
 
-Returns a list of uwebhook subscriptions
+Returns a list of webhook subscriptions
 
 */
 type IndexWebhookSubscriptions struct {

@@ -24,7 +24,7 @@ type WebhookSubscription struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
-	// A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_kek values in webhook_notifications.
+	// A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.
 	EventKey string `json:"eventKey,omitempty"`
 
 	// id
