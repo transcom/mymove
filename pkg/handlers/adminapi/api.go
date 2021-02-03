@@ -191,5 +191,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 	}
 
+	adminAPI.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = IndexWebhookSubscriptionsHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
 	return adminAPI.Serve(nil)
 }
