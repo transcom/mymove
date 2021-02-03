@@ -22,7 +22,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 	m := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
 	req := httptest.NewRequest("GET", "/webhookSubscriptions", nil)
 
-	suite.T().Run("integration test ok response", func(t *testing.T) {
+	suite.T().Run("200 - OK response", func(t *testing.T) {
 		params := webhooksubscriptionop.IndexWebhookSubscriptionsParams{
 			HTTPRequest: req,
 		}
@@ -41,7 +41,8 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(m.ID.String(), okResponse.Payload[0].ID.String())
 	})
-	suite.T().Run("test failed response", func(t *testing.T) {
+
+	suite.T().Run("404 - Move not found", func(t *testing.T) {
 		queryFilter := mocks.QueryFilter{}
 		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
