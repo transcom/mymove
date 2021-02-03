@@ -23,6 +23,9 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 	req := httptest.NewRequest("GET", "/webhook_subscriptions", nil)
 
 	suite.T().Run("200 - OK response", func(t *testing.T) {
+		// Setup: Provide a valid request to endpoint, when there is data in the db
+		// Expected outcome:
+		//   GET request returns 200 and a list of length 1 containing a subscription
 		params := webhooksubscriptionop.IndexWebhookSubscriptionsParams{
 			HTTPRequest: req,
 		}
@@ -43,6 +46,10 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 	})
 
 	suite.T().Run("404 - Move not found", func(t *testing.T) {
+		// Mocked: Fetcher for handler
+		// Setup: Provide a valid request to endpoint and mock fetcher
+		// Expected outcome:
+		//   GET request returns 404 and no records are returned
 		queryFilter := mocks.QueryFilter{}
 		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 

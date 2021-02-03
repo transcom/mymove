@@ -902,7 +902,7 @@ definitions:
         type: string
         description: >-
           A string used to represent which events this subscriber expects to be notified about.
-          Corresponds to the possible event_kek values in webhook_notifications.
+          Corresponds to the possible event_key values in webhook_notifications.
       createdAt:
         type: string
         format: date-time
@@ -1690,7 +1690,7 @@ paths:
   /webhook_subscriptions:
     get:
       summary: Lists webhook subscriptions
-      description: Returns a list of uwebhook subscriptions
+      description: Returns a list of webhook subscriptions
       operationId: indexWebhookSubscriptions
       tags:
         - webhook_subscriptions
