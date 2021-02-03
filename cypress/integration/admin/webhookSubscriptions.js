@@ -11,7 +11,7 @@ describe('Webhook Subscriptions', function () {
     cy.url().should('eq', adminBaseURL + '/system/webhook_subscriptions');
     cy.get('header').contains('Webhook subscriptions');
 
-    const columnLabels = ['Id', 'Event Key', 'Severity', 'Callback url', 'Status', 'Updated at'];
+    const columnLabels = ['Id', 'Event key', 'Severity', 'Callback url', 'Status', 'Updated at'];
     columnLabels.forEach((label) => {
       cy.get('table').contains(label);
     });
