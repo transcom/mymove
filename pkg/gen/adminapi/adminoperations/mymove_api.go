@@ -512,7 +512,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/webhookSubscriptions"] = webhook_subscriptions.NewIndexWebhookSubscriptions(o.context, o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler)
+	o.handlers["GET"]["/webhook_subscriptions"] = webhook_subscriptions.NewIndexWebhookSubscriptions(o.context, o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

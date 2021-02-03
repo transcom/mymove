@@ -1687,13 +1687,13 @@ paths:
             $ref: '#/definitions/ValidationError'
         500:
           description: Server error
-  /webhookSubscriptions:
+  /webhook_subscriptions:
     get:
       summary: Lists webhook subscriptions
       description: Returns a list of uwebhook subscriptions
       operationId: indexWebhookSubscriptions
       tags:
-        - webhookSubscriptions
+        - webhook_subscriptions
       parameters:
         - in: query
           name: filter
