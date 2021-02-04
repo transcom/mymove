@@ -13,7 +13,7 @@ describe('Webhook Subscriptions', function () {
 
     const columnLabels = ['Id', 'Event key', 'Severity', 'Callback url', 'Status', 'Updated at'];
     columnLabels.forEach((label) => {
-      cy.get('.RaDatagrid-table-65').contains(label);
+      cy.get('table').contains(label);
     });
   });
 });
