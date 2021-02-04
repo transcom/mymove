@@ -63,6 +63,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0056](0056-use-asdf-to-manage-golang-versions-in-development.md) - Use ASDF To Manage Golang Versions In Development
 - [ADR-0057](0057-lodash.md) - Deprecate use of lodash over time
 - [ADR-0058](0058-replace-loki-with-happo.md) - Use Happo for visual regression testing
+- [ADR-0059](0059-use-snapshot-to-cleanup-loadtesting.md) - Use snapshot to cleanup load testing
 
 <!-- adrlogstop -->
 
