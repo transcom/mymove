@@ -34,8 +34,8 @@ class QueueTable extends Component {
       }, 5000),
     };
     this.fetchData = this.fetchData.bind(this);
-
     this.useQuery = this.useQuery.bind(this);
+    this.openMove = this.openMove.bind(this);
   }
 
   componentDidMount() {
@@ -53,7 +53,7 @@ class QueueTable extends Component {
   }
 
   openMove(rowInfo) {
-    this.props.history.push(`/queues/new/moves/${rowInfo.original.id}`, {
+    this.props.history.push(`/queues/new/moves/${rowInfo.id}`, {
       referrerPathname: this.props.history.location.pathname,
     });
   }
@@ -169,14 +169,12 @@ class QueueTable extends Component {
 
     const showColumns = defaultColumns(this);
 
-    /*
     const defaultSort = (queueType) => {
       if (['all'].includes(queueType)) {
         return [{ id: 'locator', asc: true }];
       }
       return [{ id: 'move_date', asc: true }];
     };
-    */
 
     this.state.data.forEach((row) => {
       row.shipments = SHIPMENT_OPTIONS.PPM;
@@ -187,6 +185,8 @@ class QueueTable extends Component {
         row.synthetic_status = row.status;
       }
     });
+
+    const defaultSortColumn = defaultSort(this.props.queueType);
 
     return (
       <div>
@@ -216,7 +216,7 @@ class QueueTable extends Component {
             showPagination={false}
             manualSortBy
             defaultCanSort
-            defaultSortedColumns={[{ id: 'status', desc: false }]}
+            defaultSortedColumns={defaultSortColumn}
             disableMultiSort
             disableSortBy={false}
             columns={showColumns}
