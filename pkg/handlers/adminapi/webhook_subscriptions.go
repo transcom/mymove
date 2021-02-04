@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -65,4 +66,27 @@ func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.In
 	}
 
 	return webhooksubscriptionop.NewIndexWebhookSubscriptionsOK().WithContentRange(fmt.Sprintf("webhookSubscriptions %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedWebhookSubscriptionsCount, totalWebhookSubscriptionsCount)).WithPayload(payload)
+}
+
+// GetWebhookSubscriptionHandler is
+type GetWebhookSubscriptionHandler struct {
+	handlers.HandlerContext
+	services.WebhookSubscriptionFetcher
+	services.NewQueryFilter
+}
+
+// Handle retrieves a webhook subscription
+func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWebhookSubscriptionParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	webhookSubscriptionID := uuid.FromStringOrNil(params.WebhookSubscriptionID.String())
+	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscriptionID)}
+
+	webhookSubscription, err := h.WebhookSubscriptionFetcher.FetchWebhookSubscription(queryFilters)
+
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	payload := payloadForWebhookSubscriptionModel(webhookSubscription)
+	return webhooksubscriptionop.NewGetWebhookSubscriptionOK().WithPayload(payload)
 }

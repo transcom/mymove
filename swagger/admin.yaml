@@ -1727,3 +1727,29 @@ paths:
           description: Webhook subscriptions not found
         500:
           description: Server error
+  /webhook_subscriptions/{webhookSubscriptionId}:
+    get:
+      summary: Get information about a webhook subscription
+      description: Returns the given webhook subscription and its details
+      operationId: getWebhookSubscription
+      tags:
+        - webhook_subscriptions
+      parameters:
+        - in: path
+          name: webhookSubscriptionId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/WebhookSubscription'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: subscription not found
+        500:
+          description: server error
