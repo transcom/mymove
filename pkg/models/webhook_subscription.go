@@ -36,6 +36,9 @@ type WebhookSubscription struct {
 	UpdatedAt    time.Time                 `db:"updated_at"`
 }
 
+// WebhookSubscriptions is an array of webhook subscriptions
+type WebhookSubscriptions []WebhookSubscription
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (wS *WebhookSubscription) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(

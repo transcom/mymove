@@ -548,7 +548,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		session.Roles = append(session.Roles, role)
 	}
 	session.UserID = userIdentity.ID
-	if userIdentity.ServiceMemberID != nil {
+	if session.IsMilApp() && userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 

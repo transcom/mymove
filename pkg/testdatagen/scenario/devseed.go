@@ -1974,7 +1974,7 @@ func createTXO(db *pop.Connection) {
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
+	user := testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tooTioUUID,
 			LoginGovUUID:  &loginGovUUID,
@@ -1989,6 +1989,12 @@ func createTXO(db *pop.Connection) {
 			Email:  email,
 			Active: true,
 			UserID: &tooTioUUID,
+		},
+	})
+	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			User:   user,
+			UserID: user.ID,
 		},
 	})
 
