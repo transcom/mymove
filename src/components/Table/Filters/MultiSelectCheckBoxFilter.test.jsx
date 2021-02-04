@@ -1,5 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import selectEvent from 'react-select-event';
 import Select from 'react-select';
 import { mount } from 'enzyme';
 
@@ -41,6 +42,13 @@ describe('MultiSelectCheckBoxFilter', () => {
       input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
 
       expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Army');
+    });
+
+    it('from an array of constant valued objects when a value is chosen', async () => {
+      const { getByTestId } = render(<MultiSelectCheckBoxFilter options={optionsConstants} column={column} />);
+
+      await selectEvent.select(getByTestId('MultiSelectCheckBoxFilter'), ['Army']);
+      expect(getByTestId('MultiSelectCheckBoxFilter')).toHaveTextContent('Army');
     });
 
     it('from an array of string valued objects when a value is chosen', () => {
