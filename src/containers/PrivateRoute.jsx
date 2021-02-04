@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { selectCurrentUser, selectGetCurrentUserIsLoading } from 'shared/Data/users';
+import { selectGetCurrentUserIsLoading } from 'shared/Data/users';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { UserRolesShape } from 'types/index';
 
@@ -54,8 +55,8 @@ PrivateRoute.defaultProps = {
 
 const mapStateToProps = (state) => ({
   loginIsLoading: selectGetCurrentUserIsLoading(state),
-  userIsLoggedIn: selectCurrentUser(state).isLoggedIn,
-  userRoles: selectCurrentUser(state).roles,
+  userIsLoggedIn: selectLoggedInUser(state).isLoggedIn,
+  userRoles: selectLoggedInUser(state).roles,
 });
 
 const ConnectedPrivateRoute = connect(mapStateToProps)(PrivateRoute);

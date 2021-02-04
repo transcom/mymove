@@ -2,7 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
-import { selectCurrentUser } from 'shared/Data/users';
+import { selectLoggedInUser } from 'store/entities/selectors';
+
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
@@ -47,7 +48,7 @@ const LoginButton = (props) => {
 };
 
 function mapStateToProps(state) {
-  const user = selectCurrentUser(state);
+  const user = selectLoggedInUser(state);
   return {
     isLoggedIn: user.isLoggedIn,
     showDevlocalButton: get(state, 'isDevelopment', isDevelopment),

@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button, GridContainer } from '@trussworks/react-uswds';
 
-import { selectCurrentUser } from 'shared/Data/users';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import { setActiveRole as setActiveRoleAction } from 'store/auth/actions';
 import { roleTypes } from 'constants/userRoles';
 import { UserRolesShape } from 'types/index';
@@ -53,7 +53,7 @@ SelectApplication.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectCurrentUser(state);
+  const user = selectLoggedInUser(state);
 
   return {
     activeRole: state.auth.activeRole,

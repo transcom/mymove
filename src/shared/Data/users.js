@@ -12,10 +12,6 @@ export function setUserIsLoggedIn(isLoggedIn) {
   };
 }
 
-export function selectCurrentUser(state) {
-  return state.user.userInfo || {};
-}
-
 export function selectGetCurrentUserIsLoading(state) {
   return state.user.isLoading;
 }

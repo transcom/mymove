@@ -6,7 +6,8 @@ import { getFormValues } from 'redux-form';
 
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
-import { selectCurrentUser } from 'shared/Data/users';
+import { selectLoggedInUser } from 'store/entities/selectors';
+
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -118,7 +119,7 @@ const mapDispatchToProps = {
 };
 
 function mapStateToProps(state) {
-  const user = selectCurrentUser(state);
+  const user = selectLoggedInUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {

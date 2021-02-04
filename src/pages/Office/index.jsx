@@ -12,7 +12,7 @@ import 'scenes/Office/office.scss';
 
 // API / Redux actions
 import { logOut as logOutAction, loadUser as loadUserAction } from 'store/auth/actions';
-import { selectCurrentUser } from 'shared/Data/users';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import {
   loadInternalSchema as loadInternalSchemaAction,
   loadPublicSchema as loadPublicSchemaAction,
@@ -249,7 +249,7 @@ OfficeApp.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectCurrentUser(state);
+  const user = selectLoggedInUser(state);
   return {
     swaggerError: state.swaggerInternal.hasErrored,
     userIsLoggedIn: user.isLoggedIn,

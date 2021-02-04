@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import IdleTimer from 'react-idle-timer';
 
 import Alert from 'shared/Alert';
-import { selectCurrentUser } from 'shared/Data/users';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import { LogoutUser } from 'utils/api';
 
 const maxIdleTimeInSeconds = 15 * 60;
@@ -88,7 +88,7 @@ LogoutOnInactivity.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectCurrentUser(state);
+  const user = selectLoggedInUser(state);
   return {
     isLoggedIn: user.isLoggedIn,
   };
