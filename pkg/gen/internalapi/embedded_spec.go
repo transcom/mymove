@@ -4211,6 +4211,11 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "last_name": {
+          "type": "string",
+          "readOnly": true,
+          "example": "Doe"
+        },
         "office_user": {
           "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
@@ -10824,6 +10829,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string",
+          "readOnly": true,
+          "example": "Doe"
         },
         "office_user": {
           "x-nullable": true,

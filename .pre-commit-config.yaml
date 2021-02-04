@@ -53,7 +53,7 @@ repos:
             pkg/cli/auth.go$|
           )$
       - id: trailing-whitespace
-        exclude: public/swagger-ui/*
+        exclude: ^public/swagger-ui/
 
   - repo: git://github.com/golangci/golangci-lint
     rev: v1.34.1
@@ -115,7 +115,7 @@ repos:
         pass_filenames: false
 
   - repo: git://github.com/trussworks/pre-commit-hooks
-    rev: v1.0.0
+    rev: v1.0.1
     hooks:
       - id: gen-docs
         args: ['docs/adr']

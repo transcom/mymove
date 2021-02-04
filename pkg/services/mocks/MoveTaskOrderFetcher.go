@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
+	services "github.com/transcom/mymove/pkg/services"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -14,13 +16,13 @@ type MoveTaskOrderFetcher struct {
 	mock.Mock
 }
 
-// FetchMoveTaskOrder provides a mock function with given fields: moveTaskOrderID
-func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.Move, error) {
-	ret := _m.Called(moveTaskOrderID)
+// FetchMoveTaskOrder provides a mock function with given fields: moveTaskOrderID, searchParams
+func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *services.FetchMoveTaskOrderParams) (*models.Move, error) {
+	ret := _m.Called(moveTaskOrderID, searchParams)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.Move); ok {
-		r0 = rf(moveTaskOrderID)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, *services.FetchMoveTaskOrderParams) *models.Move); ok {
+		r0 = rf(moveTaskOrderID, searchParams)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -28,8 +30,8 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(moveTaskOrderID)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, *services.FetchMoveTaskOrderParams) error); ok {
+		r1 = rf(moveTaskOrderID, searchParams)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -37,13 +39,13 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*
 	return r0, r1
 }
 
-// ListAllMoveTaskOrders provides a mock function with given fields: isAvailableToPrime, since
-func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.Moves, error) {
-	ret := _m.Called(isAvailableToPrime, since)
+// ListAllMoveTaskOrders provides a mock function with given fields: searchParams
+func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.ListMoveTaskOrderParams) (models.Moves, error) {
+	ret := _m.Called(searchParams)
 
 	var r0 models.Moves
-	if rf, ok := ret.Get(0).(func(bool, *int64) models.Moves); ok {
-		r0 = rf(isAvailableToPrime, since)
+	if rf, ok := ret.Get(0).(func(*services.ListMoveTaskOrderParams) models.Moves); ok {
+		r0 = rf(searchParams)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.Moves)
@@ -51,8 +53,8 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, s
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(bool, *int64) error); ok {
-		r1 = rf(isAvailableToPrime, since)
+	if rf, ok := ret.Get(1).(func(*services.ListMoveTaskOrderParams) error); ok {
+		r1 = rf(searchParams)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -60,13 +62,13 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, s
 	return r0, r1
 }
 
-// ListMoveTaskOrders provides a mock function with given fields: moveOrderID
-func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.Move, error) {
-	ret := _m.Called(moveOrderID)
+// ListMoveTaskOrders provides a mock function with given fields: moveOrderID, searchParams
+func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, searchParams *services.ListMoveTaskOrderParams) ([]models.Move, error) {
+	ret := _m.Called(moveOrderID, searchParams)
 
 	var r0 []models.Move
-	if rf, ok := ret.Get(0).(func(uuid.UUID) []models.Move); ok {
-		r0 = rf(moveOrderID)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, *services.ListMoveTaskOrderParams) []models.Move); ok {
+		r0 = rf(moveOrderID, searchParams)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.Move)
@@ -74,8 +76,8 @@ func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]mod
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(moveOrderID)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, *services.ListMoveTaskOrderParams) error); ok {
+		r1 = rf(moveOrderID, searchParams)
 	} else {
 		r1 = ret.Error(1)
 	}

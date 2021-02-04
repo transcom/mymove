@@ -72,7 +72,7 @@ function Header() {
               <div className="usa-logo" id="basic-logo">
                 <em className="usa-logo__text">
                   <NavLink to="/" title="my.move.mil" aria-label="my.move.mil">
-                    <img src={MilMoveLogo} alt="MilMove Logo" />
+                    <img src={MilMoveLogo} alt="MilMove" />
                   </NavLink>
                 </em>
               </div>

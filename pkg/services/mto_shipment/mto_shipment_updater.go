@@ -741,6 +741,7 @@ func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.U
 		Join("mto_shipments", "moves.id = mto_shipments.move_id").
 		Where("available_to_prime_at IS NOT NULL").
 		Where("mto_shipments.id = ?", mtoShipmentID).
+		Where("show = TRUE").
 		First(&mto)
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {

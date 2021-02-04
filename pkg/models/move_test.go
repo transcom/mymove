@@ -37,7 +37,6 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	// Verify valid items are in locator
@@ -110,6 +109,15 @@ func (suite *ModelSuite) TestFetchMove() {
 	session.ServiceMemberID = order2.ServiceMemberID
 	fetchedMove, err = FetchMove(suite.DB(), session, move.ID)
 	suite.Equal(ErrFetchForbidden, err, "Expected to get a Forbidden back.")
+
+	suite.T().Run("Hidden move is not returned", func(t *testing.T) {
+		// Create a hidden move
+		hiddenMove := testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+		// Attempt to fetch this move. We should receive an error.
+		_, err := FetchMove(suite.DB(), session, hiddenMove.ID)
+		suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
+	})
 }
 
 func (suite *ModelSuite) TestMoveCancellationWithReason() {

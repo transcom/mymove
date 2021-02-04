@@ -322,6 +322,22 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
+	paramKey = models.ServiceItemParamNameZipSITOriginHHGOriginalAddress
+	err = s.setLookup(serviceItemCode, paramKey, ZipSITOriginHHGOriginalAddressLookup{
+		ServiceItem: mtoServiceItem,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameZipSITOriginHHGActualAddress
+	err = s.setLookup(serviceItemCode, paramKey, ZipSITOriginHHGActualAddressLookup{
+		ServiceItem: mtoServiceItem,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	paramKey = models.ServiceItemParamNameDistanceZipSITDest
 	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITDestLookup{
 		DestinationAddress:      destinationAddress,
@@ -331,6 +347,13 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
+	paramKey = models.ServiceItemParamNameDistanceZipSITOrigin
+	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITOriginLookup{
+		ServiceItem: mtoServiceItem,
+	})
+	if err != nil {
+		return nil, err
+	}
 	return &s, nil
 }
 

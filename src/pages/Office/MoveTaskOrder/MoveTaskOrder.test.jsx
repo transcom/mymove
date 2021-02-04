@@ -52,10 +52,29 @@ jest.mock('hooks/queries', () => ({
           },
           status: 'APPROVED',
         },
-      },
-      mtoServiceItems: {
         4: {
           id: '4',
+          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+          scheduledPickupDate: '2020-03-16',
+          requestedPickupDate: '2020-03-15',
+          pickupAddress: {
+            street_address_1: '932 Baltic Avenue',
+            city: 'Chicago',
+            state: 'IL',
+            postal_code: '60601',
+          },
+          destinationAddress: {
+            street_address_1: '10 Park Place',
+            city: 'Atlantic City',
+            state: 'NJ',
+            postal_code: '08401',
+          },
+          status: 'APPROVED',
+        },
+      },
+      mtoServiceItems: {
+        5: {
+          id: '5',
           mtoShipmentID: '3',
           reServiceName: 'Test Service Item',
           status: 'SUBMITTED',
@@ -90,6 +109,8 @@ describe('MoveTaskOrder', () => {
 
   it('should render the ShipmentHeading', () => {
     expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
+    expect(wrapper.find('h3').at(0).text()).toEqual('Household goods');
+    expect(wrapper.find('h3').at(1).text()).toEqual('Non-temp storage');
   });
 
   it('should render the ImportantShipmentDates', () => {

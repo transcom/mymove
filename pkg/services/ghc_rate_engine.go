@@ -40,7 +40,7 @@ type CounselingServicesPricer interface {
 // DomesticLinehaulPricer prices domestic linehaul for a GHC move
 //go:generate mockery -name DomesticLinehaulPricer
 type DomesticLinehaulPricer interface {
-	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int, weightBilledActual int, serviceArea string) (unit.Cents, error)
+	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error)
 	ParamsPricer
 }
 
@@ -97,6 +97,27 @@ type DomesticOriginFirstDaySITPricer interface {
 //go:generate mockery -name DomesticDestinationFirstDaySITPricer
 type DomesticDestinationFirstDaySITPricer interface {
 	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, error)
+	ParamsPricer
+}
+
+// DomesticOriginAdditionalDaysSITPricer prices domestic origin additional days SIT for a GHC move
+//go:generate mockery -name DomesticOriginAdditionalDaysSITPricer
+type DomesticOriginAdditionalDaysSITPricer interface {
+	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, error)
+	ParamsPricer
+}
+
+// DomesticDestinationAdditionalDaysSITPricer prices domestic destination additional days SIT for a GHC move
+//go:generate mockery -name DomesticDestinationAdditionalDaysSITPricer
+type DomesticDestinationAdditionalDaysSITPricer interface {
+	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, error)
+	ParamsPricer
+}
+
+// DomesticDestinationSITDeliveryPricer prices domestic destination SIT delivery for a GHC move
+//go:generate mockery -name DomesticDestinationSITDeliveryPricer
+type DomesticDestinationSITDeliveryPricer interface {
+	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, error)
 	ParamsPricer
 }
 

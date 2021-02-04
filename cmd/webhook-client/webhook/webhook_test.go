@@ -104,7 +104,7 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 		suite.DB().Find(&notif, notification.ID)
 		suite.Equal(models.WebhookNotificationSent, notif.Status)
 		// Check that first attempted at date was set
-		suite.False(notif.FirstAttemptedAt.IsZero())
+		suite.NotNil(notif.FirstAttemptedAt)
 
 	})
 
@@ -187,7 +187,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		suite.DB().Find(&notif, notification.ID)
 		suite.Equal(models.WebhookNotificationSent, notif.Status)
 		// Check that first attempted at date was set
-		suite.False(notif.FirstAttemptedAt.IsZero())
+		suite.NotNil(notif.FirstAttemptedAt)
 
 	})
 
@@ -447,7 +447,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 			// if there's no subscription, we except status to be skipped
 			suite.Equal(models.WebhookNotificationSkipped, notif.Status)
 			// And we except firstAttemptedAt to be unset
-			suite.True(notif.FirstAttemptedAt.IsZero())
+			suite.Nil(notif.FirstAttemptedAt)
 		} else {
 			suite.Equal(models.WebhookNotificationSent, notif.Status)
 			suite.False(notif.FirstAttemptedAt.IsZero())
@@ -537,7 +537,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingSub() {
 
 	// Third notification should be PENDING
 	suite.Equal(models.WebhookNotificationPending, updatedNotifs[2].Status)
-	suite.True(updatedNotifs[2].FirstAttemptedAt.IsZero())
+	suite.Nil(updatedNotifs[2].FirstAttemptedAt)
 
 }
 
@@ -614,7 +614,9 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 		//             After second failure one minute later - notif still marked as FAILING, subscription severity = 3
 
 		// Update firstAttemptedTime to be a minute ago
-		notifications[0].FirstAttemptedAt = notifications[0].FirstAttemptedAt.Add(-60 * time.Second)
+		timestamp := *(notifications[0].FirstAttemptedAt)
+		timestamp = timestamp.Add(-60 * time.Second)
+		notifications[0].FirstAttemptedAt = &timestamp
 		suite.DB().ValidateAndUpdate(&notifications[0])
 
 		// RUN TEST
@@ -651,7 +653,9 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// Update firstAttemptedTime to be more than one threshold ago
 		durationOffset := time.Duration(engine.SeverityThresholds[0]) * time.Second
-		notifications[0].FirstAttemptedAt = notifications[0].FirstAttemptedAt.Add(-durationOffset)
+		timestamp := *(notifications[0].FirstAttemptedAt)
+		timestamp = timestamp.Add(-durationOffset)
+		notifications[0].FirstAttemptedAt = &timestamp
 		suite.DB().ValidateAndUpdate(&notifications[0])
 
 		// RUN TEST
@@ -688,7 +692,9 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailedSubWithSeverity() {
 
 		// Update firstAttemptedTime to be more than one threshold ago
 		durationOffset := time.Duration(engine.SeverityThresholds[1]) * time.Second
-		notifications[0].FirstAttemptedAt = notifications[0].FirstAttemptedAt.Add(-durationOffset)
+		timestamp := *(notifications[0].FirstAttemptedAt)
+		timestamp = timestamp.Add(-durationOffset)
+		notifications[0].FirstAttemptedAt = &timestamp
 		suite.DB().ValidateAndUpdate(&notifications[0])
 
 		// RUN TEST

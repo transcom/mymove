@@ -79,5 +79,12 @@ export const links = () => (
     <small>
       <a href="https://materializecss.com/sass.html">USWDS blue-warm-60v 14/16</a>
     </small>
+
+    <p>a link light</p>
+    <div style={{ background: '#000' }}>
+      <a href="#" className="usa-link-light">
+        This is link is on a dark background
+      </a>
+    </div>
   </div>
 );

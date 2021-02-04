@@ -10,6 +10,7 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
@@ -25,7 +26,7 @@ type GetPaymentRequestsQueueURL struct {
 	PerPage                *int64
 	Sort                   *string
 	Status                 []string
-	SubmittedAt            *string
+	SubmittedAt            *strfmt.Date
 
 	_basePath string
 	// avoid unkeyed usage
@@ -152,7 +153,7 @@ func (o *GetPaymentRequestsQueueURL) Build() (*url.URL, error) {
 
 	var submittedAtQ string
 	if o.SubmittedAt != nil {
-		submittedAtQ = *o.SubmittedAt
+		submittedAtQ = o.SubmittedAt.String()
 	}
 	if submittedAtQ != "" {
 		qs.Set("submittedAt", submittedAtQ)

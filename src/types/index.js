@@ -1,4 +1,4 @@
-export { UserRoleShape, UserRolesShape } from './user';
+export { UserRoleShape, UserRolesShape, OfficeUserInfoShape, TransportationOfficeShape, UserShape } from './user';
 export { AddressShape } from './address';
 export { DutyStationShape } from './dutyStation';
 export { DropdownArrayOf } from './form';
