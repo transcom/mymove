@@ -1228,6 +1228,69 @@ func init() {
           }
         }
       }
+    },
+    "/webhook_subscriptions": {
+      "get": {
+        "description": "Returns a list of webhook subscriptions",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Lists webhook subscriptions",
+        "operationId": "indexWebhookSubscriptions",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscriptions"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Not authenticated for this endpoint"
+          },
+          "404": {
+            "description": "Webhook subscriptions not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2326,6 +2389,61 @@ func init() {
             "type": "string"
           }
         }
+      }
+    },
+    "WebhookSubscription": {
+      "description": "Represents subscribers who expect certain notifications to be pushed to their servers. Used for the Prime and Prime-related events specifically.",
+      "type": "object",
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "severity": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "WebhookSubscriptionStatus": {
+      "type": "string",
+      "title": "Webhook subscription status",
+      "enum": [
+        "ACTIVE",
+        "FAILING",
+        "DISABLED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
+      }
+    },
+    "WebhookSubscriptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WebhookSubscription"
       }
     }
   }
@@ -3541,6 +3659,69 @@ func init() {
           }
         }
       }
+    },
+    "/webhook_subscriptions": {
+      "get": {
+        "description": "Returns a list of webhook subscriptions",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Lists webhook subscriptions",
+        "operationId": "indexWebhookSubscriptions",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscriptions"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Not authenticated for this endpoint"
+          },
+          "404": {
+            "description": "Webhook subscriptions not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -4644,6 +4825,62 @@ func init() {
     },
     "ValidationErrorAllOf1": {
       "type": "object"
+    },
+    "WebhookSubscription": {
+      "description": "Represents subscribers who expect certain notifications to be pushed to their servers. Used for the Prime and Prime-related events specifically.",
+      "type": "object",
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "severity": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "WebhookSubscriptionStatus": {
+      "type": "string",
+      "title": "Webhook subscription status",
+      "enum": [
+        "ACTIVE",
+        "FAILING",
+        "DISABLED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
+      }
+    },
+    "WebhookSubscriptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WebhookSubscription"
+      }
     }
   }
 }`))

@@ -47,6 +47,84 @@ describe('Office App', () => {
     });
   });
 
+  describe('header with TOO user name and GBLOC', () => {
+    const officeUserState = {
+      auth: {
+        activeRole: roleTypes.TOO,
+      },
+      user: {
+        isLoading: false,
+        userInfo: {
+          isLoggedIn: true,
+          roles: [
+            {
+              roleType: roleTypes.TOO,
+            },
+          ],
+          office_user: {
+            first_name: 'Amanda',
+            last_name: 'Gorman',
+            transportation_office: {
+              gbloc: 'ABCD',
+            },
+          },
+        },
+      },
+    };
+
+    describe('after signing in', () => {
+      it('renders the header with the office user name and GBLOC', () => {
+        const app = mount(
+          <MockProviders initialState={officeUserState} initialEntries={['/moves/queue']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+
+        expect(app.containsMatchingElement(<a href="/">ABCD moves</a>)).toEqual(true);
+        expect(app.containsMatchingElement(<span>Gorman, Amanda</span>)).toEqual(true);
+      });
+    });
+  });
+
+  describe('header with TIO user name and GBLOC', () => {
+    const officeUserState = {
+      auth: {
+        activeRole: roleTypes.TIO,
+      },
+      user: {
+        isLoading: false,
+        userInfo: {
+          isLoggedIn: true,
+          roles: [
+            {
+              roleType: roleTypes.TIO,
+            },
+          ],
+          office_user: {
+            first_name: 'Amanda',
+            last_name: 'Gorman',
+            transportation_office: {
+              gbloc: 'ABCD',
+            },
+          },
+        },
+      },
+    };
+
+    describe('after signing in', () => {
+      it('renders the header with the office user name and GBLOC', () => {
+        const app = mount(
+          <MockProviders initialState={officeUserState} initialEntries={['/moves/queue']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+
+        expect(app.containsMatchingElement(<a href="/">ABCD payment requests</a>)).toEqual(true);
+        expect(app.containsMatchingElement(<span>Gorman, Amanda</span>)).toEqual(true);
+      });
+    });
+  });
+
   describe('if the user is logged in with multiple roles', () => {
     const multiRoleState = {
       auth: {

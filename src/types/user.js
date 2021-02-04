@@ -23,9 +23,3 @@ export const OfficeUserInfoShape = PropTypes.shape({
   telephone: PropTypes.string,
   transportation_office: TransportationOfficeShape,
 });
-
-export const UserShape = PropTypes.shape({
-  first_name: PropTypes.string,
-  last_name: PropTypes.string,
-  office_user: OfficeUserInfoShape,
-});
