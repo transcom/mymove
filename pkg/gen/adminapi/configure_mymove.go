@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/admin.yaml --api-package adminoperations --model-package adminmessages --server-package adminapi --exclude-main
@@ -139,9 +140,9 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
 		})
 	}
-	if api.UsersRevokeUserSessionHandler == nil {
-		api.UsersRevokeUserSessionHandler = users.RevokeUserSessionHandlerFunc(func(params users.RevokeUserSessionParams) middleware.Responder {
-			return middleware.NotImplemented("operation users.RevokeUserSession has not yet been implemented")
+	if api.WebhookSubscriptionsIndexWebhookSubscriptionsHandler == nil {
+		api.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = webhook_subscriptions.IndexWebhookSubscriptionsHandlerFunc(func(params webhook_subscriptions.IndexWebhookSubscriptionsParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook_subscriptions.IndexWebhookSubscriptions has not yet been implemented")
 		})
 	}
 	if api.AdminUsersUpdateAdminUserHandler == nil {
@@ -157,6 +158,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.OfficeUsersUpdateOfficeUserHandler == nil {
 		api.OfficeUsersUpdateOfficeUserHandler = office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
+		})
+	}
+	if api.UsersUpdateUserHandler == nil {
+		api.UsersUpdateUserHandler = users.UpdateUserHandlerFunc(func(params users.UpdateUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.UpdateUser has not yet been implemented")
 		})
 	}
 

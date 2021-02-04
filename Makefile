@@ -221,9 +221,6 @@ bin/rds-ca-us-gov-west-1-2017-root.pem:
 bin/big-cat: cmd/big-cat
 	go build -ldflags "$(LDFLAGS)" -o bin/big-cat ./cmd/big-cat
 
-bin/compare-secure-migrations: cmd/compare-secure-migrations
-	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
-
 bin/model-vet: cmd/model-vet
 	go build -ldflags "$(LDFLAGS)" -o bin/model-vet ./cmd/model-vet
 
@@ -232,9 +229,6 @@ bin/generate-deploy-notes: cmd/generate-deploy-notes
 
 bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
-
-bin/find-guardduty-user: cmd/find-guardduty-user
-	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
 
 bin/generate-access-codes: cmd/generate_access_codes
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
@@ -268,12 +262,6 @@ bin/prime-api-client: cmd/prime-api-client
 
 bin/webhook-client: cmd/webhook-client
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
-
-bin/query-cloudwatch-logs: cmd/query-cloudwatch-logs
-	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
-
-bin/query-lb-logs: cmd/query-lb-logs
-	go build -ldflags "$(LDFLAGS)" -o bin/query-lb-logs ./cmd/query-lb-logs
 
 bin/read-alb-logs: cmd/read-alb-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
@@ -350,10 +338,8 @@ build_tools: bin/gin \
 	bin/rds-ca-2019-root.pem \
 	bin/rds-ca-us-gov-west-1-2017-root.pem \
 	bin/big-cat \
-	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
-	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/ghc-pricing-parser \
@@ -363,8 +349,6 @@ build_tools: bin/gin \
 	bin/milmove-tasks \
 	bin/model-vet \
 	bin/prime-api-client \
-	bin/query-cloudwatch-logs \
-	bin/query-lb-logs \
 	bin/read-alb-logs \
 	bin/report-ecs \
 	bin/send-to-gex \
@@ -716,7 +700,11 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
-	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --db-env="test"
+	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
+
+.PHONY: rerun_e2e_tests_with_new_data
+rerun_e2e_tests_with_new_data: db_e2e_up
+	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)

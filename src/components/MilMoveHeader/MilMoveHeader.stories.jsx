@@ -13,7 +13,8 @@ export default {
 };
 
 const props = {
-  customer: { last_name: 'Baker', first_name: 'Riley', dodID: '999999999' },
+  lastName: 'Baker',
+  firstName: 'Riley',
   handleLogout: action('clicked'),
 };
 

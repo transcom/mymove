@@ -126,9 +126,10 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
-	adminAPI.UsersRevokeUserSessionHandler = RevokeUserSessionHandler{
+	adminAPI.UsersUpdateUserHandler = UpdateUserHandler{
 		context,
 		user.NewUserSessionRevocation(queryBuilder),
+		user.NewUserUpdater(queryBuilder),
 		query.NewQueryFilter,
 	}
 
@@ -188,8 +189,13 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.MoveGetMoveHandler = GetMoveHandler{
 		context,
-		move.NewMoveFetcher(context.DB()),
+	}
+
+	adminAPI.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = IndexWebhookSubscriptionsHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
+		pagination.NewPagination,
 	}
 
 	return adminAPI.Serve(nil)

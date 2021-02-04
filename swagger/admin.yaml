@@ -568,8 +568,10 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
-  UserRevokeSessionPayload:
+  UserUpdatePayload:
     type: object
+    required:
+      - active
     properties:
       revokeAdminSession:
         type: boolean
@@ -580,6 +582,8 @@ definitions:
       revokeMilSession:
         type: boolean
         x-nullable: true
+      active:
+        type: boolean
   AdminUserUpdatePayload:
     type: object
     properties:
@@ -812,11 +816,8 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      serviceMemberId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
+      serviceMember:
+        $ref: '#/definitions/ServiceMember'
       locator:
         type: string
         example: '12432'
@@ -837,6 +838,77 @@ definitions:
       - locator
       - createdAt
       - updatedAt
+  ServiceMember:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      userId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: true
+      middleName:
+        type: string
+        title: Middle Name
+        x-nullable: true
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: true
+  WebhookSubscriptionStatus:
+    type: string
+    title: Webhook subscription status
+    enum:
+      - ACTIVE
+      - FAILING
+      - DISABLED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      CANCELED: Canceled
+  WebhookSubscriptions:
+    type: array
+    items:
+      $ref: '#/definitions/WebhookSubscription'
+  WebhookSubscription:
+    type: object
+    description: >-
+      Represents subscribers who expect certain notifications to be pushed to their servers.
+      Used for the Prime and Prime-related events specifically.
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      status:
+        $ref: '#/definitions/WebhookSubscriptionStatus'
+      callbackUrl:
+        type: string
+        description: The URL to which the notifications for this subscription will be pushed to.
+      severity:
+        type: integer
+        minimum: 0
+      eventKey:
+        type: string
+        description: >-
+          A string used to represent which events this subscriber expects to be notified about.
+          Corresponds to the possible event_key values in webhook_notifications.
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
 paths:
   /access_codes:
     get:
@@ -1473,8 +1545,6 @@ paths:
           description: Move not found
         500:
           description: Server error
-        501:
-          description: This endpoint has not yet been implemented
     patch:
       summary: Disables or re-enables a move
       description: >
@@ -1584,8 +1654,8 @@ paths:
         500:
           description: server error
     patch:
-      summary: revokes a user's session on any specified apps
-      operationId: revokeUserSession
+      summary: Update a user's session or active status
+      operationId: updateUser
       tags:
         - users
       parameters:
@@ -1599,7 +1669,7 @@ paths:
           description: User information
           required: true
           schema:
-            $ref: '#/definitions/UserRevokeSessionPayload'
+            $ref: '#/definitions/UserUpdatePayload'
       responses:
         200:
           description: Successfully updated User
@@ -1611,5 +1681,49 @@ paths:
           description: Must be authenticated to use this end point
         403:
           description: Not authorized to update this user
+        422:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        500:
+          description: Server error
+  /webhook_subscriptions:
+    get:
+      summary: Lists webhook subscriptions
+      description: Returns a list of webhook subscriptions
+      operationId: indexWebhookSubscriptions
+      tags:
+        - webhook_subscriptions
+      parameters:
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/WebhookSubscriptions'
+        400:
+          description: Invalid request
+        401:
+          description: Not authenticated for this endpoint
+        404:
+          description: Webhook subscriptions not found
         500:
           description: Server error

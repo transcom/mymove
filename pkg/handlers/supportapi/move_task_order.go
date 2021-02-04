@@ -25,7 +25,11 @@ type ListMTOsHandler struct {
 func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(false, params.Since)
+	searchParams := services.ListMoveTaskOrderParams{
+		IncludeHidden: true,
+		Since:         params.Since,
+	}
+	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))
@@ -103,9 +107,11 @@ type GetMoveTaskOrderHandlerFunc struct {
 // Handle updates the status of a MoveTaskOrder
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-
+	searchParams := services.FetchMoveTaskOrderParams{
+		IncludeHidden: true,
+	}
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
 	if err != nil {
 		logger.Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {

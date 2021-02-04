@@ -30,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -110,8 +111,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UsersIndexUsersHandler: users.IndexUsersHandlerFunc(func(params users.IndexUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IndexUsers has not yet been implemented")
 		}),
-		UsersRevokeUserSessionHandler: users.RevokeUserSessionHandlerFunc(func(params users.RevokeUserSessionParams) middleware.Responder {
-			return middleware.NotImplemented("operation users.RevokeUserSession has not yet been implemented")
+		WebhookSubscriptionsIndexWebhookSubscriptionsHandler: webhook_subscriptions.IndexWebhookSubscriptionsHandlerFunc(func(params webhook_subscriptions.IndexWebhookSubscriptionsParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook_subscriptions.IndexWebhookSubscriptions has not yet been implemented")
 		}),
 		AdminUsersUpdateAdminUserHandler: admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
@@ -121,6 +122,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OfficeUsersUpdateOfficeUserHandler: office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
+		}),
+		UsersUpdateUserHandler: users.UpdateUserHandlerFunc(func(params users.UpdateUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.UpdateUser has not yet been implemented")
 		}),
 	}
 }
@@ -193,14 +197,16 @@ type MymoveAPI struct {
 	TransportationServiceProviderPerformancesIndexTSPPsHandler transportation_service_provider_performances.IndexTSPPsHandler
 	// UsersIndexUsersHandler sets the operation handler for the index users operation
 	UsersIndexUsersHandler users.IndexUsersHandler
-	// UsersRevokeUserSessionHandler sets the operation handler for the revoke user session operation
-	UsersRevokeUserSessionHandler users.RevokeUserSessionHandler
+	// WebhookSubscriptionsIndexWebhookSubscriptionsHandler sets the operation handler for the index webhook subscriptions operation
+	WebhookSubscriptionsIndexWebhookSubscriptionsHandler webhook_subscriptions.IndexWebhookSubscriptionsHandler
 	// AdminUsersUpdateAdminUserHandler sets the operation handler for the update admin user operation
 	AdminUsersUpdateAdminUserHandler admin_users.UpdateAdminUserHandler
 	// MoveUpdateMoveHandler sets the operation handler for the update move operation
 	MoveUpdateMoveHandler move.UpdateMoveHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
 	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
+	// UsersUpdateUserHandler sets the operation handler for the update user operation
+	UsersUpdateUserHandler users.UpdateUserHandler
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -324,8 +330,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.UsersIndexUsersHandler == nil {
 		unregistered = append(unregistered, "users.IndexUsersHandler")
 	}
-	if o.UsersRevokeUserSessionHandler == nil {
-		unregistered = append(unregistered, "users.RevokeUserSessionHandler")
+	if o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler == nil {
+		unregistered = append(unregistered, "webhook_subscriptions.IndexWebhookSubscriptionsHandler")
 	}
 	if o.AdminUsersUpdateAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.UpdateAdminUserHandler")
@@ -335,6 +341,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OfficeUsersUpdateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.UpdateOfficeUserHandler")
+	}
+	if o.UsersUpdateUserHandler == nil {
+		unregistered = append(unregistered, "users.UpdateUserHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -500,10 +509,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users"] = users.NewIndexUsers(o.context, o.UsersIndexUsersHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/users/{userId}"] = users.NewRevokeUserSession(o.context, o.UsersRevokeUserSessionHandler)
+	o.handlers["GET"]["/webhook_subscriptions"] = webhook_subscriptions.NewIndexWebhookSubscriptions(o.context, o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -516,6 +525,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/office_users/{officeUserId}"] = office_users.NewUpdateOfficeUser(o.context, o.OfficeUsersUpdateOfficeUserHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/users/{userId}"] = users.NewUpdateUser(o.context, o.UsersUpdateUserHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

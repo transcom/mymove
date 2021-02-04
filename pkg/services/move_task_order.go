@@ -33,9 +33,9 @@ type MoveTaskOrderCreator interface {
 // MoveTaskOrderFetcher is the service object interface for FetchMoveTaskOrder
 //go:generate mockery -name MoveTaskOrderFetcher
 type MoveTaskOrderFetcher interface {
-	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.Move, error)
-	ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.Move, error)
-	ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.Moves, error)
+	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *FetchMoveTaskOrderParams) (*models.Move, error)
+	ListMoveTaskOrders(moveOrderID uuid.UUID, searchParams *ListMoveTaskOrderParams) ([]models.Move, error)
+	ListAllMoveTaskOrders(searchParams *ListMoveTaskOrderParams) (models.Moves, error)
 }
 
 //MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
@@ -50,4 +50,16 @@ type MoveTaskOrderUpdater interface {
 //go:generate mockery -name MoveTaskOrderChecker
 type MoveTaskOrderChecker interface {
 	MTOAvailableToPrime(moveTaskOrderID uuid.UUID) (bool, error)
+}
+
+// ListMoveTaskOrderParams is a public struct that's used to pass filter arguments to the ListMoveTaskOrders and ListAllMoveTaskOrders queries
+type ListMoveTaskOrderParams struct {
+	IsAvailableToPrime bool   // indicates if all MTOs returned must be Prime-available (only used in ListAllMoveTaskOrders)
+	IncludeHidden      bool   // indicates if hidden/disabled MTOs should be included in the output
+	Since              *int64 // if filled, only MTOs that have been updated after this timestamp will be returned (only used in ListAllMoveTaskOrders)
+}
+
+// FetchMoveTaskOrderParams is a public struct that's used to pass filter arguments to the FetchMoveTaskOrder query
+type FetchMoveTaskOrderParams struct {
+	IncludeHidden bool // indicates if hidden/disabled MTO should be included in the output
 }

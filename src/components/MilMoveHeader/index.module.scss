@@ -10,6 +10,7 @@
   justify-content: space-between;
   align-items: center;
   height: 50px;
+  flex-shrink: 0;
 
   .links {
     color: $base-lightest;
@@ -36,12 +37,22 @@
   .signOut {
     @include u-text('bold');
     color: $link-light;
+    text-decoration: none;
+
+    &:visited {
+      color: $link-light;
+    }
 
     &:hover,
     &:focus {
-      color: #b7caf0;
+      color: $link-light-hover;
       @include u-text('no-underline');
     }
+  }
+
+  .signOut {
+    padding: 0;
+    line-height: inherit;
   }
 
   .verticalLine {
@@ -51,13 +62,16 @@
     align-self: stretch;
   }
 
-  .signOut {
-    padding: 0;
-    line-height: inherit;
-  }
-
   :global(.usa-logo) {
     margin: 0;
     padding-top: 5px;
+  }
+
+  :global(.usa-button.usa-button--unstyled) {
+    color: $link-light;
+    &:hover,
+    &:focus {
+      color: $link-light-hover;
+    }
   }
 }
