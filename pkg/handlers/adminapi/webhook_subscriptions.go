@@ -69,7 +69,7 @@ func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.In
 	return webhooksubscriptionop.NewIndexWebhookSubscriptionsOK().WithContentRange(fmt.Sprintf("webhookSubscriptions %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedWebhookSubscriptionsCount, totalWebhookSubscriptionsCount)).WithPayload(payload)
 }
 
-// GetWebhookSubscriptionHandler is
+// GetWebhookSubscriptionHandler returns one webhookSubscription via GET /webhook_subscriptions/:ID
 type GetWebhookSubscriptionHandler struct {
 	handlers.HandlerContext
 	services.WebhookSubscriptionFetcher

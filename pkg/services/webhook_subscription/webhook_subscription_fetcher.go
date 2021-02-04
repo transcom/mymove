@@ -1,4 +1,4 @@
-package user
+package webhooksubscription
 
 import (
 	"github.com/transcom/mymove/pkg/models"
