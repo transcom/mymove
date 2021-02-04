@@ -21,7 +21,7 @@ function mergeEntities(entities, newEntities) {
 // deletes all items from entities with matching key, id in deleteEntities
 function deleteEntities(entities, deleteEntities) {
   return mapValues(entities, function (value, key) {
-    // eslint-disable-next-line
+    // eslint-disable-next-line security/detect-object-injection
     const idsToDelete = Object.keys(deleteEntities[key] || {});
     return omit(value, idsToDelete);
   });
