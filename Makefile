@@ -1030,12 +1030,6 @@ docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-c
 	brew install -f bash git docker docker-compose direnv || true
 	brew cask install -f aws-vault || true
 
-.PHONY: docker_compose_up
-docker_compose_up: ## Bring up docker-compose containers
-	aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-	scripts/update-docker-compose
-	docker-compose up
-
 .PHONY: docker_compose_down
 docker_compose_down: ## Destroy docker-compose containers
 	docker-compose down
