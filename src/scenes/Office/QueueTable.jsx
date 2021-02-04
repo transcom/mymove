@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
-import ReactTable from 'react-table-6';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
@@ -9,6 +8,7 @@ import { formatTimeAgo } from 'shared/formatters';
 import { setUserIsLoggedIn } from 'shared/Data/users';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { defaultColumns } from './queueTableColumns';
+import TableQueue from 'components/Table/TableQueue';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import 'react-table-6/react-table.css';
@@ -20,6 +20,8 @@ class QueueTable extends Component {
       data: [],
       origDutyStationData: [],
       destDutyStationData: [],
+      isError: false,
+      isSuccess: true,
       pages: null,
       loading: true,
       refreshing: false, // only true when the user clicks the refresh button
@@ -32,6 +34,8 @@ class QueueTable extends Component {
       }, 5000),
     };
     this.fetchData = this.fetchData.bind(this);
+
+    this.useQuery = this.useQuery.bind(this);
   }
 
   componentDidMount() {
@@ -59,6 +63,15 @@ class QueueTable extends Component {
     firstName: '',
     lastName: '',
   };
+
+  useQuery({ sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
+    return {
+      queueResult: { data: this.state.data, totalCount: this.state.data.length, page: 1, perPage: 100 },
+      isLoading: this.state.loading,
+      isError: this.state.isError,
+      isSuccess: this.state.isSuccess,
+    };
+  }
 
   async fetchData() {
     const loadingQueueType = this.props.queueType;
@@ -97,6 +110,8 @@ class QueueTable extends Component {
           loading: false,
           refreshing: false,
           lastLoadedAt: new Date(),
+          isError: false,
+          isSuccess: true,
         });
       }
     } catch (e) {
@@ -108,6 +123,8 @@ class QueueTable extends Component {
         loading: false,
         refreshing: false,
         lastLoadedAt: new Date(),
+        isError: true,
+        isSuccess: false,
       });
       // redirect to home page if unauthorized
       if (e.status === 401) {
@@ -152,12 +169,14 @@ class QueueTable extends Component {
 
     const showColumns = defaultColumns(this);
 
+    /*
     const defaultSort = (queueType) => {
       if (['all'].includes(queueType)) {
         return [{ id: 'locator', asc: true }];
       }
       return [{ id: 'move_date', asc: true }];
     };
+    */
 
     this.state.data.forEach((row) => {
       row.shipments = SHIPMENT_OPTIONS.PPM;
@@ -177,7 +196,6 @@ class QueueTable extends Component {
             <br />
           </Alert>
         ) : null}
-        <h1 className="queue-heading">{titles[this.props.queueType]}</h1>
         <div className="queue-table">
           <span className="staleness-indicator" data-testid="staleness-indicator">
             Last updated {formatTimeAgo(this.state.lastLoadedAt)}
@@ -193,7 +211,26 @@ class QueueTable extends Component {
               spin={!this.state.refreshing && this.state.loading}
             />
           </span>
-          <ReactTable
+          <TableQueue
+            showFilters
+            showPagination={false}
+            manualSortBy
+            defaultCanSort
+            defaultSortedColumns={[{ id: 'status', desc: false }]}
+            disableMultiSort
+            disableSortBy={false}
+            columns={showColumns}
+            title={titles[this.props.queueType]}
+            handleClick={this.openMove}
+            useQueries={this.useQuery}
+          />
+        </div>
+      </div>
+    );
+  }
+}
+/*
+<ReactTable
             columns={showColumns}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
@@ -223,11 +260,7 @@ class QueueTable extends Component {
               };
             }}
           />
-        </div>
-      </div>
-    );
-  }
-}
+*/
 
 const mapStateToProps = (state) => {
   return {
