@@ -1,4 +1,5 @@
 import React from 'react';
+import { render } from '@testing-library/react';
 import Select from 'react-select';
 import { mount } from 'enzyme';
 
@@ -22,6 +23,14 @@ describe('MultiSelectCheckBoxFilter', () => {
     const wrapper = mount(<MultiSelectCheckBoxFilter options={[{ label: 'test', value: 'test' }]} column={{}} />);
     expect(wrapper.find('[data-testid="MultiSelectCheckBoxFilter"]').length).toBe(1);
     expect(wrapper.find('.MultiSelectCheckBoxFilter__placeholder').at(1).text('Select...')).toBeTruthy();
+  });
+
+  it('renders without crashing', () => {
+    const { getByTestId } = render(
+      <MultiSelectCheckBoxFilter options={[{ label: 'test', value: 'test' }]} column={{}} />,
+    );
+    expect(getByTestId('MultiSelectCheckBoxFilter')).toBeTruthy();
+    expect(getByTestId('MultiSelectCheckBoxFilter')).toHaveTextContent('Select...');
   });
 
   describe('It renders the expected placeholder text', () => {
