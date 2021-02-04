@@ -44,7 +44,7 @@ func (h TacValidationHandler) Handle(params tacop.TacValidationParams) middlewar
 	}
 
 	tacValidationPayload := &ghcmessages.TacValid{
-		IsValid: isValid,
+		IsValid: &isValid,
 	}
 
 	return tacop.NewTacValidationOK().WithPayload(tacValidationPayload)

@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 		suite.Assertions.IsType(&tacop.TacValidationOK{}, response)
 
 		okResponse := response.(*tacop.TacValidationOK)
-		suite.True(okResponse.Payload.IsValid)
+		suite.True(*okResponse.Payload.IsValid)
 	})
 
 	suite.T().Run("Successful Invalid TAC validation", func(t *testing.T) {
@@ -46,10 +46,10 @@ func (suite *HandlerSuite) TestTacValidation() {
 		suite.Assertions.IsType(&tacop.TacValidationOK{}, response)
 
 		okResponse := response.(*tacop.TacValidationOK)
-		suite.False(okResponse.Payload.IsValid)
+		suite.False(*okResponse.Payload.IsValid)
 	})
 
-	suite.T().Run("Unknown user TAC validation", func(t *testing.T) {
+	suite.T().Run("Unknown user for TAC validation is unauthorized", func(t *testing.T) {
 		tac := "4EVR"
 		request := httptest.NewRequest("GET", fmt.Sprintf("/tac/valid?tac=%s", tac), nil)
 		params := tacop.TacValidationParams{
@@ -63,7 +63,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 		suite.Assertions.IsType(&tacop.TacValidationUnauthorized{}, response)
 	})
 
-	suite.T().Run("Unauthorized TAC validation", func(t *testing.T) {
+	suite.T().Run("Unauthorized user for TAC validation is forbidden", func(t *testing.T) {
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 		unauthorizedUser := serviceMember.User
 		tac := "4EVR"

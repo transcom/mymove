@@ -1434,8 +1434,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Fetches a payment request by id",
         "operationId": "getPaymentRequest",
@@ -1499,8 +1498,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Updates status of a payment request by id",
         "operationId": "updatePaymentRequestStatus",
@@ -3648,10 +3646,13 @@ func init() {
     },
     "TacValid": {
       "type": "object",
+      "required": [
+        "isValid"
+      ],
       "properties": {
         "isValid": {
           "type": "boolean",
-          "x-nullable": false
+          "example": true
         }
       }
     },
@@ -3892,6 +3893,30 @@ func init() {
     },
     {
       "name": "move"
+    },
+    {
+      "name": "moveOrder"
+    },
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "customer"
+    },
+    {
+      "name": "mtoServiceItem"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "mtoAgent"
+    },
+    {
+      "name": "paymentServiceItem"
+    },
+    {
+      "name": "tac"
     }
   ]
 }`))
@@ -5609,8 +5634,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Fetches a payment request by id",
         "operationId": "getPaymentRequest",
@@ -5689,8 +5713,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Updates status of a payment request by id",
         "operationId": "updatePaymentRequestStatus",
@@ -7886,10 +7909,13 @@ func init() {
     },
     "TacValid": {
       "type": "object",
+      "required": [
+        "isValid"
+      ],
       "properties": {
         "isValid": {
           "type": "boolean",
-          "x-nullable": false
+          "example": true
         }
       }
     },
@@ -8133,6 +8159,30 @@ func init() {
     },
     {
       "name": "move"
+    },
+    {
+      "name": "moveOrder"
+    },
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "customer"
+    },
+    {
+      "name": "mtoServiceItem"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "mtoAgent"
+    },
+    {
+      "name": "paymentServiceItem"
+    },
+    {
+      "name": "tac"
     }
   ]
 }`))

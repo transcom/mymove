@@ -6,8 +6,10 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // TacValid tac valid
@@ -16,11 +18,30 @@ import (
 type TacValid struct {
 
 	// is valid
-	IsValid bool `json:"isValid,omitempty"`
+	// Required: true
+	IsValid *bool `json:"isValid"`
 }
 
 // Validate validates this tac valid
 func (m *TacValid) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateIsValid(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *TacValid) validateIsValid(formats strfmt.Registry) error {
+
+	if err := validate.Required("isValid", "body", m.IsValid); err != nil {
+		return err
+	}
+
 	return nil
 }
 

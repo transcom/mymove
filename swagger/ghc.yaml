@@ -14,6 +14,14 @@ schemes:
 tags:
   - name: queues
   - name: move
+  - name: moveOrder
+  - name: moveTaskOrder
+  - name: customer
+  - name: mtoServiceItem
+  - name: mtoShipment
+  - name: mtoAgent
+  - name: paymentServiceItem
+  - name: tac
 paths:
   '/customer/{customerID}':
     parameters:
@@ -916,7 +924,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-        - gov
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
@@ -1015,7 +1022,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-        - gov
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
@@ -2596,8 +2602,10 @@ definitions:
   TacValid:
     properties:
       isValid:
+        example: true
         type: boolean
-        x-nullable: false
+    required:
+      - isValid
     type: object
   UpdatePaymentRequestPayload:
     properties:
