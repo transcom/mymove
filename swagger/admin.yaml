@@ -890,6 +890,11 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+      subscriberId:
+        type: string
+        format: uuid
+        example: d494f114-05a2-4b39-840c-3d33243b7e29
+        description: Unique identifier for the entity that is subscribed
       status:
         $ref: '#/definitions/WebhookSubscriptionStatus'
       callbackUrl:

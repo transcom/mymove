@@ -18,13 +18,14 @@ func payloadForWebhookSubscriptionModel(subscription models.WebhookSubscription)
 	severity := int64(subscription.Severity)
 
 	return &adminmessages.WebhookSubscription{
-		ID:          *handlers.FmtUUID(subscription.ID),
-		CallbackURL: subscription.CallbackURL,
-		Severity:    &severity,
-		EventKey:    subscription.EventKey,
-		Status:      adminmessages.WebhookSubscriptionStatus(subscription.Status),
-		CreatedAt:   *handlers.FmtDateTime(subscription.CreatedAt),
-		UpdatedAt:   *handlers.FmtDateTime(subscription.UpdatedAt),
+		ID:           *handlers.FmtUUID(subscription.ID),
+		SubscriberID: *handlers.FmtUUID(subscription.SubscriberID),
+		CallbackURL:  subscription.CallbackURL,
+		Severity:     &severity,
+		EventKey:     subscription.EventKey,
+		Status:       adminmessages.WebhookSubscriptionStatus(subscription.Status),
+		CreatedAt:    *handlers.FmtDateTime(subscription.CreatedAt),
+		UpdatedAt:    *handlers.FmtDateTime(subscription.UpdatedAt),
 	}
 }
 
@@ -87,6 +88,6 @@ func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWe
 		return handlers.ResponseForError(logger, err)
 	}
 
-	payload := payloadForWebhookSubscriptionModel(webhookSubscription)
+	payload := payloadForWebhookSubscriptionModel(*webhookSubscription)
 	return webhooksubscriptionop.NewGetWebhookSubscriptionOK().WithPayload(payload)
 }

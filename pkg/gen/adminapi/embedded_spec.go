@@ -2458,6 +2458,12 @@ func init() {
         "status": {
           "$ref": "#/definitions/WebhookSubscriptionStatus"
         },
+        "subscriberId": {
+          "description": "Unique identifier for the entity that is subscribed",
+          "type": "string",
+          "format": "uuid",
+          "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -4932,6 +4938,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "description": "Unique identifier for the entity that is subscribed",
+          "type": "string",
+          "format": "uuid",
+          "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
         },
         "updatedAt": {
           "type": "string",
