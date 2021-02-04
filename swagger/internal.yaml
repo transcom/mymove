@@ -31,10 +31,6 @@ definitions:
         type: string
         example: John
         readOnly: true
-      last_name:
-        type: string
-        example: Doe
-        readOnly: true
       service_member:
         $ref: '#/definitions/ServiceMemberPayload'
         x-nullable: true

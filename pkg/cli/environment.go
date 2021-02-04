@@ -23,6 +23,10 @@ const (
 	EnvironmentDevelopment string = "development"
 	// EnvironmentExp is the GovCloud exp Environment name
 	EnvironmentExp string = "exp"
+	// EnvironmentStg is the GovCloud stg Environment name
+	EnvironmentStg string = "stg"
+	// EnvironmentPrd is the GovCloud prd Environment name
+	EnvironmentPrd string = "prd"
 )
 
 var environments = []string{
@@ -32,6 +36,8 @@ var environments = []string{
 	EnvironmentTest,
 	EnvironmentDevelopment,
 	EnvironmentExp,
+	EnvironmentStg,
+	EnvironmentPrd,
 }
 
 type errInvalidEnvironment struct {
