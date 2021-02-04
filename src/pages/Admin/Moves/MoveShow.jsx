@@ -1,5 +1,5 @@
 import React from 'react';
-import { Show, SimpleShowLayout, TextField, DateField } from 'react-admin';
+import { Show, SimpleShowLayout, TextField, DateField, BooleanField } from 'react-admin';
 import PropTypes from 'prop-types';
 
 const MoveShowTitle = ({ record }) => {
@@ -26,7 +26,7 @@ const MoveShow = (props) => {
         <TextField source="id" />
         <TextField source="locator" />
         <TextField source="status" />
-        <TextField source="show" />
+        <BooleanField source="show" />
         <TextField source="ordersId" reference="moves" label="Order Id" />
         <TextField source="serviceMember.userId" label="User Id" />
         <TextField source="serviceMember.id" label="Service member Id" />
