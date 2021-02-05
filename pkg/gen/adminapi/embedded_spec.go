@@ -2459,7 +2459,7 @@ func init() {
           "$ref": "#/definitions/WebhookSubscriptionStatus"
         },
         "subscriberId": {
-          "description": "Unique identifier for the entity that is subscribed",
+          "description": "Unique identifier for the subscriber",
           "type": "string",
           "format": "uuid",
           "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
@@ -4940,7 +4940,7 @@ func init() {
           "$ref": "#/definitions/WebhookSubscriptionStatus"
         },
         "subscriberId": {
-          "description": "Unique identifier for the entity that is subscribed",
+          "description": "Unique identifier for the subscriber",
           "type": "string",
           "format": "uuid",
           "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
