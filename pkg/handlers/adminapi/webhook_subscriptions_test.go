@@ -88,7 +88,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestGetWebhookSubscriptionsHandler() {
+func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 	// Setup: Create a default webhook subscription and request
 	webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID), nil)
