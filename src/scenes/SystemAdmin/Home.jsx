@@ -57,7 +57,13 @@ const history = createBrowserHistory({ basename: '/system' });
 
 const Home = () => (
   <div className={styles['admin-system-wrapper']}>
-    <Admin dataProvider={dataProvider} history={history} appLayout={AdminLayout} customRoutes={customRoutes}>
+    <Admin
+      dataProvider={dataProvider}
+      history={history}
+      appLayout={AdminLayout}
+      customRoutes={customRoutes}
+      disableTelemetry
+    >
       <Resource
         name="office_users"
         options={{ label: 'Office users' }}
