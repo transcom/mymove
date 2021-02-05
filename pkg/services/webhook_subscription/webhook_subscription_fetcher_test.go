@@ -27,7 +27,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionFetcher() {
 		suite.Equal(webhookSubscriptionID, webhookSubscription.ID)
 	})
 
-	suite.T().Run("Fetch error returns nil", func(t *testing.T) {
+	suite.T().Run("Failure to fetch - return empty webhookSubscription and error", func(t *testing.T) {
 		fakeID, err := uuid.NewV4()
 		suite.NoError(err)
 
