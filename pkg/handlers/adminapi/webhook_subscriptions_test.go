@@ -126,7 +126,9 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionsHandler() {
 		// Expected Outcome: 	The handler returns a 404.
 
 		webhookSubscriptionFetcher := &mocks.WebhookSubscriptionFetcher{}
-		fakeID, _ := uuid.NewV4()
+		fakeID, err := uuid.NewV4()
+		suite.NoError(err)
+
 		expectedError := models.ErrFetchNotFound
 		params := webhooksubscriptionop.GetWebhookSubscriptionParams{
 			HTTPRequest:           req,
