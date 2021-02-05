@@ -132,7 +132,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 
 		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
-		suite.Contains(err.Error(), "invalid SIT destination postal code")
+		suite.Contains(err.Error(), "invalid SIT final destination postal code")
 
 		finalDestDiffZip3Address.PostalCode = oldPostalCode
 		suite.MustSave(&finalDestDiffZip3Address)

@@ -22,6 +22,7 @@ import TSPPShow from './TSPPs/TSPPShow';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import MoveList from 'pages/Admin/Moves/MoveList';
 import MoveShow from 'pages/Admin/Moves/MoveShow';
+import WebhookSubscriptionList from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionsList';
 
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
@@ -87,6 +88,11 @@ const Home = () => (
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
+      <Resource
+        name="webhook_subscriptions"
+        options={{ label: 'Webhook Subscriptions' }}
+        list={WebhookSubscriptionList}
+      />
     </Admin>
   </div>
 );

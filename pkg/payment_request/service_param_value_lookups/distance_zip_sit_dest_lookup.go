@@ -27,7 +27,7 @@ func (r DistanceZipSITDestLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 
 	finalDestZip := r.FinalDestinationAddress.PostalCode
 	if len(finalDestZip) < 5 {
-		return "", fmt.Errorf("invalid SIT destination postal code of %s", destZip)
+		return "", fmt.Errorf("invalid SIT final destination postal code of %s", destZip)
 	}
 	finalDestZip3 := finalDestZip[:3]
 

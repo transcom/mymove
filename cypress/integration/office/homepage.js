@@ -65,6 +65,8 @@ describe('Office authorization', () => {
       cy.signInAsMultiRoleOfficeUser();
       cy.wait(['@getGHCClient', '@getMoveOrders']);
       cy.contains('All moves'); // TOO home
+      cy.contains('Spaceman, Leo');
+      cy.contains('LKNQ moves');
 
       cy.contains('Change user role').click();
       cy.url().should('contain', '/select-application');
