@@ -11,8 +11,8 @@ const WebhookSubscriptionList = (props) => (
     <Datagrid rowClick="show">
       <TextField source="id" />
       <TextField source="eventKey" />
-      <NumberField source="severity" />
       <TextField source="callbackUrl" />
+      <NumberField source="severity" />
       <TextField source="status" />
       <DateField source="updatedAt" reference="moves" showTime />
     </Datagrid>
