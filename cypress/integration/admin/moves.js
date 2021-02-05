@@ -46,6 +46,7 @@ describe('Moves Details Show Page', function () {
       'Order Id',
       'Created at',
       'Updated at',
+      'User Id',
       'Service member Id',
       'Service member first name',
       'Service member middle name',
@@ -54,5 +55,48 @@ describe('Moves Details Show Page', function () {
     labels.forEach((label) => {
       cy.get('.MuiCardContent-root label').contains(label);
     });
+  });
+});
+
+describe('Moves Details Edit Page', function () {
+  before(() => {
+    cy.prepareAdminApp();
+  });
+
+  it('pulls up edit page for a move', function () {
+    cy.signInAsNewAdminUser();
+    cy.get('a[href*="system/moves"]').click();
+    cy.url().should('eq', adminBaseURL + '/system/moves');
+    cy.get('span[reference="moves"]').first().click();
+
+    // grab the move's ID to check that the correct value is in the url
+    cy.get('.ra-field-id span.MuiTypography-root')
+      .invoke('text')
+      .then((moveID) => {
+        // continue to the edit page
+        cy.get('a').contains('Edit').click();
+        cy.url().should('eq', adminBaseURL + '/system/moves/' + moveID);
+      });
+
+    const disabledFields = [
+      'id',
+      'locator',
+      'status',
+      'ordersId',
+      'createdAt',
+      'updatedAt',
+      'serviceMember.userId',
+      'serviceMember.id',
+      'serviceMember.firstName',
+      'serviceMember.middleName',
+      'serviceMember.lastName',
+    ];
+    disabledFields.forEach((label) => {
+      cy.get('[id="' + label + '"]').should('be.disabled');
+    });
+
+    cy.get('#show').click();
+    cy.get('li').not('[aria-selected="true"]').click();
+    cy.get('button').contains('Save').click();
   });
 });
