@@ -84,7 +84,7 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 		sitType = "destination"
 		sitModifier = "delivery"
 		zipOriginalName = "destination"
-		zipActualName = "SIT destination"
+		zipActualName = "SIT final destination"
 	} else if pickupDeliverySITCode == models.ReServiceCodeDOPSIT {
 		sitType = "origin"
 		sitModifier = "pickup"
