@@ -23,6 +23,7 @@ func payloadForUserModel(o models.User) *adminmessages.User {
 		LoginGovEmail:          handlers.FmtString(o.LoginGovEmail),
 		Active:                 handlers.FmtBool(o.Active),
 		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:              handlers.FmtDateTime(o.UpdatedAt),
 		CurrentAdminSessionID:  handlers.FmtString(o.CurrentAdminSessionID),
 		CurrentMilSessionID:    handlers.FmtString(o.CurrentMilSessionID),
 		CurrentOfficeSessionID: handlers.FmtString(o.CurrentOfficeSessionID),
