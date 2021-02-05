@@ -23,7 +23,7 @@ func NewDomesticOriginAdditionalDaysSITPricer(db *pop.Connection) services.Domes
 
 // Price determines the price for domestic origin additional days SIT
 func (p domesticOriginAdditionalDaysSITPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, error) {
-	return priceDomesticAdditionalDaysSit(p.db, models.ReServiceCodeDOASIT, contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT)
+	return priceDomesticAdditionalDaysSIT(p.db, models.ReServiceCodeDOASIT, contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT)
 }
 
 // PriceUsingParams determines the price for domestic origin first day SIT given PaymentServiceItemParams
