@@ -225,7 +225,7 @@ cat > tmp/pad_create_ddfsit_service_item.json <<- EOM
 }
 EOM
 
-#bin/prime-api-client "${primeapiopts[@]}" create-mto-service-item --filename ./tmp/pad_create_ddfsit_service_item.json > tmp/pad_create_ddfsit_response.json
+bin/prime-api-client "${primeapiopts[@]}" create-mto-service-item --filename ./tmp/pad_create_ddfsit_service_item.json > tmp/pad_create_ddfsit_response.json
 
 printf "The prime fetches mto updates to capture the newly created DDFSIT service item:\n\n"
 
