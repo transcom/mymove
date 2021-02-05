@@ -30,6 +30,13 @@ describe('Users Details Show Page', function () {
     cy.url().should('eq', adminBaseURL + '/system/users');
     cy.get('[data-testid="user-id"]').first().click();
 
+    // check that the user's login.gov email is shown in the page title
+    cy.get('.ra-field-loginGovEmail span.MuiTypography-root')
+      .invoke('text')
+      .then((loginGovEmail) => {
+        cy.get('#react-admin-title').contains(loginGovEmail);
+      });
+
     const pageContent = ['User ID', 'User email', 'Active', 'Created at', 'Updated at'];
     pageContent.forEach((label) => {
       cy.get('label').contains(label);

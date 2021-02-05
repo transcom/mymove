@@ -38,6 +38,13 @@ describe('Moves Details Show Page', function () {
     cy.url().should('eq', adminBaseURL + '/system/moves');
     cy.get('span[reference="moves"]').first().click();
 
+    // check that the move's ID is shown in the page title
+    cy.get('.ra-field-id span.MuiTypography-root')
+      .invoke('text')
+      .then((moveID) => {
+        cy.get('#react-admin-title').contains('Move ID: ' + moveID);
+      });
+
     const labels = [
       'Id',
       'Locator',
