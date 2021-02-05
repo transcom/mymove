@@ -72,6 +72,7 @@ describe('Moves Details Edit Page', function () {
     // grab the move's ID to check that the correct value is in the url
     cy.get('.ra-field-id span.MuiTypography-root')
       .invoke('text')
+      .as('moveID')
       .then((moveID) => {
         // continue to the edit page
         cy.get('a').contains('Edit').click();
@@ -96,7 +97,24 @@ describe('Moves Details Edit Page', function () {
     });
 
     cy.get('#show').click();
-    cy.get('ul[aria-labelledby="show-label"] li').not('[aria-selected="true"]').click();
-    cy.get('button').contains('Save').click();
+    cy.get('ul[aria-labelledby="show-label"] li')
+      .not('[aria-selected="true"]')
+      .click()
+      .then(($selectedOpt) => {
+        // grab the value we selected for "Show"
+        const newShowValue = $selectedOpt.attr('data-value');
+
+        cy.get('button').contains('Save').click();
+
+        // back in the move list screen, check that the row for this move was updated
+        cy.url().should('eq', adminBaseURL + '/system/moves');
+        cy.get('tr')
+          .contains(this.moveID)
+          .parents('tr')
+          .find('td.column-show span.MuiTypography-root')
+          .should(($showCol) => {
+            expect($showCol.text()).to.eq(newShowValue);
+          });
+      });
   });
 });
