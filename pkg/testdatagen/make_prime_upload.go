@@ -39,6 +39,10 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 		var err error
 		var verrs *validate.Errors
 		file := Fixture("test.pdf")
+
+		if assertions.File != nil {
+			file = assertions.File
+		}
 		primeUpload, verrs, err = assertions.PrimeUploader.CreatePrimeUploadForDocument(&posDoc.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving prime upload %v, %v", verrs, err))

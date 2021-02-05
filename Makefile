@@ -702,6 +702,15 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
+.PHONY: db_bandwidth_up
+db_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate data for bandwidth tests
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
+	@echo "Truncate the ${DB_NAME_DEV} database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	@echo "Populate the ${DB_NAME_DEV} database..."
+	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
+
 .PHONY: rerun_e2e_tests_with_new_data
 rerun_e2e_tests_with_new_data: db_e2e_up
 	$(AWS_VAULT) ./scripts/run-e2e-test
