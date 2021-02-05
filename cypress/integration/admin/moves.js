@@ -96,7 +96,7 @@ describe('Moves Details Edit Page', function () {
     });
 
     cy.get('#show').click();
-    cy.get('li').not('[aria-selected="true"]').click();
+    cy.get('ul[aria-labelledby="show-label"] li').not('[aria-selected="true"]').click();
     cy.get('button').contains('Save').click();
   });
 });
