@@ -40,72 +40,87 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		},
 	})
 
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	moveTaskOrderOne := testdatagen.MakeDefaultMove(suite.DB())
+	moveTaskOrderTwo := testdatagen.MakeDefaultMove(suite.DB())
 
 	mtoShipmentOne := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	mtoShipmentTwo := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	mtoShipmentThree := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	mtoShipmentFour := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	mtoShipmentFive := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	mtoShipmentSix := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	mtoShipmentSeven := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	mtoShipmentEight := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 
 	mtoShipmentNine := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: moveTaskOrderOne,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 
-	moveTaskOrder.MTOShipments = models.MTOShipments{
+	mtoShipmentTen := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrderOne,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	mtoShipmentEleven := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrderTwo,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	moveTaskOrderOne.MTOShipments = models.MTOShipments{
 		mtoShipmentOne,
 		mtoShipmentTwo,
 		mtoShipmentThree,
@@ -115,24 +130,29 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		mtoShipmentSeven,
 		mtoShipmentEight,
 		mtoShipmentNine,
+		mtoShipmentTen,
+	}
+
+	moveTaskOrderTwo.MTOShipments = models.MTOShipments{
+		mtoShipmentEleven,
 	}
 
 	originSITEntryDateOne := time.Date(2020, time.July, 20, 0, 0, 0, 0, time.UTC)
 	originSITEntryDateTwo := time.Date(2020, time.August, 20, 0, 0, 0, 0, time.UTC)
 	originSITDepartureDateOne := time.Date(2020, time.September, 20, 0, 0, 0, 0, time.UTC)
-	// originSITDepartureDateTwo := time.Date(2020, time.October, 20, 0, 0, 0, 0, time.UTC)
+	originSITDepartureDateTwo := time.Date(2020, time.July, 21, 0, 0, 0, 0, time.UTC)
 
 	destinationSITEntryDateOne := time.Date(2020, time.October, 30, 0, 0, 0, 0, time.UTC)
 	destinationSITEntryDateTwo := time.Date(2020, time.November, 30, 0, 0, 0, 0, time.UTC)
 	destinationSITDepartureDateOne := time.Date(2020, time.December, 30, 0, 0, 0, 0, time.UTC)
-	// // destinationSITDepartureDateTwo := time.Date(2021, time.January, 30, 0, 0, 0, 0, time.UTC)
+	destinationSITDepartureDateTwo := time.Date(2020, time.October, 31, 0, 0, 0, 0, time.UTC)
 
 	serviceItemDOFSITOne := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			SITEntryDate: &originSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentOne,
 		ReService:   reServiceDOFSIT,
 	})
@@ -142,7 +162,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &originSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentThree,
 		ReService:   reServiceDOFSIT,
 	})
@@ -152,7 +172,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &originSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentFour,
 		ReService:   reServiceDOFSIT,
 	})
@@ -162,7 +182,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &originSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentSix,
 		ReService:   reServiceDOFSIT,
 	})
@@ -171,7 +191,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentSeven,
 		ReService:   reServiceDOFSIT,
 	})
@@ -180,8 +200,19 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentEight,
+		ReService:   reServiceDOFSIT,
+	})
+
+	serviceItemDOFSITSeven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate:     &originSITEntryDateOne,
+			SITDepartureDate: &originSITDepartureDateTwo,
+			Status:           models.MTOServiceItemStatusApproved,
+		},
+		Move:        moveTaskOrderOne,
+		MTOShipment: mtoShipmentTen,
 		ReService:   reServiceDOFSIT,
 	})
 
@@ -190,7 +221,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &originSITEntryDateTwo,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentOne,
 		ReService:   reServiceDOASIT,
 	})
@@ -199,7 +230,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentOne,
 		ReService:   reServiceDOASIT,
 	})
@@ -209,7 +240,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &originSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentThree,
 		ReService:   reServiceDOASIT,
 	})
@@ -219,7 +250,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITDepartureDate: &originSITDepartureDateOne,
 			Status:           models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentThree,
 		ReService:   reServiceDOASIT,
 	})
@@ -229,7 +260,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &originSITEntryDateTwo,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentFour,
 		ReService:   reServiceDOASIT,
 	})
@@ -239,7 +270,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &originSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentSix,
 		ReService:   reServiceDOASIT,
 	})
@@ -249,7 +280,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITDepartureDate: &originSITDepartureDateOne,
 			Status:           models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentEight,
 		ReService:   reServiceDOASIT,
 	})
@@ -258,17 +289,36 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentEight,
 		ReService:   reServiceDOASIT,
 	})
+
+	// serviceItemDOASITTen := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+	// 	MTOServiceItem: models.MTOServiceItem{
+	// 		Status: models.MTOServiceItemStatusApproved,
+	// 	},
+	// 	Move:        moveTaskOrderTwo,
+	// 	MTOShipment: mtoShipmentTen,
+	// 	ReService:   reServiceDOASIT,
+	// })
+
+	// serviceItemDOASITEleven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+	// 	MTOServiceItem: models.MTOServiceItem{
+	// 		SITDepartureDate: &originSITDepartureDateOne,
+	// 		Status:           models.MTOServiceItemStatusApproved,
+	// 	},
+	// 	Move:        moveTaskOrderTwo,
+	// 	MTOShipment: mtoShipmentTen,
+	// 	ReService:   reServiceDOASIT,
+	// })
 
 	serviceItemDDFSITOne := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			SITEntryDate: &destinationSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentTwo,
 		ReService:   reServiceDDFSIT,
 	})
@@ -278,7 +328,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &destinationSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentThree,
 		ReService:   reServiceDDFSIT,
 	})
@@ -288,7 +338,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &destinationSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentFive,
 		ReService:   reServiceDDFSIT,
 	})
@@ -298,7 +348,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &destinationSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentSix,
 		ReService:   reServiceDDFSIT,
 	})
@@ -307,7 +357,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentSeven,
 		ReService:   reServiceDDFSIT,
 	})
@@ -317,8 +367,19 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &destinationSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentNine,
+		ReService:   reServiceDDFSIT,
+	})
+
+	serviceItemDDFSITSeven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate:     &destinationSITEntryDateOne,
+			SITDepartureDate: &destinationSITDepartureDateTwo,
+			Status:           models.MTOServiceItemStatusApproved,
+		},
+		Move:        moveTaskOrderOne,
+		MTOShipment: mtoShipmentTen,
 		ReService:   reServiceDDFSIT,
 	})
 
@@ -327,7 +388,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &destinationSITEntryDateTwo,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentTwo,
 		ReService:   reServiceDDASIT,
 	})
@@ -336,7 +397,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentTwo,
 		ReService:   reServiceDDASIT,
 	})
@@ -346,7 +407,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &destinationSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentThree,
 		ReService:   reServiceDDASIT,
 	})
@@ -355,7 +416,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentThree,
 		ReService:   reServiceDDASIT,
 	})
@@ -365,7 +426,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &destinationSITEntryDateTwo,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentFive,
 		ReService:   reServiceDDASIT,
 	})
@@ -375,7 +436,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITEntryDate: &destinationSITEntryDateOne,
 			Status:       models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentSix,
 		ReService:   reServiceDDASIT,
 	})
@@ -385,7 +446,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			SITDepartureDate: &destinationSITDepartureDateOne,
 			Status:           models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentNine,
 		ReService:   reServiceDDASIT,
 	})
@@ -394,7 +455,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusApproved,
 		},
-		Move:        moveTaskOrder,
+		Move:        moveTaskOrderOne,
 		MTOShipment: mtoShipmentNine,
 		ReService:   reServiceDDASIT,
 	})
@@ -572,8 +633,53 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		MTOServiceItem: serviceItemDDASITEight,
 	})
 
+	paymentRequestTen := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+
+	// paymentRequestTen := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	// paymentServiceItemParamOne := []testdatagen.CreatePaymentServiceItemParams{
+	// 	{
+	// 		Key:     models.ServiceItemParamNameNumberDaysSIT,
+	// 		KeyType: models.ServiceItemParamTypeInteger,
+	// 		Value:   "1",
+	// 	},
+	// }
+
+	// testdatagen.MakePaymentServiceItemWithParams(
+	// 	suite.DB(),
+	// 	serviceItemDOFSITSeven.ReService.Code,
+	// 	paymentServiceItemParamOne,
+	// 	testdatagen.Assertions{
+	// 		PaymentServiceItem: models.PaymentServiceItem{
+	// 			PriceCents: &cost,
+	// 			Status:     models.PaymentServiceItemStatusPaid,
+	// 		},
+	// 		PaymentRequest: paymentRequestTen,
+	// 		MTOServiceItem: serviceItemDOFSITSeven,
+	// 	})
+
+	// paymentServiceItemParamTwo := []testdatagen.CreatePaymentServiceItemParams{
+	// 	{
+	// 		Key:     models.ServiceItemParamNameNumberDaysSIT,
+	// 		KeyType: models.ServiceItemParamTypeInteger,
+	// 		Value:   "29",
+	// 	},
+	// }
+
+	// testdatagen.MakePaymentServiceItemWithParams(
+	// 	suite.DB(),
+	// 	serviceItemDOASITTen.ReService.Code,
+	// 	paymentServiceItemParamTwo,
+	// 	testdatagen.Assertions{
+	// 		PaymentServiceItem: models.PaymentServiceItem{
+	// 			PriceCents: &cost,
+	// 			Status:     models.PaymentServiceItemStatusPaid,
+	// 		},
+	// 		PaymentRequest: paymentRequestTen,
+	// 		MTOServiceItem: serviceItemDOASITTen,
+	// 	})
+
 	suite.T().Run("an MTO Shipment has multiple Origin MTO Service Items with different SIT Entry Dates", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITTwo.ID, paymentRequestOne.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITTwo.ID, paymentRequestOne.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -581,7 +687,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment has multiple Destination MTO Service Items with different SIT Entry Dates", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITTwo.ID, paymentRequestTwo.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITTwo.ID, paymentRequestTwo.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -589,7 +695,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment has multiple Origin MTO Service Items with identical SIT Entry Dates", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITFour.ID, paymentRequestThree.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITFour.ID, paymentRequestThree.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -597,7 +703,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment has multiple Destination MTO Service Items with identical SIT Entry Dates", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITFour.ID, paymentRequestThree.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITFour.ID, paymentRequestThree.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -605,7 +711,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment already has an Origin MTO Service Item with a different SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITFive.ID, paymentRequestFour.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITFive.ID, paymentRequestFour.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -613,7 +719,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment already has a Destination MTO Service Item with a different SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITFive.ID, paymentRequestFive.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITFive.ID, paymentRequestFive.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -621,7 +727,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment already has an Origin MTO Service Item with an identical SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITSix.ID, paymentRequestSix.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITSix.ID, paymentRequestSix.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -629,7 +735,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment already has a Destination MTO Service Item with an identical SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITSix.ID, paymentRequestSix.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITSix.ID, paymentRequestSix.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -637,7 +743,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment has Origin MTO Service Items but non with a SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOFSITFive.ID, paymentRequestSeven.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOFSITFive.ID, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -648,12 +754,12 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				SITEntryDate: &originSITEntryDateOne,
 				Status:       models.MTOServiceItemStatusApproved,
 			},
-			Move:        moveTaskOrder,
+			Move:        moveTaskOrderOne,
 			MTOShipment: mtoShipmentSeven,
 			ReService:   reServiceDOASIT,
 		})
 
-		paramLookup, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITSeven.ID, paymentRequestSeven.ID, moveTaskOrder.ID, nil)
+		paramLookup, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITSeven.ID, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -661,7 +767,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment has Destination MTO Service Items but non with a SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDFSITFive.ID, paymentRequestSeven.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDFSITFive.ID, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -672,12 +778,12 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				SITEntryDate: &destinationSITEntryDateOne,
 				Status:       models.MTOServiceItemStatusApproved,
 			},
-			Move:        moveTaskOrder,
+			Move:        moveTaskOrderOne,
 			MTOShipment: mtoShipmentSeven,
 			ReService:   reServiceDDASIT,
 		})
 
-		paramLookup, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITSeven.ID, paymentRequestSeven.ID, moveTaskOrder.ID, nil)
+		paramLookup, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITSeven.ID, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -685,7 +791,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment already has an Origin MTO Service Item with a SIT Departure Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITNine.ID, paymentRequestEight.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITNine.ID, paymentRequestEight.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
@@ -693,10 +799,24 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment already has a Destination MTO Service Item with a SIT Departure Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITNine.ID, paymentRequestNine.ID, moveTaskOrder.ID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITNine.ID, paymentRequestNine.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
+	})
+
+	suite.T().Run("an MTO Shipment has an SIT Entry Date and SIT Departure Date on the same MTO Service Item", func(t *testing.T) {
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOFSITSeven.ID, paymentRequestTen.ID, moveTaskOrderOne.ID, nil)
+		suite.FatalNoError(err)
+
+		_, err = paramLookup.ServiceParamValue(key)
+		suite.NoError(err)
+
+		paramLookup, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDFSITSeven.ID, paymentRequestTen.ID, moveTaskOrderOne.ID, nil)
+		suite.FatalNoError(err)
+
+		_, err = paramLookup.ServiceParamValue(key)
+		suite.NoError(err)
 	})
 }
