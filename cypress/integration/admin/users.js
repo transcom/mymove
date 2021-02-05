@@ -48,8 +48,17 @@ describe('Users Details Edit Page', function () {
     cy.get('a[href*="system/users"]').click();
     cy.url().should('eq', adminBaseURL + '/system/users');
     cy.get('[data-testid="user-id"]').first().click();
-    cy.get('a').contains('Edit').click();
 
+    // ensure the page pulls up the correct user
+    cy.get('.ra-field-id > div > label')
+      .first()
+      .next()
+      .then(($userId) => {
+        cy.get('a').contains('Edit').click();
+        cy.url().should('eq', adminBaseURL + '/system/users/' + $userId.text());
+      });
+
+    // check page content
     const pageContent = [
       'Id',
       'Login gov email',
@@ -61,5 +70,16 @@ describe('Users Details Edit Page', function () {
     pageContent.forEach((label) => {
       cy.get('label').contains(label);
     });
+
+    // deactivate the user
+    cy.get('div[id="active"]').click();
+    cy.get('#menu-active ul > li[data-value=false]').click();
+    cy.get('button').contains('Save').click();
+
+    // check that user was deactivated
+    // note since we picked the first user before, we assume it's the first user now.
+    // this should be true if sort order is not changed.
+    cy.url().should('eq', adminBaseURL + '/system/users');
+    cy.get('td.column-active span > span').first().should('have.attr', 'title', 'No');
   });
 });
