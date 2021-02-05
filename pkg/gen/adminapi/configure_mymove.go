@@ -90,6 +90,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation users.GetUser has not yet been implemented")
 		})
 	}
+	if api.WebhookSubscriptionsGetWebhookSubscriptionHandler == nil {
+		api.WebhookSubscriptionsGetWebhookSubscriptionHandler = webhook_subscriptions.GetWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.GetWebhookSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook_subscriptions.GetWebhookSubscription has not yet been implemented")
+		})
+	}
 	if api.AccessCodesIndexAccessCodesHandler == nil {
 		api.AccessCodesIndexAccessCodesHandler = access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
 			return middleware.NotImplemented("operation access_codes.IndexAccessCodes has not yet been implemented")
