@@ -88,6 +88,6 @@ func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWe
 		return handlers.ResponseForError(logger, err)
 	}
 
-	payload := payloadForWebhookSubscriptionModel(*webhookSubscription)
+	payload := payloadForWebhookSubscriptionModel(webhookSubscription)
 	return webhooksubscriptionop.NewGetWebhookSubscriptionOK().WithPayload(payload)
 }

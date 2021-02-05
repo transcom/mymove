@@ -15,16 +15,14 @@ type WebhookSubscriptionFetcher struct {
 }
 
 // FetchWebhookSubscription provides a mock function with given fields: filters
-func (_m *WebhookSubscriptionFetcher) FetchWebhookSubscription(filters []services.QueryFilter) (*models.WebhookSubscription, error) {
+func (_m *WebhookSubscriptionFetcher) FetchWebhookSubscription(filters []services.QueryFilter) (models.WebhookSubscription, error) {
 	ret := _m.Called(filters)
 
-	var r0 *models.WebhookSubscription
-	if rf, ok := ret.Get(0).(func([]services.QueryFilter) *models.WebhookSubscription); ok {
+	var r0 models.WebhookSubscription
+	if rf, ok := ret.Get(0).(func([]services.QueryFilter) models.WebhookSubscription); ok {
 		r0 = rf(filters)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.WebhookSubscription)
-		}
+		r0 = ret.Get(0).(models.WebhookSubscription)
 	}
 
 	var r1 error

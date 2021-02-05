@@ -137,7 +137,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionsHandler() {
 
 		webhookSubscriptionFetcher.On("FetchWebhookSubscription",
 			mock.Anything,
-		).Return(nil, expectedError).Once()
+		).Return(models.WebhookSubscription{}, expectedError).Once()
 
 		handler := GetWebhookSubscriptionHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),

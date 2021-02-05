@@ -13,11 +13,11 @@ type webhookSubscriptionFetcher struct {
 	builder webhookSubscriptionQueryBuilder
 }
 
-// FetchUser fetches an  user given a slice of filters
-func (o *webhookSubscriptionFetcher) FetchWebhookSubscription(filters []services.QueryFilter) (*models.WebhookSubscription, error) {
+// FetchWebhookSubscription fetches a webhookSubscription given a slice of filters
+func (o *webhookSubscriptionFetcher) FetchWebhookSubscription(filters []services.QueryFilter) (models.WebhookSubscription, error) {
 	var webhookSubscription models.WebhookSubscription
 	error := o.builder.FetchOne(&webhookSubscription, filters)
-	return &webhookSubscription, error
+	return webhookSubscription, error
 }
 
 // NewWebhookSubscriptionFetcher return an implementation of the WebhookSubscriptionFetcher interface

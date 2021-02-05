@@ -36,7 +36,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionFetcher() {
 		fakeWebhookSubscription, err := fetcher.FetchWebhookSubscription(filters)
 
 		suite.Error(err)
-		suite.Equal(models.WebhookSubscription{}, *fakeWebhookSubscription)
+		suite.Equal(models.WebhookSubscription{}, fakeWebhookSubscription)
 	})
 
 }
