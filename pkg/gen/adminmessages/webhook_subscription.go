@@ -39,7 +39,7 @@ type WebhookSubscription struct {
 	// status
 	Status WebhookSubscriptionStatus `json:"status,omitempty"`
 
-	// Unique identifier for the entity that is subscribed
+	// Unique identifier for the subscriber
 	// Format: uuid
 	SubscriberID strfmt.UUID `json:"subscriberId,omitempty"`
 
