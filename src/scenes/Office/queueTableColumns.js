@@ -1,18 +1,15 @@
 import React from 'react';
+import { createHeader } from 'components/Table/utils';
+import SelectFilter from 'components/Table/Filters/SelectFilter';
+import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
+import { BRANCH_OPTIONS } from 'constants/queues';
 import { capitalize, memoize } from 'lodash';
 import { formatDate } from 'shared/formatters';
-import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
+// import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import moment from 'moment';
 
 // testing
 import Select from 'react-select';
-
-// Abstracting react table column creation
-const createReactTableColumn = (header, accessor, options = {}) => ({
-  Header: header,
-  accessor: accessor,
-  ...options,
-});
 
 const getReactSelectFilterSettings = (data = []) => ({
   Filter: ({ filter, onChange }) => {
@@ -74,22 +71,22 @@ const getReactSelectFilterSettings = (data = []) => ({
 // lodash memoize will prevent unnecessary rendering with the same state
 // this will re-render if the state changes
 const destination = memoize((destinationDutyStations) =>
-  createReactTableColumn('Destination', 'destination_duty_station_name', {
+  createHeader('Destination', 'destination_duty_station_name', {
     Cell: (row) => <span>{row.value}</span>,
-    filterable: true,
+    isFilterable: true,
     ...getReactSelectFilterSettings(destinationDutyStations),
   }),
 );
 
 const origin = memoize((originDutyStations) =>
-  createReactTableColumn('Origin', 'origin_duty_station_name', {
+  createHeader('Origin', 'origin_duty_station_name', {
     Cell: (row) => <span>{row.value}</span>,
-    filterable: true,
+    isFilterable: true,
     ...getReactSelectFilterSettings(originDutyStations),
   }),
 );
 
-const status = createReactTableColumn('Status', 'synthetic_status', {
+const status = createHeader('Status', 'synthetic_status', {
   Cell: (row) => (
     <span className="status" data-testid="status">
       {capitalize(row.value && row.value.replace('_', ' '))}
@@ -97,33 +94,18 @@ const status = createReactTableColumn('Status', 'synthetic_status', {
   ),
 });
 
-const customerName = createReactTableColumn('Customer name', 'customer_name');
+const customerName = createHeader('Customer name', 'customer_name');
 
-const dodId = createReactTableColumn('DoD ID', 'edipi');
+const dodId = createHeader('DoD ID', 'edipi');
 
-const locator = createReactTableColumn('Locator #', 'locator', {
+const locator = createHeader('Locator #', 'locator', {
   Cell: (row) => <span data-testid="locator">{row.value}</span>,
 });
 
 const dateFormat = 'DD-MMM-YY';
-const moveDate = createReactTableColumn('PPM start', 'move_date', {
+const moveDate = createHeader('PPM start', 'move_date', {
   Cell: (row) => <span className="move_date">{formatDate(row.value)}</span>,
-  Filter: ({ filter, onChange }) => {
-    return (
-      <div>
-        <div>Before or on:</div>
-        {SingleDatePicker({
-          onChange: (value) => {
-            return onChange(formatDate(value));
-          },
-          inputClassName: 'queue-date-picker-filter',
-          value: filter ? filter.value : null,
-          placeholder: dateFormat,
-          format: dateFormat,
-        })}
-      </div>
-    );
-  },
+  Filter: DateSelectFilter,
   filterMethod: (filter, row) => {
     // Filter dates that are same or before the filtered value
     if (filter.value === undefined) {
@@ -137,20 +119,14 @@ const moveDate = createReactTableColumn('PPM start', 'move_date', {
 
     return rowDate.isSameOrBefore(filterDate);
   },
-  filterable: true,
+  isFilterable: true,
 });
 
-const branchOfService = createReactTableColumn('Branch', 'branch_of_service', {
+const branchOfService = createHeader('Branch', 'branch_of_service', {
   Cell: (row) => <span>{row.value}</span>,
-  Filter: ({ filter, onChange }) => (
-    <select onChange={(event) => onChange(event.target.value)} value={filter ? filter.value : 'all'}>
-      <option value="all">Show All</option>
-      <option value="ARMY">Army</option>
-      <option value="NAVY">Navy</option>
-      <option value="MARINES">Marines</option>
-      <option value="AIR_FORCE">Air Force</option>
-      <option value="COAST_GUARD">Coast Guard</option>
-    </select>
+  Filter: (props) => (
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    <SelectFilter options={BRANCH_OPTIONS} {...props} />
   ),
   filterMethod: (filter, row) => {
     if (filter.value === 'all') {
@@ -159,7 +135,7 @@ const branchOfService = createReactTableColumn('Branch', 'branch_of_service', {
 
     return row[filter.id] === filter.value;
   },
-  filterable: true,
+  isFilterable: true,
 });
 
 // Columns used to display in react table
