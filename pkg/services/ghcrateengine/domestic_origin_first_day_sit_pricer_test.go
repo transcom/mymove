@@ -16,7 +16,7 @@ const (
 	dofsitTestBasePriceCents       = unit.Cents(353)
 	dofsitTestEscalationCompounded = 1.125
 	dofsitTestWeight               = unit.Pound(4000)
-	dofSitTestPriceCents           = unit.Cents(15885) // dofsitTestBasePriceCents * (dofsitTestWeight / 100) * dofsitTestEscalationCompounded
+	dofsitTestPriceCents           = unit.Cents(15885) // dofsitTestBasePriceCents * (dofsitTestWeight / 100) * dofsitTestEscalationCompounded
 )
 
 var dofsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -29,13 +29,13 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
 		priceCents, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
-		suite.Equal(dofSitTestPriceCents, priceCents)
+		suite.Equal(dofsitTestPriceCents, priceCents)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
 		priceCents, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, dofsitTestIsPeakPeriod, dofsitTestWeight, dofsitTestServiceArea)
 		suite.NoError(err)
-		suite.Equal(dofSitTestPriceCents, priceCents)
+		suite.Equal(dofsitTestPriceCents, priceCents)
 	})
 
 	suite.T().Run("PriceUsingParams but sending empty params", func(t *testing.T) {
@@ -76,8 +76,8 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginFirstDaySITServiceIte
 			},
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
-				KeyType: models.ServiceItemParamTypeTimestamp,
-				Value:   dofsitTestRequestedPickupDate.Format(TimestampParamFormat),
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   dofsitTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameServiceAreaOrigin,

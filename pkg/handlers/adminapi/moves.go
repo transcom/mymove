@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+
+	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -17,7 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// IndexMovesHandler returns a list of access codes via GET /moves
+// IndexMovesHandler returns a list of moves/MTOs via GET /moves
 type IndexMovesHandler struct {
 	handlers.HandlerContext
 	services.MoveListFetcher
@@ -32,18 +35,24 @@ func payloadForMoveModel(move models.Move) *adminmessages.Move {
 	}
 
 	return &adminmessages.Move{
-		ID:              handlers.FmtUUID(move.ID),
-		OrdersID:        handlers.FmtUUID(move.OrdersID),
-		ServiceMemberID: *handlers.FmtUUID(move.Orders.ServiceMemberID),
-		Locator:         &move.Locator,
-		Status:          adminmessages.MoveStatus(move.Status),
-		Show:            showMove,
-		CreatedAt:       handlers.FmtDateTime(move.CreatedAt),
-		UpdatedAt:       handlers.FmtDateTime(move.UpdatedAt),
+		ID:       handlers.FmtUUID(move.ID),
+		OrdersID: handlers.FmtUUID(move.OrdersID),
+		Locator:  &move.Locator,
+		ServiceMember: &adminmessages.ServiceMember{
+			ID:         *handlers.FmtUUID(move.Orders.ServiceMember.ID),
+			UserID:     *handlers.FmtUUID(move.Orders.ServiceMember.UserID),
+			FirstName:  move.Orders.ServiceMember.FirstName,
+			MiddleName: move.Orders.ServiceMember.MiddleName,
+			LastName:   move.Orders.ServiceMember.LastName,
+		},
+		Status:    adminmessages.MoveStatus(move.Status),
+		Show:      &showMove,
+		CreatedAt: handlers.FmtDateTime(move.CreatedAt),
+		UpdatedAt: handlers.FmtDateTime(move.UpdatedAt),
 	}
 }
 
-// Handle retrieves a list of access codes
+// Handle retrieves a list of moves/MTOs
 func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -97,4 +106,82 @@ func (h IndexMovesHandler) generateQueryFilters(filters *string, logger handlers
 	}
 
 	return queryFilters
+}
+
+// UpdateMoveHandler updates a given move
+type UpdateMoveHandler struct {
+	handlers.HandlerContext
+	services.MoveTaskOrderUpdater
+}
+
+// Handle updates a given move
+func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("adminapi.UpdateMoveHandler error - Bad MoveID passed in: %s", params.MoveID), zap.Error(err))
+		return moveop.NewUpdateMoveBadRequest()
+	}
+
+	updatedMove, err := h.MoveTaskOrderUpdater.ShowHide(moveID, &params.Move.Show)
+	if err != nil {
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return moveop.NewUpdateMoveNotFound()
+		case services.InvalidInputError:
+			return moveop.NewUpdateMoveUnprocessableEntity() // todo payload
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("adminapi.UpdateMoveHandler query error", zap.Error(e.Unwrap()))
+			}
+			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError()
+		default:
+			return moveop.NewUpdateMoveInternalServerError()
+		}
+	}
+
+	if updatedMove == nil {
+		logger.Debug(fmt.Sprintf("adminapi.UpdateMoveHandler - No Move returned from ShowHide update, but no error returned either. ID: %s", moveID))
+		return moveop.NewUpdateMoveInternalServerError()
+	}
+
+	movePayload := payloadForMoveModel(*updatedMove)
+
+	return moveop.NewUpdateMoveOK().WithPayload(movePayload)
+}
+
+// GetMoveHandler retrieves the info for a given move
+type GetMoveHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle retrieves a given move by move id
+func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	move := models.Move{}
+	// Returns move by id and associated order and the service memeber associated with the order
+	err := h.DB().Eager("Orders", "Orders.ServiceMember").Find(&move, params.MoveID.String())
+
+	if err != nil {
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return moveop.NewGetMoveNotFound()
+		case services.InvalidInputError:
+			return moveop.NewGetMoveBadRequest()
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("adminapi.GetMoveHandler query error", zap.Error(e.Unwrap()))
+			}
+			return moveop.NewGetMoveInternalServerError()
+		default:
+			return moveop.NewGetMoveInternalServerError()
+		}
+	}
+
+	payload := payloadForMoveModel(move)
+	return moveop.NewGetMoveOK().WithPayload(payload)
 }

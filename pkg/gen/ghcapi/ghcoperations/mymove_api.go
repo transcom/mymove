@@ -30,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -106,6 +107,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoShipmentPatchMTOShipmentStatusHandler: mto_shipment.PatchMTOShipmentStatusHandlerFunc(func(params mto_shipment.PatchMTOShipmentStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.PatchMTOShipmentStatus has not yet been implemented")
+		}),
+		TacTacValidationHandler: tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
+			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
 		}),
 		MtoServiceItemUpdateMTOServiceItemHandler: mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
@@ -197,6 +201,8 @@ type MymoveAPI struct {
 	MoveOrderListMoveTaskOrdersHandler move_order.ListMoveTaskOrdersHandler
 	// MtoShipmentPatchMTOShipmentStatusHandler sets the operation handler for the patch m t o shipment status operation
 	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
+	// TacTacValidationHandler sets the operation handler for the tac validation operation
+	TacTacValidationHandler tac.TacValidationHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
 	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
@@ -330,6 +336,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentPatchMTOShipmentStatusHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.PatchMTOShipmentStatusHandler")
+	}
+	if o.TacTacValidationHandler == nil {
+		unregistered = append(unregistered, "tac.TacValidationHandler")
 	}
 	if o.MtoServiceItemUpdateMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemHandler")
@@ -512,6 +521,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status"] = mto_shipment.NewPatchMTOShipmentStatus(o.context, o.MtoShipmentPatchMTOShipmentStatusHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/tac/valid"] = tac.NewTacValidation(o.context, o.TacTacValidationHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

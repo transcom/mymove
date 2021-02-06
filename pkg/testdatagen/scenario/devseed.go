@@ -1253,6 +1253,32 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 	})
 
 	// Create an HHG MTO Shipment
+	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	destinationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Princeton",
+			State:          "NJ",
+			PostalCode:     "08540",
+			Country:        swag.String("US"),
+		},
+	})
+
 	hhgShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.Must(uuid.NewV4()),
@@ -1261,6 +1287,10 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusApproved,
+			PickupAddress:        &pickupAddress,
+			PickupAddressID:      &pickupAddress.ID,
+			DestinationAddress:   &destinationAddress,
+			DestinationAddressID: &destinationAddress.ID,
 		},
 		Move: move,
 	})
@@ -1277,6 +1307,13 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 		},
 		Move: move,
 	})
+
+	ntsrShipment.PickupAddressID = &pickupAddress.ID
+	ntsrShipment.PickupAddress = &pickupAddress
+	saveErr := db.Save(&ntsrShipment)
+	if saveErr != nil {
+		log.Panic("error saving NTSR shipment pickup address")
+	}
 
 	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
@@ -1937,7 +1974,7 @@ func createTXO(db *pop.Connection) {
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
+	user := testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tooTioUUID,
 			LoginGovUUID:  &loginGovUUID,
@@ -1952,6 +1989,12 @@ func createTXO(db *pop.Connection) {
 			Email:  email,
 			Active: true,
 			UserID: &tooTioUUID,
+		},
+	})
+	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			User:   user,
+			UserID: user.ID,
 		},
 	})
 
@@ -2095,7 +2138,7 @@ func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *upload
 			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
 			Locator:            "RDY4PY",
 			AvailableToPrimeAt: swag.Time(time.Now()),
-			Status:             models.MoveStatusSUBMITTED,
+			Status:             models.MoveStatusAPPROVED,
 			SelectedMoveType:   &hhgMoveType,
 		},
 		UserUploader: userUploader,
@@ -2120,8 +2163,8 @@ func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *upload
 			ID:                   uuid.FromStringOrNil("01b9671e-b268-4906-967b-ba661a1d3933"),
 			RequestedPickupDate:  swag.Time(time.Now()),
 			ScheduledPickupDate:  swag.Time(time.Now().AddDate(0, 0, -1)),
-			PrimeEstimatedWeight: &estimated, // so we can price DLH
-			PrimeActualWeight:    &actual,    // so we can price DLH
+			PrimeEstimatedWeight: &estimated,
+			PrimeActualWeight:    &actual,
 			Status:               models.MTOShipmentStatusApproved,
 			ApprovedDate:         swag.Time(time.Now()),
 		},
@@ -2354,6 +2397,9 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move10,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
 	})
 
 	paymentRequest10 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{

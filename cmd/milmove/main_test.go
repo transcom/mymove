@@ -123,13 +123,20 @@ func (suite *webServerSuite) loadContext(variablesFile string) map[string]string
 func (suite *webServerSuite) patchContext(ctx map[string]string) map[string]string {
 	for k, v := range ctx {
 		if strings.HasPrefix(v, "/bin/") {
-			ctx[k] = filepath.Join(os.Getenv("TEST_ACC_CWD"), v[1:])
-		}
-		// Overwrite the migration path to something on the local system
-		if k == "MIGRATION_PATH" {
-			ctx[k] = "file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure"
+			newValue := filepath.Join(os.Getenv("TEST_ACC_CWD"), v[1:])
+			ctx[k] = newValue
 		}
 	}
+
+	// Always set the root cert to something on the local system.
+	newValue := filepath.Join(os.Getenv("TEST_ACC_CWD"), "bin/rds-ca-us-gov-west-1-2017-root.pem")
+	ctx["DB_SSL_ROOT_CERT"] = newValue
+
+	// Always set the migration path to something on the local system.
+	appSecure := filepath.Join(os.Getenv("TEST_ACC_CWD"), "migrations/app/secure")
+	appSchema := filepath.Join(os.Getenv("TEST_ACC_CWD"), "migrations/app/schema")
+	ctx["MIGRATION_PATH"] = fmt.Sprintf("file://%v;file://%v", appSchema, appSecure)
+
 	return ctx
 }
 

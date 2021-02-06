@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -25,8 +29,8 @@ func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitDatabaseFlags(flag)
 
 	// Additional flags pertinent to all commands using this tool
-	flag.String(utils.CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
-	flag.String(utils.KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
+	flag.String(utils.CertPathFlag, "", "Path to the public cert")
+	flag.String(utils.KeyPathFlag, "", "Path to the private key")
 	flag.String(utils.HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(utils.PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(utils.InsecureFlag, false, "Skip TLS verification and validation")
@@ -65,13 +69,84 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
 		return nil, logger, err
 	}
 
-	if (v.GetString(utils.CertPathFlag) != "" && v.GetString(utils.KeyPathFlag) == "") ||
-		(v.GetString(utils.CertPathFlag) == "" && v.GetString(utils.KeyPathFlag) != "") {
-		return nil, logger, fmt.Errorf("Both TLS certificate and key paths must be provided")
+	var canUseFileCert bool
+	if v.GetString(utils.CertPathFlag) != "" && v.GetString(utils.KeyPathFlag) == "" {
+		return nil, logger, fmt.Errorf(
+			"Must set the %v parameter if %v is set",
+			utils.KeyPathFlag,
+			utils.CertPathFlag,
+		)
+	} else if v.GetString(utils.CertPathFlag) == "" && v.GetString(utils.KeyPathFlag) != "" {
+		return nil, logger, fmt.Errorf(
+			"Must set the %v parameter if %v is set",
+			utils.CertPathFlag,
+			utils.KeyPathFlag,
+		)
+	} else if v.GetString(utils.CertPathFlag) != "" && v.GetString(utils.KeyPathFlag) != "" {
+		canUseFileCert = true
+	}
+
+	var canUseEnvCert bool
+	recipientMTLSCertEnvName := strings.ToUpper(strings.ReplaceAll(utils.RecipientMTLSCert, "-", "_"))
+	recipientMTLSKeyEnvName := strings.ToUpper(strings.ReplaceAll(utils.RecipientMTLSKey, "-", "_"))
+	if v.GetString(utils.RecipientMTLSCert) != "" && v.GetString(utils.RecipientMTLSKey) == "" {
+		return nil, logger, fmt.Errorf(
+			"Must set the %v environment variable if %v is set",
+			recipientMTLSKeyEnvName,
+			recipientMTLSCertEnvName,
+		)
+	} else if v.GetString(utils.RecipientMTLSCert) == "" && v.GetString(utils.RecipientMTLSKey) != "" {
+		return nil, logger, fmt.Errorf(
+			"Must set the %v environment variable if %v is set",
+			recipientMTLSCertEnvName,
+			recipientMTLSKeyEnvName,
+		)
+	} else if v.GetString(utils.RecipientMTLSCert) != "" && v.GetString(utils.RecipientMTLSKey) != "" {
+		canUseEnvCert = true
+	}
+
+	if !canUseFileCert && !canUseEnvCert {
+		return nil, logger, fmt.Errorf(
+			"Must provide %v & %v parameters or set the %v & %v environment variables",
+			utils.CertPathFlag,
+			utils.KeyPathFlag,
+			recipientMTLSCertEnvName,
+			recipientMTLSKeyEnvName,
+		)
+	}
+	if canUseFileCert && canUseEnvCert {
+		logger.Info("A certificate is configured to be loaded from both the filesystem and environment; defaulting to the filesystem certificate")
+	}
+
+	var session *awssession.Session
+	if v.GetBool(cli.DbIamFlag) {
+		verbose := cli.LogLevelIsDebug(v)
+		c, errorConfig := cli.GetAWSConfig(v, verbose)
+		if errorConfig != nil {
+			logger.Fatal("error creating aws config", zap.Error(errorConfig))
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			logger.Fatal("error creating aws session", zap.Error(errorSession))
+		}
+		session = s
+	}
+
+	var dbCreds *credentials.Credentials
+	if v.GetBool(cli.DbIamFlag) {
+		if session != nil {
+			// We want to get the credentials from the logged in AWS session rather than create directly,
+			// because the session conflates the environment, shared, and container metadata config
+			// within NewSession.  With stscreds, we use the Secure Token Service,
+			// to assume the given role (that has rds db connect permissions).
+			dbIamRole := v.GetString(cli.DbIamRoleFlag)
+			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
+			dbCreds = stscreds.NewCredentials(session, dbIamRole)
+		}
 	}
 
 	// DB CONNECTION CHECK
-	dbConnection, err := cli.InitDatabase(v, nil, logger)
+	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
 	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
@@ -99,17 +174,18 @@ func main() {
 	initPostWebhookNotifyFlags(postWebhookNotifyCommand.Flags())
 	root.AddCommand(postWebhookNotifyCommand)
 
-	dbWebhookNotifyCommand := &cobra.Command{
-		Use:   "db-webhook-notify",
-		Short: "Database Webhook Notify",
+	webhookNotifyCommand := &cobra.Command{
+		Use:   "webhook-notify",
+		Short: "Webhook Notify",
 		Long: `
-	Database Webhook Notify checks the webhook_notification
-	table and sends the first notification it finds there.`,
-		RunE:         dbWebhookNotify,
+	Webhook Notify launches the engine for webhook notifications.
+	This repeatedly checks the webhook_notification and webhook_subscription tables and
+	sends the notifications every minute.`,
+		RunE:         webhookNotify,
 		SilenceUsage: true,
 	}
-	initDbWebhookNotifyFlags(dbWebhookNotifyCommand.Flags())
-	root.AddCommand(dbWebhookNotifyCommand)
+	initWebhookNotifyFlags(webhookNotifyCommand.Flags())
+	root.AddCommand(webhookNotifyCommand)
 
 	dbConnectionCommand := &cobra.Command{
 		Use:   "db-connection-test",

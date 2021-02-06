@@ -21,6 +21,9 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		var verrs *validate.Errors
 		var err error
 		file := Fixture("test.pdf")
+		if assertions.File != nil {
+			file = assertions.File
+		}
 		upload, verrs, err = assertions.Uploader.CreateUpload(uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving upload %v, %v", verrs, err))

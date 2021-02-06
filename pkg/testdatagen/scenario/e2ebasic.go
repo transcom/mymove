@@ -1945,7 +1945,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	email = "too_tio_role@office.mil"
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
 	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
+	user := testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tooTioUUID,
 			LoginGovUUID:  &loginGovID,
@@ -1960,6 +1960,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			Email:  email,
 			Active: true,
 			UserID: &tooTioUUID,
+		},
+	})
+	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			User:   user,
+			UserID: user.ID,
 		},
 	})
 
@@ -2189,6 +2195,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		Move: mtoWithTaskOrderServices,
 		ReService: models.ReService{
 			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	// Create one webhook subscription for PaymentRequestUpdate
+	testdatagen.MakeWebhookSubscription(db, testdatagen.Assertions{
+		WebhookSubscription: models.WebhookSubscription{
+			CallbackURL: "https://primelocal:9443/support/v1/webhook-notify",
 		},
 	})
 
