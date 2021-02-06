@@ -1,5 +1,7 @@
 import {
+  selectIsLoggedIn,
   selectLoggedInUser,
+  selectRoleTypesForUser,
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
   selectBackupContacts,
@@ -15,6 +17,20 @@ import {
   selectPPMSitEstimate,
   selectReimbursementById,
 } from './selectors';
+
+describe('selectIsLoggedIn', () => {
+  it('returns boolean as to whether user is logged in or not', () => {
+    const testState = {
+      user: {
+        userInfo: {
+          isLoggedIn: true,
+        },
+      },
+    };
+
+    expect(selectIsLoggedIn(testState)).toEqual(testState.user.userInfo.isLoggedIn);
+  });
+});
 
 describe('selectLoggedInUser', () => {
   it('returns the first user stored in entities', () => {
@@ -37,6 +53,42 @@ describe('selectLoggedInUser', () => {
     };
 
     expect(selectLoggedInUser(testState)).toEqual(null);
+  });
+});
+
+describe('selectRoleTypesForUser', () => {
+  it('returns a list of role types', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: ['roleId123'],
+          },
+        },
+        roles: {
+          roleId123: { roleType: 'TOO' },
+          roleId987: { roleType: 'TIO' },
+        },
+      },
+    };
+
+    expect(selectRoleTypesForUser(testState)).toEqual([testState.entities.roles.roleId123.roleType]);
+
+    //   const testState = {
+    //     user: {
+    //       userInfo: {
+    //         isLoggedIn: true,
+    //         roles: [
+    //           {
+    //             roleType: 'TOO',
+    //           },
+    //         ],
+    //       },
+    //     },
+    //   };
+    //
+    //   expect(selectRoleTypesForUser(testState)).toEqual([testState.user.userInfo.roles[0].roleType])
   });
 });
 

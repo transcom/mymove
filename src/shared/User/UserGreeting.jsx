@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { selectLoggedInUser } from 'store/entities/selectors';
+import { selectLoggedInUser, selectIsLoggedIn } from 'store/entities/selectors';
 
 export const UserGreeting = ({ isLoggedIn, firstName, email }) =>
   isLoggedIn && (
@@ -19,7 +19,7 @@ UserGreeting.propTypes = {
 const mapStateToProps = (state) => {
   const user = selectLoggedInUser(state);
   return {
-    isLoggedIn: user.isLoggedIn,
+    isLoggedIn: selectIsLoggedIn,
     firstName: user.first_name,
     email: user.email,
   };

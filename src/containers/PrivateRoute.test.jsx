@@ -134,6 +134,17 @@ describe('ConnectedPrivateRoute', () => {
                   ],
                 },
               },
+              entities: {
+                user: {
+                  userId123: {
+                    id: 'userId123',
+                    roles: ['roleId123'],
+                  },
+                },
+                roles: {
+                  roleId123: { roleType: roleTypes.PPM },
+                },
+              },
             }}
             initialEntries={['/']}
           >

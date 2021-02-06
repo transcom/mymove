@@ -25,7 +25,7 @@ import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
 import {
-  selectLoggedInUser,
+  selectIsLoggedIn,
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
   selectCurrentOrders,
@@ -483,13 +483,12 @@ Home.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectLoggedInUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const move = selectCurrentMove(state) || {};
 
   return {
     currentPpm: selectCurrentPPM(state) || {},
-    isLoggedIn: user.isLoggedIn,
+    isLoggedIn: selectIsLoggedIn(state),
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     isProfileComplete: selectIsProfileComplete(state),

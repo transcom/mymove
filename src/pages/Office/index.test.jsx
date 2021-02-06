@@ -70,6 +70,24 @@ describe('Office App', () => {
           },
         },
       },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: ['roleId123'],
+            office_user: {
+              first_name: 'Amanda',
+              last_name: 'Gorman',
+              transportation_office: {
+                gbloc: 'ABCD',
+              },
+            },
+          },
+        },
+        roles: {
+          roleId123: { roleType: roleTypes.TOO },
+        },
+      },
     };
 
     describe('after signing in', () => {
@@ -109,6 +127,24 @@ describe('Office App', () => {
           },
         },
       },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: ['roleId987'],
+            office_user: {
+              first_name: 'Amanda',
+              last_name: 'Gorman',
+              transportation_office: {
+                gbloc: 'ABCD',
+              },
+            },
+          },
+        },
+        roles: {
+          roleId987: { roleType: roleTypes.TIO },
+        },
+      },
     };
 
     describe('after signing in', () => {
@@ -145,6 +181,19 @@ describe('Office App', () => {
               roleType: roleTypes.TIO,
             },
           ],
+        },
+      },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: ['roleId246', 'roleId123', 'roleId987'],
+          },
+        },
+        roles: {
+          roleId246: { roleType: roleTypes.CONTRACTING_OFFICER },
+          roleId123: { roleType: roleTypes.TOO },
+          roleId987: { roleType: roleTypes.TIO },
         },
       },
     };
@@ -192,6 +241,17 @@ describe('Office App', () => {
               roleType: roleTypes.PPM,
             },
           ],
+        },
+      },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: ['roleId123'],
+          },
+        },
+        roles: {
+          roleId123: { roleType: roleTypes.PPM },
         },
       },
     };
@@ -258,6 +318,17 @@ describe('Office App', () => {
                 roleType: roleTypes.PPM,
               },
             ],
+          },
+        },
+        entities: {
+          user: {
+            userId123: {
+              id: 'userId123',
+              roles: ['roleId123'],
+            },
+          },
+          roles: {
+            roleId123: { roleType: roleTypes.PPM },
           },
         },
       };
@@ -333,6 +404,17 @@ describe('Office App', () => {
             ],
           },
         },
+        entities: {
+          user: {
+            userId123: {
+              id: 'userId123',
+              roles: ['roleId123'],
+            },
+          },
+          roles: {
+            roleId123: { roleType: roleTypes.TOO },
+          },
+        },
       };
 
       it('handles the moves queue URL', () => {
@@ -374,6 +456,17 @@ describe('Office App', () => {
                 roleType: roleTypes.TIO,
               },
             ],
+          },
+        },
+        entities: {
+          user: {
+            userId123: {
+              id: 'userId123',
+              roles: ['roleId987'],
+            },
+          },
+          roles: {
+            roleId987: { roleType: roleTypes.TIO },
           },
         },
       };

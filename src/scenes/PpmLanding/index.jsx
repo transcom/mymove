@@ -18,7 +18,7 @@ import {
 import { updatePPMs } from 'store/entities/actions';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
-import { selectLoggedInUser } from 'store/entities/selectors';
+import { selectIsLoggedIn, selectLoggedInUser } from 'store/entities/selectors';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -180,14 +180,14 @@ const mapStateToProps = (state) => {
   const props = {
     lastMoveIsCanceled: selectHasCanceledMove(state),
     selectedMoveType: selectMoveType(state),
-    isLoggedIn: user.isLoggedIn,
+    isLoggedIn: selectIsLoggedIn(state),
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     orders: selectCurrentOrders(state) || {},
     move: move,
     ppm: selectCurrentPPM(state) || {},
-    loggedInUser: user,
+    loggedInUser: user || {},
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     entitlement: loadEntitlementsFromState(state),

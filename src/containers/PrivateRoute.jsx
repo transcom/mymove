@@ -4,7 +4,7 @@ import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { selectGetCurrentUserIsLoading } from 'shared/Data/users';
-import { selectLoggedInUser } from 'store/entities/selectors';
+import { selectRoleTypesForUser, selectIsLoggedIn } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { UserRolesShape } from 'types/index';
 
@@ -25,13 +25,9 @@ const PrivateRoute = (props) => {
   if (loginIsLoading) return <LoadingPlaceholder />;
 
   if (!userIsLoggedIn) return <Redirect to="/sign-in" />;
-  if (
-    !userIsAuthorized(
-      userRoles.map((r) => r.roleType),
-      requiredRoles,
-    )
-  )
+  if (!userIsAuthorized(userRoles, requiredRoles)) {
     return <Redirect to="/" />;
+  }
 
   // eslint-disable-next-line react/jsx-props-no-spreading
   return <Route {...routeProps} />;
@@ -53,11 +49,13 @@ PrivateRoute.defaultProps = {
   userRoles: [],
 };
 
-const mapStateToProps = (state) => ({
-  loginIsLoading: selectGetCurrentUserIsLoading(state),
-  userIsLoggedIn: selectLoggedInUser(state).isLoggedIn,
-  userRoles: selectLoggedInUser(state).roles,
-});
+const mapStateToProps = (state) => {
+  return {
+    loginIsLoading: selectGetCurrentUserIsLoading(state),
+    userIsLoggedIn: selectIsLoggedIn(state),
+    userRoles: selectRoleTypesForUser(state),
+  };
+};
 
 const ConnectedPrivateRoute = connect(mapStateToProps)(PrivateRoute);
 

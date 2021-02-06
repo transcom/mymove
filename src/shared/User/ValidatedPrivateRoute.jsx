@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { selectLoggedInUser } from 'store/entities/selectors';
+import { selectIsLoggedIn } from 'store/entities/selectors';
 
 import { get } from 'lodash';
 import SignIn from './SignIn';
@@ -28,12 +28,11 @@ class ValidatedPrivateRouteContainer extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  const user = selectLoggedInUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const accessCodes = get(state, 'entities.accessCodes');
 
   return {
-    isLoggedIn: user.isLoggedIn,
+    isLoggedIn: selectIsLoggedIn(state),
     requiresAccessCode: serviceMember?.requires_access_code,
     accessCode: accessCodes && Object.values(accessCodes).length > 0 ? Object.values(accessCodes)[0].code : null,
   };

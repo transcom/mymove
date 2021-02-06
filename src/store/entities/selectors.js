@@ -7,10 +7,33 @@ import { createSelector } from 'reselect';
  */
 
 /** User */
+export const selectIsLoggedIn = (state) => {
+  return state.user?.userInfo?.isLoggedIn || null;
+};
+
 export const selectLoggedInUser = (state) => {
   if (state.entities.user) return Object.values(state.entities.user)[0];
   return null;
 };
+
+export const selectRoleTypesForUser = (state) => {
+  const user = selectLoggedInUser(state);
+  const roleIds = user?.roles || [];
+  const roles = roleIds.map((id) => state.entities.roles?.[`${id}`]);
+  const roleTypes = [];
+  roles.map((role) => roleTypes.push(role.roleType));
+  return roleTypes;
+};
+
+// export const selectRoleTypesForUser = (state) => {
+//   const roles = state.user?.userInfo?.roles || null;
+//   const roleTypes = [];
+//   if (!roles) {
+//     return roleTypes;
+//   }
+//   roles.map((role) => roleTypes.push(role.roleType));
+//   return roleTypes;
+// };
 
 /** Service Member */
 export const selectServiceMemberFromLoggedInUser = (state) => {

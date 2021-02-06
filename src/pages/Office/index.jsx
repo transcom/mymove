@@ -12,7 +12,7 @@ import 'scenes/Office/office.scss';
 
 // API / Redux actions
 import { logOut as logOutAction, loadUser as loadUserAction } from 'store/auth/actions';
-import { selectLoggedInUser } from 'store/entities/selectors';
+import { selectLoggedInUser, selectIsLoggedIn, selectRoleTypesForUser } from 'store/entities/selectors';
 import {
   loadInternalSchema as loadInternalSchemaAction,
   loadPublicSchema as loadPublicSchemaAction,
@@ -252,10 +252,10 @@ const mapStateToProps = (state) => {
   const user = selectLoggedInUser(state);
   return {
     swaggerError: state.swaggerInternal.hasErrored,
-    userIsLoggedIn: user.isLoggedIn,
-    userRoles: user.roles,
+    userIsLoggedIn: selectIsLoggedIn(state),
+    userRoles: selectRoleTypesForUser(state),
     activeRole: state.auth.activeRole,
-    officeUser: user.office_user,
+    officeUser: user?.office_user || {},
   };
 };
 
