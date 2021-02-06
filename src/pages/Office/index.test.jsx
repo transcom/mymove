@@ -56,18 +56,6 @@ describe('Office App', () => {
         isLoading: false,
         userInfo: {
           isLoggedIn: true,
-          roles: [
-            {
-              roleType: roleTypes.TOO,
-            },
-          ],
-          office_user: {
-            first_name: 'Amanda',
-            last_name: 'Gorman',
-            transportation_office: {
-              gbloc: 'ABCD',
-            },
-          },
         },
       },
       entities: {
@@ -113,18 +101,6 @@ describe('Office App', () => {
         isLoading: false,
         userInfo: {
           isLoggedIn: true,
-          roles: [
-            {
-              roleType: roleTypes.TIO,
-            },
-          ],
-          office_user: {
-            first_name: 'Amanda',
-            last_name: 'Gorman',
-            transportation_office: {
-              gbloc: 'ABCD',
-            },
-          },
         },
       },
       entities: {
@@ -170,17 +146,6 @@ describe('Office App', () => {
         isLoading: false,
         userInfo: {
           isLoggedIn: true,
-          roles: [
-            {
-              roleType: roleTypes.CONTRACTING_OFFICER,
-            },
-            {
-              roleType: roleTypes.TOO,
-            },
-            {
-              roleType: roleTypes.TIO,
-            },
-          ],
         },
       },
       entities: {
@@ -236,11 +201,6 @@ describe('Office App', () => {
         isLoading: false,
         userInfo: {
           isLoggedIn: true,
-          roles: [
-            {
-              roleType: roleTypes.PPM,
-            },
-          ],
         },
       },
       entities: {
@@ -313,11 +273,6 @@ describe('Office App', () => {
           isLoading: false,
           userInfo: {
             isLoggedIn: true,
-            roles: [
-              {
-                roleType: roleTypes.PPM,
-              },
-            ],
           },
         },
         entities: {
@@ -397,11 +352,6 @@ describe('Office App', () => {
           isLoading: false,
           userInfo: {
             isLoggedIn: true,
-            roles: [
-              {
-                roleType: roleTypes.TOO,
-              },
-            ],
           },
         },
         entities: {
@@ -451,11 +401,6 @@ describe('Office App', () => {
           isLoading: false,
           userInfo: {
             isLoggedIn: true,
-            roles: [
-              {
-                roleType: roleTypes.TIO,
-              },
-            ],
           },
         },
         entities: {

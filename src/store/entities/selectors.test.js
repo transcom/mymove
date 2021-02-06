@@ -74,21 +74,6 @@ describe('selectRoleTypesForUser', () => {
     };
 
     expect(selectRoleTypesForUser(testState)).toEqual([testState.entities.roles.roleId123.roleType]);
-
-    //   const testState = {
-    //     user: {
-    //       userInfo: {
-    //         isLoggedIn: true,
-    //         roles: [
-    //           {
-    //             roleType: 'TOO',
-    //           },
-    //         ],
-    //       },
-    //     },
-    //   };
-    //
-    //   expect(selectRoleTypesForUser(testState)).toEqual([testState.user.userInfo.roles[0].roleType])
   });
 });
 
