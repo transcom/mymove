@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// TODO: Write NumberDaysSITLookup description
+// NumberDaysSITLookup does lookup of the number of SIT days a Move Task Orders MTO Shipment can bill for
 type NumberDaysSITLookup struct {
 	MTOShipment models.MTOShipment
 }
