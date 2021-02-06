@@ -139,12 +139,12 @@ const branchOfService = createHeader('Branch', 'branch_of_service', {
 });
 
 // Columns used to display in react table
-export const defaultColumns = (component) => {
+export const defaultColumns = (origDutyStationData, desDutyStationData) => {
   return [
     status,
     customerName,
-    origin(component.getOriginDutyStations()),
-    destination(component.getDestinationDutyStations()),
+    origin(origDutyStationData),
+    destination(desDutyStationData),
     dodId,
     locator,
     moveDate,

@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+/* eslint-disable security/detect-object-injection */
+import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -13,7 +14,188 @@ import TableQueue from 'components/Table/TableQueue';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import 'react-table-6/react-table.css';
 
-class QueueTable extends Component {
+const titles = {
+  new: 'New moves',
+  troubleshooting: 'Troubleshooting',
+  ppm_payment_requested: 'Payment requested',
+  all: 'All moves',
+  ppm_completed: 'Completed moves',
+  ppm_approved: 'Approved moves',
+};
+
+const QueueTable = ({ flashMessageLines, history, showFlashMessage, queueType, retrieveMoves, setUserIsLoggedIn }) => {
+  const [data, setData] = useState([]);
+  const [origDutyStationData, setOrigDutyStationData] = useState([]);
+  const [destDutyStationData, setDestDutyStationData] = useState([]);
+  const [isError, setIsError] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState(new Date());
+  // eslint-disable-next-line no-unused-vars
+  const [lastLoadedAtText, setLastLoadedAtText] = useState(formatTimeAgo(new Date()));
+  const [intervalId, setIntervalId] = useState(null);
+  const [loadingQueue, setLoadingQueue] = useState(queueType);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setLastLoadedAtText(formatTimeAgo(lastLoadedAt));
+    }, 5000);
+    setIntervalId(id);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (queueType !== loadingQueue) {
+      setLoadingQueue(queueType);
+    }
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queueType, loadingQueue]);
+
+  const fetchData = async () => {
+    const loadingQueueType = queueType;
+    setData([]);
+    setLoading(true);
+    setLoadingQueue(loadingQueueType);
+
+    // Catch any errors here and render an empty queue
+    try {
+      const body = await retrieveMoves(queueType);
+      // grab all destination duty station and remove duplicates
+      // this will build on top of the current duty stations list we see from the data
+      const origDutyStationDataSet = new Set(origDutyStationData);
+      const destDutyStationDataSet = new Set(destDutyStationData);
+      body.forEach((value) => {
+        if (value.origin_duty_station_name !== undefined && value.origin_duty_station_name !== '') {
+          origDutyStationDataSet.add(value.origin_duty_station_name);
+        }
+        if (value.destination_duty_station_name !== undefined && value.destination_duty_station_name !== '') {
+          destDutyStationDataSet.add(value.destination_duty_station_name);
+        }
+      });
+
+      // Only update the queue list if the request that is returning
+      // is for the same queue as the most recent request.
+      if (loadingQueue === loadingQueueType) {
+        setData(body);
+        setOrigDutyStationData([...origDutyStationDataSet].sort());
+        setDestDutyStationData([...destDutyStationDataSet].sort());
+        setLoading(false);
+        setLastLoadedAt(new Date());
+        setIsError(false);
+        setIsSuccess(true);
+      }
+    } catch (e) {
+      setData([]);
+      setOrigDutyStationData([]);
+      setDestDutyStationData([]);
+      setLoading(false);
+      setLastLoadedAt(new Date());
+      setIsError(true);
+      setIsSuccess(false);
+
+      // redirect to home page if unauthorized
+      if (e.status === 401) {
+        setUserIsLoggedIn(false);
+      }
+    }
+  };
+
+  const refresh = () => {
+    clearInterval(intervalId);
+    setRefreshing(true);
+    setLastLoadedAt(new Date());
+    const id = setInterval(() => {
+      setLastLoadedAtText(formatTimeAgo(lastLoadedAt));
+    }, 5000);
+    setIntervalId(id);
+    fetchData();
+  };
+
+  const openMove = (rowInfo) => {
+    history.push(`/queues/new/moves/${rowInfo.id}`, {
+      referrerPathname: history.location.pathname,
+    });
+  };
+
+  const useQuery = ({ sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) => {
+    return {
+      queueResult: { data: data, totalCount: data.length, page: 1, perPage: 100 },
+      isLoading: loading,
+      isError: isError,
+      isSuccess: isSuccess,
+    };
+  };
+
+  const showColumns = defaultColumns(origDutyStationData, destDutyStationData);
+
+  const defaultSort = () => {
+    if (['all'].includes(queueType)) {
+      return [{ id: 'locator', asc: true }];
+    }
+    return [{ id: 'move_date', asc: true }];
+  };
+
+  data.forEach((row) => {
+    row.shipments = SHIPMENT_OPTIONS.PPM;
+
+    if (row.ppm_status !== null) {
+      row.synthetic_status = row.ppm_status;
+    } else {
+      row.synthetic_status = row.status;
+    }
+  });
+
+  const defaultSortColumn = defaultSort();
+
+  return (
+    <div>
+      {showFlashMessage ? (
+        <Alert type="success" heading="Success">
+          {flashMessageLines.join('\n')}
+          <br />
+        </Alert>
+      ) : null}
+      <div className="queue-table">
+        <span className="staleness-indicator" data-testid="staleness-indicator">
+          Last updated {formatTimeAgo(lastLoadedAt)}
+        </span>
+        <span className={'refresh' + (refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
+          <FontAwesomeIcon
+            data-testid="refreshQueue"
+            className="link-blue"
+            icon="sync-alt"
+            onClick={refresh}
+            color="blue"
+            size="lg"
+            spin={!refreshing && loading}
+          />
+        </span>
+        <TableQueue
+          showFilters
+          showPagination={false}
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={defaultSortColumn}
+          disableMultiSort
+          disableSortBy={false}
+          columns={showColumns}
+          title={titles[queueType]}
+          handleClick={openMove}
+          useQueries={useQuery}
+        />
+      </div>
+    </div>
+  );
+};
+
+/*
+class OldQueueTable extends Component {
   constructor() {
     super();
     this.state = {
@@ -57,12 +239,6 @@ class QueueTable extends Component {
       referrerPathname: this.props.history.location.pathname,
     });
   }
-
-  static defaultProps = {
-    moveLocator: '',
-    firstName: '',
-    lastName: '',
-  };
 
   useQuery({ sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
     return {
@@ -261,6 +437,12 @@ class QueueTable extends Component {
             }}
           />
 */
+
+QueueTable.defaultProps = {
+  moveLocator: '',
+  firstName: '',
+  lastName: '',
+};
 
 const mapStateToProps = (state) => {
   return {
