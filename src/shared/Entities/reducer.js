@@ -21,7 +21,8 @@ function mergeEntities(entities, newEntities) {
 // deletes all items from entities with matching key, id in deleteEntities
 function deleteEntities(entities, deleteEntities) {
   return mapValues(entities, function (value, key) {
-    //RA Summary: eslint - security/detect-object-injection - Using square bracket notation with user input can lead to exploitation
+    //RA Summary: eslint - security/detect-object-injection
+    //RA: Using square bracket notation with user input can lead to exploitation
     //RA: Uses object square bracket notation
     //RA: Valuable for state management cleanup
     //RA: The threat actor (web application user) already controls the execution environment (web browser)
