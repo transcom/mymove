@@ -292,7 +292,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of customer to use",
+          "description": "ID of move order to use",
           "name": "moveOrderID",
           "in": "path",
           "required": true
@@ -1024,7 +1024,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/Move"
             }
           },
           "400": {
@@ -1434,8 +1434,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Fetches a payment request by id",
         "operationId": "getPaymentRequest",
@@ -1499,8 +1498,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Updates status of a payment request by id",
         "operationId": "updatePaymentRequestStatus",
@@ -1742,6 +1740,8 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date",
+            "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
           },
@@ -1798,6 +1798,64 @@ func init() {
             "description": "The request was denied",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
+    "/tac/valid": {
+      "get": {
+        "description": "Returns a boolean based on whether a tac value is valid or not",
+        "tags": [
+          "tac",
+          "moveOrder"
+        ],
+        "summary": "Validation of a TAC value",
+        "operationId": "tacValidation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The tac value to validate",
+            "name": "tac",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved validation status",
+            "schema": {
+              "$ref": "#/definitions/TacValid"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
             }
           },
           "500": {
@@ -2667,6 +2725,12 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mtoAgents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "mtoServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
         "pickupAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -2767,6 +2831,9 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2809,6 +2876,9 @@ func init() {
         "agency": {
           "type": "string",
           "$ref": "#/definitions/Branch"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
           "type": "string",
@@ -2959,6 +3029,10 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
         },
         "moveOrderID": {
           "type": "string",
@@ -3505,8 +3579,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
@@ -3549,7 +3623,7 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITAddress"
+        "ZipSITDestHHGFinalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -3569,6 +3643,18 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
+    },
+    "TacValid": {
+      "type": "object",
+      "required": [
+        "isValid"
+      ],
+      "properties": {
+        "isValid": {
+          "type": "boolean",
+          "example": true
+        }
+      }
     },
     "UpdateMoveOrderPayload": {
       "type": "object",
@@ -3807,6 +3893,30 @@ func init() {
     },
     {
       "name": "move"
+    },
+    {
+      "name": "moveOrder"
+    },
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "customer"
+    },
+    {
+      "name": "mtoServiceItem"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "mtoAgent"
+    },
+    {
+      "name": "paymentServiceItem"
+    },
+    {
+      "name": "tac"
     }
   ]
 }`))
@@ -4148,7 +4258,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of customer to use",
+          "description": "ID of move order to use",
           "name": "moveOrderID",
           "in": "path",
           "required": true
@@ -5042,7 +5152,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/Move"
             }
           },
           "400": {
@@ -5524,8 +5634,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Fetches a payment request by id",
         "operationId": "getPaymentRequest",
@@ -5604,8 +5713,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Updates status of a payment request by id",
         "operationId": "updatePaymentRequestStatus",
@@ -5871,6 +5979,8 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date",
+            "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
           },
@@ -5927,6 +6037,79 @@ func init() {
             "description": "The request was denied",
             "schema": {
               "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tac/valid": {
+      "get": {
+        "description": "Returns a boolean based on whether a tac value is valid or not",
+        "tags": [
+          "tac",
+          "moveOrder"
+        ],
+        "summary": "Validation of a TAC value",
+        "operationId": "tacValidation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The tac value to validate",
+            "name": "tac",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved validation status",
+            "schema": {
+              "$ref": "#/definitions/TacValid"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -6802,6 +6985,12 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mtoAgents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "mtoServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
         "pickupAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -6902,6 +7091,9 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -6944,6 +7136,9 @@ func init() {
         "agency": {
           "type": "string",
           "$ref": "#/definitions/Branch"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
           "type": "string",
@@ -7094,6 +7289,10 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
         },
         "moveOrderID": {
           "type": "string",
@@ -7630,8 +7829,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
@@ -7674,7 +7873,7 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITAddress"
+        "ZipSITDestHHGFinalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -7705,6 +7904,18 @@ func init() {
         "value": {
           "type": "string",
           "example": "Service Item Parameter Value"
+        }
+      }
+    },
+    "TacValid": {
+      "type": "object",
+      "required": [
+        "isValid"
+      ],
+      "properties": {
+        "isValid": {
+          "type": "boolean",
+          "example": true
         }
       }
     },
@@ -7948,6 +8159,30 @@ func init() {
     },
     {
       "name": "move"
+    },
+    {
+      "name": "moveOrder"
+    },
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "customer"
+    },
+    {
+      "name": "mtoServiceItem"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "mtoAgent"
+    },
+    {
+      "name": "paymentServiceItem"
+    },
+    {
+      "name": "tac"
     }
   ]
 }`))

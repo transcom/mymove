@@ -32,6 +32,9 @@ type Move struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`

@@ -73,6 +73,12 @@ jest.mock('hooks/queries', () => ({
           ],
         },
       ],
+      mtoShipments: {
+        0: {
+          destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
+          pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
+        },
+      },
     };
   },
 }));

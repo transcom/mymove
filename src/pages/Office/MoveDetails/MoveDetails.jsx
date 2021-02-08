@@ -1,49 +1,22 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
 import classnames from 'classnames';
-import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { queryCache, useMutation } from 'react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
-import { getMTOAgentList, selectMTOAgents } from 'shared/Entities/modules/mtoAgents';
-import {
-  patchMTOShipmentStatus as patchMTOShipmentStatusAction,
-  getMTOShipments as getMTOShipmentsAction,
-  selectMTOShipments,
-} from 'shared/Entities/modules/mtoShipments';
 import 'styles/office.scss';
-import { getMoveByLocator as getMoveByLocatorAction, selectMoveByLocator } from 'shared/Entities/modules/moves';
-import {
-  getMoveOrder as getMoveOrderAction,
-  getCustomer as getCustomerAction,
-  getAllMoveTaskOrders as getAllMoveTaskOrdersAction,
-  updateMoveTaskOrderStatus as updateMoveTaskOrderStatusAction,
-  selectMoveTaskOrders,
-  selectMoveOrder,
-  selectCustomer,
-} from 'shared/Entities/modules/moveTaskOrders';
-import {
-  getMTOServiceItems as getMTOServiceItemsAction,
-  selectMTOServiceItems,
-} from 'shared/Entities/modules/mtoServiceItems';
-import { loadOrders } from 'shared/Entities/modules/orders';
+import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
 import AllowancesTable from 'components/Office/AllowancesTable/AllowancesTable';
 import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
-import {
-  MoveOrderShape,
-  EntitlementShape,
-  CustomerShape,
-  MTOShipmentShape,
-  MTOAgentShape,
-  MTOServiceItemShape,
-  MoveTaskOrderShape,
-} from 'types/moveOrder';
-import { MatchShape } from 'types/router';
+import { useMoveDetailsQueries } from 'hooks/queries';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -53,71 +26,17 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-export class MoveDetails extends Component {
-  constructor(props) {
-    super(props);
+const MoveDetails = () => {
+  const { moveCode } = useParams();
 
-    this.state = {
-      activeSection: '',
-      sections: ['orders', 'allowances', 'customer-info'],
-    };
-  }
+  const [activeSection, setActiveSection] = useState('');
 
-  componentDidMount() {
-    // attach scroll listener
-    window.addEventListener('scroll', this.handleScroll);
+  const { move, moveOrder, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
-    // TODO - API flow
-    const {
-      match,
-      getMoveByLocator,
-      getMoveOrder,
-      getCustomer,
-      getAllMoveTaskOrders,
-      getMTOShipments,
-      getMTOServiceItems,
-    } = this.props;
-    const {
-      params: { moveCode },
-    } = match;
+  let sections = ['orders', 'allowances', 'customer-info'];
 
-    // TODO - Refactor when we convert this file to use react-query
-    getMoveByLocator(moveCode).then(
-      ({
-        response: {
-          body: { ordersId: moveOrderId },
-        },
-      }) => {
-        getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
-          getCustomer(moveOrder.customerID);
-          getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
-            moveTaskOrder.forEach((item) =>
-              getMTOShipments(item.id).then(({ response: { body: mtoShipments } }) => {
-                mtoShipments.map((shipment) => getMTOAgentList(shipment.moveTaskOrderID, shipment.id));
-                this.checkToAddShipmentsSections(mtoShipments);
-                getMTOServiceItems(item.id);
-              }),
-            );
-          });
-        });
-      },
-    );
-  }
-
-  componentWillUnmount() {
-    // remove scroll listener
-    window.removeEventListener('scroll', this.handleScroll);
-  }
-
-  setActiveSection = (sectionId) => {
-    this.setState({
-      activeSection: sectionId,
-    });
-  };
-
-  handleScroll = () => {
+  const handleScroll = () => {
     const distanceFromTop = window.scrollY;
-    const { sections, activeSection } = this.state;
     let newActiveSection;
 
     sections.forEach((section) => {
@@ -128,220 +47,157 @@ export class MoveDetails extends Component {
     });
 
     if (activeSection !== newActiveSection) {
-      this.setActiveSection(newActiveSection);
+      setActiveSection(newActiveSection);
     }
   };
 
-  checkToAddShipmentsSections = (shipments) => {
-    const approvedShipments = shipments.filter((shipment) => shipment.status === 'APPROVED');
-    const submittedShipments = shipments.filter((shipment) => shipment.status === 'SUBMITTED');
+  useEffect(() => {
+    // attach scroll listener
+    window.addEventListener('scroll', handleScroll);
 
-    if (submittedShipments.length > 0 && approvedShipments.length > 0) {
-      this.setState((previousState) => ({
-        sections: ['approved-shipments', 'requested-shipments', ...previousState.sections],
-      }));
-    } else if (approvedShipments.length > 0) {
-      this.setState((previousState) => ({ sections: ['approved-shipments', ...previousState.sections] }));
-    } else if (submittedShipments.length > 0) {
-      this.setState((previousState) => ({ sections: ['requested-shipments', ...previousState.sections] }));
-    }
-  };
-
-  render() {
-    const {
-      moveOrder,
-      allowances,
-      customer,
-      mtoShipments,
-      mtoAgents,
-      mtoServiceItems,
-      moveTaskOrder,
-      updateMoveTaskOrderStatus,
-      patchMTOShipmentStatus,
-      match,
-    } = this.props;
-
-    const {
-      params: { moveCode },
-    } = match;
-
-    const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
-    const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
-
-    const { activeSection, sections } = this.state;
-
-    const ordersInfo = {
-      newDutyStation: moveOrder.destinationDutyStation,
-      currentDutyStation: moveOrder.originDutyStation,
-      issuedDate: moveOrder.date_issued,
-      reportByDate: moveOrder.report_by_date,
-      departmentIndicator: moveOrder.department_indicator,
-      ordersNumber: moveOrder.order_number,
-      ordersType: moveOrder.order_type,
-      ordersTypeDetail: moveOrder.order_type_detail,
-      tacMDC: moveOrder.tac,
-      sacSDN: moveOrder.sac,
+    // remove scroll listener
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
     };
-    const allowancesInfo = {
-      branch: customer.agency,
-      rank: moveOrder.grade,
-      weightAllowance: allowances.totalWeight,
-      authorizedWeight: allowances.authorizedWeight,
-      progear: allowances.proGearWeight,
-      spouseProgear: allowances.proGearWeightSpouse,
-      storageInTransit: allowances.storageInTransit,
-      dependents: allowances.dependentsAuthorized,
-    };
-    const customerInfo = {
-      name: `${customer.last_name}, ${customer.first_name}`,
-      dodId: customer.dodID,
-      phone: `+1 ${customer.phone}`,
-      email: customer.email,
-      currentAddress: customer.current_address,
-      backupContact: customer.backup_contact,
-    };
+  });
 
-    return (
-      <div className={styles.tabContent}>
-        <div className={styles.container}>
-          <LeftNav className={styles.sidebar}>
-            {sections.map((s) => {
-              const classes = classnames({ active: s === activeSection });
-              return (
-                <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
-                  {/* eslint-disable-next-line security/detect-object-injection */}
-                  {sectionLabels[s]}
-                </a>
-              );
-            })}
-          </LeftNav>
+  // use mutation calls
+  const [mutateMoveStatus] = useMutation(updateMoveStatus, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([MOVES, data.locator], data);
+    },
+  });
 
-          <GridContainer className={styles.gridContainer} data-testid="too-move-details">
-            <h1>Move details</h1>
-            {submittedShipments.length > 0 && (
-              <div className={styles.section} id="requested-shipments">
-                <RequestedShipments
-                  mtoShipments={submittedShipments}
-                  ordersInfo={ordersInfo}
-                  allowancesInfo={allowancesInfo}
-                  customerInfo={customerInfo}
-                  mtoAgents={mtoAgents}
-                  mtoServiceItems={mtoServiceItems}
-                  shipmentsStatus="SUBMITTED"
-                  approveMTO={updateMoveTaskOrderStatus}
-                  approveMTOShipment={patchMTOShipmentStatus}
-                  moveTaskOrder={moveTaskOrder}
-                />
-              </div>
-            )}
-            {approvedShipments.length > 0 && (
-              <div className={styles.section} id="approved-shipments">
-                <RequestedShipments
-                  mtoShipments={approvedShipments}
-                  ordersInfo={ordersInfo}
-                  allowancesInfo={allowancesInfo}
-                  customerInfo={customerInfo}
-                  mtoAgents={mtoAgents}
-                  mtoServiceItems={mtoServiceItems}
-                  shipmentsStatus="APPROVED"
-                  moveTaskOrder={moveTaskOrder}
-                />
-              </div>
-            )}
-            <div className={styles.section} id="orders">
-              <GridContainer>
-                <Grid row gap>
-                  <Grid col>
-                    <OrdersTable ordersInfo={ordersInfo} moveCode={moveCode} />
-                  </Grid>
-                </Grid>
-              </GridContainer>
-            </div>
-            <div className={styles.section} id="allowances">
-              <GridContainer>
-                <Grid row gap>
-                  <Grid col>
-                    <AllowancesTable info={allowancesInfo} showEditBtn />
-                  </Grid>
-                </Grid>
-              </GridContainer>
-            </div>
-            <div className={styles.section} id="customer-info">
-              <GridContainer>
-                <Grid row gap>
-                  <Grid col>
-                    <CustomerInfoTable customerInfo={customerInfo} />
-                  </Grid>
-                </Grid>
-              </GridContainer>
-            </div>
-          </GridContainer>
-        </div>
-      </div>
-    );
+  const [mutateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
+    onSuccess: (updatedMTOShipment) => {
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+    },
+  });
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+
+  const { customer, entitlement: allowances } = moveOrder;
+
+  const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
+  const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
+
+  if (submittedShipments.length > 0 && approvedShipments.length > 0) {
+    sections = ['requested-shipments', 'approved-shipments', ...sections];
+  } else if (approvedShipments.length > 0) {
+    sections = ['approved-shipments', ...sections];
+  } else if (submittedShipments.length > 0) {
+    sections = ['requested-shipments', ...sections];
   }
-}
 
-MoveDetails.propTypes = {
-  match: MatchShape.isRequired,
-  getMoveByLocator: PropTypes.func.isRequired,
-  getMoveOrder: PropTypes.func.isRequired,
-  getCustomer: PropTypes.func.isRequired,
-  getAllMoveTaskOrders: PropTypes.func.isRequired,
-  updateMoveTaskOrderStatus: PropTypes.func.isRequired,
-  patchMTOShipmentStatus: PropTypes.func.isRequired,
-  getMTOShipments: PropTypes.func.isRequired,
-  getMTOServiceItems: PropTypes.func.isRequired,
-  moveOrder: MoveOrderShape,
-  allowances: EntitlementShape,
-  customer: CustomerShape,
-  mtoShipments: PropTypes.arrayOf(MTOShipmentShape),
-  mtoAgents: PropTypes.arrayOf(MTOAgentShape),
-  mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
-  moveTaskOrder: MoveTaskOrderShape,
-};
-
-MoveDetails.defaultProps = {
-  moveOrder: {},
-  allowances: {},
-  customer: {},
-  mtoShipments: [],
-  mtoAgents: [],
-  mtoServiceItems: [],
-  moveTaskOrder: {},
-};
-
-const mapStateToProps = (state, ownProps) => {
-  const move = selectMoveByLocator(state, ownProps.match.params.moveCode);
-  const moveOrderId = move?.ordersId;
-  const moveOrder = selectMoveOrder(state, moveOrderId);
-  const allowances = moveOrder?.entitlement;
-  const customerId = moveOrder.customerID;
-  const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
-  const moveTaskOrder = moveTaskOrders[0];
-
-  return {
-    moveOrder,
-    allowances,
-    customer: selectCustomer(state, customerId),
-    mtoShipments: selectMTOShipments(state, moveOrderId),
-    mtoAgents: selectMTOAgents(state),
-    mtoServiceItems: selectMTOServiceItems(state, moveOrderId),
-    moveTaskOrder,
+  const ordersInfo = {
+    newDutyStation: moveOrder.destinationDutyStation,
+    currentDutyStation: moveOrder.originDutyStation,
+    issuedDate: moveOrder.date_issued,
+    reportByDate: moveOrder.report_by_date,
+    departmentIndicator: moveOrder.department_indicator,
+    ordersNumber: moveOrder.order_number,
+    ordersType: moveOrder.order_type,
+    ordersTypeDetail: moveOrder.order_type_detail,
+    tacMDC: moveOrder.tac,
+    sacSDN: moveOrder.sac,
   };
+  const allowancesInfo = {
+    branch: customer.agency,
+    rank: moveOrder.grade,
+    weightAllowance: allowances.totalWeight,
+    authorizedWeight: allowances.authorizedWeight,
+    progear: allowances.proGearWeight,
+    spouseProgear: allowances.proGearWeightSpouse,
+    storageInTransit: allowances.storageInTransit,
+    dependents: allowances.dependentsAuthorized,
+  };
+  const customerInfo = {
+    name: `${customer.last_name}, ${customer.first_name}`,
+    dodId: customer.dodID,
+    phone: `+1 ${customer.phone}`,
+    email: customer.email,
+    currentAddress: customer.current_address,
+    backupContact: customer.backup_contact,
+  };
+
+  return (
+    <div className={styles.tabContent}>
+      <div className={styles.container}>
+        <LeftNav className={styles.sidebar}>
+          {sections.map((s) => {
+            const classes = classnames({ active: s === activeSection });
+            return (
+              <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
+                {sectionLabels[`${s}`]}
+              </a>
+            );
+          })}
+        </LeftNav>
+
+        <GridContainer className={styles.gridContainer} data-testid="too-move-details">
+          <h1>Move details</h1>
+          {/* TODO - RequestedShipments could be simplified, if extra time we could tackle this or just write a story to track */}
+          {submittedShipments.length > 0 && (
+            <div className={styles.section} id="requested-shipments">
+              <RequestedShipments
+                mtoShipments={submittedShipments}
+                ordersInfo={ordersInfo}
+                allowancesInfo={allowancesInfo}
+                customerInfo={customerInfo}
+                mtoServiceItems={mtoServiceItems}
+                shipmentsStatus="SUBMITTED"
+                approveMTO={mutateMoveStatus}
+                approveMTOShipment={mutateMTOShipmentStatus}
+                moveTaskOrder={move}
+              />
+            </div>
+          )}
+          {approvedShipments.length > 0 && (
+            <div className={styles.section} id="approved-shipments">
+              <RequestedShipments
+                mtoShipments={approvedShipments}
+                ordersInfo={ordersInfo}
+                allowancesInfo={allowancesInfo}
+                customerInfo={customerInfo}
+                mtoServiceItems={mtoServiceItems}
+                shipmentsStatus="APPROVED"
+                moveTaskOrder={move}
+              />
+            </div>
+          )}
+          <div className={styles.section} id="orders">
+            <GridContainer>
+              <Grid row gap>
+                <Grid col>
+                  <OrdersTable ordersInfo={ordersInfo} />
+                </Grid>
+              </Grid>
+            </GridContainer>
+          </div>
+          <div className={styles.section} id="allowances">
+            <GridContainer>
+              <Grid row gap>
+                <Grid col>
+                  <AllowancesTable info={allowancesInfo} showEditBtn />
+                </Grid>
+              </Grid>
+            </GridContainer>
+          </div>
+          <div className={styles.section} id="customer-info">
+            <GridContainer>
+              <Grid row gap>
+                <Grid col>
+                  <CustomerInfoTable customerInfo={customerInfo} />
+                </Grid>
+              </Grid>
+            </GridContainer>
+          </div>
+        </GridContainer>
+      </div>
+    </div>
+  );
 };
 
-const mapDispatchToProps = {
-  getMoveByLocator: getMoveByLocatorAction,
-  getMoveOrder: getMoveOrderAction,
-  loadOrders,
-  getCustomer: getCustomerAction,
-  getAllMoveTaskOrders: getAllMoveTaskOrdersAction,
-  updateMoveTaskOrderStatus: updateMoveTaskOrderStatusAction,
-  getMTOShipments: getMTOShipmentsAction,
-  getMTOAgentList,
-  getMTOServiceItems: getMTOServiceItemsAction,
-  patchMTOShipmentStatus: patchMTOShipmentStatusAction,
-};
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveDetails));
+export default MoveDetails;

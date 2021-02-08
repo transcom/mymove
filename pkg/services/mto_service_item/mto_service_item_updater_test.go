@@ -85,10 +85,12 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		reason := "because we did this service"
 		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
 
+		newAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{Stub: true})
 		newServiceItem := serviceItem
 		newServiceItem.Reason = &reason
 		newServiceItem.SITEntryDate = &sitEntryDate
 		newServiceItem.Status = "" // should keep the status from the original service item
+		newServiceItem.SITDestinationFinalAddress = &newAddress
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &newServiceItem, eTag)
 
@@ -100,6 +102,11 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(updatedServiceItem.Reason, newServiceItem.Reason)
 		suite.Equal(updatedServiceItem.SITEntryDate.Local(), newServiceItem.SITEntryDate.Local())
 		suite.Equal(updatedServiceItem.Status, serviceItem.Status) // should not have been updated
+		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.StreetAddress1, newAddress.StreetAddress1)
+		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.City, newAddress.City)
+		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.State, newAddress.State)
+		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.Country, newAddress.Country)
+		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.PostalCode, newAddress.PostalCode)
 		suite.NotEqual(updatedServiceItem.Status, newServiceItem.Status)
 	})
 }

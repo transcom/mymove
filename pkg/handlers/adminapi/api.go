@@ -4,6 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 
 	"github.com/transcom/mymove/pkg/services/organization"
@@ -123,9 +126,10 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
-	adminAPI.UsersRevokeUserSessionHandler = RevokeUserSessionHandler{
+	adminAPI.UsersUpdateUserHandler = UpdateUserHandler{
 		context,
 		user.NewUserSessionRevocation(queryBuilder),
+		user.NewUserUpdater(queryBuilder),
 		query.NewQueryFilter,
 	}
 
@@ -153,6 +157,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.UsersIndexUsersHandler = IndexUsersHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
 		context,
 		upload.NewUploadInformationFetcher(context.DB()),
@@ -168,6 +178,22 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	adminAPI.MoveIndexMovesHandler = IndexMovesHandler{
 		context,
 		move.NewMoveListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.MoveUpdateMoveHandler = UpdateMoveHandler{
+		context,
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+	}
+
+	adminAPI.MoveGetMoveHandler = GetMoveHandler{
+		context,
+	}
+
+	adminAPI.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = IndexWebhookSubscriptionsHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}

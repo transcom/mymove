@@ -44,8 +44,8 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 		mock.Anything,
 	).Return(defaultZip3Distance, nil)
 	planner.On("Zip5TransitDistance",
-		"90210",
-		"94535",
+		mock.Anything,
+		mock.Anything,
 	).Return(defaultZip5Distance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
@@ -253,6 +253,83 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 
 		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
+	})
+
+	suite.T().Run("SITDestinationAddress is looked up for destination sit", func(t *testing.T) {
+		sitFinalDestAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
+		testData := []models.MTOServiceItem{
+			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+					Name: "DDASIT",
+				},
+				MTOServiceItem: models.MTOServiceItem{
+					SITDestinationFinalAddressID: &sitFinalDestAddress.ID,
+					SITDestinationFinalAddress:   &sitFinalDestAddress,
+				},
+			}),
+			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+					Name: "DDDSIT",
+				},
+				MTOServiceItem: models.MTOServiceItem{
+					SITDestinationFinalAddressID: &sitFinalDestAddress.ID,
+					SITDestinationFinalAddress:   &sitFinalDestAddress,
+				},
+			}),
+			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+					Name: "DDFSIT",
+				},
+				MTOServiceItem: models.MTOServiceItem{
+					SITDestinationFinalAddressID: &sitFinalDestAddress.ID,
+					SITDestinationFinalAddress:   &sitFinalDestAddress,
+				},
+			}),
+		}
+
+		for _, mtoServiceItem := range testData {
+			paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+			suite.FatalNoError(err)
+
+			suite.NotNil(paramLookup.MTOServiceItem)
+			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipSITDestHHGFinalAddress].(ZipAddressLookup); ok {
+				suite.Equal(mtoServiceItem.SITDestinationFinalAddress.PostalCode, zdal.Address.PostalCode)
+			} else {
+				suite.Fail("lookup not ZipSitAddress destination type")
+			}
+		}
+	})
+
+	suite.T().Run("SITDestinationAddress is not loaded non sit", func(t *testing.T) {
+		testData := []models.MTOServiceItem{
+			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDLH,
+					Name: "DLH",
+				},
+			}),
+			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDSH,
+					Name: "DSH",
+				},
+			}),
+		}
+
+		for _, mtoServiceItem := range testData {
+			paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+			suite.FatalNoError(err)
+
+			suite.NotNil(paramLookup.MTOServiceItem)
+			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipSITDestHHGFinalAddress].(ZipAddressLookup); ok {
+				suite.Equal("", zdal.Address.PostalCode)
+			} else {
+				suite.Fail("lookup not ZipSitAddress destination type")
+			}
+		}
 	})
 
 	suite.T().Run("nil MTOServiceItemID", func(t *testing.T) {
