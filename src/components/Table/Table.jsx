@@ -31,18 +31,8 @@ const Table = ({
     <div data-testid="react-table" className={styles.Table}>
       <table {...getTableProps()}>
         <thead>
-          {headerGroups.map((headerGroup, hgIndex) => (
-            // RA Summary: eslint:react/no-array-index-key - Using the index as an element key in cases where the array is reordered will result in unnecessary renders.
-            // RA: Index of array item is being used as a part of key prop for dom element
-            // RA: The key prop is used by React to identify which items have changed, are added, or are removed and should be stable.
-            // RA: There are no other unique identifiers that can be used
-            // RA Developer Status: Mitigated
-            // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-            // RA Validator: jneuner@mitre.org
-            // RA Modified Severity:
-            /* Does not have any unique properties that can be used as key */
-            /* eslint-disable-next-line react/no-array-index-key */
-            <Fragment key={`headerGroup${hgIndex}`}>
+          {headerGroups.map((headerGroup) => (
+            <Fragment key={headerGroup.getHeaderGroupProps().key}>
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => {
                   const sortProperties = column.canSort ? column.getSortByToggleProps() : {};
@@ -62,17 +52,7 @@ const Table = ({
                 })}
               </tr>
               {showFilters && (
-                // RA Summary: eslint:react/no-array-index-key - Using the index as an element key in cases where the array is reordered will result in unnecessary renders.
-                // RA: Index of array item is being used as a part of key prop for dom element
-                // RA: The key prop is used by React to identify which items have changed, are added, or are removed and should be stable.
-                // RA: There are no other unique identifiers that can be used
-                // RA Developer Status: Mitigated
-                // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-                // RA Validator: jneuner@mitre.org
-                // RA Modified Severity:
-                /* Does not have any unique properties that can be used as key */
-                /* eslint-disable-next-line react/no-array-index-key */
-                <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
+                <tr className={styles.tableHeaderFilters} key={`filter_${headerGroup.getHeaderGroupProps().key}`}>
                   {headerGroup.headers.map((column) => (
                     <th key={column.id} data-testid={column.id}>
                       {/* isFilterable is a custom prop that can be set in the Column object */}
