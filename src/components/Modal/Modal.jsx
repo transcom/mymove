@@ -58,6 +58,7 @@ export const ModalClose = ({ handleClick, className, ...buttonProps }) => (
     unstyled
     className={classnames(styles.ModalClose, className)}
     data-testid="modalCloseButton"
+    aria-label="Close"
     {...buttonProps}
   >
     <FontAwesomeIcon icon="times" />
