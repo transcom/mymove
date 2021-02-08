@@ -30,7 +30,7 @@ const QueueTable = ({ flashMessageLines, history, showFlashMessage, queueType, r
   const [isError, setIsError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(true);
   const [lastLoadedAt, setLastLoadedAt] = useState(new Date());
   // eslint-disable-next-line no-unused-vars
   const [lastLoadedAtText, setLastLoadedAtText] = useState(formatTimeAgo(new Date()));
@@ -50,61 +50,67 @@ const QueueTable = ({ flashMessageLines, history, showFlashMessage, queueType, r
   }, []);
 
   useEffect(() => {
-    if (queueType !== loadingQueue) {
-      setLoadingQueue(queueType);
-    }
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queueType, loadingQueue]);
-
-  const fetchData = async () => {
-    const loadingQueueType = queueType;
-    setData([]);
-    setLoading(true);
-    setLoadingQueue(loadingQueueType);
-
-    // Catch any errors here and render an empty queue
-    try {
-      const body = await retrieveMoves(queueType);
-      // grab all destination duty station and remove duplicates
-      // this will build on top of the current duty stations list we see from the data
-      const origDutyStationDataSet = new Set(origDutyStationData);
-      const destDutyStationDataSet = new Set(destDutyStationData);
-      body.forEach((value) => {
-        if (value.origin_duty_station_name !== undefined && value.origin_duty_station_name !== '') {
-          origDutyStationDataSet.add(value.origin_duty_station_name);
-        }
-        if (value.destination_duty_station_name !== undefined && value.destination_duty_station_name !== '') {
-          destDutyStationDataSet.add(value.destination_duty_station_name);
-        }
-      });
-
-      // Only update the queue list if the request that is returning
-      // is for the same queue as the most recent request.
-      if (loadingQueue === loadingQueueType) {
-        setData(body);
-        setOrigDutyStationData([...origDutyStationDataSet].sort());
-        setDestDutyStationData([...destDutyStationDataSet].sort());
-        setLoading(false);
-        setLastLoadedAt(new Date());
-        setIsError(false);
-        setIsSuccess(true);
-      }
-    } catch (e) {
+    const fetchData = async () => {
       setData([]);
-      setOrigDutyStationData([]);
-      setDestDutyStationData([]);
-      setLoading(false);
-      setLastLoadedAt(new Date());
-      setIsError(true);
-      setIsSuccess(false);
+      setLoading(true);
+      setLoadingQueue(queueType);
 
-      // redirect to home page if unauthorized
-      if (e.status === 401) {
-        setUserIsLoggedIn(false);
+      try {
+        const body = await retrieveMoves(queueType);
+        // grab all destination duty station and remove duplicates
+        // this will build on top of the current duty stations list we see from the data
+        const sortOrigDutyStationData = (origDutyStationData) => {
+          const origDutyStationDataSet = new Set(origDutyStationData);
+          body.forEach((value) => {
+            if (value.origin_duty_station_name !== undefined && value.origin_duty_station_name !== '') {
+              origDutyStationDataSet.add(value.origin_duty_station_name);
+            }
+          });
+          return [...origDutyStationDataSet].sort();
+        };
+
+        const sortDestDutyStationData = (destDutyStationData) => {
+          const destDutyStationDataSet = new Set(destDutyStationData);
+          body.forEach((value) => {
+            if (value.destination_duty_station_name !== undefined && value.destination_duty_station_name !== '') {
+              destDutyStationDataSet.add(value.destination_duty_station_name);
+            }
+          });
+          return [...destDutyStationDataSet].sort();
+        };
+
+        // Only update the queue list if the request that is returning
+        // is for the same queue as the most recent request.
+        if (loadingQueue === queueType) {
+          setData(body);
+          setOrigDutyStationData(sortOrigDutyStationData);
+          setDestDutyStationData(sortDestDutyStationData);
+          setLoading(false);
+          setRefreshing(false);
+          setLastLoadedAt(new Date());
+          setIsError(false);
+          setIsSuccess(true);
+        }
+      } catch (e) {
+        setData([]);
+        setOrigDutyStationData([]);
+        setDestDutyStationData([]);
+        setLoading(false);
+        setRefreshing(false);
+        setLastLoadedAt(new Date());
+        setIsError(true);
+        setIsSuccess(false);
+
+        // redirect to home page if unauthorized
+        if (e.status === 401) {
+          setUserIsLoggedIn(false);
+        }
       }
+    };
+    if (refreshing || loadingQueue !== queueType) {
+      fetchData();
     }
-  };
+  }, [loadingQueue, queueType, retrieveMoves, setUserIsLoggedIn, refreshing]);
 
   const refresh = () => {
     clearInterval(intervalId);
@@ -114,7 +120,7 @@ const QueueTable = ({ flashMessageLines, history, showFlashMessage, queueType, r
       setLastLoadedAtText(formatTimeAgo(lastLoadedAt));
     }, 5000);
     setIntervalId(id);
-    fetchData();
+    //fetchData();
   };
 
   const openMove = (rowInfo) => {
