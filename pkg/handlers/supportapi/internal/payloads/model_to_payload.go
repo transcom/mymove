@@ -114,20 +114,22 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 	issueDate := strfmt.Date(moveOrder.IssueDate)
 
 	payload := supportmessages.MoveOrder{
-		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            Entitlement(moveOrder.Entitlement),
-		Customer:               Customer(&moveOrder.ServiceMember),
-		OrderNumber:            moveOrder.OrdersNumber,
-		OrdersType:             supportmessages.OrdersType(moveOrder.OrdersType),
-		ID:                     strfmt.UUID(moveOrder.ID.String()),
-		OriginDutyStation:      originDutyStation,
-		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
-		Status:                 supportmessages.OrdersStatus(moveOrder.Status),
-		UploadedOrders:         uploadedOrders,
-		UploadedOrdersID:       uploadedOrders.ID,
-		ReportByDate:           &reportByDate,
-		IssueDate:              &issueDate,
-		Tac:                    moveOrder.TAC,
+		DestinationDutyStation:   destinationDutyStation,
+		DestinationDutyStationID: handlers.FmtUUID(moveOrder.NewDutyStationID),
+		Entitlement:              Entitlement(moveOrder.Entitlement),
+		Customer:                 Customer(&moveOrder.ServiceMember),
+		OrderNumber:              moveOrder.OrdersNumber,
+		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
+		ID:                       strfmt.UUID(moveOrder.ID.String()),
+		OriginDutyStation:        originDutyStation,
+		OriginDutyStationID:      handlers.FmtUUID(*moveOrder.OriginDutyStationID),
+		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
+		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
+		UploadedOrders:           uploadedOrders,
+		UploadedOrdersID:         handlers.FmtUUID(moveOrder.UploadedOrdersID),
+		ReportByDate:             &reportByDate,
+		IssueDate:                &issueDate,
+		Tac:                      moveOrder.TAC,
 	}
 
 	if moveOrder.Grade != nil {
