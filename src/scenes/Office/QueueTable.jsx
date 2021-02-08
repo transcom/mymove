@@ -32,22 +32,23 @@ const QueueTable = ({ flashMessageLines, history, showFlashMessage, queueType, r
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(true);
   const [lastLoadedAt, setLastLoadedAt] = useState(new Date());
-  // eslint-disable-next-line no-unused-vars
   const [lastLoadedAtText, setLastLoadedAtText] = useState(formatTimeAgo(new Date()));
-  const [intervalId, setIntervalId] = useState(null);
   const [loadingQueue, setLoadingQueue] = useState(queueType);
 
   useEffect(() => {
     const id = setInterval(() => {
       setLastLoadedAtText(formatTimeAgo(lastLoadedAt));
     }, 5000);
-    setIntervalId(id);
 
     return () => {
-      clearInterval(intervalId);
+      clearInterval(id);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setLastLoadedAtText(formatTimeAgo(lastLoadedAt));
+  }, [lastLoadedAt]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,14 +114,8 @@ const QueueTable = ({ flashMessageLines, history, showFlashMessage, queueType, r
   }, [loadingQueue, queueType, retrieveMoves, setUserIsLoggedIn, refreshing]);
 
   const refresh = () => {
-    clearInterval(intervalId);
     setRefreshing(true);
     setLastLoadedAt(new Date());
-    const id = setInterval(() => {
-      setLastLoadedAtText(formatTimeAgo(lastLoadedAt));
-    }, 5000);
-    setIntervalId(id);
-    //fetchData();
   };
 
   const openMove = (rowInfo) => {
@@ -169,7 +164,7 @@ const QueueTable = ({ flashMessageLines, history, showFlashMessage, queueType, r
       ) : null}
       <div className="queue-table">
         <span className="staleness-indicator" data-testid="staleness-indicator">
-          Last updated {formatTimeAgo(lastLoadedAt)}
+          Last updated {lastLoadedAtText}
         </span>
         <span className={'refresh' + (refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
           <FontAwesomeIcon
