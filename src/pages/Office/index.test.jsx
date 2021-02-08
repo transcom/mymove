@@ -62,7 +62,7 @@ describe('Office App', () => {
         user: {
           userId123: {
             id: 'userId123',
-            roles: ['roleId123'],
+            roles: [{ roleType: roleTypes.TOO }],
             office_user: {
               first_name: 'Amanda',
               last_name: 'Gorman',
@@ -71,9 +71,6 @@ describe('Office App', () => {
               },
             },
           },
-        },
-        roles: {
-          roleId123: { roleType: roleTypes.TOO },
         },
       },
     };
@@ -107,7 +104,7 @@ describe('Office App', () => {
         user: {
           userId123: {
             id: 'userId123',
-            roles: ['roleId987'],
+            roles: [{ roleType: roleTypes.TIO }],
             office_user: {
               first_name: 'Amanda',
               last_name: 'Gorman',
@@ -116,9 +113,6 @@ describe('Office App', () => {
               },
             },
           },
-        },
-        roles: {
-          roleId987: { roleType: roleTypes.TIO },
         },
       },
     };
@@ -152,13 +146,12 @@ describe('Office App', () => {
         user: {
           userId123: {
             id: 'userId123',
-            roles: ['roleId246', 'roleId123', 'roleId987'],
+            roles: [
+              { roleType: roleTypes.CONTRACTING_OFFICER },
+              { roleType: roleTypes.TOO },
+              { roleType: roleTypes.TIO },
+            ],
           },
-        },
-        roles: {
-          roleId246: { roleType: roleTypes.CONTRACTING_OFFICER },
-          roleId123: { roleType: roleTypes.TOO },
-          roleId987: { roleType: roleTypes.TIO },
         },
       },
     };
@@ -207,11 +200,8 @@ describe('Office App', () => {
         user: {
           userId123: {
             id: 'userId123',
-            roles: ['roleId123'],
+            roles: [{ roleType: roleTypes.PPM }],
           },
-        },
-        roles: {
-          roleId123: { roleType: roleTypes.PPM },
         },
       },
     };
@@ -279,11 +269,8 @@ describe('Office App', () => {
           user: {
             userId123: {
               id: 'userId123',
-              roles: ['roleId123'],
+              roles: [{ roleType: roleTypes.PPM }],
             },
-          },
-          roles: {
-            roleId123: { roleType: roleTypes.PPM },
           },
         },
       };
@@ -358,11 +345,8 @@ describe('Office App', () => {
           user: {
             userId123: {
               id: 'userId123',
-              roles: ['roleId123'],
+              roles: [{ roleType: roleTypes.TOO }],
             },
-          },
-          roles: {
-            roleId123: { roleType: roleTypes.TOO },
           },
         },
       };
@@ -407,11 +391,8 @@ describe('Office App', () => {
           user: {
             userId123: {
               id: 'userId123',
-              roles: ['roleId987'],
+              roles: [{ roleType: roleTypes.TIO }],
             },
-          },
-          roles: {
-            roleId987: { roleType: roleTypes.TIO },
           },
         },
       };

@@ -5,10 +5,11 @@ import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button, GridContainer } from '@trussworks/react-uswds';
 
-import { selectRoleTypesForUser } from 'store/entities/selectors';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import { setActiveRole as setActiveRoleAction } from 'store/auth/actions';
 import { roleTypes } from 'constants/userRoles';
-import { UserRolesShape } from 'types/index';
+import { UserRolesShape } from 'types';
+import getRoleTypesFromRoles from 'utils/user';
 
 const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
   const history = useHistory();
@@ -18,13 +19,15 @@ const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
     history.push('/');
   };
 
+  const userRoleTypes = getRoleTypesFromRoles(userRoles);
+
   return (
     <GridContainer>
-      <h2>Current role: {activeRole || userRoles[0]}</h2>
+      <h2>Current role: {activeRole || userRoleTypes[0]}</h2>
 
       <ul className="usa-button-group">
         {[roleTypes.PPM, roleTypes.TOO, roleTypes.TIO]
-          .filter((r) => userRoles.find((role) => r === role))
+          .filter((r) => userRoleTypes.find((role) => r === role))
           .map((r) => (
             <li key={`selectRole_${r}`}>
               <Button
@@ -53,9 +56,11 @@ SelectApplication.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
+  const user = selectLoggedInUser(state);
+
   return {
     activeRole: state.auth.activeRole,
-    userRoles: selectRoleTypesForUser(state),
+    userRoles: user.roles || [],
   };
 };
 

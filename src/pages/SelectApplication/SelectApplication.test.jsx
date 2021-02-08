@@ -23,7 +23,10 @@ describe('SelectApplication component', () => {
   it('renders the first user role if there is no active role', () => {
     const mockSetActiveRole = jest.fn();
     const wrapper = mount(
-      <SelectApplication userRoles={['myFirstRole', 'myOtherRole']} setActiveRole={mockSetActiveRole} />,
+      <SelectApplication
+        userRoles={[{ roleType: 'myFirstRole' }, { roleType: 'myOtherRole' }]}
+        setActiveRole={mockSetActiveRole}
+      />,
     );
     expect(wrapper.containsMatchingElement(<h2>Current role: myFirstRole</h2>)).toEqual(true);
   });
@@ -31,7 +34,10 @@ describe('SelectApplication component', () => {
   it('renders buttons for each of the user’s roles, and does not render buttons for roles the user doesn’t have', () => {
     const mockSetActiveRole = jest.fn();
     const wrapper = mount(
-      <SelectApplication userRoles={[roleTypes.TOO, roleTypes.TIO]} setActiveRole={mockSetActiveRole} />,
+      <SelectApplication
+        userRoles={[{ roleType: roleTypes.TOO }, { roleType: roleTypes.TIO }]}
+        setActiveRole={mockSetActiveRole}
+      />,
     );
 
     expect(wrapper.containsMatchingElement(<button type="button">Select {roleTypes.TOO}</button>)).toEqual(true);
@@ -42,7 +48,10 @@ describe('SelectApplication component', () => {
   it('handles setActiveRole with the selected role', () => {
     const mockSetActiveRole = jest.fn();
     const wrapper = mount(
-      <SelectApplication userRoles={[roleTypes.TOO, roleTypes.TIO]} setActiveRole={mockSetActiveRole} />,
+      <SelectApplication
+        userRoles={[{ roleType: roleTypes.TOO }, { roleType: roleTypes.TIO }]}
+        setActiveRole={mockSetActiveRole}
+      />,
     );
 
     const selectRoleButton = wrapper.find('button').first();

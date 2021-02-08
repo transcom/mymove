@@ -16,15 +16,6 @@ export const selectLoggedInUser = (state) => {
   return null;
 };
 
-export const selectRoleTypesForUser = (state) => {
-  const user = selectLoggedInUser(state);
-  const roleIds = user?.roles || [];
-  const roles = roleIds.map((id) => state.entities.roles?.[`${id}`]);
-  const roleTypes = [];
-  roles.map((role) => roleTypes.push(role.roleType));
-  return roleTypes;
-};
-
 /** Service Member */
 export const selectServiceMemberFromLoggedInUser = (state) => {
   const user = selectLoggedInUser(state);

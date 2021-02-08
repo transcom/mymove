@@ -139,9 +139,6 @@ describe('fetchUser saga', () => {
           testorder1: { id: 'testorder1' },
           testorder2: { id: 'testorder2' },
         },
-        roles: {
-          testRole: { id: 'testRole', roleType: 'customer' },
-        },
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
@@ -153,7 +150,7 @@ describe('fetchUser saga', () => {
             id: 'testUserId',
             email: 'test@example.com',
             first_name: 'Tester',
-            roles: ['testRole'],
+            roles: [{ id: 'testRole', roleType: 'customer' }],
             service_member: 'testServiceMemberId',
           },
         },

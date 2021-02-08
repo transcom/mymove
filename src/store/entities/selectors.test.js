@@ -1,7 +1,6 @@
 import {
   selectIsLoggedIn,
   selectLoggedInUser,
-  selectRoleTypesForUser,
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
   selectBackupContacts,
@@ -53,27 +52,6 @@ describe('selectLoggedInUser', () => {
     };
 
     expect(selectLoggedInUser(testState)).toEqual(null);
-  });
-});
-
-describe('selectRoleTypesForUser', () => {
-  it('returns a list of role types', () => {
-    const testState = {
-      entities: {
-        user: {
-          userId123: {
-            id: 'userId123',
-            roles: ['roleId123'],
-          },
-        },
-        roles: {
-          roleId123: { roleType: 'TOO' },
-          roleId987: { roleType: 'TIO' },
-        },
-      },
-    };
-
-    expect(selectRoleTypesForUser(testState)).toEqual([testState.entities.roles.roleId123.roleType]);
   });
 });
 

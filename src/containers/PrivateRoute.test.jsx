@@ -92,11 +92,14 @@ describe('ConnectedPrivateRoute', () => {
                 isLoading: false,
                 userInfo: {
                   isLoggedIn: true,
-                  roles: [
-                    {
-                      roleType: roleTypes.PPM,
-                    },
-                  ],
+                },
+              },
+              entities: {
+                user: {
+                  userId123: {
+                    id: 'userId123',
+                    roles: [{ roleType: roleTypes.PPM }],
+                  },
                 },
               },
             }}
@@ -127,22 +130,14 @@ describe('ConnectedPrivateRoute', () => {
                 isLoading: false,
                 userInfo: {
                   isLoggedIn: true,
-                  roles: [
-                    {
-                      roleType: roleTypes.PPM,
-                    },
-                  ],
                 },
               },
               entities: {
                 user: {
                   userId123: {
                     id: 'userId123',
-                    roles: ['roleId123'],
+                    roles: [{ roleType: roleTypes.PPM }],
                   },
-                },
-                roles: {
-                  roleId123: { roleType: roleTypes.PPM },
                 },
               },
             }}
