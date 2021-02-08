@@ -122,7 +122,6 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
 		ID:                       strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:        originDutyStation,
-		OriginDutyStationID:      handlers.FmtUUID(*moveOrder.OriginDutyStationID),
 		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
 		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
 		UploadedOrders:           uploadedOrders,
@@ -135,11 +134,8 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 	if moveOrder.Grade != nil {
 		payload.Rank = (supportmessages.Rank)(*moveOrder.Grade)
 	}
-	if destinationDutyStation != nil {
-		payload.DestinationDutyStationID = &(destinationDutyStation.ID)
-	}
-	if originDutyStation != nil {
-		payload.OriginDutyStationID = &(originDutyStation.ID)
+	if moveOrder.OriginDutyStationID != nil {
+		payload.OriginDutyStationID = handlers.FmtUUID(*moveOrder.OriginDutyStationID)
 	}
 	return &payload
 }
