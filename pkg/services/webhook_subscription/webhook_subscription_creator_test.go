@@ -33,13 +33,13 @@ func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
 		suite.Equal(webhookSubscriptionInfo.Status, webhookSubscription.Status)
 	})
 
-	// Bad organization ID
+	// Bad subscriber ID
 	suite.T().Run("If we are provided a organization that doesn't exist, the create should fail", func(t *testing.T) {
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", "b9c41d03-c730-4580-bd37-9ccf4845af6c")}
 
 		creator := NewWebhookSubscriptionCreator(suite.DB(), queryBuilder)
 		_, _, err := creator.CreateWebhookSubscription(&webhookSubscriptionInfo, filter)
 		suite.Error(err)
-		suite.Equal(err.Error(), "sql: no rows in result set")
+		suite.Contains(err.Error(), "not found while looking for SubscriberID")
 	})
 }
