@@ -1135,7 +1135,7 @@ definitions:
     type: array
     maxItems: 2
   MTOHideMove:
-    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    description: MTOHideMove describes the MTO ID and a description reason why the move was hidden.
     type: object
     properties:
       moveTaskOrderID:
