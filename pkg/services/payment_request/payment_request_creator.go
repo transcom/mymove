@@ -56,6 +56,9 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			if _, ok := err.(services.ConflictError); ok {
 				return err
 			}
+			if _, ok := err.(services.InvalidInputError); ok {
+				return err
+			}
 			if errors.As(err, &badDataError) {
 				return err
 			}
@@ -247,6 +250,14 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	// Verify Affiliation
 	if serviceMember.Affiliation == nil || *serviceMember.Affiliation == "" {
 		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", moveTaskOrder.ID))
+	}
+
+	// Verify that there were no previous requests that were marked as final
+	var finalPaymentRequests models.PaymentRequests
+	count, err := tx.Q().Where("move_id = $1 AND is_final = TRUE", paymentRequest.MoveTaskOrderID).Count(&finalPaymentRequests)
+
+	if count != 0 {
+		return nil, services.NewInvalidInputError(moveTaskOrder.ID, nil, nil, fmt.Sprintf("Cannot create PaymentRequest because a final PaymentRequest has already been submitted for MoveTaskOrder (ID: %s)", moveTaskOrder.ID))
 	}
 
 	// Update PaymentRequest

@@ -675,7 +675,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	suite.T().Run("Payment request number fails due to empty MTO ReferenceID", func(t *testing.T) {
 
-		saveReferenceID := moveTaskOrder.ReferenceID
+		saveReferenceID := *moveTaskOrder.ReferenceID
 		*moveTaskOrder.ReferenceID = ""
 		suite.MustSave(&moveTaskOrder)
 
@@ -699,13 +699,87 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&paymentRequest1)
 		suite.Contains(err.Error(), "has missing ReferenceID")
 
-		moveTaskOrder.ReferenceID = saveReferenceID
+		moveTaskOrder.ReferenceID = &saveReferenceID
 		suite.MustSave(&moveTaskOrder)
+	})
+	suite.T().Run("payment request created after final request fails", func(t *testing.T) {
+		paymentRequest1 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         true,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "3254",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+							Value:       "2019-12-16",
+						},
+					},
+				},
+				{
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "7722",
+						},
+					},
+				},
+			},
+		}
+
+		_, err := creator.CreatePaymentRequest(&paymentRequest1)
+		suite.FatalNoError(err)
+		paymentRequest2 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         true,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "3254",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+							Value:       "2019-12-16",
+						},
+					},
+				},
+				{
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "7722",
+						},
+					},
+				},
+			},
+		}
+
+		_, err = creator.CreatePaymentRequest(&paymentRequest2)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "final PaymentRequest has already been submitted")
+
+		// We need to reset this to prevent prevent tests below this one from breaking
+		paymentRequest1.IsFinal = false
+		suite.MustSave(&paymentRequest1)
 	})
 
 	suite.T().Run("Payment request number fails due to nil MTO ReferenceID", func(t *testing.T) {
 
-		saveReferenceID := moveTaskOrder.ReferenceID
+		saveReferenceID := *moveTaskOrder.ReferenceID
 		moveTaskOrder.ReferenceID = nil
 		suite.MustSave(&moveTaskOrder)
 
@@ -729,7 +803,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&paymentRequest1)
 		suite.Contains(err.Error(), "has missing ReferenceID")
 
-		moveTaskOrder.ReferenceID = saveReferenceID
+		moveTaskOrder.ReferenceID = &saveReferenceID
 		suite.MustSave(&moveTaskOrder)
 	})
 
