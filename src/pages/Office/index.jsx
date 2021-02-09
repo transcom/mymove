@@ -150,6 +150,7 @@ export class OfficeApp extends Component {
 
     return (
       <div className={siteClasses}>
+        <BypassBlock />
         <FOUOHeader />
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
         {!hideHeaderPPM && (
