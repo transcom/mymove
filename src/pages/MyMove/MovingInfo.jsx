@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Alert, CardGroup, CardHeader, CardBody, CardMedia } from '@trussworks/react-uswds';
 import { func, number, string } from 'prop-types';
 
-import PPMShipmentImg from 'images/ppm-shipment.jpg';
+import PPMShipmentImg from 'images/ppm-shipment.png';
 import HHGShipmentImg from 'images/hhg-shipment.jpg';
 import MoveCounselorImg from 'images/move-counselor.jpg';
 import MovingTruckImg from 'images/moving-truck.jpg';
