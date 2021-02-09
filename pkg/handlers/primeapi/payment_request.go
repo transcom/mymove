@@ -104,6 +104,12 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payload)
+		case services.InvalidInputError:
+			payload := payloads.ValidationError(err.Error(), h.GetTraceID(), &validate.Errors{})
+
+			logger.Error("Payment Request",
+				zap.Any("payload", payload))
+			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
 		case *services.BadDataError:
 			payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID())
 
