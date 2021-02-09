@@ -15,7 +15,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -2483,7 +2482,7 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 }
 
 // Run does that data load thing
-func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, storer *storage.Filesystem) {
+func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
 	// PPM Office Queue
 	createPPMOfficeUser(db)
 	createPPMWithAdvance(db, userUploader)
