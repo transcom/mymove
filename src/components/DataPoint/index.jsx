@@ -18,7 +18,7 @@ const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
         {/*
           // RA Summary: eslint:react/no-array-index-key
           // RA: Using the index as an element key in cases where the array is reordered will result in unnecessary renders.
-          // RA: The source data is unstructured, with a potential for duplicate values.
+          // RA: The source data is unstructured, with a potential for duplicate values amongst siblings.
           // RA: A reorder function is not implemented for this array.
           // RA Developer Status: Mitigated
           // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
