@@ -27,9 +27,8 @@ function deleteEntities(entities, deleteEntities) {
     //RA: Valuable for state management cleanup
     //RA: The threat actor (web application user) already controls the execution environment (web browser)
     //RA Developer Status: Mitigated
-    //RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-    //RA Validator: jneuner@mitre.org
-    //RA Modified Severity:
+    //RA Validator Status: Mitigated
+    //RA Modified Severity: N/A
     // eslint-disable-next-line security/detect-object-injection
     const idsToDelete = Object.keys(deleteEntities[key] || {});
     return omit(value, idsToDelete);
