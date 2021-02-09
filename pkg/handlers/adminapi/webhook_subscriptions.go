@@ -33,12 +33,15 @@ func payloadForWebhookSubscriptionModel(subscription models.WebhookSubscription)
 // Create payload to model function
 func payloadToWebhookSubscriptionModel(params webhooksubscriptionop.CreateWebhookSubscriptionParams) models.WebhookSubscription {
 	subscription := params.WebhookSubscription
+
 	return models.WebhookSubscription{
-		EventKey:     subscription.EventKey,
-		CallbackURL:  subscription.CallbackURL,
+		// TODO: If statement for if != nil add to model
+		EventKey:     *subscription.EventKey,
+		CallbackURL:  *subscription.CallbackURL,
 		SubscriberID: uuid.FromStringOrNil(subscription.SubscriberID.String()),
 		Status:       models.WebhookSubscriptionStatus(subscription.Status),
 	}
+
 }
 
 // IndexWebhookSubscriptionsHandler returns a list of webhook subscriptions via GET /webhook_subscriptions
@@ -115,15 +118,31 @@ type CreateWebhookSubscriptionHandler struct {
 func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.CreateWebhookSubscriptionParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	subscription := payloadToWebhookSubscriptionModel(params)
-
 	subscriberIDFilter := []services.QueryFilter{
 		h.NewQueryFilter("id", "=", subscription.SubscriberID),
 	}
 
 	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(&subscription, subscriberIDFilter)
-	if err != nil || verrs != nil {
+
+	if verrs != nil {
 		logger.Error("Error saving webhook subscription", zap.Error(verrs))
 		return webhooksubscriptionop.NewCreateWebhookSubscriptionInternalServerError()
+	}
+
+	if err != nil {
+		logger.Error("Error saving webhook subscription", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return webhooksubscriptionop.NewCreateWebhookSubscriptionBadRequest()
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("adminapi.CreateWebhookSubscriptionHandler query error", zap.Error(e.Unwrap()))
+			}
+			return webhooksubscriptionop.NewCreateWebhookSubscriptionInternalServerError()
+		default:
+			return webhooksubscriptionop.NewCreateWebhookSubscriptionInternalServerError()
+		}
 	}
 
 	returnPayload := payloadForWebhookSubscriptionModel(*createdWebhookSubscription)

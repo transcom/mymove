@@ -914,7 +914,7 @@ definitions:
       updatedAt:
         type: string
         format: date-time
-  WebhookSubscriptionCreatePayload:
+  CreateWebhookSubscription:
     type: object
     properties:
       subscriberId:
@@ -931,6 +931,11 @@ definitions:
       callbackUrl:
         type: string
         description: The URL to which the notifications for this subscription will be pushed to.
+    required:
+      - subscriberId
+      - status
+      - eventKey
+      - callbackUrl
 paths:
   /access_codes:
     get:
@@ -1760,7 +1765,7 @@ paths:
           name: webhookSubscription
           description: Webhook subscription information
           schema:
-            $ref: '#/definitions/WebhookSubscriptionCreatePayload'
+            $ref: '#/definitions/CreateWebhookSubscription'
       responses:
         201:
           description: Successfully created webhook subscription

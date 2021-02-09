@@ -34,7 +34,7 @@ type CreateWebhookSubscriptionParams struct {
 	/*Webhook subscription information
 	  In: body
 	*/
-	WebhookSubscription *adminmessages.WebhookSubscriptionCreatePayload
+	WebhookSubscription *adminmessages.CreateWebhookSubscription
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -48,7 +48,7 @@ func (o *CreateWebhookSubscriptionParams) BindRequest(r *http.Request, route *mi
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body adminmessages.WebhookSubscriptionCreatePayload
+		var body adminmessages.CreateWebhookSubscription
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("webhookSubscription", "body", "", err))
 		} else {

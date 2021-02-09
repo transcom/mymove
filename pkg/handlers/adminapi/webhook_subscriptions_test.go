@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	webhooksubscription "github.com/transcom/mymove/pkg/services/webhook_subscription"
 	webhooksubscriptionservice "github.com/transcom/mymove/pkg/services/webhook_subscription"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -157,16 +158,15 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
-	subscriberID, _ := uuid.NewV4()
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	subscriber := testdatagen.MakeDefaultContractor(suite.DB())
+
 	webhookSubscription := models.WebhookSubscription{
-		SubscriberID: subscriberID,
+		SubscriberID: subscriber.ID,
 		Status:       models.WebhookSubscriptionStatusActive,
 		EventKey:     "PaymentRequest.Update",
 		CallbackURL:  "/my/callback/url",
 	}
-
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
 	req := httptest.NewRequest("POST", "/webhook_subscriptions", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -174,45 +174,36 @@ func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 
 	params := webhooksubscriptionop.CreateWebhookSubscriptionParams{
 		HTTPRequest: req,
-		WebhookSubscription: &adminmessages.WebhookSubscriptionCreatePayload{
+		WebhookSubscription: &adminmessages.CreateWebhookSubscription{
 			Status:       adminmessages.WebhookSubscriptionStatus(webhookSubscription.Status),
-			EventKey:     webhookSubscription.EventKey,
-			SubscriberID: strfmt.UUID(webhookSubscription.SubscriberID.String()),
-			CallbackURL:  webhookSubscription.CallbackURL,
+			EventKey:     &webhookSubscription.EventKey,
+			SubscriberID: handlers.FmtUUID(webhookSubscription.SubscriberID),
+			CallbackURL:  &webhookSubscription.CallbackURL,
 		},
 	}
 
-	suite.T().Run("Successful create", func(t *testing.T) {
-		webhookSubscriptionCreator := &mocks.WebhookSubscriptionCreator{}
+	handler := CreateWebhookSubscriptionHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		webhooksubscription.NewWebhookSubscriptionCreator(suite.DB(), queryBuilder),
+		query.NewQueryFilter,
+	}
 
-		webhookSubscriptionCreator.On("CreateWebhookSubscription",
-			&webhookSubscription,
-			mock.Anything).Return(&webhookSubscription, nil, nil).Once()
-
-		handler := CreateWebhookSubscriptionHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			webhookSubscriptionCreator,
-			newQueryFilter,
-		}
-
+	// Actually test handler and creator on test database,
+	suite.T().Run("201 - Successful create", func(t *testing.T) {
 		response := handler.Handle(params)
 		suite.IsType(&webhooksubscriptionop.CreateWebhookSubscriptionCreated{}, response)
+
+		subscriptionCreated := response.(*webhooksubscriptionop.CreateWebhookSubscriptionCreated)
+		suite.NotEqual(subscriptionCreated.Payload.ID.String(), "00000000-0000-0000-0000-000000000000")
 	})
 
-	suite.T().Run("Failed create", func(t *testing.T) {
-		webhookSubscriptionCreator := &mocks.WebhookSubscriptionCreator{}
-
-		webhookSubscriptionCreator.On("CreateWebhookSubscription",
-			&webhookSubscription,
-			mock.Anything).Return(&webhookSubscription, nil, nil).Once()
-
-		handler := CreateWebhookSubscriptionHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			webhookSubscriptionCreator,
-			newQueryFilter,
-		}
+	suite.T().Run("400 - Invalid Request", func(t *testing.T) {
+		// Create Fake subscriber
+		fakeSubscriberID, _ := uuid.NewV4()
+		params.WebhookSubscription.SubscriberID = handlers.FmtUUID(fakeSubscriberID)
 
 		response := handler.Handle(params)
-		suite.IsType(&webhooksubscriptionop.CreateWebhookSubscriptionCreated{}, response)
+		suite.IsType(webhooksubscriptionop.NewCreateWebhookSubscriptionBadRequest(), response)
 	})
+
 }
