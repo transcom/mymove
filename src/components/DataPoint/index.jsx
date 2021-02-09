@@ -21,9 +21,8 @@ const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
           // RA: The source data is unstructured, with a potential for duplicate values amongst siblings.
           // RA: A reorder function is not implemented for this array.
           // RA Developer Status: Mitigated
-          // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-          // RA Validator: jneuner@mitre.org
-          // RA Modified Severity:
+          // RA Validator Status: Mitigated
+          // RA Modified Severity: N/A
         */}
         {/* eslint-disable react/no-array-index-key */}
         {/* no unique identifier that can be used as a key, cell values can be duplicates (e.g. Dates) */}
