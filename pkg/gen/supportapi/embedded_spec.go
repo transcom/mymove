@@ -149,7 +149,7 @@ func init() {
           "200": {
             "description": "Successfully hid MTOs.",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrderIDs"
+              "$ref": "#/definitions/MTOHideMovesResponse"
             }
           },
           "400": {
@@ -1199,6 +1199,41 @@ func init() {
         "$ref": "#/definitions/MTOAgent"
       }
     },
+    "MTOHideMove": {
+      "description": "describes the MTO ID and a description reason why the move was hidden.",
+      "type": "object",
+      "properties": {
+        "hideReason": {
+          "description": "Reason the move was selected to be hidden",
+          "type": "string",
+          "x-nullable": true,
+          "example": "invalid name"
+        },
+        "moveTaskOrderID": {
+          "description": "ID of the associated moveTaskOrder",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "MTOHideMovesResponse": {
+      "description": "describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.",
+      "type": "object",
+      "properties": {
+        "moves": {
+          "description": "Array of moves that were hidden.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOHideMove"
+          }
+        },
+        "numberMovesHidden": {
+          "description": "Number of moves that were hidden",
+          "type": "integer"
+        }
+      }
+    },
     "MTOServiceItem": {
       "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
@@ -1809,17 +1844,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
-    },
-    "MoveTaskOrderID": {
-      "type": "string",
-      "format": "uuid",
-      "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-    },
-    "MoveTaskOrderIDs": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {
@@ -2419,7 +2443,7 @@ func init() {
           "200": {
             "description": "Successfully hid MTOs.",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrderIDs"
+              "$ref": "#/definitions/MTOHideMovesResponse"
             }
           },
           "400": {
@@ -3652,6 +3676,41 @@ func init() {
         "$ref": "#/definitions/MTOAgent"
       }
     },
+    "MTOHideMove": {
+      "description": "describes the MTO ID and a description reason why the move was hidden.",
+      "type": "object",
+      "properties": {
+        "hideReason": {
+          "description": "Reason the move was selected to be hidden",
+          "type": "string",
+          "x-nullable": true,
+          "example": "invalid name"
+        },
+        "moveTaskOrderID": {
+          "description": "ID of the associated moveTaskOrder",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "MTOHideMovesResponse": {
+      "description": "describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.",
+      "type": "object",
+      "properties": {
+        "moves": {
+          "description": "Array of moves that were hidden.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOHideMove"
+          }
+        },
+        "numberMovesHidden": {
+          "description": "Number of moves that were hidden",
+          "type": "integer"
+        }
+      }
+    },
     "MTOServiceItem": {
       "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
@@ -4262,17 +4321,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
-    },
-    "MoveTaskOrderID": {
-      "type": "string",
-      "format": "uuid",
-      "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-    },
-    "MoveTaskOrderIDs": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {

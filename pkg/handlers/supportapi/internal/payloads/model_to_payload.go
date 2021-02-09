@@ -7,6 +7,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -23,20 +25,6 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrd
 		payload[i] = MoveTaskOrder(&m)
 	}
 	return payload
-}
-
-// MoveTaskOrderIDs payload
-func MoveTaskOrderIDs(moveTaskOrderIDs []uuid.UUID) supportmessages.MoveTaskOrderIDs {
-	payload := make(supportmessages.MoveTaskOrderIDs, len(moveTaskOrderIDs))
-	for i, m := range moveTaskOrderIDs {
-		payload[i] = MoveTaskOrderID(m)
-	}
-	return payload
-}
-
-// MoveTaskOrderID payload
-func MoveTaskOrderID(moveTaskOrderID uuid.UUID) supportmessages.MoveTaskOrderID {
-	return supportmessages.MoveTaskOrderID(strfmt.UUID(moveTaskOrderID.String()))
 }
 
 // MoveTaskOrder payload
@@ -392,6 +380,33 @@ func MTOAgents(mtoAgents *models.MTOAgents) *supportmessages.MTOAgents {
 		payload[i] = MTOAgent(&m)
 	}
 	return &payload
+}
+
+// MTOHideMovesResponse payload
+func MTOHideMovesResponse(hiddenMoves services.HiddenMoves) *supportmessages.MTOHideMovesResponse {
+	var mtoHideMoves []*supportmessages.MTOHideMove
+
+	for _, h := range hiddenMoves {
+		mtoHideMove := MTOHideMove(h)
+		mtoHideMoves = append(mtoHideMoves, mtoHideMove)
+	}
+
+	payload := &supportmessages.MTOHideMovesResponse{
+		Moves:             mtoHideMoves,
+		NumberMovesHidden: int64(len(hiddenMoves)),
+	}
+
+	return payload
+}
+
+// MTOHideMove translate from service HiddenMove type to API swagger MTOHideMove type
+func MTOHideMove(hiddenMove services.HiddenMove) *supportmessages.MTOHideMove {
+	payload := &supportmessages.MTOHideMove{
+		HideReason:      &hiddenMove.Reason,
+		MoveTaskOrderID: strfmt.UUID(hiddenMove.MTOID.String()),
+	}
+
+	return payload
 }
 
 // PaymentRequest payload
