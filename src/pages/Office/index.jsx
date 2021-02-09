@@ -12,7 +12,8 @@ import 'scenes/Office/office.scss';
 
 // API / Redux actions
 import { logOut as logOutAction, loadUser as loadUserAction } from 'store/auth/actions';
-import { selectLoggedInUser, selectIsLoggedIn } from 'store/entities/selectors';
+import { selectLoggedInUser } from 'store/entities/selectors';
+import { selectIsLoggedIn } from 'store/auth/reducer';
 import {
   loadInternalSchema as loadInternalSchemaAction,
   loadPublicSchema as loadPublicSchemaAction,

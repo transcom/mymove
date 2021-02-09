@@ -17,8 +17,8 @@ import {
 } from 'store/entities/selectors';
 import { updatePPMs } from 'store/entities/actions';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'store/auth/reducer';
-import { selectIsLoggedIn, selectLoggedInUser } from 'store/entities/selectors';
+import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess, selectIsLoggedIn } from 'store/auth/reducer';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';

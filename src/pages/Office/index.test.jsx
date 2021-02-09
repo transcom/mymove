@@ -51,12 +51,8 @@ describe('Office App', () => {
     const officeUserState = {
       auth: {
         activeRole: roleTypes.TOO,
-      },
-      user: {
         isLoading: false,
-        userInfo: {
-          isLoggedIn: true,
-        },
+        isLoggedIn: true,
       },
       entities: {
         user: {
@@ -93,12 +89,8 @@ describe('Office App', () => {
     const officeUserState = {
       auth: {
         activeRole: roleTypes.TIO,
-      },
-      user: {
         isLoading: false,
-        userInfo: {
-          isLoggedIn: true,
-        },
+        isLoggedIn: true,
       },
       entities: {
         user: {
@@ -135,12 +127,8 @@ describe('Office App', () => {
     const multiRoleState = {
       auth: {
         activeRole: roleTypes.TOO,
-      },
-      user: {
         isLoading: false,
-        userInfo: {
-          isLoggedIn: true,
-        },
+        isLoggedIn: true,
       },
       entities: {
         user: {
@@ -189,12 +177,8 @@ describe('Office App', () => {
     const loggedInState = {
       auth: {
         activeRole: roleTypes.PPM,
-      },
-      user: {
         isLoading: false,
-        userInfo: {
-          isLoggedIn: true,
-        },
+        isLoggedIn: true,
       },
       entities: {
         user: {
@@ -209,12 +193,8 @@ describe('Office App', () => {
     const loggedOutState = {
       auth: {
         activeRole: null,
-      },
-      user: {
         isLoading: false,
-        userInfo: {
-          isLoggedIn: false,
-        },
+        isLoggedIn: false,
       },
     };
 
@@ -258,12 +238,8 @@ describe('Office App', () => {
       const loggedInPPMState = {
         auth: {
           activeRole: roleTypes.PPM,
-        },
-        user: {
           isLoading: false,
-          userInfo: {
-            isLoggedIn: true,
-          },
+          isLoggedIn: true,
         },
         entities: {
           user: {
@@ -334,12 +310,8 @@ describe('Office App', () => {
       const loggedInTOOState = {
         auth: {
           activeRole: roleTypes.TOO,
-        },
-        user: {
           isLoading: false,
-          userInfo: {
-            isLoggedIn: true,
-          },
+          isLoggedIn: true,
         },
         entities: {
           user: {
@@ -380,12 +352,8 @@ describe('Office App', () => {
       const loggedInTIOState = {
         auth: {
           activeRole: roleTypes.TIO,
-        },
-        user: {
           isLoading: false,
-          userInfo: {
-            isLoggedIn: true,
-          },
+          isLoggedIn: true,
         },
         entities: {
           user: {

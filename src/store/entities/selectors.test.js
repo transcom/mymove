@@ -1,5 +1,4 @@
 import {
-  selectIsLoggedIn,
   selectLoggedInUser,
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
@@ -16,20 +15,6 @@ import {
   selectPPMSitEstimate,
   selectReimbursementById,
 } from './selectors';
-
-describe('selectIsLoggedIn', () => {
-  it('returns boolean as to whether user is logged in or not', () => {
-    const testState = {
-      user: {
-        userInfo: {
-          isLoggedIn: true,
-        },
-      },
-    };
-
-    expect(selectIsLoggedIn(testState)).toEqual(testState.user.userInfo.isLoggedIn);
-  });
-});
 
 describe('selectLoggedInUser', () => {
   it('returns the first user stored in entities', () => {

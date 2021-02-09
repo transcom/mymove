@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import IdleTimer from 'react-idle-timer';
 
 import Alert from 'shared/Alert';
-import { selectIsLoggedIn } from 'store/entities/selectors';
+import { selectIsLoggedIn } from 'store/auth/reducer';
 import { LogoutUser } from 'utils/api';
 
 const maxIdleTimeInSeconds = 15 * 60;

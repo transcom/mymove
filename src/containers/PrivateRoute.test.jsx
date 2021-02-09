@@ -58,11 +58,7 @@ describe('ConnectedPrivateRoute', () => {
           initialState={{
             auth: {
               isLoading: false,
-            },
-            user: {
-              userInfo: {
-                isLoggedIn: false,
-              },
+              isLoggedIn: false,
             },
           }}
           initialEntries={['/']}
@@ -92,11 +88,7 @@ describe('ConnectedPrivateRoute', () => {
             initialState={{
               auth: {
                 isLoading: false,
-              },
-              user: {
-                userInfo: {
-                  isLoggedIn: true,
-                },
+                isLoggedIn: true,
               },
               entities: {
                 user: {
@@ -132,11 +124,7 @@ describe('ConnectedPrivateRoute', () => {
             initialState={{
               auth: {
                 isLoading: false,
-              },
-              user: {
-                userInfo: {
-                  isLoggedIn: true,
-                },
+                isLoggedIn: true,
               },
               entities: {
                 user: {

@@ -25,7 +25,6 @@ import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
 import {
-  selectIsLoggedIn,
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
   selectCurrentOrders,
@@ -40,7 +39,7 @@ import {
 } from 'shared/Entities/modules/signed_certifications';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
-import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'store/auth/reducer';
+import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess, selectIsLoggedIn } from 'store/auth/reducer';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { MtoShipmentShape, UploadShape, HistoryShape, MoveShape, OrdersShape } from 'types/customerShapes';

@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { selectIsLoggedIn } from 'store/entities/selectors';
+import { selectIsLoggedIn } from 'store/auth/reducer';
 
 import { get } from 'lodash';
 import SignIn from './SignIn';
