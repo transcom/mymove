@@ -39,7 +39,7 @@ describe('React table', () => {
         headerGroups={[
           {
             headers,
-            getHeaderGroupProps: jest.fn(),
+            getHeaderGroupProps: () => ({ key: 'hi' }),
           },
         ]}
         handleClick={handleClick}

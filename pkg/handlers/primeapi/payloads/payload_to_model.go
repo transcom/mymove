@@ -233,6 +233,11 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 		model.SITPostalCode = originsit.SitPostalCode
 
+		model.SITOriginHHGActualAddress = AddressModel(originsit.SitHHGActualOrigin)
+		if model.SITOriginHHGActualAddress != nil {
+			model.SITOriginHHGActualAddressID = &model.SITOriginHHGActualAddress.ID
+		}
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:
 		destsit := mtoServiceItem.(*primemessages.MTOServiceItemDestSIT)
 
@@ -325,6 +330,10 @@ func MTOServiceItemModelFromUpdate(mtoServiceItem primemessages.UpdateMTOService
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
 		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
+		model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
+		if model.SITDestinationFinalAddress != nil {
+			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
+		}
 		return model, nil
 	}
 

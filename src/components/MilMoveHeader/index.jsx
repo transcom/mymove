@@ -1,26 +1,26 @@
 import React from 'react';
-import { node, func } from 'prop-types';
+import { func, string, node } from 'prop-types';
 import { Button, Title } from '@trussworks/react-uswds';
 
 import MmLogo from '../../shared/images/milmove-logo.svg';
 
 import styles from './index.module.scss';
 
-import { CustomerShape } from 'types/moveOrder';
-
-const MilMoveHeader = ({ children, customer, handleLogout }) => (
+const MilMoveHeader = ({ children, handleLogout, firstName, lastName }) => (
   <div className={styles.mmHeader}>
     <Title>
-      <a href="/" title="office.move.mil" aria-label="office.move.mil">
-        <img src={MmLogo} alt="MilMove Logo" />
+      <a href="/" title="Home" aria-label="Home">
+        <img src={MmLogo} alt="MilMove" />
       </a>
     </Title>
     <div className={styles.links}>
       {children}
       <div className={styles.verticalLine} />
-      <span>
-        {customer.last_name}, {customer.first_name}
-      </span>
+      {lastName !== '' && firstName !== '' && (
+        <span>
+          {lastName}, {firstName}
+        </span>
+      )}
       <Button unstyled className={styles.signOut} onClick={handleLogout} type="button">
         Sign out
       </Button>
@@ -28,9 +28,16 @@ const MilMoveHeader = ({ children, customer, handleLogout }) => (
   </div>
 );
 
+MilMoveHeader.defaultProps = {
+  children: null,
+  firstName: '',
+  lastName: '',
+};
+
 MilMoveHeader.propTypes = {
-  children: node.isRequired,
-  customer: CustomerShape.isRequired,
+  children: node,
+  firstName: string,
+  lastName: string,
   handleLogout: func.isRequired,
 };
 

@@ -55,17 +55,32 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				// If notification send failed, we need to log the severity
 				if err != nil {
 					eng.Logger.Error("Webhook Notification send failed", zap.Error(err))
-					sev = eng.GetSeverity(time.Now(), notif.FirstAttemptedAt)
-					if sev != sub.Severity {
+					if notif.FirstAttemptedAt == nil {
+						eng.Logger.Error("FirstAttempted at time was not stored", zap.Error(err))
+						// We should not ever get this error, so we trigger a sev1 failure immediately
+						sev = 1
 						eng.Logger.Error("Raising severity of failure",
 							zap.String("subscriptionEvent", sub.EventKey),
 							zap.Int("severityFrom", sub.Severity),
 							zap.Int("severityTo", sev))
-						if sev == 1 {
-							notif.Status = models.WebhookNotificationFailed
-							err = eng.updateNotification(&notif)
-							if err != nil {
-								eng.Logger.Error("Webhook Notification update failed", zap.Error(err))
+						notif.Status = models.WebhookNotificationFailed
+						err = eng.updateNotification(&notif)
+						if err != nil {
+							eng.Logger.Error("Webhook Notification update failed", zap.Error(err))
+						}
+					} else {
+						sev = eng.GetSeverity(time.Now(), *notif.FirstAttemptedAt)
+						if sev != sub.Severity {
+							eng.Logger.Error("Raising severity of failure",
+								zap.String("subscriptionEvent", sub.EventKey),
+								zap.Int("severityFrom", sub.Severity),
+								zap.Int("severityTo", sev))
+							if sev == 1 {
+								notif.Status = models.WebhookNotificationFailed
+								err = eng.updateNotification(&notif)
+								if err != nil {
+									eng.Logger.Error("Webhook Notification update failed", zap.Error(err))
+								}
 							}
 						}
 					}
@@ -192,7 +207,8 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		resp, body, err2 := eng.Client.Post(json, url)
 
 		if notif.Status == models.WebhookNotificationPending {
-			notif.FirstAttemptedAt = time.Now()
+			now := time.Now()
+			notif.FirstAttemptedAt = &now
 			// Not writing to db, but should be written within
 			// this function.
 		}
@@ -218,8 +234,9 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		}
 		// If there was an error response from server, log error and continue
 		if resp.StatusCode != 200 {
-			errmsg := fmt.Sprintf("Failed to send. Response Status: %s. Body: %s", resp.Status, string(body))
-			logger.Debug("Received error on sending webhook", zap.String("Error", errmsg),
+			logger.Debug("Received error on sending notification",
+				zap.String("Response Status", resp.Status),
+				zap.String("Response Body", string(body)),
 				zap.String("notificationID", notif.ID.String()),
 				zap.Int("Retry #", try))
 		}

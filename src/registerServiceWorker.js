@@ -14,18 +14,26 @@ const isLocalhost = Boolean(
     window.location.hostname === '[::1]' ||
     // milmovelocal is the default server name.
     window.location.hostname === 'milmovelocal' ||
+    // RA Summary: eslint - security/detect-unsafe-regex - Denial of Service: Regular Expression
+    // RA: Locates potentially unsafe regular expressions, which may take a very long time to run, blocking the event loop
+    // RA: Per MilMove SSP, predisposing conditions are regex patterns from untrusted sources or unbounded matching.
+    // RA: The regex pattern is a constant string set at compile-time and it is bounded to 15 characters (127.000.000.001).
+    // RA Developer Status: Mitigated
+    // RA Validator Status: Mitigated
+    // RA Modified Severity: N/A
     // 127.0.0.1/8 is considered localhost for IPv4.
-    window.location.hostname.match(
-      /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/, // eslint-disable-line  security/detect-unsafe-regex
-    ),
+    // eslint-disable-next-line security/detect-unsafe-regex
+    window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/),
 );
 
 function registerValidSW(swUrl) {
   navigator.serviceWorker
     .register(swUrl)
     .then((registration) => {
-      // eslint-disable-next-line no-param-reassign
-      registration.onupdatefound = () => {
+      // More info: https://spin.atomicobject.com/2011/04/10/javascript-don-t-reassign-your-function-arguments/
+      // This is done to avoid an edge case when mutating the argument object. Although this is not an example of the edgecase.
+      const serviceWorkerRegistration = registration;
+      serviceWorkerRegistration.onupdatefound = () => {
         const installingWorker = registration.installing;
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {

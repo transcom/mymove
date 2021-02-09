@@ -9,10 +9,9 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/services/query"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type createMTOServiceItemQueryBuilder interface {
@@ -141,10 +140,49 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
 	}
 
+	updateShipmentPickupAddress := false
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
 		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(serviceItem)
 		if errSIT != nil {
 			return nil, nil, errSIT
+		}
+
+		// update HHG origin address for ReServiceCodeDOFSIT service item
+		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+			// When creating a DOFSIT, the prime must provide an HHG actual address for the move/shift in origin (pickup address)
+			if serviceItem.SITOriginHHGActualAddress == nil {
+				verrs = validate.NewErrors()
+				verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
+				return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+					fmt.Sprintf("A service item with reServiceCode %s must have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
+			}
+
+			// update the SIT service item to track/save the HHG original pickup address (that came from the
+			// MTO shipment
+			serviceItem.SITOriginHHGOriginalAddress = mtoShipment.PickupAddress.Copy()
+			serviceItem.SITOriginHHGOriginalAddress.ID = uuid.Nil
+			serviceItem.SITOriginHHGOriginalAddressID = nil
+
+			// update the MTO shipment with the new (actual) pickup address
+			mtoShipment.PickupAddress = serviceItem.SITOriginHHGActualAddress.Copy()
+			mtoShipment.PickupAddress.ID = *mtoShipment.PickupAddressID // Keep to same ID to be updated with new values
+
+			// changes were made to the shipment, needs to be saved to the database
+			updateShipmentPickupAddress = true
+
+			// Find the DOPSIT service item and update the SIT related address fields. These fields
+			// will be used for pricing when a payment request is created for DOPSIT
+			for itemIndex := range *extraServiceItems {
+				extraServiceItem := &(*extraServiceItems)[itemIndex]
+				if extraServiceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDOASIT {
+					extraServiceItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress
+					extraServiceItem.SITOriginHHGActualAddressID = serviceItem.SITOriginHHGActualAddressID
+					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
+					extraServiceItem.SITOriginHHGOriginalAddressID = serviceItem.SITOriginHHGOriginalAddressID
+				}
+
+			}
 		}
 
 		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
@@ -159,6 +197,31 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 		for serviceItemIndex := range requestedServiceItems {
 			requestedServiceItem := &requestedServiceItems[serviceItemIndex]
+
+			// create address if ID (UUID) is Nil
+			if requestedServiceItem.SITOriginHHGActualAddress != nil {
+				address := requestedServiceItem.SITOriginHHGActualAddress
+				if address.ID == uuid.Nil {
+					verrs, err = txBuilder.CreateOne(address)
+					if verrs != nil || err != nil {
+						return fmt.Errorf("failed to save SITOriginHHGActualAddress: %#v %e", verrs, err)
+					}
+				}
+				requestedServiceItem.SITOriginHHGActualAddressID = &address.ID
+			}
+
+			// create address if ID (UUID) is Nil
+			if requestedServiceItem.SITOriginHHGOriginalAddress != nil {
+				address := requestedServiceItem.SITOriginHHGOriginalAddress
+				if address.ID == uuid.Nil {
+					verrs, err = txBuilder.CreateOne(address)
+					if verrs != nil || err != nil {
+						return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
+					}
+				}
+				requestedServiceItem.SITOriginHHGOriginalAddressID = &address.ID
+			}
+
 			verrs, err = txBuilder.CreateOne(requestedServiceItem)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
@@ -184,6 +247,14 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 				if verrs != nil || err != nil {
 					return fmt.Errorf("%#v %e", verrs, err)
 				}
+			}
+		}
+
+		// If updates were made to shipment, save update in the database
+		if updateShipmentPickupAddress {
+			verrs, err = txBuilder.UpdateOne(mtoShipment.PickupAddress, nil)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to update mtoShipment.PickupAddress: %#v %e", verrs, err)
 			}
 		}
 

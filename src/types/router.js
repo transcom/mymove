@@ -1,22 +1,20 @@
-import PropTypes from 'prop-types';
+import { shape, bool, string, func } from 'prop-types';
 
-export const MatchShape = PropTypes.shape({
-  // eslint-disable-next-line react/forbid-prop-types
-  params: PropTypes.object,
-  isExact: PropTypes.bool,
-  path: PropTypes.string,
-  url: PropTypes.string,
+export const MatchShape = shape({
+  params: shape({}),
+  isExact: bool,
+  path: string,
+  url: string,
 });
 
-export const LocationShape = PropTypes.shape({
-  key: PropTypes.string,
-  pathname: PropTypes.string,
-  search: PropTypes.string,
-  hash: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
-  state: PropTypes.object,
+export const LocationShape = shape({
+  key: string,
+  pathname: string,
+  search: string,
+  hash: string,
+  state: shape({}),
 });
 
-export const HistoryShape = PropTypes.shape({
-  push: PropTypes.func.isRequired,
+export const HistoryShape = shape({
+  push: func.isRequired,
 });

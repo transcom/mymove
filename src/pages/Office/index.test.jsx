@@ -1,4 +1,3 @@
-/* eslint-disable no-only-tests/no-only-tests */
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { shallow, mount } from 'enzyme';
@@ -13,6 +12,7 @@ describe('Office App', () => {
     loadUser: jest.fn(),
     loadInternalSchema: jest.fn(),
     loadPublicSchema: jest.fn(),
+    logOut: jest.fn(),
   };
 
   describe('component', () => {
@@ -42,6 +42,84 @@ describe('Office App', () => {
       it('renders the fail whale', () => {
         wrapper.setState({ hasError: true });
         expect(wrapper.find('SomethingWentWrong')).toHaveLength(1);
+      });
+    });
+  });
+
+  describe('header with TOO user name and GBLOC', () => {
+    const officeUserState = {
+      auth: {
+        activeRole: roleTypes.TOO,
+      },
+      user: {
+        isLoading: false,
+        userInfo: {
+          isLoggedIn: true,
+          roles: [
+            {
+              roleType: roleTypes.TOO,
+            },
+          ],
+          office_user: {
+            first_name: 'Amanda',
+            last_name: 'Gorman',
+            transportation_office: {
+              gbloc: 'ABCD',
+            },
+          },
+        },
+      },
+    };
+
+    describe('after signing in', () => {
+      it('renders the header with the office user name and GBLOC', () => {
+        const app = mount(
+          <MockProviders initialState={officeUserState} initialEntries={['/moves/queue']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+
+        expect(app.containsMatchingElement(<a href="/">ABCD moves</a>)).toEqual(true);
+        expect(app.containsMatchingElement(<span>Gorman, Amanda</span>)).toEqual(true);
+      });
+    });
+  });
+
+  describe('header with TIO user name and GBLOC', () => {
+    const officeUserState = {
+      auth: {
+        activeRole: roleTypes.TIO,
+      },
+      user: {
+        isLoading: false,
+        userInfo: {
+          isLoggedIn: true,
+          roles: [
+            {
+              roleType: roleTypes.TIO,
+            },
+          ],
+          office_user: {
+            first_name: 'Amanda',
+            last_name: 'Gorman',
+            transportation_office: {
+              gbloc: 'ABCD',
+            },
+          },
+        },
+      },
+    };
+
+    describe('after signing in', () => {
+      it('renders the header with the office user name and GBLOC', () => {
+        const app = mount(
+          <MockProviders initialState={officeUserState} initialEntries={['/moves/queue']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+
+        expect(app.containsMatchingElement(<a href="/">ABCD payment requests</a>)).toEqual(true);
+        expect(app.containsMatchingElement(<span>Gorman, Amanda</span>)).toEqual(true);
       });
     });
   });

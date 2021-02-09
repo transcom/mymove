@@ -8,10 +8,10 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly DIR
 
 usage() {
-    echo "$0 <name> <image> <environment>"
+    echo "$0 <name> <image> <environment> <entrypoint>"
     exit 1
 }
-[[ -z $1 || -z $2 || -z $3 ]] && usage
+[[ -z $1 || -z $2 || -z $3 || -z $4 ]] && usage
 
 # Display command being run
 echo "$0 $*"
@@ -22,6 +22,7 @@ set -u
 readonly name=$1
 readonly image=$2
 readonly environment=$3
+readonly entrypoint=$4
 
 readonly RESERVATION_CPU=512
 readonly RESERVATION_MEM=2048
@@ -86,7 +87,7 @@ green_task_def_date_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --environment "${environment}" \
   --image "${image}" \
   --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
-  --entrypoint "/bin/milmove serve" \
+  --entrypoint "${entrypoint}" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
   --register)

@@ -82,6 +82,32 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticPackAndUnpackData(code mode
 	suite.MustSave(&domesticPackUnpackNonpeakPrice)
 }
 
+func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReServiceCode, schedule int, isPeakPeriod bool, priceCents unit.Cents, escalationCompounded float64) {
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EscalationCompounded: escalationCompounded,
+			},
+		})
+
+	service := testdatagen.MakeReService(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+			},
+		})
+
+	otherPrice := models.ReDomesticOtherPrice{
+		ContractID:   contractYear.Contract.ID,
+		ServiceID:    service.ID,
+		IsPeakPeriod: isPeakPeriod,
+		Schedule:     schedule,
+		PriceCents:   priceCents,
+	}
+
+	suite.MustSave(&otherPrice)
+}
+
 func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code models.ReServiceCode, serviceAreaCode string, isPeakPeriod bool, priceCents unit.Cents, escalationCompounded float64) {
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
@@ -114,4 +140,34 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 	}
 
 	suite.MustSave(&serviceAreaPrice)
+}
+
+func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCode string, isPeakPeriod bool, weightLower unit.Pound, weightUpper unit.Pound, milesLower int, milesUpper int, priceMillicents unit.Millicents, escalationCompounded float64) {
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				EscalationCompounded: escalationCompounded,
+			},
+		})
+
+	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+		testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				Contract:    contractYear.Contract,
+				ServiceArea: serviceAreaCode,
+			},
+		})
+
+	baseLinehaulPrice := models.ReDomesticLinehaulPrice{
+		ContractID:            contractYear.Contract.ID,
+		WeightLower:           weightLower,
+		WeightUpper:           weightUpper,
+		MilesLower:            milesLower,
+		MilesUpper:            milesUpper,
+		IsPeakPeriod:          isPeakPeriod,
+		DomesticServiceAreaID: serviceArea.ID,
+		PriceMillicents:       priceMillicents,
+	}
+
+	suite.MustSave(&baseLinehaulPrice)
 }

@@ -44,7 +44,7 @@ type UpdateMoveOrderParams struct {
 	  In: body
 	*/
 	Body *ghcmessages.UpdateMoveOrderPayload
-	/*ID of customer to use
+	/*ID of move order to use
 	  Required: true
 	  In: path
 	*/

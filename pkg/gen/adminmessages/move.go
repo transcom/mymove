@@ -36,13 +36,11 @@ type Move struct {
 	// Format: uuid
 	OrdersID *strfmt.UUID `json:"ordersId"`
 
-	// service member Id
-	// Read Only: true
-	// Format: uuid
-	ServiceMemberID strfmt.UUID `json:"serviceMemberId,omitempty"`
+	// service member
+	ServiceMember *ServiceMember `json:"serviceMember,omitempty"`
 
 	// show
-	Show bool `json:"show,omitempty"`
+	Show *bool `json:"show,omitempty"`
 
 	// status
 	Status MoveStatus `json:"status,omitempty"`
@@ -73,7 +71,7 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateServiceMemberID(formats); err != nil {
+	if err := m.validateServiceMember(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -139,14 +137,19 @@ func (m *Move) validateOrdersID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Move) validateServiceMemberID(formats strfmt.Registry) error {
+func (m *Move) validateServiceMember(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ServiceMemberID) { // not required
+	if swag.IsZero(m.ServiceMember) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("serviceMemberId", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
-		return err
+	if m.ServiceMember != nil {
+		if err := m.ServiceMember.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("serviceMember")
+			}
+			return err
+		}
 	}
 
 	return nil
