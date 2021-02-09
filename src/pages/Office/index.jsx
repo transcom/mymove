@@ -175,7 +175,7 @@ export class OfficeApp extends Component {
             )}
           </>
         )}
-        <main role="main" className="site__content site-office__content">
+        <main id="main" role="main" className="site__content site-office__content">
           <ConnectedLogoutOnInactivity />
 
           {hasError && <SomethingWentWrong error={error} info={info} />}
