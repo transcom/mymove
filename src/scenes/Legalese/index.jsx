@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { getFormValues } from 'redux-form';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import { selectGetCurrentUserIsSuccess } from 'shared/Data/users';
+import { selectGetCurrentUserIsSuccess } from 'store/auth/reducer';
 import CertificationText from './CertificationText';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';

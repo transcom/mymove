@@ -4,16 +4,44 @@ import { officeRoles } from 'constants/userRoles';
 
 export const initialState = {
   activeRole: null,
+  hasSucceeded: false,
+  hasErrored: false,
+  isLoading: true,
 };
+
+export function selectGetCurrentUserIsLoading(state) {
+  return state.auth.isLoading;
+}
+
+export function selectGetCurrentUserIsSuccess(state) {
+  return state.auth.hasSucceeded;
+}
+
+export function selectGetCurrentUserIsError(state) {
+  return state.auth.hasErrored;
+}
 
 const authReducer = (state = initialState, action) => {
   switch (action?.type) {
     case LOG_OUT: {
       return initialState;
     }
-
+    case 'GET_LOGGED_IN_USER_START': {
+      return {
+        ...state,
+        hasSucceeded: false,
+        hasErrored: false,
+        isLoading: true,
+      };
+    }
     case 'GET_LOGGED_IN_USER_SUCCESS': {
-      if (state.activeRole) return state;
+      if (state.activeRole)
+        return {
+          ...state,
+          hasSucceeded: true,
+          hasErrored: false,
+          isLoading: false,
+        };
 
       const {
         payload: { roles = [] },
@@ -23,6 +51,17 @@ const authReducer = (state = initialState, action) => {
       return {
         ...state,
         activeRole: firstOfficeRole,
+        hasSucceeded: true,
+        hasErrored: false,
+        isLoading: false,
+      };
+    }
+    case 'GET_LOGGED_IN_USER_FAILURE': {
+      return {
+        ...state,
+        isLoading: false,
+        hasErrored: true,
+        hasSucceeded: false,
       };
     }
     case SET_ACTIVE_ROLE: {

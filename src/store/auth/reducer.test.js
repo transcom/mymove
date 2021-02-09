@@ -54,6 +54,9 @@ describe('authReducer', () => {
     expect(authReducer(initialState, action)).toEqual({
       ...initialState,
       activeRole: roleTypes.PPM,
+      hasSucceeded: true,
+      hasErrored: false,
+      isLoading: false,
     });
   });
 
@@ -61,6 +64,9 @@ describe('authReducer', () => {
     const currentState = {
       ...initialState,
       activeRole: roleTypes.TOO,
+      hasSucceeded: true,
+      hasErrored: false,
+      isLoading: false,
     };
 
     const action = {

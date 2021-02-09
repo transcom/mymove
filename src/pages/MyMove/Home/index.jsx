@@ -40,7 +40,7 @@ import {
 } from 'shared/Entities/modules/signed_certifications';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
-import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
+import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'store/auth/reducer';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { MtoShipmentShape, UploadShape, HistoryShape, MoveShape, OrdersShape } from 'types/customerShapes';

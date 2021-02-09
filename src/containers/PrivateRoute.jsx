@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { selectGetCurrentUserIsLoading } from 'shared/Data/users';
+import { selectGetCurrentUserIsLoading } from 'store/auth/reducer';
 import { selectIsLoggedIn, selectLoggedInUser } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import getRoleTypesFromRoles from 'utils/user';

@@ -12,18 +12,6 @@ export function setUserIsLoggedIn(isLoggedIn) {
   };
 }
 
-export function selectGetCurrentUserIsLoading(state) {
-  return state.user.isLoading;
-}
-
-export function selectGetCurrentUserIsSuccess(state) {
-  return state.user.hasSucceeded;
-}
-
-export function selectGetCurrentUserIsError(state) {
-  return state.user.hasErrored;
-}
-
 const userInfoDefault = () => ({
   email: '',
   isLoggedIn: false,

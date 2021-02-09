@@ -38,7 +38,7 @@ describe('ConnectedPrivateRoute', () => {
       const wrapper = mount(
         <MockProviders
           initialState={{
-            user: {
+            auth: {
               isLoading: true,
             },
           }}
@@ -56,8 +56,10 @@ describe('ConnectedPrivateRoute', () => {
       const wrapper = mount(
         <MockProviders
           initialState={{
-            user: {
+            auth: {
               isLoading: false,
+            },
+            user: {
               userInfo: {
                 isLoggedIn: false,
               },
@@ -88,8 +90,10 @@ describe('ConnectedPrivateRoute', () => {
         const wrapper = mount(
           <MockProviders
             initialState={{
-              user: {
+              auth: {
                 isLoading: false,
+              },
+              user: {
                 userInfo: {
                   isLoggedIn: true,
                 },
@@ -126,8 +130,10 @@ describe('ConnectedPrivateRoute', () => {
         const wrapper = mount(
           <MockProviders
             initialState={{
-              user: {
+              auth: {
                 isLoading: false,
+              },
+              user: {
                 userInfo: {
                   isLoggedIn: true,
                 },
