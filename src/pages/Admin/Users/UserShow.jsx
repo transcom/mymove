@@ -1,10 +1,27 @@
 import React from 'react';
-import { Show, SimpleShowLayout, TextField, BooleanField, DateField } from 'react-admin';
+import { BooleanField, DateField, Show, SimpleShowLayout, TextField } from 'react-admin';
+import PropTypes from 'prop-types';
+
+const UserShowTitle = ({ record }) => {
+  return <span>{`${record.loginGovEmail}`}</span>;
+};
+
+UserShowTitle.propTypes = {
+  record: PropTypes.shape({
+    loginGovEmail: PropTypes.string,
+  }),
+};
+
+UserShowTitle.defaultProps = {
+  record: {
+    loginGovEmail: '',
+  },
+};
 
 const UserShow = (props) => {
   return (
     // eslint-disable-next-line
-    <Show {...props} title="title" data-testid="user-show-detail">
+    <Show {...props} title={<UserShowTitle />} data-testid="user-show-detail">
       <SimpleShowLayout>
         <TextField source="id" label="User ID" />
         <TextField source="loginGovEmail" label="User email" />
