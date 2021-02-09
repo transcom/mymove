@@ -49,8 +49,7 @@ func fetchMoveTaskOrderSITPaymentServiceItems(db *pop.Connection, mtoShipment mo
 	err := db.Q().
 		Join("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
 		Join("re_services", "re_services.id = mto_service_items.re_service_id").
-		Eager("MTOServiceItem.ReService").
-		Eager("PaymentServiceItemParams.ServiceItemParamKey").
+		Eager("MTOServiceItem.ReService", "PaymentServiceItemParams.ServiceItemParamKey").
 		Where("payment_service_items.status IN ($1, $2, $3, $4) AND mto_service_items.move_id = ($5) AND re_services.code IN ($6, $7, $8, $9)", models.PaymentServiceItemStatusRequested, models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid, mtoShipment.MoveTaskOrderID, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT).
 		All(&moveTaskOrderSITPaymentServiceItems)
 	if err != nil {
@@ -80,8 +79,7 @@ func fetchMTOShipmentSITPaymentServiceItems(db *pop.Connection, mtoShipment mode
 	err := db.Q().
 		Join("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
 		Join("re_services", "re_services.id = mto_service_items.re_service_id").
-		Eager("MTOServiceItem.ReService").
-		Eager("PaymentServiceItemParams.ServiceItemParamKey").
+		Eager("MTOServiceItem.ReService", "PaymentServiceItemParams.ServiceItemParamKey").
 		Where("payment_service_items.status IN ($1, $2, $3, $4) AND mto_service_items.mto_shipment_id = ($5) AND re_services.code IN ($6, $7, $8, $9)", models.PaymentServiceItemStatusRequested, models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid, mtoShipment.ID, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT).
 		All(&mtoShipmentSITPaymentServiceItems)
 	if err != nil {
