@@ -1135,7 +1135,7 @@ definitions:
     type: array
     maxItems: 2
   MTOHideMove:
-    description: MTOHideMove describes the MTO ID and a description reason why the move was hidden.
+    description: describes the MTO ID and a description reason why the move was hidden.
     type: object
     properties:
       moveTaskOrderID:
@@ -1144,12 +1144,12 @@ definitions:
         type: string
         description: ID of the associated moveTaskOrder
       hideReason:
-        example: item was too heavy
+        example: invalid name
         type: string
         x-nullable: true
         description: Reason the move was selected to be hidden
   MTOHideMovesResponse:
-    description: MTOHideMovesResponse describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.
+    description: describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.
     type: object
     properties:
       numberMovesHidden:

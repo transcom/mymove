@@ -1200,14 +1200,14 @@ func init() {
       }
     },
     "MTOHideMove": {
-      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
+      "description": "describes the MTO ID and a description reason why the move was hidden.",
       "type": "object",
       "properties": {
         "hideReason": {
           "description": "Reason the move was selected to be hidden",
           "type": "string",
           "x-nullable": true,
-          "example": "item was too heavy"
+          "example": "invalid name"
         },
         "moveTaskOrderID": {
           "description": "ID of the associated moveTaskOrder",
@@ -1218,7 +1218,7 @@ func init() {
       }
     },
     "MTOHideMovesResponse": {
-      "description": "MTOHideMovesResponse describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.",
+      "description": "describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.",
       "type": "object",
       "properties": {
         "moves": {
@@ -3677,14 +3677,14 @@ func init() {
       }
     },
     "MTOHideMove": {
-      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
+      "description": "describes the MTO ID and a description reason why the move was hidden.",
       "type": "object",
       "properties": {
         "hideReason": {
           "description": "Reason the move was selected to be hidden",
           "type": "string",
           "x-nullable": true,
-          "example": "item was too heavy"
+          "example": "invalid name"
         },
         "moveTaskOrderID": {
           "description": "ID of the associated moveTaskOrder",
@@ -3695,7 +3695,7 @@ func init() {
       }
     },
     "MTOHideMovesResponse": {
-      "description": "MTOHideMovesResponse describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.",
+      "description": "describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.",
       "type": "object",
       "properties": {
         "moves": {

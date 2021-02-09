@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOHideMove MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+// MTOHideMove describes the MTO ID and a description reason why the move was hidden.
 //
 // swagger:model MTOHideMove
 type MTOHideMove struct {

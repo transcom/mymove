@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// MTOHideMovesResponse MTOHideMovesResponse describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.
+// MTOHideMovesResponse describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.
 //
 // swagger:model MTOHideMovesResponse
 type MTOHideMovesResponse struct {
