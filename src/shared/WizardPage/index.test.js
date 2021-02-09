@@ -1,4 +1,3 @@
-/* eslint-disable no-only-tests/no-only-tests */
 import React from 'react';
 import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
