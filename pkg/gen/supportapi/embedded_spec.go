@@ -2143,9 +2143,7 @@ func init() {
         "url",
         "filename",
         "contentType",
-        "bytes",
-        "createdAt",
-        "updatedAt"
+        "bytes"
       ],
       "properties": {
         "bytes": {
@@ -4620,9 +4618,7 @@ func init() {
         "url",
         "filename",
         "contentType",
-        "bytes",
-        "createdAt",
-        "updatedAt"
+        "bytes"
       ],
       "properties": {
         "bytes": {
