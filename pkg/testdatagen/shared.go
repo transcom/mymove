@@ -38,6 +38,7 @@ type Assertions struct {
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	Entitlement                              models.Entitlement
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
+	File                                     afero.File
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument

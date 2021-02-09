@@ -75,7 +75,7 @@ const DocumentViewer = ({ files }) => {
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
-        <Button data-testid="openMenu" type="button" onClick={openMenu} unstyled>
+        <Button data-testid="openMenu" type="button" onClick={openMenu} aria-label="Open menu" unstyled>
           <FontAwesomeIcon icon="th-list" />
         </Button>
 
