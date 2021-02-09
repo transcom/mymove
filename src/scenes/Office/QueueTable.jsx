@@ -180,7 +180,7 @@ const QueueTable = ({ flashMessageLines, history, showFlashMessage, queueType, r
         <TableQueue
           showFilters
           showPagination={false}
-          manualSortBy
+          manualSortBy={false}
           defaultCanSort
           defaultSortedColumns={defaultSortColumn}
           disableMultiSort
