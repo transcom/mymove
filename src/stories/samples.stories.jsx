@@ -69,10 +69,23 @@ InlineForm.propTypes = {
   name: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  validationSchema: PropTypes.any.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  initialValues: PropTypes.any.isRequired,
+  validationSchema: ({ validationSchema }, propName, componentName) => {
+    if (!Object.keys(validationSchema).length) {
+      return new Error(`Invalid prop ${propName} supplied to ${componentName}. Validation failed.`);
+    }
+    return null;
+  },
+  initialValues: ({ initialValues }, propName, componentName) => {
+    if (!Object.keys(initialValues).length) {
+      return new Error(`Invalid prop ${propName} supplied to ${componentName}. Validation failed.`);
+    }
+    return null;
+  },
+};
+
+InlineForm.defaultProps = {
+  validationSchema: {},
+  initialValues: {},
 };
 
 export const personalInfo = () => (

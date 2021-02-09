@@ -31,7 +31,7 @@ func (e *errUnknownPartition) Error() string {
 
 // InitAWSFlags initializes AWS command line flags
 func InitAWSFlags(flag *pflag.FlagSet) {
-	flag.String(AWSRegionFlag, endpoints.UsWest2RegionID, "The AWS Region")
+	flag.String(AWSRegionFlag, endpoints.UsGovWest1RegionID, "The AWS Region")
 }
 
 // CheckAWSRegion validates the AWS Region command line flags

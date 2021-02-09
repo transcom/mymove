@@ -1,6 +1,7 @@
 package movetaskorder
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/go-openapi/swag"
@@ -10,6 +11,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
+
+type invalidReasonsType map[string]string
 
 type moveTaskOrderHider struct {
 	db *pop.Connection
@@ -21,7 +24,8 @@ func NewMoveTaskOrderHider(db *pop.Connection) services.MoveTaskOrderHider {
 }
 
 // Hide hides any MTO that isn't using valid fake data
-func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
+func (o *moveTaskOrderHider) Hide() (services.HiddenMoves, error) {
+	invalidMoves := services.HiddenMoves{}
 	var mtos models.Moves
 	err := o.db.Q().
 		// Note: We may be able to save some queries if we load on demand, but we'll need to
@@ -44,16 +48,27 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 
 	var invalidFakeMoves models.Moves
 	for _, mto := range mtos {
+		hide := services.HiddenMove{}
 		// TODO: what should we do if there is an error?
-		isValid, _ := isValidFakeModelServiceMember(mto.Orders.ServiceMember)
+		isValid, invalidReasons, _ := isValidFakeModelServiceMember(mto.Orders.ServiceMember)
 		if isValid {
 			// TODO: what should we do if there is an error?
-			isValid, _ = isValidFakeModelMTOShipments(mto.MTOShipments)
+			var invalidReasons2 invalidReasonsType
+			isValid, invalidReasons2, _ = isValidFakeModelMTOShipments(mto.MTOShipments)
+			invalidReasons = mergeReasonsMap(invalidReasons, invalidReasons2)
 		}
 
 		if !isValid {
 			mto.Show = swag.Bool(false)
 			invalidFakeMoves = append(invalidFakeMoves, mto)
+			reasonsJSONString, jsonErr := json.Marshal(invalidReasons)
+			hide.MTOID = mto.ID
+			if jsonErr != nil {
+				hide.Reason = "json.Marshal to string failed"
+			} else {
+				hide.Reason = string(reasonsJSONString)
+			}
+			invalidMoves = append(invalidMoves, hide)
 		}
 	}
 
@@ -71,7 +86,14 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 		}
 	}
 
-	return invalidFakeMoves, nil
+	return invalidMoves, nil
+}
+
+func mergeReasonsMap(r1 invalidReasonsType, r2 invalidReasonsType) invalidReasonsType {
+	for k, v := range r2 {
+		r1[k] = v
+	}
+	return r1
 }
 
 func isValidFakeModelAddress(a *models.Address) (bool, error) {
@@ -115,57 +137,66 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 	return true, nil
 }
 
-func isValidFakeModelMTOShipments(shipments models.MTOShipments) (bool, error) {
+func isValidFakeModelMTOShipments(shipments models.MTOShipments) (bool, invalidReasonsType, error) {
+	invalidReasons := invalidReasonsType{}
+
 	for _, shipment := range shipments {
-		ok, err := isValidFakeModelMTOShipment(shipment)
+		var ok bool
+		var err error
+		ok, invalidReasons, err = isValidFakeModelMTOShipment(shipment)
 		if err != nil {
-			return false, err
+			return false, invalidReasons, err
 		}
 		if ok == false {
-			return false, nil
+			return false, invalidReasons, nil
 		}
 	}
-	return true, nil
+	return true, invalidReasons, nil
 }
 
-func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, error) {
+func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType, error) {
+	invalidReasons := invalidReasonsType{}
 	if s.PickupAddress != nil {
 		ok, err := isValidFakeModelAddress(s.PickupAddress)
 		if err != nil {
-			return false, err
+			return false, invalidReasons, err
 		}
 		if ok == false {
-			return false, nil
+			invalidReasons["mtoshipment.pickupaddress"] = s.PickupAddress.StreetAddress1
+			return false, invalidReasons, nil
 		}
 	}
 
 	if s.SecondaryPickupAddress != nil {
 		ok, err := isValidFakeModelAddress(s.SecondaryPickupAddress)
 		if err != nil {
-			return false, err
+			return false, invalidReasons, err
 		}
 		if ok == false {
-			return false, nil
+			invalidReasons["mtoshipment.secondarypickupaddress"] = s.SecondaryPickupAddress.StreetAddress1
+			return false, invalidReasons, nil
 		}
 	}
 
 	if s.DestinationAddress != nil {
 		ok, err := isValidFakeModelAddress(s.DestinationAddress)
 		if err != nil {
-			return false, err
+			return false, invalidReasons, err
 		}
 		if ok == false {
-			return false, nil
+			invalidReasons["mtoshipment.destinationaddress"] = s.DestinationAddress.StreetAddress1
+			return false, invalidReasons, nil
 		}
 	}
 
 	if s.SecondaryDeliveryAddress != nil {
 		ok, err := isValidFakeModelAddress(s.SecondaryDeliveryAddress)
 		if err != nil {
-			return false, err
+			return false, invalidReasons, err
 		}
 		if ok == false {
-			return false, nil
+			invalidReasons["mtoshipment.secondarydeliveryaddress"] = s.SecondaryDeliveryAddress.StreetAddress1
+			return false, invalidReasons, nil
 		}
 	}
 
@@ -173,14 +204,15 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, error) {
 	for _, agent := range s.MTOAgents {
 		ok, err := isValidFakeModelMTOAgent(agent)
 		if err != nil {
-			return false, err
+			return false, invalidReasons, err
 		}
 		if ok == false {
-			return false, nil
+			invalidReasons["mtoshipment.agent"] = "agent first name and/or last name is invalid"
+			return false, invalidReasons, nil
 		}
 	}
 
-	return true, nil
+	return true, invalidReasons, nil
 }
 
 func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
@@ -215,42 +247,48 @@ func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
 
 // isValidFakeModelServiceMember - checks if the contact info
 // of a service member is fake
-func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, error) {
+func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, invalidReasonsType, error) {
+	invalidReasons := invalidReasonsType{}
 	email := sm.PersonalEmail
 	if email != nil {
 		isValidFakeEmail, _ := fakedata.IsValidFakeDataEmail(*email)
 		if !isValidFakeEmail {
-			return false, nil
+			invalidReasons["servicemember.email"] = *email
+			return false, invalidReasons, nil
 		}
 	}
 	phone := sm.Telephone
 	if phone != nil {
 		isValidFakePhone, _ := fakedata.IsValidFakeDataPhone(*phone)
 		if isValidFakePhone == false {
-			return false, nil
+			invalidReasons["servicemember.phone"] = *phone
+			return false, invalidReasons, nil
 		}
 	}
 	secondaryPhone := sm.SecondaryTelephone
 	if secondaryPhone != nil {
 		isValidFakeSecondaryPhone, _ := fakedata.IsValidFakeDataPhone(*secondaryPhone)
 		if !isValidFakeSecondaryPhone {
-			return false, nil
+			invalidReasons["servicemember.phone2"] = *secondaryPhone
+			return false, invalidReasons, nil
 		}
 	}
 	ok, err := isValidFakeModelAddress(sm.ResidentialAddress)
 	if err != nil {
-		return false, err
+		return false, invalidReasons, err
 	}
 	if ok == false {
-		return false, nil
+		invalidReasons["servicemember.residentialaddress"] = sm.ResidentialAddress.StreetAddress1
+		return false, invalidReasons, nil
 	}
 
 	ok, err = isValidFakeModelAddress(sm.BackupMailingAddress)
 	if err != nil {
-		return false, err
+		return false, invalidReasons, err
 	}
 	if ok == false {
-		return false, nil
+		invalidReasons["servicemember.backupmailingaddress"] = sm.BackupMailingAddress.StreetAddress1
+		return false, invalidReasons, nil
 	}
 
 	fName := sm.FirstName
@@ -258,7 +296,8 @@ func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, error) {
 	if fName != nil && lName != nil {
 		isValidFakeName, _ := fakedata.IsValidFakeDataFullName(*fName, *lName)
 		if isValidFakeName == false {
-			return false, nil
+			invalidReasons["servicemember.fullname"] = *fName + " " + *lName
+			return false, invalidReasons, nil
 		}
 	}
 
@@ -266,12 +305,13 @@ func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, error) {
 	for _, backupContact := range sm.BackupContacts {
 		ok, err = isValidFakeModelBackupContact(backupContact)
 		if err != nil {
-			return false, err
+			return false, invalidReasons, err
 		}
 		if ok == false {
-			return false, nil
+			invalidReasons["servicemember.backupcontact"] = "name, email, or phone found to be invalid"
+			return false, invalidReasons, nil
 		}
 	}
 
-	return true, nil
+	return true, invalidReasons, nil
 }

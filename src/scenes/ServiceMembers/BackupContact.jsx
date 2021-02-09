@@ -157,8 +157,7 @@ export class BackupContact extends Component {
     const { pages, pageKey } = this.props;
     const { isValid, isDirty, errorMessage } = this.state;
 
-    // eslint-disable-next-line
-    var [contact1, contact2] = this.props.currentBackupContacts; // contact2 will be used when we implement saving two backup contacts.
+    var [contact1] = this.props.currentBackupContacts;
 
     // initialValues has to be null until there are values from the action since only the first values are taken
     const firstInitialValues = contact1 ? pick(contact1, ['name', 'email', 'telephone', 'permission']) : null;
