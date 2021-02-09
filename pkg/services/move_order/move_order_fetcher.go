@@ -57,10 +57,11 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
 	options := []QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
 
-	query := f.db.Q().Eager(
+	query := f.db.Q().EagerPreload(
 		"Orders.ServiceMember",
 		"Orders.NewDutyStation.Address",
-		"Orders.OriginDutyStation",
+		"Orders.OriginDutyStation.Address",
+		"Orders.OriginDutyStation.TransportationOffice",
 		"Orders.Entitlement",
 		"MTOShipments",
 		"MTOServiceItems",
@@ -112,15 +113,6 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	}
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
-
-	for i := range moves {
-		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-		// cannot eager load the address as "OriginDutyStation.Address" because
-		// OriginDutyStation is a pointer.
-		if moves[i].Orders.OriginDutyStation != nil {
-			f.db.Load(moves[i].Orders.OriginDutyStation, "Address", "TransportationOffice")
-		}
-	}
 
 	return moves, count, nil
 }
