@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -26,6 +27,17 @@ func payloadForWebhookSubscriptionModel(subscription models.WebhookSubscription)
 		Status:       adminmessages.WebhookSubscriptionStatus(subscription.Status),
 		CreatedAt:    *handlers.FmtDateTime(subscription.CreatedAt),
 		UpdatedAt:    *handlers.FmtDateTime(subscription.UpdatedAt),
+	}
+}
+
+// Create payload to model function
+func payloadToWebhookSubscriptionModel(params webhooksubscriptionop.CreateWebhookSubscriptionParams) models.WebhookSubscription {
+	subscription := params.WebhookSubscription
+	return models.WebhookSubscription{
+		EventKey:     subscription.EventKey,
+		CallbackURL:  subscription.CallbackURL,
+		SubscriberID: uuid.FromStringOrNil(subscription.SubscriberID.String()),
+		Status:       models.WebhookSubscriptionStatus(subscription.Status),
 	}
 }
 
@@ -90,4 +102,30 @@ func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWe
 
 	payload := payloadForWebhookSubscriptionModel(webhookSubscription)
 	return webhooksubscriptionop.NewGetWebhookSubscriptionOK().WithPayload(payload)
+}
+
+// CreateWebhookSubscriptionHandler is the handler for creating users.
+type CreateWebhookSubscriptionHandler struct {
+	handlers.HandlerContext
+	services.WebhookSubscriptionCreator
+	services.NewQueryFilter
+}
+
+// Handle creates an admin user
+func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.CreateWebhookSubscriptionParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	subscription := payloadToWebhookSubscriptionModel(params)
+
+	subscriberIDFilter := []services.QueryFilter{
+		h.NewQueryFilter("id", "=", subscription.SubscriberID),
+	}
+
+	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(&subscription, subscriberIDFilter)
+	if err != nil || verrs != nil {
+		logger.Error("Error saving webhook subscription", zap.Error(verrs))
+		return webhooksubscriptionop.NewCreateWebhookSubscriptionInternalServerError()
+	}
+
+	returnPayload := payloadForWebhookSubscriptionModel(*createdWebhookSubscription)
+	return webhooksubscriptionop.NewCreateWebhookSubscriptionCreated().WithPayload(returnPayload)
 }
