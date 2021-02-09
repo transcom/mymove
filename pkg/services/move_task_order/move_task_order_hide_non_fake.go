@@ -139,10 +139,10 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 
 func isValidFakeModelMTOShipments(shipments models.MTOShipments) (bool, invalidReasonsType, error) {
 	invalidReasons := invalidReasonsType{}
-	var err error
 
 	for _, shipment := range shipments {
 		var ok bool
+		var err error
 		ok, invalidReasons, err = isValidFakeModelMTOShipment(shipment)
 		if err != nil {
 			return false, invalidReasons, err

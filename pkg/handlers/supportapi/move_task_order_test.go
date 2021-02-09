@@ -92,6 +92,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 
 		for i, m := range mtoIDsRequestsPayload.Moves {
 			suite.Equal(moves[i].ID.String(), m.MoveTaskOrderID.String())
+			suite.NotEqual("{}", *m.HideReason)
 		}
 	})
 

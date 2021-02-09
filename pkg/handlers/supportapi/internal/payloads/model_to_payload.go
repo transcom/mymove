@@ -27,20 +27,6 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrd
 	return payload
 }
 
-// MoveTaskOrderIDs payload
-func MoveTaskOrderIDs(moveTaskOrderIDs []uuid.UUID) supportmessages.MoveTaskOrderIDs {
-	payload := make(supportmessages.MoveTaskOrderIDs, len(moveTaskOrderIDs))
-	for i, m := range moveTaskOrderIDs {
-		payload[i] = MoveTaskOrderID(m)
-	}
-	return payload
-}
-
-// MoveTaskOrderID payload
-func MoveTaskOrderID(moveTaskOrderID uuid.UUID) supportmessages.MoveTaskOrderID {
-	return supportmessages.MoveTaskOrderID(strfmt.UUID(moveTaskOrderID.String()))
-}
-
 // MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {

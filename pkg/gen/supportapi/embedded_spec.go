@@ -1846,17 +1846,6 @@ func init() {
         }
       }
     },
-    "MoveTaskOrderID": {
-      "type": "string",
-      "format": "uuid",
-      "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-    },
-    "MoveTaskOrderIDs": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrderID"
-      }
-    },
     "MoveTaskOrders": {
       "type": "array",
       "items": {
@@ -4332,17 +4321,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
-    },
-    "MoveTaskOrderID": {
-      "type": "string",
-      "format": "uuid",
-      "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-    },
-    "MoveTaskOrderIDs": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {
