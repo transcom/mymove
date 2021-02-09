@@ -21,26 +21,26 @@ func (s NumberDaysSITLookup) lookup(keyData *ServiceItemParamKeyData) (string, e
 		return "", err
 	}
 
-	remainingMoveTaskOrderSITDays, err := calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems)
-	if err != nil {
-		return "", err
-	}
-
 	mtoShipmentSITPaymentServiceItems, err := fetchMTOShipmentSITPaymentServiceItems(keyData.db, s.MTOShipment)
 	if err != nil {
 		return "", err
 	}
 
-	mtoServiceItemSITDays, err := calculateMTOServiceItemSITDays(mtoShipmentSITPaymentServiceItems, keyData.MTOServiceItem)
+	remainingMoveTaskOrderSITDays, err := calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems)
 	if err != nil {
 		return "", err
 	}
 
-	if mtoServiceItemSITDays > remainingMoveTaskOrderSITDays {
+	currentMTOServiceItemSITDays, err := calculateCurrentMTOServiceItemSITDays(mtoShipmentSITPaymentServiceItems, keyData.MTOServiceItem)
+	if err != nil {
+		return "", err
+	}
+
+	if notEnoughRemainingMoveTaskOrderSITDays(remainingMoveTaskOrderSITDays, currentMTOServiceItemSITDays) {
 		return strconv.Itoa(remainingMoveTaskOrderSITDays), nil
 	}
 
-	return strconv.Itoa(mtoServiceItemSITDays), nil
+	return strconv.Itoa(currentMTOServiceItemSITDays), nil
 }
 
 func fetchMoveTaskOrderSITPaymentServiceItems(db *pop.Connection, mtoShipment models.MTOShipment) (models.PaymentServiceItems, error) {
@@ -59,20 +59,6 @@ func fetchMoveTaskOrderSITPaymentServiceItems(db *pop.Connection, mtoShipment mo
 	return moveTaskOrderSITPaymentServiceItems, nil
 }
 
-func calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems models.PaymentServiceItems) (int, error) {
-	remainingMoveTaskOrderSITDays := 90
-
-	for _, moveTaskOrderSITPaymentServiceItem := range moveTaskOrderSITPaymentServiceItems {
-		paymentServiceItemSITDays, err := fetchNumberDaysSITParamValue(moveTaskOrderSITPaymentServiceItem)
-		remainingMoveTaskOrderSITDays = remainingMoveTaskOrderSITDays - paymentServiceItemSITDays
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	return remainingMoveTaskOrderSITDays, nil
-}
-
 func fetchMTOShipmentSITPaymentServiceItems(db *pop.Connection, mtoShipment models.MTOShipment) (models.PaymentServiceItems, error) {
 	mtoShipmentSITPaymentServiceItems := models.PaymentServiceItems{}
 
@@ -89,51 +75,80 @@ func fetchMTOShipmentSITPaymentServiceItems(db *pop.Connection, mtoShipment mode
 	return mtoShipmentSITPaymentServiceItems, nil
 }
 
-func calculateMTOServiceItemSITDays(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems, currentMTOServiceItem models.MTOServiceItem) (int, error) {
-	originMTOShipmentEntryDate, destinationMTOShipmentEntryDate, err := fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems, currentMTOServiceItem)
-	if err != nil {
-		return 0, err
-	}
+func calculateRemainingMoveTaskOrderSITDays(moveTaskOrderSITPaymentServiceItems models.PaymentServiceItems) (int, error) {
+	remainingMoveTaskOrderSITDays := 90
 
-	currentMTOShipmentSITDays, err := calculateCurrentMTOShipmentSITDays(mtoShipmentSITPaymentServiceItems)
-	if err != nil {
-		return 0, err
-	}
-
-	if isDomesticOrigin(currentMTOServiceItem) {
-		originMTOShipmentDepartureDate := currentMTOServiceItem.SITDepartureDate
-
-		if isDOFSIT(currentMTOServiceItem) {
-			return 1, nil
-		} else if isDOASIT(currentMTOServiceItem) && originMTOShipmentDepartureDate != nil {
-			totalCurrentMTOShipmentSITDays := int(originMTOShipmentDepartureDate.Sub(originMTOShipmentEntryDate).Hours() / 24)
-			return totalCurrentMTOShipmentSITDays - currentMTOShipmentSITDays, nil
-		} else if isDOASIT(currentMTOServiceItem) && originMTOShipmentDepartureDate == nil {
-			return 29, nil
-		}
-	} else if isDomesticDestination(currentMTOServiceItem) {
-		destinationMTOShipmentDepartureDate := currentMTOServiceItem.SITDepartureDate
-		if isDDFSIT(currentMTOServiceItem) {
-			return 1, nil
-		} else if isDDASIT(currentMTOServiceItem) && destinationMTOShipmentDepartureDate != nil {
-			totalCurrentMTOShipmentSITDays := int(destinationMTOShipmentDepartureDate.Sub(destinationMTOShipmentEntryDate).Hours() / 24)
-			return totalCurrentMTOShipmentSITDays - currentMTOShipmentSITDays, nil
-		} else if isDDASIT(currentMTOServiceItem) && destinationMTOShipmentDepartureDate == nil {
-			return 29, nil
+	for _, moveTaskOrderSITPaymentServiceItem := range moveTaskOrderSITPaymentServiceItems {
+		if isFirstDaySIT(moveTaskOrderSITPaymentServiceItem.MTOServiceItem) {
+			remainingMoveTaskOrderSITDays--
+		} else {
+			paymentServiceItemSITDays, err := fetchNumberDaysSITParamValue(moveTaskOrderSITPaymentServiceItem)
+			if err != nil {
+				return 0, err
+			}
+			remainingMoveTaskOrderSITDays = remainingMoveTaskOrderSITDays - paymentServiceItemSITDays
 		}
 	}
 
-	return 0, nil
+	return remainingMoveTaskOrderSITDays, nil
 }
 
-func fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems, lookupMTOServiceItem models.MTOServiceItem) (time.Time, time.Time, error) {
+func calculateCurrentMTOServiceItemSITDays(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem) (int, error) {
+	mtoServiceItemSITDays := 0
+
+	originMTOShipmentEntryDate, destinationMTOShipmentEntryDate, err := fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems, mtoServiceItem)
+	if err != nil {
+		return 0, err
+	}
+
+	mtoShipmentSITDays, err := calculateMTOShipmentSITDays(mtoShipmentSITPaymentServiceItems)
+	if err != nil {
+		return 0, err
+	}
+
+	if isDOASIT(mtoServiceItem) {
+		originMTOShipmentDepartureDate := mtoServiceItem.SITDepartureDate
+
+		if originMTOShipmentDepartureDate != nil {
+			mtoShipmentSITDuration := int(originMTOShipmentDepartureDate.Sub(originMTOShipmentEntryDate).Hours() / 24)
+			mtoServiceItemSITDays = mtoShipmentSITDuration - mtoShipmentSITDays
+			return mtoServiceItemSITDays, nil
+		} else if originMTOShipmentDepartureDate == nil {
+			mtoServiceItemSITDays = 29
+			return mtoServiceItemSITDays, nil
+		}
+	} else if isDDASIT(mtoServiceItem) {
+		destinationMTOShipmentDepartureDate := mtoServiceItem.SITDepartureDate
+
+		if destinationMTOShipmentDepartureDate != nil {
+			mtoShipmentSITDuration := int(destinationMTOShipmentDepartureDate.Sub(destinationMTOShipmentEntryDate).Hours() / 24)
+			mtoServiceItemSITDays = mtoShipmentSITDuration - mtoShipmentSITDays
+			return mtoServiceItemSITDays, nil
+		} else if destinationMTOShipmentDepartureDate == nil {
+			mtoServiceItemSITDays = 29
+			return mtoServiceItemSITDays, nil
+		}
+	}
+
+	return mtoServiceItemSITDays, nil
+}
+
+func notEnoughRemainingMoveTaskOrderSITDays(remainingMoveTaskOrderSITDays int, currentMTOServiceItemSITDays int) bool {
+	if remainingMoveTaskOrderSITDays < currentMTOServiceItemSITDays {
+		return true
+	}
+
+	return false
+}
+
+func fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem) (time.Time, time.Time, error) {
 	var originSITEntryDate time.Time
 	var destinationSITEntryDate time.Time
 
 	for _, shipmentSITPaymentServiceItem := range mtoShipmentSITPaymentServiceItems {
 		if isDomesticOrigin(shipmentSITPaymentServiceItem.MTOServiceItem) {
 
-			if isDomesticOrigin(lookupMTOServiceItem) && shipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
+			if isDomesticOrigin(mtoServiceItem) && shipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
 				return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v already has an Origin MTO Service Item %v with a SIT Departure Date of %v", shipmentSITPaymentServiceItem.MTOServiceItem.MTOShipment.ID, shipmentSITPaymentServiceItem.ID, shipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate)
 			} else if shipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
 				sitEntryDate := shipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate
@@ -146,7 +161,7 @@ func fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems models.
 			}
 		} else if isDomesticDestination(shipmentSITPaymentServiceItem.MTOServiceItem) {
 
-			if isDomesticDestination(lookupMTOServiceItem) && shipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
+			if isDomesticDestination(mtoServiceItem) && shipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate != nil {
 				return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v already has a Destination MTO Service Item %v with a SIT Departure Date of %v", shipmentSITPaymentServiceItem.MTOServiceItem.MTOShipment.ID, shipmentSITPaymentServiceItem.ID, shipmentSITPaymentServiceItem.MTOServiceItem.SITDepartureDate)
 			} else if shipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate != nil {
 				sitEntryDate := shipmentSITPaymentServiceItem.MTOServiceItem.SITEntryDate
@@ -160,40 +175,43 @@ func fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems models.
 		}
 	}
 
-	if isDomesticOrigin(lookupMTOServiceItem) && !originSITEntryDate.IsZero() && lookupMTOServiceItem.SITEntryDate != nil && originSITEntryDate != *lookupMTOServiceItem.SITEntryDate {
-		return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v already has an Origin MTO Service Item with a different SIT Entry Date of %v", lookupMTOServiceItem.MTOShipment.ID, originSITEntryDate)
-	} else if isDomesticDestination(lookupMTOServiceItem) && !destinationSITEntryDate.IsZero() && lookupMTOServiceItem.SITEntryDate != nil && destinationSITEntryDate != *lookupMTOServiceItem.SITEntryDate {
-		return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v already has a Destination MTO Service Item with a different SIT Entry Date of %v", lookupMTOServiceItem.MTOShipment.ID, originSITEntryDate)
+	if isDomesticOrigin(mtoServiceItem) && !originSITEntryDate.IsZero() && mtoServiceItem.SITEntryDate != nil && originSITEntryDate != *mtoServiceItem.SITEntryDate {
+		return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v already has an Origin MTO Service Item with a different SIT Entry Date of %v", mtoServiceItem.MTOShipment.ID, originSITEntryDate)
+	} else if isDomesticDestination(mtoServiceItem) && !destinationSITEntryDate.IsZero() && mtoServiceItem.SITEntryDate != nil && destinationSITEntryDate != *mtoServiceItem.SITEntryDate {
+		return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v already has a Destination MTO Service Item with a different SIT Entry Date of %v", mtoServiceItem.MTOShipment.ID, originSITEntryDate)
 	}
 
-	if isDomesticOrigin(lookupMTOServiceItem) && originSITEntryDate.IsZero() && lookupMTOServiceItem.SITEntryDate == nil {
-		return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v does not have an Origin MTO Service Item with a SIT Entry Date", lookupMTOServiceItem.MTOShipment.ID)
-	} else if isDomesticOrigin(lookupMTOServiceItem) && originSITEntryDate.IsZero() && lookupMTOServiceItem.SITEntryDate != nil {
-		sitEntryDate := lookupMTOServiceItem.SITEntryDate
+	if isDomesticOrigin(mtoServiceItem) && originSITEntryDate.IsZero() && mtoServiceItem.SITEntryDate == nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v does not have an Origin MTO Service Item with a SIT Entry Date", mtoServiceItem.MTOShipment.ID)
+	} else if isDomesticOrigin(mtoServiceItem) && originSITEntryDate.IsZero() && mtoServiceItem.SITEntryDate != nil {
+		sitEntryDate := mtoServiceItem.SITEntryDate
 		originSITEntryDate = *sitEntryDate
-	} else if isDomesticDestination(lookupMTOServiceItem) && destinationSITEntryDate.IsZero() && lookupMTOServiceItem.SITEntryDate == nil {
-		return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v does not have a Destination MTO Service Item with a SIT Entry Date", lookupMTOServiceItem.MTOShipment.ID)
-	} else if isDomesticDestination(lookupMTOServiceItem) && destinationSITEntryDate.IsZero() && lookupMTOServiceItem.SITEntryDate != nil {
-		sitEntryDate := lookupMTOServiceItem.SITEntryDate
+	} else if isDomesticDestination(mtoServiceItem) && destinationSITEntryDate.IsZero() && mtoServiceItem.SITEntryDate == nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("MTO Shipment %v does not have a Destination MTO Service Item with a SIT Entry Date", mtoServiceItem.MTOShipment.ID)
+	} else if isDomesticDestination(mtoServiceItem) && destinationSITEntryDate.IsZero() && mtoServiceItem.SITEntryDate != nil {
+		sitEntryDate := mtoServiceItem.SITEntryDate
 		destinationSITEntryDate = *sitEntryDate
 	}
 
 	return originSITEntryDate, destinationSITEntryDate, nil
 }
 
-func calculateCurrentMTOShipmentSITDays(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems) (int, error) {
-	currentMTOShipmentSITDays := 0
+func calculateMTOShipmentSITDays(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems) (int, error) {
+	mtoShipmentSITDays := 0
 
-	for _, moveTaskOrderSITPaymentServiceItem := range mtoShipmentSITPaymentServiceItems {
-		paymentServiceItemSITDays, err := fetchNumberDaysSITParamValue(moveTaskOrderSITPaymentServiceItem)
-		if err != nil {
-			return 0, err
+	for _, mtoShipmentSITPaymentServiceItem := range mtoShipmentSITPaymentServiceItems {
+		if isFirstDaySIT(mtoShipmentSITPaymentServiceItem.MTOServiceItem) {
+			mtoShipmentSITDays++
+		} else {
+			paymentServiceItemSITDays, err := fetchNumberDaysSITParamValue(mtoShipmentSITPaymentServiceItem)
+			if err != nil {
+				return 0, err
+			}
+			mtoShipmentSITDays = mtoShipmentSITDays + paymentServiceItemSITDays
 		}
-
-		currentMTOShipmentSITDays = currentMTOShipmentSITDays + paymentServiceItemSITDays
 	}
 
-	return currentMTOShipmentSITDays, nil
+	return mtoShipmentSITDays, nil
 }
 
 func fetchNumberDaysSITParamValue(paymentServiceItem models.PaymentServiceItem) (int, error) {
@@ -204,24 +222,16 @@ func fetchNumberDaysSITParamValue(paymentServiceItem models.PaymentServiceItem) 
 				return 0, fmt.Errorf("trying to convert %s to an int, but param is of type %s", models.ServiceItemParamNameNumberDaysSIT, paymentServiceItemParam.ServiceItemParamKey.Type)
 			}
 
-			paymentServiceItemParamValue, err := strconv.Atoi(paymentServiceItemParam.Value)
+			numberDaysSITParamValue, err := strconv.Atoi(paymentServiceItemParam.Value)
 			if err != nil {
 				return 0, fmt.Errorf("could not convert value %s to an int: %w", paymentServiceItemParam.Value, err)
 			}
 
-			return paymentServiceItemParamValue, err
+			return numberDaysSITParamValue, err
 		}
 	}
 
 	return 0, nil
-}
-
-func isDomesticOrigin(mtoServiceItem models.MTOServiceItem) bool {
-	if mtoServiceItem.ReService.Code == models.ReServiceCodeDOFSIT || mtoServiceItem.ReService.Code == models.ReServiceCodeDOASIT {
-		return true
-	}
-
-	return false
 }
 
 func isDOFSIT(mtoServiceItem models.MTOServiceItem) bool {
@@ -240,14 +250,6 @@ func isDOASIT(mtoServiceItem models.MTOServiceItem) bool {
 	return false
 }
 
-func isDomesticDestination(mtoServiceItem models.MTOServiceItem) bool {
-	if mtoServiceItem.ReService.Code == models.ReServiceCodeDDFSIT || mtoServiceItem.ReService.Code == models.ReServiceCodeDDASIT {
-		return true
-	}
-
-	return false
-}
-
 func isDDFSIT(mtoServiceItem models.MTOServiceItem) bool {
 	if mtoServiceItem.ReService.Code == models.ReServiceCodeDDFSIT {
 		return true
@@ -258,6 +260,30 @@ func isDDFSIT(mtoServiceItem models.MTOServiceItem) bool {
 
 func isDDASIT(mtoServiceItem models.MTOServiceItem) bool {
 	if mtoServiceItem.ReService.Code == models.ReServiceCodeDDASIT {
+		return true
+	}
+
+	return false
+}
+
+func isDomesticOrigin(mtoServiceItem models.MTOServiceItem) bool {
+	if isDOFSIT(mtoServiceItem) || isDOASIT(mtoServiceItem) {
+		return true
+	}
+
+	return false
+}
+
+func isDomesticDestination(mtoServiceItem models.MTOServiceItem) bool {
+	if isDDFSIT(mtoServiceItem) || isDDASIT(mtoServiceItem) {
+		return true
+	}
+
+	return false
+}
+
+func isFirstDaySIT(mtoServiceItem models.MTOServiceItem) bool {
+	if isDOFSIT(mtoServiceItem) || isDDFSIT(mtoServiceItem) {
 		return true
 	}
 

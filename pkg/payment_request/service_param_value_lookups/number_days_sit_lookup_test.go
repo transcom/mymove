@@ -786,27 +786,16 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	paymentRequestTen := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	paymentServiceItemParamOne := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameNumberDaysSIT,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "1",
+	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &cost,
+			Status:     models.PaymentServiceItemStatusPaid,
 		},
-	}
-	testdatagen.MakePaymentServiceItemWithParams(
-		suite.DB(),
-		serviceItemDOFSITNine.ReService.Code,
-		paymentServiceItemParamOne,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
-			},
-			PaymentRequest: paymentRequestTen,
-			MTOServiceItem: serviceItemDOFSITNine,
-		})
+		PaymentRequest: paymentRequestTen,
+		MTOServiceItem: serviceItemDOFSITNine,
+	})
 
-	paymentServiceItemParamTwo := []testdatagen.CreatePaymentServiceItemParams{
+	paymentServiceItemParamOne := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameNumberDaysSIT,
 			KeyType: models.ServiceItemParamTypeInteger,
@@ -816,7 +805,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		serviceItemDOASITTen.ReService.Code,
-		paymentServiceItemParamTwo,
+		paymentServiceItemParamOne,
 		testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -827,48 +816,26 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		})
 
 	paymentRequestEleven := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	paymentServiceItemParamThree := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameNumberDaysSIT,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "1",
+	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &cost,
+			Status:     models.PaymentServiceItemStatusPaid,
 		},
-	}
-	testdatagen.MakePaymentServiceItemWithParams(
-		suite.DB(),
-		serviceItemDDFSITEight.ReService.Code,
-		paymentServiceItemParamThree,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
-			},
-			PaymentRequest: paymentRequestEleven,
-			MTOServiceItem: serviceItemDDFSITEight,
-		})
+		PaymentRequest: paymentRequestEleven,
+		MTOServiceItem: serviceItemDDFSITEight,
+	})
 
 	paymentRequestTwelve := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	paymentServiceItemParamFour := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameNumberDaysSIT,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "1",
+	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &cost,
+			Status:     models.PaymentServiceItemStatusPaid,
 		},
-	}
-	testdatagen.MakePaymentServiceItemWithParams(
-		suite.DB(),
-		serviceItemDOFSITTen.ReService.Code,
-		paymentServiceItemParamFour,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
-			},
-			PaymentRequest: paymentRequestTwelve,
-			MTOServiceItem: serviceItemDOFSITTen,
-		})
+		PaymentRequest: paymentRequestTwelve,
+		MTOServiceItem: serviceItemDOFSITTen,
+	})
 
-	paymentServiceItemParamFive := []testdatagen.CreatePaymentServiceItemParams{
+	paymentServiceItemParamTwo := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameNumberDaysSIT,
 			KeyType: models.ServiceItemParamTypeInteger,
@@ -878,7 +845,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		serviceItemDOASITTwelve.ReService.Code,
-		paymentServiceItemParamFive,
+		paymentServiceItemParamTwo,
 		testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -888,7 +855,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			MTOServiceItem: serviceItemDOASITTwelve,
 		})
 
-	paymentServiceItemParamSix := []testdatagen.CreatePaymentServiceItemParams{
+	paymentServiceItemParamThree := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameNumberDaysSIT,
 			KeyType: models.ServiceItemParamTypeInteger,
@@ -898,7 +865,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		serviceItemDOASITThirteen.ReService.Code,
-		paymentServiceItemParamSix,
+		paymentServiceItemParamThree,
 		testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -909,28 +876,17 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		})
 
 	paymentRequestThirteen := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	paymentServiceItemParamSeven := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameNumberDaysSIT,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "1",
+	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &cost,
+			Status:     models.PaymentServiceItemStatusPaid,
 		},
-	}
-	testdatagen.MakePaymentServiceItemWithParams(
-		suite.DB(),
-		serviceItemDDFSITNine.ReService.Code,
-		paymentServiceItemParamSeven,
-		testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-				Status:     models.PaymentServiceItemStatusPaid,
-			},
-			PaymentRequest: paymentRequestThirteen,
-			MTOServiceItem: serviceItemDDFSITNine,
-		})
+		PaymentRequest: paymentRequestThirteen,
+		MTOServiceItem: serviceItemDDFSITNine,
+	})
 
 	paymentRequestFourteen := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	paymentServiceItemParamEight := []testdatagen.CreatePaymentServiceItemParams{
+	paymentServiceItemParamFour := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameNumberDaysSIT,
 			KeyType: models.ServiceItemParamTypeInteger,
@@ -940,7 +896,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		serviceItemDDASITEleven.ReService.Code,
-		paymentServiceItemParamEight,
+		paymentServiceItemParamFour,
 		testdatagen.Assertions{
 			PaymentServiceItem: models.PaymentServiceItem{
 				PriceCents: &cost,
@@ -1102,7 +1058,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 
 		value, err := paramLookup.ServiceParamValue(key)
 		suite.NoError(err)
-		suite.Equal("1", value)
+		suite.Equal("0", value)
 	})
 
 	suite.T().Run("an MTO with more than one MTO Shipment", func(t *testing.T) {
