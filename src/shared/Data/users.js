@@ -6,12 +6,6 @@ const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUserType);
 export const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
 
-export function setUserIsLoggedIn(isLoggedIn) {
-  return function (dispatch) {
-    return dispatch({ type: setIsLoggedInType, isLoggedIn });
-  };
-}
-
 const userInfoDefault = () => ({
   email: '',
   isLoggedIn: false,
