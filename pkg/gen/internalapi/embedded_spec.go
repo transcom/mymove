@@ -3247,20 +3247,6 @@ func init() {
         }
       }
     },
-    "ApproveShipmentPayload": {
-      "type": "object",
-      "required": [
-        "approve_date"
-      ],
-      "properties": {
-        "approve_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the shipment approved?",
-          "example": "2019-03-26T13:19:56-04:00"
-        }
-      }
-    },
     "AvailableMoveDates": {
       "type": "object",
       "required": [
@@ -3321,16 +3307,6 @@ func init() {
         },
         "total": {
           "type": "integer"
-        }
-      }
-    },
-    "ClaimAccessCode": {
-      "type": "object",
-      "properties": {
-        "claim_access_code": {
-          "type": "string",
-          "title": "MilMove access code",
-          "x-nullable": false
         }
       }
     },
@@ -3963,22 +3939,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "DistanceCalculation": {
-      "type": "object",
-      "properties": {
-        "destination_address": {
-          "$ref": "#/definitions/Address"
-        },
-        "distance_miles": {
-          "description": "unit is miles",
-          "type": "integer",
-          "title": "Distance"
-        },
-        "origin_address": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "DocumentPayload": {
       "type": "object",
       "required": [
@@ -4130,62 +4090,6 @@ func init() {
             "type": "string"
           }
         }
-      }
-    },
-    "Invoice": {
-      "type": "object",
-      "properties": {
-        "approver_first_name": {
-          "type": "string",
-          "example": "Janine"
-        },
-        "approver_last_name": {
-          "type": "string",
-          "example": "Smith"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "invoice_number": {
-          "type": "string",
-          "example": "12432"
-        },
-        "invoiced_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "Invoiced date"
-        },
-        "status": {
-          "$ref": "#/definitions/InvoiceStatus"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "InvoiceStatus": {
-      "type": "string",
-      "title": "Status",
-      "enum": [
-        "DRAFT",
-        "IN_PROCESS",
-        "SUBMITTED",
-        "SUBMISSION_FAILURE",
-        "UPDATE_FAILURE"
-      ],
-      "x-display-value": {
-        "DRAFT": "Draft",
-        "IN_PROCESS": "In Process",
-        "SUBMISSION_FAILURE": "Submission Failure",
-        "SUBMITTED": "Submitted",
-        "UPDATE_FAILURE": "Update Failure"
       }
     },
     "LoggedInUserPayload": {
@@ -6029,28 +5933,6 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
-    },
-    "ShipmentStatus": {
-      "type": "string",
-      "title": "Shipment status",
-      "enum": [
-        "DRAFT",
-        "SUBMITTED",
-        "AWARDED",
-        "ACCEPTED",
-        "APPROVED",
-        "IN_TRANSIT",
-        "DELIVERED"
-      ],
-      "x-display-value": {
-        "ACCEPTED": "Accepted",
-        "APPROVED": "Approved",
-        "AWARDED": "Awarded",
-        "DELIVERED": "Delivered",
-        "DRAFT": "Draft",
-        "IN_TRANSIT": "In Transit",
-        "SUBMITTED": "Submitted"
-      }
     },
     "SignedCertificationPayload": {
       "type": "object",
@@ -9846,20 +9728,6 @@ func init() {
         }
       }
     },
-    "ApproveShipmentPayload": {
-      "type": "object",
-      "required": [
-        "approve_date"
-      ],
-      "properties": {
-        "approve_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the shipment approved?",
-          "example": "2019-03-26T13:19:56-04:00"
-        }
-      }
-    },
     "AvailableMoveDates": {
       "type": "object",
       "required": [
@@ -9920,16 +9788,6 @@ func init() {
         },
         "total": {
           "type": "integer"
-        }
-      }
-    },
-    "ClaimAccessCode": {
-      "type": "object",
-      "properties": {
-        "claim_access_code": {
-          "type": "string",
-          "title": "MilMove access code",
-          "x-nullable": false
         }
       }
     },
@@ -10566,22 +10424,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "DistanceCalculation": {
-      "type": "object",
-      "properties": {
-        "destination_address": {
-          "$ref": "#/definitions/Address"
-        },
-        "distance_miles": {
-          "description": "unit is miles",
-          "type": "integer",
-          "title": "Distance"
-        },
-        "origin_address": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "DocumentPayload": {
       "type": "object",
       "required": [
@@ -10744,62 +10586,6 @@ func init() {
             "type": "string"
           }
         }
-      }
-    },
-    "Invoice": {
-      "type": "object",
-      "properties": {
-        "approver_first_name": {
-          "type": "string",
-          "example": "Janine"
-        },
-        "approver_last_name": {
-          "type": "string",
-          "example": "Smith"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "invoice_number": {
-          "type": "string",
-          "example": "12432"
-        },
-        "invoiced_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "Invoiced date"
-        },
-        "status": {
-          "$ref": "#/definitions/InvoiceStatus"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "InvoiceStatus": {
-      "type": "string",
-      "title": "Status",
-      "enum": [
-        "DRAFT",
-        "IN_PROCESS",
-        "SUBMITTED",
-        "SUBMISSION_FAILURE",
-        "UPDATE_FAILURE"
-      ],
-      "x-display-value": {
-        "DRAFT": "Draft",
-        "IN_PROCESS": "In Process",
-        "SUBMISSION_FAILURE": "Submission Failure",
-        "SUBMITTED": "Submitted",
-        "UPDATE_FAILURE": "Update Failure"
       }
     },
     "LoggedInUserPayload": {
@@ -12649,28 +12435,6 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
-    },
-    "ShipmentStatus": {
-      "type": "string",
-      "title": "Shipment status",
-      "enum": [
-        "DRAFT",
-        "SUBMITTED",
-        "AWARDED",
-        "ACCEPTED",
-        "APPROVED",
-        "IN_TRANSIT",
-        "DELIVERED"
-      ],
-      "x-display-value": {
-        "ACCEPTED": "Accepted",
-        "APPROVED": "Approved",
-        "AWARDED": "Awarded",
-        "DELIVERED": "Delivered",
-        "DRAFT": "Draft",
-        "IN_TRANSIT": "In Transit",
-        "SUBMITTED": "Submitted"
-      }
     },
     "SignedCertificationPayload": {
       "type": "object",

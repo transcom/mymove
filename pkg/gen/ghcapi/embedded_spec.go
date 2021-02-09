@@ -2680,19 +2680,6 @@ func init() {
         "$ref": "#/definitions/MTOServiceItem"
       }
     },
-    "MTOServiceItemstatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
-    },
     "MTOShipment": {
       "properties": {
         "approvedDate": {
@@ -2977,12 +2964,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
-      }
-    },
-    "MoveOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveOrder"
       }
     },
     "MoveStatus": {
@@ -3346,22 +3327,6 @@ func init() {
         "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
-    "ProofOfServicePackage": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Upload"
-          }
-        }
-      }
-    },
     "QueueMove": {
       "type": "object",
       "properties": {
@@ -3480,92 +3445,6 @@ func init() {
         },
         "totalCount": {
           "type": "integer"
-        }
-      }
-    },
-    "ReServiceCode": {
-      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
-      "type": "string",
-      "enum": [
-        "CS",
-        "DBHF",
-        "DBTF",
-        "DCRT",
-        "DCRTSA",
-        "DDASIT",
-        "DDDSIT",
-        "DDFSIT",
-        "DDP",
-        "DDSHUT",
-        "DLH",
-        "DMHF",
-        "DNPKF",
-        "DOASIT",
-        "DOFSIT",
-        "DOP",
-        "DOPSIT",
-        "DOSHUT",
-        "DPK",
-        "DSH",
-        "DUCRT",
-        "DUPK",
-        "FSC",
-        "IBHF",
-        "IBTF",
-        "ICOLH",
-        "ICOUB",
-        "ICRT",
-        "ICRTSA",
-        "IDASIT",
-        "IDDSIT",
-        "IDFSIT",
-        "IDSHUT",
-        "IHPK",
-        "IHUPK",
-        "INPKF",
-        "IOASIT",
-        "IOCLH",
-        "IOCUB",
-        "IOFSIT",
-        "IOOLH",
-        "IOOUB",
-        "IOPSIT",
-        "IOSHUT",
-        "IUBPK",
-        "IUBUPK",
-        "IUCRT",
-        "MS",
-        "NSTH",
-        "NSTUB"
-      ]
-    },
-    "ServiceItem": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "params": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string",
-                "example": "Service Item Parameter Name"
-              },
-              "value": {
-                "type": "string",
-                "example": "Service Item Parameter Value"
-              }
-            }
-          },
-          "readOnly": true
         }
       }
     },
@@ -3737,25 +3616,6 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
-        }
-      }
-    },
-    "UpdatePaymentRequestPayload": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string"
-        },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         }
       }
     },
@@ -6940,19 +6800,6 @@ func init() {
         "$ref": "#/definitions/MTOServiceItem"
       }
     },
-    "MTOServiceItemstatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
-    },
     "MTOShipment": {
       "properties": {
         "approvedDate": {
@@ -7237,12 +7084,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
-      }
-    },
-    "MoveOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveOrder"
       }
     },
     "MoveStatus": {
@@ -7606,22 +7447,6 @@ func init() {
         "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
-    "ProofOfServicePackage": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Upload"
-          }
-        }
-      }
-    },
     "QueueMove": {
       "type": "object",
       "properties": {
@@ -7743,82 +7568,6 @@ func init() {
         }
       }
     },
-    "ReServiceCode": {
-      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
-      "type": "string",
-      "enum": [
-        "CS",
-        "DBHF",
-        "DBTF",
-        "DCRT",
-        "DCRTSA",
-        "DDASIT",
-        "DDDSIT",
-        "DDFSIT",
-        "DDP",
-        "DDSHUT",
-        "DLH",
-        "DMHF",
-        "DNPKF",
-        "DOASIT",
-        "DOFSIT",
-        "DOP",
-        "DOPSIT",
-        "DOSHUT",
-        "DPK",
-        "DSH",
-        "DUCRT",
-        "DUPK",
-        "FSC",
-        "IBHF",
-        "IBTF",
-        "ICOLH",
-        "ICOUB",
-        "ICRT",
-        "ICRTSA",
-        "IDASIT",
-        "IDDSIT",
-        "IDFSIT",
-        "IDSHUT",
-        "IHPK",
-        "IHUPK",
-        "INPKF",
-        "IOASIT",
-        "IOCLH",
-        "IOCUB",
-        "IOFSIT",
-        "IOOLH",
-        "IOOUB",
-        "IOPSIT",
-        "IOSHUT",
-        "IUBPK",
-        "IUBUPK",
-        "IUCRT",
-        "MS",
-        "NSTH",
-        "NSTUB"
-      ]
-    },
-    "ServiceItem": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "params": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ServiceItemParamsItems0"
-          },
-          "readOnly": true
-        }
-      }
-    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -7893,19 +7642,6 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
-    },
-    "ServiceItemParamsItems0": {
-      "type": "object",
-      "properties": {
-        "key": {
-          "type": "string",
-          "example": "Service Item Parameter Name"
-        },
-        "value": {
-          "type": "string",
-          "example": "Service Item Parameter Value"
-        }
-      }
     },
     "TacValid": {
       "type": "object",
@@ -8000,25 +7736,6 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
-        }
-      }
-    },
-    "UpdatePaymentRequestPayload": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string"
-        },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         }
       }
     },

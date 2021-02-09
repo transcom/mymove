@@ -1941,10 +1941,6 @@ definitions:
       eTag:
         type: string
     type: object
-  MoveOrders:
-    items:
-      $ref: '#/definitions/MoveOrder'
-    type: array
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
@@ -2126,85 +2122,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PaymentServiceItemParam'
-  ServiceItem:
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      params:
-        type: array
-        readOnly: true
-        items:
-          properties:
-            key:
-              type: string
-              example: Service Item Parameter Name
-            value:
-              type: string
-              example: Service Item Parameter Value
-          type: object
-      eTag:
-        type: string
-    type: object
-  ReServiceCode:
-    type: string
-    description: |
-      This is the full list of service items that can be found on a shipment. Not all service items
-      may be requested by the Prime, but may be returned in a response.
-
-      Documentation of all the service items will be provided.
-    enum:
-      - CS
-      - DBHF
-      - DBTF
-      - DCRT
-      - DCRTSA
-      - DDASIT
-      - DDDSIT
-      - DDFSIT
-      - DDP
-      - DDSHUT
-      - DLH
-      - DMHF
-      - DNPKF
-      - DOASIT
-      - DOFSIT
-      - DOP
-      - DOPSIT
-      - DOSHUT
-      - DPK
-      - DSH
-      - DUCRT
-      - DUPK
-      - FSC
-      - IBHF
-      - IBTF
-      - ICOLH
-      - ICOUB
-      - ICRT
-      - ICRTSA
-      - IDASIT
-      - IDDSIT
-      - IDFSIT
-      - IDSHUT
-      - IHPK
-      - IHUPK
-      - INPKF
-      - IOASIT
-      - IOCLH
-      - IOCUB
-      - IOFSIT
-      - IOOLH
-      - IOOUB
-      - IOPSIT
-      - IOSHUT
-      - IUBPK
-      - IUBUPK
-      - IUCRT
-      - MS
-      - NSTH
-      - NSTUB
   ServiceItemParamName:
     type: string
     enum:
@@ -2284,17 +2201,6 @@ definitions:
       - PAID
     title: Payment Request Status
     type: string
-  ProofOfServicePackage:
-    properties:
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      uploads:
-        items:
-          $ref: '#/definitions/Upload'
-        type: array
-    type: object
   ProofOfServiceDocs:
     items:
       $ref: '#/definitions/ProofOfServiceDoc'
@@ -2516,15 +2422,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MTOServiceItem'
-  MTOServiceItemstatus:
-    properties:
-      status:
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
-        type: string
-    type: object
   DimensionType:
     description: Describes a dimension type for a MTOServiceItemDimension.
     type: string
@@ -2606,19 +2503,6 @@ definitions:
         type: boolean
     required:
       - isValid
-    type: object
-  UpdatePaymentRequestPayload:
-    properties:
-      proofOfServicePackage:
-        $ref: '#/definitions/ProofOfServicePackage'
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
-      eTag:
-        type: string
     type: object
   UpdatePaymentRequestStatusPayload:
     properties:
