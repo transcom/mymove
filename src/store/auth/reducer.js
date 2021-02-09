@@ -4,10 +4,14 @@ import { officeRoles } from 'constants/userRoles';
 
 export const initialState = {
   activeRole: null,
+  isLoggedIn: false,
+  hasSucceeded: false,
+  hasErrored: false,
+  isLoading: true,
 };
 
 export const selectIsLoggedIn = (state) => {
-  return state.auth?.isLoggedIn || null;
+  return state.auth.isLoggedIn;
 };
 
 export function selectGetCurrentUserIsLoading(state) {
@@ -56,6 +60,7 @@ const authReducer = (state = initialState, action) => {
         hasSucceeded: true,
         hasErrored: false,
         isLoading: false,
+        isLoggedIn: true,
       };
     }
     case 'GET_LOGGED_IN_USER_FAILURE': {

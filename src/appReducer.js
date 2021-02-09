@@ -3,6 +3,8 @@ import { reducer as formReducer } from 'redux-form';
 import { connectRouter } from 'connected-react-router';
 import { adminReducer } from 'react-admin';
 import defaultMessages from 'ra-language-english';
+import storage from 'redux-persist/lib/storage';
+import { persistReducer } from 'redux-persist';
 
 import authReducer from 'store/auth/reducer';
 import onboardingReducer from 'store/onboarding/reducer';
@@ -24,8 +26,14 @@ import officePpmReducer from 'scenes/Office/Ppm/ducks';
 const locale = 'en';
 const i18nProvider = () => defaultMessages;
 
+const authPersistConfig = {
+  key: 'auth',
+  storage,
+  whitelist: ['activeRole'],
+};
+
 const defaultReducers = {
-  auth: authReducer,
+  auth: persistReducer(authPersistConfig, authReducer),
   flash: flashReducer,
   form: formReducer,
   swaggerPublic: swaggerReducerPublic,

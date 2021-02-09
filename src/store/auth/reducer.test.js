@@ -57,6 +57,7 @@ describe('authReducer', () => {
       hasSucceeded: true,
       hasErrored: false,
       isLoading: false,
+      isLoggedIn: true,
     });
   });
 
