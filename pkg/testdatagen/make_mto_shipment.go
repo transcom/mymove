@@ -62,12 +62,22 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		}
 
 		// Make secondary delivery address if it was not provided
-		secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
-		if isZeroUUID(secondaryDeliveryAddress.ID) {
-			secondaryDeliveryAddress = MakeAddress(db, Assertions{
-				Address: assertions.SecondaryDeliveryAddress,
-			})
+		if assertions.MTOShipment.SecondaryDeliveryAddress != nil {
+			secondaryDeliveryAddress = *assertions.MTOShipment.SecondaryDeliveryAddress
+			if isZeroUUID(secondaryDeliveryAddress.ID) {
+				secondaryDeliveryAddress = MakeAddress(db, Assertions{
+					Address: *assertions.MTOShipment.SecondaryDeliveryAddress,
+				})
+			}
+		} else {
+			secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
+			if isZeroUUID(secondaryDeliveryAddress.ID) {
+				secondaryDeliveryAddress = MakeAddress(db, Assertions{
+					Address: assertions.SecondaryDeliveryAddress,
+				})
+			}
 		}
+
 	}
 
 	// mock weights
