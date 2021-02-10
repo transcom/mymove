@@ -30,8 +30,10 @@ function registerValidSW(swUrl) {
   navigator.serviceWorker
     .register(swUrl)
     .then((registration) => {
-      // eslint-disable-next-line no-param-reassign
-      registration.onupdatefound = () => {
+      // More info: https://spin.atomicobject.com/2011/04/10/javascript-don-t-reassign-your-function-arguments/
+      // This is done to avoid an edge case when mutating the argument object. Although this is not an example of the edgecase.
+      const serviceWorkerRegistration = registration;
+      serviceWorkerRegistration.onupdatefound = () => {
         const installingWorker = registration.installing;
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {

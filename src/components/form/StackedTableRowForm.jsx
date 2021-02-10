@@ -73,14 +73,24 @@ StackedTableRowForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onReset: PropTypes.func,
   // following are passed directly to formik
-  // eslint-disable-next-line react/forbid-prop-types
-  validationSchema: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  initialValues: PropTypes.object.isRequired,
+  validationSchema: ({ validationSchema }, propName, componentName) => {
+    if (!Object.keys(validationSchema).length) {
+      return new Error(`Invalid prop ${propName} supplied to ${componentName}. Validation failed.`);
+    }
+    return null;
+  },
+  initialValues: ({ initialValues }, propName, componentName) => {
+    if (!Object.keys(initialValues).length) {
+      return new Error(`Invalid prop ${propName} supplied to ${componentName}. Validation failed.`);
+    }
+    return null;
+  },
 };
 
 StackedTableRowForm.defaultProps = {
   onReset: () => {},
+  validationSchema: {},
+  initialValues: {},
 };
 
 export default StackedTableRowForm;

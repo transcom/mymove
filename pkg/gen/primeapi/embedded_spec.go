@@ -2183,9 +2183,7 @@ func init() {
       "required": [
         "filename",
         "contentType",
-        "bytes",
-        "createdAt",
-        "updatedAt"
+        "bytes"
       ],
       "properties": {
         "bytes": {
@@ -4661,9 +4659,7 @@ func init() {
       "required": [
         "filename",
         "contentType",
-        "bytes",
-        "createdAt",
-        "updatedAt"
+        "bytes"
       ],
       "properties": {
         "bytes": {

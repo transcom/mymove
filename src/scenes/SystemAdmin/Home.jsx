@@ -1,5 +1,5 @@
 import restProvider from './shared/rest_provider';
-import { fetchUtils, Admin, Resource, Layout, AppBar } from 'react-admin';
+import { Admin, AppBar, fetchUtils, Layout, Resource } from 'react-admin';
 import { createBrowserHistory } from 'history';
 import React from 'react';
 import Menu from './shared/Menu';
@@ -22,6 +22,8 @@ import TSPPShow from './TSPPs/TSPPShow';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import MoveList from 'pages/Admin/Moves/MoveList';
 import MoveShow from 'pages/Admin/Moves/MoveShow';
+import MoveEdit from 'pages/Admin/Moves/MoveEdit';
+import WebhookSubscriptionList from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionsList';
 
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
@@ -56,7 +58,13 @@ const history = createBrowserHistory({ basename: '/system' });
 
 const Home = () => (
   <div className={styles['admin-system-wrapper']}>
-    <Admin dataProvider={dataProvider} history={history} appLayout={AdminLayout} customRoutes={customRoutes}>
+    <Admin
+      dataProvider={dataProvider}
+      history={history}
+      appLayout={AdminLayout}
+      customRoutes={customRoutes}
+      disableTelemetry
+    >
       <Resource
         name="office_users"
         options={{ label: 'Office users' }}
@@ -75,7 +83,7 @@ const Home = () => (
         edit={AdminUserEdit}
       />
       <Resource name="users" options={{ label: 'Users' }} show={UserShow} edit={UserEdit} list={UserList} />
-      <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} />
+      <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} edit={MoveEdit} />
       <Resource
         name="transportation_service_provider_performances"
         options={{ label: 'TSPPs' }}
@@ -87,6 +95,11 @@ const Home = () => (
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
+      <Resource
+        name="webhook_subscriptions"
+        options={{ label: 'Webhook Subscriptions' }}
+        list={WebhookSubscriptionList}
+      />
     </Admin>
   </div>
 );

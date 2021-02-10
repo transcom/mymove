@@ -25,7 +25,7 @@ type HideNonFakeMoveTaskOrdersOK struct {
 	/*
 	  In: Body
 	*/
-	Payload supportmessages.MoveTaskOrderIDs `json:"body,omitempty"`
+	Payload *supportmessages.MTOHideMovesResponse `json:"body,omitempty"`
 }
 
 // NewHideNonFakeMoveTaskOrdersOK creates HideNonFakeMoveTaskOrdersOK with default headers values
@@ -35,13 +35,13 @@ func NewHideNonFakeMoveTaskOrdersOK() *HideNonFakeMoveTaskOrdersOK {
 }
 
 // WithPayload adds the payload to the hide non fake move task orders o k response
-func (o *HideNonFakeMoveTaskOrdersOK) WithPayload(payload supportmessages.MoveTaskOrderIDs) *HideNonFakeMoveTaskOrdersOK {
+func (o *HideNonFakeMoveTaskOrdersOK) WithPayload(payload *supportmessages.MTOHideMovesResponse) *HideNonFakeMoveTaskOrdersOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the hide non fake move task orders o k response
-func (o *HideNonFakeMoveTaskOrdersOK) SetPayload(payload supportmessages.MoveTaskOrderIDs) {
+func (o *HideNonFakeMoveTaskOrdersOK) SetPayload(payload *supportmessages.MTOHideMovesResponse) {
 	o.Payload = payload
 }
 
@@ -49,14 +49,11 @@ func (o *HideNonFakeMoveTaskOrdersOK) SetPayload(payload supportmessages.MoveTas
 func (o *HideNonFakeMoveTaskOrdersOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	payload := o.Payload
-	if payload == nil {
-		// return empty array
-		payload = supportmessages.MoveTaskOrderIDs{}
-	}
-
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
