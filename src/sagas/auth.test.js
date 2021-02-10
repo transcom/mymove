@@ -2,7 +2,7 @@ import { takeLatest, put, call } from 'redux-saga/effects';
 
 import watchFetchUser, { fetchUser } from './auth';
 
-import { LOAD_USER } from 'store/auth/actions';
+import { LOAD_USER, getLoggedInUserSuccess } from 'store/auth/actions';
 import { setFlashMessage } from 'store/flash/actions';
 import { GetIsLoggedIn, GetLoggedInUser } from 'utils/api';
 import { getLoggedInActions } from 'shared/Data/users';
@@ -159,9 +159,8 @@ describe('fetchUser saga', () => {
       expect(generator.next(testUser).value).toEqual(put(addEntities(normalizedUser)));
     });
 
-    it('stores the user data in the user reducer (legacy)', () => {
-      // TODO - delete when deprecating the user reducer
-      expect(generator.next().value).toEqual(put(getLoggedInActions.success(testUser)));
+    it('stores the user auth data in the auth reducer', () => {
+      expect(generator.next().value).toEqual(put(getLoggedInUserSuccess(testUser)));
     });
 
     it('is done', () => {

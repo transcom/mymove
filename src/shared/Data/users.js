@@ -1,6 +1,5 @@
 import * as helpers from 'shared/ReduxHelpers';
 
-export const setIsLoggedInType = 'SET_IS_LOGGED_IN';
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
 export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUserType);
@@ -46,14 +45,6 @@ const currentUserReducer = (state = currentUserReducerDefault(), action) => {
         hasSucceeded: false,
         error: action.error,
         userInfo: userInfoDefault(),
-      };
-    case setIsLoggedInType:
-      return {
-        ...state,
-        userInfo: {
-          ...userInfoDefault(),
-          isLoggedIn: action.isLoggedIn,
-        },
       };
     default:
       return state;
