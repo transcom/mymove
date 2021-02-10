@@ -81,14 +81,6 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		}
 	}
 
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return []models.Move{}, 0, services.NotFoundError{}
-		default:
-			return []models.Move{}, 0, err
-		}
-	}
 	// Pass zeros into paginate in this case. Which will give us 1 page and 20 per page respectively
 	if params.Page == nil {
 		params.Page = swag.Int64(0)
@@ -127,7 +119,10 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		//   cannot eager load the address as "OriginDutyStation.Address" because
 		//   OriginDutyStation is a pointer.
 		if moves[i].Orders.OriginDutyStation != nil {
-			f.db.Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
+			loadErr := f.db.Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
+			if loadErr != nil {
+				return []models.Move{}, 0, err
+			}
 		}
 	}
 
