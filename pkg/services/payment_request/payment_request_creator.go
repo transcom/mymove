@@ -257,7 +257,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 
 	// Verify that there were no previous requests that were marked as final
 	var finalPaymentRequests models.PaymentRequests
-	count, err := tx.Q().Where("move_i = $1 AND is_final = TRUE", paymentRequest.MoveTaskOrderID).Count(&finalPaymentRequests)
+	count, err := tx.Q().Where("move_id = $1 AND is_final = TRUE", paymentRequest.MoveTaskOrderID).Count(&finalPaymentRequests)
 
 	if err != nil {
 		return nil, services.NewQueryError("PaymentRequests", err, fmt.Sprintf("Error while querying final payment request for MTO %s: %s", paymentRequest.MoveTaskOrderID, err))
