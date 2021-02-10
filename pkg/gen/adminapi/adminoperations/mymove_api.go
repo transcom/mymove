@@ -81,6 +81,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UsersGetUserHandler: users.GetUserHandlerFunc(func(params users.GetUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.GetUser has not yet been implemented")
 		}),
+		WebhookSubscriptionsGetWebhookSubscriptionHandler: webhook_subscriptions.GetWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.GetWebhookSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook_subscriptions.GetWebhookSubscription has not yet been implemented")
+		}),
 		AccessCodesIndexAccessCodesHandler: access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
 			return middleware.NotImplemented("operation access_codes.IndexAccessCodes has not yet been implemented")
 		}),
@@ -177,6 +180,8 @@ type MymoveAPI struct {
 	UploadGetUploadHandler upload.GetUploadHandler
 	// UsersGetUserHandler sets the operation handler for the get user operation
 	UsersGetUserHandler users.GetUserHandler
+	// WebhookSubscriptionsGetWebhookSubscriptionHandler sets the operation handler for the get webhook subscription operation
+	WebhookSubscriptionsGetWebhookSubscriptionHandler webhook_subscriptions.GetWebhookSubscriptionHandler
 	// AccessCodesIndexAccessCodesHandler sets the operation handler for the index access codes operation
 	AccessCodesIndexAccessCodesHandler access_codes.IndexAccessCodesHandler
 	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
@@ -299,6 +304,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UsersGetUserHandler == nil {
 		unregistered = append(unregistered, "users.GetUserHandler")
+	}
+	if o.WebhookSubscriptionsGetWebhookSubscriptionHandler == nil {
+		unregistered = append(unregistered, "webhook_subscriptions.GetWebhookSubscriptionHandler")
 	}
 	if o.AccessCodesIndexAccessCodesHandler == nil {
 		unregistered = append(unregistered, "access_codes.IndexAccessCodesHandler")
@@ -469,6 +477,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users/{userId}"] = users.NewGetUser(o.context, o.UsersGetUserHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/webhook_subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewGetWebhookSubscription(o.context, o.WebhookSubscriptionsGetWebhookSubscriptionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
