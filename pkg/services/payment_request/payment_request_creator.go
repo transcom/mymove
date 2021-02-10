@@ -256,6 +256,10 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	var finalPaymentRequests models.PaymentRequests
 	count, err := tx.Q().Where("move_id = $1 AND is_final = TRUE", paymentRequest.MoveTaskOrderID).Count(&finalPaymentRequests)
 
+	if err != nil {
+		return nil, err
+	}
+
 	if count != 0 {
 		return nil, services.NewInvalidInputError(moveTaskOrder.ID, nil, nil, fmt.Sprintf("Cannot create PaymentRequest because a final PaymentRequest has already been submitted for MoveTaskOrder (ID: %s)", moveTaskOrder.ID))
 	}
