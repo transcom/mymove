@@ -1,14 +1,18 @@
 import React from 'react';
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
 import { ppmInfoPacket } from 'shared/constants';
-import moment from 'moment';
 import ppmCar from 'scenes/PpmLanding/images/ppm-car.svg';
 import PPMStatusTimeline from 'scenes/PpmLanding/PPMStatusTimeline';
 import FindWeightScales from 'scenes/PpmLanding/MoveSummary/FindWeightScales';
 import PpmMoveDetails from 'scenes/PpmLanding/MoveSummary/SubmittedPpmMoveDetails';
 
+dayjs.extend(isSameOrBefore);
+
 const PaymentRequestedSummary = (props) => {
   const { ppm } = props;
-  const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
+  const moveInProgress = dayjs(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   return (
     <div>
       <div className="shipment_box">

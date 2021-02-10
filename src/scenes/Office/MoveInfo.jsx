@@ -6,7 +6,7 @@ import { capitalize, get, includes } from 'lodash';
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { NavLink, Redirect, Switch } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'containers/PrivateRoute';
@@ -155,7 +155,7 @@ class MoveInfo extends Component {
   };
 
   approvePPM = () => {
-    const approveDate = moment().format();
+    const approveDate = dayjs().format();
     this.props.approvePPM(this.props.ppm.id, approveDate);
   };
 

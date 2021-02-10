@@ -1,7 +1,8 @@
 import React, { useState, Fragment } from 'react';
 import PropTypes, { arrayOf, shape } from 'prop-types';
 import classnames from 'classnames';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { Button, Tag } from '@trussworks/react-uswds';
 import { withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,6 +14,8 @@ import { PaymentRequestShape } from 'types';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import { groupByShipment } from 'utils/serviceItems';
+
+dayjs.extend(relativeTime);
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -84,7 +87,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
             {paymentRequestStatusLabel(paymentRequest.status)}
           </Tag>
           <span className={styles.dateSubmitted}>
-            Submitted {moment(paymentRequest.createdAt).fromNow()} on{' '}
+            Submitted {dayjs(paymentRequest.createdAt).fromNow()} on{' '}
             {formatDateFromIso(paymentRequest.createdAt, 'DD MMM YYYY')}
           </span>
         </div>

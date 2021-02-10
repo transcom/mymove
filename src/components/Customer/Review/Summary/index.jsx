@@ -3,7 +3,7 @@ import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { arrayOf, func, shape, bool, string } from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './Summary.module.scss';
@@ -66,7 +66,7 @@ export class Summary extends Component {
       sortedShipments.push(ppm);
     }
 
-    return sortedShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+    return sortedShipments.sort((a, b) => dayjs(a.createdAt) - dayjs(b.createdAt));
   }
 
   handleEditClick = (path) => {

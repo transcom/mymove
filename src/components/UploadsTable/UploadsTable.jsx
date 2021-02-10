@@ -2,10 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import bytes from 'bytes';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { Button } from '@trussworks/react-uswds';
 
 import { UPLOAD_SCAN_STATUS } from 'shared/constants';
+
+dayjs.extend(localizedFormat);
 
 const UploadsTable = ({ uploads, onDelete }) => {
   const getUploadUrl = (upload) => {
@@ -53,7 +56,7 @@ const UploadsTable = ({ uploads, onDelete }) => {
             <td className="maxw-card" style={{ overflowWrap: 'break-word', wordWrap: 'break-word' }}>
               {getUploadUrl(upload)}
             </td>
-            <td>{moment(upload.created_at).format('LLL')}</td>
+            <td>{dayjs(upload.created_at).format('LLL')}</td>
             <td>{bytes(upload.bytes)}</td>
             <td>
               <Button type="button" unstyled onClick={() => onDelete(upload.id)}>

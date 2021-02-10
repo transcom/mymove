@@ -1,5 +1,6 @@
+import dayjs from 'dayjs';
+
 import * as formatters from './formatters';
-import moment from 'moment';
 
 import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
 
@@ -60,7 +61,7 @@ describe('formatters', () => {
     it('should be invalid with unexpected input and strict mode on', () => {
       const inputFormat = 'MMM-DD-YY';
       const formattedDate = formatters.formatDate('Nov-11-1999', inputFormat, 'DD-MMM-YY', 'en', true);
-      expect(formattedDate).toBe('Invalid date');
+      expect(formattedDate).toBe('Invalid Date');
     });
 
     it('should default to DD-MMM-YY ouptut format', () => {
@@ -88,7 +89,7 @@ describe('formatters', () => {
 
       expect(formattedTime).toEqual('a few seconds ago');
 
-      time = moment().subtract(1, 'minute')._d;
+      time = dayjs().subtract(1, 'minute');
       formattedTime = formatters.formatTimeAgo(time);
 
       expect(formattedTime).toEqual('1 min ago');

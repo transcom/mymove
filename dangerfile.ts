@@ -191,7 +191,6 @@ const cypressUpdateChecks = async () => {
     '"cypress-wait-until":',
     '"mocha":',
     '"mocha-junit-reporter":',
-    '"moment":',
   ];
 
   let hasRootCypressDepChanged = false;

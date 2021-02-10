@@ -1,5 +1,7 @@
 import { isFinite } from 'lodash';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import numeral from 'numeral';
 import path from 'path';
 
@@ -9,6 +11,9 @@ import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orde
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { MOVE_STATUS_OPTIONS } from 'constants/queues';
+
+dayjs.extend(relativeTime);
+dayjs.extend(customParseFormat);
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -125,7 +130,7 @@ export function formatCentsRange(min, max) {
 // Format a date in the MM-DD-YYYY format for use in the service member UI.
 export function formatDateSM(date) {
   if (date) {
-    return moment(date).format('MM/DD/YYYY');
+    return dayjs(date).format('MM/DD/YYYY');
   }
 }
 
@@ -133,7 +138,7 @@ export function formatDateSM(date) {
 // Swagger.
 export function formatSwaggerDate(date) {
   if (date) {
-    return moment(date).format('YYYY-MM-DD');
+    return dayjs(date).format('YYYY-MM-DD');
   }
   return '';
 }
@@ -141,7 +146,7 @@ export function formatSwaggerDate(date) {
 // Parse a date from the format used by Swagger into a Date object
 export function parseSwaggerDate(dateString) {
   if (dateString) {
-    return moment(dateString, 'YYYY-MM-DD').toDate();
+    return dayjs(dateString, 'YYYY-MM-DD').toDate();
   }
 }
 
@@ -168,7 +173,7 @@ const formatDateForDateRange = (date, formatType) => {
       format = 'ddd, MMM DD';
   }
   if (date) {
-    return moment(date).format(format);
+    return dayjs(date).format(format);
   }
 };
 
@@ -189,30 +194,30 @@ export const displayDateRange = (dates, formatType = 'long') => {
 // Format a date and ignore any time values, e.g. 03-Jan-18
 export function formatDate(date, inputFormat, outputFormat = 'DD-MMM-YY', locale = 'en', isStrict = false) {
   if (date) {
-    return moment(date, inputFormat, locale, isStrict).format(outputFormat);
+    return dayjs(date, inputFormat, locale, isStrict).format(outputFormat);
   }
 }
 
 export function formatDateFromIso(date, outputFormat) {
-  return formatDate(date, 'YYYY-MM-DDTHH:mm:ss.SSSZ', outputFormat);
+  return dayjs(date).format(outputFormat);
 }
 
 export function formatDate4DigitYear(date) {
   if (date) {
-    return moment(date).format('DD-MMM-YYYY');
+    return dayjs(date).format('DD-MMM-YYYY');
   }
 }
 
 export function formatTime(date) {
   if (date) {
-    return moment(date).format('HH:mm');
+    return dayjs(date).format('HH:mm');
   }
 }
 
 // Format a date and include its time, e.g. 03-Jan-2018 21:23
 export function formatDateTime(date) {
   if (date) {
-    return moment(date).format('DD-MMM-YY HH:mm');
+    return dayjs(date).format('DD-MMM-YY HH:mm');
   }
 }
 
@@ -224,7 +229,7 @@ export function formatDateTimeWithTZ(date) {
   // e.g. Mon Apr 22 2019 09:08:10 GMT-0500 (Central Daylight Time)
   // If this looks a bit strange, it's a workaround for IE11 not
   // supporting the timeZoneName: 'short' option in Date.toLocaleString
-  const newDateString = String(moment(date).toDate());
+  const newDateString = String(dayjs(date).toDate());
   const longZone = newDateString.substring(newDateString.lastIndexOf('(') + 1, newDateString.lastIndexOf(')'));
   let shortZone = longZone
     .split(' ')
@@ -236,13 +241,13 @@ export function formatDateTimeWithTZ(date) {
     shortZone = shortZone.slice(0, 1) + shortZone.slice(2, 3);
   }
 
-  return moment(date, moment.ISO_8601, true).format('DD-MMM-YY HH:mm') + ` ${shortZone}`;
+  return dayjs(date, dayjs.ISO_8601, true).format('DD-MMM-YY HH:mm') + ` ${shortZone}`;
 }
 
 export function formatTimeAgo(date) {
   if (!date) return undefined;
 
-  return moment(date)
+  return dayjs(date)
     .fromNow()
     .replace('minute', 'min')
     .replace(/a min\s/, '1 min ');

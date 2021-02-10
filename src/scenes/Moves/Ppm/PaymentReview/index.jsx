@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { isEmpty } from 'lodash';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
@@ -103,7 +103,7 @@ class PaymentReview extends Component {
   };
 
   submitCertificate = () => {
-    const signatureTime = moment().format();
+    const signatureTime = dayjs().format();
     const { currentPPM, moveId } = this.props;
     const certificate = {
       certification_text: ppmPaymentLegal,

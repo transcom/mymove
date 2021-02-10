@@ -1,9 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
-import Home from '.';
+import Home from './index';
 
 import { MockProviders } from 'testUtils';
 import { formatCustomerDate } from 'utils/formatters';
@@ -66,10 +66,10 @@ describe('Home component', () => {
   describe('contents of Step 3', () => {
     it('contains ppm and hhg cards if those shipments exist', () => {
       const props = {
-        currentPpm: { id: '12345', createdAt: moment() },
+        currentPpm: { id: '12345', createdAt: dayjs() },
         mtoShipments: [
-          { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: 'HHG' },
-          { id: '4322', createdAt: moment().subtract(1, 'days'), shipmentType: 'HHG' },
+          { id: '4321', createdAt: dayjs().add(1, 'days'), shipmentType: 'HHG' },
+          { id: '4322', createdAt: dayjs().subtract(1, 'days'), shipmentType: 'HHG' },
         ],
       };
 

@@ -1,8 +1,9 @@
 import React from 'react';
 import { get, includes } from 'lodash';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 import { StatusTimeline } from './StatusTimeline';
 
@@ -11,6 +12,8 @@ import {
   selectPaymentRequestCertificationForMove,
 } from 'shared/Entities/modules/signed_certifications';
 import { selectCurrentMove } from 'store/entities/selectors';
+
+dayjs.extend(isSameOrBefore);
 
 const PpmStatuses = {
   Submitted: 'SUBMITTED',
@@ -44,10 +47,10 @@ export class PPMStatusTimeline extends React.Component {
     }
     // if there's an actual move date that is known and passed, show it
     // else show original move date if it has passed
-    if (actualMoveDate && moment(actualMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
+    if (actualMoveDate && dayjs(actualMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
       return actualMoveDate;
     }
-    if (moment(originalMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
+    if (dayjs(originalMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
       return originalMoveDate;
     }
   }
@@ -58,7 +61,7 @@ export class PPMStatusTimeline extends React.Component {
       [PpmStatuses.Approved, PpmStatuses.PaymentRequested, PpmStatuses.Completed],
       ppm.status,
     );
-    const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
+    const moveInProgress = dayjs(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
     const moveIsComplete = includes([PpmStatuses.PaymentRequested, PpmStatuses.Completed], ppm.status);
 
     switch (statusCode) {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { arrayOf, bool, shape, string, node, func } from 'prop-types';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { Button } from '@trussworks/react-uswds';
@@ -197,7 +197,7 @@ class Home extends Component {
         <p>
           You’re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
           <strong>{serviceMember.current_station?.name}.</strong> Report by{' '}
-          <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
+          <strong>{dayjs(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         </p>
 
         <dl className={styles.subheaderContainer}>
@@ -252,7 +252,7 @@ class Home extends Component {
 
       allShipments.push(ppm);
     }
-    allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+    allShipments.sort((a, b) => dayjs(a.createdAt) - dayjs(b.createdAt));
 
     return allShipments;
   };

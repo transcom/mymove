@@ -1,10 +1,10 @@
 import React from 'react';
 import { PpmWeight } from './Weight';
 import { shallow } from 'enzyme';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 describe('Weight', () => {
-  const moveDate = moment().add(7, 'day');
+  const moveDate = dayjs().add(7, 'day');
   const minProps = {
     selectedWeightInfo: { min: 0, max: 0 },
     entitlement: {

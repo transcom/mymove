@@ -1,5 +1,6 @@
 import { parseDate, formatDate, formatDateForSwagger } from './dates';
-import moment from 'moment';
+import dayjs from 'dayjs';
+
 describe('dates', () => {
   describe('parseDate', () => {
     describe('when parsing a date that does not match the allowed date formats', () => {
@@ -11,7 +12,7 @@ describe('dates', () => {
     describe('when parsing a date that does match the allowed date formats', () => {
       const result = parseDate('8-23-2019');
       it('should return a Date that matches that string', () => {
-        expect(result).toEqual(new moment('2019-08-23T00:00:00.000Z').toDate());
+        expect(result).toEqual(dayjs('2019-08-23T00:00:00.000Z').toDate());
       });
     });
   });
@@ -19,11 +20,11 @@ describe('dates', () => {
     describe('when formatting a date that does not match the allowed date formats', () => {
       it('should return "invalid date"', () => {
         const result = formatDate('8');
-        expect(result).toEqual('Invalid date');
+        expect(result).toEqual('Invalid Date');
       });
       it('should return "invalid date"', () => {
         const result = formatDate();
-        expect(result).toEqual('Invalid date');
+        expect(result).toEqual('Invalid Date');
       });
     });
     describe('when parsing a date that does the match allowed date formats', () => {
@@ -37,7 +38,7 @@ describe('dates', () => {
     describe('when formatting a date that does not match the allowed date formats', () => {
       it('should return invalid date', () => {
         const result = formatDateForSwagger('8');
-        expect(result).toEqual('Invalid date');
+        expect(result).toEqual('Invalid Date');
       });
       it('should return undefined', () => {
         const result = formatDateForSwagger();

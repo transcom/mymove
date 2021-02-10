@@ -2,7 +2,7 @@ import React from 'react';
 import { capitalize, memoize } from 'lodash';
 import { formatDate } from 'shared/formatters';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 // testing
 import Select from 'react-select';
@@ -132,8 +132,8 @@ const moveDate = createReactTableColumn('PPM start', 'move_date', {
       return false;
     }
 
-    const rowDate = moment(row[filter.id]);
-    const filterDate = moment(filter.value, dateFormat);
+    const rowDate = dayjs(row[filter.id]);
+    const filterDate = dayjs(filter.value, dateFormat);
 
     return rowDate.isSameOrBefore(filterDate);
   },

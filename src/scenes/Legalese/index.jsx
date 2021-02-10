@@ -1,5 +1,5 @@
 import { get } from 'lodash';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -37,7 +37,7 @@ export class SignedCertification extends Component {
   handleSubmit = () => {
     const { currentPpm, moveId, values } = this.props;
     const landingPath = '/';
-    const submitDate = moment().format();
+    const submitDate = dayjs().format();
     const certificate = {
       certification_text: completeCertificationText,
       date: submitDate,

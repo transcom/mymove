@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import MockDate from 'mockdate';
 import addons from '@storybook/addons';
 import { isHappoRun } from 'happo-plugin-storybook/register';
@@ -31,7 +31,7 @@ export default {
 };
 
 // always show 7 days prior to mocked date time
-const itsBeenOneWeek = moment(mockedDate).subtract(7, 'days').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+const itsBeenOneWeek = dayjs(mockedDate).subtract(7, 'days').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
 
 const order = {
   sac: '1234456',

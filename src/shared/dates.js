@@ -1,4 +1,8 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
+
 export const swaggerDateFormat = 'YYYY-MM-DD';
 export const defaultDateFormat = 'M/D/YYYY';
 
@@ -7,6 +11,7 @@ const allowedDateFormats = [
   defaultDateFormat,
   'YYYY/M/D',
   'YYYY-M-D',
+  'YYYY-MM-DD',
   'M-D-YYYY',
   'D-MMM-YYYY',
   'MMM-D-YYYY',
@@ -16,7 +21,7 @@ const allowedDateFormats = [
 
 export function parseDate(str, _format, locale = 'en') {
   // Ignore default format, and attempt to parse date using allowed formats
-  const m = moment(str, allowedDateFormats, locale, true);
+  const m = dayjs(str, allowedDateFormats, locale, true);
   if (m.isValid()) {
     return m.toDate();
   }
@@ -25,7 +30,7 @@ export function parseDate(str, _format, locale = 'en') {
 }
 
 export function formatDate(date, format = defaultDateFormat, locale = 'en') {
-  return moment(date, allowedDateFormats, locale, true).locale(locale).format(format);
+  return dayjs(date, allowedDateFormats, locale, true).locale(locale).format(format);
 }
 
 export function formatDateForSwagger(dateString) {

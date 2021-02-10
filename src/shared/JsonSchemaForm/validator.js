@@ -1,6 +1,7 @@
 import { isFinite, isInteger as rawIsInteger, memoize } from 'lodash';
+import dayjs from 'dayjs';
+
 import { defaultDateFormat } from 'shared/dates';
-import moment from 'moment';
 
 const isRequired = (value) => (value ? undefined : 'Required');
 // Why Memoize? Please see https://github.com/erikras/redux-form/issues/3288
@@ -47,7 +48,7 @@ const isInteger = (value) => {
 
 const isDate = (value) => {
   if (value) {
-    let parsed = moment(value, defaultDateFormat);
+    let parsed = dayjs(value, defaultDateFormat);
     if (!parsed.isValid()) {
       return 'Must be a valid date';
     }
@@ -67,7 +68,7 @@ const patternMatches = memoize((pattern, message) => {
 
 const minDateValidation = memoize((minDate = null, message) => {
   return (value) => {
-    if (minDate && moment(value).isBefore(moment(minDate))) {
+    if (minDate && dayjs(value).isBefore(dayjs(minDate))) {
       return message;
     }
   };
@@ -75,7 +76,7 @@ const minDateValidation = memoize((minDate = null, message) => {
 
 const maxDateValidation = memoize((maxDate = null, message) => {
   return (value) => {
-    if (maxDate && moment(value).isAfter(moment(maxDate))) {
+    if (maxDate && dayjs(value).isAfter(dayjs(maxDate))) {
       return message;
     }
   };
