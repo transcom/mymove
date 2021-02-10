@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
@@ -6,11 +6,23 @@ import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
+import { Button, Overlay } from '@trussworks/react-uswds';
+import EulaModal from 'components/EulaModal';
 
 const LoginButton = (props) => {
+  const [showEula, setShowEula] = useState(false);
+
   if (!props.isLoggedIn) {
     return (
-      <React.Fragment>
+      <>
+        <EulaModal
+          isOpen={showEula}
+          acceptTerms={() => {
+            window.location.href = '/auth/login-gov';
+          }}
+          closeModal={() => setShowEula(false)}
+        />
+        {showEula ? <Overlay /> : ''}
         {props.showDevlocalButton && (
           <li className="usa-nav__primary-item">
             <a
@@ -24,11 +36,11 @@ const LoginButton = (props) => {
           </li>
         )}
         <li className="usa-nav__primary-item">
-          <a className="usa-nav__link" data-hook="signin" href="/auth/login-gov">
+          <Button className="usa-button usa-button-big" onClick={() => setShowEula(!showEula)} type="button">
             Sign In
-          </a>
+          </Button>
         </li>
-      </React.Fragment>
+      </>
     );
   } else {
     const handleLogOut = () => {
@@ -59,3 +71,9 @@ const mapDispatchToProps = {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginButton);
+
+/*
+<a className="usa-nav__link" data-hook="signin" href="/auth/login-gov">
+            Sign In
+          </a>
+*/

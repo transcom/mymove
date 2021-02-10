@@ -1,14 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import qs from 'query-string';
+import { Button, Overlay } from '@trussworks/react-uswds';
 
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
+import EulaModal from 'components/EulaModal';
 
 const SignIn = ({ context, location }) => {
+  const [showEula, setShowEula] = useState(false);
+
   const error = qs.parse(location.search).error;
   const hash = qs.parse(location.hash);
+
   return (
     <div className="grid-container usa-prose">
+      <EulaModal
+        isOpen={showEula}
+        acceptTerms={() => {
+          window.location.href = '/auth/login-gov';
+        }}
+        closeModal={() => setShowEula(false)}
+      />
+      {showEula ? <Overlay /> : ''}
       <div className="grid-row">
         <div className="grid-col-8 grid-offset-2">
           {error && (
@@ -42,14 +55,19 @@ const SignIn = ({ context, location }) => {
             </div>
           )}
           <div className="align-center">
-            <a href="/auth/login-gov" className="usa-button usa-button-big">
-              Sign in
-            </a>
+            <Button className="usa-button usa-button-big" onClick={() => setShowEula(!showEula)} type="button">
+              Sign In
+            </Button>
           </div>
         </div>
       </div>
     </div>
   );
 };
+/*
+<a href="/auth/login-gov" className="usa-button usa-button-big">
+              Sign in
+            </a>
+*/
 
 export default withContext(SignIn);
