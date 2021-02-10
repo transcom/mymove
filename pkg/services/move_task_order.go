@@ -9,10 +9,19 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// HiddenMove struct used to store the MTO ID and the reason that the move is being hidden.
+type HiddenMove struct {
+	MTOID  uuid.UUID
+	Reason string
+}
+
+// HiddenMoves is the slice of HiddenMove to return in the handler call
+type HiddenMoves []HiddenMove
+
 // MoveTaskOrderHider is the service object interface for Hide
 //go:generate mockery -name MoveTaskOrderHider
 type MoveTaskOrderHider interface {
-	Hide() (models.Moves, error)
+	Hide() (HiddenMoves, error)
 }
 
 // MoveTaskOrderCreator is the service object interface for CreateMoveTaskOrder

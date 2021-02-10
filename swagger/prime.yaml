@@ -1796,8 +1796,6 @@ definitions:
       - filename
       - contentType
       - bytes
-      - createdAt
-      - updatedAt
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'
