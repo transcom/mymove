@@ -110,6 +110,13 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("primeapi.CreatePaymentRequestHandler query error", zap.Error(e.Unwrap()))
+			}
+			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+
 		case *services.BadDataError:
 			payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID())
 
