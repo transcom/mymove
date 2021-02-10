@@ -22,7 +22,7 @@ const allowedDateFormats = [
 ];
 
 export function parseDate(str, _format, locale = 'en') {
-  // Ignore default format, and attempt to parse date using allowed formats
+  // Ignore _format parameter, and attempt to parse date using allowed formats
   const m = dayjs(str, allowedDateFormats, locale);
 
   if (m.isValid()) {
@@ -33,14 +33,11 @@ export function parseDate(str, _format, locale = 'en') {
 }
 
 export function formatDateFromISO(date, outputFormat = defaultDateFormat, locale = 'en') {
-  const output = dayjs(date).locale(locale).format(outputFormat);
-  return output;
+  return dayjs(date).locale(locale).format(outputFormat);
 }
 
 export function formatDate(date, format = defaultDateFormat, locale = 'en') {
-  const output = dayjs(date, allowedDateFormats, locale, true).locale(locale).format(format);
-
-  return output;
+  return dayjs(date, allowedDateFormats, locale, true).locale(locale).format(format);
 }
 
 export function formatDateForSwagger(dateString) {

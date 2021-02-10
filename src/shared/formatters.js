@@ -202,46 +202,11 @@ export function formatDateFromIso(date, outputFormat) {
   return dayjs(date).format(outputFormat);
 }
 
-export function formatDate4DigitYear(date) {
-  if (date) {
-    return dayjs(date).format('DD-MMM-YYYY');
-  }
-}
-
-export function formatTime(date) {
-  if (date) {
-    return dayjs(date).format('HH:mm');
-  }
-}
-
 // Format a date and include its time, e.g. 03-Jan-2018 21:23
 export function formatDateTime(date) {
   if (date) {
     return dayjs(date).format('DD-MMM-YY HH:mm');
   }
-}
-
-// Format a date, include its time and timezone, e.g. 03-Jan-2018 21:23 ET
-export function formatDateTimeWithTZ(date) {
-  if (!date) return undefined;
-
-  // This gets us a date string that includes the browser timezone
-  // e.g. Mon Apr 22 2019 09:08:10 GMT-0500 (Central Daylight Time)
-  // If this looks a bit strange, it's a workaround for IE11 not
-  // supporting the timeZoneName: 'short' option in Date.toLocaleString
-  const newDateString = String(dayjs(date).toDate());
-  const longZone = newDateString.substring(newDateString.lastIndexOf('(') + 1, newDateString.lastIndexOf(')'));
-  let shortZone = longZone
-    .split(' ')
-    .map((word) => word[0])
-    .join('');
-
-  // Converting timezones like CDT and EST to CT and ET
-  if (shortZone.length === 3 && shortZone !== 'UTC') {
-    shortZone = shortZone.slice(0, 1) + shortZone.slice(2, 3);
-  }
-
-  return dayjs(date, true).format('DD-MMM-YY HH:mm') + ` ${shortZone}`;
 }
 
 export function formatTimeAgo(date) {
