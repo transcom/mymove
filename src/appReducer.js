@@ -9,7 +9,6 @@ import { persistReducer } from 'redux-persist';
 import authReducer from 'store/auth/reducer';
 import onboardingReducer from 'store/onboarding/reducer';
 import flashReducer from 'store/flash/reducer';
-import userReducer from 'shared/Data/users';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
 import { requestsReducer } from 'shared/Swagger/requestsReducer';
 import { entitiesReducer } from 'shared/Entities/reducer';
@@ -39,7 +38,6 @@ const defaultReducers = {
   swaggerPublic: swaggerReducerPublic,
   requests: requestsReducer,
   ui: uiReducer,
-  user: userReducer,
   entities: entitiesReducer,
 };
 
