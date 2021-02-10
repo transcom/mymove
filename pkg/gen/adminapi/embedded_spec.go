@@ -1291,6 +1291,45 @@ func init() {
           }
         }
       }
+    },
+    "/webhook_subscriptions/{webhookSubscriptionId}": {
+      "get": {
+        "description": "Returns the given webhook subscription and its details",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Get information about a webhook subscription",
+        "operationId": "getWebhookSubscription",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "webhookSubscriptionId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "subscription not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2418,6 +2457,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "description": "Unique identifier for the subscriber",
+          "type": "string",
+          "format": "uuid",
+          "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
         },
         "updatedAt": {
           "type": "string",
@@ -3722,6 +3767,45 @@ func init() {
           }
         }
       }
+    },
+    "/webhook_subscriptions/{webhookSubscriptionId}": {
+      "get": {
+        "description": "Returns the given webhook subscription and its details",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Get information about a webhook subscription",
+        "operationId": "getWebhookSubscription",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "webhookSubscriptionId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "subscription not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -4854,6 +4938,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "description": "Unique identifier for the subscriber",
+          "type": "string",
+          "format": "uuid",
+          "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
         },
         "updatedAt": {
           "type": "string",

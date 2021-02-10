@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -17,13 +18,14 @@ func payloadForWebhookSubscriptionModel(subscription models.WebhookSubscription)
 	severity := int64(subscription.Severity)
 
 	return &adminmessages.WebhookSubscription{
-		ID:          *handlers.FmtUUID(subscription.ID),
-		CallbackURL: subscription.CallbackURL,
-		Severity:    &severity,
-		EventKey:    subscription.EventKey,
-		Status:      adminmessages.WebhookSubscriptionStatus(subscription.Status),
-		CreatedAt:   *handlers.FmtDateTime(subscription.CreatedAt),
-		UpdatedAt:   *handlers.FmtDateTime(subscription.UpdatedAt),
+		ID:           *handlers.FmtUUID(subscription.ID),
+		SubscriberID: *handlers.FmtUUID(subscription.SubscriberID),
+		CallbackURL:  subscription.CallbackURL,
+		Severity:     &severity,
+		EventKey:     subscription.EventKey,
+		Status:       adminmessages.WebhookSubscriptionStatus(subscription.Status),
+		CreatedAt:    *handlers.FmtDateTime(subscription.CreatedAt),
+		UpdatedAt:    *handlers.FmtDateTime(subscription.UpdatedAt),
 	}
 }
 
@@ -65,4 +67,27 @@ func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.In
 	}
 
 	return webhooksubscriptionop.NewIndexWebhookSubscriptionsOK().WithContentRange(fmt.Sprintf("webhookSubscriptions %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedWebhookSubscriptionsCount, totalWebhookSubscriptionsCount)).WithPayload(payload)
+}
+
+// GetWebhookSubscriptionHandler returns one webhookSubscription via GET /webhook_subscriptions/:ID
+type GetWebhookSubscriptionHandler struct {
+	handlers.HandlerContext
+	services.WebhookSubscriptionFetcher
+	services.NewQueryFilter
+}
+
+// Handle retrieves a webhook subscription
+func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWebhookSubscriptionParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	webhookSubscriptionID := uuid.FromStringOrNil(params.WebhookSubscriptionID.String())
+	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscriptionID)}
+
+	webhookSubscription, err := h.WebhookSubscriptionFetcher.FetchWebhookSubscription(queryFilters)
+
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	payload := payloadForWebhookSubscriptionModel(webhookSubscription)
+	return webhooksubscriptionop.NewGetWebhookSubscriptionOK().WithPayload(payload)
 }
