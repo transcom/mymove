@@ -61,7 +61,8 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		"Orders.ServiceMember",
 		"Orders.NewDutyStation.Address",
 		"Orders.OriginDutyStation.Address",
-		"Orders.OriginDutyStation.TransportationOffice",
+		// See note further below about having to do this in a separate Load call due to a Pop issue.
+		// "Orders.OriginDutyStation.TransportationOffice",
 		"Orders.Entitlement",
 		"MTOShipments",
 		"MTOServiceItems",
@@ -113,6 +114,22 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	}
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
+
+	for i := range moves {
+		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
+		// where the first 2 levels match.  For example:
+		//   "Orders.OriginDutyStation.Address" and "Orders.OriginDutyStation.TransportationOffice"
+		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
+		// in the EagerPreload above and request the second one explicitly with a separate Load call.
+		//
+		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
+		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+		//   cannot eager load the address as "OriginDutyStation.Address" because
+		//   OriginDutyStation is a pointer.
+		if moves[i].Orders.OriginDutyStation != nil {
+			f.db.Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
+		}
+	}
 
 	return moves, count, nil
 }
