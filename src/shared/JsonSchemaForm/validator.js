@@ -1,7 +1,10 @@
 import { isFinite, isInteger as rawIsInteger, memoize } from 'lodash';
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import { defaultDateFormat } from 'shared/dates';
+
+dayjs.extend(customParseFormat);
 
 const isRequired = (value) => (value ? undefined : 'Required');
 // Why Memoize? Please see https://github.com/erikras/redux-form/issues/3288

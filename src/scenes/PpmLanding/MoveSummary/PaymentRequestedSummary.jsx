@@ -1,6 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import { ppmInfoPacket } from 'shared/constants';
 import ppmCar from 'scenes/PpmLanding/images/ppm-car.svg';
@@ -9,6 +10,7 @@ import FindWeightScales from 'scenes/PpmLanding/MoveSummary/FindWeightScales';
 import PpmMoveDetails from 'scenes/PpmLanding/MoveSummary/SubmittedPpmMoveDetails';
 
 dayjs.extend(isSameOrBefore);
+dayjs.extend(customParseFormat);
 
 const PaymentRequestedSummary = (props) => {
   const { ppm } = props;

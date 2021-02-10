@@ -1,8 +1,8 @@
 import React from 'react';
 import DayPickerInput from 'react-day-picker/DayPickerInput';
-import { parseDate, formatDate, defaultDateFormat } from 'shared/dates';
-
 import 'react-day-picker/lib/style.css';
+
+import { parseDate, formatDateFromISO, defaultDateFormat } from 'shared/dates';
 
 const getDayPickerProps = (disabledDays) => {
   return {
@@ -24,7 +24,7 @@ export default function SingleDatePicker(props) {
     placeholder,
     inputClassName,
   } = props;
-  const formatted = parseDate(value);
+  const parsedValue = parseDate(value);
 
   return (
     <DayPickerInput
@@ -32,9 +32,9 @@ export default function SingleDatePicker(props) {
       onDayPickerHide={onBlur}
       placeholder={placeholder}
       parseDate={parseDate}
-      formatDate={formatDate}
+      formatDate={formatDateFromISO}
       format={format}
-      value={formatted}
+      value={parsedValue}
       dayPickerProps={getDayPickerProps(disabledDays)}
       inputProps={{
         disabled,

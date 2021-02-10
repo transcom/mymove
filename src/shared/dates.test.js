@@ -15,6 +15,12 @@ describe('dates', () => {
         expect(result).toEqual(dayjs('2019-08-23T00:00:00.000Z').toDate());
       });
     });
+    describe('when parsing a date that matches ISO 8601 format', () => {
+      const result = parseDate('2019-08-23T00:00:00.000Z');
+      it('should return a Date that matches that string', () => {
+        expect(result).toEqual(dayjs('2019-08-23T00:00:00.000Z').toDate());
+      });
+    });
   });
   describe('formatDate', () => {
     describe('when formatting a date that does not match the allowed date formats', () => {

@@ -241,7 +241,7 @@ export function formatDateTimeWithTZ(date) {
     shortZone = shortZone.slice(0, 1) + shortZone.slice(2, 3);
   }
 
-  return dayjs(date, dayjs.ISO_8601, true).format('DD-MMM-YY HH:mm') + ` ${shortZone}`;
+  return dayjs(date, true).format('DD-MMM-YY HH:mm') + ` ${shortZone}`;
 }
 
 export function formatTimeAgo(date) {

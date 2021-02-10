@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import { StatusTimeline } from './StatusTimeline';
 
@@ -14,6 +15,7 @@ import {
 import { selectCurrentMove } from 'store/entities/selectors';
 
 dayjs.extend(isSameOrBefore);
+dayjs.extend(customParseFormat);
 
 const PpmStatuses = {
   Submitted: 'SUBMITTED',

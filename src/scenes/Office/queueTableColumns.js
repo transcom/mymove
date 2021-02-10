@@ -1,11 +1,13 @@
 import React from 'react';
 import { capitalize, memoize } from 'lodash';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import Select from 'react-select';
+
 import { formatDate } from 'shared/formatters';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
-import dayjs from 'dayjs';
 
-// testing
-import Select from 'react-select';
+dayjs.extend(customParseFormat);
 
 // Abstracting react table column creation
 const createReactTableColumn = (header, accessor, options = {}) => ({
