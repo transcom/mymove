@@ -16,6 +16,7 @@
   color: white;
   &:hover,
   &:focus {
+    background-color: inherit;
     color: white;
   }
 }

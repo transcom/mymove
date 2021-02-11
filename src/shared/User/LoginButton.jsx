@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
+import { bool } from 'prop-types';
 
 import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
@@ -37,9 +38,21 @@ const LoginButton = (props) => {
           </li>
         )}
         <li className="usa-nav__primary-item">
-          <Button aria-label="Sign In" className={styles.signIn} onClick={() => setShowEula(!showEula)} type="button">
-            Sign In
-          </Button>
+          {props.useEula ? (
+            <Button
+              aria-label="Sign In"
+              className={styles.signIn}
+              data-hook="signin"
+              onClick={() => setShowEula(!showEula)}
+              type="button"
+            >
+              Sign In
+            </Button>
+          ) : (
+            <a className="usa-nav__link" data-hook="signin" href="/auth/login-gov">
+              Sign In
+            </a>
+          )}
         </li>
       </>
     );
@@ -59,8 +72,17 @@ const LoginButton = (props) => {
   }
 };
 
+LoginButton.propTypes = {
+  useEula: bool,
+};
+
+LoginButton.defaultProps = {
+  useEula: false,
+};
+
 function mapStateToProps(state) {
   const user = selectCurrentUser(state);
+  console.log('user: ' + JSON.stringify(user));
   return {
     isLoggedIn: user.isLoggedIn,
     showDevlocalButton: get(state, 'isDevelopment', isDevelopment),

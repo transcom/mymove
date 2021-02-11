@@ -56,14 +56,20 @@ const SignIn = ({ context, location }) => {
             </div>
           )}
           <div className="align-center">
-            <Button
-              aria-label="Sign In"
-              className={context.showLoginWarning ? styles.signInButton : 'usa-button'}
-              onClick={() => setShowEula(!showEula)}
-              type="button"
-            >
-              Sign In
-            </Button>
+            {context.showLoginWarning ? (
+              <Button
+                aria-label="Sign In"
+                className={context.showLoginWarning ? styles.signInButton : 'usa-button'}
+                onClick={() => setShowEula(!showEula)}
+                type="button"
+              >
+                Sign In
+              </Button>
+            ) : (
+              <a href="/auth/login-gov" className="usa-button usa-button-big">
+                Sign in
+              </a>
+            )}
           </div>
         </div>
       </div>

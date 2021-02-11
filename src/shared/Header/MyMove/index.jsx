@@ -80,7 +80,7 @@ function Header() {
             </div>
             <nav className="usa-nav" aria-label="Primary navigation">
               <ul className="usa-nav__primary usa-accordion">
-                <LoginButton />
+                <LoginButton useEula />
               </ul>
             </nav>
           </div>
