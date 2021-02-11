@@ -55,7 +55,20 @@ export default {
 };
 
 export const EmptyValues = () => (
-  <Formik>
+  <Formik
+    initialValues={{
+      originDutyStation: '',
+      newDutyStation: '',
+      issueDate: '',
+      reportByDate: '',
+      departmentIndicator: '',
+      ordersNumber: '',
+      ordersType: '',
+      ordersTypeDetail: '',
+      tac: '',
+      sac: '',
+    }}
+  >
     <form>
       <OrdersDetailForm
         deptIndicatorOptions={deptIndicatorOptions}

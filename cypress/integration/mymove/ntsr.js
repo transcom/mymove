@@ -78,7 +78,7 @@ function customerVisitsReviewPage() {
 function customerCreatesAnNTSRShipment() {
   cy.get('[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
-  cy.get('input[type="radio"]').eq(3).check({ force: true });
+  cy.get('label[for="HHG_OUTOF_NTS_DOMESTIC"]').click();
   cy.nextPage();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ntsr-start/);

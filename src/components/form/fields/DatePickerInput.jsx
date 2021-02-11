@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
-import { formatDateFromISO } from 'shared/dates';
+import { formatDateFromISO, formatDate } from 'shared/dates';
 
 export const DatePickerInput = (props) => {
   const dateFormat = 'DD MMM YYYY';
@@ -25,7 +25,11 @@ export const DatePickerInput = (props) => {
             name={name}
             placeholder={dateFormat}
             format={dateFormat}
-            onChange={(value) => helpers.setValue(formatDateFromISO(value, dateFormat))}
+            onChange={(value) => {
+              const formatted =
+                value instanceof Date ? formatDateFromISO(value, dateFormat) : formatDate(value, dateFormat);
+              helpers.setValue(formatted);
+            }}
             onBlur={() => helpers.setTouched(true)}
             value={field.value}
           />

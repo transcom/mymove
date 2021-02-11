@@ -11,6 +11,7 @@ export const ISO_8601_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
 const allowedDateFormats = [
   defaultDateFormat,
   ISO_8601_FORMAT,
+  'YYYY-MM-DDTHH:mm:ssZ',
   'YYYY/M/D',
   'YYYY-M-D',
   'YYYY-MM-DD',
