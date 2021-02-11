@@ -27,7 +27,7 @@ const getTotalRequestTime = (navigationEntries = []) => {
 
 (async () => {
   const waitOptions = { waitUntil: 'networkidle0' };
-  // for debugging, set headless to true
+  // for debugging, set headless to false
   const launchOptions = { headless: true };
   const browser = await puppeteer.launch(launchOptions);
   const page = await browser.newPage();
