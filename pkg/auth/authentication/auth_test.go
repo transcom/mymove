@@ -39,35 +39,6 @@ const (
 	SddcTestHost string = "sddc.example.com"
 	// AdminTestHost
 	AdminTestHost string = "admin.example.com"
-	// FakeRSAKey generated with `bin/generate-devlocal-cert.sh -o Test -u Application -n test.mil -f test`
-	FakeRSAKey string = `-----BEGIN RSA PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDB8iPy8nfNMBR6
-6rlYOS9VyZYo2uS5AQ03yGDAOzID7/84P3KnvaIW2AGyYsyNNs/j+qcFm2Cr6LK+
-bdDJaKHBMAwiOn3BIBkwobWeQ1R12odtGCJyEzjH0kHE3Trtw6ID8tVtzPhfIBhe
-p3/lkRuERGC3JJ3gxZYLoh6CJRD5FRrBqQg93Dm4dKfIl2AftLi68o9zSYJoO2qC
-iEPeco0+hN6Chu9qRwP3jhswYQbFDu65eW4vHVlKXW6E+34eGKV/cCO0Q86Gi7/8
-XZ2tQjCE3eJybmy9BCQi2hM3VKOxHzThhYjpA2ae8wE2Ucm43giSC+L0b1jf279y
-dY3S3b/RAgMBAAECggEAYoo2va94MyakoTc1aJ/Vbw73XlapM15XaupCTilFZj7A
-O8Hw7U0qV9T0N8B/EZix07F8vxqM6YtXle2R0WN6G//filyRnFhEtDLVZk3rUd3w
-RPuoNLGTfeNUS0PkNv3ZCYyN6DXmU96owx7zmp45juB3C1ZtaNC7RbnfKlzO3N56
-eZuqVcgarA26JEpycyiEF1yWnRlwEpYFoeHWIyBNb/ssFrJO7fkQfqyaVR2MBsZa
-HS43OFWhd8q43tmeFMpcHuh3j/AZ4TsvAPGMtcHRbyAeVD+7X9I6tdkmD58Gz5Di
-HcuSQ3Y2GewtC0Uua+Fu+SMSnx7mxX9zafm2a1cuqQKBgQD4A3nIPnIrdr23W1u0
-6XT9Ikb0sc6aMXHBb2HM+/HetulKIQ9O/ajZHHQqFdQlo0RjVgPCSJ9R860Lak29
-3zPwVCjcs6lsf1QLlijxnZYHl8XpZ11bOf1QmSovGE9Qs06cl5ty8A7OC+dpwo4t
-Yyi3J2jDGxFO8hRhL4my6varcwKBgQDIMPPCcGlMe73fU/78/HEocjV/1ZOXqEt7
-GbRjMho1s1k+56c4G/wNLn5y7Y9oYSN9UqKswdgS5ALYWg5aY9LpCfgGOAmGMskt
-lDEnUq2oV5/D3oF06FwJpX0OyNQKMgzrJXmXpfNWp7lpyfJPlWH04KpShyN4poX3
-Pp9mrwdeqwKBgHVLl4YX2oEp2FHmeDnYi8bINky15yNPrSAx4ExE/8A4O58egZH3
-L6r25Q2eY0YlsEtWu9Jf7FGi8D1M2lWpQXQxKV4v7jntAj+0lcqnn/QZWLWpeCKU
-C3TZ63R4h9J/6vbuUMuMM0RJpvmC1SEsG257yfU0UPxIS1EnXXVr4Jt3AoGBAIdm
-RJhQO4gVcZipUR9/BnIavQCXTdoXY+YAvrcQ3hVQFp6rQ7h5hQLNXY0SDBrHCJ/s
-0kYSXbh5K0t1rZuJRM+FhJGAOUDg/JytTImSLA5eJZru1ZRizE1h9rGXN4Ml0wMA
-N7tP7MPBcXCRvCgDm1tq0Qg8istBpf5SBrIG0+89AoGBAPbRiOsEZKGCfk/umkTp
-0iPf4YhQWcRX8hQXdOQUlTyE1mXQRxQ8isSMF5FOfmpJufo2by5MmKoSK/DmquER
-8EZVAV6/L2/k+6JcrMtdcNb0zklGOT4CqUtg1UM619dy2+MeOWiYvP3gJsyfSffV
-NeWNl8nWD+2zOcRiBri5uUB8
------END RSA PRIVATE KEY-----`
 )
 
 // UserSessionCookieName is the key suffix at which we're storing our token cookie

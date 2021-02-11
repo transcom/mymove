@@ -42,14 +42,6 @@ func (e *errInvalidScenario) Error() string {
 	return fmt.Sprintf("invalid scenario %d", e.Scenario)
 }
 
-type errInvalidNamedScenario struct {
-	NamedScenario string
-}
-
-func (e *errInvalidNamedScenario) Error() string {
-	return fmt.Sprintf("invalid named-scenario %s", e.NamedScenario)
-}
-
 func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Debug("checking config")
