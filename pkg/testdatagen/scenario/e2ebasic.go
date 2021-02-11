@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -36,7 +35,7 @@ var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, storer *storage.Filesystem) {
+func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
 	/*
 	 * Basic user with office access
 	 */

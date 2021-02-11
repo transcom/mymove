@@ -11,8 +11,9 @@ import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
+import { selectIsLoggedIn } from 'store/auth/selectors';
 import { logOut as logOutAction, loadUser as loadUserAction } from 'store/auth/actions';
-import { selectCurrentUser } from 'shared/Data/users';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import {
   loadInternalSchema as loadInternalSchemaAction,
   loadPublicSchema as loadPublicSchemaAction,
@@ -249,13 +250,14 @@ OfficeApp.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectCurrentUser(state);
+  const user = selectLoggedInUser(state);
+
   return {
     swaggerError: state.swaggerInternal.hasErrored,
-    userIsLoggedIn: user.isLoggedIn,
-    userRoles: user.roles,
+    userIsLoggedIn: selectIsLoggedIn(state),
+    userRoles: user?.roles || [],
     activeRole: state.auth.activeRole,
-    officeUser: user.office_user,
+    officeUser: user?.office_user || {},
   };
 };
 

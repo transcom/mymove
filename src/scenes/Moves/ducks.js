@@ -1,5 +1,5 @@
 import { get, head, pick } from 'lodash';
-import { GET_LOGGED_IN_USER } from 'shared/Data/users';
+import { GET_LOGGED_IN_USER_SUCCESS } from 'store/auth/actions';
 import { fetchActive } from 'shared/utils';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -39,7 +39,7 @@ function reshapeMove(move) {
 }
 export function moveReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_LOGGED_IN_USER.success:
+    case GET_LOGGED_IN_USER_SUCCESS:
       const lastOrdersMoves = get(action.payload, 'service_member.orders.0.moves', []);
       const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
 

@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { selectCurrentUser, selectGetCurrentUserIsLoading } from 'shared/Data/users';
+import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { UserRolesShape } from 'types/index';
+import getRoleTypesFromRoles from 'utils/user';
+import { UserRolesShape } from 'types';
 
 export function userIsAuthorized(userRoles, requiredRoles) {
   // Return true if no roles are required
@@ -20,17 +22,13 @@ export function userIsAuthorized(userRoles, requiredRoles) {
 
 const PrivateRoute = (props) => {
   const { loginIsLoading, userIsLoggedIn, requiredRoles, userRoles, ...routeProps } = props;
-
+  const userRoleTypes = getRoleTypesFromRoles(userRoles);
   if (loginIsLoading) return <LoadingPlaceholder />;
 
   if (!userIsLoggedIn) return <Redirect to="/sign-in" />;
-  if (
-    !userIsAuthorized(
-      userRoles.map((r) => r.roleType),
-      requiredRoles,
-    )
-  )
+  if (!userIsAuthorized(userRoleTypes, requiredRoles)) {
     return <Redirect to="/" />;
+  }
 
   // eslint-disable-next-line react/jsx-props-no-spreading
   return <Route {...routeProps} />;
@@ -52,11 +50,15 @@ PrivateRoute.defaultProps = {
   userRoles: [],
 };
 
-const mapStateToProps = (state) => ({
-  loginIsLoading: selectGetCurrentUserIsLoading(state),
-  userIsLoggedIn: selectCurrentUser(state).isLoggedIn,
-  userRoles: selectCurrentUser(state).roles,
-});
+const mapStateToProps = (state) => {
+  const user = selectLoggedInUser(state);
+
+  return {
+    loginIsLoading: selectGetCurrentUserIsLoading(state),
+    userIsLoggedIn: selectIsLoggedIn(state),
+    userRoles: user?.roles || [],
+  };
+};
 
 const ConnectedPrivateRoute = connect(mapStateToProps)(PrivateRoute);
 

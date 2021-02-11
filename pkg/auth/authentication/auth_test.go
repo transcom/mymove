@@ -650,6 +650,99 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 	suite.Equal(existsAfterConcurrentSession, false)
 }
 
+// TESTCASE SCENARIO
+// What is being tested: authorizeUnknownUser function
+// Mocked: LoginGovProvider, auth.Session, goth.User, scs.SessionManager
+// Behaviour: The function gets passed in the following arguments:
+// - an instance of goth.User: a struct with the login.gov UUID and email
+// - the callback handler
+// - the session (instance of auth.Session)
+// - the http ResponseWriter
+// - the http Request with a context that includes the session
+// - the landing URL string (where to redirect the user after successful auth)
+// It should create the user using the login.gov UUID and email, then create a
+// service member associated with the user, and populate the session with the ID
+// of the service member in the `ServiceMemberID` key.
+func (suite *AuthSuite) TestAuthUnknownServiceMember() {
+	// Set up: Prepare the session, goth.User, callback handler, http response
+	//         and request, landing URL, and pass them into authorizeUnknownUser
+
+	// Prepare the session and session manager
+	fakeToken := "some_token"
+	session := auth.Session{
+		ApplicationName: auth.MilApp,
+		IDToken:         fakeToken,
+		Hostname:        MilTestHost,
+	}
+	sessionManagers := setupSessionManagers()
+	milSession := sessionManagers[0]
+
+	// Prepare the request and set the session in the request context
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", MilTestHost), nil)
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	scsContext := setupScsSession(ctx, &session, milSession)
+
+	// Prepare the callback handler
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+	}
+
+	// Prepare the request and response writer
+	rr := httptest.NewRecorder()
+
+	// Prepare the goth.User to simulate the UUID and email that login.gov would
+	// provide
+	fakeUUID, _ := uuid.NewV4()
+	user := goth.User{
+		UserID: fakeUUID.String(),
+		Email:  "new_service_member@example.com",
+	}
+
+	// Call the function under test
+	authorizeUnknownUser(user, h, &session, rr, req.WithContext(scsContext), h.landingURL(&session))
+
+	// Look up the user and service member in the test DB
+	foundUser, _ := models.GetUserFromEmail(suite.DB(), user.Email)
+	serviceMemberID := session.ServiceMemberID
+	serviceMember, _ := models.FetchServiceMemberForUser(ctx, suite.DB(), &session, serviceMemberID)
+	// Look up the session token in the session store (this test uses the memory store)
+	sessionStore := milSession.Store
+	_, existsBefore, _ := sessionStore.Find(foundUser.CurrentMilSessionID)
+
+	// Verify service member exists and its ID is populated in the session
+	suite.NotEmpty(session.ServiceMemberID)
+
+	// Verify session contains UserID that points to the newly-created user
+	suite.Equal(foundUser.ID, session.UserID)
+
+	// Verify user's LoginGovEmail and LoginGovUUID match the values passed in
+	suite.Equal(user.Email, foundUser.LoginGovEmail)
+	suite.Equal(user.UserID, foundUser.LoginGovUUID.String())
+
+	// Verify that the user's CurrentMilSessionID is not empty. The value is
+	// generated randomly, so we can't test for a specific string. Any string
+	// except an empty string is acceptable.
+	suite.NotEqual("", foundUser.CurrentMilSessionID)
+
+	// Verify the session token also exists in the session store
+	suite.Equal(true, existsBefore)
+
+	// Verify the service member that was created is associated with the user
+	// that was created
+	suite.Equal(foundUser.ID, serviceMember.UserID)
+
+	// Verify that the service member's RequiresAccessCode field was created.
+	// This is needed by the /users/logged_in endpoint.
+	suite.Equal(false, serviceMember.RequiresAccessCode)
+
+	// Verify handler redirects to landing URL
+	suite.Equal(http.StatusTemporaryRedirect, rr.Code, "handler did not redirect")
+	suite.Equal(fmt.Sprintf("http://%s:1234/", MilTestHost), rr.Result().Header.Get("Location"))
+}
+
 func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 	adminUserActive := false
 	userIdentity := models.UserIdentity{

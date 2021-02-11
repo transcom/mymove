@@ -16,7 +16,6 @@ make clean build_tools
 # Test DB
 
 make db_dev_reset db_dev_migrate db_dev_e2e_populate
-make db_test_reset db_test_migrate db_test_e2e_populate
 make db_deployed_migrations_reset db_deployed_migrations_migrate
 
 # Test e2e Init

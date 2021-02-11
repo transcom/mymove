@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { GET_LOGGED_IN_USER } from 'shared/Data/users';
+import { GET_LOGGED_IN_USER_SUCCESS } from 'store/auth/actions';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
 
 // Types
@@ -33,7 +33,7 @@ const initialState = {
 };
 export function ppmReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_LOGGED_IN_USER.success:
+    case GET_LOGGED_IN_USER_SUCCESS:
       // Initialize state when we get the logged in user
       const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
       const activeMove = fetchActive(get(activeOrders, 'moves'));

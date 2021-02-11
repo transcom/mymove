@@ -204,5 +204,11 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.WebhookSubscriptionsCreateWebhookSubscriptionHandler = CreateWebhookSubscriptionHandler{
+		context,
+		webhooksubscription.NewWebhookSubscriptionCreator(context.DB(), queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	return adminAPI.Serve(nil)
 }

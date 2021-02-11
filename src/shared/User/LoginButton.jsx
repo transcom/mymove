@@ -2,10 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
-import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
+import { selectIsLoggedIn } from '../../store/auth/selectors';
 
 const LoginButton = (props) => {
   if (!props.isLoggedIn) {
@@ -47,9 +47,8 @@ const LoginButton = (props) => {
 };
 
 function mapStateToProps(state) {
-  const user = selectCurrentUser(state);
   return {
-    isLoggedIn: user.isLoggedIn,
+    isLoggedIn: selectIsLoggedIn(state),
     showDevlocalButton: get(state, 'isDevelopment', isDevelopment),
   };
 }

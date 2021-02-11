@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -160,11 +162,20 @@ func main() {
 		}
 
 		// Initialize storage and uploader
-		zap.L().Info("Using local storage backend")
-		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
-		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
-		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
-		storer := storage.NewFilesystem(fsParams)
+		var session *awssession.Session
+
+		c := &aws.Config{
+			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
+		}
+		s, errorSession := awssession.NewSession(c)
+
+		if errorSession != nil {
+			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+		}
+
+		session = s
+		storer := storage.InitStorage(v, session, logger)
+
 		userUploader, uploaderErr := uploader.NewUserUploader(dbConnection, logger, storer, 25*uploader.MB)
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate user uploader", zap.Error(err))
@@ -174,9 +185,9 @@ func main() {
 			logger.Fatal("could not instantiate prime uploader", zap.Error(err))
 		}
 		if namedScenario == tdgs.E2eBasicScenario.Name {
-			tdgs.E2eBasicScenario.Run(dbConnection, userUploader, primeUploader, logger, storer)
+			tdgs.E2eBasicScenario.Run(dbConnection, userUploader, primeUploader, logger)
 		} else if namedScenario == tdgs.DevSeedScenario.Name {
-			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, logger, storer)
+			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, logger)
 		} else if namedScenario == tdgs.BandwidthScenario.Name {
 			tdgs.BandwidthScenario.Run(dbConnection, userUploader, primeUploader)
 		}
