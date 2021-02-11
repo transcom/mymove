@@ -6,7 +6,7 @@ import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
-import { Button, Overlay } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 import EulaModal from 'components/EulaModal';
 
 import styles from './LoginButton.module.scss';
@@ -17,7 +17,6 @@ const LoginButton = (props) => {
   if (!props.isLoggedIn) {
     return (
       <>
-        {showEula ? <Overlay /> : ''}
         <EulaModal
           isOpen={showEula}
           acceptTerms={() => {

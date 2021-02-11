@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import qs from 'query-string';
-import { Button, Overlay } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
@@ -23,7 +23,6 @@ const SignIn = ({ context, location }) => {
         }}
         closeModal={() => setShowEula(false)}
       />
-      {showEula ? <Overlay /> : ''}
       <div className="grid-row">
         <div className="grid-col-8 grid-offset-2">
           {error && (
