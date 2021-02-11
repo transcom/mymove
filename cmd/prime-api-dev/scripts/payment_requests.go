@@ -666,9 +666,6 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			*/
 
 			err = pr.updateShipmentsJSONToFile(tmpFile, shipmentUpdates, shipmentIndex)
-			if err != nil {
-
-			}
 
 			err = pr.updateMTOShipment2(tmpFile.Name())
 
@@ -915,9 +912,6 @@ func (pr *paymentRequestsData) displayCreatePaymentRequestMenu() (bool, menuType
 			*/
 
 			err = pr.paymentRequestJSONToFile(tmpFile, serviceItems)
-			if err != nil {
-
-			}
 
 			err = pr.creatPaymentRequest(tmpFile.Name())
 
