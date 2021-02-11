@@ -87,7 +87,6 @@
     "test:debug": "react-scripts --inspect-brk test --runInBand --env=jsdom",
     "test:coverage": "react-scripts test --coverage --env=jsdom --watchAll=false --coverageDirectory=coverage --runInBand",
     "test:e2e": "cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
-    "test:e2e-clean": "make db_dev_e2e_populate; yarn test:e2e",
     "test:e2e-debug": "DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-clean-debug": "make db_dev_e2e_populate; DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "prettier": "prettier --write --loglevel warn 'src/**/*.{js,jsx}'",
