@@ -2246,6 +2246,27 @@ func init() {
         "$ref": "#/definitions/TransportationServiceProviderPerformance"
       }
     },
+    "UpdateWebhookSubscription": {
+      "type": "object",
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subsciberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "Upload": {
       "type": "object",
       "properties": {
@@ -4721,6 +4742,27 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/TransportationServiceProviderPerformance"
+      }
+    },
+    "UpdateWebhookSubscription": {
+      "type": "object",
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subsciberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
       }
     },
     "Upload": {
