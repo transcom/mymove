@@ -60,7 +60,6 @@ const getTotalRequestTime = (navigationEntries = []) => {
     }),
   );
 
-  // Getting some time discrepancies between the manual javascript timer and calculating the time from the entries
   // eslint-disable-next-line no-console
   console.log(getTotalRequestTime(navigationEntries), 'secs from performance entries');
 
