@@ -1,0 +1,21 @@
+.signIn {
+  &:hover::after {
+    background-color: currentColor;
+    border-radius: 0;
+    content: '';
+    display: block;
+    position: absolute;
+    height: 0.26667rem;
+    left: 1.06667rem;
+    right: 1.06667rem;
+    bottom: -0.26667rem;
+  }
+}
+
+:global(.my-move-header .usa-nav__primary button) {
+  color: white;
+  &:hover,
+  &:focus {
+    color: white;
+  }
+}

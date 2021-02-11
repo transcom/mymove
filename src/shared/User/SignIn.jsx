@@ -6,6 +6,8 @@ import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
 import EulaModal from 'components/EulaModal';
 
+import styles from './SignIn.module.scss';
+
 const SignIn = ({ context, location }) => {
   const [showEula, setShowEula] = useState(false);
 
@@ -55,7 +57,12 @@ const SignIn = ({ context, location }) => {
             </div>
           )}
           <div className="align-center">
-            <Button className="usa-button usa-button-big" onClick={() => setShowEula(!showEula)} type="button">
+            <Button
+              aria-label="Sign In"
+              className={context.showLoginWarning ? styles.signInButton : 'usa-button'}
+              onClick={() => setShowEula(!showEula)}
+              type="button"
+            >
               Sign In
             </Button>
           </div>
@@ -64,10 +71,5 @@ const SignIn = ({ context, location }) => {
     </div>
   );
 };
-/*
-<a href="/auth/login-gov" className="usa-button usa-button-big">
-              Sign in
-            </a>
-*/
 
 export default withContext(SignIn);

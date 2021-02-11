@@ -9,12 +9,15 @@ import { logOut } from 'store/auth/actions';
 import { Button, Overlay } from '@trussworks/react-uswds';
 import EulaModal from 'components/EulaModal';
 
+import styles from './LoginButton.module.scss';
+
 const LoginButton = (props) => {
   const [showEula, setShowEula] = useState(false);
 
   if (!props.isLoggedIn) {
     return (
       <>
+        {showEula ? <Overlay /> : ''}
         <EulaModal
           isOpen={showEula}
           acceptTerms={() => {
@@ -22,7 +25,6 @@ const LoginButton = (props) => {
           }}
           closeModal={() => setShowEula(false)}
         />
-        {showEula ? <Overlay /> : ''}
         {props.showDevlocalButton && (
           <li className="usa-nav__primary-item">
             <a
@@ -36,7 +38,7 @@ const LoginButton = (props) => {
           </li>
         )}
         <li className="usa-nav__primary-item">
-          <Button className="usa-button usa-button-big" onClick={() => setShowEula(!showEula)} type="button">
+          <Button aria-label="Sign In" className={styles.signIn} onClick={() => setShowEula(!showEula)} type="button">
             Sign In
           </Button>
         </li>
@@ -71,9 +73,3 @@ const mapDispatchToProps = {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginButton);
-
-/*
-<a className="usa-nav__link" data-hook="signin" href="/auth/login-gov">
-            Sign In
-          </a>
-*/
