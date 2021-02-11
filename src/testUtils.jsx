@@ -1,6 +1,5 @@
-/* eslint-disable import/prefer-default-export */
 import React from 'react';
-import PropTypes from 'prop-types';
+import { node, shape, arrayOf, func, string } from 'prop-types';
 import { Provider } from 'react-redux';
 import { createMemoryHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
@@ -23,12 +22,13 @@ export const MockProviders = ({ children, initialState, initialEntries, history 
 };
 
 MockProviders.propTypes = {
-  children: PropTypes.node.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  initialState: PropTypes.object,
-  initialEntries: PropTypes.arrayOf(PropTypes.string),
-  // eslint-disable-next-line react/forbid-prop-types
-  history: PropTypes.object,
+  children: node.isRequired,
+  initialState: shape({}),
+  initialEntries: arrayOf(string),
+  history: shape({
+    push: func.isRequired,
+    goBack: func.isRequired,
+  }),
 };
 
 MockProviders.defaultProps = {

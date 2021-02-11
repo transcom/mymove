@@ -38,7 +38,7 @@ describe('ConnectedPrivateRoute', () => {
       const wrapper = mount(
         <MockProviders
           initialState={{
-            user: {
+            auth: {
               isLoading: true,
             },
           }}
@@ -56,11 +56,9 @@ describe('ConnectedPrivateRoute', () => {
       const wrapper = mount(
         <MockProviders
           initialState={{
-            user: {
+            auth: {
               isLoading: false,
-              userInfo: {
-                isLoggedIn: false,
-              },
+              isLoggedIn: false,
             },
           }}
           initialEntries={['/']}
@@ -88,15 +86,16 @@ describe('ConnectedPrivateRoute', () => {
         const wrapper = mount(
           <MockProviders
             initialState={{
-              user: {
+              auth: {
                 isLoading: false,
-                userInfo: {
-                  isLoggedIn: true,
-                  roles: [
-                    {
-                      roleType: roleTypes.PPM,
-                    },
-                  ],
+                isLoggedIn: true,
+              },
+              entities: {
+                user: {
+                  userId123: {
+                    id: 'userId123',
+                    roles: [{ roleType: roleTypes.PPM }],
+                  },
                 },
               },
             }}
@@ -123,15 +122,16 @@ describe('ConnectedPrivateRoute', () => {
         const wrapper = mount(
           <MockProviders
             initialState={{
-              user: {
+              auth: {
                 isLoading: false,
-                userInfo: {
-                  isLoggedIn: true,
-                  roles: [
-                    {
-                      roleType: roleTypes.PPM,
-                    },
-                  ],
+                isLoggedIn: true,
+              },
+              entities: {
+                user: {
+                  userId123: {
+                    id: 'userId123',
+                    roles: [{ roleType: roleTypes.PPM }],
+                  },
                 },
               },
             }}

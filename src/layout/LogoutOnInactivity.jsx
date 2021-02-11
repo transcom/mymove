@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import IdleTimer from 'react-idle-timer';
 
+import { selectIsLoggedIn } from 'store/auth/selectors';
 import Alert from 'shared/Alert';
-import { selectCurrentUser } from 'shared/Data/users';
 import { LogoutUser } from 'utils/api';
 
 const maxIdleTimeInSeconds = 15 * 60;
@@ -84,13 +84,16 @@ export class LogoutOnInactivity extends React.Component {
 }
 
 LogoutOnInactivity.propTypes = {
-  isLoggedIn: PropTypes.bool.isRequired,
+  isLoggedIn: PropTypes.bool,
+};
+
+LogoutOnInactivity.defaultProps = {
+  isLoggedIn: false,
 };
 
 const mapStateToProps = (state) => {
-  const user = selectCurrentUser(state);
   return {
-    isLoggedIn: user.isLoggedIn,
+    isLoggedIn: selectIsLoggedIn(state),
   };
 };
 

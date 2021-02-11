@@ -50,8 +50,8 @@ const DocumentViewer = ({ files }) => {
       fileType = 'gif';
       break;
     }
-    // eslint-disable-next-line no-empty
     default: {
+      break;
     }
   }
 
