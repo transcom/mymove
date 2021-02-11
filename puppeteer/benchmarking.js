@@ -27,8 +27,8 @@ const getTotalRequestTime = (navigationEntries = []) => {
 
 (async () => {
   const waitOptions = { waitUntil: 'networkidle0' };
-  // for debugging
-  const launchOptions = { headless: false };
+  // for debugging, set headless to true
+  const launchOptions = { headless: true };
   const browser = await puppeteer.launch(launchOptions);
   const page = await browser.newPage();
 
@@ -47,16 +47,11 @@ const getTotalRequestTime = (navigationEntries = []) => {
   const element = await page.$(locatorSelector);
   const locatorValue = await page.evaluate((el) => el.textContent, element);
 
-  // hacky javascript timing
-  const timeStart = Date.now();
-
   // go to a document viewer, orders
   await page.goto(`http://officelocal:3000/moves/${locatorValue}/orders`, waitOptions);
 
-  const pdfTitleSelector = 'div[data-testid="DocViewerContent"]';
-  await page.waitForSelector(pdfTitleSelector);
-
-  const timeEnd = Date.now();
+  const docViewerContentSelector = 'div[data-testid="DocViewerContent"]';
+  await page.waitForSelector(docViewerContentSelector);
 
   // Will return all http requests and navigation performance on last navigation
   const navigationEntries = JSON.parse(
@@ -68,7 +63,6 @@ const getTotalRequestTime = (navigationEntries = []) => {
   // Getting some time discrepancies between the manual javascript timer and calculating the time from the entries
   // eslint-disable-next-line no-console
   console.log(getTotalRequestTime(navigationEntries), 'secs from performance entries');
-  // eslint-disable-next-line no-console
-  console.log((timeEnd - timeStart) / 1000, 'secs from javascript timer');
+
   await browser.close();
 })();
