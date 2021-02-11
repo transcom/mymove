@@ -143,13 +143,6 @@ export function formatSwaggerDate(date) {
   return '';
 }
 
-// Parse a date from the format used by Swagger into a Date object
-export function parseSwaggerDate(dateString) {
-  if (dateString) {
-    return dayjs(dateString, 'YYYY-MM-DD').toDate();
-  }
-}
-
 // Format a weight with lbs following, e.g. 4000 becomes 4,000 lbs
 export function formatWeight(weight) {
   if (weight) {

@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 
 import { MTOAgentType } from 'shared/constants';
-import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
+import { formatSwaggerDate } from 'shared/formatters';
 
 function formatAgentForDisplay(agent) {
   const agentCopy = { ...agent };
@@ -115,7 +115,7 @@ export function formatMtoShipmentForDisplay({
   }
 
   if (requestedPickupDate) {
-    displayValues.pickup.requestedDate = parseSwaggerDate(requestedPickupDate);
+    displayValues.pickup.requestedDate = requestedPickupDate;
   }
 
   if (destinationAddress) {
@@ -124,7 +124,7 @@ export function formatMtoShipmentForDisplay({
   }
 
   if (requestedDeliveryDate) {
-    displayValues.delivery.requestedDate = parseSwaggerDate(requestedDeliveryDate);
+    displayValues.delivery.requestedDate = requestedDeliveryDate;
   }
 
   return displayValues;
