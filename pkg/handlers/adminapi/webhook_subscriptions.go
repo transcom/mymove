@@ -35,7 +35,6 @@ func payloadToWebhookSubscriptionModel(params webhooksubscriptionop.CreateWebhoo
 	subscription := params.WebhookSubscription
 
 	return models.WebhookSubscription{
-		// TODO: If statement for if != nil add to model
 		EventKey:     *subscription.EventKey,
 		CallbackURL:  *subscription.CallbackURL,
 		SubscriberID: uuid.FromStringOrNil(subscription.SubscriberID.String()),
