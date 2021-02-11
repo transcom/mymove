@@ -17,7 +17,6 @@ import {
 } from 'store/entities/selectors';
 import { updatePPMs } from 'store/entities/actions';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess, selectIsLoggedIn } from 'store/auth/reducer';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import SignIn from 'shared/User/SignIn';
@@ -27,6 +26,11 @@ import { getPPMsForMove } from 'services/internalApi';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import {
+  selectGetCurrentUserIsLoading,
+  selectGetCurrentUserIsSuccess,
+  selectIsLoggedIn,
+} from '../../store/auth/selectors';
 
 export class PpmLanding extends Component {
   componentDidMount() {

@@ -11,9 +11,9 @@ import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
+import { selectIsLoggedIn } from 'store/auth/selectors';
 import { logOut as logOutAction, loadUser as loadUserAction } from 'store/auth/actions';
 import { selectLoggedInUser } from 'store/entities/selectors';
-import { selectIsLoggedIn } from 'store/auth/reducer';
 import {
   loadInternalSchema as loadInternalSchemaAction,
   loadPublicSchema as loadPublicSchemaAction,

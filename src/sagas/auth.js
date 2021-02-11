@@ -48,7 +48,6 @@ export function* fetchUser() {
         'An error occurred',
       ),
     );
-    // yield put(getLoggedInActions.error(e));
     yield put(getLoggedInUserFailure(e));
   }
 }

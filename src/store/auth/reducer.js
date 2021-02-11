@@ -1,4 +1,4 @@
-import { SET_ACTIVE_ROLE, LOG_OUT } from './actions';
+import { LOG_OUT, SET_ACTIVE_ROLE } from './actions';
 
 import { officeRoles } from 'constants/userRoles';
 
@@ -9,22 +9,6 @@ export const initialState = {
   hasErrored: false,
   isLoading: true,
 };
-
-export const selectIsLoggedIn = (state) => {
-  return state.auth.isLoggedIn;
-};
-
-export function selectGetCurrentUserIsLoading(state) {
-  return state.auth.isLoading;
-}
-
-export function selectGetCurrentUserIsSuccess(state) {
-  return state.auth.hasSucceeded;
-}
-
-export function selectGetCurrentUserIsError(state) {
-  return state.auth.hasErrored;
-}
 
 const authReducer = (state = initialState, action) => {
   switch (action?.type) {

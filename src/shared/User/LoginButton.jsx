@@ -2,10 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
-import { selectIsLoggedIn } from 'store/auth/reducer';
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
+import { selectIsLoggedIn } from '../../store/auth/selectors';
 
 const LoginButton = (props) => {
   if (!props.isLoggedIn) {

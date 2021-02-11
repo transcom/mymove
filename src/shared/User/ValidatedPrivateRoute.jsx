@@ -3,14 +3,13 @@ import { bindActionCreators } from 'redux';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { selectIsLoggedIn } from 'store/auth/reducer';
-
 import { get } from 'lodash';
 import SignIn from './SignIn';
 import AccessCode from './AccessCode';
 
 import { fetchAccessCode } from 'shared/Entities/modules/accessCodes';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectIsLoggedIn } from '../../store/auth/selectors';
 
 // this was adapted from https://github.com/ReactTraining/react-router/blob/master/packages/react-router-redux/examples/AuthExample.js
 // note that it does not work if the route is not inside a Switch

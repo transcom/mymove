@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { selectLoggedInUser } from 'store/entities/selectors';
-import { selectIsLoggedIn } from 'store/auth/reducer';
+import { selectIsLoggedIn } from '../../store/auth/selectors';
 
 export const UserGreeting = ({ isLoggedIn, firstName, email }) =>
   isLoggedIn && (

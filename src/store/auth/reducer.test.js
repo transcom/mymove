@@ -1,5 +1,6 @@
-import authReducer, { initialState, selectIsLoggedIn } from './reducer';
+import authReducer, { initialState } from './reducer';
 import { setActiveRole, logOut } from './actions';
+import { selectIsLoggedIn } from './selectors';
 
 import { roleTypes } from 'constants/userRoles';
 

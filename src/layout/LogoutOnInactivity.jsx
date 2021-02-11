@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import IdleTimer from 'react-idle-timer';
 
+import { selectIsLoggedIn } from 'store/auth/selectors';
 import Alert from 'shared/Alert';
-import { selectIsLoggedIn } from 'store/auth/reducer';
 import { LogoutUser } from 'utils/api';
 
 const maxIdleTimeInSeconds = 15 * 60;
