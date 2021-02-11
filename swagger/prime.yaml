@@ -20,6 +20,13 @@ tags:
   - name: mtoShipment
   - name: paymentRequest
   - name: mtoServiceItem
+x-tagGroups:
+  - name: Endpoints
+    tags:
+    - moveTaskOrder
+    - mtoShipment
+    - paymentRequest
+    - mtoServiceItem
 paths:
   /move-task-orders:
     get:
