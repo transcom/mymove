@@ -30,10 +30,6 @@ const (
 
 	// VaultAWSKeychainNameDefault is the aws-vault default keychain name
 	VaultAWSKeychainNameDefault string = "login"
-	// VaultAWSProfileTranscomPPP is the aws-vault profile name for transcom-ppp
-	VaultAWSProfileTranscomPPP string = "transcom-ppp"
-	// VaultAWSProfileTranscomComLegacy is the aws-vault profile name for transcom-com-legacy
-	VaultAWSProfileTranscomComLegacy string = "transcom-com-legacy"
 )
 
 type errInvalidKeychainName struct {
