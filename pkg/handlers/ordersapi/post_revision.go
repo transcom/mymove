@@ -87,7 +87,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 			Revisions:    []models.ElectronicOrdersRevision{},
 		}
 		newRevision = toElectronicOrdersRevision(orders, params.Revision)
-		verrs, err = models.CreateElectronicOrderWithRevision(ctx, h.DB(), orders, newRevision)
+		verrs, err = models.CreateElectronicOrderWithRevision(h.DB(), orders, newRevision)
 	} else if err != nil {
 		return handlers.ResponseForError(logger, err)
 	} else if orders.Edipi != edipi {
@@ -110,7 +110,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		}
 
 		newRevision = toElectronicOrdersRevision(orders, params.Revision)
-		verrs, err = models.CreateElectronicOrdersRevision(ctx, h.DB(), newRevision)
+		verrs, err = models.CreateElectronicOrdersRevision(h.DB(), newRevision)
 	}
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)

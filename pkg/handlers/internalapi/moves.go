@@ -158,8 +158,6 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
@@ -188,7 +186,6 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	err = h.NotificationSender().SendNotification(
-		ctx,
 		notifications.NewMoveSubmitted(h.DB(), logger, session, moveID),
 	)
 	if err != nil {

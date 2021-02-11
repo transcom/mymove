@@ -2,7 +2,6 @@ package notifications
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	html "html/template"
 	text "text/template"
@@ -107,7 +106,7 @@ FROM personally_procured_moves ppm
 
 // NotificationSendingContext expects a `notification` with an `emails` method,
 // so we implement `email` to satisfy that interface
-func (m PaymentReminder) emails(ctx context.Context) ([]emailContent, error) {
+func (m PaymentReminder) emails() ([]emailContent, error) {
 	paymentReminderEmailInfos, err := m.GetEmailInfo()
 	if err != nil {
 		m.logger.Error("error retrieving email info")

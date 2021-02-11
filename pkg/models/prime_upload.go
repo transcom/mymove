@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -57,7 +56,7 @@ func (u *PrimeUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchPrimeUpload returns an PrimeUpload if the contractor has access to that upload
-func FetchPrimeUpload(ctx context.Context, db *pop.Connection, contractorID uuid.UUID, id uuid.UUID) (PrimeUpload, error) {
+func FetchPrimeUpload(db *pop.Connection, contractorID uuid.UUID, id uuid.UUID) (PrimeUpload, error) {
 	var primeUpload PrimeUpload
 	err := db.Q().
 		Join("uploads AS ups", "ups.id = prime_uploads.upload_id").

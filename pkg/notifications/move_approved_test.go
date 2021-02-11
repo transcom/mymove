@@ -1,7 +1,6 @@
 package notifications
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -10,8 +9,6 @@ import (
 )
 
 func (suite *NotificationSuite) TestMoveApproved() {
-	ctx := context.Background()
-
 	approver := testdatagen.MakeStubbedUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
@@ -21,7 +18,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 	}, "milmovelocal", move.ID)
 	subject := fmt.Sprintf("[MilMove] Your Move is approved (move: %s)", move.Locator)
 
-	emails, err := notification.emails(ctx)
+	emails, err := notification.emails()
 	suite.NoError(err)
 	suite.Equal(len(emails), 1)
 
