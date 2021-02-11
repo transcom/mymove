@@ -1,7 +1,7 @@
 import React from 'react';
 import { CardHeader, CardGroup, CardMedia, CardBody } from '@trussworks/react-uswds';
 
-import PPMShipmentImg from '../../../images/ppm-shipment.jpg';
+import PPMShipmentImg from '../../../images/ppm-shipment.png';
 
 import MilmoveCard from './MilmoveCard';
 

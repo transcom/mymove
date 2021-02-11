@@ -145,7 +145,7 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 }
 
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
-func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
 
 	responseVErrors := validate.NewErrors()
 	var responseError error

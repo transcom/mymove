@@ -190,19 +190,19 @@ export const TableElements = () => (
         <div className="tcontrol--pagination">
           <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
             <span className="icon">
-              <FontAwesomeIcon icon="chevron-left" />
+              <FontAwesomeIcon icon="chevron-left" aria-labelledby="prev-label" />
             </span>
-            <span>Prev</span>
+            <span id="prev-label">Prev</span>
           </Button>
-          <select className="usa-select" name="table-pagination">
+          <select className="usa-select" name="table-pagination" aria-label="select page">
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
           </select>
           <Button className="usa-button--unstyled" onClick={action('clicked')}>
-            <span>Next</span>
+            <span id="next-label">Next</span>
             <span className="icon">
-              <FontAwesomeIcon icon="chevron-right" />
+              <FontAwesomeIcon icon="chevron-right" aria-labelledby="next-label" />
             </span>
           </Button>
         </div>
@@ -210,7 +210,7 @@ export const TableElements = () => (
       <div className="sb-table-wrapper">
         <code>rows per page</code>
         <div className="tcontrol--rows-per-page">
-          <select className="usa-select" name="table-rows-per-page">
+          <select className="usa-select" name="table-rows-per-page" aria-label="select rows per page">
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>

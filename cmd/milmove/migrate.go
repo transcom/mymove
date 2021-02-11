@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -192,10 +193,8 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) || s3Migrations {
-		verbose := cli.LogLevelIsDebug(v)
-		c, errorConfig := cli.GetAWSConfig(v, verbose)
-		if errorConfig != nil {
-			return errors.Wrap(errorConfig, "error creating aws config")
+		c := &aws.Config{
+			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
 		}
 		s, errorSession := awssession.NewSession(c)
 		if errorSession != nil {

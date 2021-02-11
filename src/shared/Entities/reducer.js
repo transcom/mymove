@@ -21,7 +21,15 @@ function mergeEntities(entities, newEntities) {
 // deletes all items from entities with matching key, id in deleteEntities
 function deleteEntities(entities, deleteEntities) {
   return mapValues(entities, function (value, key) {
-    // eslint-disable-next-line
+    //RA Summary: eslint - security/detect-object-injection
+    //RA: Using square bracket notation with user input can lead to exploitation
+    //RA: Uses object square bracket notation
+    //RA: Valuable for state management cleanup
+    //RA: The threat actor (web application user) already controls the execution environment (web browser)
+    //RA Developer Status: Mitigated
+    //RA Validator Status: Mitigated
+    //RA Modified Severity: N/A
+    // eslint-disable-next-line security/detect-object-injection
     const idsToDelete = Object.keys(deleteEntities[key] || {});
     return omit(value, idsToDelete);
   });

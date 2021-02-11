@@ -26,20 +26,18 @@ type Upload struct {
 	ContentType *string `json:"contentType"`
 
 	// created at
-	// Required: true
 	// Read Only: true
 	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"createdAt"`
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// filename
 	// Required: true
 	Filename *string `json:"filename"`
 
 	// updated at
-	// Required: true
 	// Read Only: true
 	// Format: date-time
-	UpdatedAt strfmt.DateTime `json:"updatedAt"`
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this upload
@@ -92,8 +90,8 @@ func (m *Upload) validateContentType(formats strfmt.Registry) error {
 
 func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
-		return err
+	if swag.IsZero(m.CreatedAt) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
@@ -114,8 +112,8 @@ func (m *Upload) validateFilename(formats strfmt.Registry) error {
 
 func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
-		return err
+	if swag.IsZero(m.UpdatedAt) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {

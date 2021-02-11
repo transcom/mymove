@@ -39,6 +39,10 @@ type WebhookSubscription struct {
 	// status
 	Status WebhookSubscriptionStatus `json:"status,omitempty"`
 
+	// Unique identifier for the subscriber
+	// Format: uuid
+	SubscriberID strfmt.UUID `json:"subscriberId,omitempty"`
+
 	// updated at
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
@@ -61,6 +65,10 @@ func (m *WebhookSubscription) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubscriberID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -123,6 +131,19 @@ func (m *WebhookSubscription) validateStatus(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookSubscription) validateSubscriberID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SubscriberID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("subscriberId", "body", "uuid", m.SubscriberID.String(), formats); err != nil {
 		return err
 	}
 
