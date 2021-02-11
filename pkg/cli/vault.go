@@ -84,7 +84,7 @@ func CheckVault(v *viper.Viper) error {
 		}
 
 		awsProfile := v.GetString(VaultAWSProfileFlag)
-		if len(awsProfile) > 0 {
+		if len(awsProfile) == 0 {
 			return errors.Wrap(&errMissingAWSProfile{Profile: awsProfile},
 				fmt.Sprintf("%s is missing.", VaultAWSProfileFlag))
 		}
