@@ -28,7 +28,7 @@ const getTotalRequestTime = (navigationEntries = []) => {
 (async () => {
   const waitOptions = { waitUntil: 'networkidle0' };
   // for debugging
-  const launchOptions = { headless: true };
+  const launchOptions = { headless: false };
   const browser = await puppeteer.launch(launchOptions);
   const page = await browser.newPage();
 
@@ -41,11 +41,17 @@ const getTotalRequestTime = (navigationEntries = []) => {
   await page.waitForSelector(loginBtnSelector);
   await Promise.all([page.click(loginBtnSelector), page.waitForNavigation(waitOptions)]);
 
+  // grab first table data for locator
+  const locatorSelector = 'td[data-testid="locator-0"]';
+  await page.waitForSelector(locatorSelector);
+  const element = await page.$(locatorSelector);
+  const locatorValue = await page.evaluate((el) => el.textContent, element);
+
   // hacky javascript timing
   const timeStart = Date.now();
 
   // go to a document viewer, orders
-  await page.goto('http://officelocal:3000/moves/RBMDTK/orders', waitOptions);
+  await page.goto(`http://officelocal:3000/moves/${locatorValue}/orders`, waitOptions);
 
   const pdfTitleSelector = 'div[data-testid="DocViewerContent"]';
   await page.waitForSelector(pdfTitleSelector);
