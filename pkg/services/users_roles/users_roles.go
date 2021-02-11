@@ -103,8 +103,8 @@ func (u usersRolesCreator) removeUserRoles(userID uuid.UUID, rs []roles.RoleType
 		}
 	}
 	for _, roleToDelete := range userRolesToDelete {
-		// #nosec G601 TODO needs review
-		err := utilities.SoftDestroy(u.db, &roleToDelete)
+		copyOfRoleToDelete := roleToDelete // Make copy to avoid implicit memory aliasing of items from a range statement.
+		err := utilities.SoftDestroy(u.db, &copyOfRoleToDelete)
 		if err != nil {
 			return []models.UsersRoles{}, err
 		}
