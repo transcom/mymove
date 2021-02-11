@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 
 import { fetchActive, fetchActiveShipment } from 'shared/utils';
-import { GET_LOGGED_IN_USER } from 'shared/Data/users';
+import { GET_LOGGED_IN_USER_SUCCESS } from 'store/auth/actions';
 
 const initialState = {
   currentShipmentID: null,
@@ -11,7 +11,7 @@ const SET_CURRENT_SHIPMENT_ID = 'SET_CURRENT_SHIPMENT_ID';
 
 export default function uiReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_LOGGED_IN_USER.success:
+    case GET_LOGGED_IN_USER_SUCCESS:
       try {
         const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
         const activeMove = fetchActive(get(activeOrders, 'moves'));
