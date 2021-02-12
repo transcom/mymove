@@ -1,5 +1,6 @@
 import authReducer, { initialState } from './reducer';
 import { setActiveRole, logOut } from './actions';
+import { selectIsLoggedIn } from './selectors';
 
 import { roleTypes } from 'constants/userRoles';
 
@@ -54,6 +55,10 @@ describe('authReducer', () => {
     expect(authReducer(initialState, action)).toEqual({
       ...initialState,
       activeRole: roleTypes.PPM,
+      hasSucceeded: true,
+      hasErrored: false,
+      isLoading: false,
+      isLoggedIn: true,
     });
   });
 
@@ -61,6 +66,10 @@ describe('authReducer', () => {
     const currentState = {
       ...initialState,
       activeRole: roleTypes.TOO,
+      hasSucceeded: true,
+      hasErrored: false,
+      isLoading: false,
+      isLoggedIn: true,
     };
 
     const action = {
@@ -81,5 +90,15 @@ describe('authReducer', () => {
     };
 
     expect(authReducer(currentState, action)).toEqual(currentState);
+  });
+});
+
+describe('selectIsLoggedIn', () => {
+  it('returns boolean as to whether user is logged in or not', () => {
+    const testState = {
+      auth: { isLoggedIn: true },
+    };
+
+    expect(selectIsLoggedIn(testState)).toEqual(testState.auth.isLoggedIn);
   });
 });

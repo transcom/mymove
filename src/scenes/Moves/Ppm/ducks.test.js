@@ -3,7 +3,7 @@ import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUse
 describe('Ppm Reducer', () => {
   const samplePpm = { id: 'UUID', name: 'foo' };
   describe('GET_LOGGED_IN_USER', () => {
-    it('Should handle GET_LOGGED_IN_USER.success', () => {
+    it('Should handle GET_LOGGED_IN_USER_SUCCESS', () => {
       const initialState = {
         pendingValue: '',
         hasSubmitError: false,

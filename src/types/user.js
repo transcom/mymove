@@ -3,9 +3,7 @@ import PropTypes from 'prop-types';
 
 import { AddressShape } from './address';
 
-export const UserRoleShape = PropTypes.shape({
-  roleType: PropTypes.string.isRequired,
-});
+export const UserRoleShape = PropTypes.shape({ roleType: PropTypes.string.isRequired });
 
 export const UserRolesShape = PropTypes.arrayOf(UserRoleShape);
 

@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
-import { setUserIsLoggedIn } from 'shared/Data/users';
+import { logOut as logOutAction } from 'store/auth/actions';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { defaultColumns } from './queueTableColumns';
 
@@ -111,7 +111,7 @@ class QueueTable extends Component {
       });
       // redirect to home page if unauthorized
       if (e.status === 401) {
-        this.props.setUserIsLoggedIn(false);
+        this.props.logOut();
       }
     }
   }
@@ -237,7 +237,7 @@ const mapStateToProps = (state) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ setUserIsLoggedIn }, dispatch);
+  return bindActionCreators({ logOut: logOutAction }, dispatch);
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));

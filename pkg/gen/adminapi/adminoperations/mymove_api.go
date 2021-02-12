@@ -60,6 +60,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeUsersCreateOfficeUserHandler: office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateOfficeUser has not yet been implemented")
 		}),
+		WebhookSubscriptionsCreateWebhookSubscriptionHandler: webhook_subscriptions.CreateWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.CreateWebhookSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook_subscriptions.CreateWebhookSubscription has not yet been implemented")
+		}),
 		AdminUsersGetAdminUserHandler: admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
 		}),
@@ -80,6 +83,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		UsersGetUserHandler: users.GetUserHandlerFunc(func(params users.GetUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.GetUser has not yet been implemented")
+		}),
+		WebhookSubscriptionsGetWebhookSubscriptionHandler: webhook_subscriptions.GetWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.GetWebhookSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook_subscriptions.GetWebhookSubscription has not yet been implemented")
 		}),
 		AccessCodesIndexAccessCodesHandler: access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
 			return middleware.NotImplemented("operation access_codes.IndexAccessCodes has not yet been implemented")
@@ -163,6 +169,8 @@ type MymoveAPI struct {
 	AdminUsersCreateAdminUserHandler admin_users.CreateAdminUserHandler
 	// OfficeUsersCreateOfficeUserHandler sets the operation handler for the create office user operation
 	OfficeUsersCreateOfficeUserHandler office_users.CreateOfficeUserHandler
+	// WebhookSubscriptionsCreateWebhookSubscriptionHandler sets the operation handler for the create webhook subscription operation
+	WebhookSubscriptionsCreateWebhookSubscriptionHandler webhook_subscriptions.CreateWebhookSubscriptionHandler
 	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
 	AdminUsersGetAdminUserHandler admin_users.GetAdminUserHandler
 	// ElectronicOrderGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
@@ -177,6 +185,8 @@ type MymoveAPI struct {
 	UploadGetUploadHandler upload.GetUploadHandler
 	// UsersGetUserHandler sets the operation handler for the get user operation
 	UsersGetUserHandler users.GetUserHandler
+	// WebhookSubscriptionsGetWebhookSubscriptionHandler sets the operation handler for the get webhook subscription operation
+	WebhookSubscriptionsGetWebhookSubscriptionHandler webhook_subscriptions.GetWebhookSubscriptionHandler
 	// AccessCodesIndexAccessCodesHandler sets the operation handler for the index access codes operation
 	AccessCodesIndexAccessCodesHandler access_codes.IndexAccessCodesHandler
 	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
@@ -279,6 +289,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeUsersCreateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.CreateOfficeUserHandler")
 	}
+	if o.WebhookSubscriptionsCreateWebhookSubscriptionHandler == nil {
+		unregistered = append(unregistered, "webhook_subscriptions.CreateWebhookSubscriptionHandler")
+	}
 	if o.AdminUsersGetAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.GetAdminUserHandler")
 	}
@@ -299,6 +312,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UsersGetUserHandler == nil {
 		unregistered = append(unregistered, "users.GetUserHandler")
+	}
+	if o.WebhookSubscriptionsGetWebhookSubscriptionHandler == nil {
+		unregistered = append(unregistered, "webhook_subscriptions.GetWebhookSubscriptionHandler")
 	}
 	if o.AccessCodesIndexAccessCodesHandler == nil {
 		unregistered = append(unregistered, "access_codes.IndexAccessCodesHandler")
@@ -441,6 +457,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/office_users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/webhook_subscriptions"] = webhook_subscriptions.NewCreateWebhookSubscription(o.context, o.WebhookSubscriptionsCreateWebhookSubscriptionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -469,6 +489,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users/{userId}"] = users.NewGetUser(o.context, o.UsersGetUserHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/webhook_subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewGetWebhookSubscription(o.context, o.WebhookSubscriptionsGetWebhookSubscriptionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

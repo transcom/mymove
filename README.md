@@ -389,15 +389,18 @@ There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run front-end testing suites.
 * `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/wiki/run-go-tests)
-* `make e2e_test`: Run e2e testing suite.
-  * Note: this will not necessarily reflect the same results as in the CI environment, run with caution. One of the reasons for this is it's pulling actual cypress latest, which as of this writing is `5.0.0`. Another reason is your `.envrc` is going to populate your dev environment with a bunch of values that `make e2e_test_docker` won't have.
-  * Note also: this runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn test:e2e` when working with individual tests
-* `yarn test:e2e`: Open the cypress test runner against your already running servers and inspect/run individual e2e tests. (Should better reflect CI environment than above, but not as well as below.)
-  * Note: You must already have the servers running for this to work! This may not reflect the same results as CI for the same reason as the above re: `.envrc` values. However, it is __significantly__ faster because you can run individual tests and not have to deal with the clean/rebuild.
-* `yarn test:e2e-clean`: Resets your dev DB to a clean state before opening the Cypress test runner.
+* `make e2e_test`: Run end-to-end testing suite. [Additional info for running E2E tests](https://github.com/transcom/mymove/wiki/run-e2e-tests)
+  * Note: this will not necessarily reflect the same results as in the CI
+  environment, run with caution. One is your `.envrc` is going to
+  populate your dev environment with a bunch of values that `make e2e_test_docker`
+  won't have.
 * `make e2e_test_docker`: Run e2e testing suite in the same docker container as is run in CircleCI.
-  * Note: this also runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn test:e2e` when working with individual tests.
+  * Note: this runs with a full clean/rebuild, so it is not great for fast iteration.
+  Use `make e2e_test` to pick individual tests from the Cypress UI.
 * `make test`: Run e2e, client- and server-side testing suites.
+* `yarn test:e2e`: Useful for debugging. This opens the cypress test runner
+against your already running dev servers and inspect/run individual e2e tests.
+  * Note: You must already have the servers running for this to work!
 
 #### Troubleshooting tips -- integration / e2e tests
 
@@ -431,25 +434,40 @@ A few commands exist for starting and stopping the DB docker container:
 
 #### Dev DB Commands
 
-There are a few handy targets in the Makefile to help you interact with the dev database:
+There are a few handy targets in the Makefile to help you interact with the dev
+database. During your day-to-day, the only one you will typically need regularly
+is `make db_dev_e2e_populate`. The others are for reference, or if something
+goes wrong.
 
-* `make db_dev_run`: Initializes a new database if it does not exist and runs it, or starts the previously initialized Docker container if it has been stopped.
-* `make db_dev_create`: Waits to connect to the DB and will create a DB if one doesn't already exist (run usually as part of `db_dev_run`).
-* `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
-* `make db_dev_migrate`: Applies database migrations against your running database container.
-* `make db_dev_migrate_standalone`: Applies database migrations against your running database container but will not check for server dependencies first.
-* `make db_dev_e2e_populate`: Populate data with data used to run e2e tests
+* `make db_dev_e2e_populate`: Populates the dev DB with data to facilitate
+verification of your work when using the app locally. It seeds the DB with various
+service members at different stages of the onboarding process, various office
+users, moves, payment requests, etc. The data is defined in the `devseed.go` file.
+* `make db_dev_run`: Initializes a new database if it does not exist and runs it,
+or starts the previously initialized Docker container if it has been stopped.
+You typically only need this after a computer restart, or if you manually quit
+Docker or otherwise stopped the DB.
+* `make db_dev_create`: Waits to connect to the DB and will create a DB if one
+doesn't already exist (this is automatically run as part of `db_dev_run`).
+* `make db_dev_fresh`: Destroys your database container, runs the DB, and
+applies the migrations. Useful if you want to start from scratch when the DB is
+not working properly. This runs `db_dev_reset` and `db_dev_migrate`.
+* `make db_dev_migrate_standalone`: Applies database migrations against your
+running database container but will not check for server dependencies first.
+
 
 #### Test DB Commands
 
-The Dev Commands are used to talk to the dev DB.  If you were working with the test DB you would use these commands:
+These commands are available for the Test DB. You will rarely need to use these
+individually since the commands to run tests already set up the test DB properly.
+One exception is `make db_test_run`, which you'll need to run after restarting
+your computer.
 
 * `make db_test_run`
 * `make db_test_create`
 * `make db_test_reset`
 * `make db_test_migrate`
 * `make db_test_migrate_standalone`
-* `make db_test_e2e_populate`
 * `make db_test_e2e_backup`
 * `make db_test_e2e_restore`
 * `make db_test_e2e_cleanup`

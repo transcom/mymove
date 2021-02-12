@@ -48,9 +48,10 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	}
 
 	paymentRequests := models.PaymentRequests{}
-	query := f.db.Q().Eager(
-		"MoveTaskOrder.Orders.OriginDutyStation",
-		"MoveTaskOrder.Orders.ServiceMember",
+	query := f.db.Q().EagerPreload(
+		"MoveTaskOrder.Orders.OriginDutyStation.TransportationOffice",
+		// See note further below about having to do this in a separate Load call due to a Pop issue.
+		// "MoveTaskOrder.Orders.ServiceMember",
 	).
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
@@ -103,11 +104,19 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	}
 
 	for i := range paymentRequests {
-		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-		// cannot eager load the address as "OriginDutyStation.Address" because
-		// OriginDutyStation is a pointer.
-		if originDutyStation := paymentRequests[i].MoveTaskOrder.Orders.OriginDutyStation; originDutyStation != nil {
-			f.db.Load(originDutyStation, "TransportationOffice")
+		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
+		// where the first 2 levels match.  For example:
+		//   "MoveTaskOrder.Orders.OriginDutyStation.TransportationOffice" and "MoveTaskOrder.Orders.ServiceMember"
+		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
+		// in the EagerPreload above and request the second one explicitly with a separate Load call.
+		//
+		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
+		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+		//   cannot eager load the address as "OriginDutyStation.Address" because
+		//   OriginDutyStation is a pointer.
+		loadErr := f.db.Load(&paymentRequests[i].MoveTaskOrder.Orders, "ServiceMember")
+		if loadErr != nil {
+			return nil, 0, err
 		}
 	}
 

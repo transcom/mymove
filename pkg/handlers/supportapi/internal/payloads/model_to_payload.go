@@ -7,6 +7,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -23,20 +25,6 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrd
 		payload[i] = MoveTaskOrder(&m)
 	}
 	return payload
-}
-
-// MoveTaskOrderIDs payload
-func MoveTaskOrderIDs(moveTaskOrderIDs []uuid.UUID) supportmessages.MoveTaskOrderIDs {
-	payload := make(supportmessages.MoveTaskOrderIDs, len(moveTaskOrderIDs))
-	for i, m := range moveTaskOrderIDs {
-		payload[i] = MoveTaskOrderID(m)
-	}
-	return payload
-}
-
-// MoveTaskOrderID payload
-func MoveTaskOrderID(moveTaskOrderID uuid.UUID) supportmessages.MoveTaskOrderID {
-	return supportmessages.MoveTaskOrderID(strfmt.UUID(moveTaskOrderID.String()))
 }
 
 // MoveTaskOrder payload
@@ -114,30 +102,28 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 	issueDate := strfmt.Date(moveOrder.IssueDate)
 
 	payload := supportmessages.MoveOrder{
-		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            Entitlement(moveOrder.Entitlement),
-		Customer:               Customer(&moveOrder.ServiceMember),
-		OrderNumber:            moveOrder.OrdersNumber,
-		OrdersType:             supportmessages.OrdersType(moveOrder.OrdersType),
-		ID:                     strfmt.UUID(moveOrder.ID.String()),
-		OriginDutyStation:      originDutyStation,
-		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
-		Status:                 supportmessages.OrdersStatus(moveOrder.Status),
-		UploadedOrders:         uploadedOrders,
-		UploadedOrdersID:       uploadedOrders.ID,
-		ReportByDate:           &reportByDate,
-		IssueDate:              &issueDate,
-		Tac:                    moveOrder.TAC,
+		DestinationDutyStation:   destinationDutyStation,
+		DestinationDutyStationID: handlers.FmtUUID(moveOrder.NewDutyStationID),
+		Entitlement:              Entitlement(moveOrder.Entitlement),
+		Customer:                 Customer(&moveOrder.ServiceMember),
+		OrderNumber:              moveOrder.OrdersNumber,
+		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
+		ID:                       strfmt.UUID(moveOrder.ID.String()),
+		OriginDutyStation:        originDutyStation,
+		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
+		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
+		UploadedOrders:           uploadedOrders,
+		UploadedOrdersID:         handlers.FmtUUID(moveOrder.UploadedOrdersID),
+		ReportByDate:             &reportByDate,
+		IssueDate:                &issueDate,
+		Tac:                      moveOrder.TAC,
 	}
 
 	if moveOrder.Grade != nil {
 		payload.Rank = (supportmessages.Rank)(*moveOrder.Grade)
 	}
-	if destinationDutyStation != nil {
-		payload.DestinationDutyStationID = &(destinationDutyStation.ID)
-	}
-	if originDutyStation != nil {
-		payload.OriginDutyStationID = &(originDutyStation.ID)
+	if moveOrder.OriginDutyStationID != nil {
+		payload.OriginDutyStationID = handlers.FmtUUID(*moveOrder.OriginDutyStationID)
 	}
 	return &payload
 }
@@ -392,6 +378,33 @@ func MTOAgents(mtoAgents *models.MTOAgents) *supportmessages.MTOAgents {
 		payload[i] = MTOAgent(&m)
 	}
 	return &payload
+}
+
+// MTOHideMovesResponse payload
+func MTOHideMovesResponse(hiddenMoves services.HiddenMoves) *supportmessages.MTOHideMovesResponse {
+	var mtoHideMoves []*supportmessages.MTOHideMove
+
+	for _, h := range hiddenMoves {
+		mtoHideMove := MTOHideMove(h)
+		mtoHideMoves = append(mtoHideMoves, mtoHideMove)
+	}
+
+	payload := &supportmessages.MTOHideMovesResponse{
+		Moves:             mtoHideMoves,
+		NumberMovesHidden: int64(len(hiddenMoves)),
+	}
+
+	return payload
+}
+
+// MTOHideMove translate from service HiddenMove type to API swagger MTOHideMove type
+func MTOHideMove(hiddenMove services.HiddenMove) *supportmessages.MTOHideMove {
+	payload := &supportmessages.MTOHideMove{
+		HideReason:      &hiddenMove.Reason,
+		MoveTaskOrderID: strfmt.UUID(hiddenMove.MTOID.String()),
+	}
+
+	return payload
 }
 
 // PaymentRequest payload
