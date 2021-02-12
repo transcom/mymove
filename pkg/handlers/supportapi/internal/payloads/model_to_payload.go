@@ -102,30 +102,28 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 	issueDate := strfmt.Date(moveOrder.IssueDate)
 
 	payload := supportmessages.MoveOrder{
-		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            Entitlement(moveOrder.Entitlement),
-		Customer:               Customer(&moveOrder.ServiceMember),
-		OrderNumber:            moveOrder.OrdersNumber,
-		OrdersType:             supportmessages.OrdersType(moveOrder.OrdersType),
-		ID:                     strfmt.UUID(moveOrder.ID.String()),
-		OriginDutyStation:      originDutyStation,
-		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
-		Status:                 supportmessages.OrdersStatus(moveOrder.Status),
-		UploadedOrders:         uploadedOrders,
-		UploadedOrdersID:       uploadedOrders.ID,
-		ReportByDate:           &reportByDate,
-		IssueDate:              &issueDate,
-		Tac:                    moveOrder.TAC,
+		DestinationDutyStation:   destinationDutyStation,
+		DestinationDutyStationID: handlers.FmtUUID(moveOrder.NewDutyStationID),
+		Entitlement:              Entitlement(moveOrder.Entitlement),
+		Customer:                 Customer(&moveOrder.ServiceMember),
+		OrderNumber:              moveOrder.OrdersNumber,
+		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
+		ID:                       strfmt.UUID(moveOrder.ID.String()),
+		OriginDutyStation:        originDutyStation,
+		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
+		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
+		UploadedOrders:           uploadedOrders,
+		UploadedOrdersID:         handlers.FmtUUID(moveOrder.UploadedOrdersID),
+		ReportByDate:             &reportByDate,
+		IssueDate:                &issueDate,
+		Tac:                      moveOrder.TAC,
 	}
 
 	if moveOrder.Grade != nil {
 		payload.Rank = (supportmessages.Rank)(*moveOrder.Grade)
 	}
-	if destinationDutyStation != nil {
-		payload.DestinationDutyStationID = &(destinationDutyStation.ID)
-	}
-	if originDutyStation != nil {
-		payload.OriginDutyStationID = &(originDutyStation.ID)
+	if moveOrder.OriginDutyStationID != nil {
+		payload.OriginDutyStationID = handlers.FmtUUID(*moveOrder.OriginDutyStationID)
 	}
 	return &payload
 }

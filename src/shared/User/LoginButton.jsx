@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { bool } from 'prop-types';
 
-import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
@@ -11,6 +10,7 @@ import { Button } from '@trussworks/react-uswds';
 import EulaModal from 'components/EulaModal';
 
 import styles from './LoginButton.module.scss';
+import { selectIsLoggedIn } from '../../store/auth/selectors';
 
 const LoginButton = (props) => {
   const [showEula, setShowEula] = useState(false);
@@ -81,9 +81,8 @@ LoginButton.defaultProps = {
 };
 
 function mapStateToProps(state) {
-  const user = selectCurrentUser(state);
   return {
-    isLoggedIn: user.isLoggedIn,
+    isLoggedIn: selectIsLoggedIn(state),
     showDevlocalButton: get(state, 'isDevelopment', isDevelopment),
   };
 }
