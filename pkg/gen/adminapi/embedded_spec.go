@@ -1290,6 +1290,44 @@ func init() {
             "description": "Server error"
           }
         }
+      },
+      "post": {
+        "description": "creates and returns a webhook subscription",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "create a webhook subscription",
+        "operationId": "createWebhookSubscription",
+        "parameters": [
+          {
+            "description": "Webhook subscription information",
+            "name": "webhookSubscription",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateWebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create a webhook subscription"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/webhook_subscriptions/{webhookSubscriptionId}": {
@@ -1327,6 +1365,57 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Update a webhook subscription",
+        "operationId": "updateWebhookSubscription",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "webhookSubscriptionId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Webhook subscription information",
+            "name": "WebhookSubscription",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update this webhook subscription"
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "Server error"
           }
         }
       }
@@ -1637,6 +1726,33 @@ func init() {
         },
         "title": {
           "type": "string"
+        }
+      }
+    },
+    "CreateWebhookSubscription": {
+      "type": "object",
+      "required": [
+        "subscriberId",
+        "status",
+        "eventKey",
+        "callbackUrl"
+      ],
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -3766,6 +3882,44 @@ func init() {
             "description": "Server error"
           }
         }
+      },
+      "post": {
+        "description": "creates and returns a webhook subscription",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "create a webhook subscription",
+        "operationId": "createWebhookSubscription",
+        "parameters": [
+          {
+            "description": "Webhook subscription information",
+            "name": "webhookSubscription",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateWebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create a webhook subscription"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/webhook_subscriptions/{webhookSubscriptionId}": {
@@ -3803,6 +3957,57 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Update a webhook subscription",
+        "operationId": "updateWebhookSubscription",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "webhookSubscriptionId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Webhook subscription information",
+            "name": "WebhookSubscription",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update this webhook subscription"
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "Server error"
           }
         }
       }
@@ -4113,6 +4318,33 @@ func init() {
         },
         "title": {
           "type": "string"
+        }
+      }
+    },
+    "CreateWebhookSubscription": {
+      "type": "object",
+      "required": [
+        "subscriberId",
+        "status",
+        "eventKey",
+        "callbackUrl"
+      ],
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },

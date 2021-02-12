@@ -55,6 +55,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office_users.CreateOfficeUser has not yet been implemented")
 		})
 	}
+	if api.WebhookSubscriptionsCreateWebhookSubscriptionHandler == nil {
+		api.WebhookSubscriptionsCreateWebhookSubscriptionHandler = webhook_subscriptions.CreateWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.CreateWebhookSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook_subscriptions.CreateWebhookSubscription has not yet been implemented")
+		})
+	}
 	if api.AdminUsersGetAdminUserHandler == nil {
 		api.AdminUsersGetAdminUserHandler = admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
@@ -168,6 +173,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.UsersUpdateUserHandler == nil {
 		api.UsersUpdateUserHandler = users.UpdateUserHandlerFunc(func(params users.UpdateUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.UpdateUser has not yet been implemented")
+		})
+	}
+	if api.WebhookSubscriptionsUpdateWebhookSubscriptionHandler == nil {
+		api.WebhookSubscriptionsUpdateWebhookSubscriptionHandler = webhook_subscriptions.UpdateWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.UpdateWebhookSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook_subscriptions.UpdateWebhookSubscription has not yet been implemented")
 		})
 	}
 
