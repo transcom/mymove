@@ -1,7 +1,7 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 
-import { EulaModal } from './index';
+import EulaModal from './index';
 
 export default {
   title: 'Components/Eula Modal',
