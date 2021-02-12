@@ -1183,6 +1183,20 @@ jobs:
           repo: app-webhook-client
       - announce_failure
 
+  # `push_webhook_client_stg` pushes the webhook client container to the stg container repository
+  push_webhook_client_stg:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_stg
+      - push_image:
+          ecr_env: stg
+          image_name: webhook_client
+          tag: dev
+          repo: app-webhook-client
+      - announce_failure
+
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
     executor: mymove_small
@@ -1226,6 +1240,7 @@ jobs:
           health_check_hosts: gex.exp.move.mil,orders.exp.move.mil
           ecr_env: exp
 
+  # `deploy_exp_webhook_client` deploys the webhook client to exp
   deploy_exp_webhook_client:
     executor: mymove_small
     environment:
@@ -1285,6 +1300,16 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
+          ecr_env: stg
+
+  # `deploy_stg_webhook_client` deploys the webhook client to stg
+  deploy_stg_webhook_client:
+    executor: mymove_small
+    environment:
+      APP_ENVIRONMENT: 'stg'
+    steps:
+      - aws_vars_stg
+      - deploy_webhook_client_steps:
           ecr_env: stg
 
   deploy_storybook_dp3:
@@ -1540,6 +1565,13 @@ workflows:
             branches:
               only: master
 
+      - push_webhook_client_stg:
+          requires:
+            - build_webhook_client
+          filters:
+            branches:
+              only: master
+
       - check_circle_against_stg_sha:
           requires:
             - pre_deps_golang
@@ -1550,6 +1582,7 @@ workflows:
             - build_tools
             - push_migrations_stg
             - push_tasks_stg
+            - push_webhook_client_stg
             - integration_tests
             - integration_tests_mtls
           filters:
@@ -1578,6 +1611,13 @@ workflows:
               only: master
 
       - deploy_stg_app_client_tls:
+          requires:
+            - deploy_stg_migrations
+          filters:
+            branches:
+              only: master
+
+      - deploy_stg_webhook_client:
           requires:
             - deploy_stg_migrations
           filters:
