@@ -38,7 +38,8 @@ export const configureStore = (history, initialState = {}) => {
   const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth'],
+    blacklist: ['auth'],
+    whitelist: [],
   };
 
   const rootReducer = appSelector();

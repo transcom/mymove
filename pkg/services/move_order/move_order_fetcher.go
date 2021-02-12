@@ -57,10 +57,12 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
 	options := []QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
 
-	query := f.db.Q().Eager(
+	query := f.db.Q().EagerPreload(
 		"Orders.ServiceMember",
 		"Orders.NewDutyStation.Address",
-		"Orders.OriginDutyStation",
+		"Orders.OriginDutyStation.Address",
+		// See note further below about having to do this in a separate Load call due to a Pop issue.
+		// "Orders.OriginDutyStation.TransportationOffice",
 		"Orders.Entitlement",
 		"MTOShipments",
 		"MTOServiceItems",
@@ -79,14 +81,6 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		}
 	}
 
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return []models.Move{}, 0, services.NotFoundError{}
-		default:
-			return []models.Move{}, 0, err
-		}
-	}
 	// Pass zeros into paginate in this case. Which will give us 1 page and 20 per page respectively
 	if params.Page == nil {
 		params.Page = swag.Int64(0)
@@ -114,11 +108,21 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	count := query.Paginator.TotalEntriesSize
 
 	for i := range moves {
-		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-		// cannot eager load the address as "OriginDutyStation.Address" because
-		// OriginDutyStation is a pointer.
+		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
+		// where the first 2 levels match.  For example:
+		//   "Orders.OriginDutyStation.Address" and "Orders.OriginDutyStation.TransportationOffice"
+		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
+		// in the EagerPreload above and request the second one explicitly with a separate Load call.
+		//
+		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
+		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+		//   cannot eager load the address as "OriginDutyStation.Address" because
+		//   OriginDutyStation is a pointer.
 		if moves[i].Orders.OriginDutyStation != nil {
-			f.db.Load(moves[i].Orders.OriginDutyStation, "Address", "TransportationOffice")
+			loadErr := f.db.Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
+			if loadErr != nil {
+				return []models.Move{}, 0, err
+			}
 		}
 	}
 

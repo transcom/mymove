@@ -1,19 +1,18 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
 import { normalize } from 'normalizr';
 
-import { LOAD_USER } from 'store/auth/actions';
+import { LOAD_USER, getLoggedInUserStart, getLoggedInUserSuccess, getLoggedInUserFailure } from 'store/auth/actions';
 import { setFlashMessage } from 'store/flash/actions';
 import { GetIsLoggedIn, GetLoggedInUser } from 'utils/api';
 import { loggedInUser } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
-import { getLoggedInActions } from 'shared/Data/users';
 
 /**
  * This saga mirrors the getCurrentUserInfo thunk (shared/Data/users.js)
  * and is triggered by the 'LOAD_USER' action
  */
 export function* fetchUser() {
-  yield put(getLoggedInActions.start());
+  yield put(getLoggedInUserStart());
 
   try {
     const isLoggedIn = yield call(GetIsLoggedIn);
@@ -24,8 +23,7 @@ export function* fetchUser() {
         const userEntities = normalize(user, loggedInUser);
 
         yield put(addEntities(userEntities.entities)); // populate entities
-        // TODO - delete when deprecating the user reducer
-        yield put(getLoggedInActions.success(user)); // populate user (legacy)
+        yield put(getLoggedInUserSuccess(user));
       } catch (e) {
         yield put(
           setFlashMessage(
@@ -35,11 +33,11 @@ export function* fetchUser() {
             'An error occurred',
           ),
         );
-        yield put(getLoggedInActions.error(e));
+        yield put(getLoggedInUserFailure(e));
       }
     } else {
       // No flash message here - in this case the user should be shown the Log In screen
-      yield put(getLoggedInActions.error('User is not logged in'));
+      yield put(getLoggedInUserFailure('User is not logged in'));
     }
   } catch (e) {
     yield put(
@@ -50,7 +48,7 @@ export function* fetchUser() {
         'An error occurred',
       ),
     );
-    yield put(getLoggedInActions.error(e));
+    yield put(getLoggedInUserFailure(e));
   }
 }
 
