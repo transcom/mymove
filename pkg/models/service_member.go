@@ -98,15 +98,13 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"BackupMailingAddress",
 		"BackupContacts",
 		"DutyStation.Address",
-		"DutyStation.TransportationOffice",
 		"DutyStation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyStation.TransportationOffice",
-		"Orders.Moves",
 		"Orders.UploadedOrders.UserUploads.Upload",
-		"ResidentialAddress",
-		"Orders.Moves").
+		"Orders.Moves",
+		"ResidentialAddress").
 		Join("orders", "orders.service_member_id = service_members.id").
-		Join("moves", "moves.orders_id = orders.id"). // We only want to return a move if it is visible to the user
+		Join("moves", "moves.orders_id = orders.id").
 		Where("show = TRUE").Find(&serviceMember, id)
 
 	if err != nil {
