@@ -2,7 +2,6 @@ package notifications
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	html "html/template"
 	"net/url"
@@ -53,7 +52,7 @@ func NewMoveApproved(db *pop.Connection,
 	}
 }
 
-func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
+func (m MoveApproved) emails() ([]emailContent, error) {
 	var emails []emailContent
 
 	move, err := models.FetchMove(m.db, m.session, m.moveID)
@@ -66,7 +65,7 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 		return emails, err
 	}
 
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, m.db, m.session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(m.db, m.session, orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
 	}

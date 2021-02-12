@@ -85,10 +85,7 @@ type CreateWeightTicketSetDocumentHandler struct {
 
 // Handle is the handler for CreateWeightTicketSetDocumentHandler
 func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeightTicketDocumentParams) middleware.Responder {
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
-	ctx := params.HTTPRequest.Context()
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -104,7 +101,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 	userUploads := models.UserUploads{}
 	for _, id := range uploadIds {
 		convertedUploadID := uuid.Must(uuid.FromString(id.String()))
-		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(ctx, h.DB(), session, convertedUploadID)
+		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(h.DB(), session, convertedUploadID)
 		if fetchUploadErr != nil {
 			return handlers.ResponseForError(logger, fetchUploadErr)
 		}
