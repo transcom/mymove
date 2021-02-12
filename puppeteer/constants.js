@@ -33,7 +33,7 @@ const schema = {
       latency: { type: 'number' },
     },
   },
-  cpuSlowdownRate: { type: 'number' },
+  cpuSlowdownRate: { type: 'number', default: 1 },
 };
 
 // Chrome devtools expects throughput in bytes https://github.com/GoogleChrome/lighthouse/blob/master/lighthouse-core/lib/emulation.js#L70

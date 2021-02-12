@@ -61,6 +61,16 @@ const setupNetwork = (config, page) => {
   return Promise.resolve();
 };
 
+const setupCPU = async (config, page) => {
+  const { cpuSlowdownRate } = config;
+
+  if (cpuSlowdownRate > 1) {
+    const client = await page.target().createCDPSession();
+    return client.send('Emulation.setCPUThrottlingRate', { rate: cpuSlowdownRate });
+  }
+  return Promise.resolve();
+};
+
 const totalDuration = async (host, config, debug) => {
   const waitOptions = { timeout: 0, waitUntil: 'networkidle0' };
 
@@ -73,11 +83,18 @@ const totalDuration = async (host, config, debug) => {
 
   await setupEmulation(config, page, userAgent);
 
-  await page.goto(`${host}/devlocal-auth/login`, waitOptions);
+  await page.goto(`${host}/devlocal-auth/login`, waitOptions).catch(() => {
+    console.error(`Unable to reach host ${host}. Make sure your server and client are already running`);
+    return Promise.reject();
+  });
 
   // Login by clicking button for existing user
   const loginBtnSelector = 'button[value="9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"]';
-  await page.waitForSelector(loginBtnSelector);
+  await page.waitForSelector(loginBtnSelector).catch(() => {
+    console.error(`Unable to reach host ${host}. Make sure your server and client are already running.`);
+    return Promise.reject();
+  });
+
   await Promise.all([page.click(loginBtnSelector), page.waitForNavigation(waitOptions)]);
 
   // grab first table data for locator
@@ -87,6 +104,7 @@ const totalDuration = async (host, config, debug) => {
   const locatorValue = await page.evaluate((el) => el.textContent, element);
 
   await setupNetwork(config, page);
+  await setupCPU(config, page);
 
   // go to a document viewer, orders
   await page.goto(`${host}/moves/${locatorValue}/orders`, waitOptions);

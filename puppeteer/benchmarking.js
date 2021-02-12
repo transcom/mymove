@@ -20,7 +20,9 @@ const runAction = async ({ scenario, measurementType, host, verbose }) => {
   console.log(`Running scenario ${scenario} with measurement ${measurementType}`);
 
   if (measurementType === 'total-duration') {
-    const elapsedTime = await totalDuration(host, config.store, debug);
+    const elapsedTime = await totalDuration(host, config.store, debug).catch(() => {
+      process.exit(1);
+    });
 
     console.log(`${elapsedTime} secs from performance entries`);
   } else if (measurementType === 'network-comparison') {
@@ -34,7 +36,9 @@ const runAction = async ({ scenario, measurementType, host, verbose }) => {
 
       // Running these tests in parallel would likely skew the results
       // eslint-disable-next-line no-await-in-loop
-      const elapsedTime = await totalDuration(host, configStore, debug);
+      const elapsedTime = await totalDuration(host, configStore, debug).catch(() => {
+        process.exit(1);
+      });
       results[`${speed}`] = { 'duration (seconds)': elapsedTime };
     }
 
