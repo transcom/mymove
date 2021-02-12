@@ -1,0 +1,13 @@
+{
+  "launch": {
+    "headless": true
+  },
+  "device": "",
+  "emulate": {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    }
+  },
+  "network": "fast"
+}
