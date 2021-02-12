@@ -82,7 +82,6 @@ LoginButton.defaultProps = {
 
 function mapStateToProps(state) {
   const user = selectCurrentUser(state);
-  console.log('user: ' + JSON.stringify(user));
   return {
     isLoggedIn: user.isLoggedIn,
     showDevlocalButton: get(state, 'isDevelopment', isDevelopment),
