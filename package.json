@@ -39,7 +39,7 @@
     "react-app-polyfill": "^2.0.0",
     "react-day-picker": "=7.4.8",
     "react-dom": "^17.0.1",
-    "react-filepond": "^7.1.0",
+    "react-filepond": "^7.1.1",
     "react-highlight-words": "^0.17.0",
     "react-idle-timer": "^4.5.4",
     "react-imask": "^6.0.7",
