@@ -9,3 +9,8 @@ import (
 type WebhookSubscriptionFetcher interface {
 	FetchWebhookSubscription(filters []QueryFilter) (models.WebhookSubscription, error)
 }
+
+//WebhookSubscriptionUpdater is the service object interface for UpdateWebhookSubscription
+type WebhookSubscriptionUpdater interface {
+	UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription, eTag string) (*models.WebhookSubscription, error)
+}
