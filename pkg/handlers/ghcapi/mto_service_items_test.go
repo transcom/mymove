@@ -289,7 +289,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
 		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
-		suite.Equal(ghcmessages.MTOServiceItemstatusStatusREJECTED, string(okResponse.Payload.Status))
+		suite.Equal(string(models.MTOServiceItemStatusRejected), string(okResponse.Payload.Status))
 		suite.NotNil(okResponse.Payload.RejectedAt)
 		suite.Equal(rejectionReason, *okResponse.Payload.RejectionReason)
 	})
@@ -330,7 +330,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
 		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
-		suite.Equal(ghcmessages.MTOServiceItemstatusStatusAPPROVED, string(okResponse.Payload.Status))
+		suite.Equal(string(models.MTOServiceItemStatusApproved), string(okResponse.Payload.Status))
 		suite.NotNil(okResponse.Payload.ApprovedAt)
 		suite.HasWebhookNotification(mtoServiceItemID, traceID)
 
