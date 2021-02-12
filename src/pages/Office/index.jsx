@@ -25,6 +25,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { QueueHeader } from 'shared/Header/Office';
 import MilmoveHeader from 'components/MilMoveHeader';
 import FOUOHeader from 'components/FOUOHeader';
+import BypassBlock from 'components/BypassBlock';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -151,6 +152,7 @@ export class OfficeApp extends Component {
 
     return (
       <div className={siteClasses}>
+        <BypassBlock />
         <FOUOHeader />
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
         {!hideHeaderPPM && (
@@ -175,7 +177,7 @@ export class OfficeApp extends Component {
             )}
           </>
         )}
-        <main role="main" className="site__content site-office__content">
+        <main id="main" role="main" className="site__content site-office__content">
           <ConnectedLogoutOnInactivity />
 
           {hasError && <SomethingWentWrong error={error} info={info} />}
