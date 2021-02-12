@@ -713,7 +713,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-							Value:       "3254",
+							Value:       "1000",
 						},
 						{
 							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
@@ -738,7 +738,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.FatalNoError(err)
 		paymentRequest2 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
-			IsFinal:         true,
+			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
 					MTOServiceItemID: mtoServiceItem1.ID,
@@ -777,6 +777,83 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.MustSave(&paymentRequest1)
 	})
 
+	suite.T().Run("payment request can be created after a final request that was rejected", func(t *testing.T) {
+		paymentRequest1 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         true,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "3254",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+							Value:       "2019-12-16",
+						},
+					},
+				},
+				{
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "7722",
+						},
+					},
+				},
+			},
+		}
+
+		_, err := creator.CreatePaymentRequest(&paymentRequest1)
+		suite.FatalNoError(err)
+
+		paymentRequest1.Status = models.PaymentRequestStatusReviewedAllRejected
+		suite.MustSave(&paymentRequest1)
+
+		paymentRequest2 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         true,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "3254",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+							Value:       "2019-12-16",
+						},
+					},
+				},
+				{
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "7722",
+						},
+					},
+				},
+			},
+		}
+
+		_, err = creator.CreatePaymentRequest(&paymentRequest2)
+		suite.NoError(err)
+
+		paymentRequest1.IsFinal = false
+		suite.MustSave(&paymentRequest1)
+		paymentRequest2.IsFinal = false
+		suite.MustSave(&paymentRequest2)
+	})
 	suite.T().Run("Payment request number fails due to nil MTO ReferenceID", func(t *testing.T) {
 
 		saveReferenceID := *moveTaskOrder.ReferenceID
