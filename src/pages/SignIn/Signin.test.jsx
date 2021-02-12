@@ -2,6 +2,7 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 
 import SignIn from './SignIn';
+
 import Alert from 'shared/Alert';
 
 describe('SignIn tests', () => {

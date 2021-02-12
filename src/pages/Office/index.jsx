@@ -33,7 +33,7 @@ import { LocationShape, UserRolesShape, OfficeUserInfoShape } from 'types/index'
 import { LogoutUser } from 'utils/api';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
-const SignIn = lazy(() => import('shared/User/SignIn'));
+const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 // PPM pages (TODO move into src/pages)
 const MoveInfo = lazy(() => import('scenes/Office/MoveInfo'));
 const Queues = lazy(() => import('scenes/Office/Queues'));

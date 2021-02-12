@@ -16,7 +16,7 @@ import {
 
 import { withContext } from 'shared/AppContext';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
-import SignIn from 'shared/User/SignIn';
+import SignIn from 'pages/SignIn/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';

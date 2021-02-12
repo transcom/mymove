@@ -4,7 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-export const EulaModal = ({ closeModal, acceptTerms }) => (
+const EulaModal = ({ closeModal, acceptTerms }) => (
   <Modal>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>

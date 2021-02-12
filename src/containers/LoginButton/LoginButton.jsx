@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import { bool } from 'prop-types';
+import { bool, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+
+import { selectIsLoggedIn } from '../../store/auth/selectors';
+
+import styles from './LoginButton.module.scss';
 
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'utils/api';
-import { logOut } from 'store/auth/actions';
+import { logOut as logOutFunction } from 'store/auth/actions';
 import EulaModal from 'components/EulaModal';
 
-import styles from './LoginButton.module.scss';
-import { selectIsLoggedIn } from '../../store/auth/selectors';
-
-const LoginButton = (props) => {
+const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, useEula }) => {
   const [showEula, setShowEula] = useState(false);
 
-  if (!props.isLoggedIn) {
+  if (!isLoggedIn) {
     return (
       <>
         <EulaModal
@@ -25,7 +26,7 @@ const LoginButton = (props) => {
           }}
           closeModal={() => setShowEula(false)}
         />
-        {props.showDevlocalButton && (
+        {showDevlocalButton && (
           <li className="usa-nav__primary-item">
             <a
               className="usa-nav__link"
@@ -38,7 +39,7 @@ const LoginButton = (props) => {
           </li>
         )}
         <li className="usa-nav__primary-item">
-          {props.useEula ? (
+          {useEula ? (
             <Button
               aria-label="Sign In"
               className={styles.signIn}
@@ -56,23 +57,26 @@ const LoginButton = (props) => {
         </li>
       </>
     );
-  } else {
-    const handleLogOut = () => {
-      props.logOut();
-      LogoutUser();
-    };
-
-    return (
-      <li className="usa-nav__primary-item">
-        <a className="usa-nav__link" href="#" onClick={handleLogOut}>
-          Sign Out
-        </a>
-      </li>
-    );
   }
+  const handleLogOut = () => {
+    logOut();
+    LogoutUser();
+  };
+
+  return (
+    <li className="usa-nav__primary-item">
+      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+      <a className="usa-nav__link" href="#" onClick={handleLogOut}>
+        Sign Out
+      </a>
+    </li>
+  );
 };
 
 LoginButton.propTypes = {
+  isLoggedIn: bool.isRequired,
+  logOut: func.isRequired,
+  showDevlocalButton: bool.isRequired,
   useEula: bool,
 };
 
@@ -88,7 +92,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  logOut,
+  logOut: logOutFunction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginButton);
