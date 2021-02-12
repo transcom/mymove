@@ -1361,6 +1361,57 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Update a webhook subscription",
+        "operationId": "updateWebhookSubscription",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "webhookSubscriptionId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Webhook subscription information",
+            "name": "WebhookSubscription",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update this webhook subscription"
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     }
   },
@@ -3905,6 +3956,57 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Update a webhook subscription",
+        "operationId": "updateWebhookSubscription",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "webhookSubscriptionId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Webhook subscription information",
+            "name": "WebhookSubscription",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update this webhook subscription"
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "Server error"
           }
         }
       }
