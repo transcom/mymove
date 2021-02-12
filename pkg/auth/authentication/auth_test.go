@@ -707,7 +707,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Look up the user and service member in the test DB
 	foundUser, _ := models.GetUserFromEmail(suite.DB(), user.Email)
 	serviceMemberID := session.ServiceMemberID
-	serviceMember, _ := models.FetchServiceMemberForUser(ctx, suite.DB(), &session, serviceMemberID)
+	serviceMember, _ := models.FetchServiceMemberForUser(suite.DB(), &session, serviceMemberID)
 	// Look up the session token in the session store (this test uses the memory store)
 	sessionStore := milSession.Store
 	_, existsBefore, _ := sessionStore.Find(foundUser.CurrentMilSessionID)
