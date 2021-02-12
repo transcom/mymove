@@ -29,9 +29,9 @@ const getTotalRequestTime = (navigationEntries = []) => {
 };
 
 const setupEmulation = (config, page, userAgent) => {
-  const device = config.get('device');
+  const { device } = config;
 
-  const emulator = device ? puppeteer.devices[`${device}`] : config.get('emulate');
+  const emulator = device ? puppeteer.devices[`${device}`] : config.emulate;
 
   if (device && !emulator) {
     console.log(`Skipping page emulation device '${device}' is not defined`);
@@ -52,7 +52,7 @@ const setupEmulation = (config, page, userAgent) => {
 };
 
 const setupNetwork = (config, page) => {
-  const networkType = networkProfiles[config.get('network')] || config.get('throttling');
+  const networkType = networkProfiles[config.network] || config.throttling;
 
   if (networkType) {
     return page.emulateNetworkConditions(networkType);
@@ -64,7 +64,7 @@ const setupNetwork = (config, page) => {
 const totalDuration = async (host, config, debug) => {
   const waitOptions = { timeout: 0, waitUntil: 'networkidle0' };
 
-  const browser = await puppeteer.launch(config.get('launch'));
+  const browser = await puppeteer.launch(config.launch);
   const userAgent = await browser.userAgent();
 
   debug(`browser version ${await browser.version()}`);
@@ -101,10 +101,9 @@ const totalDuration = async (host, config, debug) => {
     }),
   );
 
-  // eslint-disable-next-line no-console
-  console.log(getTotalRequestTime(navigationEntries), 'secs from performance entries');
-
   await browser.close();
+
+  return getTotalRequestTime(navigationEntries);
 };
 
 module.exports = { totalDuration };

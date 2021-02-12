@@ -18,7 +18,28 @@ const runAction = async ({ scenario, measurementType, host, verbose }) => {
     debug.enabled = true;
   }
   console.log(`Running scenario ${scenario} with measurement ${measurementType}`);
-  await totalDuration(host, config, debug);
+
+  if (measurementType === 'total-duration') {
+    const elapsedTime = await totalDuration(host, config.store, debug);
+
+    console.log(`${elapsedTime} secs from performance entries`);
+  } else if (measurementType === 'network-comparison') {
+    const results = {};
+    // await cannot be used inside of a forEach loop
+    // eslint-disable-next-line no-restricted-syntax
+    for (const speed of ['fast', 'medium', 'slow']) {
+      const configStore = {};
+      Object.assign(configStore, config.store, { network: speed });
+      console.log(`Running network test with ${speed} profile`);
+
+      // Running these tests in parallel would likely skew the results
+      // eslint-disable-next-line no-await-in-loop
+      const elapsedTime = await totalDuration(host, configStore, debug);
+      results[`${speed}`] = { 'duration (seconds)': elapsedTime };
+    }
+
+    console.table(results);
+  }
 };
 
 program
