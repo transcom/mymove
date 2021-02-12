@@ -58,7 +58,6 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
           <tbody>
             {serviceItems.map((item) => {
               return (
-                // eslint-disable-next-line react/no-array-index-key
                 <tr key={item.id}>
                   <td data-testid="serviceItemName">{item.mtoServiceItemName}</td>
                   <td data-testid="serviceItemAmount">{toDollarString(formatCents(item.priceCents))}</td>

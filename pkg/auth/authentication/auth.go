@@ -699,6 +699,26 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 
 	if session.IsMilApp() {
 		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+		// Create the user's service member now and add the ServiceMemberID to
+		// the session to allow the user's `CurrentMilSessionId` field to be
+		// populated. This field is only populated if `session.IsServiceMember()`
+		// returns true, and it only returns true if the user has a service
+		// member associated with it. Previously, the service member was created
+		// after the auth flow was over, when the user was redirected to the
+		// onboarding home page (via /src/sagas/onboarding.js). This meant that
+		// on the very first sign in, a user's `CurrentMilSessionId` would be
+		// empty, which was misleading and prevented us from revoking their session.
+		newServiceMember := models.ServiceMember{
+			UserID:             user.ID,
+			RequiresAccessCode: h.Context.GetFeatureFlag(cli.FeatureFlagAccessCode),
+		}
+		smVerrs, smErr := models.SaveServiceMember(h.db, &newServiceMember)
+		if smVerrs.HasAny() || smErr != nil {
+			h.logger.Error("Error creating service member for user", zap.Error(smErr))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		session.ServiceMemberID = newServiceMember.ID
 	} else {
 		err = models.UpdateUserLoginGovUUID(h.db, user, openIDUser.UserID)
 	}
@@ -727,7 +747,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 		return
 	}
 
-	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
 func fetchToken(logger Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {

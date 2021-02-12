@@ -1,4 +1,3 @@
-/* eslint-disable react/no-array-index-key */
 import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -32,8 +31,8 @@ const Table = ({
     <div data-testid="react-table" className={styles.Table}>
       <table {...getTableProps()}>
         <thead>
-          {headerGroups.map((headerGroup, hgIndex) => (
-            <Fragment key={`headerGroup${hgIndex}`}>
+          {headerGroups.map((headerGroup) => (
+            <Fragment key={headerGroup.getHeaderGroupProps().key}>
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => {
                   const sortProperties = column.canSort ? column.getSortByToggleProps() : {};
@@ -53,9 +52,9 @@ const Table = ({
                 })}
               </tr>
               {showFilters && (
-                <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
-                  {headerGroup.headers.map((column, headerIndex) => (
-                    <th key={`headerFilter${headerIndex}`} data-testid={column.id}>
+                <tr className={styles.tableHeaderFilters} key={`filter_${headerGroup.getHeaderGroupProps().key}`}>
+                  {headerGroup.headers.map((column) => (
+                    <th key={column.id} data-testid={column.id}>
                       {/* isFilterable is a custom prop that can be set in the Column object */}
                       <div>{column.isFilterable ? column.render('Filter') : null}</div>
                     </th>
@@ -99,8 +98,8 @@ const Table = ({
                 setPageSize(Number(e.target.value));
               }}
             >
-              {perPage.map((page, index) => (
-                <option value={page} key={`page-size-${index}`}>
+              {perPage.map((page) => (
+                <option value={page} key={page}>
                   {page}
                 </option>
               ))}
@@ -126,8 +125,8 @@ const Table = ({
               onChange={(e) => gotoPage(Number(e.target.value))}
             >
               {pageOptions.length > 0 ? (
-                pageOptions.map((pageOption, index) => (
-                  <option value={pageOption} key={`page-options-${index}`}>
+                pageOptions.map((pageOption) => (
+                  <option value={pageOption} key={pageOption}>
                     {pageOption + 1}
                   </option>
                 ))

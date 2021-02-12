@@ -119,7 +119,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		RequiresAccessCode:   h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
 		DutyStationID:        stationID,
 	}
-	smVerrs, err := models.SaveServiceMember(ctx, h.DB(), &newServiceMember)
+	smVerrs, err := models.SaveServiceMember(h.DB(), &newServiceMember)
 	if smVerrs.HasAny() || err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -189,7 +189,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	if verrs, err := h.patchServiceMemberWithPayload(ctx, &serviceMember, payload); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
-	if verrs, err := models.SaveServiceMember(ctx, h.DB(), &serviceMember); verrs.HasAny() || err != nil {
+	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 

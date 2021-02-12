@@ -233,7 +233,7 @@ describe('SchemaField tests', () => {
     const emailField = {
       type: 'string',
       format: 'x-email',
-      pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$', // eslint-disable-line
+      pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
       example: 'john_bob@example.com',
       'x-nullable': true,
       title: 'Personal Email Address',

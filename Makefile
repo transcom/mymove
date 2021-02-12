@@ -520,6 +520,37 @@ db_dev_migrate: db_dev_migrate_standalone ## Migrate Dev DB
 db_dev_psql: ## Open PostgreSQL shell for Dev DB
 	scripts/psql-dev
 
+.PHONY: db_dev_fresh
+db_dev_fresh: db_dev_reset db_dev_migrate
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
+	@echo "Populate the ${DB_NAME_DEV} database..."
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+
+.PHONY: db_dev_e2e_populate
+db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
+	@echo "Truncate the ${DB_NAME_DEV} database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	@echo "Populate the ${DB_NAME_DEV} database..."
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+
+## Alias for db_dev_bandwidth_up
+## We started with `db_bandwidth_up`, which some folks are already using, and
+## then renamed it to `db_dev_bandwidth_up`. To allow folks to keep using the
+## name they're familiar with, we've added this alias to the renamed command.
+.PHONY: db_bandwidth_up
+db_bandwidth_up: db_dev_bandwidth_up
+
+.PHONY: db_dev_bandwidth_up
+db_dev_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate data for bandwidth tests
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
+	@echo "Truncate the ${DB_NAME_DEV} database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	@echo "Populate the ${DB_NAME_DEV} database..."
+	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
 # ----- END DB_DEV TARGETS -----
 #
@@ -661,7 +692,11 @@ db_test_psql: ## Open PostgreSQL shell for Test DB
 #
 
 .PHONY: e2e_test
-e2e_test: bin/gin server_generate server_build client_build db_e2e_init ## Run e2e (end-to-end) integration tests
+e2e_test: db_test_migrate db_e2e_up ## Run e2e (end-to-end) integration tests
+	$(AWS_VAULT) ./scripts/run-e2e-test
+
+.PHONY: e2e_test_fresh ## Build everything from scratch before running tests
+e2e_test_fresh: bin/gin server_generate server_build client_build db_e2e_init
 	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: e2e_mtls_test_docker
@@ -698,18 +733,9 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_TEST} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
-
-.PHONY: db_bandwidth_up
-db_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate data for bandwidth tests
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
-	@echo "Populate the ${DB_NAME_DEV} database..."
-	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 
 .PHONY: rerun_e2e_tests_with_new_data
 rerun_e2e_tests_with_new_data: db_e2e_up
@@ -717,16 +743,6 @@ rerun_e2e_tests_with_new_data: db_e2e_up
 
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
-
-.PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
-
-.PHONY: db_test_e2e_populate
-db_test_e2e_populate: db_test_reset db_test_migrate redis_reset build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data
 
 .PHONY: db_test_e2e_backup
 db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
@@ -909,7 +925,7 @@ webhook_client_start_standalone:
 		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
 
 .PHONY: webhook_client_test
-webhook_client_test: db_test_e2e_populate webhook_client_test_standalone
+webhook_client_test: db_e2e_init webhook_client_test_standalone
 
 .PHONY: webhook_client_test
 webhook_client_test_standalone:

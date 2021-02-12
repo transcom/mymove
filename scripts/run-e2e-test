@@ -5,9 +5,6 @@ set -eu -o pipefail
 # Runs both the webserver and Cypress in parallel
 trap "kill %1" SIGINT
 
-# Make a backup of the e2e DB
-make db_test_e2e_backup
-
 CYPRESS_PORT=4000
 DB_ENV=test DB_PORT="$DB_PORT_TEST" LOGIN_GOV_CALLBACK_PORT="$CYPRESS_PORT" NO_TLS_ENABLED=1 NO_TLS_PORT="$CYPRESS_PORT" \
     ./bin/gin \
@@ -21,6 +18,3 @@ npx cypress open || true
 
 # Terminate the background webserver
 kill %1
-
-# Remvoe the backup of the e2e DB
-make db_test_e2e_cleanup
