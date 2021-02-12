@@ -1,12 +1,15 @@
 package webhooksubscription
 
 import (
+	"github.com/gobuffalo/validate/v3"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type webhookSubscriptionQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type webhookSubscriptionFetcher struct {
