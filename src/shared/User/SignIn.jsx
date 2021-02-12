@@ -56,7 +56,7 @@ const SignIn = ({ context, location }) => {
             </div>
           )}
           <div className="align-center">
-            {context.showLoginWarning ? (
+            {context.siteName === 'my.move.mil' ? (
               <Button
                 aria-label="Sign In"
                 className={context.showLoginWarning ? styles.signInButton : 'usa-button'}

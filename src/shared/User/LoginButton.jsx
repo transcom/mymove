@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { bool } from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'utils/api';
 import { logOut } from 'store/auth/actions';
-import { Button } from '@trussworks/react-uswds';
 import EulaModal from 'components/EulaModal';
 
 import styles from './LoginButton.module.scss';
