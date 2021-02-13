@@ -102,10 +102,7 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"Orders.NewDutyStation.TransportationOffice",
 		"Orders.UploadedOrders.UserUploads.Upload",
 		"Orders.Moves",
-		"ResidentialAddress").
-		Join("orders", "orders.service_member_id = service_members.id").
-		Join("moves", "moves.orders_id = orders.id").
-		Where("show = TRUE").Find(&serviceMember, id)
+		"ResidentialAddress").Find(&serviceMember, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

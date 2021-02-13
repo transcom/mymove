@@ -122,6 +122,12 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				}
 				serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
 			}
+
+			// Check if move is valid and not hidden
+			// If the move is hidden, return an error
+			if !(*serviceMember.Orders[0].Moves[0].Show) {
+				return userop.NewShowLoggedInUserUnauthorized()
+			}
 		}
 	}
 
