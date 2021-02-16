@@ -1,7 +1,7 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 
-import EulaModal from './index';
+import { EulaModal } from './index';
 
 export default {
   title: 'Components/Eula Modal',
@@ -16,7 +16,6 @@ export default {
 const props = {
   acceptTerms: action('clicked'),
   closeModal: action('clicked'),
-  isOpen: true,
 };
 
 // eslint-disable-next-line react/jsx-props-no-spreading
