@@ -85,14 +85,6 @@ func (e *errInvalidService) Error() string {
 	return fmt.Sprintf("invalid AWS ECS service %q, expecting one of %q", e.Service, services)
 }
 
-type errinvalidRepositoryName struct {
-	RepositoryName string
-}
-
-func (e *errinvalidRepositoryName) Error() string {
-	return fmt.Sprintf("invalid AWS ECR respository name %q", e.RepositoryName)
-}
-
 type errInvalidImage struct {
 	Image string
 }
