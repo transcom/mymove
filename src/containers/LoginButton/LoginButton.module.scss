@@ -1,15 +1,16 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/variables';
+
 .signIn {
   height: 46px;
+  &:hover {
+    @include underline(0.25rem, 'white');
+  }
   &:hover::after {
+    width: 46px;
+    left: 16px;
     background-color: currentColor;
-    border-radius: 0;
-    content: '';
-    display: block;
-    position: absolute;
-    height: 0.26667rem;
-    left: 1.06667rem;
-    right: 1.06667rem;
-    bottom: -0.26667rem;
   }
 }
 
