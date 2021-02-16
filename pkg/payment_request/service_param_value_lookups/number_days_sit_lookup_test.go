@@ -1196,18 +1196,18 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.Error(err)
 	})
 
-	suite.T().Run("an MTO Shipment has an SIT Entry Date and SIT Departure Date on the same MTO Service Item", func(t *testing.T) {
+	suite.T().Run("an MTO Shipment only has a First Day SIT MTO Service Item", func(t *testing.T) {
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOFSITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
-		suite.NoError(err)
+		suite.Error(err)
 
 		paramLookup, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDFSITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
 		_, err = paramLookup.ServiceParamValue(key)
-		suite.NoError(err)
+		suite.Error(err)
 	})
 
 	suite.T().Run("an MTO with one MTO Shipment with one DOFSIT payment service item", func(t *testing.T) {
@@ -1215,8 +1215,8 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 		suite.FatalNoError(err)
 
 		value, err := paramLookup.ServiceParamValue(key)
-		suite.NoError(err)
-		suite.Equal("0", value)
+		suite.Error(err)
+		suite.Equal("", value)
 	})
 
 	suite.T().Run("an MTO with more than one MTO Shipment", func(t *testing.T) {
