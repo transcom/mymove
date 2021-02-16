@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"context"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -89,7 +87,6 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 }
 
 func (suite *ModelSuite) TestFetchServiceMemberForUser() {
-	ctx := context.Background()
 	user1 := testdatagen.MakeDefaultUser(suite.DB())
 	user2 := testdatagen.MakeDefaultUser(suite.DB())
 
@@ -110,7 +107,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 		UserID:          user1.ID,
 		ServiceMemberID: sm.ID,
 	}
-	goodSm, err := FetchServiceMemberForUser(ctx, suite.DB(), session, sm.ID)
+	goodSm, err := FetchServiceMemberForUser(suite.DB(), session, sm.ID)
 	if suite.NoError(err) {
 		suite.Equal(sm.FirstName, goodSm.FirstName)
 		suite.Equal(sm.ResidentialAddress.ID, goodSm.ResidentialAddress.ID)
@@ -118,7 +115,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 
 	// Wrong ServiceMember
 	wrongID, _ := uuid.NewV4()
-	_, err = FetchServiceMemberForUser(ctx, suite.DB(), session, wrongID)
+	_, err = FetchServiceMemberForUser(suite.DB(), session, wrongID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchNotFound, err)
 	}
@@ -126,7 +123,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 	// User is forbidden from fetching order
 	session.UserID = user2.ID
 	session.ServiceMemberID = uuid.Nil
-	_, err = FetchServiceMemberForUser(ctx, suite.DB(), session, sm.ID)
+	_, err = FetchServiceMemberForUser(suite.DB(), session, sm.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
