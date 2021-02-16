@@ -17,7 +17,7 @@ import {
 } from 'store/entities/selectors';
 import { updatePPMs } from 'store/entities/actions';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -26,6 +26,11 @@ import { getPPMsForMove } from 'services/internalApi';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import {
+  selectGetCurrentUserIsLoading,
+  selectGetCurrentUserIsSuccess,
+  selectIsLoggedIn,
+} from '../../store/auth/selectors';
 
 export class PpmLanding extends Component {
   componentDidMount() {
@@ -172,21 +177,21 @@ PpmLanding.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectCurrentUser(state);
+  const user = selectLoggedInUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const move = selectCurrentMove(state) || {};
 
   const props = {
     lastMoveIsCanceled: selectHasCanceledMove(state),
     selectedMoveType: selectMoveType(state),
-    isLoggedIn: user.isLoggedIn,
+    isLoggedIn: selectIsLoggedIn(state),
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     orders: selectCurrentOrders(state) || {},
     move: move,
     ppm: selectCurrentPPM(state) || {},
-    loggedInUser: user,
+    loggedInUser: user || {},
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     entitlement: loadEntitlementsFromState(state),

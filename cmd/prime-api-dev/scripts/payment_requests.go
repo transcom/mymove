@@ -666,8 +666,10 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			*/
 
 			err = pr.updateShipmentsJSONToFile(tmpFile, shipmentUpdates, shipmentIndex)
-			if err != nil {
 
+			if err != nil {
+				fmt.Println("Create update shipments JSON file failed")
+				fmt.Printf("error message: %s\n", err.Error())
 			}
 
 			err = pr.updateMTOShipment2(tmpFile.Name())
@@ -915,18 +917,14 @@ func (pr *paymentRequestsData) displayCreatePaymentRequestMenu() (bool, menuType
 			*/
 
 			err = pr.paymentRequestJSONToFile(tmpFile, serviceItems)
-			if err != nil {
 
+			if err != nil {
+				fmt.Println("Create payment request JSON file failed")
+				fmt.Printf("error message: %s\n", err.Error())
 			}
 
 			err = pr.creatPaymentRequest(tmpFile.Name())
 
-			/*
-				// Close the file
-				if err := tmpFile.Close(); err != nil {
-					log.Fatal(err)
-				}
-			*/
 			if err != nil {
 				fmt.Println("Create payment request failed :( ")
 				fmt.Printf("error message: %s\n", err.Error())
@@ -1171,50 +1169,6 @@ func (pr *paymentRequestsData) selectMTO() error {
 			}
 		}
 	}
-	return nil
-}
-
-// updateMTOShipment creates a gateway and sends the request to the endpoint
-func (pr *paymentRequestsData) updateMTOShipment(shipmentPayload mtoShipment.UpdateMTOShipmentParams) error {
-
-	// Show what we are sending
-	showJSONPayload, errJSONMarshall := json.Marshal(shipmentPayload)
-	if errJSONMarshall != nil {
-		pr.logger.Fatal(errJSONMarshall)
-	}
-	fmt.Printf("Sending payload for shipment updates...\n")
-	fmt.Println(string(showJSONPayload))
-
-	shipmentPayload.SetTimeout(time.Second * 30)
-
-	// Create the client and open the cacStore
-	primeGateway, _, errCreateClient := pr.getPrimeClient()
-	if errCreateClient != nil {
-		return errCreateClient
-	}
-
-	// Make the API Call
-	resp, err := primeGateway.MtoShipment.UpdateMTOShipment(&shipmentPayload)
-	if err != nil {
-		fmt.Printf("\n\nprimeGateway.MtoShipment.UpdateMTOShipment() failed with: [%s]\n\n", err.Error())
-		return utils.HandleGatewayError(err, pr.logger)
-	}
-
-	payload := resp.GetPayload()
-	if payload != nil {
-
-	} else {
-		pr.logger.Fatal(resp.Error())
-	}
-
-	// Defer closing the store until after the API call has completed
-	/*
-		if cacStore != nil {
-			defer cacStore.Close()
-		}
-
-	*/
-
 	return nil
 }
 

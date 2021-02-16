@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"context"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -44,7 +43,7 @@ func (suite *ModelSuite) TestCreateElectronicOrder() {
 		OrdersNumber: "8675309",
 	}
 
-	verrs, err := models.CreateElectronicOrder(context.Background(), suite.DB(), &newOrder)
+	verrs, err := models.CreateElectronicOrder(suite.DB(), &newOrder)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 }
@@ -69,7 +68,7 @@ func (suite *ModelSuite) TestCreateElectronicOrderWithRevision() {
 		OrdersType:    models.ElectronicOrdersTypeSeparation,
 		HasDependents: true,
 	}
-	verrs, err := models.CreateElectronicOrderWithRevision(context.Background(), suite.DB(), &newOrder, &rev)
+	verrs, err := models.CreateElectronicOrderWithRevision(suite.DB(), &newOrder, &rev)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 }
@@ -81,7 +80,7 @@ func (suite *ModelSuite) TestFetchElectronicOrderByID() {
 		OrdersNumber: "8675309",
 	}
 
-	verrs, err := models.CreateElectronicOrder(context.Background(), suite.DB(), &newOrder)
+	verrs, err := models.CreateElectronicOrder(suite.DB(), &newOrder)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
@@ -101,7 +100,7 @@ func (suite *ModelSuite) TestFetchElectronicOrderByIssuerAndOrdersNum() {
 		OrdersNumber: "8675309",
 	}
 
-	verrs, err := models.CreateElectronicOrder(context.Background(), suite.DB(), &newOrder)
+	verrs, err := models.CreateElectronicOrder(suite.DB(), &newOrder)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
@@ -121,8 +120,7 @@ func (suite *ModelSuite) TestFetchElectronicOrdersByEdipiAndIssuers() {
 		OrdersNumber: "8675309",
 	}
 
-	ctx := context.Background()
-	verrs, err := models.CreateElectronicOrder(ctx, suite.DB(), &newOrder1)
+	verrs, err := models.CreateElectronicOrder(suite.DB(), &newOrder1)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
@@ -132,7 +130,7 @@ func (suite *ModelSuite) TestFetchElectronicOrdersByEdipiAndIssuers() {
 		OrdersNumber: "5551234",
 	}
 
-	verrs, err = models.CreateElectronicOrder(ctx, suite.DB(), &newOrder2)
+	verrs, err = models.CreateElectronicOrder(suite.DB(), &newOrder2)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 

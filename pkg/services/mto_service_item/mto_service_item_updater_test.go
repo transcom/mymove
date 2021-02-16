@@ -20,19 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type testUpdateMTOServiceItemQueryBuilder struct {
-	fakeFetchOne  func(model interface{}, filters []services.QueryFilter) error
-	fakeUpdateOne func(models interface{}, eTag *string) (*validate.Errors, error)
-}
-
-func (t *testUpdateMTOServiceItemQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
-	return t.fakeUpdateOne(model, eTag)
-}
-
-func (t *testUpdateMTOServiceItemQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
-	return t.fakeFetchOne(model, filters)
-}
-
 func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	builder := query.NewQueryBuilder(suite.DB())
 	updater := NewMTOServiceItemUpdater(builder)

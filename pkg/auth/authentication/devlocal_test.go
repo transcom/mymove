@@ -8,8 +8,10 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -218,13 +220,24 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
+	session := auth.Session{
+		ApplicationName: auth.MilApp,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
 	sessionManagers := setupSessionManagers()
 	milSession := sessionManagers[0]
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
 	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames)
-
 	rr := httptest.NewRecorder()
-	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
+	milSession.LoadAndSave(handler).ServeHTTP(rr, req.WithContext(ctx))
+
+	serviceMemberID := session.ServiceMemberID
+	serviceMember, _ := models.FetchServiceMemberForUser(suite.DB(), &session, serviceMemberID)
+
+	suite.NotEqual(uuid.Nil, serviceMemberID)
+	suite.NotEqual(uuid.Nil, serviceMember.UserID)
+	suite.Equal(false, serviceMember.RequiresAccessCode)
 
 	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusSeeOther {

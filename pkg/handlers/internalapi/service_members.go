@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"context"
-
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -119,7 +117,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		RequiresAccessCode:   h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
 		DutyStationID:        stationID,
 	}
-	smVerrs, err := models.SaveServiceMember(ctx, h.DB(), &newServiceMember)
+	smVerrs, err := models.SaveServiceMember(h.DB(), &newServiceMember)
 	if smVerrs.HasAny() || err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -157,7 +155,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -180,16 +178,16 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := h.patchServiceMemberWithPayload(ctx, &serviceMember, payload); verrs.HasAny() || err != nil {
+	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
-	if verrs, err := models.SaveServiceMember(ctx, h.DB(), &serviceMember); verrs.HasAny() || err != nil {
+	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
@@ -197,7 +195,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
-func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(ctx context.Context, serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
+func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
 
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
@@ -278,7 +276,7 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 
 	session, logger := h.SessionAndLoggerFromContext(ctx)
 
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, session.ServiceMemberID)
 	if err != nil {
 		return servicememberop.NewShowServiceMemberOrdersNotFound()
 	}

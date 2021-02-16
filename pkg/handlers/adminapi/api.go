@@ -23,12 +23,12 @@ import (
 	move "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/office"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
-	tspop "github.com/transcom/mymove/pkg/services/tsp"
-	user "github.com/transcom/mymove/pkg/services/user"
-
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	tspop "github.com/transcom/mymove/pkg/services/tsp"
 	"github.com/transcom/mymove/pkg/services/upload"
+	user "github.com/transcom/mymove/pkg/services/user"
+	webhooksubscription "github.com/transcom/mymove/pkg/services/webhook_subscription"
 )
 
 // NewAdminAPIHandler returns a handler for the admin API
@@ -196,6 +196,18 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+	}
+
+	adminAPI.WebhookSubscriptionsGetWebhookSubscriptionHandler = GetWebhookSubscriptionHandler{
+		context,
+		webhooksubscription.NewWebhookSubscriptionFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.WebhookSubscriptionsCreateWebhookSubscriptionHandler = CreateWebhookSubscriptionHandler{
+		context,
+		webhooksubscription.NewWebhookSubscriptionCreator(context.DB(), queryBuilder),
+		query.NewQueryFilter,
 	}
 
 	return adminAPI.Serve(nil)

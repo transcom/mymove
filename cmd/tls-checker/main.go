@@ -31,17 +31,6 @@ func (s stringSlice) Contains(value string) bool {
 	return false
 }
 
-type intSlice []int
-
-func (s intSlice) Contains(value int) bool {
-	for _, x := range s {
-		if value == x {
-			return true
-		}
-	}
-	return false
-}
-
 type errInvalidScheme struct {
 	Scheme string
 }

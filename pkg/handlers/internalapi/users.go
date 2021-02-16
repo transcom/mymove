@@ -37,8 +37,6 @@ func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserP
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsServiceMember() {
@@ -63,7 +61,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 
 	// Load Servicemember and first level associations
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, session.ServiceMemberID)
 
 	if err != nil {
 		logger.Error("Error retrieving service_member", zap.Error(err))
@@ -121,6 +119,12 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 					return handlers.ResponseForError(logger, ppmErr)
 				}
 				serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
+			}
+
+			// Check if move is valid and not hidden
+			// If the move is hidden, return an error
+			if !(*serviceMember.Orders[0].Moves[0].Show) {
+				return userop.NewShowLoggedInUserUnauthorized()
 			}
 		}
 	}

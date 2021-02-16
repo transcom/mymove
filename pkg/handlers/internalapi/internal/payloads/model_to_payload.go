@@ -57,8 +57,8 @@ func MTOAgents(mtoAgents *models.MTOAgents) *internalmessages.MTOAgents {
 	agents := make(internalmessages.MTOAgents, len(*mtoAgents))
 
 	for i, m := range *mtoAgents {
-		// #nosec G601 TODO needs review
-		agents[i] = MTOAgent(&m)
+		copyOfAgent := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		agents[i] = MTOAgent(&copyOfAgent)
 	}
 
 	return &agents
@@ -143,8 +143,8 @@ func MTOShipments(mtoShipments *models.MTOShipments) *internalmessages.MTOShipme
 	payload := make(internalmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		// #nosec G601 TODO needs review
-		payload[i] = MTOShipment(&m)
+		copyOfMtoShipment := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOShipment(&copyOfMtoShipment)
 	}
 	return &payload
 }

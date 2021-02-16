@@ -1,8 +1,6 @@
 package notifications
 
 import (
-	"context"
-
 	"github.com/gofrs/uuid"
 
 	"go.uber.org/zap"
@@ -20,8 +18,8 @@ func NewStubNotificationSender(domain string, logger Logger) StubNotificationSen
 }
 
 // SendNotification returns a dummy ID
-func (m StubNotificationSender) SendNotification(ctx context.Context, notification notification) error {
-	emails, err := notification.emails(ctx)
+func (m StubNotificationSender) SendNotification(notification notification) error {
+	emails, err := notification.emails()
 	if err != nil {
 		return err
 	}

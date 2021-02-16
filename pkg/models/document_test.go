@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"context"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -44,8 +43,6 @@ func (suite *ModelSuite) Test_DocumentValidations() {
 func (suite *ModelSuite) TestFetchDocument() {
 	t := suite.T()
 
-	ctx := context.Background()
-
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	session := auth.Session{
 		UserID:          serviceMember.UserID,
@@ -65,14 +62,12 @@ func (suite *ModelSuite) TestFetchDocument() {
 		t.Errorf("did not expect validation errors: %v", verrs)
 	}
 
-	doc, _ := models.FetchDocument(ctx, suite.DB(), &session, document.ID, false)
+	doc, _ := models.FetchDocument(suite.DB(), &session, document.ID, false)
 	suite.Equal(doc.ID, document.ID)
 }
 
 func (suite *ModelSuite) TestFetchDeletedDocument() {
 	t := suite.T()
-
-	ctx := context.Background()
 
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	session := auth.Session{
@@ -96,13 +91,13 @@ func (suite *ModelSuite) TestFetchDeletedDocument() {
 		t.Errorf("did not expect validation errors: %v", verrs)
 	}
 
-	doc, _ := models.FetchDocument(ctx, suite.DB(), &session, document.ID, false)
+	doc, _ := models.FetchDocument(suite.DB(), &session, document.ID, false)
 
 	// fetches a nil document
 	suite.Equal(doc.ID, uuid.Nil)
 	suite.Equal(doc.ServiceMemberID, uuid.Nil)
 
-	doc2, _ := models.FetchDocument(ctx, suite.DB(), &session, document.ID, true)
+	doc2, _ := models.FetchDocument(suite.DB(), &session, document.ID, true)
 
 	// fetches a nil document
 	suite.Equal(doc2.ID, document.ID)

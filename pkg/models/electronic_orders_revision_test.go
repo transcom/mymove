@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"context"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -15,7 +14,7 @@ func (suite *ModelSuite) TestElectronicOrdersRevisionValidateAndCreate() {
 		Issuer:       models.IssuerAirForce,
 		OrdersNumber: "8675309",
 	}
-	verrs, err := models.CreateElectronicOrder(context.Background(), suite.DB(), &order)
+	verrs, err := models.CreateElectronicOrder(suite.DB(), &order)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
@@ -129,7 +128,7 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision() {
 		Issuer:       models.IssuerAirForce,
 		OrdersNumber: "8675309",
 	}
-	verrs, err := models.CreateElectronicOrder(context.Background(), suite.DB(), &order)
+	verrs, err := models.CreateElectronicOrder(suite.DB(), &order)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
@@ -150,7 +149,7 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision() {
 		HasDependents:     true,
 	}
 
-	verrs, err = models.CreateElectronicOrdersRevision(context.Background(), suite.DB(), &rev)
+	verrs, err = models.CreateElectronicOrdersRevision(suite.DB(), &rev)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 }
@@ -161,8 +160,7 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
 		Issuer:       models.IssuerAirForce,
 		OrdersNumber: "8675309",
 	}
-	ctx := context.Background()
-	verrs, err := models.CreateElectronicOrder(ctx, suite.DB(), &order)
+	verrs, err := models.CreateElectronicOrder(suite.DB(), &order)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
@@ -183,7 +181,7 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
 		HasDependents:     true,
 	}
 
-	verrs, err = models.CreateElectronicOrdersRevision(ctx, suite.DB(), &rev0)
+	verrs, err = models.CreateElectronicOrdersRevision(suite.DB(), &rev0)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
@@ -204,7 +202,7 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
 		HasDependents:     true,
 	}
 
-	verrs, err = models.CreateElectronicOrdersRevision(ctx, suite.DB(), &rev1)
+	verrs, err = models.CreateElectronicOrdersRevision(suite.DB(), &rev1)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 

@@ -279,9 +279,9 @@ func (m Move) createMoveDocumentWithoutTransaction(
 
 	// Associate uploads to the new document
 	for _, upload := range userUploads {
-		upload.DocumentID = &newDoc.ID
-		// #nosec G601 TODO needs review
-		verrs, err := db.ValidateAndUpdate(&upload)
+		copyOfUpload := upload // Make copy to avoid implicit memory aliasing of items from a range statement.
+		copyOfUpload.DocumentID = &newDoc.ID
+		verrs, err := db.ValidateAndUpdate(&copyOfUpload)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error updating upload")
@@ -619,16 +619,16 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 		transactionError := errors.New("Rollback The transaction")
 
 		for _, ppm := range move.PersonallyProcuredMoves {
-			if ppm.Advance != nil {
-				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+			copyOfPpm := ppm // Make copy to avoid implicit memory aliasing of items from a range statement.
+			if copyOfPpm.Advance != nil {
+				if verrs, err := db.ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
 					responseError = errors.Wrap(err, "Error Saving Advance")
 					return transactionError
 				}
 			}
 
-			// #nosec G601 TODO needs review
-			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
+			if verrs, err := db.ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving PPM")
 				return transactionError

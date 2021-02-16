@@ -890,6 +890,11 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+      subscriberId:
+        type: string
+        format: uuid
+        example: d494f114-05a2-4b39-840c-3d33243b7e29
+        description: Unique identifier for the subscriber
       status:
         $ref: '#/definitions/WebhookSubscriptionStatus'
       callbackUrl:
@@ -909,6 +914,28 @@ definitions:
       updatedAt:
         type: string
         format: date-time
+  CreateWebhookSubscription:
+    type: object
+    properties:
+      subscriberId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        $ref: '#/definitions/WebhookSubscriptionStatus'
+      eventKey:
+        type: string
+        description: >-
+          A string used to represent which events this subscriber expects to be notified about.
+          Corresponds to the possible event_key values in webhook_notifications.
+      callbackUrl:
+        type: string
+        description: The URL to which the notifications for this subscription will be pushed to.
+    required:
+      - subscriberId
+      - status
+      - eventKey
+      - callbackUrl
 paths:
   /access_codes:
     get:
@@ -1727,3 +1754,54 @@ paths:
           description: Webhook subscriptions not found
         500:
           description: Server error
+    post:
+      summary: create a webhook subscription
+      description: creates and returns a webhook subscription
+      operationId: createWebhookSubscription
+      tags:
+        - webhook_subscriptions
+      parameters:
+        - in: body
+          name: webhookSubscription
+          description: Webhook subscription information
+          schema:
+            $ref: '#/definitions/CreateWebhookSubscription'
+      responses:
+        201:
+          description: Successfully created webhook subscription
+          schema:
+            $ref: '#/definitions/WebhookSubscription'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to create a webhook subscription
+        500:
+          description: Server error
+  /webhook_subscriptions/{webhookSubscriptionId}:
+    get:
+      summary: Get information about a webhook subscription
+      description: Returns the given webhook subscription and its details
+      operationId: getWebhookSubscription
+      tags:
+        - webhook_subscriptions
+      parameters:
+        - in: path
+          name: webhookSubscriptionId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/WebhookSubscription'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: subscription not found
+        500:
+          description: server error

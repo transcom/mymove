@@ -7,7 +7,7 @@ import LoginButton from './LoginButton';
 describe('LoginButton tests', () => {
   let mockStore = configureStore();
   let initialState = {
-    user: {
+    auth: {
       isLoggedIn: false,
     },
   };

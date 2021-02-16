@@ -306,21 +306,22 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 					SET
 				`
 			for _, agent := range newShipment.MTOAgents {
+				copyOfAgent := agent // Make copy to avoid implicit memory aliasing of items from a range statement.
+
 				for _, dbAgent := range dbShipment.MTOAgents {
 					// if the updates already have an agent in the system
-					if dbAgent.ID == agent.ID {
+					if dbAgent.ID == copyOfAgent.ID {
 						updateAgentQuery := generateAgentQuery()
-						params := generateMTOAgentsParams(agent)
+						params := generateMTOAgentsParams(copyOfAgent)
 
 						if err := tx.RawQuery(agentQuery+updateAgentQuery, params...).Exec(); err != nil {
 							return err
 						}
 					}
 				}
-				if agent.ID == uuid.Nil {
+				if copyOfAgent.ID == uuid.Nil {
 					// create a new agent if it doesn't already exist
-					// #nosec G601 TODO needs review
-					verrs, err := f.builder.CreateOne(&agent)
+					verrs, err := f.builder.CreateOne(&copyOfAgent)
 					if verrs != nil && verrs.HasAny() {
 						return verrs
 					}
@@ -632,8 +633,8 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		}
 		for _, serviceItem := range serviceItemsToCreate {
-			// #nosec G601 TODO needs review
-			_, verrs, err := o.siCreator.CreateMTOServiceItem(&serviceItem)
+			copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
+			_, verrs, err := o.siCreator.CreateMTOServiceItem(&copyOfServiceItem)
 
 			if verrs != nil && verrs.HasAny() {
 				invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
