@@ -135,8 +135,8 @@ func PaymentServiceItemsModelToPayload(paymentServiceItems *models.PaymentServic
 	payload := make(primemessages.PaymentServiceItems, len(*paymentServiceItems))
 
 	for i, p := range *paymentServiceItems {
-		// #nosec G601 TODO needs review
-		payload[i] = PaymentServiceItemModelToPayload(&p)
+		copyOfPaymentServiceItem := p // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = PaymentServiceItemModelToPayload(&copyOfPaymentServiceItem)
 	}
 	return &payload
 }
