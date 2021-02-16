@@ -1,7 +1,6 @@
 package awardqueue
 
 import (
-	"context"
 	"log"
 	"testing"
 	"time"
@@ -69,7 +68,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		}
 	}
 
-	err := queue.assignPerformanceBands(context.Background())
+	err := queue.assignPerformanceBands()
 
 	if err != nil {
 		t.Errorf("Failed to assign to performance bands: %v", err)
@@ -102,13 +101,12 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 }
 
 func (suite *AwardQueueSuite) Test_waitForLock() {
-	ctx := context.Background()
 	ret := make(chan int)
 	lockID := 1
 
 	go func() {
 		suite.DB().Transaction(func(tx *pop.Connection) error {
-			suite.Nil(waitForLock(ctx, tx, lockID))
+			suite.Nil(waitForLock(tx, lockID))
 			time.Sleep(time.Second)
 			ret <- 1
 			return nil
@@ -118,7 +116,7 @@ func (suite *AwardQueueSuite) Test_waitForLock() {
 	go func() {
 		suite.DB().Transaction(func(tx *pop.Connection) error {
 			time.Sleep(time.Millisecond * 500)
-			suite.Nil(waitForLock(ctx, tx, lockID))
+			suite.Nil(waitForLock(tx, lockID))
 			ret <- 2
 			return nil
 		})

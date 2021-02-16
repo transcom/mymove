@@ -21,8 +21,8 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrd
 	payload := make(supportmessages.MoveTaskOrders, len(*moveTaskOrders))
 
 	for i, m := range *moveTaskOrders {
-		// #nosec G601 TODO needs review
-		payload[i] = MoveTaskOrder(&m)
+		copyOfMto := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MoveTaskOrder(&copyOfMto)
 	}
 	return payload
 }
@@ -459,8 +459,8 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *supportmessages.P
 	payload := make(supportmessages.PaymentRequests, len(*paymentRequests))
 
 	for i, pr := range *paymentRequests {
-		// #nosec G601 TODO needs review
-		payload[i] = PaymentRequest(&pr)
+		copyOfPr := pr // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = PaymentRequest(&copyOfPr)
 	}
 	return &payload
 }

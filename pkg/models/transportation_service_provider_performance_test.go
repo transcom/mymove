@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"context"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -148,7 +147,7 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	})
 	band := 1
 
-	err := AssignQualityBandToTSPPerformance(context.Background(), suite.DB(), band, perf.ID)
+	err := AssignQualityBandToTSPPerformance(suite.DB(), band, perf.ID)
 	if err != nil {
 		t.Fatalf("Did not update quality band: %v", err)
 	}

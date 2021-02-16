@@ -37,8 +37,6 @@ func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserP
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsServiceMember() {
@@ -63,7 +61,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 
 	// Load Servicemember and first level associations
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, session.ServiceMemberID)
 
 	if err != nil {
 		logger.Error("Error retrieving service_member", zap.Error(err))

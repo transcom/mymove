@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"context"
-
 	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/db/dberr"
@@ -125,7 +123,6 @@ func (suite *ModelSuite) TestFetchPrimeUploadWithNoUpload() {
 func (suite *ModelSuite) TestFetchPrimeUpload() {
 	t := suite.T()
 
-	ctx := context.Background()
 	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
 	contractor := testdatagen.MakeDefaultContractor(suite.DB())
 
@@ -160,7 +157,7 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 		t.Errorf("did not expect PrimeUpload validation errors: %v", verrs)
 	}
 
-	primeUp, _ := models.FetchPrimeUpload(ctx, suite.DB(), contractor.ID, primeUpload.ID)
+	primeUp, _ := models.FetchPrimeUpload(suite.DB(), contractor.ID, primeUpload.ID)
 	suite.Equal(primeUp.ID, primeUpload.ID)
 	suite.Equal(upload.ID, primeUpload.Upload.ID)
 	suite.Equal(upload.ID, primeUpload.UploadID)
@@ -169,7 +166,6 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
 	t := suite.T()
 
-	ctx := context.Background()
 	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
 	contractor := testdatagen.MakeDefaultContractor(suite.DB())
 
@@ -208,7 +204,7 @@ func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
 
 	err = models.DeletePrimeUpload(suite.DB(), &primeUpload)
 	suite.Nil(err)
-	primeUp, err := models.FetchPrimeUpload(ctx, suite.DB(), contractor.ID, primeUpload.ID)
+	primeUp, err := models.FetchPrimeUpload(suite.DB(), contractor.ID, primeUpload.ID)
 	suite.Equal("error fetching prime_uploads: FETCH_NOT_FOUND", err.Error())
 
 	// fetches a nil primeupload

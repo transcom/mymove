@@ -310,8 +310,8 @@ func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		// #nosec G601 TODO needs review
-		payload[i] = MTOShipment(&m)
+		copyOfMtoShipment := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOShipment(&copyOfMtoShipment)
 	}
 	return &payload
 }
@@ -337,8 +337,8 @@ func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 	payload := make(ghcmessages.MTOAgents, len(*mtoAgents))
 	for i, m := range *mtoAgents {
-		// #nosec G601 TODO needs review
-		payload[i] = MTOAgent(&m)
+		copyOfMtoAgent := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOAgent(&copyOfMtoAgent)
 	}
 	return &payload
 }
@@ -409,8 +409,8 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcmessages.PaymentServiceItems {
 	payload := make(ghcmessages.PaymentServiceItems, len(*paymentServiceItems))
 	for i, m := range *paymentServiceItems {
-		// #nosec G601 TODO needs review
-		payload[i] = PaymentServiceItem(&m)
+		copyOfPaymentServiceItem := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = PaymentServiceItem(&copyOfPaymentServiceItem)
 	}
 	return &payload
 }
@@ -446,8 +446,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 func MTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
 	serviceItems := ghcmessages.MTOServiceItems{}
 	for _, item := range s {
-		// #nosec G601 TODO needs review
-		serviceItems = append(serviceItems, MTOServiceItemModel(&item))
+		copyOfServiceItem := item // Make copy to avoid implicit memory aliasing of items from a range statement.
+		serviceItems = append(serviceItems, MTOServiceItemModel(&copyOfServiceItem))
 	}
 
 	return serviceItems
@@ -468,8 +468,8 @@ func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTO
 func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTOServiceItemDimensions {
 	payload := make(ghcmessages.MTOServiceItemDimensions, len(d))
 	for i, item := range d {
-		// #nosec G601 TODO needs review
-		payload[i] = MTOServiceItemDimension(&item)
+		copyOfServiceItem := item // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOServiceItemDimension(&copyOfServiceItem)
 	}
 	return payload
 }
@@ -487,8 +487,8 @@ func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghc
 func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghcmessages.MTOServiceItemCustomerContacts {
 	payload := make(ghcmessages.MTOServiceItemCustomerContacts, len(c))
 	for i, item := range c {
-		// #nosec G601 TODO needs review
-		payload[i] = MTOServiceItemCustomerContact(&item)
+		copyOfServiceItem := item // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOServiceItemCustomerContact(&copyOfServiceItem)
 	}
 	return payload
 }
