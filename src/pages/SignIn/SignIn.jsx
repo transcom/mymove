@@ -7,7 +7,7 @@ import styles from './SignIn.module.scss';
 
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
-import EulaModal from 'components/EulaModal';
+import ConnectedEulaModal from 'components/EulaModal';
 import { LocationShape } from 'types/index';
 
 const SignIn = ({ context, location }) => {
@@ -19,7 +19,7 @@ const SignIn = ({ context, location }) => {
 
   return (
     <div className="grid-container usa-prose">
-      <EulaModal
+      <ConnectedEulaModal
         isOpen={showEula}
         acceptTerms={() => {
           window.location.href = '/auth/login-gov';

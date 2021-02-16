@@ -11,7 +11,7 @@ import styles from './LoginButton.module.scss';
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'utils/api';
 import { logOut as logOutFunction } from 'store/auth/actions';
-import EulaModal from 'components/EulaModal';
+import ConnectedEulaModal from 'components/EulaModal';
 
 const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, useEula }) => {
   const [showEula, setShowEula] = useState(false);
@@ -19,7 +19,7 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, useEula }) => {
   if (!isLoggedIn) {
     return (
       <>
-        <EulaModal
+        <ConnectedEulaModal
           isOpen={showEula}
           acceptTerms={() => {
             window.location.href = '/auth/login-gov';
