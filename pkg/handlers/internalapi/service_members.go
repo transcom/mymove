@@ -29,7 +29,9 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 	}
 
 	// if an existing service member, set requires access code to what they're already set
-	requiresAccessCode = serviceMember.RequiresAccessCode
+	if requiresAccessCode != serviceMember.RequiresAccessCode {
+		requiresAccessCode = serviceMember.RequiresAccessCode
+	}
 
 	var weightAllotment *internalmessages.WeightAllotment
 	if serviceMember.Rank != nil {
