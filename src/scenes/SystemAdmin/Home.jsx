@@ -48,6 +48,7 @@ const httpClient = (url, options = {}) => {
 
 const FOUOWrapper = () => (
   <React.Fragment>
+    <BypassBlock />
     <FOUOHeader />
     <AppBar />
   </React.Fragment>
