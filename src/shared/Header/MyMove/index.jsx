@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-import LoginButton from 'shared/User/LoginButton';
+import LoginButton from 'containers/LoginButton/LoginButton';
 import MilMoveLogo from 'shared/images/milmove-logo.svg';
 
 import usaFlag from 'shared/images/us-flag.png';
@@ -80,7 +80,7 @@ function Header() {
             </div>
             <nav className="usa-nav" aria-label="Primary navigation">
               <ul className="usa-nav__primary usa-accordion">
-                <LoginButton />
+                <LoginButton useEula />
               </ul>
             </nav>
           </div>
