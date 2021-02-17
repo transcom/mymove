@@ -105,7 +105,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
 		if mtoShipment.PrimeEstimatedWeight == nil {
-			return nil, verrs, services.NewConflictError(reService.ID, "for creating a service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.")
+			return nil, verrs, services.NewConflictError(mtoShipmentID, fmt.Sprintf("The associated MTOShipment (%s) must have a valid PrimeEstimatedWeight to create this service item.", mtoShipmentID))
 		}
 	}
 
