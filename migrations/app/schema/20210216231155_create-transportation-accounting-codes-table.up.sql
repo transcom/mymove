@@ -9,5 +9,5 @@ CREATE TABLE transportation_accounting_codes
 CREATE INDEX transportation_accounting_codes_tac_idx ON transportation_accounting_codes USING btree(tac);
 
 -- comments on columns
-COMMENT ON COLUMN "transportation_accounting_codes"."tac" IS 'A 4-digit alphanumeric transportation accounting code used to look up long lines of accounting';
+COMMENT ON COLUMN "transportation_accounting_codes"."tac" IS 'A 4-digit alphanumeric transportation accounting code used to look up long lines of accounting.  These values are sourced from TGET.';
 
