@@ -4,6 +4,7 @@ import { bool, shape, string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './SignIn.module.scss';
+import '@trussworks/react-uswds/lib/index.css';
 
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
@@ -68,7 +69,7 @@ const SignIn = ({ context, location }) => {
               onClick={() => setShowEula(!showEula)}
               type="button"
             >
-              Sign In
+              Sign in
             </Button>
           </div>
         </div>
