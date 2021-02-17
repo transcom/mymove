@@ -62,20 +62,14 @@ const SignIn = ({ context, location }) => {
             </div>
           )}
           <div className="align-center">
-            {siteName === 'my.move.mil' ? (
-              <Button
-                aria-label="Sign In"
-                className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
-                onClick={() => setShowEula(!showEula)}
-                type="button"
-              >
-                Sign In
-              </Button>
-            ) : (
-              <a href="/auth/login-gov" className="usa-button usa-button-big">
-                Sign in
-              </a>
-            )}
+            <Button
+              aria-label="Sign In"
+              className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
+              onClick={() => setShowEula(!showEula)}
+              type="button"
+            >
+              Sign In
+            </Button>
           </div>
         </div>
       </div>

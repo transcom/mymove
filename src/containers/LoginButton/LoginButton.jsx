@@ -13,7 +13,7 @@ import { LogoutUser } from 'utils/api';
 import { logOut as logOutFunction } from 'store/auth/actions';
 import ConnectedEulaModal from 'components/EulaModal';
 
-const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, useEula }) => {
+const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
   const [showEula, setShowEula] = useState(false);
 
   if (!isLoggedIn) {
@@ -39,21 +39,15 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, useEula }) => {
           </li>
         )}
         <li className="usa-nav__primary-item">
-          {useEula ? (
-            <Button
-              aria-label="Sign In"
-              className={styles.signIn}
-              data-hook="signin"
-              onClick={() => setShowEula(!showEula)}
-              type="button"
-            >
-              Sign In
-            </Button>
-          ) : (
-            <a className="usa-nav__link" data-hook="signin" href="/auth/login-gov">
-              Sign In
-            </a>
-          )}
+          <Button
+            aria-label="Sign In"
+            className={styles.signIn}
+            data-hook="signin"
+            onClick={() => setShowEula(!showEula)}
+            type="button"
+          >
+            Sign In
+          </Button>
         </li>
       </>
     );
@@ -77,11 +71,6 @@ LoginButton.propTypes = {
   isLoggedIn: bool.isRequired,
   logOut: func.isRequired,
   showDevlocalButton: bool.isRequired,
-  useEula: bool,
-};
-
-LoginButton.defaultProps = {
-  useEula: false,
 };
 
 function mapStateToProps(state) {
