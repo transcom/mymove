@@ -609,3 +609,6 @@
 20210201221927_adjust_params_for_sit_pickup.up.sql
 20210216180136_carter_cac.up.sql
 20210216231155_create-transportation-accounting-codes-table.up.sql
+20210218000110_add_pricer_to_service_item_param_origin_enum.up.sql
+20210218000136_add_bool_to_service_item_param_type_enum.up.sql
+20210218000226_add_service_param_keys_from_rate_engine.up.sql
