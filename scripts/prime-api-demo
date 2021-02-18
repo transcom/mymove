@@ -119,26 +119,22 @@ printf "\nThe prime will now fetch the new MTO.\n\n"
 
 printf "\n==========\n\n"
 
+# Find MTO By MTO ID
 if jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
-  # MTO found
   echo "Found by Move Task Order ID"
+# Find MTO By moveOrderID
+elif jq -e 'map(select(.moveOrderID == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
+  # extract the mtoid
+  mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
+  echo "Found by Move Order ID. Actual MTO ID is ${mtoid}"
+# Find MTO by moveCode aka locator
+elif jq -e 'map(select(.moveCode == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
+  # extract the mtoid
+  mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
+  echo "Found by Move Code. Actual MTO ID is ${mtoid}"
 else
-  # maybe we have a moveOrderID
-  if jq -e 'map(select(.moveOrderID == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
-    # great
-    mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
-    echo "Found by Move Order ID. Actual MTO ID is ${mtoid}"
-  else
-    # maybe we have a moveCode
-    if jq -e 'map(select(.moveCode == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
-      # great
-      mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
-      echo "Found by Move Code. Actual MTO ID is ${mtoid}"
-    else
-      echo "ID not found"
-      exit 1
-    fi
-  fi
+  echo "ID not found"
+  exit 1
 fi
 
 
