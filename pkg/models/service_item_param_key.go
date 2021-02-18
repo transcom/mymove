@@ -134,6 +134,8 @@ const (
 	ServiceItemParamNameEscalationCompounded ServiceItemParamName = "EscalationCompounded"
 	// ServiceItemParamNameIsPeak is the param key name IsPeak
 	ServiceItemParamNameIsPeak ServiceItemParamName = "IsPeak"
+	// ServiceItemParamNameContractYearName is the param key name ContractYearName
+	ServiceItemParamNameContractYearName ServiceItemParamName = "ContractYearName"
 )
 
 // ServiceItemParamType is a type of service item parameter
@@ -238,6 +240,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNamePriceRateOrFactor,
 	ServiceItemParamNameEscalationCompounded,
 	ServiceItemParamNameIsPeak,
+	ServiceItemParamNameContractYearName,
 }
 
 // ValidServiceItemParamNameStrings lists all valid service item param key names
@@ -300,6 +303,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNamePriceRateOrFactor),
 	string(ServiceItemParamNameEscalationCompounded),
 	string(ServiceItemParamNameIsPeak),
+	string(ServiceItemParamNameContractYearName),
 }
 
 // ValidServiceItemParamTypes lists all valid service item param types
