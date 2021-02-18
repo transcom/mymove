@@ -1,4 +1,40 @@
--- Add new service item param keys
+------ Add BOOLEAN to type enum ------
+-- Change type from service_item_param_type to varchar for all columns/tables which use this type:
+ALTER TABLE service_item_param_keys ALTER COLUMN type TYPE VARCHAR(255);
+
+-- Drop and create again service_item_param_type enum:
+DROP TYPE IF EXISTS service_item_param_type;
+CREATE TYPE service_item_param_type AS ENUM (
+    'STRING',
+    'DATE',
+    'INTEGER',
+    'DECIMAL',
+    'TIMESTAMP',
+    'PaymentServiceItemUUID',
+    'BOOLEAN'
+    );
+
+-- Revert type from varchar to service_item_param_type for all columns/tables (revert step one):
+ALTER TABLE service_item_param_keys ALTER COLUMN type TYPE service_item_param_type USING (type::service_item_param_type);
+
+------ Add PRICER to origin enum ------
+-- Change origin from service_item_param_origin to varchar for all columns/tables which use this type:
+ALTER TABLE service_item_param_keys ALTER COLUMN origin TYPE VARCHAR(255);
+
+-- Drop and create again request_origin enum:
+DROP TYPE IF EXISTS service_item_param_origin;
+CREATE TYPE service_item_param_origin AS ENUM (
+    'PRIME',
+    'SYSTEM',
+    'PRICER'
+    );
+
+-- Revert origin from varchar to request_origin for all columns/tables (revert step one):
+ALTER TABLE service_item_param_keys ALTER COLUMN origin TYPE service_item_param_origin USING (origin::service_item_param_origin);
+
+
+
+------ Add new service item param keys ------
 INSERT INTO service_item_param_keys
 (id, key,description,type,origin,created_at,updated_at)
 VALUES
@@ -7,7 +43,7 @@ VALUES
 ('95ee2e21-b232-4d74-9ec5-218564a8a8b9', 'IsPeak', 'True if this is a peak season move', 'BOOLEAN', 'PRICER', now(), now());
 
 
--- Map new service item param keys to corresponding service items
+------ Map new service item param keys to corresponding service items ------
 INSERT INTO service_params
 (id,service_id,service_item_param_key_id,created_at,updated_at)
 VALUES
