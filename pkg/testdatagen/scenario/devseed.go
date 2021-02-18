@@ -628,7 +628,7 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	})
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Status:             models.MoveStatusSUBMITTED,
+			Status:             models.MoveStatusAPPROVED,
 			OrdersID:           orders.ID,
 			Orders:             orders,
 			SelectedMoveType:   &hhgMoveType,
