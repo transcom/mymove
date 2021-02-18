@@ -194,6 +194,8 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 	})
 	ppm2.Move.Submit(time.Now())
 	ppm2.Move.Approve()
+	ppm2.Move.AvailableToPrimeAt = swag.Time(time.Now())
+
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -604,6 +606,8 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 	})
 	ppm6.Move.Submit(time.Now())
 	ppm6.Move.Approve()
+	ppm6.Move.AvailableToPrimeAt = swag.Time(time.Now())
+
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppm6.Move)
@@ -624,10 +628,11 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	})
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Status:           models.MoveStatusSUBMITTED,
-			OrdersID:         orders.ID,
-			Orders:           orders,
-			SelectedMoveType: &hhgMoveType,
+			Status:             models.MoveStatusSUBMITTED,
+			OrdersID:           orders.ID,
+			Orders:             orders,
+			SelectedMoveType:   &hhgMoveType,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -752,10 +757,11 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 
 	move8 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:               uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
-			OrdersID:         orders8.ID,
-			Status:           models.MoveStatusAPPROVALSREQUESTED,
-			SelectedMoveType: &hhgMoveType,
+			ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
+			OrdersID:           orders8.ID,
+			Status:             models.MoveStatusAPPROVALSREQUESTED,
+			SelectedMoveType:   &hhgMoveType,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -2288,8 +2294,9 @@ func createMoveWithServiceItems(db *pop.Connection, userUploader *uploader.UserU
 
 	move9 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:       uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
-			OrdersID: orders9.ID,
+			ID:                 uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
+			OrdersID:           orders9.ID,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -2388,9 +2395,10 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 
 	move10 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:       uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae8"),
-			OrdersID: orders10.ID,
-			Status:   models.MoveStatusAPPROVED,
+			ID:                 uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae8"),
+			OrdersID:           orders10.ID,
+			Status:             models.MoveStatusAPPROVED,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
