@@ -66,6 +66,7 @@ const SignIn = ({ context, location }) => {
             <Button
               aria-label="Sign In"
               className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
+              data-testid="signin"
               onClick={() => setShowEula(!showEula)}
               type="button"
             >
