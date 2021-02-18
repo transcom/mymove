@@ -231,7 +231,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 				close(statements)
 				return
 			}
-			if strings.EqualFold(strings.ToUpper(str), strings.ToUpper(lastBlock)) {
+			if strings.EqualFold(str, lastBlock) {
 				i += len(lastBlock)
 				stmt.WriteString(blocks.Last())
 				blocks.Pop()
