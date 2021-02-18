@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -110,26 +111,13 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 	logger.Info("got here")
 	fmt.Println(webhookSubscription)
 
-	// webhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, &eTag)
-	// if err != nil {
-	// 	logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
-	// }
+	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, "eTag")
+	// Check that the uuid provided is valid
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
+	}
 
-	// // updatedWebhookSubscription :=
-	// // webhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription()
-
-	// // Check that the uuid provided is valid
-	// if err != nil {
-	// 	logger.Error(fmt.Sprintf("The UUID provided for %s is not valid", params.WebhookSubscriptionID.String()), zap.Errors(err))
-	// }
-
-	// // webhookSubscription, err = h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(&eTag)
-
-	// if err != nil {
-	// 	return handlers.ResponseForError(logger, err)
-	// }
 	// Convert model back to a payload
-	// payload = payloadForWebhookSubscriptionModel(webhookSubscription)
-	// return webhooksubscriptionop.NewUpdateWebhookSubscriptionOK().WithPayload(payload)
-	return webhooksubscriptionop.NewUpdateWebhookSubscriptionOK()
+	payload = payloadForWebhookSubscriptionModel(*updatedWebhookSubscription)
+	return webhooksubscriptionop.NewUpdateWebhookSubscriptionOK().WithPayload(payload)
 }
