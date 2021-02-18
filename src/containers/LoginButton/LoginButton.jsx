@@ -30,7 +30,7 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
           <li className="usa-nav__primary-item">
             <a
               className="usa-nav__link"
-              data-hook="devlocal-signin"
+              testid="devlocal-signin"
               style={{ marginRight: '2em' }}
               href="/devlocal-auth/login"
             >
@@ -42,7 +42,7 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
           <Button
             aria-label="Sign In"
             className={styles.signIn}
-            data-hook="signin"
+            testid="signin"
             onClick={() => setShowEula(!showEula)}
             type="button"
           >
@@ -59,10 +59,9 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
 
   return (
     <li className="usa-nav__primary-item">
-      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-      <a className="usa-nav__link" href="#" onClick={handleLogOut}>
+      <Button aria-label="Sign Out" className={styles.signOut} testid="signout" onClick={handleLogOut} type="button">
         Sign Out
-      </a>
+      </Button>
     </li>
   );
 };
