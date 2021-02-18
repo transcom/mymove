@@ -9,6 +9,7 @@ import (
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -90,4 +91,45 @@ func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWe
 
 	payload := payloadForWebhookSubscriptionModel(webhookSubscription)
 	return webhooksubscriptionop.NewGetWebhookSubscriptionOK().WithPayload(payload)
+}
+
+// UpdateWebhookSubscriptionHandler returns an updated webhook subscription via PUT
+type UpdateWebhookSubscriptionHandler struct {
+	handlers.HandlerContext
+	services.WebhookSubscriptionUpdater
+	services.NewQueryFilter
+}
+
+// Handle updates a webhook subscription content
+func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.UpdateWebhookSubscriptionParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	payload := params.WebhookSubscription
+
+	// Payload to model converter
+	webhookSubscription := payloads.WebhookSubscriptionModel(payload)
+	logger.Info("got here")
+	fmt.Println(webhookSubscription)
+
+	// webhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, &eTag)
+	// if err != nil {
+	// 	logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
+	// }
+
+	// // updatedWebhookSubscription :=
+	// // webhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription()
+
+	// // Check that the uuid provided is valid
+	// if err != nil {
+	// 	logger.Error(fmt.Sprintf("The UUID provided for %s is not valid", params.WebhookSubscriptionID.String()), zap.Errors(err))
+	// }
+
+	// // webhookSubscription, err = h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(&eTag)
+
+	// if err != nil {
+	// 	return handlers.ResponseForError(logger, err)
+	// }
+	// Convert model back to a payload
+	// payload = payloadForWebhookSubscriptionModel(webhookSubscription)
+	// return webhooksubscriptionop.NewUpdateWebhookSubscriptionOK().WithPayload(payload)
+	return webhooksubscriptionop.NewUpdateWebhookSubscriptionOK()
 }
