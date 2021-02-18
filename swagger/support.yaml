@@ -1019,6 +1019,7 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
+        readOnly: true
         description: |
           Unique ID associated with this MoveOrder.
 
