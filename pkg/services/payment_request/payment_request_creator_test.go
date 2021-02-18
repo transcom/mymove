@@ -65,7 +65,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameEscalation,
+			Key:         models.ServiceItemParamNameEscalationCompounded,
 			Description: "escalation factor",
 			Type:        models.ServiceItemParamTypeDecimal,
 			Origin:      models.ServiceItemParamOriginPricer,

@@ -130,8 +130,8 @@ const (
 	ServiceItemParamNameZipSITOriginHHGActualAddress ServiceItemParamName = "ZipSITOriginHHGActualAddress"
 	// ServiceItemParamNamePriceRateOrFactor is the param key name PriceRateOrFactor
 	ServiceItemParamNamePriceRateOrFactor ServiceItemParamName = "PriceRateOrFactor"
-	// ServiceItemParamNameEscalation is the param key name Escalation
-	ServiceItemParamNameEscalation ServiceItemParamName = "Escalation"
+	// ServiceItemParamNameEscalationCompounded is the param key name Escalation
+	ServiceItemParamNameEscalationCompounded ServiceItemParamName = "EscalationCompounded"
 	// ServiceItemParamNameIsPeak is the param key name IsPeak
 	ServiceItemParamNameIsPeak ServiceItemParamName = "IsPeak"
 )
@@ -236,7 +236,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameZipSITOriginHHGOriginalAddress,
 	ServiceItemParamNameZipSITOriginHHGActualAddress,
 	ServiceItemParamNamePriceRateOrFactor,
-	ServiceItemParamNameEscalation,
+	ServiceItemParamNameEscalationCompounded,
 	ServiceItemParamNameIsPeak,
 }
 
@@ -298,7 +298,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameZipSITOriginHHGOriginalAddress),
 	string(ServiceItemParamNameZipSITOriginHHGActualAddress),
 	string(ServiceItemParamNamePriceRateOrFactor),
-	string(ServiceItemParamNameEscalation),
+	string(ServiceItemParamNameEscalationCompounded),
 	string(ServiceItemParamNameIsPeak),
 }
 
