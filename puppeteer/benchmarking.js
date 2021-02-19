@@ -36,7 +36,7 @@ const runAction = async ({ scenario, measurementType, host, verbose, saveReports
 
       // Running these tests in parallel would likely skew the results
       // eslint-disable-next-line no-await-in-loop
-      const elapsedTimeResults = await totalDuration(host, configStore, debug).catch(() => {
+      const elapsedTimeResults = await totalDuration(host, configStore, debug, saveReports).catch(() => {
         process.exit(1);
       });
       results[`${speed}`] = elapsedTimeResults;

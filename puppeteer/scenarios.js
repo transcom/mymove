@@ -86,7 +86,7 @@ const setupCPU = async (config, page) => {
   return Promise.resolve();
 };
 
-const lighthouseFromPuppeteer = async (url, options, config = null, saveReports = false) => {
+const lighthouseFromPuppeteer = async (url, options, config = null, saveReports = false, networkProfileName = '') => {
   // Run Lighthouse
   const { lhr, artifacts } = await lighthouse(url, options, config);
 
@@ -94,15 +94,31 @@ const lighthouseFromPuppeteer = async (url, options, config = null, saveReports 
   const json = reportGenerator.generateReport(lhr, 'json');
   if (saveReports) {
     const trace = reportGenerator.generateReport(artifacts, 'json');
-    const lhReportPath = 'puppeteer/lighthouse-report.json';
-    const pTracePath = 'puppeteer/performance-trace.json';
+    const lhReportPath = `puppeteer/lighthouse-report-${networkProfileName}.json`;
+    const pTracePath = `puppeteer/performance-trace-${networkProfileName}.json`;
     // eslint-disable-next-line no-console
     console.debug(`\n
     Generating lighthouse reports:
       ${lhReportPath}
       ${pTracePath}`);
-    fs.writeFileSync('puppeteer/lighthouse-report.json', json);
-    fs.writeFileSync('puppeteer/performance-trace.json', trace);
+    // Need literal string to work around the detect-non-literal-fs-filename
+    switch (networkProfileName) {
+      case 'fast':
+        fs.writeFileSync('puppeteer/lighthouse-report-fast.json', json);
+        fs.writeFileSync('puppeteer/performance-trace-fast.json', trace);
+        break;
+      case 'medium':
+        fs.writeFileSync('puppeteer/lighthouse-report-medium.json', json);
+        fs.writeFileSync('puppeteer/performance-trace-medium.json', trace);
+        break;
+      case 'slow':
+        fs.writeFileSync('puppeteer/lighthouse-report-slow.json', json);
+        fs.writeFileSync('puppeteer/performance-trace-slow.json', trace);
+        break;
+      default:
+        fs.writeFileSync('puppeteer/lighthouse-report.json', json);
+        fs.writeFileSync('puppeteer/performance-trace.json', trace);
+    }
   }
 
   const { audits } = JSON.parse(json); // Lighthouse audits
@@ -178,6 +194,7 @@ const totalDuration = async (host, config, debug, saveReports) => {
       throttling: {
         cpuSlowdownMultiplier: cpuRateConfig.rate,
         requestLatencyMs: networkConfig.latency,
+        throughputKbps: networkConfig.download, // TODO - Should investigate more on how to use this
         downloadThroughputKbps: networkConfig.download,
         uploadThroughputKbps: networkConfig.upload,
       },
@@ -192,7 +209,7 @@ const totalDuration = async (host, config, debug, saveReports) => {
     },
   };
 
-  const lhResults = await lighthouseFromPuppeteer(url, lhOptions, lhConfig, saveReports);
+  const lhResults = await lighthouseFromPuppeteer(url, lhOptions, lhConfig, saveReports, config.network);
   const pfTimingResults = getTotalRequestTime(navigationEntries);
 
   await browser.close();
