@@ -130,7 +130,7 @@ const (
 	ServiceItemParamNameZipSITOriginHHGActualAddress ServiceItemParamName = "ZipSITOriginHHGActualAddress"
 	// ServiceItemParamNamePriceRateOrFactor is the param key name PriceRateOrFactor
 	ServiceItemParamNamePriceRateOrFactor ServiceItemParamName = "PriceRateOrFactor"
-	// ServiceItemParamNameEscalationCompounded is the param key name Escalation
+	// ServiceItemParamNameEscalationCompounded is the param key name EscalationCompounded
 	ServiceItemParamNameEscalationCompounded ServiceItemParamName = "EscalationCompounded"
 	// ServiceItemParamNameIsPeak is the param key name IsPeak
 	ServiceItemParamNameIsPeak ServiceItemParamName = "IsPeak"
