@@ -1,4 +1,15 @@
-button.signInButton {
+button.signInButtonCustomer {
   display: inline-flex;
   width: 100%;
+}
+
+.officeSignIn {
+  h1 {
+    font-kerning: normal;
+    font-weight: 700;
+    font-size: 34px;
+  }
+}
+button.signInButtonOffice {
+  display: initial;
 }

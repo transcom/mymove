@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
+import '../../styles/office.scss';
 
 // API / Redux actions
 import { selectIsLoggedIn } from 'store/auth/selectors';

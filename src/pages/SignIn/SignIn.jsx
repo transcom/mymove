@@ -27,7 +27,7 @@ const SignIn = ({ context, location }) => {
         }}
         closeModal={() => setShowEula(false)}
       />
-      <div className="grid-row">
+      <div className={siteName === 'my.move.mil' ? 'grid-row' : styles.officeSignIn}>
         <div className="grid-col-8 grid-offset-2">
           {error && (
             <div>
@@ -65,7 +65,7 @@ const SignIn = ({ context, location }) => {
           <div className="align-center">
             <Button
               aria-label="Sign In"
-              className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
+              className={siteName === 'my.move.mil' ? styles.signInButtonCustomer : styles.signInButtonOffice}
               data-testid="signin"
               onClick={() => setShowEula(!showEula)}
               type="button"
