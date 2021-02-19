@@ -1,8 +1,6 @@
 package payloads
 
 import (
-	"time"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -30,16 +28,13 @@ func UserModel(user *adminmessages.UserUpdatePayload, id uuid.UUID) (*models.Use
 	return model, nil
 }
 
-// WebhookSubscriptionModel represents a webhook subscription
+// WebhookSubscriptionModel converts a webhook subscription payload to a model
 func WebhookSubscriptionModel(sub *adminmessages.WebhookSubscription) *models.WebhookSubscription {
 	model := &models.WebhookSubscription{
 		CallbackURL:  sub.CallbackURL,
-		CreatedAt:    time.Now(),
 		EventKey:     sub.EventKey,
 		ID:           uuid.FromStringOrNil(sub.ID.String()),
-		Severity:     int(*sub.Severity),
 		SubscriberID: uuid.FromStringOrNil(sub.SubscriberID.String()),
-		UpdatedAt:    time.Now(),
 	}
 
 	if sub.Severity != nil {

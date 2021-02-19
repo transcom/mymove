@@ -108,8 +108,6 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 
 	// Payload to model converter
 	webhookSubscription := payloads.WebhookSubscriptionModel(payload)
-	logger.Info("got here")
-	fmt.Println(webhookSubscription)
 
 	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, "eTag")
 	// Check that the uuid provided is valid
