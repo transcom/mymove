@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const fs = require('fs');
 
 const lighthouse = require('lighthouse');
@@ -38,13 +39,11 @@ const setupEmulation = (config, page, userAgent) => {
   const emulator = device ? puppeteer.devices[`${device}`] : config.emulate;
 
   if (device && !emulator) {
-    // eslint-disable-next-line no-console
     console.debug(`Skipping page emulation device '${device}' is not defined`);
   }
 
   if (emulator) {
     if (device) {
-      // eslint-disable-next-line no-console
       console.debug(`Emulating page using ${emulator.name}`);
     } else {
       emulator.userAgent = emulator.userAgent || userAgent;
@@ -55,7 +54,6 @@ const setupEmulation = (config, page, userAgent) => {
         return Promise.resolve(emulator);
       })
       .catch((err) => {
-        // eslint-disable-next-line no-console
         console.error(`Error setting emulation of page`, err);
       });
   }
@@ -132,7 +130,6 @@ const totalDuration = async (host, config, debug, saveReports) => {
   const deviceEmulationConfig = await setupEmulation(config, page, userAgent);
 
   await page.goto(`${host}/devlocal-auth/login`, waitOptions).catch(() => {
-    // eslint-disable-next-line no-console
     console.error(`Unable to reach host ${host}. Make sure your server and client are already running`);
     return Promise.reject();
   });
@@ -140,7 +137,6 @@ const totalDuration = async (host, config, debug, saveReports) => {
   // Login by clicking button for existing user
   const loginBtnSelector = 'button[value="9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"]';
   await page.waitForSelector(loginBtnSelector).catch(() => {
-    // eslint-disable-next-line no-console
     console.error(`Unable to reach host ${host}. Make sure your server and client are already running.`);
     return Promise.reject();
   });
