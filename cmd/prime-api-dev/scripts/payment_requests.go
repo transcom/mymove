@@ -581,13 +581,13 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 	for ok := true; ok; ok = update {
 		fmt.Printf("\nSelect field to update: ")
 		var selection int
-		selection, err = getIntInput()
+		selection, _ = getIntInput()
 		selectedField := fields[selection]
 		switch selectedField.field {
 		case actualPickupDate:
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
-			strFmtDate, err = getStrFmtDateInput()
+			strFmtDate, _ = getStrFmtDateInput()
 			shipment.ActualPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -597,7 +597,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 		case requestedPickupDate:
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
-			strFmtDate, err = getStrFmtDateInput()
+			strFmtDate, _ = getStrFmtDateInput()
 			shipment.RequestedPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -607,7 +607,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 		case scheduledPickupDate:
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
-			strFmtDate, err = getStrFmtDateInput()
+			strFmtDate, _ = getStrFmtDateInput()
 			shipment.ScheduledPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -617,7 +617,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 		case primeEstimatedWeight:
 			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
 			var weight int
-			weight, err = getIntInput()
+			weight, _ = getIntInput()
 			shipment.PrimeEstimatedWeight = int64(weight)
 			fieldValue := updateInfo{
 				value:    strconv.Itoa(weight),
@@ -627,7 +627,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 		case primeActualWeight:
 			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
 			var weight int
-			weight, err = getIntInput()
+			weight, _ = getIntInput()
 			shipment.PrimeActualWeight = int64(weight)
 			fieldValue := updateInfo{
 				value:    strconv.Itoa(weight),
@@ -1128,6 +1128,9 @@ func (pr *paymentRequestsData) displayMainMenu() (bool, menuType, error) {
 	switch selection {
 	case FetchDisplay:
 		err = pr.fetchMTOs()
+		if err != nil {
+			fmt.Printf("Error fetching MTO <%s>, try again", err.Error())
+		}
 		pr.displayMTOS()
 		return exitApp, display[selection].nextMenu, nil
 	case Display:
