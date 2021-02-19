@@ -63,6 +63,15 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		},
 	})
 
+	serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameEscalationCompounded,
+			Description: "escalation factor",
+			Type:        models.ServiceItemParamTypeDecimal,
+			Origin:      models.ServiceItemParamOriginPricer,
+		},
+	})
+
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             mtoServiceItem1.ReServiceID,
@@ -76,6 +85,13 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			ServiceID:             mtoServiceItem1.ReServiceID,
 			ServiceItemParamKeyID: serviceItemParamKey2.ID,
 			ServiceItemParamKey:   serviceItemParamKey2,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey4.ID,
+			ServiceItemParamKey:   serviceItemParamKey4,
 		},
 	})
 
@@ -882,6 +898,31 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		moveTaskOrder.ReferenceID = &saveReferenceID
 		suite.MustSave(&moveTaskOrder)
+	})
+
+	suite.T().Run("CreatePaymentRequest should not return params from rate engine", func(t *testing.T) {
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+				},
+			},
+		}
+
+		paymentRequestReturn, err := creator.CreatePaymentRequest(&paymentRequest)
+		suite.FatalNoError(err)
+		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
+		suite.Equal(1, len(paymentRequestReturn.PaymentServiceItems), "PaymentServiceItems expect 1")
+
+		// Verify that none of the returned service item params are from the Pricer
+		if suite.Len(paymentRequestReturn.PaymentServiceItems, 1) {
+			for _, param := range paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams {
+				suite.NotEqual(param.ServiceItemParamKey.Origin, string(models.ServiceItemParamOriginPricer))
+			}
+		}
 	})
 
 }
