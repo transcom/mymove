@@ -4,6 +4,7 @@ const fs = require('fs');
 const lighthouse = require('lighthouse');
 const puppeteer = require('puppeteer');
 const reportGenerator = require('lighthouse/lighthouse-core/report/report-generator');
+const { throttling } = require('lighthouse/lighthouse-core/config/constants');
 
 const { networkProfiles } = require('./constants');
 
@@ -191,12 +192,14 @@ const totalDuration = async (host, config, debug, saveReports) => {
     extends: 'lighthouse:default',
     settings: {
       formFactor: 'desktop', // TODO - Will need to change once we do device emulation
+      throttlingMethod: 'devtools',
       throttling: {
+        // Lighthouse expects kilobits per sec instead of bytes per sec
+        // 1 byte = 0.008 kilobits
         cpuSlowdownMultiplier: cpuRateConfig.rate,
-        requestLatencyMs: networkConfig.latency,
-        throughputKbps: networkConfig.download, // TODO - Should investigate more on how to use this
-        downloadThroughputKbps: networkConfig.download,
-        uploadThroughputKbps: networkConfig.upload,
+        requestLatencyMs: networkConfig.latency * throttling.DEVTOOLS_RTT_ADJUSTMENT_FACTOR,
+        downloadThroughputKbps: networkConfig.download * 0.008 * throttling.DEVTOOLS_THROUGHPUT_ADJUSTMENT_FACTOR,
+        uploadThroughputKbps: networkConfig.upload * 0.008 * throttling.DEVTOOLS_THROUGHPUT_ADJUSTMENT_FACTOR,
       },
       screenEmulation: {
         mobile: false,
