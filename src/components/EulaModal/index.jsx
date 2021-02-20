@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import classNames from 'classnames';
 
 import styles from './EulaModal.module.scss';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const EulaModal = ({ closeModal, acceptTerms }) => (
-  <Modal className={styles.eulaModal}>
+  <Modal className={classNames(styles.eulaModal, 'modal', 'container', 'container--popout')}>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
       <h3>Standard mandatory DoD Notice and consent Banner</h3>
