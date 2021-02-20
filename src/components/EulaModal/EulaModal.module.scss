@@ -1,7 +1,11 @@
 @import '../../shared/styles/colors';
 
+/*
+Manually copy over the USWDS Styles here so that the cancel button is not red
+for the office side when the EULA appears.
+*/
 .eulaModal {
-  :global .usa-button--secondary {
+  :global(.usa-button--secondary) {
     border-radius: 4px;
     color: $primary;
     background-color: inherit;
