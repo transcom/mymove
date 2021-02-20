@@ -191,6 +191,7 @@ const totalDuration = async (host, config, debug, saveReports) => {
   const lhConfig = {
     extends: 'lighthouse:default',
     settings: {
+      maxWaitForLoad: 200000, // 200,000 ms. Increase max wait so lighthouse can gather metrics.
       formFactor: 'desktop', // TODO - Will need to change once we do device emulation
       throttlingMethod: 'devtools',
       throttling: {
