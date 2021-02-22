@@ -9,7 +9,7 @@
     "bytes": "^3.0.0",
     "classnames": "^2.2.5",
     "connected-react-router": "^6.8.0",
-    "core-js": "^3.8.3",
+    "core-js": "^3.9.0",
     "filepond": "^4.25.1",
     "filepond-plugin-file-validate-size": "^2.2.2",
     "filepond-plugin-file-validate-type": "^1.2.5",
@@ -78,7 +78,7 @@
   "resolutions": {
     "kind-of": "^6.0.2",
     "selfsigned": "^1.10.8",
-    "immer" : "^8.0.1"
+    "immer": "^8.0.1"
   },
   "name": "client",
   "private": true,
@@ -104,7 +104,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.12.16",
+    "@babel/core": "~7.12.17",
     "@dump247/storybook-state": "^1.6.1",
     "@stoplight/spectral": "^5.8.1",
     "@storybook/addon-a11y": "^6.1.18",
@@ -118,7 +118,7 @@
     "@wojtekmaj/enzyme-adapter-react-17": "^0.4.1",
     "commander": "^7.1.0",
     "conf": "^9.0.2",
-    "cypress": "^6.4.0",
+    "cypress": "^6.5.0",
     "cypress-audit": "^0.3.0",
     "cypress-wait-until": "^1.7.1",
     "danger": "^10.6.2",
