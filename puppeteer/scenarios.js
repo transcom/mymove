@@ -134,7 +134,7 @@ const lighthouseFromPuppeteer = async (url, options, config = null, saveReports 
   };
 };
 
-const totalDuration = async (host, config, debug, saveReports) => {
+const totalDuration = async ({ host, config, debug, saveReports, verbose }) => {
   const waitOptions = { timeout: 0, waitUntil: 'networkidle0' };
 
   const browser = await puppeteer.launch(config.launch);
@@ -185,7 +185,7 @@ const totalDuration = async (host, config, debug, saveReports) => {
   const url = `${host}/moves/${locatorValue}/orders`;
   const lhOptions = {
     port: new URL(browser.wsEndpoint()).port,
-    logLevel: 'info',
+    logLevel: verbose ? 'info' : 'error',
     chromeFlags: ['--disable-mobile-emulation'],
   };
   const lhConfig = {
