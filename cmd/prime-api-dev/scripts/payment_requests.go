@@ -581,13 +581,19 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 	for ok := true; ok; ok = update {
 		fmt.Printf("\nSelect field to update: ")
 		var selection int
-		selection, _ = getIntInput()
+		selection, err = getIntInput()
+		if err != nil {
+			log.Fatal("Cannot get int input", err)
+		}
 		selectedField := fields[selection]
 		switch selectedField.field {
 		case actualPickupDate:
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
-			strFmtDate, _ = getStrFmtDateInput()
+			strFmtDate, err = getStrFmtDateInput()
+			if err != nil {
+				log.Fatal("Cannot get date input", err)
+			}
 			shipment.ActualPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -597,7 +603,10 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 		case requestedPickupDate:
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
-			strFmtDate, _ = getStrFmtDateInput()
+			strFmtDate, err = getStrFmtDateInput()
+			if err != nil {
+				log.Fatal("Cannot get date input", err)
+			}
 			shipment.RequestedPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -607,7 +616,10 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 		case scheduledPickupDate:
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
-			strFmtDate, _ = getStrFmtDateInput()
+			strFmtDate, err = getStrFmtDateInput()
+			if err != nil {
+				log.Fatal("Cannot get date input", err)
+			}
 			shipment.ScheduledPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -617,7 +629,10 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 		case primeEstimatedWeight:
 			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
 			var weight int
-			weight, _ = getIntInput()
+			weight, err = getIntInput()
+			if err != nil {
+				log.Fatal("Cannot get int input", err)
+			}
 			shipment.PrimeEstimatedWeight = int64(weight)
 			fieldValue := updateInfo{
 				value:    strconv.Itoa(weight),
@@ -627,7 +642,10 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 		case primeActualWeight:
 			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
 			var weight int
-			weight, _ = getIntInput()
+			weight, err = getIntInput()
+			if err != nil {
+				log.Fatal("Cannot get int input", err)
+			}
 			shipment.PrimeActualWeight = int64(weight)
 			fieldValue := updateInfo{
 				value:    strconv.Itoa(weight),
