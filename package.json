@@ -75,7 +75,8 @@
   },
   "resolutions": {
     "kind-of": "^6.0.2",
-    "selfsigned": "^1.10.8"
+    "selfsigned": "^1.10.8",
+    "immer": "^8.0.1"
   },
   "name": "client",
   "private": true,
