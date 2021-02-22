@@ -33,9 +33,8 @@ func (suite *certTestSuite) Setup(fn initFlags, flagSet []string) {
 	//RA: Functions with unchecked return values are used to set/unset environment variables needed for session creation in the unit test's local database
 	//RA: Setting/unsetting of environment variables does not present any risks and are solely used for unit testing purposes
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
 	flag.Parse(flagSet) // nolint:errcheck
 
 	v := viper.New()

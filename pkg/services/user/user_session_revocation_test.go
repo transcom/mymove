@@ -4,9 +4,8 @@
 //RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
 //RA: in which this would be considered a risk
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-//RA Validator: jneuner@mitre.org
-//RA Modified Severity:
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
 // nolint:errcheck
 package user
 

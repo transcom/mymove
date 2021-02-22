@@ -3,9 +3,8 @@
 //RA: Functions with unchecked return values in the file are used to generate test data for use in the unit test
 //RA: Creation of test data generation for unit test consumption does not present any unexpected states and conditions
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-//RA Validator: jneuner@mitre.org
-//RA Modified Severity:
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
 // nolint:errcheck
 package ordersapi
 
@@ -47,15 +46,7 @@ func (suite *HandlerSuite) SetupTest() {
 // AfterTest completes tests by trying to close open files
 func (suite *HandlerSuite) AfterTest() {
 	for _, file := range suite.TestFilesToClose() {
-		//RA Summary: gosec - errcheck - Unchecked return value
-		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-		//RA: Functions with unchecked return values in the file are used to close a local server connection to ensure a unit test server is not left running indefinitely
-		//RA: Given the functions causing the lint errors are used to close a local server connection for testing purposes, it is not deemed a risk
-		//RA Developer Status: Mitigated
-		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-		//RA Validator: jneuner@mitre.org
-		//RA Modified Severity:
-		file.Data.Close() // nolint:errcheck
+		file.Data.Close()
 	}
 }
 

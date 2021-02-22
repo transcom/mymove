@@ -18,9 +18,8 @@ func TestReadInSQLLine(t *testing.T) {
 	//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
 	//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
 	defer f.Close() // nolint:errcheck
 	require.Nil(t, err)
 
