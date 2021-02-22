@@ -7331,6 +7331,20 @@ del@^5.1.0:
     rimraf "^3.0.0"
     slash "^3.0.0"
 
+del@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/del/-/del-6.0.0.tgz#0b40d0332cea743f1614f818be4feb717714c952"
+  integrity sha512-1shh9DQ23L16oXSZKB2JxpL7iMy2E0S9d517ptA1P8iw0alkPtQcrKH7ru31rYtKwF499HkTu+DRzq3TCKDFRQ==
+  dependencies:
+    globby "^11.0.1"
+    graceful-fs "^4.2.4"
+    is-glob "^4.0.1"
+    is-path-cwd "^2.2.0"
+    is-path-inside "^3.0.2"
+    p-map "^4.0.0"
+    rimraf "^3.0.2"
+    slash "^3.0.0"
+
 delayed-stream@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/delayed-stream/-/delayed-stream-1.0.0.tgz#df3ae199acadfb7d440aaae0b29e2272b24ec619"
@@ -11051,7 +11065,7 @@ is-path-inside@^2.1.0:
   dependencies:
     path-is-inside "^1.0.2"
 
-is-path-inside@^3.0.1:
+is-path-inside@^3.0.1, is-path-inside@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/is-path-inside/-/is-path-inside-3.0.2.tgz#f5220fc82a3e233757291dddc9c5877f2a1f3017"
   integrity sha512-/2UGPSgmtqwo1ktx8NDHjuPwZWmHhO+gj0f93EkhLB5RgW9RZevWYYlIkS6zePc6U2WpOdQYIwHe9YC4DWEBVg==
@@ -19535,6 +19549,20 @@ use@^3.1.0:
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
+uswds@2.10.1:
+  version "2.10.1"
+  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.10.1.tgz#544fcf9b3550b54c4b48071c9e8c51423c6ffd24"
+  integrity sha512-8HS6yjV8eoL3VE1nk++/VMEaSqXpJCG18SMKwCj2wrZGgtIFKMaYh2746SGxDcJzO5V6g4McEN1gL2eRLfy2GA==
+  dependencies:
+    classlist-polyfill "^1.0.3"
+    del "^6.0.0"
+    domready "^1.0.8"
+    elem-dataset "^2.0.0"
+    lodash.debounce "^4.0.7"
+    object-assign "^4.1.1"
+    receptor "^1.0.0"
+    resolve-id-refs "^0.1.0"
+
 uswds@2.7.1:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.7.1.tgz#43f719fb3ef450e3faef722d336b29a39f6eee3b"
@@ -19551,20 +19579,6 @@ uswds@2.7.1:
     resolve-id-refs "^0.1.0"
     typescript "^2.4.1"
     yargs "^15.3.1"
-
-uswds@2.9.0:
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.9.0.tgz#002089d74582960099b0ee836f89f043cdf6d0bc"
-  integrity sha512-5IMVgMCUUlgWVFrB7Wf1qTvv5L3oDDlSsAgvJ02+/sV2uh4JzO9YPm3493RTaMuHTc+feRCuYyEIloXsEQY0Pg==
-  dependencies:
-    classlist-polyfill "^1.0.3"
-    del "^5.1.0"
-    domready "^1.0.8"
-    elem-dataset "^2.0.0"
-    lodash.debounce "^4.0.7"
-    object-assign "^4.1.1"
-    receptor "^1.0.0"
-    resolve-id-refs "^0.1.0"
 
 util-deprecate@^1.0.1, util-deprecate@^1.0.2, util-deprecate@~1.0.1:
   version "1.0.2"
