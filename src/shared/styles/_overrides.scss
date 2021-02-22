@@ -234,7 +234,7 @@
   background-color: $primary;
 }
 
-.usa-error-message, .usa-warning-message,
+.usa-error-message,
 .usa-checkbox__label,
 .usa-input {
   @include u-font-size('body', 'xs');
@@ -275,6 +275,10 @@
   color: #967019;
   display: block;
   font-weight: 700;
+}
+
+.usa-input-warning {
+  border: 0.26667rem $warning solid;
 }
 
 //Modals
