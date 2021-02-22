@@ -227,9 +227,8 @@ func (suite *PaperworkSuite) TestCleanup() {
 	//RA: Functions with unchecked return value in the file is used for test database teardown
 	//RA: Given the database is being reset for unit test use, there are no unexpected states and conditions to account for
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
 	generator.Cleanup() // nolint:errcheck
 
 	fs := suite.userUploader.FileSystem()
