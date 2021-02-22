@@ -15,7 +15,7 @@ type webhookSubscriptionUpdater struct {
 }
 
 // UpdateWebhookSubscription updates a webhookSubscription
-func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription, eTag string) (*models.WebhookSubscription, error) {
+func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription) (*models.WebhookSubscription, error) {
 	webhookSubscriptionID := uuid.FromStringOrNil(webhooksubscription.ID.String())
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscriptionID)}
 	// logger := h.LoggerFromRequest(params.HTTPRequest)
@@ -53,7 +53,7 @@ func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscripti
 		foundWebhookSubscription.CallbackURL = webhooksubscription.CallbackURL
 	}
 
-	verrs, err := o.builder.UpdateOne(&foundWebhookSubscription, &eTag)
+	verrs, err := o.builder.UpdateOne(&foundWebhookSubscription, nil)
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(webhookSubscriptionID, err, verrs, "")
