@@ -561,7 +561,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada true", func(t *testing.T) {
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintln(urlFormat), nil)
 
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
@@ -583,7 +583,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
@@ -611,7 +611,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
@@ -635,7 +635,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		paymentRequestID := reviewedPaymentRequests[0].ID
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
@@ -661,7 +661,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
@@ -692,7 +692,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		}
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 		prID := reviewedPRs[0].ID
 		sendToSyncada := false
 
@@ -727,7 +727,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		}
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 		sendToSyncada := false
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
