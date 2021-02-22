@@ -67,7 +67,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	// Build up the paymentRequest.PaymentServiceItems using the incoming payload to offload Swagger data coming
 	// in from the API. These paymentRequest.PaymentServiceItems will be used as a temp holder to process the incoming API data
-	verrs := validate.NewErrors()
+	var verrs *validate.Errors
 	paymentRequest.PaymentServiceItems, verrs, err = h.buildPaymentServiceItems(payload)
 
 	if err != nil || verrs.HasAny() {

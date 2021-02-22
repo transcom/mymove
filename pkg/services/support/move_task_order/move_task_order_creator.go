@@ -49,14 +49,13 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 
 		// Convert payload to model for moveTaskOrder
 		moveTaskOrder = MoveTaskOrderModel(&payload)
-		// Fill in defaults if not provided in payload
-		if *moveTaskOrder.ReferenceID == "" {
-			refID, err = models.GenerateReferenceID(tx)
-			moveTaskOrder.ReferenceID = &refID
-		}
+		// referenceID cannot be set by user so generate it
+		refID, err = models.GenerateReferenceID(tx)
 		if err != nil {
 			return err
 		}
+		moveTaskOrder.ReferenceID = &refID
+
 		if moveTaskOrder.Locator == "" {
 			moveTaskOrder.Locator = models.GenerateLocator()
 		}
