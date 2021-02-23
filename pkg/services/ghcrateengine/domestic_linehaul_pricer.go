@@ -32,7 +32,8 @@ func NewDomesticLinehaulPricer(db *pop.Connection) services.DomesticLinehaulPric
 }
 
 // Price determines the price for a domestic linehaul
-func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
+func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
+	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 	priceAndEscalation, err := fetchDomesticLinehaulPrice(p.db, contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
@@ -75,9 +76,7 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 		return unit.Cents(0), nil, err
 	}
 
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-
-	return p.Price(contractCode, requestedPickupDate, isPeakPeriod, unit.Miles(distanceZip3), unit.Pound(weightBilledActual), serviceAreaOrigin)
+	return p.Price(contractCode, requestedPickupDate, unit.Miles(distanceZip3), unit.Pound(weightBilledActual), serviceAreaOrigin)
 }
 
 func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (milliCentPriceAndEscalation, error) {

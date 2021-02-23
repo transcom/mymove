@@ -127,7 +127,7 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	if distance > 50 {
 		// Do a normal linehaul calculation
 		linehaulPricer := NewDomesticLinehaulPricer(db)
-		totalPriceCents, _, err := linehaulPricer.Price(contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
+		totalPriceCents, _, err := linehaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}
