@@ -35,7 +35,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, doasitTestIsPeakPeriod, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
+		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.NoError(err)
 		suite.Equal(doasitTestPriceCents, priceCents)
 	})
@@ -49,20 +49,20 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 
 	suite.T().Run("invalid weight", func(t *testing.T) {
 		badWeight := unit.Pound(250)
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, doasitTestIsPeakPeriod, badWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
+		_, _, err := pricer.Price(testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, badWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.Error(err)
 		suite.Contains(err.Error(), "weight of 250 less than the minimum")
 	})
 
 	suite.T().Run("not finding a rate record", func(t *testing.T) {
-		_, _, err := pricer.Price("BOGUS", doasitTestRequestedPickupDate, doasitTestIsPeakPeriod, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
+		_, _, err := pricer.Price("BOGUS", doasitTestRequestedPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic origin additional days SIT rate")
 	})
 
 	suite.T().Run("not finding a contract year record", func(t *testing.T) {
 		twoYearsLaterPickupDate := doasitTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doasitTestIsPeakPeriod, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
+		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch contract year")
 	})

@@ -18,20 +18,20 @@ type DomesticDestinationAdditionalDaysSITPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT
-func (_m *DomesticDestinationAdditionalDaysSITPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, []services.PricingParam, error) {
-	ret := _m.Called(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT)
+// Price provides a mock function with given fields: contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT
+func (_m *DomesticDestinationAdditionalDaysSITPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, []services.PricingParam, error) {
+	ret := _m.Called(contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(string, time.Time, bool, unit.Pound, string, int) unit.Cents); ok {
-		r0 = rf(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT)
+	if rf, ok := ret.Get(0).(func(string, time.Time, unit.Pound, string, int) unit.Cents); ok {
+		r0 = rf(contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 []services.PricingParam
-	if rf, ok := ret.Get(1).(func(string, time.Time, bool, unit.Pound, string, int) []services.PricingParam); ok {
-		r1 = rf(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT)
+	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Pound, string, int) []services.PricingParam); ok {
+		r1 = rf(contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).([]services.PricingParam)
@@ -39,8 +39,8 @@ func (_m *DomesticDestinationAdditionalDaysSITPricer) Price(contractCode string,
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, time.Time, bool, unit.Pound, string, int) error); ok {
-		r2 = rf(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT)
+	if rf, ok := ret.Get(2).(func(string, time.Time, unit.Pound, string, int) error); ok {
+		r2 = rf(contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
 	} else {
 		r2 = ret.Error(2)
 	}

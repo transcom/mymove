@@ -108,14 +108,14 @@ type DomesticDestinationFirstDaySITPricer interface {
 // DomesticOriginAdditionalDaysSITPricer prices domestic origin additional days SIT for a GHC move
 //go:generate mockery -name DomesticOriginAdditionalDaysSITPricer
 type DomesticOriginAdditionalDaysSITPricer interface {
-	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, []PricingParam, error)
+	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, []PricingParam, error)
 	ParamsPricer
 }
 
 // DomesticDestinationAdditionalDaysSITPricer prices domestic destination additional days SIT for a GHC move
 //go:generate mockery -name DomesticDestinationAdditionalDaysSITPricer
 type DomesticDestinationAdditionalDaysSITPricer interface {
-	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, []PricingParam, error)
+	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, []PricingParam, error)
 	ParamsPricer
 }
 
