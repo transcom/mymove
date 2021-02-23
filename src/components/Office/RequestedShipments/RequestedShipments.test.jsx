@@ -4,6 +4,8 @@ import { mount, shallow } from 'enzyme';
 
 import RequestedShipments from './RequestedShipments';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 const shipments = [
   {
     approvedDate: '0001-01-01',
@@ -59,7 +61,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.404031Z',
   },
@@ -106,7 +108,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },
@@ -132,7 +134,7 @@ const shipments = [
     primeActualWeight: 890,
     requestedPickupDate: '2018-03-15',
     scheduledPickupDate: '2018-03-16',
-    shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+    shipmentType: SHIPMENT_OPTIONS.NTS,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },
