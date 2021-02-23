@@ -8,7 +8,7 @@
     "@trussworks/react-uswds": "^1.10.0",
     "bytes": "^3.0.0",
     "classnames": "^2.2.5",
-    "connected-react-router": "^6.8.0",
+    "connected-react-router": "^6.9.1",
     "core-js": "^3.9.0",
     "filepond": "^4.25.1",
     "filepond-plugin-file-validate-size": "^2.2.2",
