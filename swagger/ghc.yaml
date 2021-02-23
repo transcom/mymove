@@ -2057,7 +2057,7 @@ definitions:
         format: uuid
         type: string
       mtoServiceItemName:
-        example: Shipment Mgmt. Services
+        example: Move management
         type: string
       mtoShipmentType:
         $ref: '#/definitions/MTOShipmentType'
