@@ -30,11 +30,19 @@ var BandwidthScenario = bandwidthScenario{"bandwidth"}
 
 func createHHGMove(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, &[]string{})
 	move := makeMoveForOrders(orders, db)
 	shipment := makeShipmentForMove(move, db)
 	makePaymentRequestForShipment(move, shipment, db, primeUploader)
 }
+
+// func createHHGMove150Kb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+// 	serviceMember := makeServiceMember(db)
+// 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, &[]string{"150Kb"})
+// 	move := makeMoveForOrders(orders, db)
+// 	shipment := makeShipmentForMove(move, db)
+// 	makePaymentRequestForShipment(move, shipment, db, primeUploader)
+// }
 
 func makeServiceMember(db *pop.Connection) models.ServiceMember {
 	affiliation := models.AffiliationCOASTGUARD
@@ -47,7 +55,7 @@ func makeServiceMember(db *pop.Connection) models.ServiceMember {
 	return serviceMember
 }
 
-func makeOrdersForServiceMember(serviceMember models.ServiceMember, db *pop.Connection, userUploader *uploader.UserUploader) models.Order {
+func makeOrdersForServiceMember(serviceMember models.ServiceMember, db *pop.Connection, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
 	document := testdatagen.MakeDocument(db, testdatagen.Assertions{
 		Document: models.Document{
 			ServiceMemberID: serviceMember.ID,
@@ -57,7 +65,8 @@ func makeOrdersForServiceMember(serviceMember models.ServiceMember, db *pop.Conn
 
 	// Creates order upload documents from the files in this directory:
 	// pkg/testdatagen/testdata/bandwidth_test_docs
-	files := filesInBandwidthTestDirectory()
+
+	files := filesInBandwidthTestDirectory(fileNames)
 
 	for _, file := range files {
 		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
@@ -174,7 +183,7 @@ func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment
 		MTOServiceItem: mtoServiceItemDUCRT,
 	})
 
-	files := filesInBandwidthTestDirectory()
+	files := filesInBandwidthTestDirectory(nil)
 	// Creates prime upload documents from the files in this directory:
 	// pkg/testdatagen/testdata/bandwidth_test_docs
 	for _, file := range files {
@@ -224,7 +233,7 @@ func createOfficeUser(db *pop.Connection) {
 	})
 }
 
-func filesInBandwidthTestDirectory() []string {
+func filesInBandwidthTestDirectory(fileNames *[]string) []string {
 	cwd, err := os.Getwd()
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to get current directory: %s", err))
@@ -243,7 +252,15 @@ func filesInBandwidthTestDirectory() []string {
 		if file.Name() == ".DS_Store" {
 			continue
 		}
-		docs = append(docs, file.Name())
+		if fileNames == nil {
+			docs = append(docs, file.Name())
+		} else {
+			for _, fileName := range *fileNames {
+				if fileName == file.Name() {
+					docs = append(docs, file.Name())
+				}
+			}
+		}
 	}
 
 	return docs
