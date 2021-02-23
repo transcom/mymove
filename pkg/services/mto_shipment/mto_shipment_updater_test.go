@@ -445,7 +445,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.NotNil(fetchedShipment.RequiredDeliveryDate)
 	})
 
-	suite.T().Run("If the mtoShipment updates successfully it should create approved mtoServiceItems", func(t *testing.T) {
+	suite.T().Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func(t *testing.T) {
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
 		_, err := updater.UpdateMTOShipmentStatus(shipmentForAutoApprove.ID, status, nil, shipmentForAutoApproveEtag)
 		suite.NoError(err)
@@ -453,6 +453,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		serviceItems := models.MTOServiceItems{}
 		err = suite.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
 		suite.NoError(err)
+		// Let's make sure the status is approved
+		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
 		err = suite.DB().Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
 		suite.NoError(err)
 		// If we've gotten the shipment updated and fetched it without error then we can inspect the
