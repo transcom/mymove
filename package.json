@@ -107,7 +107,7 @@
     "@babel/core": "~7.12.17",
     "@dump247/storybook-state": "^1.6.1",
     "@stoplight/spectral": "^5.8.1",
-    "@storybook/addon-a11y": "^6.1.18",
+    "@storybook/addon-a11y": "^6.1.19",
     "@storybook/addon-essentials": "^6.1.19",
     "@storybook/addon-knobs": "^6.1.18",
     "@storybook/addon-links": "^6.1.18",
