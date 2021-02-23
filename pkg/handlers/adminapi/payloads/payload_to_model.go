@@ -34,6 +34,7 @@ func WebhookSubscriptionModel(sub *adminmessages.WebhookSubscription) *models.We
 		CallbackURL:  sub.CallbackURL,
 		EventKey:     sub.EventKey,
 		ID:           uuid.FromStringOrNil(sub.ID.String()),
+		Status:       models.WebhookSubscriptionStatus(sub.Status),
 		SubscriberID: uuid.FromStringOrNil(sub.SubscriberID.String()),
 	}
 
