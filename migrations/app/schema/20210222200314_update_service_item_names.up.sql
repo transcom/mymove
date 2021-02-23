@@ -1,5 +1,5 @@
 UPDATE re_services
-SET name = new_service_names.name
+SET name = new_service_names.name, updated_at = now()
 FROM ( VALUES
     ('MS', 'Move management'),
     ('CS', 'Counseling'),
