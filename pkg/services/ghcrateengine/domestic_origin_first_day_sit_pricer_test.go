@@ -33,7 +33,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, dofsitTestIsPeakPeriod, dofsitTestWeight, dofsitTestServiceArea)
+		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, dofsitTestWeight, dofsitTestServiceArea)
 		suite.NoError(err)
 		suite.Equal(dofsitTestPriceCents, priceCents)
 	})
@@ -45,20 +45,20 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
 
 	suite.T().Run("invalid weight", func(t *testing.T) {
 		badWeight := unit.Pound(250)
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, dofsitTestIsPeakPeriod, badWeight, dofsitTestServiceArea)
+		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, badWeight, dofsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "weight of 250 less than the minimum")
 	})
 
 	suite.T().Run("not finding a rate record", func(t *testing.T) {
-		_, _, err := pricer.Price("BOGUS", dofsitTestRequestedPickupDate, dofsitTestIsPeakPeriod, dofsitTestWeight, dofsitTestServiceArea)
+		_, _, err := pricer.Price("BOGUS", dofsitTestRequestedPickupDate, dofsitTestWeight, dofsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic origin first day SIT rate")
 	})
 
 	suite.T().Run("not finding a contract year record", func(t *testing.T) {
 		twoYearsLaterPickupDate := dofsitTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dofsitTestIsPeakPeriod, dofsitTestWeight, dofsitTestServiceArea)
+		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dofsitTestWeight, dofsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch contract year")
 	})

@@ -94,14 +94,14 @@ type FuelSurchargePricer interface {
 // DomesticOriginFirstDaySITPricer prices domestic origin first day SIT for a GHC move
 //go:generate mockery -name DomesticOriginFirstDaySITPricer
 type DomesticOriginFirstDaySITPricer interface {
-	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, []PricingParam, error)
+	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, []PricingParam, error)
 	ParamsPricer
 }
 
 // DomesticDestinationFirstDaySITPricer prices domestic destination first day SIT for a GHC move
 //go:generate mockery -name DomesticDestinationFirstDaySITPricer
 type DomesticDestinationFirstDaySITPricer interface {
-	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, []PricingParam, error)
+	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, []PricingParam, error)
 	ParamsPricer
 }
 

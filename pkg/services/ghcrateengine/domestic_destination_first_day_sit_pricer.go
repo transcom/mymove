@@ -22,8 +22,8 @@ func NewDomesticDestinationFirstDaySITPricer(db *pop.Connection) services.Domest
 }
 
 // Price determines the price for domestic destination first day SIT
-func (p domesticDestinationFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
-	return priceDomesticFirstDaySIT(p.db, models.ReServiceCodeDDFSIT, contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea)
+func (p domesticDestinationFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
+	return priceDomesticFirstDaySIT(p.db, models.ReServiceCodeDDFSIT, contractCode, requestedPickupDate, weight, serviceArea)
 }
 
 // PriceUsingParams determines the price for domestic destination first day SIT given PaymentServiceItemParams
@@ -48,7 +48,5 @@ func (p domesticDestinationFirstDaySITPricer) PriceUsingParams(params models.Pay
 		return unit.Cents(0), nil, err
 	}
 
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-
-	return p.Price(contractCode, requestedPickupDate, isPeakPeriod, unit.Pound(weightBilledActual), serviceAreaDest)
+	return p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaDest)
 }

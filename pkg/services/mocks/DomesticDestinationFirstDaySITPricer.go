@@ -18,20 +18,20 @@ type DomesticDestinationFirstDaySITPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea
-func (_m *DomesticDestinationFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
-	ret := _m.Called(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea)
+// Price provides a mock function with given fields: contractCode, requestedPickupDate, weight, serviceArea
+func (_m *DomesticDestinationFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
+	ret := _m.Called(contractCode, requestedPickupDate, weight, serviceArea)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(string, time.Time, bool, unit.Pound, string) unit.Cents); ok {
-		r0 = rf(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea)
+	if rf, ok := ret.Get(0).(func(string, time.Time, unit.Pound, string) unit.Cents); ok {
+		r0 = rf(contractCode, requestedPickupDate, weight, serviceArea)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 []services.PricingParam
-	if rf, ok := ret.Get(1).(func(string, time.Time, bool, unit.Pound, string) []services.PricingParam); ok {
-		r1 = rf(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea)
+	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Pound, string) []services.PricingParam); ok {
+		r1 = rf(contractCode, requestedPickupDate, weight, serviceArea)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).([]services.PricingParam)
@@ -39,8 +39,8 @@ func (_m *DomesticDestinationFirstDaySITPricer) Price(contractCode string, reque
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, time.Time, bool, unit.Pound, string) error); ok {
-		r2 = rf(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea)
+	if rf, ok := ret.Get(2).(func(string, time.Time, unit.Pound, string) error); ok {
+		r2 = rf(contractCode, requestedPickupDate, weight, serviceArea)
 	} else {
 		r2 = ret.Error(2)
 	}

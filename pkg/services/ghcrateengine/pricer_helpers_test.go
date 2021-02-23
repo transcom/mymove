@@ -13,33 +13,33 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticFirstDaySIT() {
 	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDFSIT, ddfsitTestServiceArea, ddfsitTestIsPeakPeriod, ddfsitTestBasePriceCents, ddfsitTestEscalationCompounded)
 
 	suite.T().Run("destination golden path", func(t *testing.T) {
-		priceCents, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeDDFSIT, DefaultContractCode, ddfsitTestRequestedPickupDate, ddfsitTestIsPeakPeriod, ddfsitTestWeight, ddfsitTestServiceArea)
+		priceCents, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeDDFSIT, DefaultContractCode, ddfsitTestRequestedPickupDate, ddfsitTestWeight, ddfsitTestServiceArea)
 		suite.NoError(err)
 		suite.Equal(ddfsitTestPriceCents, priceCents)
 	})
 
 	suite.T().Run("invalid service code", func(t *testing.T) {
-		_, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeCS, DefaultContractCode, ddfsitTestRequestedPickupDate, ddfsitTestIsPeakPeriod, ddfsitTestWeight, ddfsitTestServiceArea)
+		_, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeCS, DefaultContractCode, ddfsitTestRequestedPickupDate, ddfsitTestWeight, ddfsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "unsupported first day sit code")
 	})
 
 	suite.T().Run("invalid weight", func(t *testing.T) {
 		badWeight := unit.Pound(250)
-		_, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeDDFSIT, DefaultContractCode, ddfsitTestRequestedPickupDate, ddfsitTestIsPeakPeriod, badWeight, ddfsitTestServiceArea)
+		_, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeDDFSIT, DefaultContractCode, ddfsitTestRequestedPickupDate, badWeight, ddfsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "weight of 250 less than the minimum")
 	})
 
 	suite.T().Run("not finding a rate record", func(t *testing.T) {
-		_, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeDDFSIT, "BOGUS", ddfsitTestRequestedPickupDate, ddfsitTestIsPeakPeriod, ddfsitTestWeight, ddfsitTestServiceArea)
+		_, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeDDFSIT, "BOGUS", ddfsitTestRequestedPickupDate, ddfsitTestWeight, ddfsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic destination first day SIT rate")
 	})
 
 	suite.T().Run("not finding a contract year record", func(t *testing.T) {
 		twoYearsLaterPickupDate := ddfsitTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeDDFSIT, DefaultContractCode, twoYearsLaterPickupDate, ddfsitTestIsPeakPeriod, ddfsitTestWeight, ddfsitTestServiceArea)
+		_, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeDDFSIT, DefaultContractCode, twoYearsLaterPickupDate, ddfsitTestWeight, ddfsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch contract year")
 	})

@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
+func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
 	var sitType string
 	if firstDaySITCode == models.ReServiceCodeDDFSIT {
 		sitType = "destination"
@@ -26,6 +26,7 @@ func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServi
 		return 0, nil, fmt.Errorf("weight of %d less than the minimum of %d", weight, minDomesticWeight)
 	}
 
+	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 	serviceAreaPrice, err := fetchDomServiceAreaPrice(db, contractCode, firstDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s first day SIT rate: %w", sitType, err)
