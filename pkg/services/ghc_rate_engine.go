@@ -6,8 +6,6 @@ import (
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
-
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -133,18 +131,4 @@ type DomesticOriginSITPickupPricer interface {
 type DomesticDestinationSITDeliveryPricer interface {
 	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, []PricingParam, error)
 	ParamsPricer
-}
-
-// Older pricers below (pre-dates payment requests)
-
-// DomesticServiceAreaPricer domestic prices: origin and destination service area, SIT day 1, SIT Add'l days
-//go:generate mockery -name DomesticServiceAreaPricer
-type DomesticServiceAreaPricer interface {
-	PriceDomesticServiceArea(moveDate time.Time, weight unit.Pound, serviceArea string, servicesCode string) (unit.Cents, error)
-}
-
-//DomesticFuelSurchargePricer prices fuel surcharge for domestic GHC moves
-//go:generate mockery -name DomesticFuelSurchargePricer
-type DomesticFuelSurchargePricer interface {
-	PriceDomesticFuelSurcharge(moveDate time.Time, planner route.Planner, weight unit.Pound, source string, destination string) (unit.Cents, error)
 }
