@@ -35,7 +35,7 @@
     "puppeteer": "^7.1.0",
     "query-string": "6",
     "ra-data-simple-rest": "^3.10.4",
-    "ra-language-english": "^3.12.4",
+    "ra-language-english": "^3.12.5",
     "react": "^17.0.1",
     "react-admin": "^3.12.4",
     "react-app-polyfill": "^2.0.0",
