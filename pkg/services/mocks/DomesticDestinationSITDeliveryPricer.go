@@ -18,20 +18,20 @@ type DomesticDestinationSITDeliveryPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance
-func (_m *DomesticDestinationSITDeliveryPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, []services.PricingParam, error) {
-	ret := _m.Called(contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance)
+// Price provides a mock function with given fields: contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance
+func (_m *DomesticDestinationSITDeliveryPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, []services.PricingParam, error) {
+	ret := _m.Called(contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 
 	var r0 unit.Cents
 	if rf, ok := ret.Get(0).(func(string, time.Time, unit.Pound, string, int, string, string, unit.Miles) unit.Cents); ok {
-		r0 = rf(contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance)
+		r0 = rf(contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 []services.PricingParam
 	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Pound, string, int, string, string, unit.Miles) []services.PricingParam); ok {
-		r1 = rf(contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance)
+		r1 = rf(contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).([]services.PricingParam)
@@ -40,7 +40,7 @@ func (_m *DomesticDestinationSITDeliveryPricer) Price(contractCode string, reque
 
 	var r2 error
 	if rf, ok := ret.Get(2).(func(string, time.Time, unit.Pound, string, int, string, string, unit.Miles) error); ok {
-		r2 = rf(contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance)
+		r2 = rf(contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 	} else {
 		r2 = ret.Error(2)
 	}
