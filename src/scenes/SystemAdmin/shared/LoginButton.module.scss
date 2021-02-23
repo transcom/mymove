@@ -9,3 +9,17 @@
     text-decoration: none;
   }
 }
+
+.signIn {
+  color: grey;
+  text-decoration: none;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: auto;
+  font-size: inherit;
+
+  &:focus {
+    outline-color: transparent;
+  }
+}
