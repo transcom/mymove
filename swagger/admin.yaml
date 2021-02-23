@@ -568,6 +568,13 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  MoveUpdatePayload:
+    type: object
+    required:
+      - show
+    properties:
+      show:
+        type: boolean
   UserUpdatePayload:
     type: object
     required:
@@ -1592,11 +1599,7 @@ paths:
           description: Move information
           required: true
           schema:
-            type: object
-            properties:
-              show:
-                type: boolean
-                description: Indicates if the move should be activated or deactivated
+            $ref: '#/definitions/MoveUpdatePayload'
       responses:
         200:
           description: Successfully updated the Mov
