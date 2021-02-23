@@ -45,7 +45,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricerSameZip
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestIsPeakPeriod, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
+		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.NoError(err)
 		suite.Equal(expectedPrice, priceCents)
 	})
@@ -57,26 +57,26 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricerSameZip
 
 	suite.T().Run("invalid weight", func(t *testing.T) {
 		badWeight := unit.Pound(333)
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestIsPeakPeriod, badWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
+		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, badWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.Error(err)
 		expectedError := fmt.Sprintf("weight of %d less than the minimum", badWeight)
 		suite.Contains(err.Error(), expectedError)
 	})
 
 	suite.T().Run("bad original zip", func(t *testing.T) {
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestIsPeakPeriod, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, "7891", zipActual, distance)
+		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, "7891", zipActual, distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "invalid SIT origin original postal code")
 	})
 
 	suite.T().Run("bad actual zip", func(t *testing.T) {
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestIsPeakPeriod, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, "12", distance)
+		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, "12", distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "invalid SIT origin actual postal code")
 	})
 
 	suite.T().Run("error from shorthaul pricer", func(t *testing.T) {
-		_, _, err := pricer.Price("BOGUS", dopsitTestRequestedPickupDate, dopsitTestIsPeakPeriod, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
+		_, _, err := pricer.Price("BOGUS", dopsitTestRequestedPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not price shorthaul")
 	})
@@ -101,13 +101,13 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50PlusM
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestIsPeakPeriod, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
+		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.NoError(err)
 		suite.Equal(expectedPrice, priceCents)
 	})
 
 	suite.T().Run("error from linehaul pricer", func(t *testing.T) {
-		_, _, err := pricer.Price("BOGUS", dopsitTestRequestedPickupDate, dopsitTestIsPeakPeriod, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
+		_, _, err := pricer.Price("BOGUS", dopsitTestRequestedPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not price linehaul")
 	})
@@ -131,20 +131,20 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50Miles
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestIsPeakPeriod, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
+		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dopsitTestRequestedPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.NoError(err)
 		suite.Equal(expectedPrice, priceCents)
 	})
 
 	suite.T().Run("not finding a rate record", func(t *testing.T) {
-		_, _, err := pricer.Price("BOGUS", dopsitTestRequestedPickupDate, dopsitTestIsPeakPeriod, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
+		_, _, err := pricer.Price("BOGUS", dopsitTestRequestedPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic origin SIT pickup rate")
 	})
 
 	suite.T().Run("not finding a contract year record", func(t *testing.T) {
 		twoYearsLaterPickupDate := dopsitTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dopsitTestIsPeakPeriod, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
+		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dopsitTestWeight, dopsitTestServiceArea, dopsitTestSchedule, zipOriginal, zipActual, distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch contract year")
 	})

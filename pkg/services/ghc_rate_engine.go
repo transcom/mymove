@@ -122,13 +122,13 @@ type DomesticDestinationAdditionalDaysSITPricer interface {
 // DomesticOriginSITPickupPricer prices domestic origin SIT pickup for a GHC move
 //go:generate mockery -name DomesticOriginSITPickupPricer
 type DomesticOriginSITPickupPricer interface {
-	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, []PricingParam, error)
+	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, []PricingParam, error)
 	ParamsPricer
 }
 
 // DomesticDestinationSITDeliveryPricer prices domestic destination SIT delivery for a GHC move
 //go:generate mockery -name DomesticDestinationSITDeliveryPricer
 type DomesticDestinationSITDeliveryPricer interface {
-	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, []PricingParam, error)
+	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, []PricingParam, error)
 	ParamsPricer
 }

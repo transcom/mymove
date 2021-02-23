@@ -22,8 +22,8 @@ func NewDomesticOriginSITPickupPricer(db *pop.Connection) services.DomesticOrigi
 }
 
 // Price determines the price for domestic origin SIT pickup
-func (p domesticOriginSITPickupPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, []services.PricingParam, error) {
-	return priceDomesticPickupDeliverySIT(p.db, models.ReServiceCodeDOPSIT, contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance)
+func (p domesticOriginSITPickupPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, []services.PricingParam, error) {
+	return priceDomesticPickupDeliverySIT(p.db, models.ReServiceCodeDOPSIT, contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance)
 }
 
 // PriceUsingParams determines the price for domestic origin SIT pickup given PaymentServiceItemParams
@@ -68,8 +68,6 @@ func (p domesticOriginSITPickupPricer) PriceUsingParams(params models.PaymentSer
 		return unit.Cents(0), nil, err
 	}
 
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-
-	return p.Price(contractCode, requestedPickupDate, isPeakPeriod, unit.Pound(weightBilledActual), serviceAreaOrigin,
+	return p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin,
 		sitScheduleOrigin, zipSITOriginOriginalAddress, zipSITOriginActualAddress, unit.Miles(distanceZipSITOrigin))
 }
