@@ -22,50 +22,50 @@ func NewDomesticDestinationSITDeliveryPricer(db *pop.Connection) services.Domest
 }
 
 // Price determines the price for domestic destination SIT delivery
-func (p domesticDestinationSITDeliveryPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, error) {
+func (p domesticDestinationSITDeliveryPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, []services.PricingParam, error) {
 	return priceDomesticPickupDeliverySIT(p.db, models.ReServiceCodeDDDSIT, contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, sitSchedule, zipDest, zipSITDest, distance)
 }
 
 // PriceUsingParams determines the price for domestic destination SIT delivery given PaymentServiceItemParams
-func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, []services.PricingParam, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	serviceAreaDest, err := getParamString(params, models.ServiceItemParamNameServiceAreaDest)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	sitScheduleDest, err := getParamInt(params, models.ServiceItemParamNameSITScheduleDest)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	zipDestAddress, err := getParamString(params, models.ServiceItemParamNameZipDestAddress)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	zipSITDestHHGFinalAddress, err := getParamString(params, models.ServiceItemParamNameZipSITDestHHGFinalAddress)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	distanceZipSITDest, err := getParamInt(params, models.ServiceItemParamNameDistanceZipSITDest)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)

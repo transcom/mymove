@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
+	services "github.com/transcom/mymove/pkg/services"
+
 	time "time"
 
 	unit "github.com/transcom/mymove/pkg/unit"
@@ -16,29 +18,38 @@ type DomesticUnpackPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: contractCode, requestedPickupDate, weight, servicesScheduleDest
-func (_m *DomesticUnpackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, error) {
-	ret := _m.Called(contractCode, requestedPickupDate, weight, servicesScheduleDest)
+// Price provides a mock function with given fields: contractCode, requestedPickupDate, weight, servicesScheduleOrigin
+func (_m *DomesticUnpackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, []services.PricingParam, error) {
+	ret := _m.Called(contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
 
 	var r0 unit.Cents
 	if rf, ok := ret.Get(0).(func(string, time.Time, unit.Pound, int) unit.Cents); ok {
-		r0 = rf(contractCode, requestedPickupDate, weight, servicesScheduleDest)
+		r0 = rf(contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Pound, int) error); ok {
-		r1 = rf(contractCode, requestedPickupDate, weight, servicesScheduleDest)
+	var r1 []services.PricingParam
+	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Pound, int) []services.PricingParam); ok {
+		r1 = rf(contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]services.PricingParam)
+		}
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(string, time.Time, unit.Pound, int) error); ok {
+		r2 = rf(contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // PriceUsingParams provides a mock function with given fields: params
-func (_m *DomesticUnpackPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+func (_m *DomesticUnpackPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, []services.PricingParam, error) {
 	ret := _m.Called(params)
 
 	var r0 unit.Cents
@@ -48,12 +59,21 @@ func (_m *DomesticUnpackPricer) PriceUsingParams(params models.PaymentServiceIte
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) error); ok {
+	var r1 []services.PricingParam
+	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) []services.PricingParam); ok {
 		r1 = rf(params)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]services.PricingParam)
+		}
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(models.PaymentServiceItemParams) error); ok {
+		r2 = rf(params)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }

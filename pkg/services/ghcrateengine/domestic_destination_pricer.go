@@ -25,19 +25,19 @@ func NewDomesticDestinationPricer(db *pop.Connection) services.DomesticDestinati
 }
 
 // Price determines the price for the destination service area
-func (p domesticDestinationPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (totalCost unit.Cents, err error) {
+func (p domesticDestinationPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (totalCost unit.Cents, params []services.PricingParam, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
-		return 0, errors.New("ContractCode is required")
+		return 0, nil, errors.New("ContractCode is required")
 	}
 	if requestedPickupDate.IsZero() {
-		return 0, errors.New("RequestedPickupDate is required")
+		return 0, nil, errors.New("RequestedPickupDate is required")
 	}
 	if weight < minDomesticWeight {
-		return 0, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
 	if len(serviceArea) == 0 {
-		return 0, errors.New("ServiceArea is required")
+		return 0, nil, errors.New("ServiceArea is required")
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
@@ -45,42 +45,41 @@ func (p domesticDestinationPricer) Price(contractCode string, requestedPickupDat
 	// look up rate for domestic destination price
 	domServiceAreaPrice, err := fetchDomServiceAreaPrice(p.db, contractCode, models.ReServiceCodeDDP, serviceArea, isPeakPeriod)
 	if err != nil {
-		return 0, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
+		return 0, nil, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
 	}
 
 	contractYear, err := fetchContractYear(p.db, domServiceAreaPrice.ContractID, requestedPickupDate)
 	if err != nil {
-		return 0, fmt.Errorf("Could not lookup contract year: %w", err)
+		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
 
 	basePrice := domServiceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
 	totalCost = unit.Cents(math.Round(escalatedPrice))
 
-	return totalCost, err
+	return totalCost, nil, err
 }
 
-func (p domesticDestinationPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+func (p domesticDestinationPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, []services.PricingParam, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	serviceAreaDest, err := getParamString(params, models.ServiceItemParamNameServiceAreaDest)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
-	total, err := p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaDest)
-	return total, err
+	return p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaDest)
 }

@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
+	services "github.com/transcom/mymove/pkg/services"
+
 	time "time"
 
 	unit "github.com/transcom/mymove/pkg/unit"
@@ -17,7 +19,7 @@ type DomesticLinehaulPricer struct {
 }
 
 // Price provides a mock function with given fields: contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea
-func (_m *DomesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error) {
+func (_m *DomesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
 	ret := _m.Called(contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
 
 	var r0 unit.Cents
@@ -27,18 +29,27 @@ func (_m *DomesticLinehaulPricer) Price(contractCode string, requestedPickupDate
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string, time.Time, bool, unit.Miles, unit.Pound, string) error); ok {
+	var r1 []services.PricingParam
+	if rf, ok := ret.Get(1).(func(string, time.Time, bool, unit.Miles, unit.Pound, string) []services.PricingParam); ok {
 		r1 = rf(contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]services.PricingParam)
+		}
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(string, time.Time, bool, unit.Miles, unit.Pound, string) error); ok {
+		r2 = rf(contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // PriceUsingParams provides a mock function with given fields: params
-func (_m *DomesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+func (_m *DomesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, []services.PricingParam, error) {
 	ret := _m.Called(params)
 
 	var r0 unit.Cents
@@ -48,12 +59,21 @@ func (_m *DomesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceI
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) error); ok {
+	var r1 []services.PricingParam
+	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) []services.PricingParam); ok {
 		r1 = rf(params)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]services.PricingParam)
+		}
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(models.PaymentServiceItemParams) error); ok {
+		r2 = rf(params)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
