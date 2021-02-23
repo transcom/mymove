@@ -26,7 +26,7 @@ func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscripti
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, services.NewNotFoundError(webhookSubscriptionID, err.Error())
+			return nil, err
 		default:
 			return nil, err
 		}
@@ -68,7 +68,6 @@ func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscripti
 			return nil, err
 		}
 	}
-
 	// return *webhooksubscription, nil
 	return &foundWebhookSubscription, nil
 }
