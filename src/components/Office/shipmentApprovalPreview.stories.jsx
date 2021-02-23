@@ -191,5 +191,4 @@ export const approvalPreviewWithShipments = () => (
   />
 );
 
-// TODO max-width is being set by React-USWDS find a way to use overrides.scss
 export default { title: 'Office Components/ShipmentApprovalPreview' };
