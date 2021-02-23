@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -106,13 +107,24 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	payload := params.WebhookSubscription
 
+	payloadID := uuid.FromStringOrNil(payload.ID.String())
+	if payloadID != uuid.Nil && params.WebhookSubscriptionID != payload.ID {
+		return webhooksubscriptionop.NewUpdateWebhookSubscriptionUnprocessableEntity()
+	}
+	fmt.Println("Passed ID check")
+	// Take the payload and update the ID with the param ID
+	payload.ID = params.WebhookSubscriptionID
+
 	// Payload to model converter
 	webhookSubscription := payloads.WebhookSubscriptionModel(payload)
+	output, _ := json.Marshal(webhookSubscription)
+	fmt.Println(string(output))
 
 	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription)
 	// Check that the uuid provided is valid
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Convert model back to a payload
