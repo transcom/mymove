@@ -5,6 +5,7 @@ import { mount, shallow } from 'enzyme';
 import RequestedShipments from './RequestedShipments';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { serviceItemCodes } from 'content/serviceItems';
 
 const shipments = [
   {
@@ -241,7 +242,7 @@ const serviceItems = [
     mtoShipmentID: null,
     reServiceCode: 'MS',
     reServiceID: '6789',
-    reServiceName: 'Shipment Mgmt. Services',
+    reServiceName: serviceItemCodes.MS,
     status: 'APPROVED',
   },
   {
@@ -252,7 +253,7 @@ const serviceItems = [
     mtoShipmentID: null,
     reServiceCode: 'CS',
     reServiceID: '6790',
-    reServiceName: 'Counseling Services',
+    reServiceName: serviceItemCodes.CS,
     status: 'APPROVED',
   },
   {
@@ -263,7 +264,7 @@ const serviceItems = [
     mtoShipmentID: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
     reServiceCode: 'DLH',
     reServiceID: '6791',
-    reServiceRName: 'Dom. Linehaul',
+    reServiceRName: serviceItemCodes.DLH,
     status: 'SUBMITTED',
   },
 ];
@@ -438,11 +439,11 @@ describe('RequestedShipments', () => {
     expect(approvedServiceItemNames.length).toBe(2);
     expect(approvedServiceItemDates.length).toBe(2);
 
-    expect(approvedServiceItemNames.at(0).text()).toBe('Shipment Mgmt. Services');
+    expect(approvedServiceItemNames.at(0).text()).toBe('Move management');
     expect(approvedServiceItemDates.at(0).find('FontAwesomeIcon').prop('icon')).toEqual('check');
     expect(approvedServiceItemDates.at(0).text()).toBe(' 02 Oct 2020');
 
-    expect(approvedServiceItemNames.at(1).text()).toBe('Counseling Services');
+    expect(approvedServiceItemNames.at(1).text()).toBe('Counseling');
     expect(approvedServiceItemDates.at(1).find('FontAwesomeIcon').prop('icon')).toEqual('check');
     expect(approvedServiceItemDates.at(1).text()).toBe(' 02 Oct 2020');
   });
