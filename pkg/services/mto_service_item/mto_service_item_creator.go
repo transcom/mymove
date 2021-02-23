@@ -65,7 +65,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	}
 	// set re service for service item
 	serviceItem.ReServiceID = reService.ID
-	serviceItem.Status = models.MTOServiceItemStatusSubmitted
 
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully

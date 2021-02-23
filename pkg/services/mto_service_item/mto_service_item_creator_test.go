@@ -85,6 +85,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithValidMove() mo
 		MTOShipmentID:   &shipment.ID,
 		MTOShipment:     shipment,
 		Dimensions:      models.MTOServiceItemDimensions{dimension},
+		Status:          models.MTOServiceItemStatusSubmitted,
 	}
 
 	return serviceItem
@@ -269,6 +270,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			MTOShipment:     shipment,
 			MTOShipmentID:   &shipment.ID,
 			ReService:       reService,
+			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemNoWeight)
@@ -291,6 +293,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			MoveTaskOrder:   moveTaskOrder,
 			MTOShipment:     shipment,
 			MTOShipmentID:   &shipment.ID,
+			Status:          models.MTOServiceItemStatusSubmitted,
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDDFSIT,
 			},
@@ -363,6 +366,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			serviceItemDDFSIT := models.MTOServiceItem{
 				MoveTaskOrderID: moveTaskOrder.ID,
 				MoveTaskOrder:   moveTaskOrder,
+				Status:          models.MTOServiceItemStatusSubmitted,
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDDFSIT,
 				},
@@ -410,6 +414,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		MTOShipment:     mtoShipment,
 		MTOShipmentID:   &mtoShipment.ID,
 		ReService:       reServiceDOASIT,
+		Status:          models.MTOServiceItemStatusSubmitted,
 	}
 
 	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
@@ -435,6 +440,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			SITPostalCode:             &sitPostalCode,
 			Reason:                    &reason,
 			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
 		}
 
 		builder := query.NewQueryBuilder(suite.DB())
@@ -668,6 +674,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
 			CustomerContacts: contacts,
+			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
@@ -712,6 +719,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
 			CustomerContacts: badContacts,
+			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
@@ -731,6 +739,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
 			CustomerContacts: contacts,
+			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
@@ -776,6 +785,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
 			CustomerContacts: contacts,
+			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
@@ -793,6 +803,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			MTOShipmentID:   &shipment.ID,
 			MTOShipment:     shipment,
 			ReService:       reServiceDDASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDASIT)
@@ -819,6 +830,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			MTOShipmentID:   &shipmentNoDDFSIT.ID,
 			MTOShipment:     shipmentNoDDFSIT,
 			ReService:       reServiceDDASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDASIT)
