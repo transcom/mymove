@@ -18,20 +18,20 @@ type DomesticUnpackPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: contractCode, requestedPickupDate, weight, servicesScheduleOrigin
-func (_m *DomesticUnpackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, []services.PricingParam, error) {
-	ret := _m.Called(contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+// Price provides a mock function with given fields: contractCode, requestedPickupDate, weight, servicesScheduleDest
+func (_m *DomesticUnpackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, []services.PricingParam, error) {
+	ret := _m.Called(contractCode, requestedPickupDate, weight, servicesScheduleDest)
 
 	var r0 unit.Cents
 	if rf, ok := ret.Get(0).(func(string, time.Time, unit.Pound, int) unit.Cents); ok {
-		r0 = rf(contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+		r0 = rf(contractCode, requestedPickupDate, weight, servicesScheduleDest)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 []services.PricingParam
 	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Pound, int) []services.PricingParam); ok {
-		r1 = rf(contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+		r1 = rf(contractCode, requestedPickupDate, weight, servicesScheduleDest)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).([]services.PricingParam)
@@ -40,7 +40,7 @@ func (_m *DomesticUnpackPricer) Price(contractCode string, requestedPickupDate t
 
 	var r2 error
 	if rf, ok := ret.Get(2).(func(string, time.Time, unit.Pound, int) error); ok {
-		r2 = rf(contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+		r2 = rf(contractCode, requestedPickupDate, weight, servicesScheduleDest)
 	} else {
 		r2 = ret.Error(2)
 	}
