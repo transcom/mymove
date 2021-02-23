@@ -28,21 +28,29 @@ type bandwidthScenario NamedScenario
 // BandwidthScenario is the thing
 var BandwidthScenario = bandwidthScenario{"bandwidth"}
 
-func createHHGMove(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+func createHHGMove150Kb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, &[]string{})
-	move := makeMoveForOrders(orders, db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, &[]string{"150Kb.png"})
+	move := makeMoveForOrders(orders, db, "S150KB")
 	shipment := makeShipmentForMove(move, db)
 	makePaymentRequestForShipment(move, shipment, db, primeUploader)
 }
 
-// func createHHGMove150Kb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-// 	serviceMember := makeServiceMember(db)
-// 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, &[]string{"150Kb"})
-// 	move := makeMoveForOrders(orders, db)
-// 	shipment := makeShipmentForMove(move, db)
-// 	makePaymentRequestForShipment(move, shipment, db, primeUploader)
-// }
+func createHHGMove2mb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, &[]string{"2mb.png"})
+	move := makeMoveForOrders(orders, db, "MED2MB")
+	shipment := makeShipmentForMove(move, db)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader)
+}
+
+func createHHGMove25mb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, &[]string{"25mb.png"})
+	move := makeMoveForOrders(orders, db, "LG25MB")
+	shipment := makeShipmentForMove(move, db)
+	makePaymentRequestForShipment(move, shipment, db, primeUploader)
+}
 
 func makeServiceMember(db *pop.Connection) models.ServiceMember {
 	affiliation := models.AffiliationCOASTGUARD
@@ -97,7 +105,7 @@ func makeOrdersForServiceMember(serviceMember models.ServiceMember, db *pop.Conn
 	return orders
 }
 
-func makeMoveForOrders(orders models.Order, db *pop.Connection) models.Move {
+func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string) models.Move {
 	hhgMoveType := models.SelectedMoveTypeHHG
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -105,6 +113,7 @@ func makeMoveForOrders(orders models.Order, db *pop.Connection) models.Move {
 			OrdersID:         orders.ID,
 			Orders:           orders,
 			SelectedMoveType: &hhgMoveType,
+			Locator:          moveCode,
 		},
 	})
 
@@ -252,7 +261,7 @@ func filesInBandwidthTestDirectory(fileNames *[]string) []string {
 		if file.Name() == ".DS_Store" {
 			continue
 		}
-		if fileNames == nil {
+		if fileNames == nil || len(*fileNames) == 0 {
 			docs = append(docs, file.Name())
 		} else {
 			for _, fileName := range *fileNames {
@@ -269,5 +278,7 @@ func filesInBandwidthTestDirectory(fileNames *[]string) []string {
 // Run does that data load thing
 func (e bandwidthScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	createOfficeUser(db)
-	createHHGMove(db, userUploader, primeUploader)
+	createHHGMove150Kb(db, userUploader, primeUploader)
+	createHHGMove2mb(db, userUploader, primeUploader)
+	createHHGMove25mb(db, userUploader, primeUploader)
 }
