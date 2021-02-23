@@ -37,7 +37,7 @@
     "ra-data-simple-rest": "^3.10.4",
     "ra-language-english": "^3.12.4",
     "react": "^17.0.1",
-    "react-admin": "^3.12.4",
+    "react-admin": "^3.12.5",
     "react-app-polyfill": "^2.0.0",
     "react-day-picker": "=7.4.8",
     "react-dom": "^17.0.1",
