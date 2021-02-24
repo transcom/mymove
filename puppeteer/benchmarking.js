@@ -13,41 +13,50 @@ const config = new Conf({
 
 const program = new commander.Command();
 
+const runNetworkComparison = async (host, saveReports, verbose) => {
+  const results = {};
+
+  // await cannot be used inside of a forEach loop
+  // eslint-disable-next-line no-restricted-syntax
+  for (const speed of speeds) {
+    const configStore = {};
+    Object.assign(configStore, config.store, { network: speed });
+    console.info(`Running network test with ${speed} profile`);
+
+    // Running these tests in parallel would likely skew the results
+    // eslint-disable-next-line no-await-in-loop
+    const elapsedTimeResults = await totalDuration({
+      host,
+      config: configStore,
+      debug,
+      saveReports,
+      verbose,
+    }).catch(() => {
+      process.exit(1);
+    });
+    results[`${speed}`] = elapsedTimeResults;
+  }
+
+  return results;
+};
+
 const runAction = async ({ scenario, measurementType, host, verbose, saveReports }) => {
   if (verbose) {
     debug.enabled = true;
   }
   console.info(`Running scenario ${scenario} with measurement ${measurementType}`);
 
-  let elapsedTimeResults;
-  const results = {};
+  let results = {};
   switch (measurementType) {
     case measurementTypes.totalDuration:
-      elapsedTimeResults = await totalDuration({ host, config: config.store, debug, saveReports, verbose }).catch(
-        () => {
-          process.exit(1);
-        },
-      );
+      results = await totalDuration({ host, config: config.store, debug, saveReports, verbose }).catch(() => {
+        process.exit(1);
+      });
 
-      console.table(elapsedTimeResults);
+      console.table(results);
       break;
     case measurementTypes.networkComparison:
-      // await cannot be used inside of a forEach loop
-      // eslint-disable-next-line no-restricted-syntax
-      for (const speed of speeds) {
-        const configStore = {};
-        Object.assign(configStore, config.store, { network: speed });
-        console.info(`Running network test with ${speed} profile`);
-
-        // Running these tests in parallel would likely skew the results
-        // eslint-disable-next-line no-await-in-loop
-        elapsedTimeResults = await totalDuration({ host, config: configStore, debug, saveReports, verbose }).catch(
-          () => {
-            process.exit(1);
-          },
-        );
-        results[`${speed}`] = elapsedTimeResults;
-      }
+      results = await runNetworkComparison(host, saveReports, verbose);
 
       console.table(results);
       break;
