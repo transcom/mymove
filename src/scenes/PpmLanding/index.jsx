@@ -19,7 +19,7 @@ import { updatePPMs } from 'store/entities/actions';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
-import SignIn from 'shared/User/SignIn';
+import SignIn from 'pages/SignIn/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { getPPMsForMove } from 'services/internalApi';

@@ -13,18 +13,20 @@ const config = new Conf({
 
 const program = new commander.Command();
 
-const runAction = async ({ scenario, measurementType, host, verbose }) => {
+const runAction = async ({ scenario, measurementType, host, verbose, saveReports }) => {
   if (verbose) {
     debug.enabled = true;
   }
   console.log(`Running scenario ${scenario} with measurement ${measurementType}`);
 
   if (measurementType === 'total-duration') {
-    const elapsedTime = await totalDuration(host, config.store, debug).catch(() => {
-      process.exit(1);
-    });
+    const elapsedTimeResults = await totalDuration({ host, config: config.store, debug, saveReports, verbose }).catch(
+      () => {
+        process.exit(1);
+      },
+    );
 
-    console.log(`${elapsedTime} secs from performance entries`);
+    console.table(elapsedTimeResults);
   } else if (measurementType === 'network-comparison') {
     const results = {};
     // await cannot be used inside of a forEach loop
@@ -36,10 +38,12 @@ const runAction = async ({ scenario, measurementType, host, verbose }) => {
 
       // Running these tests in parallel would likely skew the results
       // eslint-disable-next-line no-await-in-loop
-      const elapsedTime = await totalDuration(host, configStore, debug).catch(() => {
-        process.exit(1);
-      });
-      results[`${speed}`] = { 'duration (seconds)': elapsedTime };
+      const elapsedTimeResults = await totalDuration({ host, config: configStore, debug, saveReports, verbose }).catch(
+        () => {
+          process.exit(1);
+        },
+      );
+      results[`${speed}`] = elapsedTimeResults;
     }
 
     console.table(results);
@@ -64,6 +68,12 @@ program
     new commander.Option('-h --host <host>', 'base host url to use including port').default('http://officelocal:3000'),
   )
   .addOption(new commander.Option('-v --verbose', 'shows verbose debugging info').default(false))
+  .addOption(
+    new commander.Option(
+      '-r --save-reports',
+      'save the reports from lighthouse and performance trace json files',
+    ).default(false),
+  )
   .action(runAction);
 
 program.parse(process.argv);

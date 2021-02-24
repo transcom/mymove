@@ -4,7 +4,7 @@ import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { get } from 'lodash';
-import SignIn from './SignIn';
+import SignIn from 'pages/SignIn/SignIn';
 import AccessCode from './AccessCode';
 
 import { fetchAccessCode } from 'shared/Entities/modules/accessCodes';

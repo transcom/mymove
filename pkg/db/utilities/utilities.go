@@ -16,7 +16,7 @@ const modelsPkgPath = "github.com/transcom/mymove/pkg/models"
 
 // SoftDestroy soft deletes a record and all foreign key associations from the database
 func SoftDestroy(c *pop.Connection, model interface{}) error {
-	verrs := validate.NewErrors()
+	var verrs *validate.Errors
 	var err error
 
 	if !IsModel(model) {
