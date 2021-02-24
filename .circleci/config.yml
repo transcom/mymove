@@ -1019,20 +1019,6 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_migrations_legacy` pushes the migrations container to the legacy container repository
-  push_migrations_legacy:
-    executor: mymove_small
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - aws_vars_legacy
-      - push_image:
-          ecr_env: legacy
-          image_name: ppp-migrations
-          tag: dev
-          repo: app-migrations
-      - announce_failure
-
   # `push_migrations_exp` pushes the migrations container to the milmove-exp container repository
   push_migrations_exp:
     executor: mymove_small
@@ -1375,7 +1361,6 @@ workflows:
             - check_generated_code
             - push_app_legacy
             - push_app_stg
-            - push_migrations_legacy
             - push_migrations_stg
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1388,7 +1373,6 @@ workflows:
             - check_generated_code
             - push_app_legacy
             - push_app_stg
-            - push_migrations_legacy
             - push_migrations_stg
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1430,10 +1414,6 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_golang
-
-      - push_migrations_legacy:
-          requires:
-            - build_migrations
 
       - build_tasks:
           requires:
