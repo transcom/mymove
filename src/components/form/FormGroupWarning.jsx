@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Label, TextInput } from '@trussworks/react-uswds';
 
+import styles from './FormGroupWarning.module.scss';
+
 export const FormGroupWarning = ({ inputLabel, warningMessage }) => {
   return (
     <div>
