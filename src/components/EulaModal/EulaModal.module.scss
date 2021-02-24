@@ -1,12 +1,34 @@
 @import '../../shared/styles/colors';
 
 /*
-Manually copy over the USWDS Styles here so that the cancel button is not red
-for the office side when the EULA appears.
+Manually copy over the USWDS Styles here so that the react-uswds stylings are
+applied on the EULA modal on the office and the admin app.
 */
 .eulaModal {
-  :global(.usa-button--secondary) {
+  font-family: Public Sans Web, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif,
+    Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+
+  :global(.usa-button) {
+    background-color: $primary;
     border-radius: 4px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-bottom: 12px;
+    padding-top: 12px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    border: none;
+    color: white;
+    &:hover {
+      background-color: inherit;
+      color: white;
+    }
+  }
+
+  :global(.usa-button--secondary) {
     color: $primary;
     background-color: inherit;
     box-shadow: inset 0 0 0 2px $primary;
@@ -14,6 +36,17 @@ for the office side when the EULA appears.
       background-color: inherit;
       color: $primary-dark;
       box-shadow: inset 0 0 0 2px $primary-dark;
+    }
+  }
+
+  .eulaModalClose {
+    background-color: transparent;
+    border: none;
+  }
+
+  .eulaModalAccept {
+    &:hover {
+      background-color: $primary-dark;
     }
   }
 }
