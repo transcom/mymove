@@ -4,7 +4,6 @@ import { createBrowserHistory } from 'history';
 import React from 'react';
 import Menu from './shared/Menu';
 import FOUOHeader from 'components/FOUOHeader';
-import BypassBlock from 'components/BypassBlock';
 import AccessCodeList from './AccessCodes/AccessCodeList';
 import UploadShow from './Uploads/UploadShow';
 import UserShow from '../../pages/Admin/Users/UserShow';
@@ -48,7 +47,6 @@ const httpClient = (url, options = {}) => {
 
 const FOUOWrapper = () => (
   <React.Fragment>
-    <BypassBlock />
     <FOUOHeader />
     <AppBar />
   </React.Fragment>
