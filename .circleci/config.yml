@@ -148,6 +148,16 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
             source $BASH_ENV
+  aws_vars_transcom_gov_dev:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for prd env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$GOV_DEV_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$GOV_DEV_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$GOV_DEV_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$GOV_DEV_SECRET_KEY" >> $BASH_ENV
+            source $BASH_ENV
   announce_failure:
     parameters:
     steps:
