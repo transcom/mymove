@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 
 	moveop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/move"
@@ -108,14 +109,17 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), builder, mtoserviceitem.NewMTOServiceItemCreator(builder)),
 	}
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	req = suite.AuthenticateUserRequest(req, requestUser)
 
+	show := true
 	// Case: Move is successfully updated
 	suite.T().Run("200 - OK response", func(t *testing.T) {
 		params := moveop.UpdateMoveParams{
 			HTTPRequest: req,
 			MoveID:      *handlers.FmtUUID(defaultMove.ID),
-			Move: moveop.UpdateMoveBody{
-				Show: true,
+			Move: &adminmessages.MoveUpdatePayload{
+				Show: &show,
 			},
 		}
 		// Run swagger validations
@@ -128,7 +132,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		// Check values
 		moveOK := response.(*moveop.UpdateMoveOK)
 		suite.Equal(moveOK.Payload.ID.String(), defaultMove.ID.String())
-		suite.Equal(*moveOK.Payload.Show, params.Move.Show)
+		suite.Equal(*moveOK.Payload.Show, *params.Move.Show)
 	})
 
 	// Case: Move is not found
@@ -137,8 +141,8 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 		params := moveop.UpdateMoveParams{
 			HTTPRequest: req,
 			MoveID:      *handlers.FmtUUID(badUUID),
-			Move: moveop.UpdateMoveBody{
-				Show: true,
+			Move: &adminmessages.MoveUpdatePayload{
+				Show: &show,
 			},
 		}
 		// Run swagger validations
