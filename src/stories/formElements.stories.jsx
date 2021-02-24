@@ -52,22 +52,6 @@ export const elements = () => (
           </label>
         </div>
 
-        <div className="usa-form-group usa-form-group--warning">
-          <label className="usa-label usa-label--warning" htmlFor="input-error">
-            Text input warning
-            <input
-              className="usa-input usa-input--warning"
-              id="input-warning"
-              name="input-warning"
-              type="text"
-              aria-describedby="input-warning-message"
-            />
-            <p className="usa-hint" id="input-warning-message">
-              Helpful Hint Message
-            </p>
-          </label>
-        </div>
-
         <label className="usa-label" htmlFor="input-type-textarea">
           Text area label
           <textarea className="usa-textarea" id="input-type-textarea" name="input-type-textarea" />
