@@ -29,7 +29,7 @@ function generatePRJson() {
   echo tmp/pad_create_payment_request.json
 }
 function generatePRJsonEmpty() {
-  jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH" or .reServiceCode == "DDFSIT") or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: [] } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request_empty.json
+  jq '{ body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: [] } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request_empty.json
   echo tmp/pad_create_payment_request_empty.json
 }
 function generatePRJsonFinal() {
@@ -38,13 +38,14 @@ function generatePRJsonFinal() {
 }
 
 # This function expects a filename for a stored json create-payment-request body
+# It creates the pr and uploads the orders
 function createPaymentRequest() {
 
   # Get json file
   prfile=$1
 
   printf "The prime submits a payment request as shown below:\n\n"
-  jq . $prfile
+  jq . "$prfile"
 
   echo
 
@@ -52,7 +53,7 @@ function createPaymentRequest() {
 
   # Send request to create-payment-request endpoint
   read -p "Ready to send? Hit enter..." -n 1 -r
-  bin/prime-api-client "${primeapiopts[@]}" create-payment-request --filename ${prfile} > tmp/pad_create_payment_request_response.json
+  bin/prime-api-client "${primeapiopts[@]}" create-payment-request --filename "${prfile}" > tmp/pad_create_payment_request_response.json
 
   jq . tmp/pad_create_payment_request_response.json
 
@@ -271,17 +272,17 @@ while [ $askpr -eq 1 ]; do
     case $yn in
     Empty )
       prfile=$(generatePRJsonEmpty)
-      createPaymentRequest $prfile
+      createPaymentRequest "$prfile"
       break
       ;;
     "With Service Items" )
       prfile=$(generatePRJson)
-      createPaymentRequest $prfile
+      createPaymentRequest "$prfile"
       break
       ;;
     "With Service Items Final" )
       prfile=$(generatePRJsonFinal)
-      createPaymentRequest $prfile
+      createPaymentRequest "$prfile"
       break
       ;;
     No )
