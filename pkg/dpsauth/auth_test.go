@@ -26,8 +26,8 @@ func (suite *dpsAuthSuite) TestSetCookieHandler() {
 	cookies := rr.Result().Cookies()
 	suite.Equal(2, len(cookies))
 
-	suite.Contains(cookies[0], dpsCookieName)
-	suite.Contains(cookies[0], cookieDomain)
-	suite.Contains(cookies[1], "DPSETAROLE=dodcustomer")
-	suite.Contains(cookies[1], cookieDomain)
+	suite.Contains(cookies[0].Name, dpsCookieName)
+	suite.Contains(cookies[0].Domain, cookieDomain)
+	suite.Contains(cookies[1].Name+"="+cookies[1].Value, "DPSETAROLE=dodcustomer")
+	suite.Contains(cookies[1].Domain, cookieDomain)
 }
