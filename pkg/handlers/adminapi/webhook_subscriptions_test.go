@@ -185,6 +185,34 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		suite.Equal(webhookSubscription.ID.String(), okResponse.Payload.ID.String())
 	})
 
+	suite.T().Run("404 - ID not found", func(t *testing.T) {
+		// Testing: 			UdateWebhookSubscriptionHandler, Updater
+		// Set up: 				Provide a valid request with the id of a webhook_subscription
+		// 		   					to the updateWebhookSubscription endpoint.
+		// Expected Outcome: 	The webhookSubscription is updated and we
+		//					 		receive a 200 OK.
+		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+			HTTPRequest:           req,
+			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
+		}
+
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		handler := UpdateWebhookSubscriptionHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			query.NewQueryFilter,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionUnprocessableEntity{}, response)
+		badResponse := response.(*webhooksubscriptionop.UpdateWebhookSubscriptionUnprocessableEntity)
+		// okResponse := response.(*webhooksubscriptionop.UpdateWebhookSubscriptionOK)
+		fakeID, err := uuid.NewV4()
+		suite.NoError(err)
+		suite.Equal(fakeID, badResponse)
+	})
+
 	suite.T().Run("404 - Not Found", func(t *testing.T) {
 		// Testing: 			UpdateWebhookSubscriptionHandler
 		// Mocks:				WebhookSubscriptionUpdater
