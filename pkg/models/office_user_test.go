@@ -101,7 +101,7 @@ func (suite *ModelSuite) TestFetchOfficeUserByEmailCaseSensitivity() {
 func (suite *ModelSuite) TestFetchOfficeUserByID() {
 	fakeUUID, _ := uuid.FromString("99999999-8888-7777-8b57-e39519f42dc1")
 
-	user, err := FetchOfficeUserByID(suite.DB(), fakeUUID)
+	_, err := FetchOfficeUserByID(suite.DB(), fakeUUID)
 	suite.NotNil(err)
 
 	office := CreateTestShippingOffice(suite)
@@ -114,7 +114,7 @@ func (suite *ModelSuite) TestFetchOfficeUserByID() {
 	}
 	suite.MustSave(&newUser)
 
-	user, err = FetchOfficeUserByID(suite.DB(), newUser.ID)
+	user, err := FetchOfficeUserByID(suite.DB(), newUser.ID)
 	suite.NoError(err)
 	suite.NotNil(user)
 	suite.Equal(newUser.ID, user.ID)

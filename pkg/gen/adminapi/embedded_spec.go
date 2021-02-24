@@ -523,13 +523,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "show": {
-                  "description": "Indicates if the move should be activated or deactivated",
-                  "type": "boolean"
-                }
-              }
+              "$ref": "#/definitions/MoveUpdatePayload"
             }
           }
         ],
@@ -1834,6 +1828,17 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
+    "MoveUpdatePayload": {
+      "type": "object",
+      "required": [
+        "show"
+      ],
+      "properties": {
+        "show": {
+          "type": "boolean"
+        }
+      }
+    },
     "Moves": {
       "type": "array",
       "items": {
@@ -3064,13 +3069,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "show": {
-                  "description": "Indicates if the move should be activated or deactivated",
-                  "type": "boolean"
-                }
-              }
+              "$ref": "#/definitions/MoveUpdatePayload"
             }
           }
         ],
@@ -4374,6 +4373,17 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "MoveUpdatePayload": {
+      "type": "object",
+      "required": [
+        "show"
+      ],
+      "properties": {
+        "show": {
+          "type": "boolean"
+        }
       }
     },
     "Moves": {

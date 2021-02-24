@@ -55,12 +55,14 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	moveStatusQuery := moveStatusFilter(params.Status)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := []QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
+	options := [8]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
 
-	query := f.db.Q().Eager(
+	query := f.db.Q().EagerPreload(
 		"Orders.ServiceMember",
 		"Orders.NewDutyStation.Address",
-		"Orders.OriginDutyStation",
+		"Orders.OriginDutyStation.Address",
+		// See note further below about having to do this in a separate Load call due to a Pop issue.
+		// "Orders.OriginDutyStation.TransportationOffice",
 		"Orders.Entitlement",
 		"MTOShipments",
 		"MTOServiceItems",
@@ -75,18 +77,10 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 
 	for _, option := range options {
 		if option != nil {
-			option(query)
+			option(query) // mutates
 		}
 	}
 
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return []models.Move{}, 0, services.NotFoundError{}
-		default:
-			return []models.Move{}, 0, err
-		}
-	}
 	// Pass zeros into paginate in this case. Which will give us 1 page and 20 per page respectively
 	if params.Page == nil {
 		params.Page = swag.Int64(0)
@@ -114,11 +108,21 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	count := query.Paginator.TotalEntriesSize
 
 	for i := range moves {
-		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-		// cannot eager load the address as "OriginDutyStation.Address" because
-		// OriginDutyStation is a pointer.
+		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
+		// where the first 2 levels match.  For example:
+		//   "Orders.OriginDutyStation.Address" and "Orders.OriginDutyStation.TransportationOffice"
+		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
+		// in the EagerPreload above and request the second one explicitly with a separate Load call.
+		//
+		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
+		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+		//   cannot eager load the address as "OriginDutyStation.Address" because
+		//   OriginDutyStation is a pointer.
 		if moves[i].Orders.OriginDutyStation != nil {
-			f.db.Load(moves[i].Orders.OriginDutyStation, "Address", "TransportationOffice")
+			loadErr := f.db.Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
+			if loadErr != nil {
+				return []models.Move{}, 0, err
+			}
 		}
 	}
 
@@ -167,10 +171,10 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 func branchFilter(branch *string) QueryOption {
 	return func(query *pop.Query) {
 		if branch == nil {
-			query = query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
+			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {
-			query = query.Where("service_members.affiliation = ?", *branch)
+			query.Where("service_members.affiliation = ?", *branch)
 		}
 	}
 }
@@ -179,7 +183,7 @@ func lastNameFilter(lastName *string) QueryOption {
 	return func(query *pop.Query) {
 		if lastName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *lastName)
-			query = query.Where("service_members.last_name ILIKE ?", nameSearch)
+			query.Where("service_members.last_name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -187,7 +191,7 @@ func lastNameFilter(lastName *string) QueryOption {
 func dodIDFilter(dodID *string) QueryOption {
 	return func(query *pop.Query) {
 		if dodID != nil {
-			query = query.Where("service_members.edipi = ?", dodID)
+			query.Where("service_members.edipi = ?", dodID)
 		}
 	}
 }
@@ -195,7 +199,7 @@ func dodIDFilter(dodID *string) QueryOption {
 func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if locator != nil {
-			query = query.Where("moves.locator = ?", *locator)
+			query.Where("moves.locator = ?", *locator)
 		}
 	}
 }
@@ -203,7 +207,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
-			query = query.Where("dest_ds.name ILIKE ?", nameSearch)
+			query.Where("dest_ds.name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -212,18 +216,18 @@ func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have statuses let's use them
 		if len(statuses) > 0 {
-			query = query.Where("moves.status IN (?)", statuses)
+			query.Where("moves.status IN (?)", statuses)
 		}
 		// If we don't have statuses let's just filter out cancelled and draft moves (they should not be in the queue)
 		if len(statuses) <= 0 {
-			query = query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED)
+			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED)
 		}
 	}
 }
 
 func gblocFilter(gbloc string) QueryOption {
 	return func(query *pop.Query) {
-		query = query.Where("origin_to.gbloc = ?", gbloc)
+		query.Where("origin_to.gbloc = ?", gbloc)
 	}
 }
 
@@ -242,15 +246,15 @@ func sortOrder(sort *string, order *string) QueryOption {
 		if sort != nil && order != nil {
 			if sortTerm, ok := parameters[*sort]; ok {
 				if sortTerm == "lastName" {
-					query = query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+					query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 				} else {
-					query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
+					query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 				}
 			} else {
-				query = query.Order("moves.status desc")
+				query.Order("moves.status desc")
 			}
 		} else {
-			query = query.Order("moves.status desc")
+			query.Order("moves.status desc")
 		}
 	}
 }

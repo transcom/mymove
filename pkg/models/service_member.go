@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"strings"
 	"time"
 
@@ -91,7 +90,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 
 // FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
 // This method is thereby a useful way of performing access control checks.
-func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
+func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
 
 	var serviceMember ServiceMember
 	err := db.Q().Eager("User",
@@ -101,9 +100,10 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"DutyStation.TransportationOffice",
 		"DutyStation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyStation.TransportationOffice",
-		"Orders.Moves",
 		"Orders.UploadedOrders.UserUploads.Upload",
+		"Orders.Moves",
 		"ResidentialAddress").Find(&serviceMember, id)
+
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound

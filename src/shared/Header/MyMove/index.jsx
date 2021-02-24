@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-import LoginButton from 'shared/User/LoginButton';
+import LoginButton from 'containers/LoginButton/LoginButton';
 import MilMoveLogo from 'shared/images/milmove-logo.svg';
 
 import BypassBlock from 'components/BypassBlock';

@@ -1,10 +1,6 @@
 /* eslint no-use-before-define: 0 */
 import { schema } from 'normalizr';
 
-// Role
-export const role = new schema.Entity('roles');
-export const roles = new schema.Array(role);
-
 // User
 export const user = new schema.Entity('users');
 
@@ -82,7 +78,6 @@ export const serviceMember = new schema.Entity('serviceMembers', {
 // Loggedin User
 export const loggedInUser = new schema.Entity('user', {
   service_member: serviceMember,
-  roles,
 });
 
 // Documents

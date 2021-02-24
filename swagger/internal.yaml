@@ -669,16 +669,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PersonallyProcuredMovePayload'
-  ApproveShipmentPayload:
-    type: object
-    properties:
-      approve_date:
-        type: string
-        format: date-time
-        title: When was the shipment approved?
-        example: '2019-03-26T13:19:56-04:00'
-    required:
-      - approve_date
   MovePayload:
     type: object
     properties:
@@ -768,17 +758,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MoveDocumentPayload'
-  DistanceCalculation:
-    type: object
-    properties:
-      origin_address:
-        $ref: '#/definitions/Address'
-      destination_address:
-        $ref: '#/definitions/Address'
-      distance_miles:
-        type: integer
-        title: Distance
-        description: unit is miles
   WeightTicketSetType:
     type: string
     x-nullable: true
@@ -1425,49 +1404,6 @@ definitions:
       backup_mailing_address:
         $ref: '#/definitions/Address'
         title: Backup Mailing Address
-  Invoice:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      status:
-        $ref: '#/definitions/InvoiceStatus'
-      approver_first_name:
-        type: string
-        example: 'Janine'
-      approver_last_name:
-        type: string
-        example: 'Smith'
-      invoiced_date:
-        type: string
-        title: Invoiced date
-        format: date-time
-      invoice_number:
-        type: string
-        example: '12432'
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-  InvoiceStatus:
-    type: string
-    title: Status
-    enum:
-      - DRAFT
-      - IN_PROCESS
-      - SUBMITTED
-      - SUBMISSION_FAILURE
-      - UPDATE_FAILURE
-    x-display-value:
-      DRAFT: Draft
-      IN_PROCESS: In Process
-      SUBMITTED: Submitted
-      SUBMISSION_FAILURE: Submission Failure
-      UPDATE_FAILURE: Update Failure
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -2046,25 +1982,6 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
-  ShipmentStatus:
-    type: string
-    title: Shipment status
-    enum:
-      - DRAFT
-      - SUBMITTED
-      - AWARDED
-      - ACCEPTED
-      - APPROVED
-      - IN_TRANSIT
-      - DELIVERED
-    x-display-value:
-      DRAFT: Draft
-      SUBMITTED: Submitted
-      AWARDED: Awarded
-      ACCEPTED: Accepted
-      APPROVED: Approved
-      IN_TRANSIT: In Transit
-      DELIVERED: Delivered
   PPMStatus:
     type: string
     title: PPM status
@@ -2489,13 +2406,6 @@ definitions:
     type: object
     additionalProperties:
       $ref: '#/definitions/WeightAllotment'
-  ClaimAccessCode:
-    type: object
-    properties:
-      claim_access_code:
-        type: string
-        x-nullable: false
-        title: MilMove access code
   RateEnginePostalCodePayload:
     type: object
     properties:

@@ -1021,8 +1021,8 @@ func truncateAllNotifications(db *pop.Connection) {
 	notifications := []models.WebhookNotification{}
 	db.All(&notifications)
 	for _, notif := range notifications {
-		// #nosec G601 TODO needs review
-		db.Destroy(&notif)
+		copyOfNotify := notif // Make copy to avoid implicit memory aliasing of items from a range statement.
+		db.Destroy(&copyOfNotify)
 	}
 }
 
@@ -1031,8 +1031,8 @@ func truncateAllSubscriptions(db *pop.Connection) {
 	subscriptions := []models.WebhookSubscription{}
 	db.All(&subscriptions)
 	for _, sub := range subscriptions {
-		// #nosec G601 TODO needs review
-		db.Destroy(&sub)
+		copyOfSub := sub // Make copy to avoid implicit memory aliasing of items from a range statement.
+		db.Destroy(&copyOfSub)
 	}
 }
 

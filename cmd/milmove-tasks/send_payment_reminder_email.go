@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -117,7 +116,6 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	ctx := context.TODO()
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
 	if notificationSenderErr != nil {
 		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
@@ -128,7 +126,7 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 		logger.Fatal("initializing MoveReviewed", zap.Error(err))
 	}
 
-	err = notificationSender.SendNotification(ctx, movePaymentReminderNotifier)
+	err = notificationSender.SendNotification(movePaymentReminderNotifier)
 	if err != nil {
 		logger.Fatal("Emails failed to send", zap.Error(err))
 	}

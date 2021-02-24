@@ -46,8 +46,8 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 
 	var hhgPayloads internalmessages.MTOShipments
 	for _, hhg := range move.MTOShipments {
-		// #nosec G601 TODO needs review
-		payload := payloads.MTOShipment(&hhg)
+		copyOfHhg := hhg // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload := payloads.MTOShipment(&copyOfHhg)
 		hhgPayloads = append(hhgPayloads, payload)
 	}
 
@@ -158,8 +158,6 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
@@ -188,7 +186,6 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	err = h.NotificationSender().SendNotification(
-		ctx,
 		notifications.NewMoveSubmitted(h.DB(), logger, session, moveID),
 	)
 	if err != nil {
@@ -237,16 +234,16 @@ func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs
 		}
 
 		for _, ppm := range move.PersonallyProcuredMoves {
-			if ppm.Advance != nil {
-				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+			copyOfPpm := ppm // Make copy to avoid implicit memory aliasing of items from a range statement.
+			if copyOfPpm.Advance != nil {
+				if verrs, err := db.ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
 					responseError = errors.Wrap(err, "Error Saving Advance")
 					return transactionError
 				}
 			}
 
-			// #nosec G601 TODO needs review
-			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
+			if verrs, err := db.ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving PPM")
 				return transactionError

@@ -233,7 +233,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req.WithContext(ctx))
 
 	serviceMemberID := session.ServiceMemberID
-	serviceMember, _ := models.FetchServiceMemberForUser(ctx, suite.DB(), &session, serviceMemberID)
+	serviceMember, _ := models.FetchServiceMemberForUser(suite.DB(), &session, serviceMemberID)
 
 	suite.NotEqual(uuid.Nil, serviceMemberID)
 	suite.NotEqual(uuid.Nil, serviceMember.UserID)

@@ -11,8 +11,9 @@ import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
+import { selectIsLoggedIn } from 'store/auth/selectors';
 import { logOut as logOutAction, loadUser as loadUserAction } from 'store/auth/actions';
-import { selectCurrentUser } from 'shared/Data/users';
+import { selectLoggedInUser } from 'store/entities/selectors';
 import {
   loadInternalSchema as loadInternalSchemaAction,
   loadPublicSchema as loadPublicSchemaAction,
@@ -24,6 +25,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { QueueHeader } from 'shared/Header/Office';
 import MilmoveHeader from 'components/MilMoveHeader';
 import FOUOHeader from 'components/FOUOHeader';
+import BypassBlock from 'components/BypassBlock';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -32,7 +34,7 @@ import { LocationShape, UserRolesShape, OfficeUserInfoShape } from 'types/index'
 import { LogoutUser } from 'utils/api';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
-const SignIn = lazy(() => import('shared/User/SignIn'));
+const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 // PPM pages (TODO move into src/pages)
 const MoveInfo = lazy(() => import('scenes/Office/MoveInfo'));
 const Queues = lazy(() => import('scenes/Office/Queues'));
@@ -149,81 +151,91 @@ export class OfficeApp extends Component {
     }
 
     return (
-      <div className={siteClasses}>
-        <FOUOHeader />
-        {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-        {!hideHeaderPPM && (
-          <>
-            {!userIsLoggedIn || (activeRole !== roleTypes.TOO && activeRole !== roleTypes.TIO) ? (
-              <QueueHeader />
-            ) : (
-              <MilmoveHeader
-                lastName={officeUser.last_name}
-                firstName={officeUser.first_name}
-                handleLogout={() => {
-                  logOut();
-                  LogoutUser();
-                }}
-              >
-                {officeUser.transportation_office && (
-                  <Link to="/">
-                    {officeUser.transportation_office.gbloc} {queueText}
-                  </Link>
+      <>
+        <div id="app-root">
+          <div className={siteClasses}>
+            <BypassBlock />
+            <FOUOHeader />
+            {displayChangeRole && <Link to="/select-application">Change user role</Link>}
+            {!hideHeaderPPM && (
+              <>
+                {!userIsLoggedIn || (activeRole !== roleTypes.TOO && activeRole !== roleTypes.TIO) ? (
+                  <QueueHeader />
+                ) : (
+                  <MilmoveHeader
+                    lastName={officeUser.last_name}
+                    firstName={officeUser.first_name}
+                    handleLogout={() => {
+                      logOut();
+                      LogoutUser();
+                    }}
+                  >
+                    {officeUser.transportation_office && (
+                      <Link to="/">
+                        {officeUser.transportation_office.gbloc} {queueText}
+                      </Link>
+                    )}
+                  </MilmoveHeader>
                 )}
-              </MilmoveHeader>
+              </>
             )}
-          </>
-        )}
-        <main role="main" className="site__content site-office__content">
-          <ConnectedLogoutOnInactivity />
+            <main id="main" role="main" className="site__content site-office__content">
+              <ConnectedLogoutOnInactivity />
 
-          {hasError && <SomethingWentWrong error={error} info={info} />}
+              {hasError && <SomethingWentWrong error={error} info={info} />}
 
-          <Suspense fallback={<LoadingPlaceholder />}>
-            {!hasError && (
-              <Switch>
-                {/* no auth */}
-                <Route path="/sign-in" component={SignIn} />
+              <Suspense fallback={<LoadingPlaceholder />}>
+                {!hasError && (
+                  <Switch>
+                    {/* no auth */}
+                    <Route path="/sign-in" component={SignIn} />
 
-                {/* PPM */}
-                <PrivateRoute
-                  path="/queues/:queueType/moves/:moveId"
-                  component={MoveInfo}
-                  requiredRoles={[roleTypes.PPM]}
-                />
-                <PrivateRoute path="/queues/:queueType" component={Queues} requiredRoles={[roleTypes.PPM]} />
+                    {/* PPM */}
+                    <PrivateRoute
+                      path="/queues/:queueType/moves/:moveId"
+                      component={MoveInfo}
+                      requiredRoles={[roleTypes.PPM]}
+                    />
+                    <PrivateRoute path="/queues/:queueType" component={Queues} requiredRoles={[roleTypes.PPM]} />
 
-                {/* TXO */}
-                <PrivateRoute path="/moves/queue" exact component={MoveQueue} requiredRoles={[roleTypes.TOO]} />
-                <PrivateRoute path="/invoicing/queue" component={PaymentRequestQueue} requiredRoles={[roleTypes.TIO]} />
+                    {/* TXO */}
+                    <PrivateRoute path="/moves/queue" exact component={MoveQueue} requiredRoles={[roleTypes.TOO]} />
+                    <PrivateRoute
+                      path="/invoicing/queue"
+                      component={PaymentRequestQueue}
+                      requiredRoles={[roleTypes.TIO]}
+                    />
 
-                {/* PPM & TXO conflicting routes - select based on user role */}
-                {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
+                    {/* PPM & TXO conflicting routes - select based on user role */}
+                    {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
 
-                <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
-                {/* ROOT */}
-                <PrivateRoute
-                  exact
-                  path="/"
-                  render={(routeProps) => {
-                    switch (selectedRole) {
-                      case roleTypes.PPM:
-                        return <Queues queueType="new" {...routeProps} />;
-                      case roleTypes.TIO:
-                        return <PaymentRequestQueue {...routeProps} />;
-                      case roleTypes.TOO:
-                        return <MoveQueue {...routeProps} />;
-                      default:
-                        // User has unknown role or shouldn't have access
-                        return <div />;
-                    }
-                  }}
-                />
-              </Switch>
-            )}
-          </Suspense>
-        </main>
-      </div>
+                    <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
+                    {/* ROOT */}
+                    <PrivateRoute
+                      exact
+                      path="/"
+                      render={(routeProps) => {
+                        switch (selectedRole) {
+                          case roleTypes.PPM:
+                            return <Queues queueType="new" {...routeProps} />;
+                          case roleTypes.TIO:
+                            return <PaymentRequestQueue {...routeProps} />;
+                          case roleTypes.TOO:
+                            return <MoveQueue {...routeProps} />;
+                          default:
+                            // User has unknown role or shouldn't have access
+                            return <div />;
+                        }
+                      }}
+                    />
+                  </Switch>
+                )}
+              </Suspense>
+            </main>
+          </div>
+        </div>
+        <div id="modal-root" />
+      </>
     );
   }
 }
@@ -249,13 +261,14 @@ OfficeApp.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectCurrentUser(state);
+  const user = selectLoggedInUser(state);
+
   return {
     swaggerError: state.swaggerInternal.hasErrored,
-    userIsLoggedIn: user.isLoggedIn,
-    userRoles: user.roles,
+    userIsLoggedIn: selectIsLoggedIn(state),
+    userRoles: user?.roles || [],
     activeRole: state.auth.activeRole,
-    officeUser: user.office_user,
+    officeUser: user?.office_user || {},
   };
 };
 

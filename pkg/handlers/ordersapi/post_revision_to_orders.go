@@ -59,7 +59,7 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 	}
 
 	newRevision := toElectronicOrdersRevision(orders, params.Revision)
-	verrs, err := models.CreateElectronicOrdersRevision(ctx, h.DB(), newRevision)
+	verrs, err := models.CreateElectronicOrdersRevision(h.DB(), newRevision)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}

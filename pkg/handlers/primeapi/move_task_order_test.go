@@ -32,11 +32,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type FeatureFlag struct {
-	Name   string
-	Active bool
-}
-
 func (suite *HandlerSuite) TestTruncateAll() {
 
 	move := testdatagen.MakeDefaultMove(suite.DB())

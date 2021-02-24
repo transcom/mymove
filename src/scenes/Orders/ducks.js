@@ -1,7 +1,7 @@
 import { pick, get } from 'lodash';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { GET_LOGGED_IN_USER } from 'shared/Data/users';
+import { GET_LOGGED_IN_USER_SUCCESS } from 'store/auth/actions';
 import { fetchActive } from 'shared/utils';
 
 // Types
@@ -37,7 +37,7 @@ function reshapeOrders(orders) {
 }
 export function ordersReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_LOGGED_IN_USER.success:
+    case GET_LOGGED_IN_USER_SUCCESS:
       return Object.assign({}, state, {
         currentOrders: reshapeOrders(fetchActive(get(action.payload, 'service_member.orders'))),
         hasLoadError: false,

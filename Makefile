@@ -905,23 +905,51 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 webhook_client_docker:
 	docker build -f Dockerfile.webhook_client_local -t $(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest .
 
-.PHONY: webhook_client_start
-webhook_client_start: db_dev_e2e_populate webhook_client_start_standalone
+.PHONY: webhook_client_start_reset_db
+webhook_client_start_reset_db: db_dev_e2e_populate webhook_client_start
 
-.PHONY: webhook_client_start_standalone
-webhook_client_start_standalone:
+.PHONY: webhook_client_start
+webhook_client_start:
 	@echo "Starting the webhook client..."
-	# More environment variables can be added here that correlate with the command line options for
-	# the webhook-client binary.
+	# Note regarding the use of 172.17.0.1: the default network bridge in Docker is 172.17.0.1
+	# according to https://docs.docker.com/network/network-tutorial-standalone/. Based on Internet
+	# searches, this IP address seems to be fairly static. Therefore, this address can be used to
+	# serve as the IP address for various local hostnames used during testing. If this stops
+	# working some day, dynamic resolution may be required to look up the host.docker.internal IP.
+	# However, by using a static IP, it allows developers to restart Docker after building an image
+	# and still have the container work if the /etc/hosts file had already been updated with this
+	# script. While brainstorming a usable approach, we tried to introduce the use of
+	# host.docker.internal by using the HOSTALIASES environment variable
+	# (https://man7.org/linux/man-pages/man7/hostname.7.html), but this resulted in a segfaults
+	# occurring during DNS lookup from within the container about 70% of the time. So we opted for
+	# the more stable hardcoded Docker gateway IP approch.
+	#
+	# If this fails, make sure you are running both the mTLS server and the database in containers.
+	# Due to the fact that on MacOS, Docker containers are run within a virtual machine rather than
+	# directly from the host system, if the webhook client is running inside a container, it won't
+	# be able to see anything outside of that Docker-managed virtual machine. Therefore, you need
+	# to run the mTLS server and database from inside a container. This is possible with a command
+	# like the following:
+	#
+	#   docker-compose -f docker-compose.mtls_local.yml --compatibility up --remove-orphans
+	#
+	# For more information about this, please see the following page:
+	# https://docs.docker.com/docker-for-mac/networking/#known-limitations-use-cases-and-workarounds
 	docker run \
-		-e LOGGING_LEVEL=debug \
-		-e DB_HOST="database" \
+		--add-host "adminlocal:172.17.0.1" \
+		--add-host "milmovelocal:172.17.0.1" \
+		--add-host "officelocal:172.17.0.1" \
+		--add-host "orderslocal:172.17.0.1" \
+		--add-host "primelocal:172.17.0.1" \
+		-e DB_HOST=172.17.0.1 \
 		-e DB_NAME \
 		-e DB_PORT \
 		-e DB_USER \
 		-e DB_PASSWORD \
+		-e GEX_MTLS_CLIENT_CERT \
+		-e GEX_MTLS_CLIENT_KEY \
+		-e LOGGING_LEVEL=debug \
 		-e PERIOD \
-		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
 
 .PHONY: webhook_client_test

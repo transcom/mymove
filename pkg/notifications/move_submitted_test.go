@@ -1,22 +1,18 @@
 package notifications
 
 import (
-	"context"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *NotificationSuite) TestMoveSubmitted() {
-	ctx := context.Background()
-
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveSubmitted(suite.DB(), suite.logger, &auth.Session{
 		ServiceMemberID: move.Orders.ServiceMember.ID,
 		ApplicationName: auth.MilApp,
 	}, move.ID)
 
-	emails, err := notification.emails(ctx)
+	emails, err := notification.emails()
 	subject := "Thank you for submitting your move details"
 
 	suite.NoError(err)
