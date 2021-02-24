@@ -183,6 +183,10 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionOK{}, response)
 		okResponse := response.(*webhooksubscriptionop.UpdateWebhookSubscriptionOK)
 		suite.Equal(webhookSubscription.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(webhookSubscription.CallbackURL, okResponse.Payload.CallbackURL)
+		suite.Equal(webhookSubscription.EventKey, okResponse.Payload.EventKey)
+		suite.Equal(webhookSubscription.Status, okResponse.Payload.Status)
+		suite.Equal(webhookSubscription.SubscriberID, okResponse.Payload.SubscriberID)
 	})
 
 	suite.T().Run("404 - ID not found", func(t *testing.T) {
