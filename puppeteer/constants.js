@@ -59,4 +59,26 @@ const networkProfiles = {
   },
 };
 
-module.exports = { schema, networkProfiles };
+const measurementTypes = {
+  totalDuration: 'total-duration',
+  networkComparison: 'network-comparison',
+};
+
+// All file sizes available
+const fileSizes = {
+  small: 'small',
+  medium: 'medium',
+  large: 'large',
+};
+
+// File sizes associated to different moves by move code/locator
+const fileSizeMoveCodes = {
+  small: 'S150KB',
+  medium: 'MED2MB',
+  large: 'LG25MB',
+};
+
+// All speeds available
+const speeds = ['fast', 'medium', 'slow'];
+
+module.exports = { schema, networkProfiles, measurementTypes, fileSizes, fileSizeMoveCodes, speeds };
