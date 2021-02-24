@@ -91,6 +91,33 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithValidMove() mo
 	return serviceItem
 }
 
+func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndValidMove() models.MTOServiceItem {
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	dimension := models.MTOServiceItemDimension{
+		Type:      models.DimensionTypeItem,
+		Length:    12000,
+		Height:    12000,
+		Width:     12000,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
+	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	serviceItem := models.MTOServiceItem{
+		MoveTaskOrderID: move.ID,
+		MoveTaskOrder:   move,
+		ReService:       reServiceDDFSIT,
+		MTOShipmentID:   &shipment.ID,
+		MTOShipment:     shipment,
+		Dimensions:      models.MTOServiceItemDimensions{dimension},
+	}
+
+	return serviceItem
+}
+
 // Should return a message stating that service items can't be created if
 // the move is not in approved status.
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove() {
@@ -134,6 +161,17 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(len(createdServiceItemList), 3)
 		suite.NotEmpty(createdServiceItemList[2].Dimensions)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+	})
+
+	// Status default value: If we try to create an mto service item and haven't set the status, we default to SUBMITTED
+	suite.T().Run("success using default status value", func(t *testing.T) {
+		serviceItemNoStatus := suite.buildValidServiceItemWithNoStatusAndValidMove()
+		_, verrs, err := creator.CreateMTOServiceItem(&serviceItemNoStatus)
+		suite.NoError(err)
+		suite.NoVerrs(verrs)
+		createdServiceItem := models.MTOServiceItem{}
+		suite.DB().Find(&createdServiceItem, serviceItem.ID)
+		suite.Equal(models.MTOServiceItemStatusSubmitted, createdServiceItem.Status)
 	})
 
 	// If error when trying to create, the create should fail.

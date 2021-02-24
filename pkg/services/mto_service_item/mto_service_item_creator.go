@@ -86,6 +86,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return &createdServiceItems, nil, nil
 	}
 
+	// By the time the serviceItem model object gets here to the creator it should have a status attached to it.
+	// If for some reason that isn't the case we will set it
+	if serviceItem.Status == "" {
+		serviceItem.Status = models.MTOServiceItemStatusSubmitted
+	}
+
 	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
 	// check if shipment exists linked by MoveTaskOrderID
 	var mtoShipment models.MTOShipment
