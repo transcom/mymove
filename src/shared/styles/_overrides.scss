@@ -240,8 +240,7 @@
   @include u-font-size('body', 'xs');
 }
 
-.usa-error-message,
-.usa-warning-message {
+.usa-error-message {
   @include u-padding(0);
 }
 
@@ -258,27 +257,6 @@
   &:hover {
     background-color: $link-light;
   }
-}
-
-.usa-form-group--warning {
-  border-left: 0.26667rem $warning solid;
-  margin-top: 2.13333rem;
-  padding-left: 1.06667rem;
-  position: relative;
-}
-
-.usa-label--warning {
-  @include u-margin-top(0);
-}
-
-.usa-warning-message {
-  color: #967019;
-  display: block;
-  font-weight: 700;
-}
-
-.usa-input-warning {
-  border: 0.26667rem $warning solid;
 }
 
 //Modals
