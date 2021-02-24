@@ -610,6 +610,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	// assert we got back the 201 response
 	okResponse = response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload = okResponse.Payload
+
+	suite.Assertions.Equal(daysInStorage, patchPPMPayload.DaysInStorage)
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
