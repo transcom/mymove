@@ -3,7 +3,6 @@
 
 .formGroupWarning {
   border-left: 0.26667rem $warning solid;
-  margin-top: 2.13333rem;
   padding-left: 1.06667rem;
   position: relative;
 }
@@ -12,6 +11,7 @@
     color: $base-darker;
 }
 
-p {
-    @include u-font-size('body', 'xs')
+.hintText {
+    @include u-font-size('body', 'xs');
+    color: $base-darker;
 }

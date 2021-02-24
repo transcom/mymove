@@ -13,7 +13,7 @@ export const FormGroupWarning = ({ inputLabel, warningMessage }) => {
       </Label>
       <TextInput id="input-type-text" name="input-type-text" type="text" validationStatus="warning" />
       <em>
-        <p className="usa-hint">{warningMessage}</p>
+        <p className={`${styles.hintText}`}>{warningMessage}</p>
       </em>
     </div>
   );
