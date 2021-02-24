@@ -42,6 +42,9 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
+	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
+	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
+
 	adminAPI.ServeError = handlers.ServeCustomError
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
@@ -129,7 +132,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	adminAPI.UsersUpdateUserHandler = UpdateUserHandler{
 		context,
 		user.NewUserSessionRevocation(queryBuilder),
-		user.NewUserUpdater(queryBuilder),
+		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 		query.NewQueryFilter,
 	}
 
