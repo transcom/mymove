@@ -7,5 +7,8 @@ export default {
 };
 
 export const FormGroupWithWarning = () => (
-  <ConnectedFormGroupWarning inputLabel="Warning Message" warningMessage="Helpful warning message text go here" />
+  <ConnectedFormGroupWarning
+    inputLabel="TAC/MDC"
+    warningMessage="This TAC does not appear in TGET, so might not be valid. Make sure it matches what's on the orders before you continue."
+  />
 );
