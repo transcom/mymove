@@ -72,6 +72,7 @@ const fileSizes = {
   large: 'large',
 };
 
+const fileSizeList = ['small', 'medium', 'large'];
 // File sizes associated to different moves by move code/locator
 const fileSizeMoveCodes = {
   small: 'S150KB',
@@ -82,4 +83,4 @@ const fileSizeMoveCodes = {
 // All speeds available
 const speeds = ['fast', 'medium', 'slow'];
 
-module.exports = { schema, networkProfiles, measurementTypes, fileSizes, fileSizeMoveCodes, speeds };
+module.exports = { schema, networkProfiles, measurementTypes, fileSizes, fileSizeList, fileSizeMoveCodes, speeds };

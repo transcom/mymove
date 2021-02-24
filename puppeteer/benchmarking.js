@@ -3,8 +3,8 @@ const commander = require('commander');
 const Conf = require('conf');
 const debug = require('debug')('debug');
 
-const { schema, measurementTypes, speeds } = require('./constants');
-const { totalDuration, fileDownloadDuration } = require('./scenarios');
+const { schema, measurementTypes, speeds, fileSizeList } = require('./constants');
+const { totalDuration } = require('./scenarios');
 
 const config = new Conf({
   cwd: __dirname, // saves the config file to the same dir of this script
@@ -40,7 +40,34 @@ const runNetworkComparison = async (host, saveReports, verbose) => {
   return results;
 };
 
-const runAction = async ({ scenario, measurementType, host, verbose, saveReports, fileSize }) => {
+const runFileSizeComparison = async (host, saveReports, verbose) => {
+  const results = {};
+
+  // await cannot be used inside of a forEach loop
+  // eslint-disable-next-line no-restricted-syntax
+  for (const size of fileSizeList) {
+    const configStore = {};
+    Object.assign(configStore, config.store, { fileSize: size });
+    console.info(`Running network test with ${size} profile`);
+
+    // Running these tests in parallel would likely skew the results
+    // eslint-disable-next-line no-await-in-loop
+    const elapsedTimeResults = await totalDuration({
+      host,
+      config: configStore,
+      debug,
+      saveReports,
+      verbose,
+    }).catch(() => {
+      process.exit(1);
+    });
+    results[`${size}`] = elapsedTimeResults;
+  }
+
+  return results;
+};
+
+const runAction = async ({ scenario, measurementType, host, verbose, saveReports }) => {
   if (verbose) {
     debug.enabled = true;
   }
@@ -56,9 +83,7 @@ const runAction = async ({ scenario, measurementType, host, verbose, saveReports
       console.table(results);
       break;
     case measurementTypes.fileDuration:
-      results = await fileDownloadDuration({ host, config: config.store, debug, fileSize }).catch(() => {
-        process.exit(1);
-      });
+      results = await runFileSizeComparison(host, saveReports, verbose);
 
       console.table(results);
       break;
@@ -85,11 +110,6 @@ program
     new commander.Option('-m --measurement-type <type>', 'specifies the kind of performance output metrics to measure')
       .default('total-duration')
       .choices(['total-duration', 'network-comparison', 'file-duration']),
-  )
-  .addOption(
-    new commander.Option('-f --file-size <size>', 'specifies the file download performance to measure')
-      .default('large')
-      .choices(['large', 'medium', 'small']),
   )
   .addOption(
     new commander.Option('-h --host <host>', 'base host url to use including port').default('http://officelocal:3000'),

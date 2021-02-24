@@ -34,21 +34,6 @@ const getTotalRequestTime = (navigationEntries = []) => {
   return `${((lastResponseEnd - firstRequestStart) / 1000).toFixed(1)} s`;
 };
 
-// Gets the request time for the orders image
-const getOrdersImageRequestTime = (navigationEntries = []) => {
-  if (navigationEntries.length === 0) {
-    return null;
-  }
-
-  const entry = navigationEntries.find((o) => o.name.includes('png'));
-
-  return {
-    totalTime: `${(entry.duration / 1000).toFixed(1)} s`,
-    downloading: `${((entry.responseEnd - entry.fetchStart) / 1000).toFixed(1)} s`,
-    waiting: `${((entry.responseStart - entry.fetchStart) / 1000).toFixed(1)} s`,
-  };
-};
-
 const setupEmulation = (config, page, userAgent) => {
   const { device } = config;
 
@@ -233,54 +218,4 @@ const totalDuration = async ({ host, config, debug, saveReports, verbose }) => {
   return { '🏁 Peformance timing (seconds)': pfTimingResults, ...lhResults };
 };
 
-const fileDownloadDuration = async ({ host, config, debug, fileSize }) => {
-  const waitOptions = { timeout: 0, waitUntil: 'networkidle0' };
-
-  const browser = await puppeteer.launch(config.launch);
-
-  debug(`browser version ${await browser.version()}`);
-
-  const page = await browser.newPage();
-
-  await page.goto(`${host}/devlocal-auth/login`, waitOptions).catch(() => {
-    console.error(`Unable to reach host ${host}. Make sure your server and client are already running`);
-    return Promise.reject();
-  });
-
-  // Login by clicking button for existing user
-  const loginBtnSelector = 'button[value="9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"]';
-  await page.waitForSelector(loginBtnSelector).catch(() => {
-    console.error(`Unable to reach host ${host}. Make sure your server and client are already running.`);
-    return Promise.reject();
-  });
-
-  await Promise.all([page.click(loginBtnSelector), page.waitForNavigation(waitOptions)]);
-
-  // go to a document viewer, orders
-  const fileSizeMoveCode = fileSizeMoveCodes[`${fileSize}`];
-  const url = `${host}/moves/${fileSizeMoveCode}/orders`;
-  debug(`URL to gather metrics from: ${url}`);
-  await page.goto(url, waitOptions);
-
-  const docViewerContentSelector = 'div[data-testid="DocViewerContent"]';
-  await page.waitForSelector(docViewerContentSelector);
-
-  // Will return all http requests and navigation performance on last navigation
-  debug('Gathering performance timing metrics');
-  const navigationEntries = JSON.parse(
-    await page.evaluate(() => {
-      return JSON.stringify(performance.getEntries());
-    }),
-  );
-  const pfTimingResults = getOrdersImageRequestTime(navigationEntries);
-
-  await browser.close();
-
-  return {
-    '⌛  Wait time (seconds': pfTimingResults.waiting,
-    '📥  Downloading (seconds)': pfTimingResults.downloading,
-    '🏁  Total time (seconds)': pfTimingResults.totalTime,
-  };
-};
-
-module.exports = { totalDuration, lighthouseFromPuppeteer, fileDownloadDuration };
+module.exports = { totalDuration, lighthouseFromPuppeteer };
