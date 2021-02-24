@@ -23,31 +23,58 @@ function usage() {
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil path/to/proof.pdf path/to/proof.jpg"
 }
 
-function createPaymentRequest() {
+# These functions generate different payment requests and store to files
+function generatePRJson() {
   jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH" or .reServiceCode == "DDFSIT") or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request.json
+  echo tmp/pad_create_payment_request.json
+}
+function generatePRJsonEmpty() {
+  jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH" or .reServiceCode == "DDFSIT") or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: [] } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request_empty.json
+  echo tmp/pad_create_payment_request_empty.json
+}
+function generatePRJsonFinal() {
+  jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH" or .reServiceCode == "DDFSIT") or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: true, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request_final.json
+  echo tmp/pad_create_payment_request_final.json
+}
 
-  printf "Now we wait for the TOO to approve the service items.\n\n"
+# This function expects a filename for a stored json create-payment-request body
+function createPaymentRequest() {
 
-  read -p "Ready to continue? Hit enter..." -n 1 -r
+  # Get json file
+  prfile=$1
 
-  printf "The prime can submit a payment request for the following service items: DLH, FSC, DDFSIT, MS, and CS:\n\n"
-  jq . tmp/pad_create_payment_request.json
+  printf "The prime submits a payment request as shown below:\n\n"
+  jq . $prfile
 
   echo
 
   printf "\n==========\n\n"
 
-  bin/prime-api-client "${primeapiopts[@]}" create-payment-request --filename ./tmp/pad_create_payment_request.json > tmp/pad_create_payment_request_response.json
+  # Send request to create-payment-request endpoint
+  read -p "Ready to send? Hit enter..." -n 1 -r
+  bin/prime-api-client "${primeapiopts[@]}" create-payment-request --filename ${prfile} > tmp/pad_create_payment_request_response.json
 
   jq . tmp/pad_create_payment_request_response.json
 
-  printf "\n-----\n\n"
+  printf "\n==========\n\n"
 
-  prID=$(jq .id tmp/pad_create_payment_request_response.json | tr -d '"')
-  prNumber=$(jq .paymentRequestNumber tmp/pad_create_payment_request_response.json)
+  # Collect data from response
+  tempPrID=$(jq .id tmp/pad_create_payment_request_response.json | tr -d '"')
+  tempPrNumber=$(jq .paymentRequestNumber tmp/pad_create_payment_request_response.json)
+  prStatus=$(jq .status tmp/pad_create_payment_request_response.json)
 
-  echo "Payment Request ID: \"${prID}\""
-  echo "Payment Request Number: ${prNumber}"
+  echo "Payment Request ID: \"${tempPrID}\""
+  echo "Payment Request Number: ${tempPrNumber}"
+  echo "Payment Request Status: ${prStatus}"
+  echo
+
+  # If PR was not created exit function
+  if [ "$prStatus" == "\"PENDING\"" ]; then
+    prID=$tempPrID
+    prNumber=$tempPrNumber
+  else
+    return 0
+  fi
 
   printf "\n==========\n\n"
 
@@ -235,13 +262,37 @@ printf "The prime fetches mto updates to capture the newly created DDFSIT servic
 
 bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates | jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/pad_demo_mto.json
 
+printf "Now we wait for the TOO to approve the service items.\n\n"
 
-createPaymentRequest
-read -p "Would you like to create another payment request? (y/N) " -r createAnotherPaymentRequest
-while [ "$createAnotherPaymentRequest" == "y" ]; do
-  createPaymentRequest
-read -p "Would you like to create another payment request? (y/N) " -r createAnotherPaymentRequest
+askpr=1
+while [ $askpr -eq 1 ]; do
+  echo "Do you want to create a payment request? (enter a number)"
+  select yn in "Empty" "With Service Items" "With Service Items Final" "No"; do
+    case $yn in
+    Empty )
+      prfile=$(generatePRJsonEmpty)
+      createPaymentRequest $prfile
+      break
+      ;;
+    "With Service Items" )
+      prfile=$(generatePRJson)
+      createPaymentRequest $prfile
+      break
+      ;;
+    "With Service Items Final" )
+      prfile=$(generatePRJsonFinal)
+      createPaymentRequest $prfile
+      break
+      ;;
+    No )
+      askpr=0
+      break
+      ;;
+    esac
+  done
 done
+
+
 printf "\n==========\n\n"
 
 cat > ./tmp/pad_get_payment_request_edi.json <<-EOM
