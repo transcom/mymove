@@ -611,3 +611,4 @@
 20210216231155_create-transportation-accounting-codes-table.up.sql
 20210217014408_truncate_webhook_notifications.up.sql
 20210218000226_add_service_param_keys_from_rate_engine.up.sql
+20210223223335_add_transportation_accounting_codes.up.sql
