@@ -3622,6 +3622,10 @@
     "@babel/runtime" "^7.12.5"
     "@testing-library/dom" "^7.28.1"
 
+"@transcom/mmds@https://github.com/transcom/mmds#sr-clone-react-uswds":
+  version "1.0.0"
+  resolved "https://github.com/transcom/mmds#2adb6843d7a2cb3a383ba1b71355a9a9c1f15575"
+
 "@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer#ds-enable-image-file-type-support":
   version "1.2.1"
   resolved "https://github.com/trussworks/react-file-viewer#0a671214303b4fbfaacf7bf498afb792fd878d59"
