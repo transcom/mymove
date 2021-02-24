@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -155,4 +157,31 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
 	return totalPriceCents, nil
+}
+
+func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemParamID uuid.UUID, params []services.PricingParam) error {
+	for _, param := range params {
+		var serviceItemParam models.ServiceItemParamKey
+		err := db.Q().
+			Where("key = $1", param.Key).
+			First(&serviceItemParam)
+		if err != nil {
+			return fmt.Errorf("unable to find service item param key for %v", serviceItemParam.Key)
+		}
+
+		newParam := models.PaymentServiceItemParam{
+			PaymentServiceItemID:  paymentServiceItemParamID,
+			ServiceItemParamKeyID: serviceItemParam.ID,
+			Value:                 fmt.Sprintf("%v", param.Value),
+		}
+
+		verrs, err := db.ValidateAndCreate(&newParam)
+		if err != nil {
+			return fmt.Errorf("failure creating payment service item param: %w", err)
+		}
+		if verrs.HasAny() {
+			return services.NewInvalidCreateInputError(verrs, "validation error with creating payment service item param")
+		}
+	}
+	return nil
 }

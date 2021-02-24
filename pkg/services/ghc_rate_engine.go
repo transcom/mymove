@@ -18,6 +18,13 @@ type ServiceItemPricer interface {
 	UsingConnection(db *pop.Connection) ServiceItemPricer
 }
 
+// PricingParam represents a parameter (key/value pair) returned from a pricer
+// nolint:structcheck // TODO: Remove once we start using these fields in pricers
+type PricingParam struct {
+	Key   models.ServiceItemParamName
+	Value interface{}
+}
+
 // ParamsPricer is an interface that all param-aware pricers implement
 type ParamsPricer interface {
 	PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error)
