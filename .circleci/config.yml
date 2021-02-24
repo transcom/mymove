@@ -923,6 +923,20 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
+  # `push_app_legacy` pushes the app container to the legacy container repository
+  push_app_legacy:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_legacy
+      - push_image:
+          ecr_env: legacy
+          image_name: ppp
+          tag: web-dev
+          repo: app
+      - announce_failure
+
   # `push_app_exp` pushes the app container to the milmove-exp container repository
   push_app_exp:
     executor: mymove_small
@@ -1015,6 +1029,20 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
+  # `push_migrations_legacy` pushes the migrations container to the legacy container repository
+  push_migrations_legacy:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_legacy
+      - push_image:
+          ecr_env: legacy
+          image_name: ppp-migrations
+          tag: dev
+          repo: app-migrations
+      - announce_failure
+
   # `push_migrations_exp` pushes the migrations container to the milmove-exp container repository
   push_migrations_exp:
     executor: mymove_small
@@ -1077,6 +1105,20 @@ jobs:
           image_name: tasks
           tag: dev
           working_dir: ~/transcom/mymove
+      - announce_failure
+
+  # `push_tasks_legacy` pushes the tasks containers to the legacy container repository
+  push_tasks_legacy:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_legacy
+      - push_image:
+          ecr_env: legacy
+          image_name: tasks
+          tag: dev
+          repo: app-tasks
       - announce_failure
 
   # `push_tasks_exp` pushes the tasks containers to the milmove-exp container repository
@@ -1341,7 +1383,9 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
             - check_generated_code
+            - push_app_legacy
             - push_app_stg
+            - push_migrations_legacy
             - push_migrations_stg
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1352,7 +1396,9 @@ workflows:
           requires:
             - pre_deps_golang
             - check_generated_code
+            - push_app_legacy
             - push_app_stg
+            - push_migrations_legacy
             - push_migrations_stg
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1381,6 +1427,10 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
+      - push_app_legacy:
+          requires:
+            - build_app
+
       - build_tools:
           requires:
             - anti_virus
@@ -1391,6 +1441,10 @@ workflows:
             - anti_virus
             - pre_deps_golang
 
+      - push_migrations_legacy:
+          requires:
+            - build_migrations
+
       - build_tasks:
           requires:
             - build_tools
@@ -1399,6 +1453,10 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_golang
+
+      - push_tasks_legacy:
+          requires:
+            - build_tasks
 
       - push_app_exp:
           requires:
