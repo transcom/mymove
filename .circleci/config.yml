@@ -131,7 +131,7 @@ commands:
   aws_vars_transcom_com_dev:
     steps:
       - run:
-          name: 'Setting up AWS environment variables for prd env'
+          name: 'Setting up AWS environment variables for com-dev env'
           command: |
             echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
@@ -141,7 +141,7 @@ commands:
   aws_vars_transcom_gov_dev:
     steps:
       - run:
-          name: 'Setting up AWS environment variables for prd env'
+          name: 'Setting up AWS environment variables for gov-dev env'
           command: |
             echo "export AWS_DEFAULT_REGION=$GOV_DEV_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$GOV_DEV_ACCOUNT_ID" >> $BASH_ENV
