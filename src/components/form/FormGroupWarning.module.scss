@@ -1,4 +1,5 @@
 @import 'shared/styles/colors.scss';
+@import 'shared/styles/basics.scss';
 
 .formGroupWarning {
   border-left: 0.26667rem $warning solid;
@@ -7,6 +8,10 @@
   position: relative;
 }
 
-label {
+.label {
     color: $base-darker;
+}
+
+p {
+    @include u-font-size('body', 'xs')
 }

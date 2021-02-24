@@ -8,7 +8,9 @@ import styles from './FormGroupWarning.module.scss';
 export const FormGroupWarning = ({ inputLabel, warningMessage }) => {
   return (
     <div className={`${styles.formGroupWarning}`}>
-      <Label htmlFor="input-type-text">{inputLabel}</Label>
+      <Label className={`${styles.label}`} htmlFor="input-type-text">
+        {inputLabel}
+      </Label>
       <TextInput id="input-type-text" name="input-type-text" type="text" validationStatus="warning" />
       <em>
         <p className="usa-hint">{warningMessage}</p>
