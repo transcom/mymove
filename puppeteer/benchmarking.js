@@ -4,7 +4,7 @@ const Conf = require('conf');
 const debug = require('debug')('debug');
 
 const { schema, measurementTypes, speeds } = require('./constants');
-const { totalDuration } = require('./scenarios');
+const { totalDuration, fileDownloadDuration } = require('./scenarios');
 
 const config = new Conf({
   cwd: __dirname, // saves the config file to the same dir of this script
@@ -40,7 +40,7 @@ const runNetworkComparison = async (host, saveReports, verbose) => {
   return results;
 };
 
-const runAction = async ({ scenario, measurementType, host, verbose, saveReports }) => {
+const runAction = async ({ scenario, measurementType, host, verbose, saveReports, fileSize }) => {
   if (verbose) {
     debug.enabled = true;
   }
@@ -50,6 +50,13 @@ const runAction = async ({ scenario, measurementType, host, verbose, saveReports
   switch (measurementType) {
     case measurementTypes.totalDuration:
       results = await totalDuration({ host, config: config.store, debug, saveReports, verbose }).catch(() => {
+        process.exit(1);
+      });
+
+      console.table(results);
+      break;
+    case measurementTypes.fileDuration:
+      results = await fileDownloadDuration({ host, config: config.store, debug, fileSize }).catch(() => {
         process.exit(1);
       });
 
@@ -77,7 +84,12 @@ program
   .addOption(
     new commander.Option('-m --measurement-type <type>', 'specifies the kind of performance output metrics to measure')
       .default('total-duration')
-      .choices(['total-duration', 'network-comparison']),
+      .choices(['total-duration', 'network-comparison', 'file-duration']),
+  )
+  .addOption(
+    new commander.Option('-f --file-size <size>', 'specifies the file download performance to measure')
+      .default('large')
+      .choices(['large', 'medium', 'small']),
   )
   .addOption(
     new commander.Option('-h --host <host>', 'base host url to use including port').default('http://officelocal:3000'),

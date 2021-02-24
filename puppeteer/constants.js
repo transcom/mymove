@@ -62,6 +62,7 @@ const networkProfiles = {
 const measurementTypes = {
   totalDuration: 'total-duration',
   networkComparison: 'network-comparison',
+  fileDuration: 'file-duration',
 };
 
 // All file sizes available
