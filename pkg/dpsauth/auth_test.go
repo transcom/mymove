@@ -23,7 +23,7 @@ func (suite *dpsAuthSuite) TestSetCookieHandler() {
 	handler.ServeHTTP(rr, req)
 	suite.Equal(http.StatusSeeOther, rr.Code)
 
-	cookies := rr.HeaderMap["Set-Cookie"]
+	cookies := rr.Result().Cookies()
 	suite.Equal(2, len(cookies))
 
 	suite.Contains(cookies[0], dpsCookieName)
