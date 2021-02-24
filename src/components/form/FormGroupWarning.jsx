@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Label, TextInput } from '@trussworks/react-uswds';
+import classNames from 'classnames/bind';
 
 import styles from './FormGroupWarning.module.scss';
 
 export const FormGroupWarning = ({ inputLabel, warningMessage }) => {
   return (
-    <div>
+    <div className={`${styles.formGroupWarning}`}>
       <Label htmlFor="input-type-text">{inputLabel}</Label>
       <TextInput id="input-type-text" name="input-type-text" type="text" validationStatus="warning" />
       <em>
