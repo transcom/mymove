@@ -12,3 +12,7 @@ export default {
 };
 
 export const DefaultState = (argTypes) => <SubmitMoveForm onSubmit={argTypes.onSubmit} onPrint={argTypes.onPrint} />;
+
+export const WithServerError = (argTypes) => (
+  <SubmitMoveForm onSubmit={argTypes.onSubmit} onPrint={argTypes.onPrint} error />
+);

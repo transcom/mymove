@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
-import { Button, TextInput, Label, FormGroup, Fieldset, ErrorMessage, Grid } from '@trussworks/react-uswds';
+import { Button, TextInput, Label, FormGroup, Fieldset, ErrorMessage, Grid, Alert } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 
 import styles from './SubmitMoveForm.module.scss';
@@ -15,7 +15,7 @@ import { completeCertificationText } from 'scenes/Legalese/legaleseText';
 import CertificationText from 'scenes/Legalese/CertificationText';
 
 const SubmitMoveForm = (props) => {
-  const { onPrint, onSubmit } = props;
+  const { onPrint, onSubmit, error } = props;
 
   const validationSchema = Yup.object().shape({
     signature: Yup.string().required('Required'),
@@ -78,6 +78,12 @@ const SubmitMoveForm = (props) => {
                   </Grid>
                 </Fieldset>
               </div>
+
+              {error && (
+                <Alert type="error" heading="Server Error">
+                  There was a problem saving your signature.
+                </Alert>
+              )}
             </SectionWrapper>
             <WizardNavigation isLastPage disableNext={!isValid} onNextClick={handleSubmit} />
           </Form>
@@ -90,10 +96,12 @@ const SubmitMoveForm = (props) => {
 SubmitMoveForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onPrint: PropTypes.func,
+  error: PropTypes.bool,
 };
 
 SubmitMoveForm.defaultProps = {
   onPrint: () => window.print(),
+  error: false,
 };
 
 export default SubmitMoveForm;
