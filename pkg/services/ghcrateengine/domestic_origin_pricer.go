@@ -26,7 +26,7 @@ func NewDomesticOriginPricer(db *pop.Connection) services.DomesticOriginPricer {
 }
 
 // Price determines the price for a domestic origin
-func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (totalCost unit.Cents, params services.PricingParams, err error) {
+func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -56,9 +56,9 @@ func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate tim
 
 	basePrice := domServiceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
-	totalCost = unit.Cents(math.Round(escalatedPrice))
+	totalCost := unit.Cents(math.Round(escalatedPrice))
 
-	return totalCost, nil, err
+	return totalCost, nil, nil
 }
 
 // PriceUsingParams determines the price for a domestic origin given PaymentServiceItemParams

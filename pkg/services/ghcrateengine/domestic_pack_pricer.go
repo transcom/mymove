@@ -26,7 +26,7 @@ func NewDomesticPackPricer(db *pop.Connection) services.DomesticPackPricer {
 }
 
 // Price determines the price for a domestic pack/unpack service
-func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (totalCost unit.Cents, params services.PricingParams, err error) {
+func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, services.PricingParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -58,9 +58,9 @@ func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.
 
 	basePrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
-	totalCost = unit.Cents(math.Round(escalatedPrice))
+	totalCost := unit.Cents(math.Round(escalatedPrice))
 
-	return totalCost, nil, err
+	return totalCost, nil, nil
 }
 
 // PriceUsingParams determines the price for a domestic pack given PaymentServiceItemParams

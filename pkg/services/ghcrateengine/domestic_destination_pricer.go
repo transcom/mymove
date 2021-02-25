@@ -25,7 +25,7 @@ func NewDomesticDestinationPricer(db *pop.Connection) services.DomesticDestinati
 }
 
 // Price determines the price for the destination service area
-func (p domesticDestinationPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (totalCost unit.Cents, params services.PricingParams, err error) {
+func (p domesticDestinationPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -55,9 +55,9 @@ func (p domesticDestinationPricer) Price(contractCode string, requestedPickupDat
 
 	basePrice := domServiceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
-	totalCost = unit.Cents(math.Round(escalatedPrice))
+	totalCost := unit.Cents(math.Round(escalatedPrice))
 
-	return totalCost, nil, err
+	return totalCost, nil, nil
 }
 
 func (p domesticDestinationPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {

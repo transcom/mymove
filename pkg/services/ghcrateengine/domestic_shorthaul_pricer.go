@@ -81,7 +81,7 @@ func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate 
 	//zap.Float64("escalatedCost (cents):", escalatedPrice),
 	//zap.Int("totalCost (cents):", totalCost.Int()),
 	//)
-	return totalCost, nil, err
+	return totalCost, nil, nil
 }
 
 func (p domesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
