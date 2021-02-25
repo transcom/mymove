@@ -2,7 +2,6 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/_mixins.scss';
 @import 'shared/styles/_variables.scss';
-@import 'shared/styles/_basics.scss';
 
 html {
   scroll-behavior: smooth;
@@ -70,7 +69,6 @@ html {
     min-height: 135px;
   }
 }
-
 
 //
 //Tables
