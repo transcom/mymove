@@ -179,7 +179,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
-	params := []services.PricingParam{
+	params := services.PricingParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
 			Value: 40000,

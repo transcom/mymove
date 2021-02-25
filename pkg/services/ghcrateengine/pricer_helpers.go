@@ -160,7 +160,7 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	return totalPriceCents, nil, nil
 }
 
-func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params []services.PricingParam) (models.PaymentServiceItemParams, error) {
+func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params services.PricingParams) (models.PaymentServiceItemParams, error) {
 	var paymentServiceItemParams models.PaymentServiceItemParams
 	for _, param := range params {
 		var serviceItemParamKey models.ServiceItemParamKey
