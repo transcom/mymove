@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -29,6 +30,7 @@ func NewUserUpdater(builder userQueryBuilder, officeUserUpdater services.OfficeU
 func (o *userUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	var foundUser models.User
+	var logger Logger
 
 	if user == nil {
 		return nil, nil, nil
@@ -67,7 +69,12 @@ func (o *userUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User,
 				Active: &user.Active,
 			}
 			_, verrs, err = o.officeUserUpdater.UpdateOfficeUser(foundOfficeUser.ID, &payload)
-			// TODO: Handle these errors at the end
+
+			if verrs.Count() > 0 {
+				logger.Info("Could not update office user", zap.Error(verrs))
+			} else if err != nil {
+				logger.Info("Could not update office user", zap.Error(err))
+			}
 		}
 
 		// Check for Admin User
@@ -79,12 +86,13 @@ func (o *userUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User,
 				Active: &user.Active,
 			}
 			_, verrs, err = o.adminUserUpdater.UpdateAdminUser(foundAdminUser.ID, &payload)
-			// TODO: Handle these errors at the end
+			if verrs.Count() > 0 {
+				logger.Info("Could not update admin user", zap.Error(verrs))
+			} else if err != nil {
+				logger.Info("Could not update admin user", zap.Error(err))
+			}
 		}
-
 	}
-
-	// if there are any errors, we should log them or return them. they may not be terminal.
 
 	return &foundUser, nil, nil
 
