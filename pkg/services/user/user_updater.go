@@ -71,9 +71,9 @@ func (o *userUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User,
 			_, verrs, err = o.officeUserUpdater.UpdateOfficeUser(foundOfficeUser.ID, &payload)
 
 			if verrs != nil {
-				logger.Info("Could not update office user", zap.Error(verrs))
+				logger.Error("Could not update office user", zap.Error(verrs))
 			} else if err != nil {
-				logger.Info("Could not update office user", zap.Error(err))
+				logger.Error("Could not update office user", zap.Error(err))
 			}
 		}
 
@@ -87,9 +87,9 @@ func (o *userUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User,
 			}
 			_, verrs, err = o.adminUserUpdater.UpdateAdminUser(foundAdminUser.ID, &payload)
 			if verrs != nil {
-				logger.Info("Could not update admin user", zap.Error(verrs))
+				logger.Error("Could not update admin user", zap.Error(verrs))
 			} else if err != nil {
-				logger.Info("Could not update admin user", zap.Error(err))
+				logger.Error("Could not update admin user", zap.Error(err))
 			}
 		}
 	}

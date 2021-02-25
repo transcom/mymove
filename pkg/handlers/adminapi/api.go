@@ -70,7 +70,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
 		context,
-		officeuser.NewOfficeUserUpdater(queryBuilder),
+		officeUpdater,
 		query.NewQueryFilter,
 		userRolesCreator,
 	}
@@ -150,7 +150,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.AdminUsersUpdateAdminUserHandler = UpdateAdminUserHandler{
 		context,
-		adminuser.NewAdminUserUpdater(queryBuilder),
+		adminUpdater,
 		query.NewQueryFilter,
 	}
 
