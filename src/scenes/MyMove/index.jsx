@@ -8,8 +8,8 @@ import { ConnectedRouter, push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import 'uswds';
-import '../../../node_modules/uswds/dist/css/uswds.css';
+import 'uswds'; // TODO - remove this since USWDS JS is not compatible with ReactUSWDS
+
 import 'styles/customer.scss';
 
 import Alert from 'shared/Alert';
