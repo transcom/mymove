@@ -271,6 +271,7 @@
   .usa-hint {
     @include u-font-size('body', 'xs');
     color: $base-darker;
+    font-style: italic;
   }
 
 }
