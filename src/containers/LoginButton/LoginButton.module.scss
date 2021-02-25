@@ -1,16 +1,27 @@
 @import '../../shared/styles/basics';
 @import '../../shared/styles/mixins';
-@import '../../shared/styles/variables';
 
-.signIn {
+.signIn,
+.signOut {
   height: 46px;
   &:hover {
     @include underline(0.25rem, 'white');
   }
   &:hover::after {
-    width: 46px;
     left: 16px;
     background-color: currentColor;
+  }
+}
+
+.signIn {
+  &:hover::after {
+    width: 46px;
+  }
+}
+
+.signOut {
+  &:hover::after {
+    width: 56px;
   }
 }
 

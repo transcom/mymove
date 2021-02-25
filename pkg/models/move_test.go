@@ -101,13 +101,13 @@ func (suite *ModelSuite) TestFetchMove() {
 	suite.DB().Save(move) // teardown/reset back to draft
 
 	// Bad Move
-	fetchedMove, err = FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
+	_, err = FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
 	suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
 
 	// Bad User
 	session.UserID = order2.ServiceMember.UserID
 	session.ServiceMemberID = order2.ServiceMemberID
-	fetchedMove, err = FetchMove(suite.DB(), session, move.ID)
+	_, err = FetchMove(suite.DB(), session, move.ID)
 	suite.Equal(ErrFetchForbidden, err, "Expected to get a Forbidden back.")
 
 	suite.T().Run("Hidden move is not returned", func(t *testing.T) {

@@ -9,8 +9,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 )
 
 // UpdateMoveHandlerFunc turns a function with the right signature into a update move handler
@@ -60,36 +58,4 @@ func (o *UpdateMove) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
-}
-
-// UpdateMoveBody update move body
-//
-// swagger:model UpdateMoveBody
-type UpdateMoveBody struct {
-
-	// Indicates if the move should be activated or deactivated
-	Show bool `json:"show,omitempty"`
-}
-
-// Validate validates this update move body
-func (o *UpdateMoveBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *UpdateMoveBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *UpdateMoveBody) UnmarshalBinary(b []byte) error {
-	var res UpdateMoveBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
 }

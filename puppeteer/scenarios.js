@@ -1,5 +1,10 @@
 /* eslint-disable no-console */
+const fs = require('fs');
+
+const lighthouse = require('lighthouse');
 const puppeteer = require('puppeteer');
+const reportGenerator = require('lighthouse/lighthouse-core/report/report-generator');
+const { throttling } = require('lighthouse/lighthouse-core/config/constants');
 
 const { networkProfiles } = require('./constants');
 
@@ -15,7 +20,8 @@ const getTotalRequestTime = (navigationEntries = []) => {
 
   navigationEntries.forEach((entry) => {
     if (entry.entryType === 'resource' || entry.entryType === 'navigation') {
-      if (firstRequestStart === null || entry.requestStart < firstRequestStart) {
+      // requestStart is null on some entries
+      if (firstRequestStart === null || (entry.requestStart || entry.fetchStart) < firstRequestStart) {
         firstRequestStart = entry.requestStart;
       }
 
@@ -25,7 +31,7 @@ const getTotalRequestTime = (navigationEntries = []) => {
     }
   });
 
-  return (lastResponseEnd - firstRequestStart) / 1000;
+  return `${((lastResponseEnd - firstRequestStart) / 1000).toFixed(1)} s`;
 };
 
 const setupEmulation = (config, page, userAgent) => {
@@ -34,18 +40,23 @@ const setupEmulation = (config, page, userAgent) => {
   const emulator = device ? puppeteer.devices[`${device}`] : config.emulate;
 
   if (device && !emulator) {
-    console.log(`Skipping page emulation device '${device}' is not defined`);
+    console.debug(`Skipping page emulation device '${device}' is not defined`);
   }
 
   if (emulator) {
     if (device) {
-      console.log(`Emulating page using ${emulator.name}`);
+      console.debug(`Emulating page using ${emulator.name}`);
     } else {
       emulator.userAgent = emulator.userAgent || userAgent;
     }
-    return page.emulate(emulator).catch((err) => {
-      console.error(`Error setting emulation of page`, err);
-    });
+    return page
+      .emulate(emulator)
+      .then(() => {
+        return Promise.resolve(emulator);
+      })
+      .catch((err) => {
+        console.error(`Error setting emulation of page`, err);
+      });
   }
 
   return Promise.resolve();
@@ -55,7 +66,9 @@ const setupNetwork = (config, page) => {
   const networkType = networkProfiles[config.network] || config.throttling;
 
   if (networkType) {
-    return page.emulateNetworkConditions(networkType);
+    return page.emulateNetworkConditions(networkType).then(() => {
+      return Promise.resolve(networkType);
+    });
   }
 
   return Promise.resolve();
@@ -66,12 +79,62 @@ const setupCPU = async (config, page) => {
 
   if (cpuSlowdownRate > 1) {
     const client = await page.target().createCDPSession();
-    return client.send('Emulation.setCPUThrottlingRate', { rate: cpuSlowdownRate });
+    const rate = { rate: cpuSlowdownRate };
+    return client.send('Emulation.setCPUThrottlingRate', rate).then(() => {
+      return Promise.resolve(rate);
+    });
   }
   return Promise.resolve();
 };
 
-const totalDuration = async (host, config, debug) => {
+const lighthouseFromPuppeteer = async (url, options, config = null, saveReports = false, networkProfileName = '') => {
+  // Run Lighthouse
+  const { lhr, artifacts } = await lighthouse(url, options, config);
+
+  // For debugging
+  const json = reportGenerator.generateReport(lhr, 'json');
+  if (saveReports) {
+    const trace = reportGenerator.generateReport(artifacts, 'json');
+    const lhReportPath = `puppeteer/lighthouse-report-${networkProfileName}.json`;
+    const pTracePath = `puppeteer/performance-trace-${networkProfileName}.json`;
+    // eslint-disable-next-line no-console
+    console.debug(`\n
+    Generating lighthouse reports:
+      ${lhReportPath}
+      ${pTracePath}`);
+    // Need literal string to work around the detect-non-literal-fs-filename
+    switch (networkProfileName) {
+      case 'fast':
+        fs.writeFileSync('puppeteer/lighthouse-report-fast.json', json);
+        fs.writeFileSync('puppeteer/performance-trace-fast.json', trace);
+        break;
+      case 'medium':
+        fs.writeFileSync('puppeteer/lighthouse-report-medium.json', json);
+        fs.writeFileSync('puppeteer/performance-trace-medium.json', trace);
+        break;
+      case 'slow':
+        fs.writeFileSync('puppeteer/lighthouse-report-slow.json', json);
+        fs.writeFileSync('puppeteer/performance-trace-slow.json', trace);
+        break;
+      default:
+        fs.writeFileSync('puppeteer/lighthouse-report.json', json);
+        fs.writeFileSync('puppeteer/performance-trace.json', trace);
+    }
+  }
+
+  const { audits } = JSON.parse(json); // Lighthouse audits
+  const largestContentfulPaint = audits['largest-contentful-paint'].displayValue;
+  const totalBlockingTime = audits['total-blocking-time'].displayValue;
+  const timeToInteractive = audits.interactive.displayValue;
+
+  return {
+    '🎨 Largest Contentful Paint (seconds)': largestContentfulPaint,
+    '👆 Time To Interactive (seconds)': timeToInteractive,
+    '⌛️ Total Blocking Time (milliseconds)': totalBlockingTime,
+  };
+};
+
+const totalDuration = async ({ host, config, debug, saveReports, verbose }) => {
   const waitOptions = { timeout: 0, waitUntil: 'networkidle0' };
 
   const browser = await puppeteer.launch(config.launch);
@@ -81,7 +144,7 @@ const totalDuration = async (host, config, debug) => {
 
   const page = await browser.newPage();
 
-  await setupEmulation(config, page, userAgent);
+  const deviceEmulationConfig = await setupEmulation(config, page, userAgent);
 
   await page.goto(`${host}/devlocal-auth/login`, waitOptions).catch(() => {
     console.error(`Unable to reach host ${host}. Make sure your server and client are already running`);
@@ -103,8 +166,8 @@ const totalDuration = async (host, config, debug) => {
   const element = await page.$(locatorSelector);
   const locatorValue = await page.evaluate((el) => el.textContent, element);
 
-  await setupNetwork(config, page);
-  await setupCPU(config, page);
+  const networkConfig = await setupNetwork(config, page);
+  const cpuRateConfig = await setupCPU(config, page);
 
   // go to a document viewer, orders
   await page.goto(`${host}/moves/${locatorValue}/orders`, waitOptions);
@@ -119,9 +182,43 @@ const totalDuration = async (host, config, debug) => {
     }),
   );
 
+  const url = `${host}/moves/${locatorValue}/orders`;
+  const lhOptions = {
+    port: new URL(browser.wsEndpoint()).port,
+    logLevel: verbose ? 'info' : 'error',
+    chromeFlags: ['--disable-mobile-emulation'],
+  };
+  const lhConfig = {
+    extends: 'lighthouse:default',
+    settings: {
+      maxWaitForLoad: 200000, // 200,000 ms. Increase max wait so lighthouse can gather metrics.
+      formFactor: 'desktop', // TODO - Will need to change once we do device emulation
+      throttlingMethod: 'devtools',
+      throttling: {
+        // Lighthouse expects kilobits per sec instead of bytes per sec
+        // 1 byte = 0.008 kilobits
+        cpuSlowdownMultiplier: cpuRateConfig.rate,
+        requestLatencyMs: networkConfig.latency * throttling.DEVTOOLS_RTT_ADJUSTMENT_FACTOR,
+        downloadThroughputKbps: networkConfig.download * 0.008 * throttling.DEVTOOLS_THROUGHPUT_ADJUSTMENT_FACTOR,
+        uploadThroughputKbps: networkConfig.upload * 0.008 * throttling.DEVTOOLS_THROUGHPUT_ADJUSTMENT_FACTOR,
+      },
+      screenEmulation: {
+        mobile: false,
+        width: deviceEmulationConfig.viewport.width,
+        height: deviceEmulationConfig.viewport.height,
+        deviceScaleFactor: 1,
+        disabled: false,
+      },
+      emulatedUserAgent: deviceEmulationConfig.userAgent,
+    },
+  };
+
+  const lhResults = await lighthouseFromPuppeteer(url, lhOptions, lhConfig, saveReports, config.network);
+  const pfTimingResults = getTotalRequestTime(navigationEntries);
+
   await browser.close();
 
-  return getTotalRequestTime(navigationEntries);
+  return { '🏁 Peformance timing (seconds)': pfTimingResults, ...lhResults };
 };
 
-module.exports = { totalDuration };
+module.exports = { totalDuration, lighthouseFromPuppeteer };
