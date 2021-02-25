@@ -1,6 +1,5 @@
 import React from 'react';
-
-import {FormGroup, Label, TextInput } from '@trussworks/react-uswds';
+import { FormGroup, Label, TextInput } from '@trussworks/react-uswds';
 
 export default {
   title: 'Components/Form',
@@ -19,10 +18,9 @@ export const FormGroupWithWarning = () => (
   </FormGroup>
 );
 
-export const FormGroupWithError= () => (
+export const FormGroupWithError = () => (
   <FormGroup error>
     <Label htmlFor="input-type-text">Text input label</Label>
     <TextInput id="input-type-text" name="input-type-text" type="text" />
   </FormGroup>
 );
-
