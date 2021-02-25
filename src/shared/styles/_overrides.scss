@@ -264,10 +264,6 @@
   padding-left: 1.06667rem;
   position: relative;
 
-  label {
-    color: $base-darker;
-  }
-
   .usa-hint {
     @include u-font-size('body', 'xs');
     color: $base-darker;
