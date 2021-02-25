@@ -194,7 +194,6 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 	})
 	ppm2.Move.Submit(time.Now())
 	ppm2.Move.Approve()
-	ppm2.Move.AvailableToPrimeAt = swag.Time(time.Now())
 
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -606,7 +605,6 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 	})
 	ppm6.Move.Submit(time.Now())
 	ppm6.Move.Approve()
-	ppm6.Move.AvailableToPrimeAt = swag.Time(time.Now())
 
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1066,7 +1064,7 @@ func createHHGMoveWith2PaymentRequests(db *pop.Connection, userUploader *uploade
 			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
 			OrdersID:           orders7.ID,
 			AvailableToPrimeAt: swag.Time(time.Now()),
-			Status:             models.MoveStatusSUBMITTED,
+			Status:             models.MoveStatusAPPROVED,
 			SelectedMoveType:   &hhgMoveType,
 		},
 	})
