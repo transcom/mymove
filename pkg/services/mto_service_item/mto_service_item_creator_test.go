@@ -101,7 +101,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	reServiceDDFSIT := testdatagen.MakeDDFSITReService(suite.DB())
+	reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{})
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
@@ -109,7 +109,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
 		MoveTaskOrder:   move,
-		ReService:       reServiceDDFSIT,
+		ReService:       reService,
 		MTOShipmentID:   &shipment.ID,
 		MTOShipment:     shipment,
 		Dimensions:      models.MTOServiceItemDimensions{dimension},
@@ -166,12 +166,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	// Status default value: If we try to create an mto service item and haven't set the status, we default to SUBMITTED
 	suite.T().Run("success using default status value", func(t *testing.T) {
 		serviceItemNoStatus := suite.buildValidServiceItemWithNoStatusAndValidMove()
-		_, verrs, err := creator.CreateMTOServiceItem(&serviceItemNoStatus)
+		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(&serviceItemNoStatus)
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
-		createdServiceItem := models.MTOServiceItem{}
-		suite.DB().Find(&createdServiceItem, serviceItem.ID)
-		suite.Equal(models.MTOServiceItemStatusSubmitted, createdServiceItem.Status)
+		suite.NoError(err)
+		serviceItemsToCheck := *createdServiceItems
+		suite.Equal(models.MTOServiceItemStatusSubmitted, serviceItemsToCheck[0].Status)
 	})
 
 	// If error when trying to create, the create should fail.

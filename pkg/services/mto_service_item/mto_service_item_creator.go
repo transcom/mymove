@@ -192,7 +192,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
 	}
-
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure
