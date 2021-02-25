@@ -16,9 +16,9 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
--- Temporarily drop indexes to speed up load
+-- Temporarily drop unique constraint to speed up load
 
-DROP INDEX public.transportation_accounting_codes_tac_idx;
+ALTER TABLE public.transportation_accounting_codes DROP CONSTRAINT transportation_accounting_codes_tac_key;
 
 --
 -- Data for Name: transportation_accounting_codes; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -48,4 +48,4 @@ b4dccee3-3065-4f02-b05e-9ea5920f378a	6666
 e3566ec6-04df-4d02-add6-5db39b5ec4e6	9999
 \.
 
-CREATE INDEX transportation_accounting_codes_tac_idx ON public.transportation_accounting_codes USING btree(tac);
+ALTER TABLE public.transportation_accounting_codes ADD CONSTRAINT transportation_accounting_codes_tac_key UNIQUE (tac);
