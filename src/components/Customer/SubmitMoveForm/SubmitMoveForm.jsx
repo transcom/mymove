@@ -11,11 +11,10 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import { formatSwaggerDate } from 'shared/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { completeCertificationText } from 'scenes/Legalese/legaleseText';
 import CertificationText from 'scenes/Legalese/CertificationText';
 
 const SubmitMoveForm = (props) => {
-  const { onPrint, onSubmit, error } = props;
+  const { onPrint, onSubmit, certificationText, error } = props;
 
   const validationSchema = Yup.object().shape({
     signature: Yup.string().required('Required'),
@@ -29,7 +28,7 @@ const SubmitMoveForm = (props) => {
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} validateOnBlur onSubmit={onSubmit}>
-      {({ isValid, errors, touched, handleSubmit }) => {
+      {({ isValid, errors, touched, handleSubmit, isSubmitting }) => {
         const showSignatureError = !!(errors.signature && touched.signature);
 
         return (
@@ -46,7 +45,7 @@ const SubmitMoveForm = (props) => {
                 Print
               </Button>
 
-              <CertificationText certificationText={completeCertificationText} />
+              <CertificationText certificationText={certificationText} />
 
               <div className={styles.signatureBox}>
                 <h3>Signature</h3>
@@ -85,7 +84,9 @@ const SubmitMoveForm = (props) => {
                 </Alert>
               )}
             </SectionWrapper>
-            <WizardNavigation isLastPage disableNext={!isValid} onNextClick={handleSubmit} />
+            <div className={formStyles.formActions}>
+              <WizardNavigation isLastPage disableNext={!isValid || isSubmitting} onNextClick={handleSubmit} />
+            </div>
           </Form>
         );
       }}
@@ -94,12 +95,14 @@ const SubmitMoveForm = (props) => {
 };
 
 SubmitMoveForm.propTypes = {
+  certificationText: PropTypes.string,
   onSubmit: PropTypes.func.isRequired,
   onPrint: PropTypes.func,
-  error: PropTypes.bool,
+  error: PropTypes.oneOf([PropTypes.bool, PropTypes.object]),
 };
 
 SubmitMoveForm.defaultProps = {
+  certificationText: null,
   onPrint: () => window.print(),
   error: false,
 };
