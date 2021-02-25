@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
-import { Button, TextInput, Label, FormGroup, Fieldset, ErrorMessage } from '@trussworks/react-uswds';
+import { Button, TextInput, Label, FormGroup, Fieldset, ErrorMessage, Grid } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
+
+import styles from './SubmitMoveForm.module.scss';
 
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import styles from 'styles/form.module.scss';
+import formStyles from 'styles/form.module.scss';
 import { formatSwaggerDate } from 'shared/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { completeCertificationText } from 'scenes/Legalese/legaleseText';
@@ -31,7 +33,7 @@ const SubmitMoveForm = (props) => {
         const showSignatureError = !!(errors.signature && touched.signature);
 
         return (
-          <Form className={styles.form}>
+          <Form className={`${formStyles.form} ${styles.SubmitMoveForm}`}>
             <h1>Now for the official part&hellip;</h1>
             <p>
               Please read this agreement, type your name in the <strong>Signature</strong> field to sign it, then tap
@@ -40,33 +42,40 @@ const SubmitMoveForm = (props) => {
             <p>This agreement covers the shipment of your personal property.</p>
 
             <SectionWrapper>
-              <Button type="button" unstyled onClick={onPrint}>
+              <Button type="button" unstyled onClick={onPrint} className={styles.hideForPrint}>
                 Print
               </Button>
 
               <CertificationText certificationText={completeCertificationText} />
 
-              <div>
-                <h3>SIGNATURE</h3>
+              <div className={styles.signatureBox}>
+                <h3>Signature</h3>
                 <p>
                   In consideration of said household goods or mobile homes being shipped at Government expense, I hereby
                   agree to the certifications stated above.
                 </p>
                 <Fieldset>
-                  <FormGroup error={showSignatureError}>
-                    <Label>Signature</Label>
-                    {showSignatureError && <ErrorMessage id="signature-error-message">{errors.signature}</ErrorMessage>}
-                    <Field
-                      as={TextInput}
-                      name="signature"
-                      aria-describedby={showSignatureError && 'signature-error-message'}
-                    />
-                  </FormGroup>
-
-                  <FormGroup>
-                    <Label>Date</Label>
-                    <Field as={TextInput} name="date" disabled />
-                  </FormGroup>
+                  <Grid row gap>
+                    <Grid tablet={{ col: 'fill' }}>
+                      <FormGroup error={showSignatureError}>
+                        <Label>Signature</Label>
+                        {showSignatureError && (
+                          <ErrorMessage id="signature-error-message">{errors.signature}</ErrorMessage>
+                        )}
+                        <Field
+                          as={TextInput}
+                          name="signature"
+                          aria-describedby={showSignatureError && 'signature-error-message'}
+                        />
+                      </FormGroup>
+                    </Grid>
+                    <Grid tablet={{ col: 'auto' }}>
+                      <FormGroup>
+                        <Label>Date</Label>
+                        <Field as={TextInput} name="date" disabled />
+                      </FormGroup>
+                    </Grid>
+                  </Grid>
                 </Fieldset>
               </div>
             </SectionWrapper>
