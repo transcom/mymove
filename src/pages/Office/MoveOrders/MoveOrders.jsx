@@ -94,6 +94,13 @@ const MoveOrders = () => {
     mutateOrders({ orderID: orderId, ifMatchETag: moveOrder.eTag, body });
   };
 
+  // const validateTac = (value) => {
+  //   // hit api and get a return value of T or F
+  // };
+
+  const tacWarning =
+    'This TAC does not appear in TGET, so it might not be valid. Make sure it matches what‘s on the orders before you continue.';
+
   const initialValues = {
     agency: moveOrder?.agency,
     originDutyStation: moveOrder?.originDutyStation,
@@ -136,6 +143,7 @@ const MoveOrders = () => {
                   deptIndicatorOptions={deptIndicatorDropdownOptions}
                   ordersTypeOptions={ordersTypeDropdownOptions}
                   ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
+                  tacWarning={tacWarning}
                 />
               </div>
               <div className={styles.bottom}>
