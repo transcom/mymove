@@ -26,7 +26,7 @@ func NewDomesticOriginPricer(db *pop.Connection) services.DomesticOriginPricer {
 }
 
 // Price determines the price for a domestic origin
-func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (totalCost unit.Cents, params []services.PricingParam, err error) {
+func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (totalCost unit.Cents, params services.PricingParams, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -62,7 +62,7 @@ func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate tim
 }
 
 // PriceUsingParams determines the price for a domestic origin given PaymentServiceItemParams
-func (p domesticOriginPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, []services.PricingParam, error) {
+func (p domesticOriginPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err

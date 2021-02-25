@@ -32,7 +32,7 @@ func NewDomesticLinehaulPricer(db *pop.Connection) services.DomesticLinehaulPric
 }
 
 // Price determines the price for a domestic linehaul
-func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
+func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingParams, error) {
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 	priceAndEscalation, err := fetchDomesticLinehaulPrice(p.db, contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
 	if err != nil {
@@ -50,7 +50,7 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 }
 
 // PriceUsingParams determines the price for a domestic linehaul given PaymentServiceItemParams
-func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, []services.PricingParam, error) {
+func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err

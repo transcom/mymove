@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
+func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingParams, error) {
 	var sitType string
 	if firstDaySITCode == models.ReServiceCodeDDFSIT {
 		sitType = "destination"
@@ -45,7 +45,7 @@ func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServi
 	return totalPriceCents, nil, nil
 }
 
-func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, []services.PricingParam, error) {
+func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingParams, error) {
 	var sitType string
 	if additionalDaySITCode == models.ReServiceCodeDDASIT {
 		sitType = "destination"
@@ -79,7 +79,7 @@ func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode mod
 	return totalPriceCents, nil, nil
 }
 
-func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, []services.PricingParam, error) {
+func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingParams, error) {
 	var sitType, sitModifier, zipOriginalName, zipActualName string
 	if pickupDeliverySITCode == models.ReServiceCodeDDDSIT {
 		sitType = "destination"

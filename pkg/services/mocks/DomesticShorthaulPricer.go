@@ -19,7 +19,7 @@ type DomesticShorthaulPricer struct {
 }
 
 // Price provides a mock function with given fields: contractCode, requestedPickupDate, distance, weight, serviceArea
-func (_m *DomesticShorthaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, []services.PricingParam, error) {
+func (_m *DomesticShorthaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingParams, error) {
 	ret := _m.Called(contractCode, requestedPickupDate, distance, weight, serviceArea)
 
 	var r0 unit.Cents
@@ -29,12 +29,12 @@ func (_m *DomesticShorthaulPricer) Price(contractCode string, requestedPickupDat
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 []services.PricingParam
-	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Miles, unit.Pound, string) []services.PricingParam); ok {
+	var r1 services.PricingParams
+	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Miles, unit.Pound, string) services.PricingParams); ok {
 		r1 = rf(contractCode, requestedPickupDate, distance, weight, serviceArea)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).([]services.PricingParam)
+			r1 = ret.Get(1).(services.PricingParams)
 		}
 	}
 
@@ -49,7 +49,7 @@ func (_m *DomesticShorthaulPricer) Price(contractCode string, requestedPickupDat
 }
 
 // PriceUsingParams provides a mock function with given fields: params
-func (_m *DomesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, []services.PricingParam, error) {
+func (_m *DomesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
 	ret := _m.Called(params)
 
 	var r0 unit.Cents
@@ -59,12 +59,12 @@ func (_m *DomesticShorthaulPricer) PriceUsingParams(params models.PaymentService
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 []services.PricingParam
-	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) []services.PricingParam); ok {
+	var r1 services.PricingParams
+	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) services.PricingParams); ok {
 		r1 = rf(params)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).([]services.PricingParam)
+			r1 = ret.Get(1).(services.PricingParams)
 		}
 	}
 
