@@ -2,7 +2,7 @@ import React from 'react';
 import { FormGroup, Label, TextInput, ErrorMessage } from '@trussworks/react-uswds';
 
 export default {
-  title: 'Components/Form',
+  title: 'Components/FormGroup',
 };
 
 export const FormGroupDefaultState = () => (
