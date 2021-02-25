@@ -3,7 +3,7 @@ const commander = require('commander');
 const Conf = require('conf');
 const debug = require('debug')('debug');
 
-const { schema, measurementTypes, speeds, fileSizeList } = require('./constants');
+const { schema, measurementTypes, speeds, fileSizeList, fileList } = require('./constants');
 const { totalDuration } = require('./scenarios');
 
 const config = new Conf({
@@ -34,6 +34,7 @@ const runNetworkComparison = async (host, saveReports, verbose) => {
     }).catch(() => {
       process.exit(1);
     });
+
     results[`${speed}`] = elapsedTimeResults;
   }
 
@@ -61,7 +62,9 @@ const runFileSizeComparison = async (host, saveReports, verbose) => {
     }).catch(() => {
       process.exit(1);
     });
-    results[`${size}`] = elapsedTimeResults;
+    const fileSize = fileList[`${size}`];
+
+    results[`${size} (${fileSize})`] = elapsedTimeResults;
   }
 
   return results;

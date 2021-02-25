@@ -24,6 +24,7 @@ const schema = {
     },
   },
   network: { type: 'string', enum: ['fast', 'medium', 'slow'] },
+  fileSize: { type: 'string', enum: ['small', 'medium', 'large'] },
   throttling: {
     type: 'object',
     properties: {
@@ -65,14 +66,22 @@ const measurementTypes = {
   fileDuration: 'file-duration',
 };
 
-// All file sizes available
+// All file "tshirt" sizes available
 const fileSizes = {
   small: 'small',
   medium: 'medium',
   large: 'large',
 };
 
+// All file sizes available
+const fileList = {
+  small: '150Kb',
+  medium: '2mb',
+  large: '25mb',
+};
+
 const fileSizeList = ['small', 'medium', 'large'];
+
 // File sizes associated to different moves by move code/locator
 const fileSizeMoveCodes = {
   small: 'S150KB',
@@ -83,4 +92,13 @@ const fileSizeMoveCodes = {
 // All speeds available
 const speeds = ['fast', 'medium', 'slow'];
 
-module.exports = { schema, networkProfiles, measurementTypes, fileSizes, fileSizeList, fileSizeMoveCodes, speeds };
+module.exports = {
+  schema,
+  networkProfiles,
+  measurementTypes,
+  fileSizes,
+  fileSizeList,
+  fileList,
+  fileSizeMoveCodes,
+  speeds,
+};
