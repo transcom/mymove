@@ -129,6 +129,30 @@ func (o *UpdateWebhookSubscriptionForbidden) WriteResponse(rw http.ResponseWrite
 	rw.WriteHeader(403)
 }
 
+// UpdateWebhookSubscriptionNotFoundCode is the HTTP code returned for type UpdateWebhookSubscriptionNotFound
+const UpdateWebhookSubscriptionNotFoundCode int = 404
+
+/*UpdateWebhookSubscriptionNotFound subscription not found
+
+swagger:response updateWebhookSubscriptionNotFound
+*/
+type UpdateWebhookSubscriptionNotFound struct {
+}
+
+// NewUpdateWebhookSubscriptionNotFound creates UpdateWebhookSubscriptionNotFound with default headers values
+func NewUpdateWebhookSubscriptionNotFound() *UpdateWebhookSubscriptionNotFound {
+
+	return &UpdateWebhookSubscriptionNotFound{}
+}
+
+// WriteResponse to the client
+func (o *UpdateWebhookSubscriptionNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(404)
+}
+
 // UpdateWebhookSubscriptionUnprocessableEntityCode is the HTTP code returned for type UpdateWebhookSubscriptionUnprocessableEntity
 const UpdateWebhookSubscriptionUnprocessableEntityCode int = 422
 
