@@ -29,7 +29,8 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 		return unit.Cents(0), err
 	}
 
-	return pricer.PriceUsingParams(item.PaymentServiceItemParams)
+	priceCents, _, err := pricer.PriceUsingParams(item.PaymentServiceItemParams)
+	return priceCents, err
 }
 
 func (p serviceItemPricer) UsingConnection(db *pop.Connection) services.ServiceItemPricer {
