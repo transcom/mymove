@@ -37,7 +37,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 
 	})
 
-	suite.T().Run("Deactivate an Officer User successfully", func(t *testing.T) {
+	suite.T().Run("Deactivate an Office User successfully", func(t *testing.T) {
 		// Create an active office user
 		// deactivate the user
 		// check that their office user status is also set to false
