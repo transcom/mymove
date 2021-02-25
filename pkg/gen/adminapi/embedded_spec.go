@@ -1402,6 +1402,9 @@ func init() {
           "403": {
             "description": "Not authorized to update this webhook subscription"
           },
+          "404": {
+            "description": "subscription not found"
+          },
           "422": {
             "description": "Validation error",
             "schema": {
@@ -3998,6 +4001,9 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update this webhook subscription"
+          },
+          "404": {
+            "description": "subscription not found"
           },
           "422": {
             "description": "Validation error",

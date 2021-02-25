@@ -224,7 +224,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
 			WebhookSubscription: &adminmessages.WebhookSubscription{
 				CallbackURL:  "something.com",
-				Status:       "DISABLED",
+				Status:       "FAILING",
 				EventKey:     "WebhookSubscription.Update",
 				SubscriberID: strfmt.UUID(webhookSubscription.SubscriberID.String()),
 			},
@@ -248,15 +248,71 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		suite.Equal(params.WebhookSubscription.SubscriberID, okResponse.Payload.SubscriberID)
 	})
 
-	suite.T().Run("404 - ID not found", func(t *testing.T) {
+	suite.T().Run("500 - Internal Server Error", func(t *testing.T) {
 		// Testing: 			UdateWebhookSubscriptionHandler, Updater
-		// Set up: 				Provide a valid request with the id of a webhook_subscription
+		// Set up: 				Provide an invalid request with the id of a webhook_subscription
 		// 		   					to the updateWebhookSubscription endpoint.
 		// Expected Outcome: 	The webhookSubscription is updated and we
 		//					 		receive a 200 OK.
+		// params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+		// 	HTTPRequest:           req,
+		// 	WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
+		// }
+		fakeID, err := uuid.NewV4()
+		suite.NoError(err)
+
 		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
 			HTTPRequest:           req,
-			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
+			WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
+			WebhookSubscription: &adminmessages.WebhookSubscription{
+				CallbackURL:  "something.com",
+				Status:       "DISABLED",
+				EventKey:     "WebhookSubscription.Update",
+				SubscriberID: strfmt.UUID(webhookSubscription.SubscriberID.String()),
+			},
+		}
+
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		handler := UpdateWebhookSubscriptionHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			query.NewQueryFilter,
+		}
+
+		response := handler.Handle(params)
+		expectedError := models.ErrFetchForbidden
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusInternalServerError,
+			Err:  expectedError,
+		}
+		// expectedResponse := webhooksubscriptionop.UpdateWebhookSubscriptionNotFound(
+		// 	webhooksubscriptionop.UpdateWebhookSubscriptionNotFound{},
+		// )
+
+		suite.Equal(expectedResponse, response)
+		suite.NotEqual(fakeID, webhookSubscription.ID.String())
+	})
+
+	suite.T().Run("404 - Not Found", func(t *testing.T) {
+		// Testing: 			UdateWebhookSubscriptionHandler, Updater
+		// Set up: 				Provide an invalid request with the id of a webhook_subscription
+		// 		   					to the updateWebhookSubscription endpoint.
+		// Expected Outcome: 	The webhookSubscription is not updated and we see a validation error.
+		// params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+		// HTTPRequest:           req,
+		// WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String())
+		fakeID, err := uuid.NewV4()
+		suite.NoError(err)
+
+		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+			HTTPRequest:           req,
+			WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
+			WebhookSubscription: &adminmessages.WebhookSubscription{
+				CallbackURL:  "something.com",
+				Status:       "DISABLED",
+				EventKey:     "WebhookSubscription.Update",
+				SubscriberID: strfmt.UUID(webhookSubscription.SubscriberID.String()),
+			},
 		}
 
 		queryBuilder := query.NewQueryBuilder(suite.DB())
@@ -268,83 +324,15 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 
 		response := handler.Handle(params)
 
-		suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionUnprocessableEntity{}, response)
-		badResponse := response.(*webhooksubscriptionop.UpdateWebhookSubscriptionUnprocessableEntity)
-		// okResponse := response.(*webhooksubscriptionop.UpdateWebhookSubscriptionOK)
-		fakeID, err := uuid.NewV4()
-		suite.NoError(err)
-		suite.Equal(fakeID, badResponse)
+		expectedError := models.ErrFetchForbidden
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusNotFound,
+			Err:  expectedError,
+		}
+		suite.IsType(expectedResponse, response)
+		// suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionForbidden{}, response)
+		// badResponse := response.(*webhooksubscriptionop.UpdateWebhookSubscriptionUnprocessableEntity)
+		// suite.Equal(expectedResponse, badResponse)
 	})
-
-	// suite.T().Run("404 - Not Found", func(t *testing.T) {
-	// 	// Testing: 			UpdateWebhookSubscriptionHandler
-	// 	// Mocks:				WebhookSubscriptionUpdater
-	// 	// Set up: 				Provide an invalid uuid to the updateWebhookSubscription
-	// 	// 		   					endpoint and mock Updater to return an error.
-	// 	// Expected Outcome: 	The handler returns a 404.
-
-	// 	webhookSubscriptionUpdater := &mocks.WebhookSubscriptionUpdater{}
-	// 	fakeID, err := uuid.NewV4()
-	// 	suite.NoError(err)
-
-	// 	expectedError := models.ErrFetchNotFound
-	// 	params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-	// 		HTTPRequest:           req,
-	// 		WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
-	// 	}
-
-	// 	webhookSubscriptionUpdater.On("UpdateWebhookSubscription",
-	// 		mock.Anything,
-	// 	).Return(models.WebhookSubscription{}, expectedError).Once()
-
-	// 	handler := UpdateWebhookSubscriptionHandler{
-	// 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	// 		webhookSubscriptionUpdater,
-	// 		query.NewQueryFilter,
-	// 	}
-
-	// 	response := handler.Handle(params)
-
-	// 	expectedResponse := &handlers.ErrResponse{
-	// 		Code: http.StatusNotFound,
-	// 		Err:  expectedError,
-	// 	}
-	// 	suite.Equal(expectedResponse, response)
-	// })
-
-	// suite.T().Run("404 - Not Found", func(t *testing.T) {
-	// 	// Testing: 			UpdateWebhookSubscriptionHandler
-	// 	// Set up: 				Provide an invalid uuid to the updateWebhookSubscription
-	// 	// 		   					endpoint.
-	// 	// Expected Outcome: 	The handler returns a 404.
-
-	// 	webhookSubscriptionUpdater := &webhooksubscriptionop.UpdateWebhookSubscription{}
-	// 	fakeID, err := uuid.NewV4()
-	// 	suite.NoError(err)
-
-	// 	expectedError := models.ErrFetchNotFound
-	// 	params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-	// 		HTTPRequest:           req,
-	// 		WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
-	// 	}
-
-	// 	webhookSubscriptionUpdater("UpdateWebhookSubscription",
-	// 		mock.Anything,
-	// 	).Return(models.WebhookSubscription{}, expectedError).Once()
-
-	// 	handler := UpdateWebhookSubscriptionHandler{
-	// 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	// 		webhookSubscriptionUpdater,
-	// 		query.NewQueryFilter,
-	// 	}
-
-	// 	response := handler.Handle(params)
-
-	// 	expectedResponse := &handlers.ErrResponse{
-	// 		Code: http.StatusNotFound,
-	// 		Err:  expectedError,
-	// 	}
-	// 	suite.Equal(expectedResponse, response)
-	// })
 }
 
