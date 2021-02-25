@@ -1,5 +1,4 @@
-/* eslint-disable import/prefer-default-export */
-export const serviceItemCodes = {
+const serviceItemCodes = {
   CS: 'Counseling',
   DBHF: 'Domestic haul away boat factor',
   DBTF: 'Domestic tow away boat factor',
@@ -51,3 +50,5 @@ export const serviceItemCodes = {
   NSTH: 'Nonstandard HHG',
   NSTUB: 'Nonstandard UB',
 };
+
+export { serviceItemCodes as default, serviceItemCodes };

@@ -7,6 +7,14 @@ import styles from './ShipmentServiceItemsTable.module.scss';
 import { serviceItemCodes } from 'content/serviceItems';
 
 const shipmentTypes = {
+  HHG: [
+    serviceItemCodes.DLH,
+    serviceItemCodes.FSC,
+    serviceItemCodes.DOP,
+    serviceItemCodes.DDP,
+    serviceItemCodes.DPK,
+    serviceItemCodes.DUPK,
+  ],
   HHG_LONGHAUL_DOMESTIC: [
     serviceItemCodes.DLH,
     serviceItemCodes.FSC,
