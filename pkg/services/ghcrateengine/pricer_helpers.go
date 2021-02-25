@@ -159,29 +159,32 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	return totalPriceCents, nil
 }
 
-func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemParamID uuid.UUID, params []services.PricingParam) error {
+func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params []services.PricingParam) (models.PaymentServiceItemParams, error) {
+	var paymentServiceItemParams models.PaymentServiceItemParams
 	for _, param := range params {
-		var serviceItemParam models.ServiceItemParamKey
+		var serviceItemParamKey models.ServiceItemParamKey
 		err := db.Q().
-			Where("key = $1", param.Key).
-			First(&serviceItemParam)
+			Where("key = ?", param.Key).
+			Where("origin = ?", models.ServiceItemParamOriginPricer).
+			First(&serviceItemParamKey)
 		if err != nil {
-			return fmt.Errorf("unable to find service item param key for %v", serviceItemParam.Key)
+			return paymentServiceItemParams, fmt.Errorf("unable to find service item param key for %v", serviceItemParamKey.Key)
 		}
 
 		newParam := models.PaymentServiceItemParam{
-			PaymentServiceItemID:  paymentServiceItemParamID,
-			ServiceItemParamKeyID: serviceItemParam.ID,
+			PaymentServiceItemID:  paymentServiceItemID,
+			ServiceItemParamKeyID: serviceItemParamKey.ID,
 			Value:                 fmt.Sprintf("%v", param.Value),
 		}
 
 		verrs, err := db.ValidateAndCreate(&newParam)
 		if err != nil {
-			return fmt.Errorf("failure creating payment service item param: %w", err)
-		}
-		if verrs.HasAny() {
-			return services.NewInvalidCreateInputError(verrs, "validation error with creating payment service item param")
+			return paymentServiceItemParams, fmt.Errorf("failure creating payment service item param: %w", err)
+		} else if verrs.HasAny() {
+			return paymentServiceItemParams, services.NewInvalidCreateInputError(verrs, "validation error with creating payment service item param")
+		} else {
+			paymentServiceItemParams = append(paymentServiceItemParams, newParam)
 		}
 	}
-	return nil
+	return paymentServiceItemParams, nil
 }
