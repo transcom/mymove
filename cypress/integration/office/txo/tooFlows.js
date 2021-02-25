@@ -92,24 +92,23 @@ describe('TOO user', () => {
     const shipments = cy.get('[data-testid="ShipmentContainer"]');
     shipments.should('have.length', 1);
 
-    cy.contains('Requested service items (8 items)');
+    cy.contains('Approved service items (6 items)');
     cy.contains('Rejected service items').should('not.exist');
-    cy.contains('Approved service items').should('not.exist');
 
     cy.get('[data-testid="modal"]').should('not.exist');
 
     // Approve a requested service item
     cy.get('[data-testid="RequestedServiceItemsTable"]').within(($table) => {
-      cy.get('tbody tr').should('have.length', 8);
+      cy.get('tbody tr').should('have.length', 2);
       cy.get('.acceptButton').first().click();
     });
-    cy.contains('Approved service items (1 item)');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 1);
+    cy.contains('Approved service items (7 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
 
     // Reject a requested service item
-    cy.contains('Requested service items (7 items)');
+    cy.contains('Requested service items (1 item)');
     cy.get('[data-testid="RequestedServiceItemsTable"]').within(($table) => {
-      cy.get('tbody tr').should('have.length', 7);
+      cy.get('tbody tr').should('have.length', 1);
       cy.get('.rejectButton').first().click();
     });
 
@@ -128,8 +127,8 @@ describe('TOO user', () => {
     // Accept a previously rejected service item
     cy.get('[data-testid="RejectedServiceItemsTable"] button').click();
 
-    cy.contains('Approved service items (2 items)');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 2);
+    cy.contains('Approved service items (8 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 8);
     cy.contains('Rejected service items (1 item)').should('not.exist');
 
     // Reject a previously accpeted service item
@@ -146,11 +145,6 @@ describe('TOO user', () => {
 
     cy.contains('Rejected service items (1 item)');
     cy.get('[data-testid="RejectedServiceItemsTable"] tbody tr').should('have.length', 1);
-
-    // Approve the remaining service items
-    cy.get('[data-testid="RequestedServiceItemsTable"] .acceptButton').each(($acceptBtn) => {
-      $acceptBtn.trigger('click');
-    });
 
     cy.contains('Requested service items').should('not.exist');
     cy.contains('Approved service items (7 items)');
