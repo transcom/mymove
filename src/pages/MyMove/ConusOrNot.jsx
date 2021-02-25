@@ -15,7 +15,7 @@ export class ConusOrNot extends Component {
     const oconusCardText = (
       <>
         Starts or ends in Alaska, Hawaii, or International locations
-        <br /> <br />
+        <hr className="text-white border-0" />
         <strong>MilMove does not support OCONUS moves yet.</strong> Contact your current transportation office to set up
         your move.
       </>
