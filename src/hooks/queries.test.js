@@ -238,7 +238,7 @@ describe('useTXOMoveInfoQueries', () => {
     const { result, waitForNextUpdate } = renderHook(() => useTXOMoveInfoQueries(testMoveCode));
 
     expect(result.current).toEqual({
-      moveOrder: undefined,
+      order: undefined,
       customerData: undefined,
       isLoading: true,
       isError: false,
@@ -249,7 +249,7 @@ describe('useTXOMoveInfoQueries', () => {
 
     expect(result.current).toEqual({
       customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-      moveOrder: {
+      order: {
         id: '4321',
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },

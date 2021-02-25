@@ -7,7 +7,7 @@ import { MoveOrderShape, CustomerShape } from 'types/moveOrder';
 import { formatCustomerDate } from 'utils/formatters';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders.js';
 
-const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
+const CustomerHeader = ({ customer, order, moveCode }) => {
   return (
     <div className={styles.custHeader}>
       <div>
@@ -20,7 +20,7 @@ const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
         <div>
           <p>
             <span data-testid="deptRank" className={styles.details}>
-              {ORDERS_BRANCH_OPTIONS[`${moveOrder.agency}`]} {ORDERS_RANK_OPTIONS[`${moveOrder.grade}`]}
+              {ORDERS_BRANCH_OPTIONS[`${order.agency}`]} {ORDERS_RANK_OPTIONS[`${order.grade}`]}
             </span>
             <span className={styles.verticalBar}>|</span>
             <span data-testid="dodId" className={styles.details}>
@@ -32,15 +32,15 @@ const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
       <div data-testid="infoBlock" className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>
-          <h4>{moveOrder.originDutyStation.name}</h4>
+          <h4>{order.originDutyStation.name}</h4>
         </div>
         <div>
           <p>Authorized destination</p>
-          <h4>{moveOrder.destinationDutyStation.name}</h4>
+          <h4>{order.destinationDutyStation.name}</h4>
         </div>
         <div>
           <p>Report by</p>
-          <h4>{formatCustomerDate(moveOrder.report_by_date)}</h4>
+          <h4>{formatCustomerDate(order.report_by_date)}</h4>
         </div>
       </div>
     </div>
@@ -49,7 +49,7 @@ const CustomerHeader = ({ customer, moveOrder, moveCode }) => {
 
 CustomerHeader.propTypes = {
   customer: CustomerShape.isRequired,
-  moveOrder: MoveOrderShape.isRequired,
+  order: MoveOrderShape.isRequired,
   moveCode: string.isRequired,
 };
 
