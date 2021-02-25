@@ -38,9 +38,15 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 	})
 
 	suite.T().Run("Deactivate an Office User successfully", func(t *testing.T) {
-		// Create an active office user
-		// deactivate the user
-		// check that their office user status is also set to false
+		// Under test: updateUser, updateOfficeUser
+		//
+		// Set up:     We provide an ACTIVE user/office user, and then deactivate
+		//			   the user by calling updateUser.
+		//
+		// Expected outcome:
+		//           	updateUser updates the users table and calls updateOfficeUser
+		//            	to update the office_users table. Both tables have an ACTIVE
+		//				status set to False.
 
 		activeOfficeUser := testdatagen.MakeActiveOfficeUser(suite.DB())
 
@@ -68,14 +74,20 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 	})
 
 	suite.T().Run("Deactivate an Admin User successfully", func(t *testing.T) {
-		// Create an active office user
-		// deactivate the user
-		// check that their office user status is also set to false
+		// Under test: updateUser, updateAdminUser
+		//
+		// Set up:     We provide an ACTIVE user/admin user, and then deactivate
+		//			   the user by calling updateUser.
+		//
+		// Expected outcome:
+		//           	updateUser updates the users table and calls updateAdminUser
+		//            	to update the admin_users table. Both tables have an ACTIVE
+		//				status set to False.
 
 		activeAdminUser := testdatagen.MakeActiveAdminUser(suite.DB())
 
 		// Create the payload to update a user's active status. This should also
-		// update their officeUser status in parallel.
+		// update their adminUser status in parallel.
 		payload := adminmessages.UserUpdatePayload{
 			Active: &inactive,
 		}
@@ -85,7 +97,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		// Deactivate user
 		updatedUser, verr, err := updater.UpdateUser(*activeAdminUser.UserID, modelToPayload)
 
-		// Fetch updated office user to confirm status
+		// Fetch updated admin user to confirm status
 		updatedAdminUser := models.AdminUser{}
 		suite.DB().Eager("AdminUser.User").Find(&updatedAdminUser, activeAdminUser.ID)
 
