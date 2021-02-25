@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
+	services "github.com/transcom/mymove/pkg/services"
+
 	time "time"
 
 	unit "github.com/transcom/mymove/pkg/unit"
@@ -16,29 +18,38 @@ type DomesticDestinationAdditionalDaysSITPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT
-func (_m *DomesticDestinationAdditionalDaysSITPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, error) {
-	ret := _m.Called(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT)
+// Price provides a mock function with given fields: contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT
+func (_m *DomesticDestinationAdditionalDaysSITPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingParams, error) {
+	ret := _m.Called(contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(string, time.Time, bool, unit.Pound, string, int) unit.Cents); ok {
-		r0 = rf(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT)
+	if rf, ok := ret.Get(0).(func(string, time.Time, unit.Pound, string, int) unit.Cents); ok {
+		r0 = rf(contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string, time.Time, bool, unit.Pound, string, int) error); ok {
-		r1 = rf(contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT)
+	var r1 services.PricingParams
+	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Pound, string, int) services.PricingParams); ok {
+		r1 = rf(contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(services.PricingParams)
+		}
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(string, time.Time, unit.Pound, string, int) error); ok {
+		r2 = rf(contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // PriceUsingParams provides a mock function with given fields: params
-func (_m *DomesticDestinationAdditionalDaysSITPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+func (_m *DomesticDestinationAdditionalDaysSITPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
 	ret := _m.Called(params)
 
 	var r0 unit.Cents
@@ -48,12 +59,21 @@ func (_m *DomesticDestinationAdditionalDaysSITPricer) PriceUsingParams(params mo
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) error); ok {
+	var r1 services.PricingParams
+	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) services.PricingParams); ok {
 		r1 = rf(params)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(services.PricingParams)
+		}
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(models.PaymentServiceItemParams) error); ok {
+		r2 = rf(params)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
