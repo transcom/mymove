@@ -3216,7 +3216,7 @@ func init() {
         },
         "mtoServiceItemName": {
           "type": "string",
-          "example": "Shipment Mgmt. Services"
+          "example": "Move management"
         },
         "mtoShipmentID": {
           "type": "string",
@@ -7336,7 +7336,7 @@ func init() {
         },
         "mtoServiceItemName": {
           "type": "string",
-          "example": "Shipment Mgmt. Services"
+          "example": "Move management"
         },
         "mtoShipmentID": {
           "type": "string",

@@ -4,6 +4,8 @@ import { NavLink } from 'react-router-dom';
 import LoginButton from 'containers/LoginButton/LoginButton';
 import MilMoveLogo from 'shared/images/milmove-logo.svg';
 
+import BypassBlock from 'components/BypassBlock';
+
 import usaFlag from 'shared/images/us-flag.png';
 import govIcon from 'shared/images/icon-dot-gov.svg';
 import sslIcon from 'shared/images/icon-https.svg';
@@ -11,6 +13,7 @@ import './index.scss';
 function Header() {
   return (
     <div>
+      <BypassBlock />
       {/* Gov banner BEGIN */}
       <div className="usa-banner">
         <div className="usa-accordion">
