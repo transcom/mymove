@@ -561,7 +561,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada true", func(t *testing.T) {
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
-		req := httptest.NewRequest("PATCH", fmt.Sprintln(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
