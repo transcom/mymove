@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MoveOrders.module.scss';
 
-import { updateMoveOrder } from 'services/ghcApi';
+import { getTacValid, updateMoveOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
@@ -43,6 +43,7 @@ const validationSchema = Yup.object({
 const MoveOrders = () => {
   const history = useHistory();
   const { moveCode } = useParams();
+  const [isValidTac, setIsValidTac] = useState(true);
   const { move, moveOrders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
@@ -94,11 +95,13 @@ const MoveOrders = () => {
     mutateOrders({ orderID: orderId, ifMatchETag: moveOrder.eTag, body });
   };
 
-  // const validateTac = (value) => {
-  //   // hit api and get a return value of T or F
-  // };
+  const validateTac = (value) => {
+    if (value.length === 4) {
+      getTacValid({ tac: value }).then((response) => setIsValidTac(response.isValid));
+    }
+  };
 
-  const tacWarning =
+  const tacWarningMsg =
     'This TAC does not appear in TGET, so it might not be valid. Make sure it matches what‘s on the orders before you continue.';
 
   const initialValues = {
@@ -118,47 +121,56 @@ const MoveOrders = () => {
   return (
     <div className={styles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-        {(formik) => (
-          <form onSubmit={formik.handleSubmit}>
-            <div className={styles.orderDetails}>
-              <div className={styles.top}>
-                <Button
-                  className={styles.closeButton}
-                  data-testid="closeSidebar"
-                  type="button"
-                  onClick={handleClose}
-                  unstyled
-                >
-                  <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
-                </Button>
-                <h2 className={styles.header}>View Orders</h2>
-                <div>
-                  <Link className={styles.viewAllowances} data-testid="view-allowances" to="allowances">
-                    View Allowances
-                  </Link>
+        {(formik) => {
+          // if the initial value === value, and it's 4 digits, run validator and show warning if invalid
+          // onBlur, if the value has 4 digits, run validator and show warning if invalid
+          const tacWarning = isValidTac ? '' : tacWarningMsg;
+          return (
+            <form onSubmit={formik.handleSubmit}>
+              <div className={styles.orderDetails}>
+                <div className={styles.top}>
+                  <Button
+                    className={styles.closeButton}
+                    data-testid="closeSidebar"
+                    type="button"
+                    onClick={handleClose}
+                    unstyled
+                  >
+                    <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
+                  </Button>
+                  <h2 className={styles.header}>View Orders</h2>
+                  <div>
+                    <Link className={styles.viewAllowances} data-testid="view-allowances" to="allowances">
+                      View Allowances
+                    </Link>
+                  </div>
+                </div>
+                <div className={styles.body}>
+                  <OrdersDetailForm
+                    deptIndicatorOptions={deptIndicatorDropdownOptions}
+                    ordersTypeOptions={ordersTypeDropdownOptions}
+                    ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
+                    tacWarning={tacWarning}
+                    handleTacBlur={(e) => {
+                      formik.handleBlur(e);
+                      validateTac(formik.values.tac);
+                    }}
+                  />
+                </div>
+                <div className={styles.bottom}>
+                  <div className={styles.buttonGroup}>
+                    <Button type="submit" disabled={formik.isSubmitting}>
+                      Save
+                    </Button>
+                    <Button type="button" secondary onClick={handleClose}>
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
               </div>
-              <div className={styles.body}>
-                <OrdersDetailForm
-                  deptIndicatorOptions={deptIndicatorDropdownOptions}
-                  ordersTypeOptions={ordersTypeDropdownOptions}
-                  ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
-                  tacWarning={tacWarning}
-                />
-              </div>
-              <div className={styles.bottom}>
-                <div className={styles.buttonGroup}>
-                  <Button type="submit" disabled={formik.isSubmitting}>
-                    Save
-                  </Button>
-                  <Button type="button" secondary onClick={handleClose}>
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </form>
-        )}
+            </form>
+          );
+        }}
       </Formik>
     </div>
   );

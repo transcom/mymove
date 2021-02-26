@@ -12,7 +12,7 @@ export const TextInput = ({ label, labelClassName, id, name, labelHint, ...props
   const hasError = meta.touched && !!meta.error;
   const { warning } = props;
   return (
-    <FormGroup className={!!warning && `warning`} error={hasError}>
+    <FormGroup className={!!warning && !hasError && `warning`} error={hasError}>
       <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
         {label}
       </Label>
@@ -44,6 +44,7 @@ export const TextInputMinimal = ({ id, name, ...props }) => {
   const [field, meta] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
   const { warning } = props;
+
   return (
     <>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
