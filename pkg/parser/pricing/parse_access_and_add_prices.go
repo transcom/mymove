@@ -120,9 +120,6 @@ var verifyAccessAndAddPrices verifyXlsxSheet = func(params ParamConfig, sheetInd
 	const domAccessorialRowIndexStart = 11
 	const intlAccessorialRowIndexStart = 25
 	const additionalPricesRowIndexStart = 39
-	const firstColumnIndexStart = 2
-	const secondColumnIndexStart = 3
-	const thirdColumnIndexStart = 4
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("verifyAccessAndAddPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)

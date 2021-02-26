@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"strings"
 	"time"
 
@@ -91,7 +90,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 
 // FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
 // This method is thereby a useful way of performing access control checks.
-func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
+func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
 
 	var serviceMember ServiceMember
 	err := db.Q().Eager("User",
@@ -101,9 +100,10 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"DutyStation.TransportationOffice",
 		"DutyStation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyStation.TransportationOffice",
-		"Orders.Moves",
 		"Orders.UploadedOrders.UserUploads.Upload",
+		"Orders.Moves",
 		"ResidentialAddress").Find(&serviceMember, id)
+
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
@@ -145,7 +145,7 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 }
 
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
-func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
 
 	responseVErrors := validate.NewErrors()
 	var responseError error
@@ -333,7 +333,8 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 		"NewDutyStation.Address",
 		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",
-		"Moves.SignedCertifications").
+		"Moves.SignedCertifications",
+		"Entitlement").
 		First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

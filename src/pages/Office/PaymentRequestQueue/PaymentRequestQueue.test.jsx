@@ -1,4 +1,5 @@
 import React from 'react';
+import Select from 'react-select';
 import { mount } from 'enzyme';
 
 import PaymentRequestQueue from './PaymentRequestQueue';
@@ -79,6 +80,11 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('thead tr th').at(7).text()).toBe('Origin GBLOC');
   });
 
+  it('renders the correct status filter', () => {
+    const statusFilter = wrapper.find('[data-testid="statusFilter"] MultiSelectCheckBoxFilter');
+    expect(statusFilter.length).toBe(1);
+  });
+
   it('renders the table with data and expected values', () => {
     expect(wrapper.find('Table').exists()).toBe(true);
     expect(wrapper.find('tbody tr').length).toBe(1);
@@ -117,5 +123,14 @@ describe('PaymentRequestQueue', () => {
     wrapper.update();
 
     expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
+  });
+
+  it('filters the queue', () => {
+    const input = wrapper.find(Select).at(0).find('input');
+    input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
+    input.simulate('keyDown', { key: 'Enter', keyCode: 13 });
+
+    wrapper.update();
+    expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Payment requested');
   });
 });

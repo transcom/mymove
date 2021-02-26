@@ -31,22 +31,22 @@ func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) 
 	}
 
 	for _, reZip3 := range reZip3s {
-		rateArea, found := zip3ToRateAreaMappings[reZip3.Zip3]
+		copyOfReZip3 := reZip3 // Make copy to avoid implicit memory aliasing of items from a range statement.
+		rateArea, found := zip3ToRateAreaMappings[copyOfReZip3.Zip3]
 		if !found {
-			return fmt.Errorf("failed to find rate area map for zip3 %s in zip3ToRateAreaMappings", reZip3.Zip3)
+			return fmt.Errorf("failed to find rate area map for zip3 %s in zip3ToRateAreaMappings", copyOfReZip3.Zip3)
 		}
 
 		if rateArea == "ZIP" {
-			reZip3.RateAreaID = nil
-			reZip3.HasMultipleRateAreas = true
+			copyOfReZip3.RateAreaID = nil
+			copyOfReZip3.HasMultipleRateAreas = true
 
-			// #nosec G601 TODO needs review
-			verrs, err := dbTx.ValidateAndUpdate(&reZip3)
+			verrs, err := dbTx.ValidateAndUpdate(&copyOfReZip3)
 			if err != nil {
-				return fmt.Errorf("failed to update ReZip3 %v: %w", reZip3.Zip3, err)
+				return fmt.Errorf("failed to update ReZip3 %v: %w", copyOfReZip3.Zip3, err)
 			}
 			if verrs.HasAny() {
-				return fmt.Errorf("failed to validate ReZip3 %v: %w", reZip3.Zip3, verrs)
+				return fmt.Errorf("failed to validate ReZip3 %v: %w", copyOfReZip3.Zip3, verrs)
 			}
 		} else {
 			rateAreaID, found := gre.domesticRateAreaToIDMap[rateArea]
@@ -54,16 +54,15 @@ func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) 
 				return fmt.Errorf("failed to find ID for rate area %s in domesticRateAreaToIDMap", rateArea)
 			}
 
-			reZip3.RateAreaID = &rateAreaID
-			reZip3.HasMultipleRateAreas = false
+			copyOfReZip3.RateAreaID = &rateAreaID
+			copyOfReZip3.HasMultipleRateAreas = false
 
-			// #nosec G601 TODO needs review
-			verrs, err := dbTx.ValidateAndUpdate(&reZip3)
+			verrs, err := dbTx.ValidateAndUpdate(&copyOfReZip3)
 			if err != nil {
-				return fmt.Errorf("failed to update ReZip3: %v: %w", reZip3.Zip3, err)
+				return fmt.Errorf("failed to update ReZip3: %v: %w", copyOfReZip3.Zip3, err)
 			}
 			if verrs.HasAny() {
-				return fmt.Errorf("failed to validate ReZip3: %v: %w", reZip3.Zip3, verrs)
+				return fmt.Errorf("failed to validate ReZip3: %v: %w", copyOfReZip3.Zip3, verrs)
 			}
 		}
 	}

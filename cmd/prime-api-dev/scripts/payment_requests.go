@@ -586,12 +586,18 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 		fmt.Printf("\nSelect field to update: ")
 		var selection int
 		selection, err = getIntInput()
+		if err != nil {
+			log.Fatal("Cannot get int input", err)
+		}
 		selectedField := fields[selection]
 		switch selectedField.field {
 		case actualPickupDate:
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
 			strFmtDate, err = getStrFmtDateInput()
+			if err != nil {
+				log.Fatal("Cannot get date input", err)
+			}
 			shipment.ActualPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -602,6 +608,9 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
 			strFmtDate, err = getStrFmtDateInput()
+			if err != nil {
+				log.Fatal("Cannot get date input", err)
+			}
 			shipment.RequestedPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -612,6 +621,9 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
 			strFmtDate, err = getStrFmtDateInput()
+			if err != nil {
+				log.Fatal("Cannot get date input", err)
+			}
 			shipment.ScheduledPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -622,6 +634,9 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
 			var weight int
 			weight, err = getIntInput()
+			if err != nil {
+				log.Fatal("Cannot get int input", err)
+			}
 			shipment.PrimeEstimatedWeight = int64(weight)
 			fieldValue := updateInfo{
 				value:    strconv.Itoa(weight),
@@ -632,6 +647,9 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
 			var weight int
 			weight, err = getIntInput()
+			if err != nil {
+				log.Fatal("Cannot get int input", err)
+			}
 			shipment.PrimeActualWeight = int64(weight)
 			fieldValue := updateInfo{
 				value:    strconv.Itoa(weight),
@@ -670,8 +688,10 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			*/
 
 			err = pr.updateShipmentsJSONToFile(tmpFile, shipmentUpdates, shipmentIndex)
-			if err != nil {
 
+			if err != nil {
+				fmt.Println("Create update shipments JSON file failed")
+				fmt.Printf("error message: %s\n", err.Error())
 			}
 
 			err = pr.updateMTOShipment2(tmpFile.Name())
@@ -923,18 +943,14 @@ func (pr *paymentRequestsData) displayCreatePaymentRequestMenu() (bool, menuType
 			*/
 
 			err = pr.paymentRequestJSONToFile(tmpFile, serviceItems)
-			if err != nil {
 
+			if err != nil {
+				fmt.Println("Create payment request JSON file failed")
+				fmt.Printf("error message: %s\n", err.Error())
 			}
 
 			err = pr.creatPaymentRequest(tmpFile.Name())
 
-			/*
-				// Close the file
-				if err := tmpFile.Close(); err != nil {
-					log.Fatal(err)
-				}
-			*/
 			if err != nil {
 				fmt.Println("Create payment request failed :( ")
 				fmt.Printf("error message: %s\n", err.Error())
@@ -1145,6 +1161,9 @@ func (pr *paymentRequestsData) displayMainMenu() (bool, menuType, error) {
 	switch selection {
 	case FetchDisplay:
 		err = pr.fetchMTOs()
+		if err != nil {
+			fmt.Printf("Error fetching MTO <%s>, try again", err.Error())
+		}
 		pr.displayMTOS()
 		return exitApp, display[selection].nextMenu, nil
 	case Display:
@@ -1186,50 +1205,6 @@ func (pr *paymentRequestsData) selectMTO() error {
 			}
 		}
 	}
-	return nil
-}
-
-// updateMTOShipment creates a gateway and sends the request to the endpoint
-func (pr *paymentRequestsData) updateMTOShipment(shipmentPayload mtoShipment.UpdateMTOShipmentParams) error {
-
-	// Show what we are sending
-	showJSONPayload, errJSONMarshall := json.Marshal(shipmentPayload)
-	if errJSONMarshall != nil {
-		pr.logger.Fatal(errJSONMarshall)
-	}
-	fmt.Printf("Sending payload for shipment updates...\n")
-	fmt.Println(string(showJSONPayload))
-
-	shipmentPayload.SetTimeout(time.Second * 30)
-
-	// Create the client and open the cacStore
-	primeGateway, _, errCreateClient := pr.getPrimeClient()
-	if errCreateClient != nil {
-		return errCreateClient
-	}
-
-	// Make the API Call
-	resp, err := primeGateway.MtoShipment.UpdateMTOShipment(&shipmentPayload)
-	if err != nil {
-		fmt.Printf("\n\nprimeGateway.MtoShipment.UpdateMTOShipment() failed with: [%s]\n\n", err.Error())
-		return utils.HandleGatewayError(err, pr.logger)
-	}
-
-	payload := resp.GetPayload()
-	if payload != nil {
-
-	} else {
-		pr.logger.Fatal(resp.Error())
-	}
-
-	// Defer closing the store until after the API call has completed
-	/*
-		if cacStore != nil {
-			defer cacStore.Close()
-		}
-
-	*/
-
 	return nil
 }
 

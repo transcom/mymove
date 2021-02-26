@@ -1,31 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './LoginButton.module.scss';
-import { LogoutUser } from 'shared/User/api.js';
+import { LogoutUser } from 'utils/api';
+import { Button } from '@trussworks/react-uswds';
+
+import ConnectedEulaModal from '../../../components/EulaModal';
 
 export const LoginButton = (props) => {
+  const [showEula, setShowEula] = useState(false);
+
   if (!props.isLoggedIn) {
     return (
-      <div className={styles['login-section']}>
-        {props.showDevlocalButton && (
-          <a
-            data-hook="devlocal-signin"
-            style={{ marginRight: '2em' }}
-            href="/devlocal-auth/login"
-            className="usa-link"
+      <>
+        <ConnectedEulaModal
+          isOpen={showEula}
+          acceptTerms={() => {
+            window.location.href = '/auth/login-gov';
+          }}
+          closeModal={() => setShowEula(false)}
+        />
+        <div className={styles['login-section']}>
+          {props.showDevlocalButton && (
+            <a
+              data-hook="devlocal-signin"
+              style={{ marginRight: '2em' }}
+              href="/devlocal-auth/login"
+              className="usa-link"
+            >
+              Local Sign In
+            </a>
+          )}
+          <Button
+            aria-label="Sign In"
+            className={styles.signIn}
+            data-testid="signin"
+            onClick={() => setShowEula(!showEula)}
+            type="button"
           >
-            Local Sign In
-          </a>
-        )}
-        <a data-hook="signin" href="/auth/login-gov" className="usa-link">
-          Sign In
-        </a>
-      </div>
+            Sign In
+          </Button>
+        </div>
+      </>
     );
   } else {
     return (
-      <a href="#" onClick={LogoutUser} className="usa-link">
+      <Button aria-label="Sign Out" className="usa=link" data-testid="signout" onClick={LogoutUser} type="button">
         Sign Out
-      </a>
+      </Button>
     );
   }
 };

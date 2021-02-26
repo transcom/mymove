@@ -7,6 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 
+	"github.com/benbjohnson/clock"
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -80,7 +81,7 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
 		HandlerContext:                    context,
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(context.DB()),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(context.DB(), context.ICNSequencer()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(context.DB(), context.ICNSequencer(), clock.New()),
 	}
 
 	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{

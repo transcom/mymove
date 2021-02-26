@@ -68,7 +68,7 @@ const ReviewServiceItems = ({
     sortedCards.forEach((serviceItem, index) => {
       // here we want to set the first and last index
       // of basic service items to know the bounds
-      if (!serviceItem.shipmentType) {
+      if (!serviceItem.mtoShipmentType) {
         // no shipemntId, then it is a basic service items
         if (firstBasicIndex === null) {
           // if not set yet, set it the first time we see a basic

@@ -149,7 +149,7 @@ func init() {
           "200": {
             "description": "Successfully hid MTOs.",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrderIDs"
+              "$ref": "#/definitions/MTOHideMovesResponse"
             }
           },
           "400": {
@@ -1139,11 +1139,7 @@ func init() {
       "type": "object",
       "properties": {
         "agentType": {
-          "type": "string",
-          "enum": [
-            "RELEASING_AGENT",
-            "RECEIVING_AGENT"
-          ]
+          "$ref": "#/definitions/MTOAgentType"
         },
         "createdAt": {
           "type": "string",
@@ -1157,7 +1153,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})?$",
           "x-nullable": true
         },
         "firstName": {
@@ -1177,12 +1173,13 @@ func init() {
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true
         },
         "updatedAt": {
@@ -1192,11 +1189,55 @@ func init() {
         }
       }
     },
+    "MTOAgentType": {
+      "type": "string",
+      "title": "MTO Agent Type",
+      "enum": [
+        "RELEASING_AGENT",
+        "RECEIVING_AGENT"
+      ],
+      "example": "RELEASING_AGENT"
+    },
     "MTOAgents": {
       "type": "array",
       "maxItems": 2,
       "items": {
         "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOHideMove": {
+      "description": "describes the MTO ID and a description reason why the move was hidden.",
+      "type": "object",
+      "properties": {
+        "hideReason": {
+          "description": "Reason the move was selected to be hidden",
+          "type": "string",
+          "x-nullable": true,
+          "example": "invalid name"
+        },
+        "moveTaskOrderID": {
+          "description": "ID of the associated moveTaskOrder",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "MTOHideMovesResponse": {
+      "description": "describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.",
+      "type": "object",
+      "properties": {
+        "moves": {
+          "description": "Array of moves that were hidden.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOHideMove"
+          }
+        },
+        "numberMovesHidden": {
+          "description": "Number of moves that were hidden",
+          "type": "integer"
+        }
       }
     },
     "MTOServiceItem": {
@@ -1513,9 +1554,18 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
-        "approvedDate": {
+        "actualPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "approvedDate": {
+          "description": "date when the shipment was given the status \"APPROVED\"",
+          "type": "string",
+          "format": "date",
+          "readOnly": true
         },
         "createdAt": {
           "type": "string",
@@ -1525,6 +1575,7 @@ func init() {
         "customerRemarks": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "handle with care"
         },
         "destinationAddress": {
@@ -1534,31 +1585,63 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "firstAvailableDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update.",
+          "type": "string"
         },
         "primeActualWeight": {
           "type": "integer",
           "example": 4500
         },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
+        },
+        "requiredDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -1571,11 +1654,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
-          "enum": [
-            "HHG",
-            "INTERNATIONAL_HHG",
-            "INTERNATIONAL_UB"
-          ]
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
           "type": "string",
@@ -1583,7 +1662,8 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "REJECTED"
-          ]
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
@@ -1591,6 +1671,21 @@ func init() {
           "readOnly": true
         }
       }
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
     },
     "MTOShipments": {
       "type": "array",
@@ -1798,6 +1893,7 @@ func init() {
         "referenceId": {
           "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
+          "readOnly": true,
           "example": "1001-3456"
         },
         "status": {
@@ -1809,17 +1905,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
-    },
-    "MoveTaskOrderID": {
-      "type": "string",
-      "format": "uuid",
-      "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-    },
-    "MoveTaskOrderIDs": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {
@@ -2119,9 +2204,7 @@ func init() {
         "url",
         "filename",
         "contentType",
-        "bytes",
-        "createdAt",
-        "updatedAt"
+        "bytes"
       ],
       "properties": {
         "bytes": {
@@ -2419,7 +2502,7 @@ func init() {
           "200": {
             "description": "Successfully hid MTOs.",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrderIDs"
+              "$ref": "#/definitions/MTOHideMovesResponse"
             }
           },
           "400": {
@@ -3592,11 +3675,7 @@ func init() {
       "type": "object",
       "properties": {
         "agentType": {
-          "type": "string",
-          "enum": [
-            "RELEASING_AGENT",
-            "RECEIVING_AGENT"
-          ]
+          "$ref": "#/definitions/MTOAgentType"
         },
         "createdAt": {
           "type": "string",
@@ -3610,7 +3689,7 @@ func init() {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})?$",
           "x-nullable": true
         },
         "firstName": {
@@ -3630,12 +3709,13 @@ func init() {
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true
         },
         "updatedAt": {
@@ -3645,11 +3725,55 @@ func init() {
         }
       }
     },
+    "MTOAgentType": {
+      "type": "string",
+      "title": "MTO Agent Type",
+      "enum": [
+        "RELEASING_AGENT",
+        "RECEIVING_AGENT"
+      ],
+      "example": "RELEASING_AGENT"
+    },
     "MTOAgents": {
       "type": "array",
       "maxItems": 2,
       "items": {
         "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOHideMove": {
+      "description": "describes the MTO ID and a description reason why the move was hidden.",
+      "type": "object",
+      "properties": {
+        "hideReason": {
+          "description": "Reason the move was selected to be hidden",
+          "type": "string",
+          "x-nullable": true,
+          "example": "invalid name"
+        },
+        "moveTaskOrderID": {
+          "description": "ID of the associated moveTaskOrder",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "MTOHideMovesResponse": {
+      "description": "describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.",
+      "type": "object",
+      "properties": {
+        "moves": {
+          "description": "Array of moves that were hidden.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOHideMove"
+          }
+        },
+        "numberMovesHidden": {
+          "description": "Number of moves that were hidden",
+          "type": "integer"
+        }
       }
     },
     "MTOServiceItem": {
@@ -3966,9 +4090,18 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
-        "approvedDate": {
+        "actualPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "approvedDate": {
+          "description": "date when the shipment was given the status \"APPROVED\"",
+          "type": "string",
+          "format": "date",
+          "readOnly": true
         },
         "createdAt": {
           "type": "string",
@@ -3978,6 +4111,7 @@ func init() {
         "customerRemarks": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "handle with care"
         },
         "destinationAddress": {
@@ -3987,31 +4121,63 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "firstAvailableDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update.",
+          "type": "string"
         },
         "primeActualWeight": {
           "type": "integer",
           "example": 4500
         },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
+        },
+        "requiredDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -4024,11 +4190,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
-          "enum": [
-            "HHG",
-            "INTERNATIONAL_HHG",
-            "INTERNATIONAL_UB"
-          ]
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
           "type": "string",
@@ -4036,7 +4198,8 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "REJECTED"
-          ]
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
@@ -4044,6 +4207,21 @@ func init() {
           "readOnly": true
         }
       }
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
     },
     "MTOShipments": {
       "type": "array",
@@ -4251,6 +4429,7 @@ func init() {
         "referenceId": {
           "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
+          "readOnly": true,
           "example": "1001-3456"
         },
         "status": {
@@ -4262,17 +4441,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
-    },
-    "MoveTaskOrderID": {
-      "type": "string",
-      "format": "uuid",
-      "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-    },
-    "MoveTaskOrderIDs": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrderID"
       }
     },
     "MoveTaskOrders": {
@@ -4572,9 +4740,7 @@ func init() {
         "url",
         "filename",
         "contentType",
-        "bytes",
-        "createdAt",
-        "updatedAt"
+        "bytes"
       ],
       "properties": {
         "bytes": {

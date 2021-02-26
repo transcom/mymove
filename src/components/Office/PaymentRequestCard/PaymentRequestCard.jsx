@@ -1,4 +1,5 @@
 import React, { useState, Fragment } from 'react';
+import PropTypes, { arrayOf, shape } from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
 import { Button, Tag } from '@trussworks/react-uswds';
@@ -11,6 +12,7 @@ import { HistoryShape } from 'types/router';
 import { PaymentRequestShape } from 'types';
 import { formatDateFromIso, formatCents, toDollarString } from 'shared/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
+import { groupByShipment } from 'utils/serviceItems';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -20,28 +22,25 @@ const paymentRequestStatusLabel = (status) => {
     case 'SENT_TO_GEX':
     case 'RECEIVED_BY_GEX':
       return 'Reviewed';
-    case 'PAID':
-      return 'Paid';
     case 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED':
       return 'Rejected';
+    case 'PAID':
+      return 'Paid';
     default:
       return status;
   }
 };
 
-const PaymentRequestCard = ({ paymentRequest, history }) => {
-  // TODO - Will need to update this when we add support for other shipment types
-  const basicServiceItems = paymentRequest.serviceItems.filter(
-    (item) => item.mtoShipmentType === undefined || item.mtoShipmentType.null,
-  );
+const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
+  const sortedShipments = groupByShipment(paymentRequest.serviceItems);
 
   // show details by default if in pending/needs review
-  const defaultShowDetails = paymentRequest.status === 'PENDING' && basicServiceItems.length > 0;
+  const defaultShowDetails = paymentRequest.status === 'PENDING';
   // only show button in reviewed/paid
-  const showRequestDetailsButton = !defaultShowDetails && basicServiceItems.length > 0;
-
+  const showRequestDetailsButton = !defaultShowDetails;
   // state to toggle between showing details or not
   const [showDetails, setShowDetails] = useState(defaultShowDetails);
+
   let handleClick = () => {};
   let requestedAmount = 0;
   let approvedAmount = 0;
@@ -162,7 +161,26 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
       </div>
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
-          <PaymentRequestDetails serviceItems={basicServiceItems} />
+          {sortedShipments.map((serviceItems) => {
+            let shipmentAddress = '';
+
+            if (serviceItems[0].mtoShipmentID !== undefined || serviceItems[0].mtoShipmentID !== null) {
+              serviceItems.forEach((serviceItem) => {
+                shipmentAddress = shipmentAddresses.find(
+                  (address) => address.mtoShipmentID === serviceItem.mtoShipmentID,
+                )?.shipmentAddress;
+              });
+            }
+
+            return (
+              <PaymentRequestDetails
+                key={serviceItems?.[0]?.mtoShipmentID || 'basicServiceItems'}
+                className={styles.paymentRequestDetails}
+                serviceItems={serviceItems}
+                shipmentAddress={shipmentAddress}
+              />
+            );
+          })}
         </div>
       )}
     </div>
@@ -172,6 +190,7 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
 PaymentRequestCard.propTypes = {
   history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
+  shipmentAddresses: arrayOf(shape({ mtoShipmentId: PropTypes.string, shipmentAddress: PropTypes.string })).isRequired,
 };
 
 export default withRouter(PaymentRequestCard);

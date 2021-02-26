@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
@@ -50,8 +51,9 @@ const testISADateFormat = "060102"
 const testTimeFormat = "1504"
 
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
-	currentTime := time.Now()
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	mockClock := clock.NewMock()
+	currentTime := mockClock.Now()
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -81,6 +83,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	}
 
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		PaymentRequest: models.PaymentRequest{
@@ -167,8 +170,58 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		basicPaymentServiceItemParams,
 		assertions,
 	)
+	ddfsit := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDDFSIT,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+	ddasit := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDDASIT,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+	dofsit := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDOFSIT,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+	doasit := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDOASIT,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
 
-	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk)
+	distanceZipSITDestParam := testdatagen.CreatePaymentServiceItemParams{
+		Key:     models.ServiceItemParamNameDistanceZipSITDest,
+		KeyType: models.ServiceItemParamTypeInteger,
+		Value:   "44",
+	}
+	dddsitParams := append(basicPaymentServiceItemParams, distanceZipSITDestParam)
+	dddsit := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDDDSIT,
+		dddsitParams,
+		assertions,
+	)
+
+	distanceZipSITOriginParam := testdatagen.CreatePaymentServiceItemParams{
+		Key:     models.ServiceItemParamNameDistanceZipSITOrigin,
+		KeyType: models.ServiceItemParamTypeInteger,
+		Value:   "33",
+	}
+	dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
+	dopsit := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDOPSIT,
+		dopsitParams,
+		assertions,
+	)
+
+	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk, ddfsit, ddasit, dofsit, doasit, dddsit, dopsit)
 
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -221,7 +274,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("se segment has correct value", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(85, result.SE.NumberOfIncludedSegments)
+		suite.Equal(127, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -374,7 +427,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		// city state info
 		n4 := result.Header.OriginPostalDetails
 		suite.IsType(edisegment.N4{}, n4)
-		suite.Equal(address.City, n4.CityName)
+		if len(n4.CityName) >= maxCityLength {
+			suite.Equal(address.City[:maxCityLength]+"...", n4.CityName)
+		} else {
+			suite.Equal(address.City, n4.CityName)
+		}
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
 		countryCode, err := address.CountryCode()
@@ -412,7 +469,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.Equal("PO", n9.ReferenceIdentificationQualifier)
 			suite.Equal(paymentServiceItem.ReferenceID, n9.ReferenceIdentification)
 		})
-		serviceItemPrice := float64(*paymentServiceItem.PriceCents)
+		serviceItemPrice := paymentServiceItem.PriceCents.Int64()
 		serviceCode := paymentServiceItem.MTOServiceItem.ReService.Code
 		switch serviceCode {
 		case models.ReServiceCodeCS, models.ReServiceCodeMS:
@@ -435,7 +492,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
-			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
+			models.ReServiceCodeDPK, models.ReServiceCodeDDP,
+			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT,
+			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT:
 			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
 				l5 := result.ServiceItems[segmentOffset].L5
 				suite.Equal(hierarchicalNumberInt, l5.LadingLineItemNumber)
@@ -447,6 +506,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l0 service item segment", func(t *testing.T) {
 				l0 := result.ServiceItems[segmentOffset].L0
 				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
+				suite.Equal(float64(0), l0.BilledRatedAsQuantity)
+				suite.Equal("", l0.BilledRatedAsQualifier)
 				suite.Equal(float64(4242), l0.Weight)
 				suite.Equal("B", l0.WeightQualifier)
 				suite.Equal("L", l0.WeightUnitCode)
@@ -455,7 +516,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
 				l1 := result.ServiceItems[segmentOffset].L1
 				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
-				suite.Equal(4242, l1.FreightRate)
+				suite.Equal(4242, *l1.FreightRate)
 				suite.Equal("LB", l1.RateValueQualifier)
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
@@ -471,9 +532,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l0 service item segment", func(t *testing.T) {
 				l0 := result.ServiceItems[segmentOffset].L0
 				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
-				if serviceCode == models.ReServiceCodeDSH {
+
+				switch serviceCode {
+				case models.ReServiceCodeDSH:
 					suite.Equal(float64(24245), l0.BilledRatedAsQuantity)
-				} else {
+				case models.ReServiceCodeDDDSIT:
+					suite.Equal(float64(44), l0.BilledRatedAsQuantity)
+				case models.ReServiceCodeDOPSIT:
+					suite.Equal(float64(33), l0.BilledRatedAsQuantity)
+				default:
 					suite.Equal(float64(2424), l0.BilledRatedAsQuantity)
 				}
 				suite.Equal("DM", l0.BilledRatedAsQualifier)
@@ -484,7 +551,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
 				l1 := result.ServiceItems[segmentOffset].L1
 				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
-				suite.Equal(4242, l1.FreightRate)
+				suite.Equal(4242, *l1.FreightRate)
 				suite.Equal("LB", l1.RateValueQualifier)
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
@@ -504,12 +571,12 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds l3 service item segment", func(t *testing.T) {
 		l3 := result.L3
-		suite.Equal(int64(7992), l3.PriceCents)
+		suite.Equal(int64(13320), l3.PriceCents)
 	})
 }
 
 func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -552,7 +619,8 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 	suite.NoError(err)
 }
 func (suite *GHCInvoiceSuite) TestNilValues() {
-	currentTime := time.Now()
+	mockClock := clock.NewMock()
+	currentTime := mockClock.Now()
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -576,7 +644,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		},
 	}
 
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
 	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -677,7 +745,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 }
 
 func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -744,4 +812,16 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 		l3 := result.L3
 		suite.Equal(int64(0), l3.PriceCents)
 	})
+}
+
+func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
+	longStr := "A super duper long string"
+	expectedTruncatedStr := "A super..."
+	suite.Equal(expectedTruncatedStr, truncateStr(longStr, 10))
+
+	suite.Equal("AB", truncateStr("ABCD", 2))
+	suite.Equal("ABC", truncateStr("ABCD", 3))
+	suite.Equal("A...", truncateStr("ABCDEFGHI", 4))
+	suite.Equal("ABC...", truncateStr("ABCDEFGHI", 6))
+	suite.Equal("Too short", truncateStr("Too short", 200))
 }

@@ -2,6 +2,27 @@ import React from 'react';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
+const agents = [
+  {
+    type: 'RELEASING_AGENT',
+    firstName: 'Dorothy',
+    lastName: 'Lagomarsino',
+    email: 'dorothyl@email.com',
+    phone: '+1 999-999-9999',
+    shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
+  },
+  {
+    type: 'RECEIVING_AGENT',
+    firstName: 'Dorothy Lagomarsino',
+    lastName: 'Lagomarsino',
+    email: 'dorothyl@email.com',
+    phone: '+1 999-999-9999',
+    shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
+  },
+];
+
 const shipments = [
   {
     approvedDate: '0001-01-01',
@@ -57,9 +78,10 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.404031Z',
+    mtoAgents: agents,
   },
   {
     approvedDate: '0001-01-01',
@@ -107,9 +129,10 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'NTS',
+    shipmentType: SHIPMENT_OPTIONS.NTSR,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
+    mtoAgents: agents,
   },
 ];
 
@@ -135,29 +158,12 @@ const customerInfo = {
     state: 'TX',
     postal_code: '78234',
   },
-  backupContactName: 'Quinn Ocampo',
-  backupContactPhone: '+1 999-999-9999',
-  backupContactEmail: 'quinnocampo@myemail.com',
+  backupContact: {
+    name: 'Quinn Ocampo',
+    phone: '+1 999-999-9999',
+    email: 'quinnocampo@myemail.com',
+  },
 };
-
-const agents = [
-  {
-    type: 'RELEASING_AGENT',
-    firstName: 'Dorothy',
-    lastName: 'Lagomarsino',
-    email: 'dorothyl@email.com',
-    phone: '+1 999-999-9999',
-    shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
-  },
-  {
-    type: 'RECEIVING_AGENT',
-    firstName: 'Dorothy Lagomarsino',
-    lastName: 'Lagomarsino',
-    email: 'dorothyl@email.com',
-    phone: '+1 999-999-9999',
-    shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
-  },
-];
 
 export const shipmentApprovalPreviewModal = () => (
   <ShipmentApprovalPreview
@@ -167,7 +173,8 @@ export const shipmentApprovalPreviewModal = () => (
     }}
     mtoShipments={[shipments[0]]}
     allowancesInfo={allowancesInfo}
-    mtoAgents={agents}
+    counselingFee
+    shipmentManagementFee
   />
 );
 
@@ -179,7 +186,8 @@ export const approvalPreviewWithShipments = () => (
     }}
     mtoShipments={shipments}
     allowancesInfo={allowancesInfo}
-    mtoAgents={agents}
+    counselingFee
+    shipmentManagementFee
   />
 );
 

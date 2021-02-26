@@ -74,7 +74,6 @@ func (suite *serverSuite) TestParseSingleTLSCert() {
 	})
 	suite.NoError(err)
 	suite.Equal(len(httpsServer.TLSConfig.Certificates), 1)
-	suite.Contains(httpsServer.TLSConfig.NameToCertificate, "localhost")
 }
 
 func (suite *serverSuite) TestParseBadTLSCert() {
@@ -113,8 +112,6 @@ func (suite *serverSuite) TestParseMultipleTLSCerts() {
 	})
 	suite.NoError(err)
 	suite.Equal(len(httpsServer.TLSConfig.Certificates), 2)
-	suite.Contains(httpsServer.TLSConfig.NameToCertificate, "localhost")
-	suite.Contains(httpsServer.TLSConfig.NameToCertificate, "officelocal")
 }
 
 func (suite *serverSuite) TestTLSConfigWithClientAuth() {
@@ -218,7 +215,6 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 		suite.True(connState.HandshakeComplete)
 		suite.False(connState.DidResume)
 		suite.Equal("", connState.NegotiatedProtocol)
-		suite.True(connState.NegotiatedProtocolIsMutual)
 		suite.Equal("localhost", connState.ServerName)
 		suite.Equal("Snake Oil", connState.PeerCertificates[0].Subject.Organization[0])
 		suite.Equal("Snake Oil", connState.VerifiedChains[0][0].Subject.Organization[0])

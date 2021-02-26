@@ -2,10 +2,9 @@ import { takeLatest, put, call } from 'redux-saga/effects';
 
 import watchFetchUser, { fetchUser } from './auth';
 
-import { LOAD_USER } from 'store/auth/actions';
 import { setFlashMessage } from 'store/flash/actions';
-import { GetIsLoggedIn, GetLoggedInUser } from 'shared/User/api';
-import { getLoggedInActions } from 'shared/Data/users';
+import { GetIsLoggedIn, GetLoggedInUser } from 'utils/api';
+import { LOAD_USER, getLoggedInUserStart, getLoggedInUserSuccess, getLoggedInUserFailure } from 'store/auth/actions';
 import { addEntities } from 'shared/Entities/actions';
 
 describe('watchFetchUser saga', () => {
@@ -25,7 +24,7 @@ describe('fetchUser saga', () => {
     const generator = fetchUser();
 
     it('dispatches the GET_LOGGED_IN_USER_START action', () => {
-      expect(generator.next().value).toEqual(put(getLoggedInActions.start()));
+      expect(generator.next().value).toEqual(put(getLoggedInUserStart()));
     });
 
     it('makes the GetIsLoggedIn API call', () => {
@@ -48,7 +47,7 @@ describe('fetchUser saga', () => {
 
     it('dispatches the User is not logged in error action', () => {
       const error = new Error('Logged In request failed');
-      expect(generator.next(false).value).toEqual(put(getLoggedInActions.error(error)));
+      expect(generator.next(false).value).toEqual(put(getLoggedInUserFailure(error)));
     });
   });
 
@@ -56,7 +55,7 @@ describe('fetchUser saga', () => {
     const generator = fetchUser();
 
     it('dispatches the GET_LOGGED_IN_USER_START action', () => {
-      expect(generator.next().value).toEqual(put(getLoggedInActions.start()));
+      expect(generator.next().value).toEqual(put(getLoggedInUserStart()));
     });
 
     it('makes the GetIsLoggedIn API call', () => {
@@ -64,7 +63,7 @@ describe('fetchUser saga', () => {
     });
 
     it('dispatches the User is not logged in error action', () => {
-      expect(generator.next(false).value).toEqual(put(getLoggedInActions.error('User is not logged in')));
+      expect(generator.next(false).value).toEqual(put(getLoggedInUserFailure('User is not logged in')));
     });
 
     it('is done', () => {
@@ -76,7 +75,7 @@ describe('fetchUser saga', () => {
     const generator = fetchUser();
 
     it('dispatches the GET_LOGGED_IN_USER_START action', () => {
-      expect(generator.next().value).toEqual(put(getLoggedInActions.start()));
+      expect(generator.next().value).toEqual(put(getLoggedInUserStart()));
     });
 
     it('makes the GetIsLoggedIn API call', () => {
@@ -103,7 +102,7 @@ describe('fetchUser saga', () => {
 
     it('dispatches the User is not logged in error action', () => {
       const error = new Error('Get user request failed');
-      expect(generator.next(false).value).toEqual(put(getLoggedInActions.error(error)));
+      expect(generator.next(false).value).toEqual(put(getLoggedInUserFailure(error)));
     });
   });
 
@@ -122,7 +121,7 @@ describe('fetchUser saga', () => {
     const generator = fetchUser();
 
     it('dispatches the GET_LOGGED_IN_USER_START action', () => {
-      expect(generator.next().value).toEqual(put(getLoggedInActions.start()));
+      expect(generator.next().value).toEqual(put(getLoggedInUserStart()));
     });
 
     it('makes the GetIsLoggedIn API call', () => {
@@ -139,9 +138,6 @@ describe('fetchUser saga', () => {
           testorder1: { id: 'testorder1' },
           testorder2: { id: 'testorder2' },
         },
-        roles: {
-          testRole: { id: 'testRole', roleType: 'customer' },
-        },
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
@@ -153,7 +149,7 @@ describe('fetchUser saga', () => {
             id: 'testUserId',
             email: 'test@example.com',
             first_name: 'Tester',
-            roles: ['testRole'],
+            roles: [{ id: 'testRole', roleType: 'customer' }],
             service_member: 'testServiceMemberId',
           },
         },
@@ -162,9 +158,8 @@ describe('fetchUser saga', () => {
       expect(generator.next(testUser).value).toEqual(put(addEntities(normalizedUser)));
     });
 
-    it('stores the user data in the user reducer (legacy)', () => {
-      // TODO - delete when deprecating the user reducer
-      expect(generator.next().value).toEqual(put(getLoggedInActions.success(testUser)));
+    it('stores the user auth data in the auth reducer', () => {
+      expect(generator.next().value).toEqual(put(getLoggedInUserSuccess(testUser)));
     });
 
     it('is done', () => {

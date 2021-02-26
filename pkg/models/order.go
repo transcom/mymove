@@ -44,7 +44,7 @@ type Order struct {
 	HasDependents       bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear    bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
 	NewDutyStationID    uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
-	NewDutyStation      DutyStation                        `belongs_to:"duty_stations"`
+	NewDutyStation      DutyStation                        `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
 	UploadedOrders      Document                           `belongs_to:"documents"`
 	UploadedOrdersID    uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber        *string                            `json:"orders_number" db:"orders_number"`
@@ -56,7 +56,7 @@ type Order struct {
 	Grade               *string                            `json:"grade" db:"grade"`
 	Entitlement         *Entitlement                       `belongs_to:"entitlements"`
 	EntitlementID       *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
-	OriginDutyStation   *DutyStation                       `belongs_to:"duty_stations"`
+	OriginDutyStation   *DutyStation                       `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
 	OriginDutyStationID *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 }
 
@@ -160,7 +160,8 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"NewDutyStation.TransportationOffice",
 		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",
-		"Moves.SignedCertifications").
+		"Moves.SignedCertifications",
+		"Entitlement").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

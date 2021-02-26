@@ -4,22 +4,43 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './PaymentRequestDetails.module.scss';
 
-import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
+import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCents, toDollarString } from 'shared/formatters';
 import { PaymentServiceItemShape } from 'types';
 
-const PaymentRequestDetails = ({ serviceItems }) => {
+const shipmentHeadingAndStyle = (mtoShipmentType) => {
+  switch (mtoShipmentType) {
+    case undefined:
+    case null:
+      return ['Basic service items', styles.basicServiceType];
+    case SHIPMENT_OPTIONS.HHG:
+    case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
+    case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
+      return ['Household goods', styles.hhgShipmentType];
+    case SHIPMENT_OPTIONS.NTS:
+      return ['Non-temp storage', styles.ntsrShipmentType];
+    case SHIPMENT_OPTIONS.NTSR:
+      return ['Non-temp storage release', styles.ntsrShipmentType];
+    default:
+      return [mtoShipmentType, styles.basicServiceType];
+  }
+};
+
+const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
+  const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
+  const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
+
   return (
     serviceItems.length > 0 && (
       <div className={styles.PaymentRequestDetails}>
         <div className="stackedtable-header">
-          {/* TODO this div will become dynamic based on different shipment types */}
           <div className={styles.shipmentType}>
-            <div className={styles.basicServiceType} />
+            <div className={shipmentStyle} />
             <h3>
-              Basic service items ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
+              {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
             </h3>
           </div>
+          {shipmentAddress !== '' && <p data-testid="pickup-to-destination">{shipmentAddress}</p>}
         </div>
         <table className="table--stacked">
           <colgroup>
@@ -37,11 +58,10 @@ const PaymentRequestDetails = ({ serviceItems }) => {
           <tbody>
             {serviceItems.map((item) => {
               return (
-                // eslint-disable-next-line react/no-array-index-key
                 <tr key={item.id}>
-                  <td>{item.mtoServiceItemName}</td>
-                  <td>{toDollarString(formatCents(item.priceCents))}</td>
-                  <td>
+                  <td data-testid="serviceItemName">{item.mtoServiceItemName}</td>
+                  <td data-testid="serviceItemAmount">{toDollarString(formatCents(item.priceCents))}</td>
+                  <td data-testid="serviceItemStatus">
                     {item.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
                       <div className={styles.needsReview}>
                         <FontAwesomeIcon icon="exclamation-circle" />
@@ -73,6 +93,11 @@ const PaymentRequestDetails = ({ serviceItems }) => {
 
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
+  shipmentAddress: PropTypes.string,
+};
+
+PaymentRequestDetails.defaultProps = {
+  shipmentAddress: '',
 };
 
 export default PaymentRequestDetails;

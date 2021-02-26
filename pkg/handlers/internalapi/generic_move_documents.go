@@ -38,9 +38,6 @@ type CreateGenericMoveDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
-
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -62,7 +59,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	userUploads := models.UserUploads{}
 	for _, id := range uploadIds {
 		convertedUploadID := uuid.Must(uuid.FromString(id.String()))
-		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(ctx, h.DB(), session, convertedUploadID)
+		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(h.DB(), session, convertedUploadID)
 		if fetchUploadErr != nil {
 			return handlers.ResponseForError(logger, fetchUploadErr)
 		}

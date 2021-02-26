@@ -24,7 +24,11 @@ type FetchMTOUpdatesHandler struct {
 func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(true, params.Since)
+	searchParams := services.ListMoveTaskOrderParams{
+		IsAvailableToPrime: true,
+		Since:              params.Since,
+	}
+	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
 
 	if err != nil {
 		logger.Error("Unexpected error while fetching records:", zap.Error(err))
@@ -50,7 +54,14 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	eTag := params.IfMatch
 	logger.Info("primeapi.UpdateMTOPostCounselingInformationHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+
 	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(mtoID)
+
+	if err != nil {
+		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
+		return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
+			payloads.ValidationError(err.Error(), h.GetTraceID(), nil))
+	}
 
 	if !mtoAvailableToPrime {
 		logger.Error("primeapi.UpdateMTOPostCounselingInformationHandler error - MTO is not available to Prime")

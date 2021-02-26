@@ -1,8 +1,6 @@
 package supportapi
 
 import (
-	"fmt"
-
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -27,7 +25,11 @@ type ListMTOsHandler struct {
 func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(false, params.Since)
+	searchParams := services.ListMoveTaskOrderParams{
+		IncludeHidden: true,
+		Since:         params.Since,
+	}
+	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))
@@ -91,15 +93,7 @@ func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.Hid
 		logger.Error("supportapi.HideNonFakeMoveTaskOrdersHandlerFunc error", zap.Error(err))
 		return movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 	}
-	var hiddenMoveIDs []uuid.UUID
-	for _, mto := range hiddenMTOs {
-		if mto.ContractorID == nil {
-			logger.Warn(fmt.Sprintf("MTO with id %s is missing a ContractorID. It has been hidden but will not appear in the array of returned MTOs", mto.ID))
-		} else {
-			hiddenMoveIDs = append(hiddenMoveIDs, mto.ID)
-		}
-	}
-	payload := payloads.MoveTaskOrderIDs(hiddenMoveIDs)
+	payload := payloads.MTOHideMovesResponse(hiddenMTOs)
 
 	return movetaskorderops.NewHideNonFakeMoveTaskOrdersOK().WithPayload(payload)
 }
@@ -113,9 +107,11 @@ type GetMoveTaskOrderHandlerFunc struct {
 // Handle updates the status of a MoveTaskOrder
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-
+	searchParams := services.FetchMoveTaskOrderParams{
+		IncludeHidden: true,
+	}
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
 	if err != nil {
 		logger.Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {

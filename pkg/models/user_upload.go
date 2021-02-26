@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -69,7 +68,7 @@ func (u *UserUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchUserUpload returns an UserUpload if the user has access to that upload
-func FetchUserUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (UserUpload, error) {
+func FetchUserUpload(db *pop.Connection, session *auth.Session, id uuid.UUID) (UserUpload, error) {
 	var userUpload UserUpload
 	err := db.Q().
 		Where("deleted_at is null").Eager("Document", "Upload").Find(&userUpload, id)
@@ -84,7 +83,7 @@ func FetchUserUpload(ctx context.Context, db *pop.Connection, session *auth.Sess
 	// If there's a document, check permissions. Otherwise user must
 	// have been the uploader
 	if userUpload.DocumentID != nil {
-		_, docErr := FetchDocument(ctx, db, session, *userUpload.DocumentID, false)
+		_, docErr := FetchDocument(db, session, *userUpload.DocumentID, false)
 		if docErr != nil {
 			return UserUpload{}, docErr
 		}
@@ -95,7 +94,7 @@ func FetchUserUpload(ctx context.Context, db *pop.Connection, session *auth.Sess
 }
 
 // FetchUserUploadFromUploadID returns an UserUpload if the user has access to that upload
-func FetchUserUploadFromUploadID(ctx context.Context, db *pop.Connection, session *auth.Session, uploadID uuid.UUID) (UserUpload, error) {
+func FetchUserUploadFromUploadID(db *pop.Connection, session *auth.Session, uploadID uuid.UUID) (UserUpload, error) {
 	var userUpload UserUpload
 	err := db.Q().
 		Join("uploads AS ups", "ups.id = user_uploads.upload_id").
@@ -111,7 +110,7 @@ func FetchUserUploadFromUploadID(ctx context.Context, db *pop.Connection, sessio
 	// If there's a document, check permissions. Otherwise user must
 	// have been the uploader
 	if userUpload.DocumentID != nil {
-		_, docErr := FetchDocument(ctx, db, session, *userUpload.DocumentID, false)
+		_, docErr := FetchDocument(db, session, *userUpload.DocumentID, false)
 		if docErr != nil {
 			return UserUpload{}, docErr
 		}

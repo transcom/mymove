@@ -169,6 +169,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	// check if move task order exists first
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", moveTaskOrderID.String()),
+		query.NewQueryFilter("show", "=", "TRUE"),
 	}
 
 	moveTaskOrder := &models.Move{}

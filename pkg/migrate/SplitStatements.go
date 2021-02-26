@@ -225,7 +225,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 
 		// Let's see if we match the last block
 		if !blocks.Empty() {
-			lastBlock := strings.ToUpper(blocks.Last())
+			lastBlock := blocks.Last()
 			str, err := in.Range(i, i+len(lastBlock))
 			if err != nil {
 				if err == ErrWait {
@@ -236,7 +236,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 				close(statements)
 				return
 			}
-			if strings.ToUpper(str) == strings.ToUpper(lastBlock) {
+			if strings.EqualFold(str, lastBlock) {
 				i += len(lastBlock)
 				stmt.WriteString(blocks.Last())
 				blocks.Pop()

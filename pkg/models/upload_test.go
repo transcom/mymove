@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"context"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -77,7 +75,6 @@ func (suite *ModelSuite) Test_UploadValidations() {
 func (suite *ModelSuite) TestFetchUpload() {
 	t := suite.T()
 
-	ctx := context.Background()
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	session := auth.Session{
@@ -116,12 +113,12 @@ func (suite *ModelSuite) TestFetchUpload() {
 		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
 	}
 
-	upUser, _ := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
+	upUser, _ := models.FetchUserUpload(suite.DB(), &session, uploadUser.ID)
 	suite.Equal(upUser.UploadID, upload.ID)
 	suite.Equal(upUser.Upload.ID, upload.ID)
 	suite.Equal(upUser.ID, uploadUser.ID)
 
-	upUser, _ = models.FetchUserUploadFromUploadID(ctx, suite.DB(), &session, upload.ID)
+	upUser, _ = models.FetchUserUploadFromUploadID(suite.DB(), &session, upload.ID)
 	suite.Equal(upUser.UploadID, upload.ID)
 	suite.Equal(upUser.Upload.ID, upload.ID)
 	suite.Equal(upUser.ID, uploadUser.ID)
@@ -130,7 +127,6 @@ func (suite *ModelSuite) TestFetchUpload() {
 func (suite *ModelSuite) TestFetchDeletedUpload() {
 	t := suite.T()
 
-	ctx := context.Background()
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	session := auth.Session{

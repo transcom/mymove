@@ -1,13 +1,13 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"strings"
 
 	"github.com/spf13/cobra"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -87,10 +87,8 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") {
-		verbose := cli.LogLevelIsDebug(v)
-		c, errorConfig := cli.GetAWSConfig(v, verbose)
-		if errorConfig != nil {
-			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+		c := &aws.Config{
+			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
 		}
 		s, errorSession := awssession.NewSession(c)
 		if errorSession != nil {
@@ -118,7 +116,6 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	ctx := context.TODO()
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
 	if notificationSenderErr != nil {
 		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
@@ -129,7 +126,7 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 		logger.Fatal("initializing MoveReviewed", zap.Error(err))
 	}
 
-	err = notificationSender.SendNotification(ctx, movePaymentReminderNotifier)
+	err = notificationSender.SendNotification(movePaymentReminderNotifier)
 	if err != nil {
 		logger.Fatal("Emails failed to send", zap.Error(err))
 	}

@@ -9,11 +9,11 @@ describe('feature flags', () => {
     expect(detectEnvironment('production', 'office.move.mil')).toEqual('production');
     expect(detectEnvironment('production', 'my.move.mil')).toEqual('production');
 
-    expect(detectEnvironment('production', 'office.staging.move.mil')).toEqual('staging');
-    expect(detectEnvironment('production', 'my.staging.move.mil')).toEqual('staging');
+    expect(detectEnvironment('production', 'office.stg.move.mil')).toEqual('staging');
+    expect(detectEnvironment('production', 'my.stg.move.mil')).toEqual('staging');
 
-    expect(detectEnvironment('production', 'office.experimental.move.mil')).toEqual('experimental');
-    expect(detectEnvironment('production', 'my.experimental.move.mil')).toEqual('experimental');
+    expect(detectEnvironment('production', 'office.exp.move.mil')).toEqual('experimental');
+    expect(detectEnvironment('production', 'my.exp.move.mil')).toEqual('experimental');
 
     expect(detectEnvironment('production', 'localhost')).toEqual('development');
     expect(detectEnvironment('production', 'milmovelocal')).toEqual('development');

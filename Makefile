@@ -221,9 +221,6 @@ bin/rds-ca-us-gov-west-1-2017-root.pem:
 bin/big-cat: cmd/big-cat
 	go build -ldflags "$(LDFLAGS)" -o bin/big-cat ./cmd/big-cat
 
-bin/compare-secure-migrations: cmd/compare-secure-migrations
-	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
-
 bin/model-vet: cmd/model-vet
 	go build -ldflags "$(LDFLAGS)" -o bin/model-vet ./cmd/model-vet
 
@@ -232,9 +229,6 @@ bin/generate-deploy-notes: cmd/generate-deploy-notes
 
 bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
-
-bin/find-guardduty-user: cmd/find-guardduty-user
-	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
 
 bin/generate-access-codes: cmd/generate_access_codes
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
@@ -268,12 +262,6 @@ bin/prime-api-client: cmd/prime-api-client
 
 bin/webhook-client: cmd/webhook-client
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
-
-bin/query-cloudwatch-logs: cmd/query-cloudwatch-logs
-	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
-
-bin/query-lb-logs: cmd/query-lb-logs
-	go build -ldflags "$(LDFLAGS)" -o bin/query-lb-logs ./cmd/query-lb-logs
 
 bin/read-alb-logs: cmd/read-alb-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
@@ -350,10 +338,8 @@ build_tools: bin/gin \
 	bin/rds-ca-2019-root.pem \
 	bin/rds-ca-us-gov-west-1-2017-root.pem \
 	bin/big-cat \
-	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
 	bin/ecs-deploy \
-	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/ghc-pricing-parser \
@@ -363,8 +349,6 @@ build_tools: bin/gin \
 	bin/milmove-tasks \
 	bin/model-vet \
 	bin/prime-api-client \
-	bin/query-cloudwatch-logs \
-	bin/query-lb-logs \
 	bin/read-alb-logs \
 	bin/report-ecs \
 	bin/send-to-gex \
@@ -536,6 +520,37 @@ db_dev_migrate: db_dev_migrate_standalone ## Migrate Dev DB
 db_dev_psql: ## Open PostgreSQL shell for Dev DB
 	scripts/psql-dev
 
+.PHONY: db_dev_fresh
+db_dev_fresh: db_dev_reset db_dev_migrate
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
+	@echo "Populate the ${DB_NAME_DEV} database..."
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+
+.PHONY: db_dev_e2e_populate
+db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
+	@echo "Truncate the ${DB_NAME_DEV} database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	@echo "Populate the ${DB_NAME_DEV} database..."
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+
+## Alias for db_dev_bandwidth_up
+## We started with `db_bandwidth_up`, which some folks are already using, and
+## then renamed it to `db_dev_bandwidth_up`. To allow folks to keep using the
+## name they're familiar with, we've added this alias to the renamed command.
+.PHONY: db_bandwidth_up
+db_bandwidth_up: db_dev_bandwidth_up
+
+.PHONY: db_dev_bandwidth_up
+db_dev_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate data for bandwidth tests
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
+	@echo "Truncate the ${DB_NAME_DEV} database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	@echo "Populate the ${DB_NAME_DEV} database..."
+	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
 # ----- END DB_DEV TARGETS -----
 #
@@ -677,7 +692,11 @@ db_test_psql: ## Open PostgreSQL shell for Test DB
 #
 
 .PHONY: e2e_test
-e2e_test: bin/gin server_generate server_build client_build db_e2e_init ## Run e2e (end-to-end) integration tests
+e2e_test: db_test_migrate db_e2e_up ## Run e2e (end-to-end) integration tests
+	$(AWS_VAULT) ./scripts/run-e2e-test
+
+.PHONY: e2e_test_fresh ## Build everything from scratch before running tests
+e2e_test_fresh: bin/gin server_generate server_build client_build db_e2e_init
 	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: e2e_mtls_test_docker
@@ -714,22 +733,16 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_TEST} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
-	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --db-env="test"
+	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
+
+.PHONY: rerun_e2e_tests_with_new_data
+rerun_e2e_tests_with_new_data: db_e2e_up
+	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
-
-.PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
-
-.PHONY: db_test_e2e_populate
-db_test_e2e_populate: db_test_reset db_test_migrate redis_reset build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data
 
 .PHONY: db_test_e2e_backup
 db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
@@ -892,27 +905,55 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 webhook_client_docker:
 	docker build -f Dockerfile.webhook_client_local -t $(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest .
 
-.PHONY: webhook_client_start
-webhook_client_start: db_dev_e2e_populate webhook_client_start_standalone
+.PHONY: webhook_client_start_reset_db
+webhook_client_start_reset_db: db_dev_e2e_populate webhook_client_start
 
-.PHONY: webhook_client_start_standalone
-webhook_client_start_standalone:
+.PHONY: webhook_client_start
+webhook_client_start:
 	@echo "Starting the webhook client..."
-	# More environment variables can be added here that correlate with the command line options for
-	# the webhook-client binary.
+	# Note regarding the use of 172.17.0.1: the default network bridge in Docker is 172.17.0.1
+	# according to https://docs.docker.com/network/network-tutorial-standalone/. Based on Internet
+	# searches, this IP address seems to be fairly static. Therefore, this address can be used to
+	# serve as the IP address for various local hostnames used during testing. If this stops
+	# working some day, dynamic resolution may be required to look up the host.docker.internal IP.
+	# However, by using a static IP, it allows developers to restart Docker after building an image
+	# and still have the container work if the /etc/hosts file had already been updated with this
+	# script. While brainstorming a usable approach, we tried to introduce the use of
+	# host.docker.internal by using the HOSTALIASES environment variable
+	# (https://man7.org/linux/man-pages/man7/hostname.7.html), but this resulted in a segfaults
+	# occurring during DNS lookup from within the container about 70% of the time. So we opted for
+	# the more stable hardcoded Docker gateway IP approch.
+	#
+	# If this fails, make sure you are running both the mTLS server and the database in containers.
+	# Due to the fact that on MacOS, Docker containers are run within a virtual machine rather than
+	# directly from the host system, if the webhook client is running inside a container, it won't
+	# be able to see anything outside of that Docker-managed virtual machine. Therefore, you need
+	# to run the mTLS server and database from inside a container. This is possible with a command
+	# like the following:
+	#
+	#   docker-compose -f docker-compose.mtls_local.yml --compatibility up --remove-orphans
+	#
+	# For more information about this, please see the following page:
+	# https://docs.docker.com/docker-for-mac/networking/#known-limitations-use-cases-and-workarounds
 	docker run \
-		-e LOGGING_LEVEL=debug \
-		-e DB_HOST="database" \
+		--add-host "adminlocal:172.17.0.1" \
+		--add-host "milmovelocal:172.17.0.1" \
+		--add-host "officelocal:172.17.0.1" \
+		--add-host "orderslocal:172.17.0.1" \
+		--add-host "primelocal:172.17.0.1" \
+		-e DB_HOST=172.17.0.1 \
 		-e DB_NAME \
 		-e DB_PORT \
 		-e DB_USER \
 		-e DB_PASSWORD \
+		-e GEX_MTLS_CLIENT_CERT \
+		-e GEX_MTLS_CLIENT_KEY \
+		-e LOGGING_LEVEL=debug \
 		-e PERIOD \
-		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
 
 .PHONY: webhook_client_test
-webhook_client_test: db_test_e2e_populate webhook_client_test_standalone
+webhook_client_test: db_e2e_init webhook_client_test_standalone
 
 .PHONY: webhook_client_test
 webhook_client_test_standalone:
@@ -1041,19 +1082,6 @@ schemaspy: db_test_reset db_test_migrate ## Generates database documentation usi
 docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-compose
 	brew install -f bash git docker docker-compose direnv || true
 	brew cask install -f aws-vault || true
-
-.PHONY: docker_compose_up
-docker_compose_up: ## Bring up docker-compose containers
-	aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-	scripts/update-docker-compose
-	docker-compose up
-
-.PHONY: docker_compose_down
-docker_compose_down: ## Destroy docker-compose containers
-	docker-compose down
-	# Instead of using `--rmi all` which might destroy postgres we just remove the AWS containers
-	docker rmi $(shell docker images --filter=reference='*amazonaws*/*:*' --format "{{.ID}}")
-	git checkout docker-compose.yml
 
 #
 # ----- END DOCKER COMPOSE TARGETS -----

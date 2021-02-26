@@ -15,9 +15,17 @@ type moveTaskOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.Move, error) {
+// ListMoveTaskOrders retrieves all MTOs for a specific MoveOrder. Can filter out hidden MTOs (show=False)
+func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, searchParams *services.ListMoveTaskOrderParams) ([]models.Move, error) {
 	var moveTaskOrders []models.Move
-	err := f.db.Where("orders_id = $1", moveOrderID).Eager().All(&moveTaskOrders)
+	query := f.db.Where("orders_id = $1", moveOrderID)
+
+	// The default behavior of this query is to exclude any disabled moves:
+	if searchParams == nil || !searchParams.IncludeHidden {
+		query.Where("show = TRUE")
+	}
+
+	err := query.Eager().All(&moveTaskOrders)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -29,11 +37,11 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]model
 	return moveTaskOrders, nil
 }
 
-//ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime
-func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.Moves, error) {
+// ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime, and may or may not be enabled.
+func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.ListMoveTaskOrderParams) (models.Moves, error) {
 	var moveTaskOrders models.Moves
 	var err error
-	query := f.db.Q().Eager(
+	query := f.db.Q().EagerPreload(
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -48,13 +56,23 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, sin
 		"Orders.NewDutyStation.Address",
 	)
 
-	if isAvailableToPrime {
-		query = query.Where("available_to_prime_at IS NOT NULL")
-	}
+	// Always exclude hidden moves by default:
+	if searchParams == nil {
+		query.Where("show = TRUE")
+	} else {
+		if searchParams.IsAvailableToPrime {
+			query.Where("available_to_prime_at IS NOT NULL")
+		}
 
-	if since != nil {
-		since := time.Unix(*since, 0)
-		query = query.Where("updated_at > ?", since)
+		// This value defaults to false - we want to make sure including hidden moves needs to be explicitly requested.
+		if !searchParams.IncludeHidden {
+			query.Where("show = TRUE")
+		}
+
+		if searchParams.Since != nil {
+			since := time.Unix(*searchParams.Since, 0)
+			query.Where("updated_at > ?", since)
+		}
 	}
 
 	err = query.All(&moveTaskOrders)
@@ -72,10 +90,11 @@ func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
 	return &moveTaskOrderFetcher{db}
 }
 
-//FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
-func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.Move, error) {
+// FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
+func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *services.FetchMoveTaskOrderParams) (*models.Move, error) {
 	mto := &models.Move{}
-	if err := f.db.Eager("PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+
+	query := f.db.Eager("PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.CustomerContacts",
@@ -86,7 +105,14 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mo
 		"MTOShipments.MTOAgents",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
-		"Orders.NewDutyStation.Address").Find(mto, moveTaskOrderID); err != nil {
+		"Orders.NewDutyStation.Address").Where("id = $1", moveTaskOrderID)
+
+	if searchParams == nil || !searchParams.IncludeHidden {
+		query.Where("show = TRUE")
+	}
+
+	err := query.First(mto)
+	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			return &models.Move{}, services.NewNotFoundError(moveTaskOrderID, "")

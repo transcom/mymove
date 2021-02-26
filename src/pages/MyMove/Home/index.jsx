@@ -16,7 +16,7 @@ import {
 
 import { withContext } from 'shared/AppContext';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
-import SignIn from 'shared/User/SignIn';
+import SignIn from 'pages/SignIn/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -24,6 +24,7 @@ import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
+import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess, selectIsLoggedIn } from 'store/auth/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
@@ -39,7 +40,6 @@ import {
 } from 'shared/Entities/modules/signed_certifications';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
-import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { MtoShipmentShape, UploadShape, HistoryShape, MoveShape, OrdersShape } from 'types/customerShapes';
@@ -482,13 +482,12 @@ Home.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectCurrentUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const move = selectCurrentMove(state) || {};
 
   return {
     currentPpm: selectCurrentPPM(state) || {},
-    isLoggedIn: user.isLoggedIn,
+    isLoggedIn: selectIsLoggedIn(state),
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     isProfileComplete: selectIsProfileComplete(state),

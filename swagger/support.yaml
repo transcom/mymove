@@ -205,7 +205,7 @@ paths:
         '200':
           description: Successfully hid MTOs.
           schema:
-            $ref: '#/definitions/MoveTaskOrderIDs'
+            $ref: '#/definitions/MTOHideMovesResponse'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1019,6 +1019,7 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
+        readOnly: true
         description: |
           Unique ID associated with this MoveOrder.
 
@@ -1081,14 +1082,6 @@ definitions:
         type: string
         example: ABC123
         readOnly: true
-  MoveTaskOrderID:
-    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    format: uuid
-    type: string
-  MoveTaskOrderIDs:
-    items:
-      $ref: '#/definitions/MoveTaskOrderID'
-    type: array
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
@@ -1104,6 +1097,7 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       createdAt:
         format: date-time
         type: string
@@ -1121,18 +1115,15 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: '^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$'
         x-nullable: true
       phone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: '^([2-9]\d{2}-\d{3}-\d{4})?$'
         x-nullable: true
       agentType:
-        type: string
-        enum:
-          - RELEASING_AGENT
-          - RECEIVING_AGENT
+        $ref: '#/definitions/MTOAgentType'
       eTag:
         type: string
         readOnly: true
@@ -1142,6 +1133,39 @@ definitions:
       $ref: '#/definitions/MTOAgent'
     type: array
     maxItems: 2
+  MTOAgentType:
+    type: string
+    title: MTO Agent Type
+    example: RELEASING_AGENT
+    enum:
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
+  MTOHideMove:
+    description: describes the MTO ID and a description reason why the move was hidden.
+    type: object
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        description: ID of the associated moveTaskOrder
+      hideReason:
+        example: invalid name
+        type: string
+        x-nullable: true
+        description: Reason the move was selected to be hidden
+  MTOHideMovesResponse:
+    description: describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.
+    type: object
+    properties:
+      numberMovesHidden:
+        type: integer
+        description: Number of moves that were hidden
+      moves:
+        description: Array of moves that were hidden.
+        type: array
+        items:
+          $ref: '#/definitions/MTOHideMove'
   MTOServiceItem:
     description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
     type: object
@@ -1383,10 +1407,12 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       createdAt:
         format: date-time
         type: string
@@ -1395,18 +1421,51 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      approvedDate:
+        description: date when the shipment was given the status "APPROVED"
+        format: date
+        type: string
+        readOnly: true
       scheduledPickupDate:
         format: date
         type: string
       requestedPickupDate:
         format: date
         type: string
-      approvedDate:
+        readOnly: true
+      firstAvailableDeliveryDate:
         format: date
         type: string
       primeActualWeight:
         type: integer
         example: 4500
+      primeEstimatedWeight:
+        type: integer
+        example: 4500
+      primeEstimatedWeightRecordedDate:
+        format: date
+        type: string
+        readOnly: true
+      actualPickupDate:
+        format: date
+        type: string
+      requiredDeliveryDate:
+        format: date
+        type: string
+        readOnly: true
+      agents:
+        $ref: '#/definitions/MTOAgents'
+      mtoServiceItems:
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+        type: array
+      customerRemarks:
+        type: string
+        readOnly: true
+        example: handle with care
+        x-nullable: true
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
       pickupAddress:
         $ref: '#/definitions/Address'
       destinationAddress:
@@ -1415,32 +1474,40 @@ definitions:
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
-      customerRemarks:
+      eTag:
         type: string
-        example: handle with care
-        x-nullable: true
-      shipmentType:
-        enum:
-          - HHG
-          - INTERNATIONAL_HHG
-          - INTERNATIONAL_UB
+        readOnly: true
       status:
         type: string
+        readOnly: true
         enum:
           - APPROVED
           - SUBMITTED
           - REJECTED
       rejectionReason:
         type: string
+        readOnly: true
         example: MTO Shipment not good enough
         x-nullable: true
-      eTag:
+      pointOfContact:
         type: string
-        readOnly: true
+        description: Email or id of a contact person for this update.
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
+  MTOShipmentType:
+    type: string
+    title: Shipment Type
+    example: HHG
+    enum:
+      - HHG
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+    x-display-value:
+      HHG: HHG
+      INTERNATIONAL_HHG: International HHG
+      INTERNATIONAL_UB: International UB
   OrdersStatus:
     type: string
     title: Move status
@@ -1716,8 +1783,6 @@ definitions:
       - filename
       - contentType
       - bytes
-      - createdAt
-      - updatedAt
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'

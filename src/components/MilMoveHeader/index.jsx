@@ -1,32 +1,44 @@
 import React from 'react';
-import classNames from 'classnames/bind';
+import { func, string, node } from 'prop-types';
+import { Button, Title } from '@trussworks/react-uswds';
 
-import { ReactComponent as MmLogo } from '../../shared/images/milmove-logo.svg';
+import MmLogo from '../../shared/images/milmove-logo.svg';
 
 import styles from './index.module.scss';
 
-const cx = classNames.bind(styles);
-
-const MilMoveHeader = () => (
-  <div className={cx('mm-header')}>
-    <MmLogo />
-    <div className={cx('links')}>
-      <span>
-        <a href="#">Navigation Link</a>
-      </span>
-      <span>
-        <a href="#">Navigation Link</a>
-      </span>
-      <span>
-        <a href="#">Navigation Link</a>
-      </span>
-      <span className={cx('line-add')}>&nbsp;</span>
-      <span>Baker, Riley</span>
-      <span>
-        <a href="#">Sign out</a>
-      </span>
+const MilMoveHeader = ({ children, handleLogout, firstName, lastName }) => (
+  <div className={styles.mmHeader}>
+    <Title>
+      <a href="/" title="Home" aria-label="Home">
+        <img src={MmLogo} alt="MilMove" />
+      </a>
+    </Title>
+    <div className={styles.links}>
+      {children}
+      <div className={styles.verticalLine} />
+      {lastName !== '' && firstName !== '' && (
+        <span>
+          {lastName}, {firstName}
+        </span>
+      )}
+      <Button unstyled className={styles.signOut} onClick={handleLogout} type="button">
+        Sign out
+      </Button>
     </div>
   </div>
 );
+
+MilMoveHeader.defaultProps = {
+  children: null,
+  firstName: '',
+  lastName: '',
+};
+
+MilMoveHeader.propTypes = {
+  children: node,
+  firstName: string,
+  lastName: string,
+  handleLogout: func.isRequired,
+};
 
 export default MilMoveHeader;

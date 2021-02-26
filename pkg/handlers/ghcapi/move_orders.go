@@ -55,7 +55,7 @@ type ListMoveTaskOrdersHandler struct {
 func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	moveOrderID, _ := uuid.FromString(params.MoveOrderID.String())
-	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID)
+	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID, nil) // nil searchParams exclude disabled MTOs by default
 	if err != nil {
 		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {
@@ -67,8 +67,8 @@ func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersP
 	}
 	moveTaskOrdersPayload := make(ghcmessages.MoveTaskOrders, len(moveTaskOrders))
 	for i, moveTaskOrder := range moveTaskOrders {
-		// #nosec G601 TODO needs review
-		moveTaskOrdersPayload[i] = payloads.MoveTaskOrder(&moveTaskOrder)
+		copyOfMto := moveTaskOrder // Make copy to avoid implicit memory aliasing of items from a range statement.
+		moveTaskOrdersPayload[i] = payloads.MoveTaskOrder(&copyOfMto)
 	}
 	return moveorderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
 }

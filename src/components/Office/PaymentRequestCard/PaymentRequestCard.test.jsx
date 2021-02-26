@@ -1,7 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import moment from 'moment';
-import MockDate from 'mockdate';
 
 import PaymentRequestCard from './PaymentRequestCard';
 
@@ -31,6 +29,7 @@ jest.mock('hooks/queries', () => ({
           moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
           paymentRequestNumber: '1843-9061-1',
           status: 'REVIEWED',
+          reviewedAt: '2020-12-01T00:00:00.000Z',
           moveTaskOrder: move,
           serviceItems: [
             {
@@ -62,6 +61,7 @@ jest.mock('hooks/queries', () => ({
               id: '09474c6a-69b6-4501-8e08-670a12512a5f',
               createdAt: '2020-12-01T00:00:00.000Z',
               mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+              mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
               priceCents: 2000001,
               status: 'REQUESTED',
             },
@@ -69,6 +69,7 @@ jest.mock('hooks/queries', () => ({
               id: '39474c6a-69b6-4501-8e08-670a12512a5f',
               createdAt: '2020-12-01T00:00:00.000Z',
               mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+              mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
               priceCents: 4000001,
               status: 'REQUESTED',
             },
@@ -79,6 +80,13 @@ jest.mock('hooks/queries', () => ({
   },
 }));
 
+const shipmentAddresses = [
+  {
+    mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
+    shipmentAddress: 'Columbia, SC 29212 to Princeton, NJ 08540',
+  },
+  { mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d', shipmentAddress: 'TBD to Fairfield, CA 94535' },
+];
 const testMoveLocator = 'AF7K1P';
 
 describe('PaymentRequestCard', () => {
@@ -122,7 +130,7 @@ describe('PaymentRequestCard', () => {
     };
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestCard paymentRequest={pendingPaymentRequest} />
+        <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentAddresses={shipmentAddresses} />
       </MockProviders>,
     );
 
@@ -157,17 +165,14 @@ describe('PaymentRequestCard', () => {
   });
 
   describe('reviewed payment request', () => {
-    const reviewedAtDate = moment(MockDate);
-    const formattedReviewedAtDate = moment(reviewedAtDate).format('DD MMM YYYY');
-
     const reviewedPaymentRequest = {
       id: '29474c6a-69b6-4501-8e08-670a12512e5f',
       createdAt: '2020-12-01T00:00:00.000Z',
       moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
       paymentRequestNumber: '1843-9061-2',
-      status: 'REVIEWED',
+      status: 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED',
       moveTaskOrder: move,
-      reviewedAt: reviewedAtDate,
+      reviewedAt: '2020-12-01T00:00:00.000Z',
       serviceItems: [
         {
           id: '09474c6a-69b6-4501-8e08-670a12512a5f',
@@ -193,7 +198,7 @@ describe('PaymentRequestCard', () => {
       moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
       paymentRequestNumber: '1843-9061-2',
       status: 'REVIEWED',
-      reviewedAt: reviewedAtDate,
+      reviewedAt: '2020-12-01T00:00:00.000Z',
       moveTaskOrder: move,
       serviceItems: [
         {
@@ -216,12 +221,12 @@ describe('PaymentRequestCard', () => {
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestCard paymentRequest={reviewedPaymentRequest} />
+        <PaymentRequestCard paymentRequest={reviewedPaymentRequest} shipmentAddresses={shipmentAddresses} />
       </MockProviders>,
     );
 
-    it('renders the reviewed status tag', () => {
-      expect(wrapper.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
+    it('renders the rejected status tag', () => {
+      expect(wrapper.find({ 'data-testid': 'tag' }).contains('Rejected')).toBe(true);
     });
 
     it('sums the approved service items total', () => {
@@ -229,7 +234,7 @@ describe('PaymentRequestCard', () => {
     });
 
     it('displays the reviewed at date', () => {
-      expect(wrapper.find('.amountAccepted span').at(1).contains(formattedReviewedAtDate)).toBe(true);
+      expect(wrapper.find('.amountAccepted span').at(1).text().includes('01 Dec 2020')).toBe(true);
     });
 
     it('sums the rejected service items total', () => {
@@ -237,7 +242,7 @@ describe('PaymentRequestCard', () => {
     });
 
     it('displays the reviewed at date', () => {
-      expect(wrapper.find('.amountRejected span').at(1).contains(formattedReviewedAtDate)).toBe(true);
+      expect(wrapper.find('.amountRejected span').at(1).text().includes('01 Dec 2020')).toBe(true);
     });
 
     it('displays the payment request details ', () => {
@@ -257,7 +262,7 @@ describe('PaymentRequestCard', () => {
     it('shows only rejected if no service items are approved', () => {
       const rejected = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={rejectedPaymentRequest} />
+          <PaymentRequestCard paymentRequest={rejectedPaymentRequest} shipmentAddresses={shipmentAddresses} />
         </MockProviders>,
       );
 
@@ -302,7 +307,7 @@ describe('PaymentRequestCard', () => {
       };
       const sentToGex = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={sentToGexPaymentRequest} />
+          <PaymentRequestCard paymentRequest={sentToGexPaymentRequest} shipmentAddresses={shipmentAddresses} />
         </MockProviders>,
       );
       expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
@@ -336,7 +341,7 @@ describe('PaymentRequestCard', () => {
       };
       const receivedByGex = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={receivedByGexPaymentRequest} />
+          <PaymentRequestCard paymentRequest={receivedByGexPaymentRequest} shipmentAddresses={shipmentAddresses} />
         </MockProviders>,
       );
       expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
@@ -370,7 +375,7 @@ describe('PaymentRequestCard', () => {
       };
       const paid = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={paidPaymentRequest} />
+          <PaymentRequestCard paymentRequest={paidPaymentRequest} shipmentAddresses={shipmentAddresses} />
         </MockProviders>,
       );
       expect(paid.find({ 'data-testid': 'tag' }).contains('Paid')).toBe(true);

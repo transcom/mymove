@@ -1,6 +1,6 @@
-/* eslint-disable react/jsx-props-no-spreading,react/prop-types */
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
+import { bool, string, shape, node, func, arrayOf } from 'prop-types';
 import Select, { components } from 'react-select';
 import { Checkbox } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,6 +20,14 @@ const Option = (props) => {
   );
 };
 
+Option.propTypes = {
+  isSelected: bool.isRequired,
+  label: string.isRequired,
+  innerProps: shape({
+    id: string.isRequired,
+  }).isRequired,
+};
+
 const DropdownIndicator = (props) => {
   return (
     <components.DropdownIndicator {...props}>
@@ -36,19 +44,30 @@ const ValueContainer = ({ children, ...props }) => {
   );
 };
 
-const MultiValueContainer = ({ data: { value } }) => {
-  return <span>{value}</span>;
+ValueContainer.propTypes = {
+  children: node.isRequired,
+};
+
+const MultiValueContainer = ({ data: { label } }) => {
+  return <span data-testid="multi-value-container">{label}</span>;
+};
+
+MultiValueContainer.propTypes = {
+  data: shape({
+    label: string.isRequired,
+  }).isRequired,
 };
 
 const MultiSelectCheckBoxFilter = ({ options, column: { filterValue, setFilter } }) => {
   const selectFilterValue = useMemo(() => {
     return filterValue
       ? filterValue.split(',').map((val) => ({
-          label: val,
+          label: options.find((option) => option.value === val).label,
           value: val,
         }))
       : [];
-  }, [filterValue]);
+  }, [filterValue, options]);
+
   return (
     <div data-testid="MultiSelectCheckBoxFilter">
       <Select
@@ -84,10 +103,15 @@ const MultiSelectCheckBoxFilter = ({ options, column: { filterValue, setFilter }
 
 // Values come from react-table
 MultiSelectCheckBoxFilter.propTypes = {
-  options: PropTypes.arrayOf(PropTypes.object).isRequired,
-  column: PropTypes.shape({
-    filterValue: PropTypes.node,
-    setFilter: PropTypes.func,
+  options: arrayOf(
+    shape({
+      label: string.isRequired,
+      value: string.isRequired,
+    }).isRequired,
+  ).isRequired,
+  column: shape({
+    filterValue: node,
+    setFilter: func,
   }).isRequired,
 };
 

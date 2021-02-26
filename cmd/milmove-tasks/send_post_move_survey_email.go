@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -95,10 +95,8 @@ func sendPostMoveSurvey(cmd *cobra.Command, args []string) error {
 
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") {
-		verbose := cli.LogLevelIsDebug(v)
-		c, errorConfig := cli.GetAWSConfig(v, verbose)
-		if errorConfig != nil {
-			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+		c := &aws.Config{
+			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
 		}
 		s, errorSession := awssession.NewSession(c)
 		if errorSession != nil {
@@ -128,7 +126,6 @@ func sendPostMoveSurvey(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	ctx := context.TODO()
 	targetDate := time.Now().AddDate(0, 0, -offsetDays)
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
 	if notificationSenderErr != nil {
@@ -139,7 +136,7 @@ func sendPostMoveSurvey(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("initializing MoveReviewed", zap.Error(err))
 	}
-	err = notificationSender.SendNotification(ctx, moveReviewedNotifier)
+	err = notificationSender.SendNotification(moveReviewedNotifier)
 	if err != nil {
 		logger.Fatal("Emails failed to send", zap.Error(err))
 	}

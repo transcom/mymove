@@ -12,8 +12,14 @@ import (
 	"github.com/spf13/viper"
 	"pault.ag/go/pksigner"
 
-	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 	"github.com/transcom/mymove/pkg/cli"
+)
+
+const (
+	// RecipientMTLSCert is the client cert to connect to the subscriber
+	RecipientMTLSCert string = "gex-mtls-client-cert"
+	// RecipientMTLSKey is the client key to connect to the subscriber
+	RecipientMTLSKey string = "gex-mtls-client-key"
 )
 
 // WebhookClientPoster is an interface that WebhookRuntime implements
@@ -86,11 +92,10 @@ func (wr *WebhookRuntime) Post(data []byte, url string) (*http.Response, []byte,
 		url,
 		bufferData,
 	)
-	req.Header.Set("Content-type", wr.ContentType)
-
 	if err != nil {
 		return nil, nil, err
 	}
+	req.Header.Set("Content-type", wr.ContentType)
 
 	// Print out the request when debug mode is on
 	if wr.Debug {
@@ -154,41 +159,53 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 	var err error
 	var store *pksigner.Store
 
-	insecure := v.GetBool(utils.InsecureFlag)
+	insecure := v.GetBool(InsecureFlag)
 	verbose := cli.LogLevelIsDebug(v)
 	contentType := "application/json; charset=utf-8"
 
 	// Get the tls certificate
 	// If using a CAC, the client cert comes from the card
-	// Otherwise, use the certpath and keypath values
+	// Otherwise, it comes from a file or env variable
 	if v.GetBool(cli.CACFlag) {
 		cert, store, err = GetCacCertificate(v)
-
 		if err != nil {
 			return nil, nil, err
 		}
 
-	} else if !v.GetBool(cli.CACFlag) {
-		var loadCert tls.Certificate
-
-		certPath := v.GetString(utils.CertPathFlag)
-		keyPath := v.GetString(utils.KeyPathFlag)
-		loadCert, err = tls.LoadX509KeyPair(certPath, keyPath)
-
+	} else {
+		cert, err = loadCertificate(v)
 		if err != nil {
 			return nil, nil, err
 		}
-
-		cert = &loadCert
 	}
 
 	runtimeClient := NewWebhookRuntime(contentType, insecure, verbose)
-
 	rc, err = runtimeClient.SetupClient(cert)
-
 	if err != nil {
 		return nil, nil, err
 	}
 
 	return rc, store, nil
+}
+
+func loadCertificate(v *viper.Viper) (*tls.Certificate, error) {
+	var loadCert tls.Certificate
+	var err error
+	// Cert can be provided as a filepath or directly as an string
+	// Note that the path can also be passed in as a flag or environment
+	// variable.
+	if v.GetString(CertPathFlag) != "" && v.GetString(KeyPathFlag) != "" {
+		certPath := v.GetString(CertPathFlag)
+		keyPath := v.GetString(KeyPathFlag)
+		loadCert, err = tls.LoadX509KeyPair(certPath, keyPath)
+	} else {
+		certString := v.GetString(RecipientMTLSCert)
+		key := v.GetString(RecipientMTLSKey)
+		loadCert, err = tls.X509KeyPair([]byte(certString), []byte(key))
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return &loadCert, nil
 }

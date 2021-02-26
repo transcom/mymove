@@ -25,7 +25,6 @@ import (
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -45,7 +44,7 @@ var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, storer *storage.Filesystem) {
+func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
 	/*
 	 * Basic user with office access
 	 */
@@ -1954,7 +1953,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	email = "too_tio_role@office.mil"
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
 	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
+	user := testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tooTioUUID,
 			LoginGovUUID:  &loginGovID,
@@ -1969,6 +1968,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			Email:  email,
 			Active: true,
 			UserID: &tooTioUUID,
+		},
+	})
+	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			User:   user,
+			UserID: user.ID,
 		},
 	})
 
@@ -2198,6 +2203,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		Move: mtoWithTaskOrderServices,
 		ReService: models.ReService{
 			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	// Create one webhook subscription for PaymentRequestUpdate
+	testdatagen.MakeWebhookSubscription(db, testdatagen.Assertions{
+		WebhookSubscription: models.WebhookSubscription{
+			CallbackURL: "https://primelocal:9443/support/v1/webhook-notify",
 		},
 	})
 

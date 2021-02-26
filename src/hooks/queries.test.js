@@ -1,5 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 
+import { SHIPMENT_OPTIONS } from '../shared/constants';
+
 import {
   usePaymentRequestQueries,
   useMoveTaskOrderQueries,
@@ -7,9 +9,17 @@ import {
   useMovesQueueQueries,
   usePaymentRequestQueueQueries,
   useUserQueries,
+  useTXOMoveInfoQueries,
+  useMoveDetailsQueries,
 } from './queries';
 
+import { serviceItemCodes } from 'content/serviceItems';
+
 jest.mock('services/ghcApi', () => ({
+  getCustomer: (key, id) =>
+    Promise.resolve({
+      customer: { [id]: { id, last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' } },
+    }),
   getPaymentRequest: (key, id) =>
     Promise.resolve({
       paymentRequests: {
@@ -19,39 +29,145 @@ jest.mock('services/ghcApi', () => ({
       },
       paymentServiceItems: {},
     }),
-  getMTOShipments: () =>
-    Promise.resolve({
-      mtoShipments: {
-        a1: {
-          shipmentType: 'HHG',
+  getMTOShipments: (key, id, normalize) => {
+    if (normalize) {
+      return Promise.resolve({
+        mtoShipments: {
+          a1: {
+            shipmentType: 'HHG_LONGHAUL_DOMESTIC',
+            mtoAgents: [
+              {
+                agentType: 'RELEASING_AGENT',
+                mtoShipmentID: 'a1',
+              },
+              {
+                agentType: 'RECEIVING_AGENT',
+                mtoShipmentID: 'a1',
+              },
+            ],
+            mtoServiceItems: [
+              {
+                reServiceName: 'Domestic linehaul',
+              },
+              {
+                reServiceName: 'Fuel surcharge',
+              },
+            ],
+          },
+          b2: {
+            shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+            mtoAgents: [
+              {
+                agentType: 'RELEASING_AGENT',
+                mtoShipmentID: 'b2',
+              },
+              {
+                agentType: 'RECEIVING_AGENT',
+                mtoShipmentID: 'b2',
+              },
+            ],
+            mtoServiceItems: [
+              {
+                reServiceName: 'Domestic origin price',
+              },
+              {
+                reServiceName: 'Domestic unpacking',
+              },
+            ],
+          },
         },
-        b2: {
-          shipmentType: 'NTS',
-        },
+      });
+    }
+    return Promise.resolve([
+      {
+        shipmentType: 'HHG_LONGHAUL_DOMESTIC',
+        mtoAgents: [
+          {
+            agentType: 'RELEASING_AGENT',
+            mtoShipmentID: 'a1',
+          },
+          {
+            agentType: 'RECEIVING_AGENT',
+            mtoShipmentID: 'a1',
+          },
+        ],
+        mtoServiceItems: [
+          {
+            reServiceName: 'Domestic linehaul',
+          },
+          {
+            reServiceName: 'Fuel surcharge',
+          },
+        ],
       },
-    }),
-  getMTOServiceItems: () =>
-    Promise.resolve({
-      mtoServiceItems: {
-        a: {
-          reServiceName: 'Test Service Item',
-        },
-        b: {
-          reServiceName: 'Test Service Item 2',
-        },
+      {
+        shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        mtoAgents: [
+          {
+            agentType: 'RELEASING_AGENT',
+            mtoShipmentID: 'b2',
+          },
+          {
+            agentType: 'RECEIVING_AGENT',
+            mtoShipmentID: 'b2',
+          },
+        ],
+        mtoServiceItems: [
+          {
+            reServiceName: 'Domestic origin price',
+          },
+          {
+            reServiceName: 'Domestic unpacking',
+          },
+        ],
       },
-    }),
+    ]);
+  },
+  getMTOServiceItems: (key, id, normalize) => {
+    if (normalize) {
+      return Promise.resolve({
+        mtoServiceItems: {
+          a: {
+            reServiceName: 'Counseling',
+          },
+          b: {
+            reServiceName: 'Move management',
+          },
+        },
+      });
+    }
+    return Promise.resolve([
+      {
+        reServiceName: 'Counseling',
+      },
+      {
+        reServiceName: 'Move management',
+      },
+    ]);
+  },
   getMove: () =>
     Promise.resolve({
       id: '1234',
       ordersId: '4321',
+      moveCode: 'ABCDEF',
     }),
   getMoveOrder: (key, id) =>
     Promise.resolve({
       moveOrders: {
         [id]: {
           id,
+          customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyStation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyStation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
         },
       },
     }),
@@ -116,6 +232,45 @@ jest.mock('services/internalApi', () => ({
     }),
 }));
 
+describe('useTXOMoveInfoQueries', () => {
+  it('loads data', async () => {
+    const testMoveCode = 'ABCDEF';
+    const { result, waitForNextUpdate } = renderHook(() => useTXOMoveInfoQueries(testMoveCode));
+
+    expect(result.current).toEqual({
+      moveOrder: undefined,
+      customerData: undefined,
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+    });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+      moveOrder: {
+        id: '4321',
+        customerID: '2468',
+        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+        uploaded_order_id: '2',
+        departmentIndicator: 'Navy',
+        grade: 'E-6',
+        originDutyStation: {
+          name: 'JBSA Lackland',
+        },
+        destinationDutyStation: {
+          name: 'JB Lewis-McChord',
+        },
+        report_by_date: '2018-08-01',
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
 describe('usePaymentRequestQueries', () => {
   it('loads data', async () => {
     const testId = 'a1b2';
@@ -125,8 +280,6 @@ describe('usePaymentRequestQueries', () => {
       paymentRequest: undefined,
       paymentRequests: undefined,
       paymentServiceItems: undefined,
-      mtoShipments: undefined,
-      mtoServiceItems: undefined,
       isLoading: true,
       isError: false,
       isSuccess: false,
@@ -144,22 +297,6 @@ describe('usePaymentRequestQueries', () => {
         },
       },
       paymentServiceItems: {},
-      mtoShipments: {
-        a1: {
-          shipmentType: 'HHG',
-        },
-        b2: {
-          shipmentType: 'NTS',
-        },
-      },
-      mtoServiceItems: {
-        a: {
-          reServiceName: 'Test Service Item',
-        },
-        b: {
-          reServiceName: 'Test Service Item 2',
-        },
-      },
       isLoading: false,
       isError: false,
       isSuccess: true,
@@ -188,7 +325,18 @@ describe('useMoveTaskOrderQueries', () => {
       moveOrders: {
         4321: {
           id: '4321',
+          customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyStation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyStation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
         },
       },
       moveTaskOrders: {
@@ -198,18 +346,54 @@ describe('useMoveTaskOrderQueries', () => {
       },
       mtoShipments: {
         a1: {
-          shipmentType: 'HHG',
+          shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: serviceItemCodes.DLH,
+            },
+            {
+              reServiceName: serviceItemCodes.FSC,
+            },
+          ],
         },
         b2: {
-          shipmentType: 'NTS',
+          shipmentType: SHIPMENT_OPTIONS.NTSR,
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: serviceItemCodes.DOP,
+            },
+            {
+              reServiceName: serviceItemCodes.DUPK,
+            },
+          ],
         },
       },
       mtoServiceItems: {
         a: {
-          reServiceName: 'Test Service Item',
+          reServiceName: serviceItemCodes.CS,
         },
         b: {
-          reServiceName: 'Test Service Item 2',
+          reServiceName: serviceItemCodes.MS,
         },
       },
       isLoading: false,
@@ -219,19 +403,145 @@ describe('useMoveTaskOrderQueries', () => {
   });
 });
 
+describe('useMoveDetailsQueries', () => {
+  it('loads data', async () => {
+    const moveCode = 'ABCDEF';
+    const { result, waitForNextUpdate } = renderHook(() => useMoveDetailsQueries(moveCode));
+
+    expect(result.current).toEqual({
+      move: {
+        id: '1234',
+        ordersId: '4321',
+        moveCode: 'ABCDEF',
+      },
+      moveOrder: {
+        id: '4321',
+        customerID: '2468',
+        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+        uploaded_order_id: '2',
+        departmentIndicator: 'Navy',
+        grade: 'E-6',
+        originDutyStation: {
+          name: 'JBSA Lackland',
+        },
+        destinationDutyStation: {
+          name: 'JB Lewis-McChord',
+        },
+        report_by_date: '2018-08-01',
+      },
+      mtoShipments: [],
+      mtoServiceItems: [],
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+    });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      move: {
+        id: '1234',
+        ordersId: '4321',
+        moveCode: 'ABCDEF',
+      },
+      moveOrder: {
+        id: '4321',
+        customerID: '2468',
+        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+        uploaded_order_id: '2',
+        departmentIndicator: 'Navy',
+        grade: 'E-6',
+        originDutyStation: {
+          name: 'JBSA Lackland',
+        },
+        destinationDutyStation: {
+          name: 'JB Lewis-McChord',
+        },
+        report_by_date: '2018-08-01',
+      },
+      mtoShipments: [
+        {
+          shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: serviceItemCodes.DLH,
+            },
+            {
+              reServiceName: serviceItemCodes.FSC,
+            },
+          ],
+        },
+        {
+          shipmentType: SHIPMENT_OPTIONS.NTSR,
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: serviceItemCodes.DOP,
+            },
+            {
+              reServiceName: serviceItemCodes.DUPK,
+            },
+          ],
+        },
+      ],
+      mtoServiceItems: [
+        {
+          reServiceName: serviceItemCodes.CS,
+        },
+        {
+          reServiceName: serviceItemCodes.MS,
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
 describe('useOrdersDocumentQueries', () => {
   it('loads data', async () => {
-    const testLocatorId = 'a1b2';
+    const testLocatorId = 'ABCDEF';
     const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testLocatorId));
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      move: { id: '1234', ordersId: '4321' },
+      move: { id: '1234', ordersId: '4321', moveCode: testLocatorId },
       moveOrders: {
         4321: {
           id: '4321',
+          customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyStation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyStation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
         },
       },
       documents: {

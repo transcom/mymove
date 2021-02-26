@@ -1,6 +1,24 @@
+###########
+# BUILDER #
+###########
+
+FROM milmove/circleci-docker:milmove-app as builder
+
+# Prepare public DOD certificates.
+USER root
+COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /tmp/all-public-dod-certs.der.p7b
+RUN openssl pkcs7 -print_certs -inform der -in /tmp/all-public-dod-certs.der.p7b -out /usr/local/share/ca-certificates/all-public-dod-certs.crt
+RUN update-ca-certificates
+
+#########
+# FINAL #
+#########
 FROM gcr.io/distroless/static:latest
+
+# Copy DOD certs from the builder.
+COPY --from=builder --chown=root:root /etc/ssl/certs /etc/ssl/certs
 
 COPY bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
 COPY bin/webhook-client /bin/webhook-client
 
-CMD ["/bin/webhook-client", "db-webhook-notify"]
+CMD ["/bin/webhook-client", "webhook-notify"]

@@ -5,6 +5,9 @@ import { Tag } from '@trussworks/react-uswds';
 import 'styles/office.scss';
 import TabNav from 'components/TabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import CustomerHeader from 'components/CustomerHeader';
+import { useTXOMoveInfoQueries } from 'hooks/queries';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
@@ -16,7 +19,7 @@ const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/
 const TXOMoveInfo = () => {
   const { moveCode } = useParams();
   const { pathname } = useLocation();
-
+  const { moveOrder, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
   const hideNav =
     matchPath(pathname, {
       path: '/moves/:moveCode/payment-requests/:id',
@@ -31,8 +34,12 @@ const TXOMoveInfo = () => {
       exact: true,
     });
 
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+
   return (
     <>
+      <CustomerHeader moveOrder={moveOrder} customer={customerData} moveCode={moveCode} />
       {!hideNav && (
         <header className="nav-header">
           <div className="grid-container-desktop-lg">

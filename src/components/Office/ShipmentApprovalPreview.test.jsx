@@ -6,6 +6,8 @@ import ShipmentContainer from './ShipmentContainer';
 import AllowancesTable from './AllowancesTable/AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 const shipments = [
   {
     approvedDate: '0001-01-01',
@@ -61,7 +63,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.404031Z',
   },
@@ -108,7 +110,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+    shipmentType: SHIPMENT_OPTIONS.NTSR,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },
@@ -219,6 +221,9 @@ describe('Shipment preview modal', () => {
     expect(wrapper.find(ShipmentContainer).exists()).toBe(true);
     expect(wrapper.find(AllowancesTable).exists()).toBe(true);
     expect(wrapper.find(CustomerInfoTable).exists()).toBe(true);
+
+    expect(wrapper.find('h4').at(0).text()).toEqual('Household goods');
+    expect(wrapper.find('h4').at(2).text()).toEqual('Non-temp storage release');
   });
   it('renders the modal successfully with mtoAgents provided', () => {
     const wrapper = mount(

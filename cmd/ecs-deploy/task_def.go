@@ -31,11 +31,12 @@ import (
 )
 
 const (
-	binMilMove      string = "/bin/milmove"
-	binMilMoveTasks string = "/bin/milmove-tasks"
-	binOrders       string = "/bin/orders"
-	digestSeparator string = "@"
-	tagSeparator    string = ":"
+	binMilMove       string = "/bin/milmove"
+	binMilMoveTasks  string = "/bin/milmove-tasks"
+	binOrders        string = "/bin/orders"
+	binWebhookClient string = "/bin/webhook-client"
+	digestSeparator  string = "@"
+	tagSeparator     string = ":"
 )
 
 // Valid services names
@@ -44,6 +45,7 @@ var services = []string{
 	"app-client-tls",
 	"app-migrations",
 	"app-tasks",
+	"app-webhook-client",
 	"orders",
 	"orders-migrations",
 }
@@ -59,6 +61,9 @@ var servicesToEntryPoints = map[string][]string{
 		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
 		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
 		fmt.Sprintf("%s post-file-to-gex", binMilMoveTasks),
+	},
+	"app-webhook-client": {
+		fmt.Sprintf("%s webhook-notify", binWebhookClient),
 	},
 	"orders":            {fmt.Sprintf("%s serve", binOrders)},
 	"orders-migrations": {fmt.Sprintf("%s migrate", binOrders)},
@@ -78,14 +83,6 @@ type errInvalidService struct {
 
 func (e *errInvalidService) Error() string {
 	return fmt.Sprintf("invalid AWS ECS service %q, expecting one of %q", e.Service, services)
-}
-
-type errinvalidRepositoryName struct {
-	RepositoryName string
-}
-
-func (e *errinvalidRepositoryName) Error() string {
-	return fmt.Sprintf("invalid AWS ECR respository name %q", e.RepositoryName)
 }
 
 type errInvalidImage struct {
@@ -540,6 +537,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		// This is `ecs-task-role-app-migration-experimental` vs `ecs-task-role-app-migration(s)-experimental`
 		// This needs to be fixed in terraform and then rolled out
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-migration-%s", serviceNameShort, environmentName)
+	} else if commandName == binWebhookClient {
+		awsLogsStreamPrefix = serviceName
+		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
+		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
 	} else {
 		awsLogsStreamPrefix = serviceNameShort
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
@@ -570,6 +571,17 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	cpu := strconv.Itoa(v.GetInt(cpuFlag))
 	mem := strconv.Itoa(v.GetInt(memFlag))
 
+	// Create the set of secrets and environment variables that will be injected into the
+	// container.
+	secrets := buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName)
+	containerEnvironment := buildContainerEnvironment(environmentName, dbHost, variablesFile)
+
+	// AWS does not permit supplying both a secret and an environment variable that share the same
+	// name into an ECS task. In order to gracefully transition between setting values as secrets
+	// into setting them as environment variables, this function serves to remove any duplicates
+	// that have been transitioned into being set as environment variables.
+	secrets = removeSecretsWithMatchingEnvironmentVariables(secrets, containerEnvironment)
+
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
@@ -578,8 +590,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPointList),
 				Command:     []*string{},
-				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
-				Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
+				Secrets:     secrets,
+				Environment: containerEnvironment,
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
 					Options: map[string]*string{
@@ -632,4 +644,28 @@ func createAwsConfig(awsRegionFlag string) *aws.Config {
 		Region: aws.String(awsRegionFlag),
 	}
 	return awsConfig
+}
+
+func removeSecretsWithMatchingEnvironmentVariables(secrets []*ecs.Secret, containerEnvironment []*ecs.KeyValuePair) []*ecs.Secret {
+	// Remove any secrets that share a name with an environment variable. Do this by creating a new
+	// slice of secrets that does not any secrets that share a name with an environment variable.
+	newSecrets := []*ecs.Secret{}
+	for _, secret := range secrets {
+		conflictFound := false
+		for _, envSetting := range containerEnvironment {
+			if *secret.Name == *envSetting.Name {
+				conflictFound = true
+			}
+		}
+
+		if conflictFound {
+			// Report any conflicts that are found.
+			fmt.Fprintln(os.Stderr, "Found a secret with the same name as an environment variable. Discarding secret in favor of the environment variable:", *secret.Name)
+		} else {
+			// If no conflict is found, keep the secret.
+			newSecrets = append(newSecrets, secret)
+		}
+	}
+
+	return newSecrets
 }

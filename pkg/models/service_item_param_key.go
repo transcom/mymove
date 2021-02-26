@@ -32,10 +32,10 @@ const (
 	ServiceItemParamNameDistanceZip3 ServiceItemParamName = "DistanceZip3"
 	// ServiceItemParamNameDistanceZip5 is the param key name DistanceZip5
 	ServiceItemParamNameDistanceZip5 ServiceItemParamName = "DistanceZip5"
-	// ServiceItemParamNameDistanceZip5SITDest is the param key name DistanceZip5SITDest
-	ServiceItemParamNameDistanceZip5SITDest ServiceItemParamName = "DistanceZip5SITDest"
-	// ServiceItemParamNameDistanceZip5SITOrigin is the param key name DistanceZip5SITOrigin
-	ServiceItemParamNameDistanceZip5SITOrigin ServiceItemParamName = "DistanceZip5SITOrigin"
+	// ServiceItemParamNameDistanceZipSITDest is the param key name DistanceZipSITDest
+	ServiceItemParamNameDistanceZipSITDest ServiceItemParamName = "DistanceZipSITDest"
+	// ServiceItemParamNameDistanceZipSITOrigin is the param key name DistanceZipSITOrigin
+	ServiceItemParamNameDistanceZipSITOrigin ServiceItemParamName = "DistanceZipSITOrigin"
 	// ServiceItemParamNameEIAFuelPrice is the param key name EIAFuelPrice
 	ServiceItemParamNameEIAFuelPrice ServiceItemParamName = "EIAFuelPrice"
 	// ServiceItemParamNameMarketDest is the param key name MarketDest
@@ -122,6 +122,20 @@ const (
 	ServiceItemParamNameZipPickupAddress ServiceItemParamName = "ZipPickupAddress"
 	// ServiceItemParamNameZipSITAddress is the param key name ZipSITAddress
 	ServiceItemParamNameZipSITAddress ServiceItemParamName = "ZipSITAddress"
+	// ServiceItemParamNameZipSITDestHHGFinalAddress is the param key name ZipSITDestHHGFinalAddress
+	ServiceItemParamNameZipSITDestHHGFinalAddress ServiceItemParamName = "ZipSITDestHHGFinalAddress"
+	// ServiceItemParamNameZipSITOriginHHGOriginalAddress is the param key name ZipSITOriginHHGOriginalAddress
+	ServiceItemParamNameZipSITOriginHHGOriginalAddress ServiceItemParamName = "ZipSITOriginHHGOriginalAddress"
+	// ServiceItemParamNameZipSITOriginHHGActualAddress is the param key name ZipSITOriginHHGActualAddress
+	ServiceItemParamNameZipSITOriginHHGActualAddress ServiceItemParamName = "ZipSITOriginHHGActualAddress"
+	// ServiceItemParamNamePriceRateOrFactor is the param key name PriceRateOrFactor
+	ServiceItemParamNamePriceRateOrFactor ServiceItemParamName = "PriceRateOrFactor"
+	// ServiceItemParamNameEscalationCompounded is the param key name EscalationCompounded
+	ServiceItemParamNameEscalationCompounded ServiceItemParamName = "EscalationCompounded"
+	// ServiceItemParamNameIsPeak is the param key name IsPeak
+	ServiceItemParamNameIsPeak ServiceItemParamName = "IsPeak"
+	// ServiceItemParamNameContractYearName is the param key name ContractYearName
+	ServiceItemParamNameContractYearName ServiceItemParamName = "ContractYearName"
 )
 
 // ServiceItemParamType is a type of service item parameter
@@ -145,6 +159,8 @@ const (
 	ServiceItemParamTypeTimestamp ServiceItemParamType = "TIMESTAMP"
 	// ServiceItemParamTypePaymentServiceItemUUID is a UUID
 	ServiceItemParamTypePaymentServiceItemUUID ServiceItemParamType = "PaymentServiceItemUUID"
+	//ServiceItemParamTypeBoolean is a boolean
+	ServiceItemParamTypeBoolean ServiceItemParamType = "BOOLEAN"
 )
 
 // ServiceItemParamOrigin is a type of service item parameter origin
@@ -160,6 +176,8 @@ const (
 	ServiceItemParamOriginPrime ServiceItemParamOrigin = "PRIME"
 	// ServiceItemParamOriginSystem is the System origin
 	ServiceItemParamOriginSystem ServiceItemParamOrigin = "SYSTEM"
+	// ServiceItemParamOriginPricer is the Pricer origin
+	ServiceItemParamOriginPricer ServiceItemParamOrigin = "PRICER"
 )
 
 // ValidServiceItemParamNames lists all valid service item param key names
@@ -170,8 +188,8 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameCubicFeetCrating,
 	ServiceItemParamNameDistanceZip3,
 	ServiceItemParamNameDistanceZip5,
-	ServiceItemParamNameDistanceZip5SITDest,
-	ServiceItemParamNameDistanceZip5SITOrigin,
+	ServiceItemParamNameDistanceZipSITDest,
+	ServiceItemParamNameDistanceZipSITOrigin,
 	ServiceItemParamNameEIAFuelPrice,
 	ServiceItemParamNameMarketDest,
 	ServiceItemParamNameMarketOrigin,
@@ -216,6 +234,13 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameZipDestAddress,
 	ServiceItemParamNameZipPickupAddress,
 	ServiceItemParamNameZipSITAddress,
+	ServiceItemParamNameZipSITDestHHGFinalAddress,
+	ServiceItemParamNameZipSITOriginHHGOriginalAddress,
+	ServiceItemParamNameZipSITOriginHHGActualAddress,
+	ServiceItemParamNamePriceRateOrFactor,
+	ServiceItemParamNameEscalationCompounded,
+	ServiceItemParamNameIsPeak,
+	ServiceItemParamNameContractYearName,
 }
 
 // ValidServiceItemParamNameStrings lists all valid service item param key names
@@ -226,8 +251,8 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameCubicFeetCrating),
 	string(ServiceItemParamNameDistanceZip3),
 	string(ServiceItemParamNameDistanceZip5),
-	string(ServiceItemParamNameDistanceZip5SITDest),
-	string(ServiceItemParamNameDistanceZip5SITOrigin),
+	string(ServiceItemParamNameDistanceZipSITDest),
+	string(ServiceItemParamNameDistanceZipSITOrigin),
 	string(ServiceItemParamNameEIAFuelPrice),
 	string(ServiceItemParamNameMarketDest),
 	string(ServiceItemParamNameMarketOrigin),
@@ -272,6 +297,13 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameZipDestAddress),
 	string(ServiceItemParamNameZipPickupAddress),
 	string(ServiceItemParamNameZipSITAddress),
+	string(ServiceItemParamNameZipSITDestHHGFinalAddress),
+	string(ServiceItemParamNameZipSITOriginHHGOriginalAddress),
+	string(ServiceItemParamNameZipSITOriginHHGActualAddress),
+	string(ServiceItemParamNamePriceRateOrFactor),
+	string(ServiceItemParamNameEscalationCompounded),
+	string(ServiceItemParamNameIsPeak),
+	string(ServiceItemParamNameContractYearName),
 }
 
 // ValidServiceItemParamTypes lists all valid service item param types
@@ -282,12 +314,14 @@ var ValidServiceItemParamTypes = []string{
 	string(ServiceItemParamTypeDecimal),
 	string(ServiceItemParamTypeTimestamp),
 	string(ServiceItemParamTypePaymentServiceItemUUID),
+	string(ServiceItemParamTypeBoolean),
 }
 
 // ValidServiceItemParamOrigins lists all valid service item param origins
 var ValidServiceItemParamOrigins = []string{
 	string(ServiceItemParamOriginPrime),
 	string(ServiceItemParamOriginSystem),
+	string(ServiceItemParamOriginPricer),
 }
 
 // ServiceItemParamKey is a key for a Service Item Param

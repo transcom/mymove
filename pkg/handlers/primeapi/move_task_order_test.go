@@ -32,9 +32,19 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type FeatureFlag struct {
-	Name   string
-	Active bool
+func (suite *HandlerSuite) TestTruncateAll() {
+
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	fmt.Println("created move", move.ID, move.ContractorID)
+
+	err := suite.DB().TruncateAll()
+	fmt.Println(err)
+	fmt.Println("truncated db")
+
+	foundMove := models.Move{}
+	err = suite.DB().Find(&foundMove, move.ID.String())
+	fmt.Println(err)
+	fmt.Println("found move", foundMove.ID, foundMove.ContractorID)
 }
 
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {

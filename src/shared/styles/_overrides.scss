@@ -145,15 +145,20 @@
   }
   &--alert {
     border-radius: 100%;
-    width: 24px;
-    height: 24px;
+    width: 16px;
+    height: 16px;
+    @include u-padding-top(.5);
+    padding-left: 9px;
     display: inline-flex;
     justify-content: center;
     align-items: center;
+    @include u-bg('error');
+    margin: auto 0;
     svg {
       vertical-align: sub;
       path {
         fill: #fff;
+        transform: scale(.8);
       }
     }
     .svg-inline--fa.fa-w-6 {
@@ -252,6 +257,19 @@
   &:hover {
     background-color: $link-light;
   }
+}
+
+.usa-form-group.warning {
+  border-left: 0.26667rem $warning solid;
+  padding-left: 1.06667rem;
+  position: relative;
+
+  .usa-hint {
+    @include u-font-size('body', 'xs');
+    color: $base-darker;
+    font-style: italic;
+  }
+
 }
 
 //Modals

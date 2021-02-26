@@ -332,7 +332,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 	return &payload
 }
 
-// MTOShipment payload
+// MTOShipment converts MTOShipment model to payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
@@ -391,7 +391,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	return payload
 }
 
-// MTOShipments payload
+// MTOShipments converts an array of MTOShipment models to a payload
 func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments {
 	payload := make(primemessages.MTOShipments, len(*mtoShipments))
 
@@ -413,11 +413,12 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
 		payload = &primemessages.MTOServiceItemOriginSIT{
-			ReServiceCode:    handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:           mtoServiceItem.Reason,
-			SitDepartureDate: handlers.FmtDate(sitDepartureDate),
-			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
-			SitPostalCode:    mtoServiceItem.SITPostalCode,
+			ReServiceCode:      handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:             mtoServiceItem.Reason,
+			SitDepartureDate:   handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:       handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:      mtoServiceItem.SITPostalCode,
+			SitHHGActualOrigin: Address(mtoServiceItem.SITOriginHHGActualAddress),
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
 		var sitDepartureDate time.Time
@@ -435,6 +436,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
 		}
 
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:

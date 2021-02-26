@@ -464,6 +464,97 @@ func init() {
         }
       }
     },
+    "/moves/{moveID}": {
+      "get": {
+        "description": "Returns the given move and its relevant info",
+        "tags": [
+          "move"
+        ],
+        "summary": "Get information about a move",
+        "operationId": "getMove",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this endpoint"
+          },
+          "404": {
+            "description": "Move not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "patch": {
+        "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
+        "tags": [
+          "move"
+        ],
+        "summary": "Disables or re-enables a move",
+        "operationId": "updateMove",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Move information",
+            "name": "Move",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MoveUpdatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the Mov",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "Not authorized to update this move"
+          },
+          "404": {
+            "description": "Move not found"
+          },
+          "422": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/notifications": {
       "get": {
         "description": "Returns a list of notifications that have been sent to service members",
@@ -979,6 +1070,69 @@ func init() {
         }
       }
     },
+    "/users": {
+      "get": {
+        "description": "Returns a list of users",
+        "tags": [
+          "users"
+        ],
+        "summary": "List users",
+        "operationId": "indexUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Users"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/users/{userId}": {
       "get": {
         "description": "Returns the given user and their sessions",
@@ -1021,8 +1175,8 @@ func init() {
         "tags": [
           "users"
         ],
-        "summary": "revokes a user's session on any specified apps",
-        "operationId": "revokeUserSession",
+        "summary": "Update a user's session or active status",
+        "operationId": "updateUser",
         "parameters": [
           {
             "type": "string",
@@ -1037,7 +1191,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserRevokeSessionPayload"
+              "$ref": "#/definitions/UserUpdatePayload"
             }
           }
         ],
@@ -1057,8 +1211,154 @@ func init() {
           "403": {
             "description": "Not authorized to update this user"
           },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "Server error"
+          }
+        }
+      }
+    },
+    "/webhook_subscriptions": {
+      "get": {
+        "description": "Returns a list of webhook subscriptions",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Lists webhook subscriptions",
+        "operationId": "indexWebhookSubscriptions",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscriptions"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Not authenticated for this endpoint"
+          },
+          "404": {
+            "description": "Webhook subscriptions not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "post": {
+        "description": "creates and returns a webhook subscription",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "create a webhook subscription",
+        "operationId": "createWebhookSubscription",
+        "parameters": [
+          {
+            "description": "Webhook subscription information",
+            "name": "webhookSubscription",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateWebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create a webhook subscription"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/webhook_subscriptions/{webhookSubscriptionId}": {
+      "get": {
+        "description": "Returns the given webhook subscription and its details",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Get information about a webhook subscription",
+        "operationId": "getWebhookSubscription",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "webhookSubscriptionId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "subscription not found"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -1372,6 +1672,33 @@ func init() {
         }
       }
     },
+    "CreateWebhookSubscription": {
+      "type": "object",
+      "required": [
+        "subscriberId",
+        "status",
+        "eventKey",
+        "callbackUrl"
+      ],
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ElectronicOrder": {
       "type": "object",
       "required": [
@@ -1469,14 +1796,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "serviceMemberId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "serviceMember": {
+          "$ref": "#/definitions/ServiceMember"
         },
         "show": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
@@ -1501,6 +1826,17 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "MoveUpdatePayload": {
+      "type": "object",
+      "required": [
+        "show"
+      ],
+      "properties": {
+        "show": {
+          "type": "boolean"
+        }
       }
     },
     "Moves": {
@@ -1800,6 +2136,38 @@ func init() {
         }
       }
     },
+    "ServiceMember": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleName": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -2039,11 +2407,21 @@ func init() {
       "type": "object",
       "required": [
         "loginGovEmail",
+        "active",
+        "createdAt",
+        "updatedAt",
         "currentAdminSessionId",
         "currentMilSessionId",
         "currentOfficeSessionId"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "currentAdminSessionId": {
           "type": "string",
           "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
@@ -2065,12 +2443,22 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
-    "UserRevokeSessionPayload": {
+    "UserUpdatePayload": {
       "type": "object",
+      "required": [
+        "active"
+      ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true
@@ -2083,6 +2471,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         }
+      }
+    },
+    "Users": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/User"
       }
     },
     "ValidationError": {
@@ -2104,6 +2498,67 @@ func init() {
             "type": "string"
           }
         }
+      }
+    },
+    "WebhookSubscription": {
+      "description": "Represents subscribers who expect certain notifications to be pushed to their servers. Used for the Prime and Prime-related events specifically.",
+      "type": "object",
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "severity": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "description": "Unique identifier for the subscriber",
+          "type": "string",
+          "format": "uuid",
+          "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "WebhookSubscriptionStatus": {
+      "type": "string",
+      "title": "Webhook subscription status",
+      "enum": [
+        "ACTIVE",
+        "FAILING",
+        "DISABLED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
+      }
+    },
+    "WebhookSubscriptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WebhookSubscription"
       }
     }
   }
@@ -2555,6 +3010,97 @@ func init() {
         }
       }
     },
+    "/moves/{moveID}": {
+      "get": {
+        "description": "Returns the given move and its relevant info",
+        "tags": [
+          "move"
+        ],
+        "summary": "Get information about a move",
+        "operationId": "getMove",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this endpoint"
+          },
+          "404": {
+            "description": "Move not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "patch": {
+        "description": "Allows the user to change the ` + "`" + `show` + "`" + ` field on the selected field to either ` + "`" + `True` + "`" + ` or ` + "`" + `False` + "`" + `. A \"shown\" move will appear to all users as normal, a \"hidden\" move will not be returned or editable using any other endpoint (besides those in the Support API), and thus effectively deactivated.\n",
+        "tags": [
+          "move"
+        ],
+        "summary": "Disables or re-enables a move",
+        "operationId": "updateMove",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Move information",
+            "name": "Move",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MoveUpdatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the Mov",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "Not authorized to update this move"
+          },
+          "404": {
+            "description": "Move not found"
+          },
+          "422": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/notifications": {
       "get": {
         "description": "Returns a list of notifications that have been sent to service members",
@@ -3070,6 +3616,69 @@ func init() {
         }
       }
     },
+    "/users": {
+      "get": {
+        "description": "Returns a list of users",
+        "tags": [
+          "users"
+        ],
+        "summary": "List users",
+        "operationId": "indexUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Users"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/users/{userId}": {
       "get": {
         "description": "Returns the given user and their sessions",
@@ -3112,8 +3721,8 @@ func init() {
         "tags": [
           "users"
         ],
-        "summary": "revokes a user's session on any specified apps",
-        "operationId": "revokeUserSession",
+        "summary": "Update a user's session or active status",
+        "operationId": "updateUser",
         "parameters": [
           {
             "type": "string",
@@ -3128,7 +3737,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserRevokeSessionPayload"
+              "$ref": "#/definitions/UserUpdatePayload"
             }
           }
         ],
@@ -3148,8 +3757,154 @@ func init() {
           "403": {
             "description": "Not authorized to update this user"
           },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "Server error"
+          }
+        }
+      }
+    },
+    "/webhook_subscriptions": {
+      "get": {
+        "description": "Returns a list of webhook subscriptions",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Lists webhook subscriptions",
+        "operationId": "indexWebhookSubscriptions",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscriptions"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Not authenticated for this endpoint"
+          },
+          "404": {
+            "description": "Webhook subscriptions not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      },
+      "post": {
+        "description": "creates and returns a webhook subscription",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "create a webhook subscription",
+        "operationId": "createWebhookSubscription",
+        "parameters": [
+          {
+            "description": "Webhook subscription information",
+            "name": "webhookSubscription",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateWebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create a webhook subscription"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/webhook_subscriptions/{webhookSubscriptionId}": {
+      "get": {
+        "description": "Returns the given webhook subscription and its details",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Get information about a webhook subscription",
+        "operationId": "getWebhookSubscription",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "webhookSubscriptionId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "subscription not found"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -3463,6 +4218,33 @@ func init() {
         }
       }
     },
+    "CreateWebhookSubscription": {
+      "type": "object",
+      "required": [
+        "subscriberId",
+        "status",
+        "eventKey",
+        "callbackUrl"
+      ],
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ElectronicOrder": {
       "type": "object",
       "required": [
@@ -3561,14 +4343,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "serviceMemberId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "serviceMember": {
+          "$ref": "#/definitions/ServiceMember"
         },
         "show": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
@@ -3593,6 +4373,17 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "MoveUpdatePayload": {
+      "type": "object",
+      "required": [
+        "show"
+      ],
+      "properties": {
+        "show": {
+          "type": "boolean"
+        }
       }
     },
     "Moves": {
@@ -3892,6 +4683,38 @@ func init() {
         }
       }
     },
+    "ServiceMember": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true
+        },
+        "middleName": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -4131,11 +4954,21 @@ func init() {
       "type": "object",
       "required": [
         "loginGovEmail",
+        "active",
+        "createdAt",
+        "updatedAt",
         "currentAdminSessionId",
         "currentMilSessionId",
         "currentOfficeSessionId"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "currentAdminSessionId": {
           "type": "string",
           "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
@@ -4157,12 +4990,22 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
-    "UserRevokeSessionPayload": {
+    "UserUpdatePayload": {
       "type": "object",
+      "required": [
+        "active"
+      ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "revokeAdminSession": {
           "type": "boolean",
           "x-nullable": true
@@ -4175,6 +5018,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         }
+      }
+    },
+    "Users": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/User"
       }
     },
     "ValidationError": {
@@ -4200,6 +5049,68 @@ func init() {
     },
     "ValidationErrorAllOf1": {
       "type": "object"
+    },
+    "WebhookSubscription": {
+      "description": "Represents subscribers who expect certain notifications to be pushed to their servers. Used for the Prime and Prime-related events specifically.",
+      "type": "object",
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "severity": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "description": "Unique identifier for the subscriber",
+          "type": "string",
+          "format": "uuid",
+          "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "WebhookSubscriptionStatus": {
+      "type": "string",
+      "title": "Webhook subscription status",
+      "enum": [
+        "ACTIVE",
+        "FAILING",
+        "DISABLED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
+      }
+    },
+    "WebhookSubscriptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WebhookSubscription"
+      }
     }
   }
 }`))

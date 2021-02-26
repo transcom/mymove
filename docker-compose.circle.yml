@@ -21,7 +21,7 @@ services:
     depends_on:
       - database
       - redis
-    image: milmove/circleci-docker:milmove-app-fcd43e812a1cb05183d967c2fafb4e36edeeabc9
+    image: milmove/circleci-docker:milmove-app-2344eda297d5e8cefd3b6401275cd0cfd6086846
     deploy:
       resources:
         limits:
@@ -42,10 +42,12 @@ services:
       - DB_NAME=test_db
       - DB_NAME_TEST=test_db
       - DB_PASSWORD=mysecretpassword
+      - DB_PASSWORD_LOW_PRIV=mysecretpassword
       - DB_PORT=5432
       - DB_PORT_TEST=5432
       - DB_SSL_MODE=disable
       - DB_USER=postgres
+      - DB_USER_LOW_PRIV=crud
       - DEVLOCAL_AUTH=true
       - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
       - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b

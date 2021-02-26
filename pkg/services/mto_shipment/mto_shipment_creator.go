@@ -158,16 +158,16 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			agentsList := make(models.MTOAgents, 0, len(shipment.MTOAgents))
 
 			for _, agent := range shipment.MTOAgents {
-				agent.MTOShipmentID = shipment.ID
-				// #nosec G601 TODO needs review
-				verrs, err = txBuilder.CreateOne(&agent)
+				copyOfAgent := agent
+				copyOfAgent.MTOShipmentID = shipment.ID
+				verrs, err = txBuilder.CreateOne(&copyOfAgent)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
 				}
 				if err != nil {
 					return err
 				}
-				agentsList = append(agentsList, agent)
+				agentsList = append(agentsList, copyOfAgent)
 			}
 			shipment.MTOAgents = agentsList
 		}
@@ -177,17 +177,18 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			serviceItemsList := make(models.MTOServiceItems, 0, len(shipment.MTOServiceItems))
 
 			for _, serviceItem := range shipment.MTOServiceItems {
-				serviceItem.MTOShipmentID = &shipment.ID
-				serviceItem.MoveTaskOrderID = shipment.MoveTaskOrderID
-				// #nosec G601 TODO needs review
-				verrs, err = txBuilder.CreateOne(&serviceItem)
+				copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
+				copyOfServiceItem.MTOShipmentID = &shipment.ID
+				copyOfServiceItem.MoveTaskOrderID = shipment.MoveTaskOrderID
+
+				verrs, err = txBuilder.CreateOne(&copyOfServiceItem)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
 				}
 				if err != nil {
 					return err
 				}
-				serviceItemsList = append(serviceItemsList, serviceItem)
+				serviceItemsList = append(serviceItemsList, copyOfServiceItem)
 			}
 			shipment.MTOServiceItems = serviceItemsList
 		}

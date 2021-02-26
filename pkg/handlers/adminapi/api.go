@@ -4,6 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 
 	"github.com/transcom/mymove/pkg/services/organization"
@@ -20,12 +23,12 @@ import (
 	move "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/office"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
-	tspop "github.com/transcom/mymove/pkg/services/tsp"
-	user "github.com/transcom/mymove/pkg/services/user"
-
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	tspop "github.com/transcom/mymove/pkg/services/tsp"
 	"github.com/transcom/mymove/pkg/services/upload"
+	user "github.com/transcom/mymove/pkg/services/user"
+	webhooksubscription "github.com/transcom/mymove/pkg/services/webhook_subscription"
 )
 
 // NewAdminAPIHandler returns a handler for the admin API
@@ -39,6 +42,9 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
+	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
+	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
+
 	adminAPI.ServeError = handlers.ServeCustomError
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
@@ -64,7 +70,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
 		context,
-		officeuser.NewOfficeUserUpdater(queryBuilder),
+		officeUpdater,
 		query.NewQueryFilter,
 		userRolesCreator,
 	}
@@ -123,9 +129,10 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
-	adminAPI.UsersRevokeUserSessionHandler = RevokeUserSessionHandler{
+	adminAPI.UsersUpdateUserHandler = UpdateUserHandler{
 		context,
 		user.NewUserSessionRevocation(queryBuilder),
+		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 		query.NewQueryFilter,
 	}
 
@@ -143,7 +150,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.AdminUsersUpdateAdminUserHandler = UpdateAdminUserHandler{
 		context,
-		adminuser.NewAdminUserUpdater(queryBuilder),
+		adminUpdater,
 		query.NewQueryFilter,
 	}
 
@@ -153,6 +160,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.UsersIndexUsersHandler = IndexUsersHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
 		context,
 		upload.NewUploadInformationFetcher(context.DB()),
@@ -170,6 +183,34 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		move.NewMoveListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+	}
+
+	adminAPI.MoveUpdateMoveHandler = UpdateMoveHandler{
+		context,
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+	}
+
+	adminAPI.MoveGetMoveHandler = GetMoveHandler{
+		context,
+	}
+
+	adminAPI.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = IndexWebhookSubscriptionsHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.WebhookSubscriptionsGetWebhookSubscriptionHandler = GetWebhookSubscriptionHandler{
+		context,
+		webhooksubscription.NewWebhookSubscriptionFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.WebhookSubscriptionsCreateWebhookSubscriptionHandler = CreateWebhookSubscriptionHandler{
+		context,
+		webhooksubscription.NewWebhookSubscriptionCreator(context.DB(), queryBuilder),
+		query.NewQueryFilter,
 	}
 
 	return adminAPI.Serve(nil)

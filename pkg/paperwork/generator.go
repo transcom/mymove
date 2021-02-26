@@ -161,7 +161,8 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 	images := make([]inputFile, 0)
 
 	for _, upload := range uploads {
-		if upload.ContentType == "application/pdf" {
+		copyOfUpload := upload // Make copy to avoid implicit memory aliasing of items from a range statement.
+		if copyOfUpload.ContentType == "application/pdf" {
 			if len(images) > 0 {
 				// We want to retain page order and will generate a PDF for images
 				// that have already been encountered before handling this PDF.
@@ -174,8 +175,7 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 			}
 		}
 
-		// #nosec G601 TODO needs review
-		download, err := g.uploader.Download(&upload)
+		download, err := g.uploader.Download(&copyOfUpload)
 		if err != nil {
 			return nil, errors.Wrap(err, "Downloading file from upload")
 		}
@@ -199,10 +199,10 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 
 		path := outputFile.Name()
 
-		if upload.ContentType == "application/pdf" {
+		if copyOfUpload.ContentType == "application/pdf" {
 			pdfs = append(pdfs, path)
 		} else {
-			images = append(images, inputFile{Path: path, ContentType: upload.ContentType})
+			images = append(images, inputFile{Path: path, ContentType: copyOfUpload.ContentType})
 		}
 	}
 

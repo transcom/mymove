@@ -292,7 +292,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of customer to use",
+          "description": "ID of move order to use",
           "name": "moveOrderID",
           "in": "path",
           "required": true
@@ -1024,7 +1024,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/Move"
             }
           },
           "400": {
@@ -1434,8 +1434,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Fetches a payment request by id",
         "operationId": "getPaymentRequest",
@@ -1499,8 +1498,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Updates status of a payment request by id",
         "operationId": "updatePaymentRequestStatus",
@@ -1742,6 +1740,8 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date",
+            "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
           },
@@ -1777,6 +1777,7 @@ func init() {
               "enum": [
                 "Payment requested",
                 "Reviewed",
+                "Rejected",
                 "Paid"
               ],
               "type": "string"
@@ -1797,6 +1798,64 @@ func init() {
             "description": "The request was denied",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
+    "/tac/valid": {
+      "get": {
+        "description": "Returns a boolean based on whether a tac value is valid or not",
+        "tags": [
+          "tac",
+          "moveOrder"
+        ],
+        "summary": "Validation of a TAC value",
+        "operationId": "tacValidation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The tac value to validate",
+            "name": "tac",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved validation status",
+            "schema": {
+              "$ref": "#/definitions/TacValid"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
             }
           },
           "500": {
@@ -2621,19 +2680,6 @@ func init() {
         "$ref": "#/definitions/MTOServiceItem"
       }
     },
-    "MTOServiceItemstatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
-    },
     "MTOShipment": {
       "properties": {
         "approvedDate": {
@@ -2665,6 +2711,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoAgents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "mtoServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -2727,6 +2779,10 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB"
       ],
@@ -2761,6 +2817,9 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -2804,6 +2863,9 @@ func init() {
         "agency": {
           "type": "string",
           "$ref": "#/definitions/Branch"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
           "type": "string",
@@ -2904,12 +2966,6 @@ func init() {
         }
       }
     },
-    "MoveOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveOrder"
-      }
-    },
     "MoveStatus": {
       "type": "string",
       "enum": [
@@ -2954,6 +3010,10 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
         },
         "moveOrderID": {
           "type": "string",
@@ -3156,7 +3216,13 @@ func init() {
         },
         "mtoServiceItemName": {
           "type": "string",
-          "example": "Shipment Mgmt. Services"
+          "example": "Move management"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mtoShipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -3259,22 +3325,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ProofOfServiceDoc"
-      }
-    },
-    "ProofOfServicePackage": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Upload"
-          }
-        }
       }
     },
     "QueueMove": {
@@ -3398,92 +3448,6 @@ func init() {
         }
       }
     },
-    "ReServiceCode": {
-      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
-      "type": "string",
-      "enum": [
-        "CS",
-        "DBHF",
-        "DBTF",
-        "DCRT",
-        "DCRTSA",
-        "DDASIT",
-        "DDDSIT",
-        "DDFSIT",
-        "DDP",
-        "DDSHUT",
-        "DLH",
-        "DMHF",
-        "DNPKF",
-        "DOASIT",
-        "DOFSIT",
-        "DOP",
-        "DOPSIT",
-        "DOSHUT",
-        "DPK",
-        "DSH",
-        "DUCRT",
-        "DUPK",
-        "FSC",
-        "IBHF",
-        "IBTF",
-        "ICOLH",
-        "ICOUB",
-        "ICRT",
-        "ICRTSA",
-        "IDASIT",
-        "IDDSIT",
-        "IDFSIT",
-        "IDSHUT",
-        "IHPK",
-        "IHUPK",
-        "INPKF",
-        "IOASIT",
-        "IOCLH",
-        "IOCUB",
-        "IOFSIT",
-        "IOOLH",
-        "IOOUB",
-        "IOPSIT",
-        "IOSHUT",
-        "IUBPK",
-        "IUBUPK",
-        "IUCRT",
-        "MS",
-        "NSTH",
-        "NSTUB"
-      ]
-    },
-    "ServiceItem": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "params": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string",
-                "example": "Service Item Parameter Name"
-              },
-              "value": {
-                "type": "string",
-                "example": "Service Item Parameter Value"
-              }
-            }
-          },
-          "readOnly": true
-        }
-      }
-    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -3494,8 +3458,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
@@ -3538,7 +3502,7 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITAddress"
+        "ZipSITDestHHGFinalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -3558,6 +3522,18 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
+    },
+    "TacValid": {
+      "type": "object",
+      "required": [
+        "isValid"
+      ],
+      "properties": {
+        "isValid": {
+          "type": "boolean",
+          "example": true
+        }
+      }
     },
     "UpdateMoveOrderPayload": {
       "type": "object",
@@ -3640,25 +3616,6 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
-        }
-      }
-    },
-    "UpdatePaymentRequestPayload": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string"
-        },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         }
       }
     },
@@ -3796,6 +3753,30 @@ func init() {
     },
     {
       "name": "move"
+    },
+    {
+      "name": "moveOrder"
+    },
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "customer"
+    },
+    {
+      "name": "mtoServiceItem"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "mtoAgent"
+    },
+    {
+      "name": "paymentServiceItem"
+    },
+    {
+      "name": "tac"
     }
   ]
 }`))
@@ -4137,7 +4118,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of customer to use",
+          "description": "ID of move order to use",
           "name": "moveOrderID",
           "in": "path",
           "required": true
@@ -5031,7 +5012,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/Move"
             }
           },
           "400": {
@@ -5513,8 +5494,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Fetches a payment request by id",
         "operationId": "getPaymentRequest",
@@ -5593,8 +5573,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Updates status of a payment request by id",
         "operationId": "updatePaymentRequestStatus",
@@ -5860,6 +5839,8 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date",
+            "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
           },
@@ -5895,6 +5876,7 @@ func init() {
               "enum": [
                 "Payment requested",
                 "Reviewed",
+                "Rejected",
                 "Paid"
               ],
               "type": "string"
@@ -5915,6 +5897,79 @@ func init() {
             "description": "The request was denied",
             "schema": {
               "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tac/valid": {
+      "get": {
+        "description": "Returns a boolean based on whether a tac value is valid or not",
+        "tags": [
+          "tac",
+          "moveOrder"
+        ],
+        "summary": "Validation of a TAC value",
+        "operationId": "tacValidation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The tac value to validate",
+            "name": "tac",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved validation status",
+            "schema": {
+              "$ref": "#/definitions/TacValid"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -6745,19 +6800,6 @@ func init() {
         "$ref": "#/definitions/MTOServiceItem"
       }
     },
-    "MTOServiceItemstatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
-    },
     "MTOShipment": {
       "properties": {
         "approvedDate": {
@@ -6789,6 +6831,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoAgents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "mtoServiceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "pickupAddress": {
           "x-nullable": true,
@@ -6851,6 +6899,10 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB"
       ],
@@ -6885,6 +6937,9 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -6928,6 +6983,9 @@ func init() {
         "agency": {
           "type": "string",
           "$ref": "#/definitions/Branch"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
           "type": "string",
@@ -7028,12 +7086,6 @@ func init() {
         }
       }
     },
-    "MoveOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveOrder"
-      }
-    },
     "MoveStatus": {
       "type": "string",
       "enum": [
@@ -7078,6 +7130,10 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
         },
         "moveOrderID": {
           "type": "string",
@@ -7280,7 +7336,13 @@ func init() {
         },
         "mtoServiceItemName": {
           "type": "string",
-          "example": "Shipment Mgmt. Services"
+          "example": "Move management"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mtoShipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -7383,22 +7445,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ProofOfServiceDoc"
-      }
-    },
-    "ProofOfServicePackage": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Upload"
-          }
-        }
       }
     },
     "QueueMove": {
@@ -7522,82 +7568,6 @@ func init() {
         }
       }
     },
-    "ReServiceCode": {
-      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
-      "type": "string",
-      "enum": [
-        "CS",
-        "DBHF",
-        "DBTF",
-        "DCRT",
-        "DCRTSA",
-        "DDASIT",
-        "DDDSIT",
-        "DDFSIT",
-        "DDP",
-        "DDSHUT",
-        "DLH",
-        "DMHF",
-        "DNPKF",
-        "DOASIT",
-        "DOFSIT",
-        "DOP",
-        "DOPSIT",
-        "DOSHUT",
-        "DPK",
-        "DSH",
-        "DUCRT",
-        "DUPK",
-        "FSC",
-        "IBHF",
-        "IBTF",
-        "ICOLH",
-        "ICOUB",
-        "ICRT",
-        "ICRTSA",
-        "IDASIT",
-        "IDDSIT",
-        "IDFSIT",
-        "IDSHUT",
-        "IHPK",
-        "IHUPK",
-        "INPKF",
-        "IOASIT",
-        "IOCLH",
-        "IOCUB",
-        "IOFSIT",
-        "IOOLH",
-        "IOOUB",
-        "IOPSIT",
-        "IOSHUT",
-        "IUBPK",
-        "IUBUPK",
-        "IUCRT",
-        "MS",
-        "NSTH",
-        "NSTUB"
-      ]
-    },
-    "ServiceItem": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "params": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ServiceItemParamsItems0"
-          },
-          "readOnly": true
-        }
-      }
-    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -7608,8 +7578,8 @@ func init() {
         "CubicFeetCrating",
         "DistanceZip3",
         "DistanceZip5",
-        "DistanceZip5SITDest",
-        "DistanceZip5SITOrigin",
+        "DistanceZipSITDest",
+        "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
@@ -7652,7 +7622,7 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITAddress"
+        "ZipSITDestHHGFinalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -7673,16 +7643,15 @@ func init() {
         "PaymentServiceItemUUID"
       ]
     },
-    "ServiceItemParamsItems0": {
+    "TacValid": {
       "type": "object",
+      "required": [
+        "isValid"
+      ],
       "properties": {
-        "key": {
-          "type": "string",
-          "example": "Service Item Parameter Name"
-        },
-        "value": {
-          "type": "string",
-          "example": "Service Item Parameter Value"
+        "isValid": {
+          "type": "boolean",
+          "example": true
         }
       }
     },
@@ -7767,25 +7736,6 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
-        }
-      }
-    },
-    "UpdatePaymentRequestPayload": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string"
-        },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         }
       }
     },
@@ -7926,6 +7876,30 @@ func init() {
     },
     {
       "name": "move"
+    },
+    {
+      "name": "moveOrder"
+    },
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "customer"
+    },
+    {
+      "name": "mtoServiceItem"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "mtoAgent"
+    },
+    {
+      "name": "paymentServiceItem"
+    },
+    {
+      "name": "tac"
     }
   ]
 }`))

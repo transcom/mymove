@@ -85,6 +85,34 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithValidMove() mo
 		MTOShipmentID:   &shipment.ID,
 		MTOShipment:     shipment,
 		Dimensions:      models.MTOServiceItemDimensions{dimension},
+		Status:          models.MTOServiceItemStatusSubmitted,
+	}
+
+	return serviceItem
+}
+
+func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndValidMove() models.MTOServiceItem {
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	dimension := models.MTOServiceItemDimension{
+		Type:      models.DimensionTypeItem,
+		Length:    12000,
+		Height:    12000,
+		Width:     12000,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{})
+	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	serviceItem := models.MTOServiceItem{
+		MoveTaskOrderID: move.ID,
+		MoveTaskOrder:   move,
+		ReService:       reService,
+		MTOShipmentID:   &shipment.ID,
+		MTOShipment:     shipment,
+		Dimensions:      models.MTOServiceItemDimensions{dimension},
 	}
 
 	return serviceItem
@@ -133,6 +161,17 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(len(createdServiceItemList), 3)
 		suite.NotEmpty(createdServiceItemList[2].Dimensions)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+	})
+
+	// Status default value: If we try to create an mto service item and haven't set the status, we default to SUBMITTED
+	suite.T().Run("success using default status value", func(t *testing.T) {
+		serviceItemNoStatus := suite.buildValidServiceItemWithNoStatusAndValidMove()
+		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(&serviceItemNoStatus)
+		suite.NoError(err)
+		suite.NoVerrs(verrs)
+		suite.NoError(err)
+		serviceItemsToCheck := *createdServiceItems
+		suite.Equal(models.MTOServiceItemStatusSubmitted, serviceItemsToCheck[0].Status)
 	})
 
 	// If error when trying to create, the create should fail.
@@ -269,6 +308,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			MTOShipment:     shipment,
 			MTOShipmentID:   &shipment.ID,
 			ReService:       reService,
+			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemNoWeight)
@@ -291,6 +331,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			MoveTaskOrder:   moveTaskOrder,
 			MTOShipment:     shipment,
 			MTOShipmentID:   &shipment.ID,
+			Status:          models.MTOServiceItemStatusSubmitted,
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDDFSIT,
 			},
@@ -363,6 +404,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			serviceItemDDFSIT := models.MTOServiceItem{
 				MoveTaskOrderID: moveTaskOrder.ID,
 				MoveTaskOrder:   moveTaskOrder,
+				Status:          models.MTOServiceItemStatusSubmitted,
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDDFSIT,
 				},
@@ -410,6 +452,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		MTOShipment:     mtoShipment,
 		MTOShipmentID:   &mtoShipment.ID,
 		ReService:       reServiceDOASIT,
+		Status:          models.MTOServiceItemStatusSubmitted,
 	}
 
 	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
@@ -417,16 +460,27 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	reason := "lorem ipsum"
 
 	suite.T().Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT", func(t *testing.T) {
+		// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
+		// creating DOFSIT (SIT origin first day).
+
+		// Do not create Address in the database (Assertions.Stub = true) because if the information is coming from the Prime
+		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
+		// that we properly create the address coming in from the API.
+		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+
 		serviceItemDOFSIT := models.MTOServiceItem{
-			MoveTaskOrder:   moveTaskOrder,
-			MoveTaskOrderID: moveTaskOrder.ID,
-			MTOShipment:     mtoShipment,
-			MTOShipmentID:   &mtoShipment.ID,
-			ReService:       reServiceDOFSIT,
-			SITEntryDate:    &sitEntryDate,
-			SITPostalCode:   &sitPostalCode,
-			Reason:          &reason,
+			MoveTaskOrder:             moveTaskOrder,
+			MoveTaskOrderID:           moveTaskOrder.ID,
+			MTOShipment:               mtoShipment,
+			MTOShipmentID:             &mtoShipment.ID,
+			ReService:                 reServiceDOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
 		}
+
 		builder := query.NewQueryBuilder(suite.DB())
 		creator := NewMTOServiceItemCreator(builder)
 
@@ -574,6 +628,46 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 }
 
+func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCreateDOFSIT() {
+	// Set up data to use for all Origin SIT Service Item tests
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
+	moveTaskOrder.Status = models.MoveStatusAPPROVED
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrder,
+	})
+
+	reServiceDOFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOFSIT,
+		},
+	})
+
+	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+	sitPostalCode := "99999"
+	reason := "lorem ipsum"
+
+	suite.T().Run("Fail to create DOFSIT service item due to missing SITOriginHHGActualAddress", func(t *testing.T) {
+
+		serviceItemDOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:   moveTaskOrder,
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MTOShipment:     mtoShipment,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       reServiceDOFSIT,
+			SITEntryDate:    &sitEntryDate,
+			SITPostalCode:   &sitPostalCode,
+			Reason:          &reason,
+		}
+		builder := query.NewQueryBuilder(suite.DB())
+		creator := NewMTOServiceItemCreator(builder)
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
+}
+
 // TestCreateDestSITServiceItem tests the creation of destination SIT service items
 func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -618,6 +712,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
 			CustomerContacts: contacts,
+			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
@@ -662,6 +757,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
 			CustomerContacts: badContacts,
+			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
@@ -681,6 +777,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
 			CustomerContacts: contacts,
+			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
@@ -726,6 +823,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
 			CustomerContacts: contacts,
+			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
@@ -743,6 +841,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			MTOShipmentID:   &shipment.ID,
 			MTOShipment:     shipment,
 			ReService:       reServiceDDASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDASIT)
@@ -769,6 +868,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			MTOShipmentID:   &shipmentNoDDFSIT.ID,
 			MTOShipment:     shipmentNoDDFSIT,
 			ReService:       reServiceDDASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDASIT)

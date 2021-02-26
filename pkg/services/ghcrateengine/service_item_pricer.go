@@ -29,7 +29,8 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 		return unit.Cents(0), err
 	}
 
-	return pricer.PriceUsingParams(item.PaymentServiceItemParams)
+	priceCents, _, err := pricer.PriceUsingParams(item.PaymentServiceItemParams)
+	return priceCents, err
 }
 
 func (p serviceItemPricer) UsingConnection(db *pop.Connection) services.ServiceItemPricer {
@@ -57,6 +58,18 @@ func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services
 		return NewDomesticUnpackPricer(p.db), nil
 	case models.ReServiceCodeFSC:
 		return NewFuelSurchargePricer(p.db), nil
+	case models.ReServiceCodeDOFSIT:
+		return NewDomesticOriginFirstDaySITPricer(p.db), nil
+	case models.ReServiceCodeDDFSIT:
+		return NewDomesticDestinationFirstDaySITPricer(p.db), nil
+	case models.ReServiceCodeDOASIT:
+		return NewDomesticOriginAdditionalDaysSITPricer(p.db), nil
+	case models.ReServiceCodeDDASIT:
+		return NewDomesticDestinationAdditionalDaysSITPricer(p.db), nil
+	case models.ReServiceCodeDOPSIT:
+		return NewDomesticOriginSITPickupPricer(p.db), nil
+	case models.ReServiceCodeDDDSIT:
+		return NewDomesticDestinationSITDeliveryPricer(p.db), nil
 	default:
 		// TODO: We may want a different error type here after all pricers have been implemented
 		return nil, services.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))

@@ -2,11 +2,7 @@ package transittime
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
-	"path"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -384,25 +380,4 @@ func (suite *TransitTimeParserSuite) Test_removeFirstDollarSign() {
 			}
 		})
 	}
-}
-
-func (suite *TransitTimeParserSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
-	expected := filepath.Join("fixtures", goldenFilename) // relative path
-	expectedBytes, err := ioutil.ReadFile(path.Clean(expected))
-	suite.NoErrorf(err, "error loading expected CSV file output fixture <%s>", expected)
-
-	currentBytes, err := ioutil.ReadFile(path.Clean(currentOutputFilename)) // relative path
-	suite.NoErrorf(err, "error loading current/new output file <%s>", currentOutputFilename)
-
-	suite.Equal(string(expectedBytes), string(currentBytes))
-
-	// Remove file generated from test after compare is finished
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
-	//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: Mitigated
-	//RA Modified Severity: N/A
-	os.Remove(currentOutputFilename) // nolint:errcheck
 }

@@ -15,6 +15,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 )
@@ -386,6 +387,16 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	}
 
 	switch userType {
+	case MilMoveUserType:
+		newServiceMember := models.ServiceMember{
+			UserID:             user.ID,
+			RequiresAccessCode: h.Context.GetFeatureFlag(cli.FeatureFlagAccessCode),
+		}
+		smVerrs, smErr := models.SaveServiceMember(h.db, &newServiceMember)
+		if smVerrs.HasAny() || smErr != nil {
+			h.logger.Error("Error creating service member for user", zap.Error(smErr))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
 	case PPMOfficeUserType:
 		// Now create the Truss JPPSO
 		address := models.Address{
@@ -687,7 +698,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		return nil, errors.New("Deactivated user requesting authentication")
 	}
 
-	if userIdentity.ServiceMemberID != nil {
+	if session.IsMilApp() && userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 

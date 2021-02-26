@@ -7,6 +7,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -19,24 +21,10 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrd
 	payload := make(supportmessages.MoveTaskOrders, len(*moveTaskOrders))
 
 	for i, m := range *moveTaskOrders {
-		// #nosec G601 TODO needs review
-		payload[i] = MoveTaskOrder(&m)
+		copyOfMto := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MoveTaskOrder(&copyOfMto)
 	}
 	return payload
-}
-
-// MoveTaskOrderIDs payload
-func MoveTaskOrderIDs(moveTaskOrderIDs []uuid.UUID) supportmessages.MoveTaskOrderIDs {
-	payload := make(supportmessages.MoveTaskOrderIDs, len(moveTaskOrderIDs))
-	for i, m := range moveTaskOrderIDs {
-		payload[i] = MoveTaskOrderID(m)
-	}
-	return payload
-}
-
-// MoveTaskOrderID payload
-func MoveTaskOrderID(moveTaskOrderID uuid.UUID) supportmessages.MoveTaskOrderID {
-	return supportmessages.MoveTaskOrderID(strfmt.UUID(moveTaskOrderID.String()))
 }
 
 // MoveTaskOrder payload
@@ -114,30 +102,28 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 	issueDate := strfmt.Date(moveOrder.IssueDate)
 
 	payload := supportmessages.MoveOrder{
-		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            Entitlement(moveOrder.Entitlement),
-		Customer:               Customer(&moveOrder.ServiceMember),
-		OrderNumber:            moveOrder.OrdersNumber,
-		OrdersType:             supportmessages.OrdersType(moveOrder.OrdersType),
-		ID:                     strfmt.UUID(moveOrder.ID.String()),
-		OriginDutyStation:      originDutyStation,
-		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
-		Status:                 supportmessages.OrdersStatus(moveOrder.Status),
-		UploadedOrders:         uploadedOrders,
-		UploadedOrdersID:       uploadedOrders.ID,
-		ReportByDate:           &reportByDate,
-		IssueDate:              &issueDate,
-		Tac:                    moveOrder.TAC,
+		DestinationDutyStation:   destinationDutyStation,
+		DestinationDutyStationID: handlers.FmtUUID(moveOrder.NewDutyStationID),
+		Entitlement:              Entitlement(moveOrder.Entitlement),
+		Customer:                 Customer(&moveOrder.ServiceMember),
+		OrderNumber:              moveOrder.OrdersNumber,
+		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
+		ID:                       strfmt.UUID(moveOrder.ID.String()),
+		OriginDutyStation:        originDutyStation,
+		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
+		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
+		UploadedOrders:           uploadedOrders,
+		UploadedOrdersID:         handlers.FmtUUID(moveOrder.UploadedOrdersID),
+		ReportByDate:             &reportByDate,
+		IssueDate:                &issueDate,
+		Tac:                      moveOrder.TAC,
 	}
 
 	if moveOrder.Grade != nil {
 		payload.Rank = (supportmessages.Rank)(*moveOrder.Grade)
 	}
-	if destinationDutyStation != nil {
-		payload.DestinationDutyStationID = &(destinationDutyStation.ID)
-	}
-	if originDutyStation != nil {
-		payload.OriginDutyStationID = &(originDutyStation.ID)
+	if moveOrder.OriginDutyStationID != nil {
+		payload.OriginDutyStationID = handlers.FmtUUID(*moveOrder.OriginDutyStationID)
 	}
 	return &payload
 }
@@ -181,7 +167,8 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 	}
 }
 
-// DutyStation payload
+// DutyStation converts Dutystation model to payload
+// Only includes ID and duty station name
 func DutyStation(dutyStation *models.DutyStation) *supportmessages.DutyStation {
 	if dutyStation == nil {
 		return nil
@@ -193,7 +180,7 @@ func DutyStation(dutyStation *models.DutyStation) *supportmessages.DutyStation {
 	return &payload
 }
 
-// Document payload
+// Document converts Document model to payload
 func Document(document *models.Document) *supportmessages.Document {
 	if document == nil {
 		return nil
@@ -207,7 +194,7 @@ func Document(document *models.Document) *supportmessages.Document {
 	return &payload
 }
 
-// Address payload
+// Address converts Address model to payload
 func Address(address *models.Address) *supportmessages.Address {
 	if address == nil {
 		return nil
@@ -225,42 +212,77 @@ func Address(address *models.Address) *supportmessages.Address {
 	}
 }
 
-// MTOShipment payload
+// MTOShipment converts MTOShipment model to payload
 func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
-	strfmt.MarshalFormat = strfmt.RFC3339Micro
-	var primeActualWeight int64
-	if mtoShipment.PrimeActualWeight != nil {
-		primeActualWeight = int64(*mtoShipment.PrimeActualWeight)
-	}
 	payload := &supportmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
+		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             mtoShipment.ShipmentType,
-		Status:                   string(mtoShipment.Status),
+		ShipmentType:             supportmessages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
-		PrimeActualWeight:        primeActualWeight,
-		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
-		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
+		Status:                   string(mtoShipment.Status),
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
+		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
+		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.RequestedPickupDate != nil {
-		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
+	if mtoShipment.MTOServiceItems != nil {
+		// sets MTOServiceItems
+		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
 	}
 
 	if mtoShipment.ApprovedDate != nil {
 		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
 	}
 
+	if mtoShipment.ScheduledPickupDate != nil {
+		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
+	}
+
+	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
+		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
+	}
+
+	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
+		payload.ActualPickupDate = strfmt.Date(*mtoShipment.ActualPickupDate)
+	}
+
+	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {
+		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
+	}
+
+	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
+		payload.RequiredDeliveryDate = strfmt.Date(*mtoShipment.RequiredDeliveryDate)
+	}
+
+	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.PrimeEstimatedWeightRecordedDate != nil {
+		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
+		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
+	}
+
+	if mtoShipment.PrimeActualWeight != nil {
+		payload.PrimeActualWeight = int64(*mtoShipment.PrimeActualWeight)
+	}
+
 	return payload
 }
 
-// MTOServiceItem payload
+// MTOShipments converts an array of MTOShipment models to a payload
+func MTOShipments(mtoShipments *models.MTOShipments) *supportmessages.MTOShipments {
+	payload := make(supportmessages.MTOShipments, len(*mtoShipments))
+
+	for i, m := range *mtoShipments {
+		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOShipment(&copyOfM)
+	}
+	return &payload
+}
+
+// MTOServiceItem converts MTOServiceItem model to payload
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOServiceItem {
 	var payload supportmessages.MTOServiceItem
 	// Here we determine which payload model to use based on the re service code
@@ -345,7 +367,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 	return payload
 }
 
-// MTOServiceItems payload
+// MTOServiceItems converts an array of MTOServiceItem models to their payload version
 func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]supportmessages.MTOServiceItem {
 	var payload []supportmessages.MTOServiceItem
 
@@ -356,45 +378,70 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]supportmessages
 	return &payload
 }
 
-// MTOShipments payload
-func MTOShipments(mtoShipments *models.MTOShipments) *supportmessages.MTOShipments {
-	payload := make(supportmessages.MTOShipments, len(*mtoShipments))
-
-	for i, m := range *mtoShipments {
-		// #nosec G601 TODO needs review
-		payload[i] = MTOShipment(&m)
-	}
-	return &payload
-}
-
-// MTOAgent payload
+// MTOAgent converts MTOAgent model to payload
 func MTOAgent(mtoAgent *models.MTOAgent) *supportmessages.MTOAgent {
-	payload := &supportmessages.MTOAgent{
+	if mtoAgent == nil {
+		return nil
+	}
+
+	return &supportmessages.MTOAgent{
+		AgentType:     supportmessages.MTOAgentType(mtoAgent.MTOAgentType),
+		FirstName:     mtoAgent.FirstName,
+		LastName:      mtoAgent.LastName,
+		Phone:         mtoAgent.Phone,
+		Email:         mtoAgent.Email,
 		ID:            strfmt.UUID(mtoAgent.ID.String()),
 		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
 		CreatedAt:     strfmt.DateTime(mtoAgent.CreatedAt),
 		UpdatedAt:     strfmt.DateTime(mtoAgent.UpdatedAt),
-		FirstName:     mtoAgent.FirstName,
-		LastName:      mtoAgent.LastName,
-		AgentType:     string(mtoAgent.MTOAgentType),
-		Email:         mtoAgent.Email,
-		Phone:         mtoAgent.Phone,
 		ETag:          etag.GenerateEtag(mtoAgent.UpdatedAt),
 	}
+}
+
+// MTOAgents converts an array of MTOAgent models to payload array
+func MTOAgents(mtoAgents *models.MTOAgents) *supportmessages.MTOAgents {
+	if mtoAgents == nil {
+		return nil
+	}
+
+	agents := make(supportmessages.MTOAgents, len(*mtoAgents))
+
+	for i, m := range *mtoAgents {
+		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		agents[i] = MTOAgent(&copyOfM)
+	}
+
+	return &agents
+}
+
+// MTOHideMovesResponse payload
+func MTOHideMovesResponse(hiddenMoves services.HiddenMoves) *supportmessages.MTOHideMovesResponse {
+	var mtoHideMoves []*supportmessages.MTOHideMove
+
+	for _, h := range hiddenMoves {
+		mtoHideMove := MTOHideMove(h)
+		mtoHideMoves = append(mtoHideMoves, mtoHideMove)
+	}
+
+	payload := &supportmessages.MTOHideMovesResponse{
+		Moves:             mtoHideMoves,
+		NumberMovesHidden: int64(len(hiddenMoves)),
+	}
+
 	return payload
 }
 
-// MTOAgents payload
-func MTOAgents(mtoAgents *models.MTOAgents) *supportmessages.MTOAgents {
-	payload := make(supportmessages.MTOAgents, len(*mtoAgents))
-	for i, m := range *mtoAgents {
-		// #nosec G601 TODO needs review
-		payload[i] = MTOAgent(&m)
+// MTOHideMove translate from service HiddenMove type to API swagger MTOHideMove type
+func MTOHideMove(hiddenMove services.HiddenMove) *supportmessages.MTOHideMove {
+	payload := &supportmessages.MTOHideMove{
+		HideReason:      &hiddenMove.Reason,
+		MoveTaskOrderID: strfmt.UUID(hiddenMove.MTOID.String()),
 	}
-	return &payload
+
+	return payload
 }
 
-// PaymentRequest payload
+// PaymentRequest converts PaymentRequest model to payload
 func PaymentRequest(pr *models.PaymentRequest) *supportmessages.PaymentRequest {
 	return &supportmessages.PaymentRequest{
 		ID:                   *handlers.FmtUUID(pr.ID),
@@ -407,13 +454,13 @@ func PaymentRequest(pr *models.PaymentRequest) *supportmessages.PaymentRequest {
 	}
 }
 
-// PaymentRequests payload
+// PaymentRequests converts an array of PaymentRequest models to payload array
 func PaymentRequests(paymentRequests *models.PaymentRequests) *supportmessages.PaymentRequests {
 	payload := make(supportmessages.PaymentRequests, len(*paymentRequests))
 
 	for i, pr := range *paymentRequests {
-		// #nosec G601 TODO needs review
-		payload[i] = PaymentRequest(&pr)
+		copyOfPr := pr // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = PaymentRequest(&copyOfPr)
 	}
 	return &payload
 }

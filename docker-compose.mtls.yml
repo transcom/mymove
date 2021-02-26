@@ -14,7 +14,7 @@ services:
   milmove_migrate:
     depends_on:
       - database
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
+    image: 021081706899.dkr.ecr.us-gov-west-1.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
     links:
       - database
     environment:
@@ -38,7 +38,7 @@ services:
     depends_on:
       - database
       - milmove_migrate
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-placeholder_branch_name
+    image: 021081706899.dkr.ecr.us-gov-west-1.amazonaws.com/app:git-branch-placeholder_branch_name
     links:
       - database
     ports:
@@ -51,11 +51,13 @@ services:
       - DB_HOST=database
       - DB_NAME=dev_db
       - DB_PASSWORD=mysecretpassword
+      - DB_PASSWORD_LOW_PRIV=mysecretpassword
       - DB_PORT=5432
       - DB_REGION=us-west-2
       - DB_RETRY_INTERVAL=5s
       - DB_SSL_MODE=disable
       - DB_USER=postgres
+      - DB_USER_LOW_PRIV=crud
       - DEVLOCAL_AUTH=1
       - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
       - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b

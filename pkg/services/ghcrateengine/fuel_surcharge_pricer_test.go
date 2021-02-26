@@ -34,19 +34,19 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	fuelSurchargePricer := NewFuelSurchargePricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, err := fuelSurchargePricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, _, err := fuelSurchargePricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(fscPriceCents, priceCents)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, err := fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
+		priceCents, _, err := fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
 		suite.NoError(err)
 		suite.Equal(fscPriceCents, priceCents)
 	})
 
 	suite.T().Run("sending PaymentServiceItemParams without expected param", func(t *testing.T) {
-		_, err := fuelSurchargePricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		_, _, err := fuelSurchargePricer.PriceUsingParams(models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
@@ -57,13 +57,15 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	}
 	paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
 	suite.T().Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func(t *testing.T) {
-		priceCents, err := fuelSurchargePricer.PriceUsingParams(paramsWithBelowMinimumWeight)
-		suite.Equal("Weight must be a minimum of 500", err.Error())
-		suite.Equal(unit.Cents(0), priceCents)
+		priceCents, _, err := fuelSurchargePricer.PriceUsingParams(paramsWithBelowMinimumWeight)
+		if suite.Error(err) {
+			suite.Equal("Weight must be a minimum of 500", err.Error())
+			suite.Equal(unit.Cents(0), priceCents)
+		}
 	})
 
 	suite.T().Run("FSC is negative if fuel price from EIA is below $2.50", func(t *testing.T) {
-		priceCents, err := fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 242400)
+		priceCents, _, err := fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 242400)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(-721), priceCents)
 	})
@@ -81,8 +83,8 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 			},
 			{
 				Key:     models.ServiceItemParamNameActualPickupDate,
-				KeyType: models.ServiceItemParamTypeTimestamp,
-				Value:   fscActualPickupDate.Format(TimestampParamFormat),
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   fscActualPickupDate.Format(DateParamFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameDistanceZip3,
@@ -113,12 +115,14 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 	)
 
 	var mtoServiceItem models.MTOServiceItem
-	suite.DB().Eager("MTOShipment").Find(&mtoServiceItem, model.MTOServiceItemID)
+	err := suite.DB().Eager("MTOShipment").Find(&mtoServiceItem, model.MTOServiceItemID)
+	suite.NoError(err)
 
 	mtoShipment := mtoServiceItem.MTOShipment
 	distance := fscTestDistance
 	mtoShipment.Distance = &distance
-	suite.DB().Save(&mtoShipment)
+	err = suite.DB().Save(&mtoShipment)
+	suite.NoError(err)
 
 	return model
 }

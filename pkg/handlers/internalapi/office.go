@@ -67,9 +67,6 @@ type CancelMoveHandler struct {
 
 // Handle ... cancels a Move from a request payload
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
-
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return officeop.NewCancelMoveForbidden()
@@ -97,7 +94,6 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	}
 
 	err = h.NotificationSender().SendNotification(
-		ctx,
 		notifications.NewMoveCanceled(h.DB(), logger, session, moveID),
 	)
 
@@ -120,8 +116,6 @@ type ApprovePPMHandler struct {
 
 // Handle ... approves a Personally Procured Move from a request payload
 func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.Responder {
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return officeop.NewApprovePPMForbidden()
@@ -151,7 +145,6 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	}
 
 	err = h.NotificationSender().SendNotification(
-		ctx,
 		notifications.NewMoveApproved(h.DB(), logger, session, h.HandlerContext.AppNames().MilServername, moveID),
 	)
 	if err != nil {

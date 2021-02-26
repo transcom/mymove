@@ -42,7 +42,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 	updater := NewUserSessionRevocation(builder)
 
 	boolean := true
-	payload := &adminmessages.UserRevokeSessionPayload{
+	payload := &adminmessages.UserUpdatePayload{
 		RevokeMilSession: &boolean,
 	}
 
@@ -62,7 +62,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 	suite.T().Run("Key is not removed from Redis when boolean is false", func(t *testing.T) {
 		sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 		boolean = false
-		payload = &adminmessages.UserRevokeSessionPayload{
+		payload = &adminmessages.UserUpdatePayload{
 			RevokeMilSession: &boolean,
 		}
 
@@ -116,7 +116,7 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 	updater := NewUserSessionRevocation(builder)
 
 	boolean := true
-	payload := &adminmessages.UserRevokeSessionPayload{
+	payload := &adminmessages.UserUpdatePayload{
 		RevokeAdminSession: &boolean,
 	}
 
@@ -136,7 +136,7 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 	suite.T().Run("Key is not removed from Redis when boolean is false", func(t *testing.T) {
 		sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 		boolean = false
-		payload = &adminmessages.UserRevokeSessionPayload{
+		payload = &adminmessages.UserUpdatePayload{
 			RevokeAdminSession: &boolean,
 		}
 
@@ -169,7 +169,7 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 	updater := NewUserSessionRevocation(builder)
 
 	boolean := true
-	payload := &adminmessages.UserRevokeSessionPayload{
+	payload := &adminmessages.UserUpdatePayload{
 		RevokeOfficeSession: &boolean,
 	}
 
@@ -189,7 +189,7 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 	suite.T().Run("Key is not removed from Redis when boolean is false", func(t *testing.T) {
 		sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 		boolean = false
-		payload = &adminmessages.UserRevokeSessionPayload{
+		payload = &adminmessages.UserUpdatePayload{
 			RevokeOfficeSession: &boolean,
 		}
 
@@ -228,7 +228,7 @@ func (suite *UserServiceSuite) TestRevokeMultipleSessions() {
 	updater := NewUserSessionRevocation(builder)
 
 	boolean := true
-	payload := &adminmessages.UserRevokeSessionPayload{
+	payload := &adminmessages.UserUpdatePayload{
 		RevokeOfficeSession: &boolean,
 		RevokeAdminSession:  &boolean,
 		RevokeMilSession:    &boolean,

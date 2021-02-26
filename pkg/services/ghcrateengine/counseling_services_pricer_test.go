@@ -21,24 +21,24 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	counselingServicesPricer := NewCounselingServicesPricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, _, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, err := counselingServicesPricer.Price(testdatagen.DefaultContractCode, csAvailableToPrimeAt)
+		priceCents, _, err := counselingServicesPricer.Price(testdatagen.DefaultContractCode, csAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
 
 	suite.T().Run("sending PaymentServiceItemParams without expected param", func(t *testing.T) {
-		_, err := counselingServicesPricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		_, _, err := counselingServicesPricer.PriceUsingParams(models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.T().Run("not finding a rate record", func(t *testing.T) {
-		_, err := counselingServicesPricer.Price("BOGUS", csAvailableToPrimeAt)
+		_, _, err := counselingServicesPricer.Price("BOGUS", csAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }

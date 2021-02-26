@@ -23,6 +23,10 @@ const (
 	EnvironmentDevelopment string = "development"
 	// EnvironmentExp is the GovCloud exp Environment name
 	EnvironmentExp string = "exp"
+	// EnvironmentStg is the GovCloud stg Environment name
+	EnvironmentStg string = "stg"
+	// EnvironmentPrd is the GovCloud prd Environment name
+	EnvironmentPrd string = "prd"
 )
 
 var environments = []string{
@@ -32,14 +36,8 @@ var environments = []string{
 	EnvironmentTest,
 	EnvironmentDevelopment,
 	EnvironmentExp,
-}
-
-type errInvalidEnvironment struct {
-	Environment string
-}
-
-func (e *errInvalidEnvironment) Error() string {
-	return fmt.Sprintf("invalid environment %q, expecting one of %q", e.Environment, environments)
+	EnvironmentStg,
+	EnvironmentPrd,
 }
 
 // InitEnvironmentFlags initializes the Environment command line flags
