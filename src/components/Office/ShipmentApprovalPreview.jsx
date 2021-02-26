@@ -14,6 +14,7 @@ import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 
 import { mtoShipmentTypes } from 'constants/shipments';
+import { serviceItemCodes } from 'content/serviceItems';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -133,12 +134,12 @@ const ShipmentApprovalPreview = ({
                   <tbody>
                     {shipmentManagementFee && (
                       <tr>
-                        <td>Shipment management fee</td>
+                        <td>{serviceItemCodes.MS}</td>
                       </tr>
                     )}
                     {counselingFee && (
                       <tr>
-                        <td>Counseling fee</td>
+                        <td>{serviceItemCodes.CS}</td>
                       </tr>
                     )}
                   </tbody>

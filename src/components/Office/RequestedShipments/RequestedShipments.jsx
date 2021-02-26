@@ -9,6 +9,7 @@ import ShipmentApprovalPreview from '../ShipmentApprovalPreview';
 import styles from './RequestedShipments.module.scss';
 
 import { shipmentTypeLabels } from 'content/shipments';
+import { serviceItemCodes } from 'content/serviceItems';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/moveOrder';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
@@ -161,13 +162,13 @@ const RequestedShipments = ({
                   <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
                     <Checkbox
                       id="shipmentManagementFee"
-                      label="Shipment management fee"
+                      label={serviceItemCodes.MS}
                       name="shipmentManagementFee"
                       onChange={formik.handleChange}
                     />
                     <Checkbox
                       id="counselingFee"
-                      label="Counseling fee"
+                      label={serviceItemCodes.CS}
                       name="counselingFee"
                       onChange={formik.handleChange}
                     />

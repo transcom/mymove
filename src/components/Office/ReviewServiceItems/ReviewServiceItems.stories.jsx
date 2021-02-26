@@ -9,6 +9,7 @@ import {
   PAYMENT_SERVICE_ITEM_STATUS,
   PAYMENT_REQUEST_STATUS,
 } from 'shared/constants';
+import { serviceItemCodes } from 'content/serviceItems';
 
 export default {
   title: 'Office Components/ReviewServiceItems',
@@ -27,7 +28,7 @@ export const Basic = () => (
     serviceItemCards={[
       {
         id: '1',
-        mtoServiceItemName: 'Counseling services',
+        mtoServiceItemName: serviceItemCodes.CS,
         amount: 1234.0,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
@@ -46,13 +47,13 @@ export const BasicWithTwoItems = () => {
       serviceItemCards={[
         {
           id: '1',
-          mtoServiceItemName: 'Counseling services',
+          mtoServiceItemName: serviceItemCodes.CS,
           amount: 1234.0,
           createdAt: '2020-01-01T00:08:00.999Z',
         },
         {
           id: '2',
-          mtoServiceItemName: 'Move management',
+          mtoServiceItemName: serviceItemCodes.MS,
           amount: 1234.0,
           createdAt: '2020-01-01T00:08:00.999Z',
         },
@@ -71,8 +72,8 @@ export const HHG = () => (
       {
         id: '1',
         mtoShipmentID: '10',
-        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
-        mtoServiceItemName: 'Domestic linehaul',
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoServiceItemName: serviceItemCodes.DLH,
         amount: 5678.05,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
@@ -91,7 +92,7 @@ export const NonTemporaryStorage = () => (
         id: '1',
         mtoShipmentID: '10',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
-        mtoServiceItemName: 'Domestic linehaul',
+        mtoServiceItemName: serviceItemCodes.DLH,
         amount: 6423.51,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
@@ -108,15 +109,15 @@ export const MultipleShipmentsGroups = () => (
     serviceItemCards={[
       {
         id: '1',
-        mtoServiceItemName: 'Counseling services',
+        mtoServiceItemName: serviceItemCodes.CS,
         amount: 0.01,
         createdAt: '2020-01-01T00:09:00.999Z',
       },
       {
         id: '3',
         mtoShipmentID: '20',
-        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
-        mtoServiceItemName: 'Domestic linehaul',
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoServiceItemName: serviceItemCodes.DLH,
         amount: 5678.05,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
@@ -124,7 +125,7 @@ export const MultipleShipmentsGroups = () => (
         id: '4',
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
-        mtoServiceItemName: 'Domestic linehaul',
+        mtoServiceItemName: serviceItemCodes.DLH,
         amount: 6423.51,
         createdAt: '2020-01-01T00:07:30.999Z',
       },
@@ -132,7 +133,7 @@ export const MultipleShipmentsGroups = () => (
         id: '5',
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
-        mtoServiceItemName: 'Fuel Surcharge',
+        mtoServiceItemName: serviceItemCodes.FSC,
         amount: 100000000000000,
         createdAt: '2020-01-01T00:07:00.999Z',
       },
@@ -150,13 +151,13 @@ export const WithStatusAndReason = () => (
     serviceItemCards={[
       {
         id: '1',
-        mtoServiceItemName: 'Counseling services',
+        mtoServiceItemName: serviceItemCodes.CS,
         amount: 0.01,
         createdAt: '2020-01-01T00:09:00.999Z',
       },
       {
         id: '2',
-        mtoServiceItemName: 'Move management',
+        mtoServiceItemName: serviceItemCodes.MS,
         amount: 1234.0,
         status: SERVICE_ITEM_STATUS.REJECTED,
         rejectionReason: 'Amount exceeds limit',
@@ -165,8 +166,8 @@ export const WithStatusAndReason = () => (
       {
         id: '3',
         mtoShipmentID: '20',
-        mtoShipmentType: SHIPMENT_OPTIONS.HHG,
-        mtoServiceItemName: 'Domestic linehaul',
+        mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoServiceItemName: serviceItemCodes.DLH,
         amount: 5678.05,
         status: SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:08:00.999Z',
@@ -175,7 +176,7 @@ export const WithStatusAndReason = () => (
         id: '4',
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
-        mtoServiceItemName: 'Domestic linehaul',
+        mtoServiceItemName: serviceItemCodes.DLH,
         amount: 6423.51,
         status: SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:07:30.999Z',
@@ -184,7 +185,7 @@ export const WithStatusAndReason = () => (
         id: '5',
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
-        mtoServiceItemName: 'Fuel Surcharge',
+        mtoServiceItemName: serviceItemCodes.FSC,
         amount: 100000000000000,
         createdAt: '2020-01-01T00:07:00.999Z',
       },
@@ -202,7 +203,7 @@ export const WithNeedsReview = () => (
     serviceItemCards={[
       {
         id: '1',
-        mtoServiceItemName: 'Counseling services',
+        mtoServiceItemName: serviceItemCodes.CS,
         status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
         amount: 0.01,
         createdAt: '2020-01-01T00:09:00.999Z',
@@ -221,7 +222,7 @@ export const WithRejectRequest = () => (
     serviceItemCards={[
       {
         id: '1',
-        mtoServiceItemName: 'Counseling services',
+        mtoServiceItemName: serviceItemCodes.CS,
         status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
         amount: 0.01,
         createdAt: '2020-01-01T00:09:00.999Z',
@@ -240,7 +241,7 @@ export const WithAuthorizePayment = () => (
     serviceItemCards={[
       {
         id: '1',
-        mtoServiceItemName: 'Counseling services',
+        mtoServiceItemName: serviceItemCodes.CS,
         status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
         amount: 0.01,
         createdAt: '2020-01-01T00:09:00.999Z',
@@ -262,7 +263,7 @@ export const WithPaymentReviewedApproved = () => (
     serviceItemCards={[
       {
         id: '1',
-        mtoServiceItemName: 'Counseling services',
+        mtoServiceItemName: serviceItemCodes.CS,
         status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
         amount: 0.01,
         createdAt: '2020-01-01T00:09:00.999Z',
@@ -283,7 +284,7 @@ export const WithPaymentReviewedRejected = () => (
     serviceItemCards={[
       {
         id: '1',
-        mtoServiceItemName: 'Counseling services',
+        mtoServiceItemName: serviceItemCodes.CS,
         status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
         rejectionReason: 'Service member already counseled',
         amount: 0.01,

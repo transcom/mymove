@@ -65,7 +65,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	}
 	// set re service for service item
 	serviceItem.ReServiceID = reService.ID
-	serviceItem.Status = models.MTOServiceItemStatusSubmitted
 
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
@@ -85,6 +84,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		createdServiceItems = append(createdServiceItems, *serviceItem)
 
 		return &createdServiceItems, nil, nil
+	}
+
+	// By the time the serviceItem model object gets here to the creator it should have a status attached to it.
+	// If for some reason that isn't the case we will set it
+	if serviceItem.Status == "" {
+		serviceItem.Status = models.MTOServiceItemStatusSubmitted
 	}
 
 	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
@@ -187,7 +192,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
 	}
-
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure

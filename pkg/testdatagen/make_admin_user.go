@@ -68,3 +68,15 @@ func MakeAdminUserWithNoUser(db *pop.Connection, assertions Assertions) models.A
 func MakeDefaultAdminUser(db *pop.Connection) models.AdminUser {
 	return MakeAdminUser(db, Assertions{})
 }
+
+// MakeActiveAdminUser makes an AdminUser that is active
+func MakeActiveAdminUser(db *pop.Connection) models.AdminUser {
+	adminUser := MakeDefaultAdminUser(db)
+
+	adminUser.Active = true
+
+	db.Update(&adminUser)
+
+	return adminUser
+
+}
