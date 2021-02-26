@@ -31,7 +31,7 @@ const MovePaymentRequests = () => {
   return (
     <div className={txoStyles.tabContent}>
       <div className="grid-container-widescreen" data-testid="MovePaymentRequests">
-        <h1>Payment Requests</h1>
+        <h1>Payment requests</h1>
 
         {paymentRequests.length ? (
           paymentRequests.map((paymentRequest) => (
@@ -42,7 +42,7 @@ const MovePaymentRequests = () => {
             />
           ))
         ) : (
-          <div>
+          <div className={txoStyles.emptyMessage}>
             <p>No payment requests have been submitted for this move yet.</p>
           </div>
         )}

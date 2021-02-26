@@ -137,7 +137,7 @@ export const MoveTaskOrder = ({ match }) => {
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
           </div>
-          <div>
+          <div className={styles.emptyMessage}>
             <p>This move does not have any approved shipments yet.</p>
           </div>
         </GridContainer>
