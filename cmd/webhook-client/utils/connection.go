@@ -110,7 +110,11 @@ func (wr *WebhookRuntime) Post(data []byte, url string) (*http.Response, []byte,
 		return nil, nil, err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			fmt.Println(fmt.Errorf("Failed to close connection: %w", closeErr).Error())
+		}
+	}()
 
 	// Print out the response when debug mode is on
 	if wr.Debug {

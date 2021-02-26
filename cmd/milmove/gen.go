@@ -56,8 +56,11 @@ func addMigrationToManifest(migrationManifest string, filename string) error {
 	if err != nil {
 		return errors.Wrap(err, "could not open migration manifest")
 	}
-	// #nosec G307 TODO needs review
-	defer mmf.Close()
+	defer func() {
+		if closeErr := mmf.Close(); closeErr != nil {
+			log.Println("Could not close mmf file", closeErr)
+		}
+	}()
 
 	_, err = mmf.WriteString(filename + "\n")
 	if err != nil {

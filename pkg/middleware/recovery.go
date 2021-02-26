@@ -44,7 +44,11 @@ func Recovery(logger Logger) func(inner http.Handler) http.Handler {
 					}{handlers.InternalServerErrMessage, traceID, "An unexpected server error has occurred."})
 					w.Header().Set("Content-Type", "application/json")
 					w.WriteHeader(http.StatusInternalServerError)
-					w.Write(jsonBody)
+
+					_, err := w.Write(jsonBody)
+					if err != nil {
+						logger.Error("Failed to write data to the connection", zap.Error(err))
+					}
 				}
 			}()
 			inner.ServeHTTP(w, r)

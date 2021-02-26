@@ -226,7 +226,12 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	}
 
 	// Verify the Orders on the MTO
-	tx.Load(&moveTaskOrder, "Orders")
+	err = tx.Load(&moveTaskOrder, "Orders")
+
+	if err != nil {
+		return nil, services.NewNotFoundError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing", moveTaskOrder.ID))
+	}
+
 	// Verify that the Orders has LOA
 	if moveTaskOrder.Orders.TAC == nil || *moveTaskOrder.Orders.TAC == "" {
 		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID))
@@ -236,7 +241,11 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", moveTaskOrder.ID))
 	}
 	// Verify that ServiceMember is Valid
-	tx.Load(&moveTaskOrder.Orders, "ServiceMember")
+	err = tx.Load(&moveTaskOrder.Orders, "ServiceMember")
+	if err != nil {
+		return nil, services.NewNotFoundError(moveTaskOrder.OrdersID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) not valid", moveTaskOrder.ID))
+	}
+
 	serviceMember := moveTaskOrder.Orders.ServiceMember
 	// Verify First Name
 	if serviceMember.FirstName == nil || *serviceMember.FirstName == "" {

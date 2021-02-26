@@ -56,7 +56,11 @@ func ListMTOs(cmd *cobra.Command, args []string) error {
 
 	// Defer closing the store until after the API call has completed
 	if cacStore != nil {
-		defer cacStore.Close()
+		defer func() {
+			if closeErr := cacStore.Close(); closeErr != nil {
+				logger.Fatal(closeErr)
+			}
+		}()
 	}
 
 	var params mto.ListMTOsParams

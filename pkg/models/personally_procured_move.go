@@ -237,7 +237,7 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	db.Transaction(func(db *pop.Connection) error {
+	transactionErr := db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		if ppm.HasRequestedAdvance {
@@ -290,6 +290,10 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 		return nil
 
 	})
+
+	if transactionErr != nil {
+		return responseVErrors, transactionErr
+	}
 
 	return responseVErrors, responseError
 }

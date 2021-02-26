@@ -194,7 +194,10 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 	json, err := json.Marshal(message)
 	if err != nil {
 		notif.Status = models.WebhookNotificationFailed
-		eng.updateNotification(notif)
+		updateNotificationErr := eng.updateNotification(notif)
+		if updateNotificationErr != nil {
+			eng.Logger.Error("Notification update failed", zap.Error(err))
+		}
 		logger.Error("Error creating payload:", zap.Error(err))
 		return err
 	}
@@ -216,7 +219,10 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		if err2 == nil && resp.StatusCode == 200 {
 			// Update notification
 			notif.Status = models.WebhookNotificationSent
-			eng.updateNotification(notif)
+			updateNotificationErr := eng.updateNotification(notif)
+			if updateNotificationErr != nil {
+				eng.Logger.Error("Notification update failed", zap.Error(err))
+			}
 			logger.Info("Notification successfully sent:",
 				zap.String("Status", resp.Status),
 				zap.String("EventName", message.EventName),
@@ -245,7 +251,10 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 	// Update Notification with failing if appropriate
 	if try == eng.MaxImmediateRetries {
 		notif.Status = models.WebhookNotificationFailing
-		eng.updateNotification(notif)
+		updateNotificationErr := eng.updateNotification(notif)
+		if updateNotificationErr != nil {
+			eng.Logger.Error("Notification update failed", zap.Error(err))
+		}
 
 		errmsg := fmt.Sprintf("Failed to send notification ID: %s after %d immediate retries", notif.ID, try)
 		err = errors.New(errmsg)
@@ -308,10 +317,16 @@ func (eng *Engine) Start() error {
 	t := time.Tick(time.Duration(eng.PeriodInSeconds) * time.Second)
 
 	// Run once prior to first wait period
-	eng.run()
+	err := eng.run()
+	if err != nil {
+		return err
+	}
 	// Run on each timer tick
 	for range t {
-		eng.run()
+		err = eng.run()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
