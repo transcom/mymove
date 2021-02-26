@@ -196,46 +196,50 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		suite.Equal(params.WebhookSubscription.SubscriberID, okResponse.Payload.SubscriberID)
 	})
 
-	// suite.T().Run("500 - Internal Server Error", func(t *testing.T) {
-	// 	// Testing: 			UdateWebhookSubscriptionHandler, Updater
-	// 	// Set up: 				Provide an invalid request with the id of a webhook_subscription
-	// 	// 		   					to the updateWebhookSubscription endpoint.
-	// 	// Expected Outcome: 	The webhookSubscription is updated and we
-	// 	//					 		receive a 200 OK.
-	// 	// params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-	// 	// 	HTTPRequest:           req,
-	// 	// 	WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
-	// 	// }
-	// 	fakeID, err := uuid.NewV4()
-	// 	suite.NoError(err)
+	suite.T().Run("500 - Internal Server Error", func(t *testing.T) {
+		// Testing: 			UdateWebhookSubscriptionHandler, Updater
+		// Set up: 				Provide an invalid request with the id of a webhook_subscription
+		// 		   					to the updateWebhookSubscription endpoint.
+		// Expected Outcome: 	The webhookSubscription is updated and we
+		//					 		receive a 200 OK.
+		// params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+		// 	HTTPRequest:           req,
+		// 	WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
+		// }
+		fakeID, err := uuid.NewV4()
+		suite.NoError(err)
 
-	// 	params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-	// 		HTTPRequest:           req,
-	// 		WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
-	// 		WebhookSubscription: &adminmessages.WebhookSubscription{
-	// 			CallbackURL:  "something.com",
-	// 			Status:       "DISABLED",
-	// 			EventKey:     "WebhookSubscription.Update",
-	// 			SubscriberID: strfmt.UUID(webhookSubscription.SubscriberID.String()),
-	// 		},
-	// 	}
+		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+			HTTPRequest:           req,
+			WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
+			WebhookSubscription: &adminmessages.WebhookSubscription{
+				CallbackURL:  "something.com",
+				Status:       "DISABLED",
+				EventKey:     "WebhookSubscription.Update",
+				SubscriberID: strfmt.UUID(webhookSubscription.SubscriberID.String()),
+			},
+		}
 
-	// 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	// 	handler := UpdateWebhookSubscriptionHandler{
-	// 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	// 		webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
-	// 		query.NewQueryFilter,
-	// 	}
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		handler := UpdateWebhookSubscriptionHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			query.NewQueryFilter,
+		}
 
-	// 	response := handler.Handle(params)
+		response := handler.Handle(params)
+		expectedError := models.ErrFetchForbidden
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusInternalServerError,
+			Err:  expectedError,
+		}
+		// expectedResponse := webhooksubscriptionop.UpdateWebhookSubscriptionNotFound(
+		// 	webhooksubscriptionop.UpdateWebhookSubscriptionNotFound{},
+		// )
 
-	// 	expectedResponse := webhooksubscriptionop.UpdateWebhookSubscriptionNotFound(
-	// 		webhooksubscriptionop.UpdateWebhookSubscriptionNotFound{},
-	// 	)
-
-	// 	suite.Equal(&expectedResponse, response)
-	// 	suite.NotEqual(fakeID, webhookSubscription.ID.String())
-	// })
+		suite.Equal(expectedResponse, response)
+		suite.NotEqual(fakeID, webhookSubscription.ID.String())
+	})
 
 	suite.T().Run("404 - Not Found", func(t *testing.T) {
 		// Testing: 			UdateWebhookSubscriptionHandler, Updater
