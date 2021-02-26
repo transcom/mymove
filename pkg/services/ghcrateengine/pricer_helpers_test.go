@@ -237,8 +237,17 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 		paymentServiceItemParams, err := createPricerGeneratedParams(suite.DB(), paymentServiceItem.ID, params)
 		suite.NoError(err)
 		expectedValues := [4]string{"40000.9", "1.06", "true", "TRUSS_TEST"}
-		for i, paymentServiceItemParam := range paymentServiceItemParams {
-			suite.Equal(expectedValues[i], paymentServiceItemParam.Value)
+		for _, paymentServiceItemParam := range paymentServiceItemParams {
+			switch paymentServiceItemParam.ServiceItemParamKey.Key {
+			case models.ServiceItemParamNamePriceRateOrFactor:
+				suite.Equal(expectedValues[0], paymentServiceItemParam.Value)
+			case models.ServiceItemParamNameEscalationCompounded:
+				suite.Equal(expectedValues[1], paymentServiceItemParam.Value)
+			case models.ServiceItemParamNameIsPeak:
+				suite.Equal(expectedValues[2], paymentServiceItemParam.Value)
+			case models.ServiceItemParamNameContractYearName:
+				suite.Equal(expectedValues[3], paymentServiceItemParam.Value)
+			}
 		}
 	})
 

@@ -184,12 +184,15 @@ func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.U
 		case models.ServiceItemParamTypeTimestamp:
 			if timestampValue, ok := param.Value.(time.Time); ok {
 				value = timestampValue.Format(TimestampParamFormat)
+			} else {
+				return paymentServiceItemParams, fmt.Errorf("Pricing param value is invalid timestamp time.Time type for key: %v", serviceItemParamKey.Key)
 			}
 		case models.ServiceItemParamTypeDate:
 			if dateValue, ok := param.Value.(time.Time); ok {
 				value = dateValue.Format(DateParamFormat)
+			} else {
+				return paymentServiceItemParams, fmt.Errorf("Pricing param value is invalid date time.Time type for key: %v", serviceItemParamKey.Key)
 			}
-
 		}
 
 		newParam := models.PaymentServiceItemParam{
