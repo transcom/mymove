@@ -43,7 +43,12 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 		return errors.New("this model does not have deleted_at field")
 	}
 
-	associations := GetForeignKeyAssociations(c, model)
+	associations, err := GetForeignKeyAssociations(c, model)
+
+	if err != nil {
+		return err
+	}
+
 	if len(associations) > 0 {
 		for _, association := range associations {
 			err = SoftDestroy(c, association)
@@ -62,18 +67,14 @@ func IsModel(model interface{}) bool {
 }
 
 // GetForeignKeyAssociations fetches all the foreign key associations the model has
-func GetForeignKeyAssociations(c *pop.Connection, model interface{}) []interface{} {
+func GetForeignKeyAssociations(c *pop.Connection, model interface{}) ([]interface{}, error) {
 	var foreignKeyAssociations []interface{}
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is used later on
-	//RA: Given the assigned variable is being used in a different line and the functions that are flagged by the linter are being used to assign variables
-	//RA: that lead to error handling, there is no risk
-	//RA Developer Status: False Positive
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
-	c.Load(model) // nolint:errcheck
+
+	err := c.Load(model)
+
+	if err != nil {
+		return nil, err
+	}
 
 	modelValue := reflect.ValueOf(model).Elem()
 	modelType := modelValue.Type()
