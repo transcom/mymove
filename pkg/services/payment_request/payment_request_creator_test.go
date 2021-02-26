@@ -63,6 +63,15 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		},
 	})
 
+	serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameEscalationCompounded,
+			Description: "escalation factor",
+			Type:        models.ServiceItemParamTypeDecimal,
+			Origin:      models.ServiceItemParamOriginPricer,
+		},
+	})
+
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             mtoServiceItem1.ReServiceID,
@@ -76,6 +85,13 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			ServiceID:             mtoServiceItem1.ReServiceID,
 			ServiceItemParamKeyID: serviceItemParamKey2.ID,
 			ServiceItemParamKey:   serviceItemParamKey2,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey4.ID,
+			ServiceItemParamKey:   serviceItemParamKey4,
 		},
 	})
 
@@ -675,7 +691,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	suite.T().Run("Payment request number fails due to empty MTO ReferenceID", func(t *testing.T) {
 
-		saveReferenceID := moveTaskOrder.ReferenceID
+		saveReferenceID := *moveTaskOrder.ReferenceID
 		*moveTaskOrder.ReferenceID = ""
 		suite.MustSave(&moveTaskOrder)
 
@@ -699,13 +715,164 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&paymentRequest1)
 		suite.Contains(err.Error(), "has missing ReferenceID")
 
-		moveTaskOrder.ReferenceID = saveReferenceID
+		moveTaskOrder.ReferenceID = &saveReferenceID
 		suite.MustSave(&moveTaskOrder)
 	})
+	suite.T().Run("payment request created after final request fails", func(t *testing.T) {
+		paymentRequest1 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         true,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "1000",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+							Value:       "2019-12-16",
+						},
+					},
+				},
+				{
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "7722",
+						},
+					},
+				},
+			},
+		}
 
+		_, err := creator.CreatePaymentRequest(&paymentRequest1)
+		suite.FatalNoError(err)
+		paymentRequest2 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "3254",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+							Value:       "2019-12-16",
+						},
+					},
+				},
+				{
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "7722",
+						},
+					},
+				},
+			},
+		}
+
+		_, err = creator.CreatePaymentRequest(&paymentRequest2)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "final PaymentRequest has already been submitted")
+
+		// We need to reset this to prevent prevent tests below this one from breaking
+		paymentRequest1.IsFinal = false
+		suite.MustSave(&paymentRequest1)
+	})
+
+	suite.T().Run("payment request can be created after a final request that was rejected", func(t *testing.T) {
+		paymentRequest1 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         true,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "3254",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+							Value:       "2019-12-16",
+						},
+					},
+				},
+				{
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "7722",
+						},
+					},
+				},
+			},
+		}
+
+		_, err := creator.CreatePaymentRequest(&paymentRequest1)
+		suite.FatalNoError(err)
+
+		paymentRequest1.Status = models.PaymentRequestStatusReviewedAllRejected
+		suite.MustSave(&paymentRequest1)
+
+		paymentRequest2 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         true,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "3254",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+							Value:       "2019-12-16",
+						},
+					},
+				},
+				{
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+							Value:       "7722",
+						},
+					},
+				},
+			},
+		}
+
+		_, err = creator.CreatePaymentRequest(&paymentRequest2)
+		suite.NoError(err)
+
+		paymentRequest1.IsFinal = false
+		suite.MustSave(&paymentRequest1)
+		paymentRequest2.IsFinal = false
+		suite.MustSave(&paymentRequest2)
+	})
 	suite.T().Run("Payment request number fails due to nil MTO ReferenceID", func(t *testing.T) {
 
-		saveReferenceID := moveTaskOrder.ReferenceID
+		saveReferenceID := *moveTaskOrder.ReferenceID
 		moveTaskOrder.ReferenceID = nil
 		suite.MustSave(&moveTaskOrder)
 
@@ -729,8 +896,33 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&paymentRequest1)
 		suite.Contains(err.Error(), "has missing ReferenceID")
 
-		moveTaskOrder.ReferenceID = saveReferenceID
+		moveTaskOrder.ReferenceID = &saveReferenceID
 		suite.MustSave(&moveTaskOrder)
+	})
+
+	suite.T().Run("CreatePaymentRequest should not return params from rate engine", func(t *testing.T) {
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+				},
+			},
+		}
+
+		paymentRequestReturn, err := creator.CreatePaymentRequest(&paymentRequest)
+		suite.FatalNoError(err)
+		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
+		suite.Equal(1, len(paymentRequestReturn.PaymentServiceItems), "PaymentServiceItems expect 1")
+
+		// Verify that none of the returned service item params are from the Pricer
+		if suite.Len(paymentRequestReturn.PaymentServiceItems, 1) {
+			for _, param := range paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams {
+				suite.NotEqual(param.ServiceItemParamKey.Origin, string(models.ServiceItemParamOriginPricer))
+			}
+		}
 	})
 
 }

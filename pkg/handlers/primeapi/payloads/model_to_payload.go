@@ -332,7 +332,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 	return &payload
 }
 
-// MTOShipment payload
+// MTOShipment converts MTOShipment model to payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
@@ -391,7 +391,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	return payload
 }
 
-// MTOShipments payload
+// MTOShipments converts an array of MTOShipment models to a payload
 func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments {
 	payload := make(primemessages.MTOShipments, len(*mtoShipments))
 

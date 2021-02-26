@@ -50,21 +50,20 @@ describe('Office App', () => {
     const officeUserState = {
       auth: {
         activeRole: roleTypes.TOO,
-      },
-      user: {
         isLoading: false,
-        userInfo: {
-          isLoggedIn: true,
-          roles: [
-            {
-              roleType: roleTypes.TOO,
-            },
-          ],
-          office_user: {
-            first_name: 'Amanda',
-            last_name: 'Gorman',
-            transportation_office: {
-              gbloc: 'ABCD',
+        isLoggedIn: true,
+      },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: [{ roleType: roleTypes.TOO }],
+            office_user: {
+              first_name: 'Amanda',
+              last_name: 'Gorman',
+              transportation_office: {
+                gbloc: 'ABCD',
+              },
             },
           },
         },
@@ -89,21 +88,20 @@ describe('Office App', () => {
     const officeUserState = {
       auth: {
         activeRole: roleTypes.TIO,
-      },
-      user: {
         isLoading: false,
-        userInfo: {
-          isLoggedIn: true,
-          roles: [
-            {
-              roleType: roleTypes.TIO,
-            },
-          ],
-          office_user: {
-            first_name: 'Amanda',
-            last_name: 'Gorman',
-            transportation_office: {
-              gbloc: 'ABCD',
+        isLoggedIn: true,
+      },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: [{ roleType: roleTypes.TIO }],
+            office_user: {
+              first_name: 'Amanda',
+              last_name: 'Gorman',
+              transportation_office: {
+                gbloc: 'ABCD',
+              },
             },
           },
         },
@@ -128,22 +126,19 @@ describe('Office App', () => {
     const multiRoleState = {
       auth: {
         activeRole: roleTypes.TOO,
-      },
-      user: {
         isLoading: false,
-        userInfo: {
-          isLoggedIn: true,
-          roles: [
-            {
-              roleType: roleTypes.CONTRACTING_OFFICER,
-            },
-            {
-              roleType: roleTypes.TOO,
-            },
-            {
-              roleType: roleTypes.TIO,
-            },
-          ],
+        isLoggedIn: true,
+      },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: [
+              { roleType: roleTypes.CONTRACTING_OFFICER },
+              { roleType: roleTypes.TOO },
+              { roleType: roleTypes.TIO },
+            ],
+          },
         },
       },
     };
@@ -181,16 +176,15 @@ describe('Office App', () => {
     const loggedInState = {
       auth: {
         activeRole: roleTypes.PPM,
-      },
-      user: {
         isLoading: false,
-        userInfo: {
-          isLoggedIn: true,
-          roles: [
-            {
-              roleType: roleTypes.PPM,
-            },
-          ],
+        isLoggedIn: true,
+      },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: [{ roleType: roleTypes.PPM }],
+          },
         },
       },
     };
@@ -198,12 +192,8 @@ describe('Office App', () => {
     const loggedOutState = {
       auth: {
         activeRole: null,
-      },
-      user: {
         isLoading: false,
-        userInfo: {
-          isLoggedIn: false,
-        },
+        isLoggedIn: false,
       },
     };
 
@@ -247,16 +237,15 @@ describe('Office App', () => {
       const loggedInPPMState = {
         auth: {
           activeRole: roleTypes.PPM,
-        },
-        user: {
           isLoading: false,
-          userInfo: {
-            isLoggedIn: true,
-            roles: [
-              {
-                roleType: roleTypes.PPM,
-              },
-            ],
+          isLoggedIn: true,
+        },
+        entities: {
+          user: {
+            userId123: {
+              id: 'userId123',
+              roles: [{ roleType: roleTypes.PPM }],
+            },
           },
         },
       };
@@ -320,16 +309,15 @@ describe('Office App', () => {
       const loggedInTOOState = {
         auth: {
           activeRole: roleTypes.TOO,
-        },
-        user: {
           isLoading: false,
-          userInfo: {
-            isLoggedIn: true,
-            roles: [
-              {
-                roleType: roleTypes.TOO,
-              },
-            ],
+          isLoggedIn: true,
+        },
+        entities: {
+          user: {
+            userId123: {
+              id: 'userId123',
+              roles: [{ roleType: roleTypes.TOO }],
+            },
           },
         },
       };
@@ -363,16 +351,15 @@ describe('Office App', () => {
       const loggedInTIOState = {
         auth: {
           activeRole: roleTypes.TIO,
-        },
-        user: {
           isLoading: false,
-          userInfo: {
-            isLoggedIn: true,
-            roles: [
-              {
-                roleType: roleTypes.TIO,
-              },
-            ],
+          isLoggedIn: true,
+        },
+        entities: {
+          user: {
+            userId123: {
+              id: 'userId123',
+              roles: [{ roleType: roleTypes.TIO }],
+            },
           },
         },
       };

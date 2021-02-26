@@ -2,11 +2,7 @@ package transittime
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
-	"path"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -384,18 +380,4 @@ func (suite *TransitTimeParserSuite) Test_removeFirstDollarSign() {
 			}
 		})
 	}
-}
-
-func (suite *TransitTimeParserSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
-	expected := filepath.Join("fixtures", goldenFilename) // relative path
-	expectedBytes, err := ioutil.ReadFile(path.Clean(expected))
-	suite.NoErrorf(err, "error loading expected CSV file output fixture <%s>", expected)
-
-	currentBytes, err := ioutil.ReadFile(path.Clean(currentOutputFilename)) // relative path
-	suite.NoErrorf(err, "error loading current/new output file <%s>", currentOutputFilename)
-
-	suite.Equal(string(expectedBytes), string(currentBytes))
-
-	// Remove file generated from test after compare is finished
-	os.Remove(currentOutputFilename)
 }

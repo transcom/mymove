@@ -26,19 +26,19 @@ func NewDomesticPackPricer(db *pop.Connection) services.DomesticPackPricer {
 }
 
 // Price determines the price for a domestic pack/unpack service
-func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (totalCost unit.Cents, err error) {
+func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, services.PricingParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
-		return 0, errors.New("ContractCode is required")
+		return 0, nil, errors.New("ContractCode is required")
 	}
 	if requestedPickupDate.IsZero() {
-		return 0, errors.New("RequestedPickupDate is required")
+		return 0, nil, errors.New("RequestedPickupDate is required")
 	}
 	if weight < minDomesticWeight {
-		return 0, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
 	if servicesScheduleOrigin == 0 {
-		return 0, errors.New("Service schedule is required")
+		return 0, nil, errors.New("Service schedule is required")
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
@@ -46,43 +46,43 @@ func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.
 	domOtherPrice, err := fetchDomOtherPrice(p.db, contractCode, models.ReServiceCodeDPK, servicesScheduleOrigin, isPeakPeriod)
 
 	if err != nil {
-		return 0, fmt.Errorf("Could not lookup Domestic Other Price: %w", err)
+		return 0, nil, fmt.Errorf("Could not lookup Domestic Other Price: %w", err)
 	}
 
 	err = p.db.Where("contract_id = $1", domOtherPrice.ContractID).
 		Where("$2 between start_date and end_date", requestedPickupDate).
 		First(&contractYear)
 	if err != nil {
-		return 0, fmt.Errorf("Could not lookup contract year: %w", err)
+		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
 
 	basePrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
-	totalCost = unit.Cents(math.Round(escalatedPrice))
+	totalCost := unit.Cents(math.Round(escalatedPrice))
 
-	return totalCost, err
+	return totalCost, nil, nil
 }
 
 // PriceUsingParams determines the price for a domestic pack given PaymentServiceItemParams
-func (p domesticPackPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+func (p domesticPackPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	servicesScheduleOrigin, err := getParamInt(params, models.ServiceItemParamNameServicesScheduleOrigin)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	return p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), servicesScheduleOrigin)

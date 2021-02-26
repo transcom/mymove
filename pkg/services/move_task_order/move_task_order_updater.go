@@ -132,9 +132,10 @@ type UpdateMoveTaskOrderQueryBuilder interface {
 func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	var moveTaskOrder models.Move
 
-	err := o.db.Q().Eager(
+	err := o.db.Q().EagerPreload(
 		"Orders.NewDutyStation.Address",
 		"Orders.ServiceMember",
+		"Orders.Entitlement",
 		"MTOShipments",
 		"PaymentRequests",
 	).Find(&moveTaskOrder, moveTaskOrderID)

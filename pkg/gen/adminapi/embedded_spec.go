@@ -523,13 +523,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "show": {
-                  "description": "Indicates if the move should be activated or deactivated",
-                  "type": "boolean"
-                }
-              }
+              "$ref": "#/definitions/MoveUpdatePayload"
             }
           }
         ],
@@ -1290,6 +1284,44 @@ func init() {
             "description": "Server error"
           }
         }
+      },
+      "post": {
+        "description": "creates and returns a webhook subscription",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "create a webhook subscription",
+        "operationId": "createWebhookSubscription",
+        "parameters": [
+          {
+            "description": "Webhook subscription information",
+            "name": "webhookSubscription",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateWebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create a webhook subscription"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/webhook_subscriptions/{webhookSubscriptionId}": {
@@ -1640,6 +1672,33 @@ func init() {
         }
       }
     },
+    "CreateWebhookSubscription": {
+      "type": "object",
+      "required": [
+        "subscriberId",
+        "status",
+        "eventKey",
+        "callbackUrl"
+      ],
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ElectronicOrder": {
       "type": "object",
       "required": [
@@ -1767,6 +1826,17 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "MoveUpdatePayload": {
+      "type": "object",
+      "required": [
+        "show"
+      ],
+      "properties": {
+        "show": {
+          "type": "boolean"
+        }
       }
     },
     "Moves": {
@@ -2999,13 +3069,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "show": {
-                  "description": "Indicates if the move should be activated or deactivated",
-                  "type": "boolean"
-                }
-              }
+              "$ref": "#/definitions/MoveUpdatePayload"
             }
           }
         ],
@@ -3766,6 +3830,44 @@ func init() {
             "description": "Server error"
           }
         }
+      },
+      "post": {
+        "description": "creates and returns a webhook subscription",
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "create a webhook subscription",
+        "operationId": "createWebhookSubscription",
+        "parameters": [
+          {
+            "description": "Webhook subscription information",
+            "name": "webhookSubscription",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateWebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create a webhook subscription"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/webhook_subscriptions/{webhookSubscriptionId}": {
@@ -4116,6 +4218,33 @@ func init() {
         }
       }
     },
+    "CreateWebhookSubscription": {
+      "type": "object",
+      "required": [
+        "subscriberId",
+        "status",
+        "eventKey",
+        "callbackUrl"
+      ],
+      "properties": {
+        "callbackUrl": {
+          "description": "The URL to which the notifications for this subscription will be pushed to.",
+          "type": "string"
+        },
+        "eventKey": {
+          "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookSubscriptionStatus"
+        },
+        "subscriberId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ElectronicOrder": {
       "type": "object",
       "required": [
@@ -4244,6 +4373,17 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "MoveUpdatePayload": {
+      "type": "object",
+      "required": [
+        "show"
+      ],
+      "properties": {
+        "show": {
+          "type": "boolean"
+        }
       }
     },
     "Moves": {

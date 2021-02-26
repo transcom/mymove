@@ -2299,6 +2299,17 @@ func init() {
     {
       "name": "mtoServiceItem"
     }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Endpoints",
+      "tags": [
+        "moveTaskOrder",
+        "mtoShipment",
+        "paymentRequest",
+        "mtoServiceItem"
+      ]
+    }
   ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
@@ -4777,6 +4788,17 @@ func init() {
     },
     {
       "name": "mtoServiceItem"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Endpoints",
+      "tags": [
+        "moveTaskOrder",
+        "mtoShipment",
+        "paymentRequest",
+        "mtoServiceItem"
+      ]
     }
   ]
 }`))

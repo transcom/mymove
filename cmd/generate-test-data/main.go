@@ -42,14 +42,6 @@ func (e *errInvalidScenario) Error() string {
 	return fmt.Sprintf("invalid scenario %d", e.Scenario)
 }
 
-type errInvalidNamedScenario struct {
-	NamedScenario string
-}
-
-func (e *errInvalidNamedScenario) Error() string {
-	return fmt.Sprintf("invalid named-scenario %s", e.NamedScenario)
-}
-
 func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Debug("checking config")
@@ -163,17 +155,19 @@ func main() {
 
 		// Initialize storage and uploader
 		var session *awssession.Session
+		storageBackend := v.GetString(cli.StorageBackendFlag)
+		if storageBackend == "s3" || storageBackend == "cdn" {
+			c := &aws.Config{
+				Region: aws.String(v.GetString(cli.AWSRegionFlag)),
+			}
+			s, errorSession := awssession.NewSession(c)
 
-		c := &aws.Config{
-			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
+			if errorSession != nil {
+				logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+			}
+
+			session = s
 		}
-		s, errorSession := awssession.NewSession(c)
-
-		if errorSession != nil {
-			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
-		}
-
-		session = s
 		storer := storage.InitStorage(v, session, logger)
 
 		userUploader, uploaderErr := uploader.NewUserUploader(dbConnection, logger, storer, 25*uploader.MB)

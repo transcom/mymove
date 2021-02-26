@@ -65,7 +65,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	}
 	// set re service for service item
 	serviceItem.ReServiceID = reService.ID
-	serviceItem.Status = models.MTOServiceItemStatusSubmitted
 
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
@@ -87,6 +86,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return &createdServiceItems, nil, nil
 	}
 
+	// By the time the serviceItem model object gets here to the creator it should have a status attached to it.
+	// If for some reason that isn't the case we will set it
+	if serviceItem.Status == "" {
+		serviceItem.Status = models.MTOServiceItemStatusSubmitted
+	}
+
 	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
 	// check if shipment exists linked by MoveTaskOrderID
 	var mtoShipment models.MTOShipment
@@ -105,7 +110,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
 		if mtoShipment.PrimeEstimatedWeight == nil {
-			return nil, verrs, services.NewConflictError(reService.ID, "for creating a service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.")
+			return nil, verrs, services.NewConflictError(mtoShipmentID, fmt.Sprintf("The associated MTOShipment (%s) must have a valid PrimeEstimatedWeight to create this service item.", mtoShipmentID))
 		}
 	}
 
@@ -187,7 +192,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
 	}
-
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure

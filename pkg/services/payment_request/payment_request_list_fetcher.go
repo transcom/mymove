@@ -48,9 +48,10 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	}
 
 	paymentRequests := models.PaymentRequests{}
-	query := f.db.Q().Eager(
-		"MoveTaskOrder.Orders.OriginDutyStation",
-		"MoveTaskOrder.Orders.ServiceMember",
+	query := f.db.Q().EagerPreload(
+		"MoveTaskOrder.Orders.OriginDutyStation.TransportationOffice",
+		// See note further below about having to do this in a separate Load call due to a Pop issue.
+		// "MoveTaskOrder.Orders.ServiceMember",
 	).
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
@@ -103,11 +104,19 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	}
 
 	for i := range paymentRequests {
-		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-		// cannot eager load the address as "OriginDutyStation.Address" because
-		// OriginDutyStation is a pointer.
-		if originDutyStation := paymentRequests[i].MoveTaskOrder.Orders.OriginDutyStation; originDutyStation != nil {
-			f.db.Load(originDutyStation, "TransportationOffice")
+		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
+		// where the first 2 levels match.  For example:
+		//   "MoveTaskOrder.Orders.OriginDutyStation.TransportationOffice" and "MoveTaskOrder.Orders.ServiceMember"
+		// In those cases, only the last relationship is loaded in the results.  So, we can only do one of the paths
+		// in the EagerPreload above and request the second one explicitly with a separate Load call.
+		//
+		// Note that we also had a problem before with Eager as well.  Here's what we found with it:
+		//   Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+		//   cannot eager load the address as "OriginDutyStation.Address" because
+		//   OriginDutyStation is a pointer.
+		loadErr := f.db.Load(&paymentRequests[i].MoveTaskOrder.Orders, "ServiceMember")
+		if loadErr != nil {
+			return nil, 0, err
 		}
 	}
 
@@ -170,7 +179,8 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID u
 }
 
 func orderName(query *pop.Query, order *string) *pop.Query {
-	return query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+	query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+	return query
 }
 
 func reverseOrder(order *string) string {
@@ -187,12 +197,12 @@ func sortOrder(sort *string, order *string) QueryOption {
 			if *sort == "lastName" {
 				orderName(query, order)
 			} else if *sort == "age" {
-				query = query.Order(fmt.Sprintf("%s %s", sortTerm, reverseOrder(order)))
+				query.Order(fmt.Sprintf("%s %s", sortTerm, reverseOrder(order)))
 			} else {
-				query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
+				query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 			}
 		} else {
-			query = query.Order("payment_requests.created_at asc")
+			query.Order("payment_requests.created_at asc")
 		}
 	}
 }
@@ -201,9 +211,9 @@ func branchFilter(branch *string) QueryOption {
 	return func(query *pop.Query) {
 		// When no branch filter is selected we want to filter out Marine Corps payment requests
 		if branch == nil {
-			query = query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
+			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		} else {
-			query = query.Where("service_members.affiliation = ?", *branch)
+			query.Where("service_members.affiliation = ?", *branch)
 		}
 	}
 }
@@ -212,7 +222,7 @@ func lastNameFilter(lastName *string) QueryOption {
 	return func(query *pop.Query) {
 		if lastName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *lastName)
-			query = query.Where("service_members.last_name ILIKE ?", nameSearch)
+			query.Where("service_members.last_name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -220,7 +230,7 @@ func lastNameFilter(lastName *string) QueryOption {
 func dodIDFilter(dodID *string) QueryOption {
 	return func(query *pop.Query) {
 		if dodID != nil {
-			query = query.Where("service_members.edipi = ?", dodID)
+			query.Where("service_members.edipi = ?", dodID)
 		}
 	}
 }
@@ -228,7 +238,7 @@ func dodIDFilter(dodID *string) QueryOption {
 func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if locator != nil {
-			query = query.Where("moves.locator = ?", *locator)
+			query.Where("moves.locator = ?", *locator)
 		}
 	}
 }
@@ -236,7 +246,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
-			query = query.InnerJoin("duty_stations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
+			query.InnerJoin("duty_stations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -244,14 +254,14 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 func submittedAtFilter(submittedAt *string) QueryOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
-			query = query.Where("CAST(payment_requests.created_at AS DATE) = ?", *submittedAt)
+			query.Where("CAST(payment_requests.created_at AS DATE) = ?", *submittedAt)
 		}
 	}
 }
 
 func gblocFilter(gbloc string) QueryOption {
 	return func(query *pop.Query) {
-		query = query.Where("transportation_offices.gbloc = ?", gbloc)
+		query.Where("transportation_offices.gbloc = ?", gbloc)
 	}
 }
 
@@ -275,7 +285,7 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPaid.String())
 				}
 			}
-			query = query.Where("payment_requests.status in (?)", translatedStatuses)
+			query.Where("payment_requests.status in (?)", translatedStatuses)
 		}
 	}
 

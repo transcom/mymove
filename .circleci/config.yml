@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ff8839d671dc164855c21255c40541bb23fa1e75
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-2344eda297d5e8cefd3b6401275cd0cfd6086846
 
   postgres: &postgres postgres:12.4
 
@@ -98,16 +98,6 @@ executors:
         command: '-c fsync=off -c full_page_writes=off -c max_connections=200'
 
 commands:
-  aws_vars_legacy:
-    steps:
-      - run:
-          name: 'Setting up AWS environment variables for legacy env'
-          command: |
-            echo "export AWS_DEFAULT_REGION=$LEGACY_REGION" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=$LEGACY_ACCOUNT_ID" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=$LEGACY_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=$LEGACY_SECRET_ACCESS_KEY" >> $BASH_ENV
-            source $BASH_ENV
   aws_vars_exp:
     steps:
       - run:
@@ -141,12 +131,22 @@ commands:
   aws_vars_transcom_com_dev:
     steps:
       - run:
-          name: 'Setting up AWS environment variables for prd env'
+          name: 'Setting up AWS environment variables for com-dev env'
           command: |
             echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            source $BASH_ENV
+  aws_vars_transcom_gov_dev:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for gov-dev env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$GOV_DEV_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$GOV_DEV_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$GOV_DEV_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$GOV_DEV_SECRET_KEY" >> $BASH_ENV
             source $BASH_ENV
   announce_failure:
     parameters:
@@ -711,7 +711,7 @@ jobs:
     parallelism: 5
     executor: mymove_large
     steps:
-      - aws_vars_legacy
+      - aws_vars_transcom_gov_dev
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -758,7 +758,7 @@ jobs:
   integration_tests_mtls:
     executor: mymove_medium_plus
     steps:
-      - aws_vars_legacy
+      - aws_vars_transcom_gov_dev
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -913,15 +913,15 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_app_legacy` pushes the app container to the legacy container repository
-  push_app_legacy:
+  # `push_app_gov_dev` pushes the app container to the gov_dev container repository
+  push_app_gov_dev:
     executor: mymove_small
     steps:
       - setup_remote_docker:
           docker_layer_caching: false
-      - aws_vars_legacy
+      - aws_vars_transcom_gov_dev
       - push_image:
-          ecr_env: legacy
+          ecr_env: gov_dev
           image_name: ppp
           tag: web-dev
           repo: app
@@ -1019,15 +1019,15 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_migrations_legacy` pushes the migrations container to the legacy container repository
-  push_migrations_legacy:
+  # `push_migrations_gov_dev` pushes the migrations container to the gov_dev container repository
+  push_migrations_gov_dev:
     executor: mymove_small
     steps:
       - setup_remote_docker:
           docker_layer_caching: false
-      - aws_vars_legacy
+      - aws_vars_transcom_gov_dev
       - push_image:
-          ecr_env: legacy
+          ecr_env: gov_dev
           image_name: ppp-migrations
           tag: dev
           repo: app-migrations
@@ -1097,15 +1097,15 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_tasks_legacy` pushes the tasks containers to the legacy container repository
-  push_tasks_legacy:
+  # `push_tasks_gov_dev` pushes the tasks containers to the gov_dev container repository
+  push_tasks_gov_dev:
     executor: mymove_small
     steps:
       - setup_remote_docker:
           docker_layer_caching: false
-      - aws_vars_legacy
+      - aws_vars_transcom_gov_dev
       - push_image:
-          ecr_env: legacy
+          ecr_env: gov_dev
           image_name: tasks
           tag: dev
           repo: app-tasks
@@ -1373,9 +1373,9 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
             - check_generated_code
-            - push_app_legacy
+            - push_app_gov_dev
             - push_app_stg
-            - push_migrations_legacy
+            - push_migrations_gov_dev
             - push_migrations_stg
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1386,9 +1386,9 @@ workflows:
           requires:
             - pre_deps_golang
             - check_generated_code
-            - push_app_legacy
+            - push_app_gov_dev
             - push_app_stg
-            - push_migrations_legacy
+            - push_migrations_gov_dev
             - push_migrations_stg
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1417,7 +1417,7 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - push_app_legacy:
+      - push_app_gov_dev:
           requires:
             - build_app
 
@@ -1431,7 +1431,7 @@ workflows:
             - anti_virus
             - pre_deps_golang
 
-      - push_migrations_legacy:
+      - push_migrations_gov_dev:
           requires:
             - build_migrations
 
@@ -1444,7 +1444,7 @@ workflows:
             - anti_virus
             - pre_deps_golang
 
-      - push_tasks_legacy:
+      - push_tasks_gov_dev:
           requires:
             - build_tasks
 

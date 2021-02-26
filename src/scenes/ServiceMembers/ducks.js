@@ -1,6 +1,6 @@
 import { pick, without, cloneDeep, get } from 'lodash';
 
-import { GET_LOGGED_IN_USER } from 'shared/Data/users';
+import { GET_LOGGED_IN_USER_SUCCESS } from 'store/auth/actions';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { upsert } from 'shared/utils';
 
@@ -41,7 +41,7 @@ const upsertBackUpContact = (contact, state) => {
 };
 export function serviceMemberReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_LOGGED_IN_USER.success:
+    case GET_LOGGED_IN_USER_SUCCESS:
       return Object.assign({}, state, {
         currentServiceMember: reshape(action.payload.service_member) || state.currentServiceMember,
         currentBackupContacts: get(action, 'payload.service_member.backup_contacts', []),

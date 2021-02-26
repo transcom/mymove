@@ -17,8 +17,10 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	userservice "github.com/transcom/mymove/pkg/services/user"
@@ -248,6 +250,9 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	sessionManagers := setupSessionManagers()
 	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handlerContext.SetSessionManagers(sessionManagers)
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
+	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	suite.T().Run("Successful userSessionRevocation", func(t *testing.T) {
 		// Under test: UsereSessionRevocation, userUpdater
@@ -262,7 +267,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 			newQueryFilter,
 		}
 
@@ -315,7 +320,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 			newQueryFilter,
 		}
 
@@ -366,7 +371,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 			newQueryFilter,
 		}
 
@@ -422,7 +427,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 			newQueryFilter,
 		}
 
@@ -483,7 +488,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userRevocation,
-			userservice.NewUserUpdater(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 			newQueryFilter,
 		}
 
