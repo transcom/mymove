@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/pkg/sftp"
-	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -83,24 +82,14 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reade
 	if err != nil {
 		return 0, err
 	}
-
-	defer func() {
-		if closeErr := connection.Close(); closeErr != nil {
-			fmt.Println("Failed to close connection", zap.Error(closeErr))
-		}
-	}()
+	defer connection.Close()
 
 	// create new SFTP client
 	client, err := sftp.NewClient(connection)
 	if err != nil {
 		return 0, err
 	}
-
-	defer func() {
-		if closeErr := client.Close(); closeErr != nil {
-			fmt.Println("Failed to close SFTP client", zap.Error(closeErr))
-		}
-	}()
+	defer client.Close()
 
 	// create destination file
 	syncadaFilePath := fmt.Sprintf("/%s/%s/%s", s.userID, s.syncadaInboundDirectory, syncadaFileName)
@@ -108,12 +97,7 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reade
 	if err != nil {
 		return 0, err
 	}
-
-	defer func() {
-		if closeErr := syncadaFile.Close(); closeErr != nil {
-			fmt.Println("Failed to close Syncada destination file", zap.Error(closeErr))
-		}
-	}()
+	defer syncadaFile.Close()
 
 	// copy source file to destination file
 	bytes, err := io.Copy(syncadaFile, localDataReader)

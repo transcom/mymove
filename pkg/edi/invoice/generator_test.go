@@ -34,11 +34,7 @@ func TestInvoiceSuite(t *testing.T) {
 	flag.Bool("send-prod-invoice", false, "Send Production Invoice")
 
 	v := viper.New()
-	err := v.BindPFlags(flag)
-	if err != nil {
-		logger.Fatal("could not bind flags", zap.Error(err))
-	}
-
+	v.BindPFlags(flag)
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 

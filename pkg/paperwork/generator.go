@@ -179,12 +179,7 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 		if err != nil {
 			return nil, errors.Wrap(err, "Downloading file from upload")
 		}
-
-		defer func() {
-			if downloadErr := download.Close(); downloadErr != nil {
-				g.logger.Debug("Failed to close file", zap.Error(downloadErr))
-			}
-		}()
+		defer download.Close()
 
 		outputFile, err := g.newTempFile()
 
@@ -272,12 +267,7 @@ func ReduceUnusedSpace(file afero.File, g *Generator, contentType string) (imgFi
 
 		// Use newFile instead of oldFile
 		file = newFile
-
-		fileCloseErr := file.Close()
-		if fileCloseErr != nil {
-			return nil, 0.0, 0.0, errors.Wrap(fileCloseErr, "Encountered an error closing the file")
-		}
-
+		file.Close()
 		return newFile, w, h, nil
 	}
 	return file, w, h, nil
@@ -311,12 +301,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	defer func() {
-		if closeErr := outputFile.Close(); closeErr != nil {
-			g.logger.Debug("Failed to close file", zap.Error(closeErr))
-		}
-	}()
+	defer outputFile.Close()
 
 	var opt gofpdf.ImageOptions
 	for _, img := range images {
@@ -325,12 +310,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 		if openErr != nil {
 			return "", errors.Wrap(openErr, "Opening image file")
 		}
-
-		defer func() {
-			if closeErr := file.Close(); closeErr != nil {
-				g.logger.Debug("Failed to close file", zap.Error(closeErr))
-			}
-		}()
+		defer file.Close()
 
 		if img.ContentType == "image/png" {
 			g.logger.Debug("Converting png to 8-bit")
@@ -339,12 +319,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 			if newTemplateFileErr != nil {
 				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
 			}
-
-			defer func() {
-				if closeErr := newFile.Close(); closeErr != nil {
-					g.logger.Debug("Failed to close file", zap.Error(closeErr))
-				}
-			}()
+			defer newFile.Close()
 
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
 			if convertTo8BitPNGErr != nil {

@@ -77,11 +77,7 @@ func (s *NamedServer) ListenAndServeTLS() error {
 	s.IsServerReadyMutex.Lock()
 	s.IsServerReady = true
 	s.IsServerReadyMutex.Unlock()
-	defer func() {
-		if closeErr := listener.Close(); closeErr != nil {
-			fmt.Println(fmt.Errorf("Failed to close listener due to %w", closeErr))
-		}
-	}()
+	defer listener.Close()
 	return s.Serve(listener)
 }
 

@@ -195,8 +195,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure
-	transactionErr := o.builder.Transaction(func(tx *pop.Connection) error {
-
+	o.builder.Transaction(func(tx *pop.Connection) error {
 		// create new builder to use tx
 		txBuilder := o.createNewBuilder(tx)
 
@@ -278,9 +277,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil
 	})
 
-	if transactionErr != nil {
-		return nil, nil, transactionErr
-	} else if verrs != nil && verrs.HasAny() {
+	if verrs != nil && verrs.HasAny() {
 		return nil, verrs, nil
 	} else if err != nil {
 		return nil, verrs, services.NewQueryError("unknown", err, "")

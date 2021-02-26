@@ -58,10 +58,7 @@ func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 	if distanceMiles >= 50 {
 		miles := unit.Miles(distanceMiles)
 		mtoShipment.Distance = &miles
-		err := db.Save(&mtoShipment)
-		if err != nil {
-			return "", err
-		}
+		db.Save(&mtoShipment)
 	}
 
 	return strconv.Itoa(distanceMiles), nil

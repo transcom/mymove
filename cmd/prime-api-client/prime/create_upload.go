@@ -71,11 +71,7 @@ func CreatePaymentRequestUpload(cmd *cobra.Command, args []string) error {
 
 	// Defer closing the store until after the API call has completed
 	if cacStore != nil {
-		defer func() {
-			if closeErr := cacStore.Close(); closeErr != nil {
-				logger.Fatal(closeErr)
-			}
-		}()
+		defer cacStore.Close()
 	}
 
 	// Get the filename for the upload file to upload with command create-payment-request-upload
@@ -85,13 +81,8 @@ func CreatePaymentRequestUpload(cmd *cobra.Command, args []string) error {
 	paymentRequestID := v.GetString(utils.PaymentRequestIDFlag)
 
 	file, fileErr := os.Open(filepath.Clean(filename))
-
-	defer func() {
-		if fileErr := file.Close(); fileErr != nil {
-			logger.Fatal(fileErr)
-		}
-	}()
-
+	// #nosec G307 TODO needs review
+	defer file.Close()
 	if fileErr != nil {
 		logger.Fatal(fileErr)
 	}

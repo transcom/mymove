@@ -202,12 +202,7 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 		if errStore != nil {
 			return fmt.Errorf("Ensure CAC reader and card inserted: %w", errStore)
 		}
-
-		defer func() {
-			if closeErr := store.Close(); closeErr != nil {
-				fmt.Println(fmt.Errorf("Failed to close CAC store").Error())
-			}
-		}()
+		defer store.Close()
 
 		cert, errTLSCert := store.TLSCertificate()
 		if errTLSCert != nil {
