@@ -31,10 +31,7 @@ func TestWebServerSuite(t *testing.T) {
 	flag.Parse([]string{})
 
 	v := viper.New()
-	bindErr := v.BindPFlags(flag)
-	if bindErr != nil {
-		log.Fatal("failed to bind flags", zap.Error(bindErr))
-	}
+	v.BindPFlags(flag)
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 

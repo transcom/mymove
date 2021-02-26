@@ -305,12 +305,7 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]interface{}) map[string]interface{} {
 	conn := pool.Get()
-
-	defer func() {
-		if closeErr := conn.Close(); closeErr != nil {
-			logger.Error("Failed to close redis connection", zap.Error(closeErr))
-		}
-	}()
+	defer conn.Close()
 
 	pong, err := redis.String(conn.Do("PING"))
 	if err != nil {
@@ -352,11 +347,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 					}
 				})
 			}
-
-			loggerSyncErr := logger.Sync()
-			if loggerSyncErr != nil {
-				logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-			}
+			logger.Sync()
 		}
 	}()
 
@@ -1038,10 +1029,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// make sure we flush any pending startup messages
-	loggerSyncErr := logger.Sync()
-	if loggerSyncErr != nil {
-		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-	}
+	logger.Sync()
 
 	// Create a buffered channel that accepts 1 signal at a time.
 	quit := make(chan os.Signal, 1)
@@ -1055,10 +1043,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Info("received signal for graceful shutdown of server", zap.Any("signal", sig))
 
 	// flush message that we received signal
-	loggerSyncErr = logger.Sync()
-	if loggerSyncErr != nil {
-		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-	}
+	logger.Sync()
 
 	gracefulShutdownTimeout := v.GetDuration(cli.GracefulShutdownTimeoutFlag)
 
@@ -1068,10 +1053,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Info("Waiting for listeners to be shutdown", zap.Duration("timeout", gracefulShutdownTimeout))
 
 	// flush message that we are waiting on listeners
-	loggerSyncErr = logger.Sync()
-	if loggerSyncErr != nil {
-		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-	}
+	logger.Sync()
 
 	wg := &sync.WaitGroup{}
 	var shutdownErrors sync.Map
@@ -1102,10 +1084,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	wg.Wait()
 	logger.Info("All listeners are shutdown")
-	loggerSyncErr = logger.Sync()
-	if loggerSyncErr != nil {
-		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-	}
+	logger.Sync()
 
 	var dbCloseErr error
 	dbClose.Do(func() {
@@ -1140,10 +1119,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Error("error closing redis connections", zap.Error(redisCloseErr))
 	}
 
-	loggerSyncErr = logger.Sync()
-	if loggerSyncErr != nil {
-		logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-	}
+	logger.Sync()
 
 	if shutdownError {
 		os.Exit(1)

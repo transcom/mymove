@@ -41,12 +41,7 @@ func (s StoreInvoice858C) Call(edi string, invoice *models.Invoice, userID uuid.
 	if err != nil {
 		return verrs, errors.Wrapf(err, "afero.Create Failed in StoreInvoice858C() invoice ID: %s", invoiceID)
 	}
-
-	defer func() {
-		if closeErr := f.Close(); closeErr != nil {
-			s.Logger.Info("Errors encountered while closing file", zap.Error(closeErr))
-		}
-	}()
+	defer f.Close()
 
 	_, err = io.WriteString(f, edi)
 	if err != nil {

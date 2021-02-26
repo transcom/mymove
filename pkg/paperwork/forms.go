@@ -152,10 +152,7 @@ func (f *FormFiller) AppendPage(templateImage io.ReadSeeker, fields map[string]F
 	if err != nil {
 		return errors.Wrap(err, "could not decode image config")
 	}
-	_, err = templateImage.Seek(0, io.SeekStart)
-	if err != nil {
-		return errors.Wrap(err, "could not find image config")
-	}
+	templateImage.Seek(0, io.SeekStart)
 
 	// Use provided image as document background
 	opt := gofpdf.ImageOptions{

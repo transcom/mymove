@@ -240,10 +240,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 
 	// Eager loading of nested has_many associations is broken
 	for i, moveDoc := range move.MoveDocuments {
-		err := db.Load(&moveDoc.Document, "UserUploads.Upload")
-		if err != nil {
-			return nil, err
-		}
+		db.Load(&moveDoc.Document, "UserUploads.Upload")
 		move.MoveDocuments[i] = moveDoc
 	}
 
@@ -342,7 +339,7 @@ func (m Move) CreateMoveDocument(
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
-	transactionErr := db.Transaction(func(db *pop.Connection) error {
+	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
@@ -361,10 +358,6 @@ func (m Move) CreateMoveDocument(
 		return nil
 
 	})
-
-	if transactionErr != nil {
-		return nil, responseVErrors, transactionErr
-	}
 
 	return newMoveDocument, responseVErrors, responseError
 }
@@ -385,7 +378,7 @@ func (m Move) CreateMovingExpenseDocument(
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
-	transactionErr := db.Transaction(func(db *pop.Connection) error {
+	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		var newMoveDocument *MoveDocument
@@ -421,11 +414,8 @@ func (m Move) CreateMovingExpenseDocument(
 		}
 
 		return nil
-	})
 
-	if transactionErr != nil {
-		return nil, responseVErrors, transactionErr
-	}
+	})
 
 	return newMovingExpenseDocument, responseVErrors, responseError
 }
@@ -625,7 +615,7 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	transactionErr := db.Transaction(func(db *pop.Connection) error {
+	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		for _, ppm := range move.PersonallyProcuredMoves {
@@ -658,10 +648,6 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 		}
 		return nil
 	})
-
-	if transactionErr != nil {
-		return responseVErrors, transactionErr
-	}
 
 	return responseVErrors, responseError
 }

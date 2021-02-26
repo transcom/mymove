@@ -161,10 +161,7 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 	// cannot eager load the address as "OriginDutyStation.Address" because
 	// OriginDutyStation is a pointer.
 	if moveOrder.OriginDutyStation != nil {
-		err := f.db.Load(moveOrder.OriginDutyStation, "Address")
-		if err != nil {
-			return moveOrder, err
-		}
+		f.db.Load(moveOrder.OriginDutyStation, "Address")
 	}
 
 	return moveOrder, nil

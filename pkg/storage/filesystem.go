@@ -78,12 +78,7 @@ func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string, tag
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open file")
 	}
-
-	defer func() {
-		if closeErr := file.Close(); closeErr != nil {
-			log.Fatalln(fmt.Errorf("Could not close file"))
-		}
-	}()
+	defer file.Close()
 
 	_, err = io.Copy(file, data)
 	if err != nil {

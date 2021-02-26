@@ -94,16 +94,10 @@ func main() {
 
 	flag := pflag.CommandLine
 	initFlags(flag)
-	parseErr := flag.Parse(os.Args[1:])
-	if parseErr != nil {
-		log.Fatalf("Could not parse flags: %v\n", parseErr)
-	}
+	flag.Parse(os.Args[1:])
 
 	v := viper.New()
-	bindErr := v.BindPFlags(flag)
-	if bindErr != nil {
-		log.Fatal("failed to bind flags", zap.Error(bindErr))
-	}
+	v.BindPFlags(flag)
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 

@@ -340,10 +340,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				h.logger.Error("failed to reset user's current_x_session_id")
 			}
-			err = h.sessionManager(session).Destroy(r.Context())
-			if err != nil {
-				h.logger.Error("failed to destroy session")
-			}
+			h.sessionManager(session).Destroy(r.Context())
 			auth.DeleteCSRFCookies(w)
 			h.logger.Info("user logged out")
 			fmt.Fprint(w, logoutURL)
@@ -483,12 +480,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		auth.DeleteCookie(w, StateCookieName(session))
 
 		// This operation will delete all cookies from the session
-		err := h.sessionManager(session).Destroy(r.Context())
-		if err != nil {
-			h.logger.Error("Deleting login.gov state cookie", zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
+		h.sessionManager(session).Destroy(r.Context())
+
 		// set error query
 		landingQuery := landingURL.Query()
 		landingQuery.Add("error", "SIGNIN_ERROR")
@@ -771,12 +764,7 @@ func fetchToken(logger Logger, code string, clientID string, loginGovProvider Lo
 		return nil, err
 	}
 
-	defer func() {
-		if closeErr := response.Body.Close(); closeErr != nil {
-			logger.Error("Error in closing response", zap.Error(closeErr))
-		}
-	}()
-
+	defer response.Body.Close()
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		logger.Error("Reading Login.gov token response", zap.Error(err))

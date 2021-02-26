@@ -92,11 +92,7 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	}
 
 	if cacStore != nil {
-		defer func() {
-			if closeErr := cacStore.Close(); closeErr != nil {
-				logger.Error("Error closing CAC connection", zap.Error(closeErr))
-			}
-		}()
+		defer cacStore.Close()
 	}
 
 	// Make the API call

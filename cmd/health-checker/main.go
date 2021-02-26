@@ -356,16 +356,10 @@ func main() {
 	flag.String("log-level", "error", "log level: debug, info, warn, error, dpanic, panic, or fatal")
 	flag.Bool("verbose", false, "output extra information")
 
-	parseErr := flag.Parse(os.Args[1:])
-	if parseErr != nil {
-		log.Fatalf("Could not parse flags: %v\n", parseErr)
-	}
+	flag.Parse(os.Args[1:])
 
 	v := viper.New()
-	bindErr := v.BindPFlags(flag)
-	if bindErr != nil {
-		log.Fatal("failed to bind flags", zap.Error(bindErr))
-	}
+	v.BindPFlags(flag)
 	v.SetEnvPrefix("HEALTHCHECKER")
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
@@ -382,11 +376,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	defer func() {
-		if loggerSyncErr := logger.Sync(); loggerSyncErr != nil {
-			logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
-		}
-	}()
+	defer logger.Sync()
 
 	err = checkConfig(v)
 	if err != nil {

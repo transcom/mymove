@@ -186,11 +186,7 @@ func cleanup() {
 func (pr *paymentRequestsData) cleanup() {
 	// Defer closing the store until after the API call has completed
 	if pr.store != nil {
-		defer func() {
-			if closeErr := pr.store.Close(); closeErr != nil {
-				pr.logger.Fatal(closeErr)
-			}
-		}()
+		pr.store.Close()
 	}
 }
 
@@ -708,11 +704,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			} else {
 				fmt.Printf("\nShipment update was successfully sent for processing (see reesponse for update success/fail)...\n")
 
-				err = pr.fetchMTOUpdates()
-				if err != nil {
-					fmt.Print("Could not fetch MTO updates")
-					return exitApp, MTOMenu, nil
-				}
+				pr.fetchMTOUpdates()
 
 				// re-display update shipment menu and the current shipment that was updated
 
@@ -957,11 +949,7 @@ func (pr *paymentRequestsData) displayCreatePaymentRequestMenu() (bool, menuType
 			} else {
 				fmt.Printf("\nCreate payment request was successfully sent for processing (see reesponse for update success/fail)...\n")
 
-				err = pr.fetchMTOUpdates()
-				if err != nil {
-					fmt.Print("Could not fetch MTO updates")
-					return exitApp, MTOMenu, nil
-				}
+				pr.fetchMTOUpdates()
 
 				// re-display updated MTO
 
@@ -1079,10 +1067,7 @@ func (pr *paymentRequestsData) displayMTOMenu() (bool, menuType, error) {
 	case UpdateShipment:
 		return exitApp, display[selection].nextMenu, nil
 	case CreatePaymentRequest:
-		_, _, err := pr.displayCreatePaymentRequestMenu()
-		if err != nil {
-			fmt.Printf("Error with creating payment <%s>", err.Error())
-		}
+		pr.displayCreatePaymentRequestMenu()
 		return exitApp, display[selection].nextMenu, nil
 	case PreviousMenu:
 		return exitApp, display[selection].nextMenu, nil

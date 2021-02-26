@@ -151,16 +151,8 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 		t.Errorf("did not expect validation errors: %v", verrs)
 	}
 
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-	//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-	//RA: in a unit test, then there is no risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: Mitigated
-	//RA Modified Severity: N/A
-	models.DeleteUpload(suite.DB(), &upload) // nolint:errcheck
-	up, _ := models.FetchUserUpload(ctx, suite.DB(), &session, upload.ID)
+	models.DeleteUpload(suite.DB(), &upload)
+	up, _ := models.FetchUserUpload(suite.DB(), &session, upload.ID)
 
 	// fetches a nil upload
 	suite.Equal(up.ID, uuid.Nil)
