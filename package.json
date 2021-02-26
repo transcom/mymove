@@ -35,7 +35,7 @@
     "puppeteer": "^7.1.0",
     "query-string": "6",
     "ra-data-simple-rest": "^3.10.4",
-    "ra-language-english": "^3.12.4",
+    "ra-language-english": "^3.13.0",
     "react": "^17.0.1",
     "react-admin": "^3.12.5",
     "react-app-polyfill": "^2.0.0",
@@ -104,7 +104,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.12.17",
+    "@babel/core": "~7.13.1",
     "@dump247/storybook-state": "^1.6.1",
     "@stoplight/spectral": "^5.8.1",
     "@storybook/addon-a11y": "^6.1.19",
