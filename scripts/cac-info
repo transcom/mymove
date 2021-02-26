@@ -5,16 +5,8 @@ set -eu -o pipefail
 #
 # Get general information from a CAC
 #
-OS_VERSION=$(/usr/bin/sw_vers -productVersion)
-MAC_OS="10.15"
 
-if [[ $OS_VERSION < $MAC_OS ]]; then
-  MODULE=/usr/local/lib/pkcs11/cackey.dylib
-else
-  MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
-fi
-
-readonly MODULE
+readonly MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
 readonly PKCS11=/usr/local/bin/pkcs11-tool
 readonly PKCS15=/usr/local/bin/pkcs15-tool
 
