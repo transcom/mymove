@@ -13,105 +13,105 @@ import (
 type ReServiceCode string
 
 const (
-	// ReServiceCodeCS Counseling Services
+	// ReServiceCodeCS Counseling
 	ReServiceCodeCS ReServiceCode = "CS"
-	// ReServiceCodeDBHF Dom. Haul Away Boat Factor
+	// ReServiceCodeDBHF Domestic haul away boat factor
 	ReServiceCodeDBHF ReServiceCode = "DBHF"
-	// ReServiceCodeDBTF Dom. Tow Away Boat Factor
+	// ReServiceCodeDBTF Domestic tow away boat factor
 	ReServiceCodeDBTF ReServiceCode = "DBTF"
-	// ReServiceCodeDCRT Dom. Crating
+	// ReServiceCodeDCRT Domestic crating
 	ReServiceCodeDCRT ReServiceCode = "DCRT"
-	// ReServiceCodeDCRTSA Dom. Crating - Standalone
+	// ReServiceCodeDCRTSA Domestic crating - standalone
 	ReServiceCodeDCRTSA ReServiceCode = "DCRTSA"
-	// ReServiceCodeDDASIT "Dom. Destination Add'l SIT"
+	// ReServiceCodeDDASIT Domestic destination add'l SIT
 	ReServiceCodeDDASIT ReServiceCode = "DDASIT"
-	// ReServiceCodeDDDSIT Dom. Destination SIT Delivery
+	// ReServiceCodeDDDSIT Domestic destination SIT delivery
 	ReServiceCodeDDDSIT ReServiceCode = "DDDSIT"
-	// ReServiceCodeDDFSIT Dom. Destination 1st Day SIT
+	// ReServiceCodeDDFSIT Domestic destination 1st day SIT
 	ReServiceCodeDDFSIT ReServiceCode = "DDFSIT"
-	// ReServiceCodeDDP Dom. Destination Price
+	// ReServiceCodeDDP Domestic destination price
 	ReServiceCodeDDP ReServiceCode = "DDP"
-	// ReServiceCodeDDSHUT Dom. Destination Shuttle Service
+	// ReServiceCodeDDSHUT Domestic destination shuttle service
 	ReServiceCodeDDSHUT ReServiceCode = "DDSHUT"
-	// ReServiceCodeDLH Dom. Linehaul
+	// ReServiceCodeDLH Domestic linehaul
 	ReServiceCodeDLH ReServiceCode = "DLH"
-	// ReServiceCodeDMHF Dom. Mobile Home Factor
+	// ReServiceCodeDMHF Domestic mobile home factor
 	ReServiceCodeDMHF ReServiceCode = "DMHF"
-	// ReServiceCodeDNPKF Dom. NTS Packing Factor
+	// ReServiceCodeDNPKF Domestic NTS packing factor
 	ReServiceCodeDNPKF ReServiceCode = "DNPKF"
-	// ReServiceCodeDOASIT "Dom. Origin Add'l SIT"
+	// ReServiceCodeDOASIT Domestic origin add'l SIT
 	ReServiceCodeDOASIT ReServiceCode = "DOASIT"
-	// ReServiceCodeDOFSIT Dom. Origin 1st Day SIT
+	// ReServiceCodeDOFSIT Domestic origin 1st day SIT
 	ReServiceCodeDOFSIT ReServiceCode = "DOFSIT"
-	// ReServiceCodeDOP Dom. Origin Price
+	// ReServiceCodeDOP Domestic origin price
 	ReServiceCodeDOP ReServiceCode = "DOP"
-	// ReServiceCodeDOPSIT Dom. Origin SIT Pickup
+	// ReServiceCodeDOPSIT Domestic origin SIT pickup
 	ReServiceCodeDOPSIT ReServiceCode = "DOPSIT"
-	// ReServiceCodeDOSHUT Dom. Origin Shuttle Service
+	// ReServiceCodeDOSHUT Domestic origin shuttle service
 	ReServiceCodeDOSHUT ReServiceCode = "DOSHUT"
-	// ReServiceCodeDPK Dom. Packing
+	// ReServiceCodeDPK Domestic packing
 	ReServiceCodeDPK ReServiceCode = "DPK"
-	// ReServiceCodeDSH Dom. Shorthaul
+	// ReServiceCodeDSH Domestic shorthaul
 	ReServiceCodeDSH ReServiceCode = "DSH"
-	// ReServiceCodeDUCRT Dom. Uncrating
+	// ReServiceCodeDUCRT Domestic uncrating
 	ReServiceCodeDUCRT ReServiceCode = "DUCRT"
-	// ReServiceCodeDUPK Dom. Unpacking
+	// ReServiceCodeDUPK Domestic unpacking
 	ReServiceCodeDUPK ReServiceCode = "DUPK"
 	// ReServiceCodeFSC Fuel Surcharge
 	ReServiceCodeFSC ReServiceCode = "FSC"
-	// ReServiceCodeIBHF Int’l. Haul Away Boat Factor
+	// ReServiceCodeIBHF International haul away boat factor
 	ReServiceCodeIBHF ReServiceCode = "IBHF"
-	// ReServiceCodeIBTF Int’l. Tow Away Boat Factor
+	// ReServiceCodeIBTF International tow away boat factor
 	ReServiceCodeIBTF ReServiceCode = "IBTF"
-	// ReServiceCodeICOLH "Int'l. C->O Shipping & LH"
+	// ReServiceCodeICOLH International C->O shipping & LH
 	ReServiceCodeICOLH ReServiceCode = "ICOLH"
-	// ReServiceCodeICOUB "Int'l. C->O UB"
+	// ReServiceCodeICOUB International C->O UB
 	ReServiceCodeICOUB ReServiceCode = "ICOUB"
-	// ReServiceCodeICRT "Int'l. Crating"
+	// ReServiceCodeICRT International crating
 	ReServiceCodeICRT ReServiceCode = "ICRT"
-	// ReServiceCodeICRTSA "Int'l. Crating - Standalone"
+	// ReServiceCodeICRTSA International crating - standalone
 	ReServiceCodeICRTSA ReServiceCode = "ICRTSA"
-	// ReServiceCodeIDASIT "Int'l. Destination Add'l Day SIT"
+	// ReServiceCodeIDASIT International destination add'l day SIT
 	ReServiceCodeIDASIT ReServiceCode = "IDASIT"
-	// ReServiceCodeIDDSIT "Int'l. Destination SIT Delivery"
+	// ReServiceCodeIDDSIT International destination SIT delivery
 	ReServiceCodeIDDSIT ReServiceCode = "IDDSIT"
-	// ReServiceCodeIDFSIT "Int'l. Destination 1st Day SIT"
+	// ReServiceCodeIDFSIT International destination 1st day SIT
 	ReServiceCodeIDFSIT ReServiceCode = "IDFSIT"
-	// ReServiceCodeIDSHUT "Int'l. Destination Shuttle Service"
+	// ReServiceCodeIDSHUT International destination shuttle service
 	ReServiceCodeIDSHUT ReServiceCode = "IDSHUT"
-	// ReServiceCodeIHPK "Int'l. HHG Pack"
+	// ReServiceCodeIHPK International HHG pack
 	ReServiceCodeIHPK ReServiceCode = "IHPK"
-	// ReServiceCodeIHUPK "Int'l. HHG Unpack"
+	// ReServiceCodeIHUPK International HHG unpack
 	ReServiceCodeIHUPK ReServiceCode = "IHUPK"
-	// ReServiceCodeINPKF Int’l. NTS Packing Factor
+	// ReServiceCodeINPKF International NTS packing factor
 	ReServiceCodeINPKF ReServiceCode = "INPKF"
-	// ReServiceCodeIOASIT "Int'l. Origin Add'l Day SIT"
+	// ReServiceCodeIOASIT International origin add'l day SIT
 	ReServiceCodeIOASIT ReServiceCode = "IOASIT"
-	// ReServiceCodeIOCLH "Int'l. O->C Shipping & LH"
+	// ReServiceCodeIOCLH International O->C shipping & LH
 	ReServiceCodeIOCLH ReServiceCode = "IOCLH"
-	// ReServiceCodeIOCUB "Int'l. O->C UB"
+	// ReServiceCodeIOCUB International O->C UB
 	ReServiceCodeIOCUB ReServiceCode = "IOCUB"
-	// ReServiceCodeIOFSIT "Int'l. Origin 1st Day SIT"
+	// ReServiceCodeIOFSIT International origin 1st day SIT
 	ReServiceCodeIOFSIT ReServiceCode = "IOFSIT"
-	// ReServiceCodeIOOLH "Int'l. O->O Shipping & LH"
+	// ReServiceCodeIOOLH International O->O shipping & LH
 	ReServiceCodeIOOLH ReServiceCode = "IOOLH"
-	// ReServiceCodeIOOUB "Int'l. O->O UB"
+	// ReServiceCodeIOOUB International O->O UB
 	ReServiceCodeIOOUB ReServiceCode = "IOOUB"
-	// ReServiceCodeIOPSIT "Int'l. Origin SIT Pickup"
+	// ReServiceCodeIOPSIT International origin SIT pickup
 	ReServiceCodeIOPSIT ReServiceCode = "IOPSIT"
-	// ReServiceCodeIOSHUT "Int'l. Origin Shuttle Service"
+	// ReServiceCodeIOSHUT International origin shuttle service
 	ReServiceCodeIOSHUT ReServiceCode = "IOSHUT"
-	// ReServiceCodeIUBPK "Int'l. UB Pack"
+	// ReServiceCodeIUBPK International UB pack
 	ReServiceCodeIUBPK ReServiceCode = "IUBPK"
-	// ReServiceCodeIUBUPK "Int'l. UB Unpack"
+	// ReServiceCodeIUBUPK International UB unpack
 	ReServiceCodeIUBUPK ReServiceCode = "IUBUPK"
-	// ReServiceCodeIUCRT "Int'l. Uncrating"
+	// ReServiceCodeIUCRT International uncrating
 	ReServiceCodeIUCRT ReServiceCode = "IUCRT"
-	// ReServiceCodeMS Shipment Mgmt. Services
+	// ReServiceCodeMS Move management
 	ReServiceCodeMS ReServiceCode = "MS"
-	// ReServiceCodeNSTH NonStd. HHG
+	// ReServiceCodeNSTH Nonstandard HHG
 	ReServiceCodeNSTH ReServiceCode = "NSTH"
-	// ReServiceCodeNSTUB NonStd. UB
+	// ReServiceCodeNSTUB Nonstandard UB
 	ReServiceCodeNSTUB ReServiceCode = "NSTUB"
 )
 

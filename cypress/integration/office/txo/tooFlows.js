@@ -58,8 +58,8 @@ describe('TOO user', () => {
         cy.get('#approvalConfirmationModal [data-testid="ShipmentContainer"]').should('have.length', $shipments.length);
         cy.contains('Approved service items for this move')
           .next('table')
-          .should('contain', 'Shipment management fee')
-          .and('contain', 'Counseling fee');
+          .should('contain', 'Move management')
+          .and('contain', 'Counseling');
       });
 
       // Click approve
