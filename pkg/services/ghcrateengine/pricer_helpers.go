@@ -162,6 +162,11 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 
 func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params services.PricingParams) (models.PaymentServiceItemParams, error) {
 	var paymentServiceItemParams models.PaymentServiceItemParams
+
+	if len(params) == 0 {
+		return paymentServiceItemParams, fmt.Errorf("PricingParams must not be empty")
+	}
+
 	for _, param := range params {
 		var serviceItemParamKey models.ServiceItemParamKey
 		err := db.Q().

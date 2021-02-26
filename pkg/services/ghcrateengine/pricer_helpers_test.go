@@ -271,4 +271,12 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 		suite.Error(err)
 		suite.Contains(err.Error(), "Service item param key is not a pricer param")
 	})
+
+	suite.T().Run("errors if no PricingParms passed from the Pricer", func(t *testing.T) {
+		emptyParams := services.PricingParams{}
+
+		_, err := createPricerGeneratedParams(suite.DB(), paymentServiceItem.ID, emptyParams)
+		suite.Error(err)
+		suite.Contains(err.Error(), "PricingParams must not be empty")
+	})
 }
