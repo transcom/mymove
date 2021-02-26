@@ -6,7 +6,7 @@ const puppeteer = require('puppeteer');
 const reportGenerator = require('lighthouse/lighthouse-core/report/report-generator');
 const { throttling } = require('lighthouse/lighthouse-core/config/constants');
 
-const { networkProfiles, fileSizeMoveCodes } = require('./constants');
+const { networkProfiles, fileSizeMoveCodes, fileSizePaymentRequestIds, scenarios } = require('./constants');
 
 // Gets the total request time based on the responseEnd - requestStart
 // in secs
@@ -134,7 +134,7 @@ const lighthouseFromPuppeteer = async (url, options, config = null, saveReports 
   };
 };
 
-const totalDuration = async ({ host, config, debug, saveReports, verbose }) => {
+const totalDuration = async ({ scenario, host, config, debug, saveReports, verbose }) => {
   const waitOptions = { timeout: 0, waitUntil: 'networkidle0' };
 
   const browser = await puppeteer.launch(config.launch);
@@ -163,8 +163,17 @@ const totalDuration = async ({ host, config, debug, saveReports, verbose }) => {
   const networkConfig = await setupNetwork(config, page);
   const cpuRateConfig = await setupCPU(config, page);
 
-  // go to a document viewer, orders
-  const url = `${host}/moves/${fileSizeMoveCodes[config.fileSize]}/orders`;
+  // go to a document viewer
+  let url;
+  if (scenario === scenarios.tio) {
+    url = `${host}/moves/${fileSizeMoveCodes[config.fileSize]}/payment-requests/${
+      fileSizePaymentRequestIds[config.fileSize]
+    }`;
+  } else {
+    // default to TOO
+    url = `${host}/moves/${fileSizeMoveCodes[config.fileSize]}/orders`;
+  }
+
   debug(`URL to gather metrics from: ${url}`);
   await page.goto(url, waitOptions);
 
