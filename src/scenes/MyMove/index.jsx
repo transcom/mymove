@@ -56,16 +56,19 @@ import {
   selectHasCanceledMove,
   selectMoveType,
 } from 'store/entities/selectors';
+import ConusOrNot from 'pages/MyMove/ConusOrNot';
+import ConnectedPrivateRoute from 'containers/PrivateRoute';
+import SignIn from 'pages/SignIn/SignIn';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
 
   componentDidMount() {
-    const { loadUser, loadInternalSchema, initOnboarding } = this.props;
+    const { loadUser, loadInternalSchema /* initOnboarding */ } = this.props;
 
     loadInternalSchema();
     loadUser();
-    initOnboarding();
+    // initOnboarding();
   }
 
   componentDidCatch(error, info) {
@@ -115,6 +118,15 @@ export class AppWrapper extends Component {
               {this.state.hasError && <SomethingWentWrong />}
               {!this.state.hasError && !props.swaggerError && (
                 <Switch>
+                  {/* no auth */}
+                  <Route path="/sign-in" component={SignIn} />
+
+                  {/* auth required */}
+                  <ConnectedPrivateRoute
+                    exact
+                    path="/service-member/:serviceMemberId/conus-status"
+                    component={ConusOrNot}
+                  />
                   <Route exact path="/" component={Home} />
                   <Route exact path="/ppm" component={PpmLanding} />
                   <Route exact path="/sm_style_guide" component={StyleGuide} />

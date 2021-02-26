@@ -43,6 +43,7 @@ import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { MtoShipmentShape, UploadShape, HistoryShape, MoveShape, OrdersShape } from 'types/customerShapes';
+import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -63,31 +64,10 @@ Description.defaultProps = {
 
 class Home extends Component {
   componentDidMount() {
-    const { move, getSignedCertification } = this.props;
+    const { initOnboarding, move, getSignedCertification } = this.props;
+    initOnboarding();
+
     if (Object.entries(move).length && move.status === MOVE_STATUSES.SUBMITTED) {
-      getSignedCertification(move.id);
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    const { serviceMember, loggedInUserSuccess, isProfileComplete, move, getSignedCertification } = this.props;
-    if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
-      if (serviceMember && !isProfileComplete) {
-        // If the service member exists, but is not complete, redirect to next incomplete page.
-        this.resumeMove();
-      }
-    }
-
-    if (!prevProps.serviceMember && serviceMember && !isProfileComplete) {
-      this.resumeMove();
-    }
-
-    if (prevProps.serviceMember && prevProps.serviceMember !== serviceMember && !isProfileComplete) {
-      // if service member existed but was updated, redirect to next incomplete page.
-      this.resumeMove();
-    }
-
-    if (!Object.entries(prevProps.move).length && Object.entries(move).length) {
       getSignedCertification(move.id);
     }
   }
@@ -446,7 +426,6 @@ Home.propTypes = {
   move: MoveShape.isRequired,
   isLoggedIn: bool.isRequired,
   loggedInUserIsLoading: bool.isRequired,
-  loggedInUserSuccess: bool.isRequired,
   isProfileComplete: bool.isRequired,
   location: shape({}).isRequired,
   selectedMoveType: string,
@@ -463,6 +442,7 @@ Home.propTypes = {
     signature: string,
     created_at: string,
   }),
+  initOnboarding: func.isRequired,
   getSignedCertification: func.isRequired,
 };
 
@@ -506,6 +486,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = {
+  initOnboarding: initOnboardingAction,
   getSignedCertification: getSignedCertificationAction,
 };
 
