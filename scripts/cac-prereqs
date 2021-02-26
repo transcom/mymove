@@ -26,7 +26,7 @@ fi
 
 OS_VERSION=$(/usr/bin/sw_vers -productVersion)
 MAC_OS="10.15"
-if [[ $OS_VERSION != *$MAC_OS* && ! -f "${MODULE}" ]]; then
+if [[ $OS_VERSION < $MAC_OS && ! -f "${MODULE}" ]]; then
   echo "${MODULE} must be installed for MacOS versions prior to ${MAC_OS}"
   echo "Please visit http://militarycac.org/MacVideos.htm#CACKey_packages and follow instructions to install"
   exit 1
