@@ -98,7 +98,7 @@ describe('MovePaymentRequests', () => {
     );
 
     it('renders without errors', () => {
-      expect(component.find('h1').contains('Payment Requests')).toBe(true);
+      expect(component.find('h1').contains('Payment requests')).toBe(true);
     });
 
     it('renders mulitple payment requests', () => {
