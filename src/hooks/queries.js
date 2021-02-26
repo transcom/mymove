@@ -238,7 +238,7 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
 
   const mtoID = data[0]?.moveTaskOrderID;
 
-  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID], getMTOShipments, {
+  const { data: mtoShipments = [], ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
     enabled: !!mtoID,
   });
 

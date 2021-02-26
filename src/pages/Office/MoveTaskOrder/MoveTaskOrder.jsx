@@ -132,8 +132,15 @@ export const MoveTaskOrder = ({ match }) => {
 
   if (!mtoShipmentsArr.some(approved)) {
     return (
-      <div>
-        <p>This Move does not have any approved shipments yet.</p>
+      <div className={styles.tabContent}>
+        <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+          <div className={styles.pageHeader}>
+            <h1>Move task order</h1>
+          </div>
+          <div className={styles.emptyMessage}>
+            <p>This move does not have any approved shipments yet.</p>
+          </div>
+        </GridContainer>
       </div>
     );
   }
