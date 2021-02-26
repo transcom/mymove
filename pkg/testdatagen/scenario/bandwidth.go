@@ -29,27 +29,33 @@ type bandwidthScenario NamedScenario
 var BandwidthScenario = bandwidthScenario{"bandwidth"}
 
 func createHHGMove150Kb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	filterFile := &[]string{"150Kb.png"}
 	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, &[]string{"150Kb.png"})
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
 	move := makeMoveForOrders(orders, db, "S150KB")
 	shipment := makeShipmentForMove(move, db)
-	makePaymentRequestForShipment(move, shipment, db, primeUploader)
+	paymentRequestID := uuid.Must(uuid.FromString("68034aa3-831c-4d2d-9fd4-b66bc0cc5130"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
 func createHHGMove2mb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	filterFile := &[]string{"2mb.png"}
 	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, &[]string{"2mb.png"})
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
 	move := makeMoveForOrders(orders, db, "MED2MB")
 	shipment := makeShipmentForMove(move, db)
-	makePaymentRequestForShipment(move, shipment, db, primeUploader)
+	paymentRequestID := uuid.Must(uuid.FromString("4de88d57-9723-446b-904c-cf8d0a834687"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
 func createHHGMove25mb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	filterFile := &[]string{"25mb.png"}
 	serviceMember := makeServiceMember(db)
-	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, &[]string{"25mb.png"})
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
 	move := makeMoveForOrders(orders, db, "LG25MB")
 	shipment := makeShipmentForMove(move, db)
-	makePaymentRequestForShipment(move, shipment, db, primeUploader)
+	paymentRequestID := uuid.Must(uuid.FromString("aca5cc9c-c266-4a7d-895d-dc3c9c0d9894"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
 func makeServiceMember(db *pop.Connection) models.ServiceMember {
@@ -148,9 +154,10 @@ func makeShipmentForMove(move models.Move, db *pop.Connection) models.MTOShipmen
 	return MTOShipment
 }
 
-func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment, db *pop.Connection, primeUploader *uploader.PrimeUploader) {
+func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment, db *pop.Connection, primeUploader *uploader.PrimeUploader, fileNames *[]string, paymentRequestID uuid.UUID) {
 	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
+			ID:            paymentRequestID,
 			MoveTaskOrder: move,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusPending,
@@ -192,7 +199,7 @@ func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment
 		MTOServiceItem: mtoServiceItemDUCRT,
 	})
 
-	files := filesInBandwidthTestDirectory(nil)
+	files := filesInBandwidthTestDirectory(fileNames)
 	// Creates prime upload documents from the files in this directory:
 	// pkg/testdatagen/testdata/bandwidth_test_docs
 	for _, file := range files {

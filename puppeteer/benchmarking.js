@@ -13,7 +13,7 @@ const config = new Conf({
 
 const program = new commander.Command();
 
-const runNetworkComparison = async (host, saveReports, verbose) => {
+const runNetworkComparison = async (scenario, host, saveReports, verbose) => {
   const results = {};
 
   // await cannot be used inside of a forEach loop
@@ -25,7 +25,8 @@ const runNetworkComparison = async (host, saveReports, verbose) => {
 
     // Running these tests in parallel would likely skew the results
     // eslint-disable-next-line no-await-in-loop
-    const elapsedTimeResults = await totalDuration({
+    results[`${speed}`] = await totalDuration({
+      scenario,
       host,
       config: configStore,
       debug,
@@ -34,14 +35,12 @@ const runNetworkComparison = async (host, saveReports, verbose) => {
     }).catch(() => {
       process.exit(1);
     });
-
-    results[`${speed}`] = elapsedTimeResults;
   }
 
   return results;
 };
 
-const runFileSizeComparison = async (host, saveReports, verbose) => {
+const runFileSizeComparison = async (scenario, host, saveReports, verbose) => {
   const results = {};
 
   // await cannot be used inside of a forEach loop
@@ -54,6 +53,7 @@ const runFileSizeComparison = async (host, saveReports, verbose) => {
     // Running these tests in parallel would likely skew the results
     // eslint-disable-next-line no-await-in-loop
     const elapsedTimeResults = await totalDuration({
+      scenario,
       host,
       config: configStore,
       debug,
@@ -79,19 +79,19 @@ const runAction = async ({ scenario, measurementType, host, verbose, saveReports
   let results = {};
   switch (measurementType) {
     case measurementTypes.totalDuration:
-      results = await totalDuration({ host, config: config.store, debug, saveReports, verbose }).catch(() => {
+      results = await totalDuration({ scenario, host, config: config.store, debug, saveReports, verbose }).catch(() => {
         process.exit(1);
       });
 
       console.table(results);
       break;
     case measurementTypes.fileDuration:
-      results = await runFileSizeComparison(host, saveReports, verbose);
+      results = await runFileSizeComparison(scenario, host, saveReports, verbose);
 
       console.table(results);
       break;
     case measurementTypes.networkComparison:
-      results = await runNetworkComparison(host, saveReports, verbose);
+      results = await runNetworkComparison(scenario, host, saveReports, verbose);
 
       console.table(results);
       break;
@@ -106,7 +106,7 @@ program
   .addOption(
     new commander.Option('-s, --scenario <scenario>', 'scenario is the page or workflow being tested')
       .default('too-orders-document-viewer')
-      .choices(['too-orders-document-viewer'])
+      .choices(['too-orders-document-viewer', 'tio-payment-requests-document-viewer'])
       .makeOptionMandatory(),
   )
   .addOption(
