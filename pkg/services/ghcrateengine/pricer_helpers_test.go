@@ -182,10 +182,10 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 	params := services.PricingParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: 40000,
+			Value: 40000.9,
 		}, {
 			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: 1,
+			Value: 1.06,
 		}, {
 			Key:   models.ServiceItemParamNameIsPeak,
 			Value: true,
@@ -236,7 +236,10 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 	suite.T().Run("payment service item params created for the pricer", func(t *testing.T) {
 		paymentServiceItemParams, err := createPricerGeneratedParams(suite.DB(), paymentServiceItem.ID, params)
 		suite.NoError(err)
-		suite.Equal(len(paymentServiceItemParams), 4)
+		expectedValues := [4]string{"40000.9", "1.06", "true", "TRUSS_TEST"}
+		for i, paymentServiceItemParam := range paymentServiceItemParams {
+			suite.Equal(expectedValues[i], paymentServiceItemParam.Value)
+		}
 	})
 
 	suite.T().Run("errors if PaymentServiceItemID is invalid", func(t *testing.T) {
@@ -248,10 +251,10 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 	})
 
 	suite.T().Run("errors if PricingParm points to a serviceItem that doesnt originate from the Pricer", func(t *testing.T) {
-		invalidParam := []services.PricingParam{
+		invalidParam := services.PricingParams{
 			{
 				Key:   models.ServiceItemParamNameServiceAreaOrigin,
-				Value: 40000,
+				Value: 40000.9,
 			},
 		}
 
@@ -266,7 +269,6 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 
 		_, err := createPricerGeneratedParams(suite.DB(), paymentServiceItem.ID, invalidParam)
 		suite.Error(err)
-		suite.Contains(err.Error(), "unable to find service item param key for ")
+		suite.Contains(err.Error(), "Service item param key is not a pricer param")
 	})
-	// TODO: test that a validation error is thrown for a bad key or value
 }

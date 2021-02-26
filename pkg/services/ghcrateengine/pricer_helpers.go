@@ -166,16 +166,31 @@ func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.U
 		var serviceItemParamKey models.ServiceItemParamKey
 		err := db.Q().
 			Where("key = ?", param.Key).
-			Where("origin = ?", models.ServiceItemParamOriginPricer).
 			First(&serviceItemParamKey)
 		if err != nil {
-			return paymentServiceItemParams, fmt.Errorf("unable to find service item param key for %v", serviceItemParamKey.Key)
+			return paymentServiceItemParams, fmt.Errorf("Unable to find service item param key for %v", serviceItemParamKey.Key)
+		}
+		if serviceItemParamKey.Origin != models.ServiceItemParamOriginPricer {
+			return paymentServiceItemParams, fmt.Errorf("Service item param key is not a pricer param. Param key: %v", serviceItemParamKey.Key)
+		}
+
+		value := param.Value
+		switch serviceItemParamKey.Type {
+		case models.ServiceItemParamTypeTimestamp:
+			if timestampValue, ok := param.Value.(time.Time); ok {
+				value = timestampValue.Format(TimestampParamFormat)
+			}
+		case models.ServiceItemParamTypeDate:
+			if dateValue, ok := param.Value.(time.Time); ok {
+				value = dateValue.Format(DateParamFormat)
+			}
+
 		}
 
 		newParam := models.PaymentServiceItemParam{
 			PaymentServiceItemID:  paymentServiceItemID,
 			ServiceItemParamKeyID: serviceItemParamKey.ID,
-			Value:                 fmt.Sprintf("%v", param.Value),
+			Value:                 fmt.Sprintf("%v", value),
 		}
 
 		verrs, err := db.ValidateAndCreate(&newParam)

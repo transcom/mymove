@@ -29,7 +29,11 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 		return unit.Cents(0), err
 	}
 
-	priceCents, _, err := pricer.PriceUsingParams(item.PaymentServiceItemParams)
+	priceCents, pricingParams, err := pricer.PriceUsingParams(item.PaymentServiceItemParams)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+	_, err = createPricerGeneratedParams(p.db, item.ID, pricingParams)
 	return priceCents, err
 }
 
