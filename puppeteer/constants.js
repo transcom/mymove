@@ -60,6 +60,11 @@ const networkProfiles = {
   },
 };
 
+const scenarios = {
+  too: 'too-orders-document-viewer',
+  tio: 'tio-payment-requests-document-viewer',
+};
+
 const measurementTypes = {
   totalDuration: 'total-duration',
   networkComparison: 'network-comparison',
@@ -89,6 +94,13 @@ const fileSizeMoveCodes = {
   large: 'LG25MB',
 };
 
+// File sizes associated to different payment requests by id
+const fileSizePaymentRequestIds = {
+  small: '68034aa3-831c-4d2d-9fd4-b66bc0cc5130',
+  medium: '4de88d57-9723-446b-904c-cf8d0a834687',
+  large: 'aca5cc9c-c266-4a7d-895d-dc3c9c0d9894',
+};
+
 // All speeds available
 const speeds = ['fast', 'medium', 'slow'];
 
@@ -100,5 +112,7 @@ module.exports = {
   fileSizeList,
   fileList,
   fileSizeMoveCodes,
+  fileSizePaymentRequestIds,
   speeds,
+  scenarios,
 };
