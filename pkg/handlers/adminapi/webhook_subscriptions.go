@@ -122,9 +122,14 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 
 	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription)
 	// Check that the uuid provided is valid
+	// if err != nil {
+	// 	logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
+	// 	return handlers.ResponseForError(logger, err)
+	// }
+
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
-		return handlers.ResponseForError(logger, err)
+		return webhooksubscriptionop.NewUpdateWebhookSubscriptionNotFound()
 	}
 
 	// Convert model back to a payload

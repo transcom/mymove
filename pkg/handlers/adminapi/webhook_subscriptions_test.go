@@ -196,86 +196,91 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		suite.Equal(params.WebhookSubscription.SubscriberID, okResponse.Payload.SubscriberID)
 	})
 
-	// suite.T().Run("500 - Not found return Internal Server Error", func(t *testing.T) {
-	// 	// Testing: 			UdateWebhookSubscriptionHandler, Updater
-	// 	// Set up: 				Provide an invalid request with the id of a webhook_subscription
-	// 	// 		   					to the updateWebhookSubscription endpoint.
-	// 	// Expected Outcome: 	The webhookSubscription is updated and we
-	// 	//					 		receive a 200 OK.
-	// 	// params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-	// 	// 	HTTPRequest:           req,
-	// 	// 	WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
-	// 	// }
-	// 	fakeID, err := uuid.NewV4()
-	// 	suite.NoError(err)
-	// 	params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-	// 		HTTPRequest:           req,
-	// 		WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
-	// 		WebhookSubscription: &adminmessages.WebhookSubscription{
-	// 			CallbackURL:  "something.com",
-	// 			Status:       "DISABLED",
-	// 			EventKey:     "WebhookSubscription.Update",
-	// 			SubscriberID: strfmt.UUID(webhookSubscription.SubscriberID.String()),
-	// 		},
-	// 	}
+	suite.T().Run("500 - Not found return Internal Server Error", func(t *testing.T) {
+		// Testing: 			UdateWebhookSubscriptionHandler, Updater
+		// Set up: 				Provide an invalid request with the id of a webhook_subscription
+		// 		   					to the updateWebhookSubscription endpoint.
+		// Expected Outcome: 	The webhookSubscription is updated and we
+		//					 		receive a 200 OK.
+		// params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+		// 	HTTPRequest:           req,
+		// 	WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
+		// }
+		fakeID, err := uuid.NewV4()
+		suite.NoError(err)
+		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+			HTTPRequest:           req,
+			WebhookSubscriptionID: strfmt.UUID(fakeID.String()),
+			WebhookSubscription: &adminmessages.WebhookSubscription{
+				CallbackURL:  "something.com",
+				Status:       "DISABLED",
+				EventKey:     "WebhookSubscription.Update",
+				SubscriberID: strfmt.UUID(webhookSubscription.SubscriberID.String()),
+			},
+		}
 
-	// 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	// 	handler := UpdateWebhookSubscriptionHandler{
-	// 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	// 		webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
-	// 		query.NewQueryFilter,
-	// 	}
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		handler := UpdateWebhookSubscriptionHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			query.NewQueryFilter,
+		}
 
-	// 	response := handler.Handle(params)
-	// 	expectedError := models.ErrFetchNotFound
-	// 	// expectedError := webhooksubscriptionop.UpdateWebhookSubscriptionInternalServerErrorCode
-	// 	expectedResponse := &handlers.ErrResponse{
-	// 		Code: http.StatusInternalServerError,
-	// 		Err:  expectedError,
-	// 	}
-	// 	suite.Equal(expectedResponse, response)
-	// 	// IsType below needs to change because the error type is No SQL Rows error:
-	// 	// suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionNotFound{}, response)
-	// 	// badResponse := response.(*webhooksubscriptionop.UpdateWebhookSubscriptionNotFound)
+		response := handler.Handle(params)
+		// expectedError := models.ErrFetchNotFound
+		// expectedError := webhooksubscriptionop.UpdateWebhookSubscriptionInternalServerErrorCode{} // 500 code
+		expectedError := models.ErrFetchForbidden
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusNotFound,
+			Err:  expectedError,
+		}
+		suite.Equal(expectedResponse, response)
+		// IsType below needs to change because the error type is No SQL Rows error:
+		// suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionNotFound{}, response)
+		// badResponse := response.(*webhooksubscriptionop.UpdateWebhookSubscriptionNotFound)
 
-	// 	suite.NotEqual(fakeID, webhookSubscription.ID.String())
-	// })
+		suite.NotEqual(fakeID, webhookSubscription.ID.String())
+	})
 
-	// suite.T().Run("422 - Validation Error", func(t *testing.T) {
-	// 	// Testing: 			UdateWebhookSubscriptionHandler, Updater
-	// 	// Set up: 				Provide an invalid request with the id of a webhook_subscription
-	// 	// 		   					to the updateWebhookSubscription endpoint.
-	// 	// Expected Outcome: 	The webhookSubscription is updated and we
-	// 	//					 		receive a 200 OK.
-	// 	// params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-	// 	// 	HTTPRequest:           req,
-	// 	// 	WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
-	// 	// }
+	suite.T().Run("422 - Validation Error", func(t *testing.T) {
+		// Testing: 			UdateWebhookSubscriptionHandler, Updater
+		// Set up: 				Provide an invalid request with the id of a webhook_subscription
+		// 		   					to the updateWebhookSubscription endpoint.
+		// Expected Outcome: 	The webhookSubscription is not updated and we see a validation error.
+		// params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+		// HTTPRequest:           req,
+		// WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String())
 
-	// 	params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
-	// 		HTTPRequest:           req,
-	// 		WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
-	// 		WebhookSubscription: &adminmessages.WebhookSubscription{
-	// 			CallbackURL:  "something.com",
-	// 			Status:       "DISABLED",
-	// 			EventKey:     "WebhookSubscription.Update",
-	// 			SubscriberID: strfmt.UUID(webhookSubscription.SubscriberID.String()),
-	// 		},
-	// 	}
+		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+			HTTPRequest:           req,
+			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
+			WebhookSubscription: &adminmessages.WebhookSubscription{
+				CallbackURL:  "something.com",
+				Status:       "DISABLED",
+				EventKey:     "WebhookSubscription.Update",
+				SubscriberID: strfmt.UUID(webhookSubscription.SubscriberID.String()),
+			},
+		}
 
-	// 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	// 	handler := UpdateWebhookSubscriptionHandler{
-	// 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	// 		webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
-	// 		query.NewQueryFilter,
-	// 	}
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		handler := UpdateWebhookSubscriptionHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			query.NewQueryFilter,
+		}
 
-	// 	response := handler.Handle(params)
+		response := handler.Handle(params)
 
-	// 	suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionUnprocessableEntity{}, response)
-	// 	badResponse := response.(*webhooksubscriptionop.UpdateWebhookSubscriptionUnprocessableEntity)
-	// 	fakeID, err := uuid.NewV4()
-	// 	suite.NoError(err)
-	// 	suite.Equal(fakeID, badResponse)
-	// })
+		expectedError := models.ErrFetchForbidden
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusNotFound,
+			Err:  expectedError,
+		}
+
+		suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionUnprocessableEntity{}, response)
+		badResponse := response.(*webhooksubscriptionop.UpdateWebhookSubscriptionUnprocessableEntity)
+		// fakeID, err := uuid.NewV4()
+		// suite.NoError(err)
+		suite.Equal(expectedResponse, badResponse)
+	})
 }
