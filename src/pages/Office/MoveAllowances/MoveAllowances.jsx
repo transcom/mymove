@@ -31,7 +31,7 @@ const MoveAllowances = () => {
   const history = useHistory();
 
   const { move, moveOrders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
-  const moveOrderId = move?.ordersId;
+  const orderId = move?.ordersId;
 
   const handleClose = () => {
     history.push(`/moves/${moveCode}/details`);
@@ -39,10 +39,10 @@ const MoveAllowances = () => {
 
   const [mutateOrders] = useMutation(updateMoveOrder, {
     onSuccess: (data, variables) => {
-      const updatedOrder = data.moveOrders[variables.moveOrderID];
-      queryCache.setQueryData([MOVE_ORDERS, variables.moveOrderID], {
+      const updatedOrder = data.moveOrders[variables.orderID];
+      queryCache.setQueryData([MOVE_ORDERS, variables.orderID], {
         moveOrders: {
-          [`${variables.moveOrderID}`]: updatedOrder,
+          [`${variables.orderID}`]: updatedOrder,
         },
       });
       queryCache.invalidateQueries(MOVE_ORDERS);
@@ -82,7 +82,7 @@ const MoveAllowances = () => {
       agency,
       dependentsAuthorized,
     };
-    mutateOrders({ moveOrderID: moveOrderId, ifMatchETag: moveOrder.eTag, body });
+    mutateOrders({ orderID: orderId, ifMatchETag: moveOrder.eTag, body });
   };
 
   const { entitlement, grade, agency } = moveOrder;

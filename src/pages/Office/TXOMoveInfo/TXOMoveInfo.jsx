@@ -19,7 +19,7 @@ const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/
 const TXOMoveInfo = () => {
   const { moveCode } = useParams();
   const { pathname } = useLocation();
-  const { moveOrder, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
   const hideNav =
     matchPath(pathname, {
       path: '/moves/:moveCode/payment-requests/:id',
@@ -39,7 +39,7 @@ const TXOMoveInfo = () => {
 
   return (
     <>
-      <CustomerHeader moveOrder={moveOrder} customer={customerData} moveCode={moveCode} />
+      <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
       {!hideNav && (
         <header className="nav-header">
           <div className="grid-container-desktop-lg">

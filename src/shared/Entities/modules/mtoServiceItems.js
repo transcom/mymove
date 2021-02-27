@@ -13,8 +13,8 @@ export function getMTOServiceItems(
   return swaggerRequest(getGHCClient, getMTOServiceItemsOperation, { moveTaskOrderID }, { label, schemaKey });
 }
 
-export function selectMTOServiceItems(state, moveOrderId) {
-  const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
+export function selectMTOServiceItems(state, orderId) {
+  const moveTaskOrders = selectMoveTaskOrders(state, orderId);
 
   return filter(state.entities.mtoServiceItems, (item) =>
     moveTaskOrders.find((mto) => mto.id === item.moveTaskOrderID),
