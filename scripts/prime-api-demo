@@ -239,32 +239,35 @@ fi
 shipmentEtag=$(jq '.eTag' tmp/pad_update_response_weights.json)
 printf "\n==========\n\n"
 
-printf "The prime can create a DDFSIT service item to later request payment for:\n\n"
+# printf "The prime can create a DDFSIT service item to later request payment for:\n\n"
+# read -p "Ready to continue? Hit enter..." -n 1 -r
 
-cat > tmp/pad_create_ddfsit_service_item.json <<- EOM
-{
-  "body": {
-    "moveTaskOrderID": "${mtoid}",
-    "mtoShipmentID": ${shipmentID},
-    "modelType": "MTOServiceItemDestSIT",
-    "reServiceCode": "DDFSIT",
-    "timeMilitary1": "1705Z",
-    "firstAvailableDeliveryDate1": "2021-01-31",
-    "timeMilitary2": "0719Z",
-    "firstAvailableDeliveryDate2": "2021-02-03",
-    "sitEntryDate": "2021-01-12"
-  }
-}
-EOM
 
-bin/prime-api-client "${primeapiopts[@]}" create-mto-service-item --filename ./tmp/pad_create_ddfsit_service_item.json > tmp/pad_create_ddfsit_response.json
+# cat > tmp/pad_create_ddfsit_service_item.json <<- EOM
+# {
+#   "body": {
+#     "moveTaskOrderID": "${mtoid}",
+#     "mtoShipmentID": ${shipmentID},
+#     "modelType": "MTOServiceItemDestSIT",
+#     "reServiceCode": "DDFSIT",
+#     "timeMilitary1": "1705Z",
+#     "firstAvailableDeliveryDate1": "2021-01-31",
+#     "timeMilitary2": "0719Z",
+#     "firstAvailableDeliveryDate2": "2021-02-03",
+#     "sitEntryDate": "2021-01-12"
+#   }
+# }
+# EOM
 
-printf "The prime fetches mto updates to capture the newly created DDFSIT service item:\n\n"
+# bin/prime-api-client "${primeapiopts[@]}" create-mto-service-item --filename ./tmp/pad_create_ddfsit_service_item.json > tmp/pad_create_ddfsit_response.json
 
-bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates | jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/pad_demo_mto.json
+# printf "The prime fetches mto updates to capture the newly created DDFSIT service item:\n\n"
 
-printf "Now we wait for the TOO to approve the service items.\n\n"
+# bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates | jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/pad_demo_mto.json
 
+# printf "Now we wait for the TOO to approve the service items.\n\n"
+
+printf "The prime creates a payment request.\n\n"
 askpr=1
 while [ $askpr -eq 1 ]; do
   echo "Do you want to create a payment request? (enter a number)"
