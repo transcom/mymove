@@ -123,6 +123,9 @@ const MoveOrders = () => {
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => {
           // if the initial value === value, and it's 4 digits, run validator and show warning if invalid
+          if (initialValues.tac === formik.values.tac) {
+            validateTac(formik.values.tac);
+          }
           // onBlur, if the value has 4 digits, run validator and show warning if invalid
           const tacWarning = isValidTac ? '' : tacWarningMsg;
           return (
