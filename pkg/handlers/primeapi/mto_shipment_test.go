@@ -657,7 +657,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		payload := primemessages.MTOShipment{
 			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
-			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
+			ScheduledPickupDate:  handlers.FmtDate(tenDaysFromNow),
 		}
 
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
@@ -685,8 +685,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 
 		// Let's double check our maths.
-		expectedRDD := time.Time(responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
-		actualRDD := time.Time(responsePayload.RequiredDeliveryDate)
+		expectedRDD := handlers.FmtDatePtrToPopPtr(responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
+		actualRDD := handlers.FmtDatePtrToPopPtr(responsePayload.RequiredDeliveryDate)
 		suite.Equal(expectedRDD.Year(), actualRDD.Year())
 		suite.Equal(expectedRDD.Month(), actualRDD.Month())
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
@@ -725,7 +725,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		payload := primemessages.MTOShipment{
 			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
-			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
+			ScheduledPickupDate:  handlers.FmtDate(tenDaysFromNow),
 			DestinationAddress:   &payloadAKAddress,
 		}
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
@@ -752,8 +752,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 
 		// Let's double check our maths.
-		expectedRDD := time.Time(responsePayload.ScheduledPickupDate).AddDate(0, 0, 22)
-		actualRDD := time.Time(responsePayload.RequiredDeliveryDate)
+		expectedRDD := handlers.FmtDatePtrToPopPtr(responsePayload.ScheduledPickupDate).AddDate(0, 0, 22)
+		actualRDD := handlers.FmtDatePtrToPopPtr(responsePayload.RequiredDeliveryDate)
 		suite.Equal(expectedRDD.Year(), actualRDD.Year())
 		suite.Equal(expectedRDD.Month(), actualRDD.Month())
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
@@ -794,7 +794,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		payload := primemessages.MTOShipment{
 			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
-			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
+			ScheduledPickupDate:  handlers.FmtDate(tenDaysFromNow),
 			DestinationAddress:   &payloadAdakAddress,
 		}
 
@@ -822,8 +822,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 
 		// Let's double check our maths.
-		expectedRDD := time.Time(responsePayload.ScheduledPickupDate).AddDate(0, 0, 32)
-		actualRDD := time.Time(responsePayload.RequiredDeliveryDate)
+		expectedRDD := handlers.FmtDatePtrToPopPtr(responsePayload.ScheduledPickupDate).AddDate(0, 0, 32)
+		actualRDD := handlers.FmtDatePtrToPopPtr(responsePayload.RequiredDeliveryDate)
 		suite.Equal(expectedRDD.Year(), actualRDD.Year())
 		suite.Equal(expectedRDD.Month(), actualRDD.Month())
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())

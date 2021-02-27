@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -39,6 +40,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
+		SubmittedAt:        handlers.FmtDateTimePtr(moveTaskOrder.SubmittedAt),
 		IsCanceled:         moveTaskOrder.IsCanceled(),
 		MoveOrder:          MoveOrder(&moveTaskOrder.Orders),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
@@ -56,6 +58,11 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 
 	if moveTaskOrder.PPMType != nil {
 		payload.PpmType = *moveTaskOrder.PPMType
+	}
+
+	if moveTaskOrder.SelectedMoveType != nil {
+		moveType := supportmessages.SelectedMoveType(*moveTaskOrder.SelectedMoveType)
+		payload.SelectedMoveType = &moveType
 	}
 
 	payload.SetMtoServiceItems(*mtoServiceItems)
@@ -93,6 +100,7 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
+	fmt.Println(originDutyStation)
 	uploadedOrders := Document(&moveOrder.UploadedOrders)
 	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)

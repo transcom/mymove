@@ -1375,16 +1375,20 @@ definitions:
         format: date
         type: string
         readOnly: true
+        x-nullable: true
       scheduledPickupDate:
         format: date
         type: string
+        x-nullable: true
       requestedPickupDate:
         format: date
         type: string
         readOnly: true
+        x-nullable: true
       firstAvailableDeliveryDate:
         format: date
         type: string
+        x-nullable: true
       primeActualWeight:
         type: integer
         example: 4500
@@ -1395,13 +1399,16 @@ definitions:
         format: date
         type: string
         readOnly: true
+        x-nullable: true
       actualPickupDate:
         format: date
         type: string
+        x-nullable: true
       requiredDeliveryDate:
         format: date
         type: string
         readOnly: true
+        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
       mtoServiceItems:

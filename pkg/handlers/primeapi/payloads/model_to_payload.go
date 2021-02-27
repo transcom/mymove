@@ -335,19 +335,25 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 // MTOShipment converts MTOShipment model to payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
-		ID:                       strfmt.UUID(mtoShipment.ID.String()),
-		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		PickupAddress:            Address(mtoShipment.PickupAddress),
-		Status:                   string(mtoShipment.Status),
-		DestinationAddress:       Address(mtoShipment.DestinationAddress),
-		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
-		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
-		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ID:                         strfmt.UUID(mtoShipment.ID.String()),
+		Agents:                     *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID:            strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:               primemessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks:            mtoShipment.CustomerRemarks,
+		PickupAddress:              Address(mtoShipment.PickupAddress),
+		Status:                     string(mtoShipment.Status),
+		DestinationAddress:         Address(mtoShipment.DestinationAddress),
+		SecondaryPickupAddress:     Address(mtoShipment.SecondaryPickupAddress),
+		SecondaryDeliveryAddress:   Address(mtoShipment.SecondaryDeliveryAddress),
+		CreatedAt:                  strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                  strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                       etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ApprovedDate:               handlers.FmtDatePtr(mtoShipment.ApprovedDate),
+		ScheduledPickupDate:        handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
+		RequestedPickupDate:        handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
+		ActualPickupDate:           handlers.FmtDatePtr(mtoShipment.ActualPickupDate),
+		FirstAvailableDeliveryDate: handlers.FmtDatePtr(mtoShipment.FirstAvailableDeliveryDate),
+		RequiredDeliveryDate:       handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
 	}
 
 	if mtoShipment.MTOServiceItems != nil {
@@ -355,33 +361,9 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
 	}
 
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
-	}
-
-	if mtoShipment.ScheduledPickupDate != nil {
-		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
-	}
-
-	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
-		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
-	}
-
-	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
-		payload.ActualPickupDate = strfmt.Date(*mtoShipment.ActualPickupDate)
-	}
-
-	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {
-		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
-	}
-
-	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
-		payload.RequiredDeliveryDate = strfmt.Date(*mtoShipment.RequiredDeliveryDate)
-	}
-
 	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.PrimeEstimatedWeightRecordedDate != nil {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
-		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
+		payload.PrimeEstimatedWeightRecordedDate = handlers.FmtDatePtr(mtoShipment.PrimeEstimatedWeightRecordedDate)
 	}
 
 	if mtoShipment.PrimeActualWeight != nil {

@@ -1514,7 +1514,8 @@ func init() {
       "properties": {
         "actualPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -1523,6 +1524,7 @@ func init() {
           "description": "date when the shipment was given the status \"APPROVED\"",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "createdAt": {
@@ -1545,7 +1547,8 @@ func init() {
         },
         "firstAvailableDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -1583,6 +1586,7 @@ func init() {
         "primeEstimatedWeightRecordedDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "rejectionReason": {
@@ -1594,16 +1598,19 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "requiredDeliveryDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "scheduledPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "secondaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
@@ -3998,7 +4005,8 @@ func init() {
       "properties": {
         "actualPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -4007,6 +4015,7 @@ func init() {
           "description": "date when the shipment was given the status \"APPROVED\"",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "createdAt": {
@@ -4029,7 +4038,8 @@ func init() {
         },
         "firstAvailableDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -4067,6 +4077,7 @@ func init() {
         "primeEstimatedWeightRecordedDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "rejectionReason": {
@@ -4078,16 +4089,19 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "requiredDeliveryDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "scheduledPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "secondaryDeliveryAddress": {
           "$ref": "#/definitions/Address"

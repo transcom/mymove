@@ -49,6 +49,15 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 
 		// Convert payload to model for moveTaskOrder
 		moveTaskOrder = MoveTaskOrderModel(&payload)
+		// Make timestamps coherent with state
+		timeNow := time.Now()
+		if moveTaskOrder.Status == models.MoveStatusSUBMITTED {
+			moveTaskOrder.SubmittedAt = &timeNow
+		}
+		if moveTaskOrder.Status == models.MoveStatusAPPROVED {
+			moveTaskOrder.AvailableToPrimeAt = &timeNow
+		}
+
 		// referenceID cannot be set by user so generate it
 		refID, err = models.GenerateReferenceID(tx)
 		if err != nil {
@@ -335,8 +344,6 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
 	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
 	model := &models.Move{
-		ReferenceID:        &mtoPayload.ReferenceID,
-		Locator:            mtoPayload.MoveCode,
 		PPMEstimatedWeight: &ppmEstimatedWeight,
 		PPMType:            &mtoPayload.PpmType,
 		ContractorID:       &contractorID,
@@ -346,6 +353,11 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	if mtoPayload.AvailableToPrimeAt != nil {
 		availableToPrimeAt := time.Time(*mtoPayload.AvailableToPrimeAt)
 		model.AvailableToPrimeAt = &availableToPrimeAt
+	}
+
+	if mtoPayload.SelectedMoveType != nil {
+		moveType := models.SelectedMoveType(*mtoPayload.SelectedMoveType)
+		model.SelectedMoveType = &moveType
 	}
 
 	return model

@@ -1896,8 +1896,18 @@ func init() {
           "readOnly": true,
           "example": "1001-3456"
         },
+        "selectedMoveType": {
+          "$ref": "#/definitions/SelectedMoveType"
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "description": "Date the MoveTaskOrder was submitted by customer.",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
@@ -2147,6 +2157,20 @@ func init() {
         "NSTH",
         "NSTUB"
       ]
+    },
+    "SelectedMoveType": {
+      "type": "string",
+      "title": "Selected Move Type",
+      "enum": [
+        "HHG",
+        "PPM",
+        "UB",
+        "POV",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_PPM"
+      ],
+      "x-nullable": true
     },
     "UpdateMTOServiceItemStatus": {
       "properties": {
@@ -4432,8 +4456,18 @@ func init() {
           "readOnly": true,
           "example": "1001-3456"
         },
+        "selectedMoveType": {
+          "$ref": "#/definitions/SelectedMoveType"
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
+        },
+        "submittedAt": {
+          "description": "Date the MoveTaskOrder was submitted by customer.",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
@@ -4683,6 +4717,20 @@ func init() {
         "NSTH",
         "NSTUB"
       ]
+    },
+    "SelectedMoveType": {
+      "type": "string",
+      "title": "Selected Move Type",
+      "enum": [
+        "HHG",
+        "PPM",
+        "UB",
+        "POV",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_PPM"
+      ],
+      "x-nullable": true
     },
     "UpdateMTOServiceItemStatus": {
       "properties": {
