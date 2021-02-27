@@ -107,6 +107,8 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	payload := params.WebhookSubscription
 
+	// TESTING
+
 	payloadID := uuid.FromStringOrNil(payload.ID.String())
 	if payloadID != uuid.Nil && params.WebhookSubscriptionID != payload.ID {
 		return webhooksubscriptionop.NewUpdateWebhookSubscriptionUnprocessableEntity()
