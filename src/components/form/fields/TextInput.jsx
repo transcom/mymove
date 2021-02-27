@@ -49,7 +49,11 @@ export const TextInputMinimal = ({ id, name, ...props }) => {
     <>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
       <UswdsTextInput id={id} name={name} {...field} {...props} />
-      {!!warning && !hasError && <p className="usa-hint">{warning}</p>}
+      {!!warning && !hasError && (
+        <p className="usa-hint" data-testid="textInputWarning">
+          {warning}
+        </p>
+      )}
     </>
   );
   /* eslint-enable react/jsx-props-no-spreading */
