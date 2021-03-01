@@ -111,7 +111,7 @@ export async function patchPaymentServiceItemStatus({
 }
 
 export async function getTacValid({ tac }) {
-  const operationPath = 'moveOrder.tacValidation';
+  const operationPath = 'order.tacValidation';
   return makeGHCRequest(operationPath, { tac }, { normalize: false });
 }
 
