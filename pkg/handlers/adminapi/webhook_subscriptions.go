@@ -20,13 +20,14 @@ import (
 func payloadForWebhookSubscriptionModel(subscription models.WebhookSubscription) *adminmessages.WebhookSubscription {
 	severity := int64(subscription.Severity)
 
+	status := adminmessages.WebhookSubscriptionStatus(subscription.Status)
 	return &adminmessages.WebhookSubscription{
 		ID:           *handlers.FmtUUID(subscription.ID),
-		SubscriberID: *handlers.FmtUUID(subscription.SubscriberID),
-		CallbackURL:  subscription.CallbackURL,
+		SubscriberID: handlers.FmtUUID(subscription.SubscriberID),
+		CallbackURL:  &subscription.CallbackURL,
 		Severity:     &severity,
-		EventKey:     subscription.EventKey,
-		Status:       adminmessages.WebhookSubscriptionStatus(subscription.Status),
+		EventKey:     &subscription.EventKey,
+		Status:       &status,
 		CreatedAt:    *handlers.FmtDateTime(subscription.CreatedAt),
 		UpdatedAt:    *handlers.FmtDateTime(subscription.UpdatedAt),
 	}
@@ -122,7 +123,12 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 
 	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription)
 	// Check that the webhook subscription in the model was updated
+
 	if err != nil {
+		if err.Error() == models.RecordNotFoundErrorString {
+			logger.Error("Error finding webhookSubscription to update")
+			return webhooksubscriptionop.NewUpdateWebhookSubscriptionNotFound()
+		}
 		logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
