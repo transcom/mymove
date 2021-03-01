@@ -55,6 +55,9 @@ p + .cardContainer {
   @media (min-width: $tablet) {
     padding-left: 2rem;
   }
+  div {
+    @include u-margin-bottom(1);
+  }
 }
 
 .helpButton {

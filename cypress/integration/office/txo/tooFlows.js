@@ -58,8 +58,8 @@ describe('TOO user', () => {
         cy.get('#approvalConfirmationModal [data-testid="ShipmentContainer"]').should('have.length', $shipments.length);
         cy.contains('Approved service items for this move')
           .next('table')
-          .should('contain', 'Shipment management fee')
-          .and('contain', 'Counseling fee');
+          .should('contain', 'Move management')
+          .and('contain', 'Counseling');
       });
 
       // Click approve
@@ -163,7 +163,7 @@ describe('TOO user', () => {
     cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // Navigate to Edit orders page
-    cy.get('[data-testid="edit-orders"]').contains('View & edit orders').click();
+    cy.get('[data-testid="edit-orders"]').contains('Edit orders').click();
 
     // Toggle between Edit Allowances and Edit Orders page
     cy.get('[data-testid="view-allowances"]').click();
@@ -219,7 +219,7 @@ describe('TOO user', () => {
     cy.get('[data-testid="sacSDN"]').contains('4K988AS098F');
 
     // Edit orders page | Cancel
-    cy.get('[data-testid="edit-orders"]').contains('View & edit orders').click();
+    cy.get('[data-testid="edit-orders"]').contains('Edit orders').click();
     cy.get('button').contains('Cancel').click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
   });

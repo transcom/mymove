@@ -29,7 +29,7 @@ func NewTacValidation(ctx *middleware.Context, handler TacValidationHandler) *Ta
 	return &TacValidation{Context: ctx, Handler: handler}
 }
 
-/*TacValidation swagger:route GET /tac/valid tac moveOrder tacValidation
+/*TacValidation swagger:route GET /tac/valid tac order tacValidation
 
 Validation of a TAC value
 

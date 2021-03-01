@@ -107,6 +107,17 @@ func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 	return officeUser
 }
 
+// MakeActiveOfficeUser returns an active office user
+func MakeActiveOfficeUser(db *pop.Connection) models.OfficeUser {
+	officeUser := MakeDefaultOfficeUser(db)
+
+	officeUser.Active = true
+
+	db.Update(&officeUser)
+
+	return officeUser
+}
+
 // MakeTOOOfficeUser makes an OfficeUser with the TOO role
 func MakeTOOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
 	tooRole := roles.Role{

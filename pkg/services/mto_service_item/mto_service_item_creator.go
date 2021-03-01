@@ -445,7 +445,7 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *mode
 		verrs := validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s invalid code", serviceItem.ReService.Code))
 		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
-			fmt.Sprintf(fmt.Sprintf("No additional items can be created for this service item with code %s", serviceItem.ReService.Code)))
+			fmt.Sprintf("No additional items can be created for this service item with code %s", serviceItem.ReService.Code))
 
 	}
 

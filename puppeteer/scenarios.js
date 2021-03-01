@@ -6,7 +6,7 @@ const puppeteer = require('puppeteer');
 const reportGenerator = require('lighthouse/lighthouse-core/report/report-generator');
 const { throttling } = require('lighthouse/lighthouse-core/config/constants');
 
-const { networkProfiles } = require('./constants');
+const { networkProfiles, fileSizeMoveCodes, fileSizePaymentRequestIds, scenarios } = require('./constants');
 
 // Gets the total request time based on the responseEnd - requestStart
 // in secs
@@ -134,7 +134,7 @@ const lighthouseFromPuppeteer = async (url, options, config = null, saveReports 
   };
 };
 
-const totalDuration = async ({ host, config, debug, saveReports, verbose }) => {
+const totalDuration = async ({ scenario, host, config, debug, saveReports, verbose }) => {
   const waitOptions = { timeout: 0, waitUntil: 'networkidle0' };
 
   const browser = await puppeteer.launch(config.launch);
@@ -160,29 +160,34 @@ const totalDuration = async ({ host, config, debug, saveReports, verbose }) => {
 
   await Promise.all([page.click(loginBtnSelector), page.waitForNavigation(waitOptions)]);
 
-  // grab first table data for locator
-  const locatorSelector = 'td[data-testid="locator-0"]';
-  await page.waitForSelector(locatorSelector);
-  const element = await page.$(locatorSelector);
-  const locatorValue = await page.evaluate((el) => el.textContent, element);
-
   const networkConfig = await setupNetwork(config, page);
   const cpuRateConfig = await setupCPU(config, page);
 
-  // go to a document viewer, orders
-  await page.goto(`${host}/moves/${locatorValue}/orders`, waitOptions);
+  // go to a document viewer
+  let url;
+  if (scenario === scenarios.tio) {
+    url = `${host}/moves/${fileSizeMoveCodes[config.fileSize]}/payment-requests/${
+      fileSizePaymentRequestIds[config.fileSize]
+    }`;
+  } else {
+    // default to TOO
+    url = `${host}/moves/${fileSizeMoveCodes[config.fileSize]}/orders`;
+  }
+
+  debug(`URL to gather metrics from: ${url}`);
+  await page.goto(url, waitOptions);
 
   const docViewerContentSelector = 'div[data-testid="DocViewerContent"]';
   await page.waitForSelector(docViewerContentSelector);
 
   // Will return all http requests and navigation performance on last navigation
+  debug('Gathering performance timing metrics');
   const navigationEntries = JSON.parse(
     await page.evaluate(() => {
       return JSON.stringify(performance.getEntries());
     }),
   );
 
-  const url = `${host}/moves/${locatorValue}/orders`;
   const lhOptions = {
     port: new URL(browser.wsEndpoint()).port,
     logLevel: verbose ? 'info' : 'error',
@@ -213,6 +218,7 @@ const totalDuration = async ({ host, config, debug, saveReports, verbose }) => {
     },
   };
 
+  debug('Gathering lighthouse metrics');
   const lhResults = await lighthouseFromPuppeteer(url, lhOptions, lhConfig, saveReports, config.network);
   const pfTimingResults = getTotalRequestTime(navigationEntries);
 
