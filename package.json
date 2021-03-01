@@ -32,7 +32,7 @@
     "path": "^0.12.7",
     "path-to-regexp": "^6.2.0",
     "prop-types": "^15.7.2",
-    "puppeteer": "^7.1.0",
+    "puppeteer": "^8.0.0",
     "query-string": "6",
     "ra-data-simple-rest": "^3.10.4",
     "ra-language-english": "^3.13.0",
