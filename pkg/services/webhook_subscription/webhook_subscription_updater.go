@@ -1,8 +1,6 @@
 package webhooksubscription
 
 import (
-	"database/sql"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -18,38 +16,32 @@ type webhookSubscriptionUpdater struct {
 func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription) (*models.WebhookSubscription, error) {
 	webhookSubscriptionID := uuid.FromStringOrNil(webhooksubscription.ID.String())
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscriptionID)}
-	// logger := h.LoggerFromRequest(params.HTTPRequest)
-	var foundWebhookSubscription models.WebhookSubscription
 
 	// Find the existing web subscription to update
+	var foundWebhookSubscription models.WebhookSubscription
 	err := o.builder.FetchOne(&foundWebhookSubscription, queryFilters)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, err
-		default:
-			return nil, err
-		}
+		return nil, err
 	}
 
 	// Update webhook subscription new status for Active
-	if &webhooksubscription.Status != nil {
+	if webhooksubscription.Status != "" {
 		foundWebhookSubscription.Status = webhooksubscription.Status
 	}
 
-	if &webhooksubscription.SubscriberID != nil {
+	if webhooksubscription.SubscriberID != uuid.Nil {
 		foundWebhookSubscription.SubscriberID = webhooksubscription.SubscriberID
 	}
 
-	if &webhooksubscription.EventKey != nil {
+	if webhooksubscription.EventKey != "" {
 		foundWebhookSubscription.EventKey = webhooksubscription.EventKey
 	}
 
-	if &webhooksubscription.Severity != nil {
+	if webhooksubscription.Severity != -1 {
 		foundWebhookSubscription.Severity = webhooksubscription.Severity
 	}
 
-	if &webhooksubscription.CallbackURL != nil {
+	if webhooksubscription.CallbackURL != "" {
 		foundWebhookSubscription.CallbackURL = webhooksubscription.CallbackURL
 	}
 

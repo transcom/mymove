@@ -873,6 +873,7 @@ definitions:
   WebhookSubscriptionStatus:
     type: string
     title: Webhook subscription status
+    x-nullable: true
     enum:
       - ACTIVE
       - FAILING
@@ -902,19 +903,23 @@ definitions:
         format: uuid
         example: d494f114-05a2-4b39-840c-3d33243b7e29
         description: Unique identifier for the subscriber
+        x-nullable: true
       status:
         $ref: '#/definitions/WebhookSubscriptionStatus'
       callbackUrl:
         type: string
         description: The URL to which the notifications for this subscription will be pushed to.
+        x-nullable: true
       severity:
         type: integer
         minimum: 0
+        x-nullable: true
       eventKey:
         type: string
         description: >-
           A string used to represent which events this subscriber expects to be notified about.
           Corresponds to the possible event_key values in webhook_notifications.
+        x-nullable: true
       createdAt:
         type: string
         format: date-time

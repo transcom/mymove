@@ -2560,7 +2560,8 @@ func init() {
       "properties": {
         "callbackUrl": {
           "description": "The URL to which the notifications for this subscription will be pushed to.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
@@ -2568,7 +2569,8 @@ func init() {
         },
         "eventKey": {
           "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -2577,7 +2579,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "severity": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/WebhookSubscriptionStatus"
@@ -2586,6 +2589,7 @@ func init() {
           "description": "Unique identifier for the subscriber",
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
         },
         "updatedAt": {
@@ -2607,7 +2611,8 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
-      }
+      },
+      "x-nullable": true
     },
     "WebhookSubscriptions": {
       "type": "array",
@@ -5164,7 +5169,8 @@ func init() {
       "properties": {
         "callbackUrl": {
           "description": "The URL to which the notifications for this subscription will be pushed to.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
@@ -5172,7 +5178,8 @@ func init() {
         },
         "eventKey": {
           "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -5182,7 +5189,8 @@ func init() {
         },
         "severity": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/WebhookSubscriptionStatus"
@@ -5191,6 +5199,7 @@ func init() {
           "description": "Unique identifier for the subscriber",
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
         },
         "updatedAt": {
@@ -5212,7 +5221,8 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
-      }
+      },
+      "x-nullable": true
     },
     "WebhookSubscriptions": {
       "type": "array",
