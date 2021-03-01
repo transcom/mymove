@@ -10,7 +10,7 @@ const OrdersDetailForm = ({
   ordersTypeOptions,
   ordersTypeDetailOptions,
   tacWarning,
-  handleTacBlur,
+  validateTac,
 }) => {
   return (
     <div className={styles.OrdersDetailForm}>
@@ -22,7 +22,7 @@ const OrdersDetailForm = ({
       <TextInput name="ordersNumber" label="Orders number" id="ordersNumberInput" />
       <DropdownInput name="ordersType" label="Orders type" options={ordersTypeOptions} />
       <DropdownInput name="ordersTypeDetail" label="Orders type detail" options={ordersTypeDetailOptions} />
-      <TextInput name="tac" label="TAC" id="tacInput" warning={tacWarning} onBlur={handleTacBlur} />
+      <TextInput name="tac" label="TAC" id="tacInput" warning={tacWarning} validate={validateTac} />
       <TextInput name="sac" label="SAC" id="sacInput" />
     </div>
   );
@@ -33,7 +33,7 @@ OrdersDetailForm.propTypes = {
   ordersTypeOptions: DropdownArrayOf.isRequired,
   ordersTypeDetailOptions: DropdownArrayOf.isRequired,
   tacWarning: string,
-  handleTacBlur: func.isRequired,
+  validateTac: func.isRequired,
 };
 
 OrdersDetailForm.defaultProps = {

@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -78,10 +78,21 @@ const MoveOrders = () => {
     },
   });
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  const handleTacValidation = (value) => {
+    if (value.length === 4) {
+      getTacValid({ tac: value }).then((response) => setIsValidTac(response.isValid));
+    }
+  };
 
   const moveOrder = Object.values(moveOrders)?.[0];
+
+  useEffect(() => {
+    // if the initial value === value, and it's 4 digits, run validator and show warning if invalid
+    if (moveOrder?.tac) handleTacValidation(moveOrder.tac);
+  }, [moveOrder]);
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values) => {
     const { originDutyStation, newDutyStation, ...fields } = values;
@@ -93,12 +104,6 @@ const MoveOrders = () => {
       reportByDate: formatSwaggerDate(values.reportByDate),
     };
     mutateOrders({ orderID: orderId, ifMatchETag: moveOrder.eTag, body });
-  };
-
-  const validateTac = (value) => {
-    if (value.length === 4) {
-      getTacValid({ tac: value }).then((response) => setIsValidTac(response.isValid));
-    }
   };
 
   const tacWarningMsg =
@@ -122,10 +127,6 @@ const MoveOrders = () => {
     <div className={styles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => {
-          // if the initial value === value, and it's 4 digits, run validator and show warning if invalid
-          if (initialValues.tac === formik.values.tac) {
-            validateTac(formik.values.tac);
-          }
           // onBlur, if the value has 4 digits, run validator and show warning if invalid
           const tacWarning = isValidTac ? '' : tacWarningMsg;
           return (
@@ -154,10 +155,7 @@ const MoveOrders = () => {
                     ordersTypeOptions={ordersTypeDropdownOptions}
                     ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
                     tacWarning={tacWarning}
-                    handleTacBlur={(e) => {
-                      formik.handleBlur(e);
-                      validateTac(formik.values.tac);
-                    }}
+                    validateTac={handleTacValidation}
                   />
                 </div>
                 <div className={styles.bottom}>
