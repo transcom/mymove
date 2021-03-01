@@ -17,3 +17,28 @@ describe('Webhook Subscriptions', function () {
     });
   });
 });
+
+describe('WebhookSubscriptions Details Show Page', function () {
+  before(() => {
+    cy.prepareAdminApp();
+  });
+
+  it('pulls up details page for a webhook subscription', function () {
+    cy.signInAsNewAdminUser();
+    cy.get('a[href*="system/webhook_subscriptions"]').click();
+    cy.url().should('eq', adminBaseURL + '/system/webhook_subscriptions');
+    cy.get('span[reference="webhookSubscriptions"]').first().click();
+
+    // check that the webhookSubscription's ID is shown in the page title
+    cy.get('.ra-field-id span.MuiTypography-root')
+      .invoke('text')
+      .then((webhookSubscriptionID) => {
+        cy.get('#react-admin-title').contains('Webhook Subscription ID: ' + webhookSubscriptionID);
+      });
+
+    const labels = ['Id', 'Subscriber', 'Status', 'Event key', 'Callback url', 'Created at', 'Updated at', 'Severity'];
+    labels.forEach((label) => {
+      cy.get('.MuiCardContent-root label').contains(label);
+    });
+  });
+});
