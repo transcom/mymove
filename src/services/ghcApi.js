@@ -118,10 +118,6 @@ export async function getTacValid({ tac }) {
 export async function updateMoveOrder({ orderID, ifMatchETag, body }) {
   const operationPath = 'order.updateMoveOrder';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
-
-export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
-  const operationPath = 'moveOrder.updateMoveOrder';
-  return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
 }
 
 export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServiceItemCodes, normalize = true }) {
