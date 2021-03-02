@@ -48,30 +48,7 @@ describe('TextInputMinimal', () => {
       textInput.simulate('change', { value: 'sample' });
       expect(mockOnChange).toHaveBeenCalledWith({ value: 'sample' });
     });
-
-    it('render warning message', () => {
-      const mockOnBlur = jest.fn();
-      jest.mock('formik', () => {
-        return {
-          ...jest.requireActual('formik'),
-          useField: () => [
-            {
-              onBlur: mockOnBlur,
-            },
-            { touched: true },
-          ],
-        };
-      });
-      const warning = 'this is a warning';
-      const wrapperWarning = shallow(
-        <TextInputMinimal className="sample-class" name="tac" type="text" id="tac" warning={warning} />,
-      );
-
-      expect(wrapperWarning.find('[data-testid="textInputWarning"]').exists()).toBe(true);
-      expect(wrapperWarning.find('[data-testid="textInputWarning"]').text()).toEqual(warning);
-    });
   });
-
   describe('with id prop', () => {
     const wrapper = shallow(<TextInputMinimal className="sample-class" id="lastName" type="text" name="lastName" />);
 
