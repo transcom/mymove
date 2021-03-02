@@ -1,5 +1,5 @@
 import React from 'react';
-import { Show, SimpleShowLayout, TextField, BooleanField, DateField } from 'react-admin';
+import { BooleanField, DateField, Show, SimpleShowLayout, TextField } from 'react-admin';
 
 const AdminUserShowTitle = ({ record }) => {
   return <span>{`${record.firstName} ${record.lastName}`}</span>;
@@ -10,6 +10,7 @@ const AdminUserShow = (props) => {
     <Show {...props} title={<AdminUserShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" />
+        <TextField source="userId" label="User Id" />
         <TextField source="email" />
         <TextField source="firstName" />
         <TextField source="lastName" />
