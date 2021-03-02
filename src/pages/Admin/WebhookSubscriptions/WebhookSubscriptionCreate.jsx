@@ -15,6 +15,7 @@ const WebhookSubscriptionCreate = (props) => (
         choices={[
           { id: WEBHOOK_SUBSCRIPTION_STATUS.ACTIVE, name: 'Active' },
           { id: WEBHOOK_SUBSCRIPTION_STATUS.DISABLED, name: 'Disabled' },
+          { id: WEBHOOK_SUBSCRIPTION_STATUS.FAILING, name: 'Failing' },
         ]}
       />
     </SimpleForm>
