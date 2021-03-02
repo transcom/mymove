@@ -2314,6 +2314,8 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+    required:
+      - status
   PatchMTOServiceItemStatusPayload:
     properties:
       status:

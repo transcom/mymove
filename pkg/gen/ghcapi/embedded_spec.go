@@ -3111,6 +3111,9 @@ func init() {
       }
     },
     "PatchMTOShipmentStatus": {
+      "required": [
+        "status"
+      ],
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -7232,6 +7235,9 @@ func init() {
       }
     },
     "PatchMTOShipmentStatus": {
+      "required": [
+        "status"
+      ],
       "properties": {
         "rejectionReason": {
           "type": "string",

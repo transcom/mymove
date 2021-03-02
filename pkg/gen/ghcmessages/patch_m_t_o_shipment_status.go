@@ -20,7 +20,8 @@ type PatchMTOShipmentStatus struct {
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// status
-	Status MTOShipmentStatus `json:"status,omitempty"`
+	// Required: true
+	Status MTOShipmentStatus `json:"status"`
 }
 
 // Validate validates this patch m t o shipment status
@@ -38,10 +39,6 @@ func (m *PatchMTOShipmentStatus) Validate(formats strfmt.Registry) error {
 }
 
 func (m *PatchMTOShipmentStatus) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Status) { // not required
-		return nil
-	}
 
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
