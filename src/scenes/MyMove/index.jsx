@@ -129,14 +129,13 @@ export class CustomerApp extends Component {
                   {/* no auth */}
                   <Route path="/sign-in" component={SignIn} />
                   <Route path="/access-code" component={AccessCode} />
-
-                  <Route exact path="/" component={Home} />
-                  <Route exact path="/ppm" component={PpmLanding} />
                   <Route exact path="/sm_style_guide" component={StyleGuide} />
                   <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                   <Route path="/accessibility" component={AccessibilityStatement} />
+
+                  {/* auth required */}
+                  <CustomerPrivateRoute exact path="/ppm" component={PpmLanding} />
                   {getWorkflowRoutes(props)}
-                  {props.context.flags.hhgFlow && <CustomerPrivateRoute exact path="/" component={Home} /> /* TODO */}
                   <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <CustomerPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
                   <CustomerPrivateRoute
@@ -167,6 +166,8 @@ export class CustomerApp extends Component {
                   <CustomerPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
                   <CustomerPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
                   <CustomerPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
+
+                  {/* Errors */}
                   <Route exact path="/forbidden">
                     <div className="usa-grid">
                       <h2>You are forbidden to use this endpoint</h2>
@@ -177,6 +178,11 @@ export class CustomerApp extends Component {
                       <h2>We are experiencing an internal server error</h2>
                     </div>
                   </Route>
+
+                  {/* ROOT */}
+                  <CustomerPrivateRoute path="/" exact component={Home} />
+
+                  {/* 404 */}
                   <Route component={this.noMatch} />
                 </Switch>
               )}

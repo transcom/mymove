@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { fetchAccessCode as fetchAccessCodeAction } from 'shared/Entities/modules/accessCodes';
@@ -47,7 +46,7 @@ CustomerPrivateRoute.defaultProps = {
 
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const accessCodes = get(state, 'entities.accessCodes');
+  const { accessCodes = {} } = state.entities;
 
   return {
     loginIsLoading: selectGetCurrentUserIsLoading(state),
