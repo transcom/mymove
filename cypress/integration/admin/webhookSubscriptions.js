@@ -27,7 +27,7 @@ describe('WebhookSubscriptions Details Show Page', function () {
     cy.signInAsNewAdminUser();
     cy.get('a[href*="system/webhook_subscriptions"]').click();
     cy.url().should('eq', adminBaseURL + '/system/webhook_subscriptions');
-    cy.get('span[reference="webhookSubscriptions"]').first().click();
+    cy.get('tr[resource="webhook_subscriptions"]').first().click();
 
     // check that the webhookSubscription's ID is shown in the page title
     cy.get('.ra-field-id span.MuiTypography-root')
