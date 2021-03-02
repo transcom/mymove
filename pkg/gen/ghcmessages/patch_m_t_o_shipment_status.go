@@ -6,12 +6,9 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // PatchMTOShipmentStatus patch m t o shipment status
@@ -23,8 +20,7 @@ type PatchMTOShipmentStatus struct {
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// status
-	// Enum: [REJECTED APPROVED SUBMITTED CANCELLATION_REQUESTED]
-	Status string `json:"status,omitempty"`
+	Status MTOShipmentStatus `json:"status,omitempty"`
 }
 
 // Validate validates this patch m t o shipment status
@@ -41,49 +37,16 @@ func (m *PatchMTOShipmentStatus) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var patchMTOShipmentStatusTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["REJECTED","APPROVED","SUBMITTED","CANCELLATION_REQUESTED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		patchMTOShipmentStatusTypeStatusPropEnum = append(patchMTOShipmentStatusTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// PatchMTOShipmentStatusStatusREJECTED captures enum value "REJECTED"
-	PatchMTOShipmentStatusStatusREJECTED string = "REJECTED"
-
-	// PatchMTOShipmentStatusStatusAPPROVED captures enum value "APPROVED"
-	PatchMTOShipmentStatusStatusAPPROVED string = "APPROVED"
-
-	// PatchMTOShipmentStatusStatusSUBMITTED captures enum value "SUBMITTED"
-	PatchMTOShipmentStatusStatusSUBMITTED string = "SUBMITTED"
-
-	// PatchMTOShipmentStatusStatusCANCELLATIONREQUESTED captures enum value "CANCELLATION_REQUESTED"
-	PatchMTOShipmentStatusStatusCANCELLATIONREQUESTED string = "CANCELLATION_REQUESTED"
-)
-
-// prop value enum
-func (m *PatchMTOShipmentStatus) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, patchMTOShipmentStatusTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *PatchMTOShipmentStatus) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

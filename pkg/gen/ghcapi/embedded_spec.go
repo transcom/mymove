@@ -2761,18 +2761,24 @@ func init() {
           ]
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "MTOShipmentStatus": {
+      "type": "string",
+      "title": "Shipment Status",
+      "enum": [
+        "SUBMITTED",
+        "REJECTED",
+        "APPROVED",
+        "CANCELLATION_REQUESTED"
+      ],
+      "example": "SUBMITTED"
     },
     "MTOShipmentType": {
       "type": "string",
@@ -3112,13 +3118,7 @@ func init() {
           "example": "MTO Shipment not good enough"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "REJECTED",
-            "APPROVED",
-            "SUBMITTED",
-            "CANCELLATION_REQUESTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -6882,18 +6882,24 @@ func init() {
           ]
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "MTOShipmentStatus": {
+      "type": "string",
+      "title": "Shipment Status",
+      "enum": [
+        "SUBMITTED",
+        "REJECTED",
+        "APPROVED",
+        "CANCELLATION_REQUESTED"
+      ],
+      "example": "SUBMITTED"
     },
     "MTOShipmentType": {
       "type": "string",
@@ -7233,13 +7239,7 @@ func init() {
           "example": "MTO Shipment not good enough"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "REJECTED",
-            "APPROVED",
-            "SUBMITTED",
-            "CANCELLATION_REQUESTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },

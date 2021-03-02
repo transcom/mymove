@@ -172,7 +172,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		HTTPRequest:     req,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
-		Body:            &ghcmessages.PatchMTOShipmentStatus{Status: "APPROVED"},
+		Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatus("APPROVED")},
 		IfMatch:         eTag,
 	}
 
@@ -416,7 +416,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			HTTPRequest:     req,
 			MoveTaskOrderID: *handlers.FmtUUID(approvedShipment.MoveTaskOrderID),
 			ShipmentID:      *handlers.FmtUUID(approvedShipment.ID),
-			Body:            &ghcmessages.PatchMTOShipmentStatus{Status: "CANCELLATION_REQUESTED"},
+			Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatus("CANCELLATION_REQUESTED")},
 			IfMatch:         eTag,
 		}
 		suite.NoError(cancellationParams.Body.Validate(strfmt.Default))
@@ -427,7 +427,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 
 		okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
 		suite.Equal(approvedShipment.ID.String(), okResponse.Payload.ID.String())
-		suite.Equal(okResponse.Payload.Status, string(models.MTOShipmentStatusCancellationRequested))
+		suite.Equal(string(okResponse.Payload.Status), string(models.MTOShipmentStatusCancellationRequested))
 		suite.NotNil(okResponse.Payload.ETag)
 
 		// Check that webhook notification was stored
