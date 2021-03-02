@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, Datagrid, TextField, BooleanField, Filter, TextInput, ReferenceField } from 'react-admin';
+import { BooleanField, Datagrid, Filter, List, ReferenceField, TextField, TextInput } from 'react-admin';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const OfficeUserListFilter = (props) => (
@@ -27,6 +27,7 @@ const OfficeUserList = (props) => (
       <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices">
         <TextField source="name" />
       </ReferenceField>
+      <TextField source="userId" label="User Id" />
       <BooleanField source="active" />
     </Datagrid>
   </List>
