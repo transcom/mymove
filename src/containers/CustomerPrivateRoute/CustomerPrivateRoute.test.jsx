@@ -52,7 +52,11 @@ describe('ConnectedCustomerPrivateRoute', () => {
       it('redirects to the sign in URL', () => {
         const redirect = wrapper.find('Redirect');
         expect(redirect).toHaveLength(1);
-        expect(redirect.prop('to')).toEqual('/sign-in');
+        expect(redirect.prop('to')).toEqual({
+          hash: undefined,
+          pathname: '/sign-in',
+          search: undefined,
+        });
       });
     });
 

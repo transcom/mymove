@@ -7,6 +7,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { fetchAccessCode as fetchAccessCodeAction } from 'shared/Entities/modules/accessCodes';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
+import { LocationShape } from 'types/index';
 
 class CustomerPrivateRoute extends React.Component {
   componentDidMount() {
@@ -15,10 +16,21 @@ class CustomerPrivateRoute extends React.Component {
   }
 
   render() {
-    const { loginIsLoading, userIsLoggedIn, requiresAccessCode, accessCode, path, ...routeProps } = this.props;
+    const { loginIsLoading, userIsLoggedIn, requiresAccessCode, accessCode, location, ...routeProps } = this.props;
     if (loginIsLoading) return <LoadingPlaceholder />;
 
-    if (!userIsLoggedIn) return <Redirect to="/sign-in" />;
+    const { hash, search } = location;
+
+    if (!userIsLoggedIn)
+      return (
+        <Redirect
+          to={{
+            pathname: '/sign-in',
+            hash,
+            search,
+          }}
+        />
+      );
 
     if (userIsLoggedIn && requiresAccessCode && !accessCode) return <Redirect to="/access-code" />;
 
@@ -33,7 +45,7 @@ CustomerPrivateRoute.propTypes = {
   userIsLoggedIn: PropTypes.bool,
   requiresAccessCode: PropTypes.bool,
   accessCode: PropTypes.string,
-  path: PropTypes.string,
+  location: LocationShape,
 };
 
 CustomerPrivateRoute.defaultProps = {
@@ -41,7 +53,7 @@ CustomerPrivateRoute.defaultProps = {
   userIsLoggedIn: false,
   requiresAccessCode: false,
   accessCode: undefined,
-  path: undefined,
+  location: {},
 };
 
 const mapStateToProps = (state) => {
