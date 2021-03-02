@@ -390,18 +390,24 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 
 // PaymentServiceItem payload
 func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServiceItem {
+	if ps == nil {
+		return nil
+	}
+	paymentServiceItemParams := PaymentServiceItemParams(&ps.PaymentServiceItemParams)
+
 	return &ghcmessages.PaymentServiceItem{
-		ID:                 *handlers.FmtUUID(ps.ID),
-		MtoServiceItemID:   *handlers.FmtUUID(ps.MTOServiceItemID),
-		MtoServiceItemName: ps.MTOServiceItem.ReService.Name,
-		MtoShipmentType:    ghcmessages.MTOShipmentType(ps.MTOServiceItem.MTOShipment.ShipmentType),
-		MtoShipmentID:      handlers.FmtUUIDPtr(ps.MTOServiceItem.MTOShipmentID),
-		CreatedAt:          strfmt.DateTime(ps.CreatedAt),
-		PriceCents:         handlers.FmtCost(ps.PriceCents),
-		RejectionReason:    ps.RejectionReason,
-		Status:             ghcmessages.PaymentServiceItemStatus(ps.Status),
-		ReferenceID:        ps.ReferenceID,
-		ETag:               etag.GenerateEtag(ps.UpdatedAt),
+		ID:                       *handlers.FmtUUID(ps.ID),
+		MtoServiceItemID:         *handlers.FmtUUID(ps.MTOServiceItemID),
+		MtoServiceItemName:       ps.MTOServiceItem.ReService.Name,
+		MtoShipmentType:          ghcmessages.MTOShipmentType(ps.MTOServiceItem.MTOShipment.ShipmentType),
+		MtoShipmentID:            handlers.FmtUUIDPtr(ps.MTOServiceItem.MTOShipmentID),
+		CreatedAt:                strfmt.DateTime(ps.CreatedAt),
+		PriceCents:               handlers.FmtCost(ps.PriceCents),
+		RejectionReason:          ps.RejectionReason,
+		Status:                   ghcmessages.PaymentServiceItemStatus(ps.Status),
+		ReferenceID:              ps.ReferenceID,
+		ETag:                     etag.GenerateEtag(ps.UpdatedAt),
+		PaymentServiceItemParams: *paymentServiceItemParams,
 	}
 }
 
@@ -411,6 +417,33 @@ func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcme
 	for i, m := range *paymentServiceItems {
 		copyOfPaymentServiceItem := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = PaymentServiceItem(&copyOfPaymentServiceItem)
+	}
+	return &payload
+}
+
+// PaymentServiceItemParam payload
+func PaymentServiceItemParam(paymentServiceItemParam models.PaymentServiceItemParam) *ghcmessages.PaymentServiceItemParam {
+	return &ghcmessages.PaymentServiceItemParam{
+		ID:                   strfmt.UUID(paymentServiceItemParam.ID.String()),
+		PaymentServiceItemID: strfmt.UUID(paymentServiceItemParam.PaymentServiceItemID.String()),
+		Key:                  ghcmessages.ServiceItemParamName(paymentServiceItemParam.ServiceItemParamKey.Key),
+		Value:                paymentServiceItemParam.Value,
+		Type:                 ghcmessages.ServiceItemParamType(paymentServiceItemParam.ServiceItemParamKey.Type),
+		Origin:               ghcmessages.ServiceItemParamOrigin(paymentServiceItemParam.ServiceItemParamKey.Origin),
+		ETag:                 etag.GenerateEtag(paymentServiceItemParam.UpdatedAt),
+	}
+}
+
+// PaymentServiceItemParams payload
+func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceItemParams) *ghcmessages.PaymentServiceItemParams {
+	if paymentServiceItemParams == nil {
+		return nil
+	}
+
+	payload := make(ghcmessages.PaymentServiceItemParams, len(*paymentServiceItemParams))
+
+	for i, p := range *paymentServiceItemParams {
+		payload[i] = PaymentServiceItemParam(p)
 	}
 	return &payload
 }
@@ -566,13 +599,13 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 var (
 	// QueuePaymentRequestPaymentRequested status payment requested
-	QueuePaymentRequestPaymentRequested string = "Payment requested"
+	QueuePaymentRequestPaymentRequested = "Payment requested"
 	// QueuePaymentRequestReviewed status Payment request reviewed
-	QueuePaymentRequestReviewed string = "Reviewed"
+	QueuePaymentRequestReviewed = "Reviewed"
 	// QueuePaymentRequestRejected status Payment request rejected
-	QueuePaymentRequestRejected string = "Rejected"
+	QueuePaymentRequestRejected = "Rejected"
 	// QueuePaymentRequestPaid status PaymentRequest paid
-	QueuePaymentRequestPaid string = "Paid"
+	QueuePaymentRequestPaid = "Paid"
 )
 
 // This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload
