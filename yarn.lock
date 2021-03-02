@@ -6468,10 +6468,10 @@ core-js@^2.4.0, core-js@^2.6.5:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.11.tgz#38831469f9922bded8ee21c9dc46985e0399308c"
   integrity sha512-5wjnpaT/3dV+XB4borEsnAYQchn00XSgTAWKDkEqv+K8KevjbzmofK6hfJ9TZIlpj2N0xQpazy7PiRQiWHqzWg==
 
-core-js@^3.0.1, core-js@^3.0.4, core-js@^3.6.5, core-js@^3.9.0:
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.9.0.tgz#790b1bb11553a2272b36e2625c7179db345492f8"
-  integrity sha512-PyFBJaLq93FlyYdsndE5VaueA9K5cNB7CGzeCj191YYLhkQM0gdZR2SKihM70oF0wdqKSKClv/tEBOpoRmdOVQ==
+core-js@^3.0.1, core-js@^3.0.4, core-js@^3.6.5, core-js@^3.9.1:
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.9.1.tgz#cec8de593db8eb2a85ffb0dbdeb312cb6e5460ae"
+  integrity sha512-gSjRvzkxQc1zjM/5paAmL4idJBFzuJoo+jDjF1tStYFMV2ERfD02HhahhCGXUyHxQRG4yFKVSdO6g62eoRMcDg==
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
@@ -15596,10 +15596,10 @@ querystringify@^2.1.1:
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.1.1.tgz#60e5a5fd64a7f8bfa4d2ab2ed6fdf4c85bad154e"
   integrity sha512-w7fLxIRCRT7U8Qu53jQnJyPkYZIaR4n5151KMfcJlO/A9397Wxb1amJvROTK6TOnp7PfoAmg/qXiNHI+08jRfA==
 
-ra-core@^3.12.5, ra-core@^3.13.0:
-  version "3.13.0"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.13.0.tgz#3e16a376b80da62223c16fe6a0e8e26d7bf9ce3a"
-  integrity sha512-aEThjqtEreQmWl4sCTP0D11wUAYXrf3ZgfFbOBIzrtm+MQ5EidTdMdbYZtyeB9Yu7pDs+TnQb3zxYz1QmePKYg==
+ra-core@^3.12.5, ra-core@^3.13.1:
+  version "3.13.1"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.13.1.tgz#1a6bf9d003a3f01ccd364da6f9172a6017460cc8"
+  integrity sha512-r9Y3N7U7Wz/br9irJvfRBfeFN6m9/+I1am7TDn/yrzr4BgwKsk0Rv2ITRGToGboe+ChvUZLHlQhcE4bFS4mABg==
   dependencies:
     classnames "~2.2.5"
     date-fns "^1.29.0"
@@ -15625,12 +15625,12 @@ ra-i18n-polyglot@^3.12.5:
     node-polyglot "^2.2.2"
     ra-core "^3.12.5"
 
-ra-language-english@^3.12.5, ra-language-english@^3.13.0:
-  version "3.13.0"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.13.0.tgz#91664b90eadc3cf46d6731b89d970a598c0d5ae8"
-  integrity sha512-qKGmQxMt+YMKxxfApEjfgoAIX3a3KoU2/AM7N+Xbvf8stva2db/Cxh48uwSean891s6zNyUgNeXVb2zCy/cVew==
+ra-language-english@^3.12.5, ra-language-english@^3.13.1:
+  version "3.13.1"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.13.1.tgz#d3de2f6e1565745613c6631cc546ca379b222c0a"
+  integrity sha512-O218BbV339NMoAmrnCdgv5wIPWlM9J9nnT7E1YhjaR7/n3s+1CEOnNj0fTUZK8AnnMHuf2h3v5Jxum8NRHz4sw==
   dependencies:
-    ra-core "^3.13.0"
+    ra-core "^3.13.1"
 
 ra-ui-materialui@^3.12.5:
   version "3.12.5"
