@@ -3293,9 +3293,9 @@
     filter-console "^0.1.1"
     react-error-boundary "^3.1.0"
 
-"@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer#ds-upgrade-three-pkg-vulnerability":
+"@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer":
   version "1.2.1"
-  resolved "https://github.com/trussworks/react-file-viewer#4114a3adcad0d19ed61f85cda6f504dc89f57e51"
+  resolved "https://github.com/trussworks/react-file-viewer#5344ad893ce5b4e0038b4d8956b281154ce49ae3"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
