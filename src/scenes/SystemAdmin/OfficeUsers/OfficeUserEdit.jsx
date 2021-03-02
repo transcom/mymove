@@ -13,6 +13,7 @@ const OfficeUserEdit = (props) => (
   <Edit {...props}>
     <SimpleForm toolbar={<OfficeUserEditToolbar />}>
       <TextInput source="id" disabled />
+      <TextInput source="userId" label="User Id" disabled />
       <TextInput source="email" disabled />
       <TextInput source="firstName" validate={required()} />
       <TextInput source="middleInitials" />
