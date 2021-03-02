@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, lazy } from 'react';
 import PropTypes from 'prop-types';
 import { LastLocationProvider } from 'react-router-last-location';
 
 import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import { Route, Switch } from 'react-router-dom';
-import { ConnectedRouter, push, goBack } from 'connected-react-router';
+import { push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -12,7 +12,25 @@ import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'styles/customer.scss';
 
+import Header from 'shared/Header/MyMove';
 import Alert from 'shared/Alert';
+import Footer from 'shared/Footer';
+import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { getWorkflowRoutes } from './getWorkflowRoutes';
+import { loadInternalSchema } from 'shared/Swagger/ducks';
+import { withContext } from 'shared/AppContext';
+import { no_op } from 'shared/utils';
+import { loadUser as loadUserAction } from 'store/auth/actions';
+import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
+import { selectConusStatus } from 'store/onboarding/selectors';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentMove,
+  selectHasCanceledMove,
+  selectMoveType,
+} from 'store/entities/selectors';
+/** Pages */
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import StyleGuide from 'scenes/StyleGuide';
@@ -24,41 +42,29 @@ import EditContactInfo from 'scenes/Review/EditContactInfo';
 import EditOrders from 'scenes/Review/EditOrders';
 import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
 import EditWeight from 'scenes/Review/EditWeight';
-import Header from 'shared/Header/MyMove';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
 import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
 import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
 import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
-import { history } from 'shared/store';
-import Footer from 'shared/Footer';
-import LogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { getWorkflowRoutes } from './getWorkflowRoutes';
-import { loadInternalSchema } from 'shared/Swagger/ducks';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
-import { withContext } from 'shared/AppContext';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import Home from 'pages/MyMove/Home';
-import { loadUser as loadUserAction } from 'store/auth/actions';
-import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
-import { selectConusStatus } from 'store/onboarding/selectors';
-import {
-  selectServiceMemberFromLoggedInUser,
-  selectCurrentMove,
-  selectHasCanceledMove,
-  selectMoveType,
-} from 'store/entities/selectors';
+// Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
+const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 
-export class AppWrapper extends Component {
-  state = { hasError: false };
+export class CustomerApp extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { hasError: false, error: undefined, info: undefined };
+  }
 
   componentDidMount() {
     const { loadUser, loadInternalSchema, initOnboarding } = this.props;
@@ -90,16 +96,18 @@ export class AppWrapper extends Component {
 
   render() {
     const props = this.props;
-    const Tag = detectIE11() ? 'div' : 'main';
+    const { hasError } = this.state;
 
     return (
-      <ConnectedRouter history={history}>
+      <>
         <LastLocationProvider>
           <div className="my-move site" id="app-root">
             <Header />
-            <Tag role="main" className="site__content my-move-container" id="main">
+
+            <main role="main" className="site__content my-move-container" id="main">
+              <ConnectedLogoutOnInactivity />
+
               <div className="usa-grid">
-                <LogoutOnInactivity {...props} />
                 {props.swaggerError && (
                   <div className="grid-container">
                     <div className="grid-row">
@@ -112,16 +120,21 @@ export class AppWrapper extends Component {
                   </div>
                 )}
               </div>
-              {this.state.hasError && <SomethingWentWrong />}
-              {!this.state.hasError && !props.swaggerError && (
+
+              {hasError && <SomethingWentWrong />}
+
+              {!hasError && !props.swaggerError && (
                 <Switch>
+                  {/* no auth */}
+                  <Route path="/sign-in" component={SignIn} />
+
                   <Route exact path="/" component={Home} />
                   <Route exact path="/ppm" component={PpmLanding} />
                   <Route exact path="/sm_style_guide" component={StyleGuide} />
                   <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                   <Route path="/accessibility" component={AccessibilityStatement} />
                   {getWorkflowRoutes(props)}
-                  {props.context.flags.hhgFlow && <ValidatedPrivateRoute exact path="/" component={Home} />}
+                  {props.context.flags.hhgFlow && <ValidatedPrivateRoute exact path="/" component={Home} /> /* TODO */}
                   <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
                   <ValidatedPrivateRoute
@@ -165,17 +178,17 @@ export class AppWrapper extends Component {
                   <Route component={this.noMatch} />
                 </Switch>
               )}
-            </Tag>
+            </main>
             <Footer />
           </div>
           <div id="modal-root"></div>
         </LastLocationProvider>
-      </ConnectedRouter>
+      </>
     );
   }
 }
 
-AppWrapper.propTypes = {
+CustomerApp.propTypes = {
   loadInternalSchema: PropTypes.func,
   loadUser: PropTypes.func,
   initOnboarding: PropTypes.func,
@@ -188,7 +201,7 @@ AppWrapper.propTypes = {
   }).isRequired,
 };
 
-AppWrapper.defaultProps = {
+CustomerApp.defaultProps = {
   loadInternalSchema: no_op,
   loadUser: no_op,
   initOnboarding: no_op,
@@ -227,4 +240,4 @@ const mapDispatchToProps = (dispatch) =>
     dispatch,
   );
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(AppWrapper));
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(CustomerApp));
