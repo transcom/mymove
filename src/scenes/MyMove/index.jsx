@@ -2,7 +2,6 @@ import React, { Component, lazy } from 'react';
 import PropTypes from 'prop-types';
 import { LastLocationProvider } from 'react-router-last-location';
 
-import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import { Route, Switch } from 'react-router-dom';
 import { push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
@@ -17,6 +16,7 @@ import Alert from 'shared/Alert';
 import Footer from 'shared/Footer';
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import CustomerPrivateRoute from 'containers/CustomerPrivateRoute/CustomerPrivateRoute';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { withContext } from 'shared/AppContext';
@@ -134,37 +134,37 @@ export class CustomerApp extends Component {
                   <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                   <Route path="/accessibility" component={AccessibilityStatement} />
                   {getWorkflowRoutes(props)}
-                  {props.context.flags.hhgFlow && <ValidatedPrivateRoute exact path="/" component={Home} /> /* TODO */}
-                  <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
-                  <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
-                  <ValidatedPrivateRoute
+                  {props.context.flags.hhgFlow && <CustomerPrivateRoute exact path="/" component={Home} /> /* TODO */}
+                  <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
+                  <CustomerPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                  <CustomerPrivateRoute
                     exact
                     path="/moves/:moveId/mto-shipments/:mtoShipmentId/edit-shipment"
                     component={ConnectedCreateOrEditMtoShipment}
                   />
-                  <ValidatedPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
-                  <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
-                  <ValidatedPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
-                  <ValidatedPrivateRoute
+                  <CustomerPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
+                  <CustomerPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
+                  <CustomerPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                  <CustomerPrivateRoute
                     path="/moves/:moveId/review/edit-date-and-location"
                     component={EditDateAndLocation}
                   />
-                  <ValidatedPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
-                  <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
-                  <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
-                  <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
-                  <ValidatedPrivateRoute exact path="/infected-upload" component={InfectedUpload} />
-                  <ValidatedPrivateRoute exact path="/processing-upload" component={ProcessingUpload} />
-                  <ValidatedPrivateRoute
+                  <CustomerPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
+                  <CustomerPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
+                  <CustomerPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
+                  <CustomerPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
+                  <CustomerPrivateRoute exact path="/infected-upload" component={InfectedUpload} />
+                  <CustomerPrivateRoute exact path="/processing-upload" component={ProcessingUpload} />
+                  <CustomerPrivateRoute
                     path="/moves/:moveId/ppm-payment-request-intro"
                     component={PPMPaymentRequestIntro}
                   />
-                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
-                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
-                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
-                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
-                  <ValidatedPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
-                  <ValidatedPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
+                  <CustomerPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
+                  <CustomerPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
+                  <CustomerPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
+                  <CustomerPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
+                  <CustomerPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
+                  <CustomerPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                   <Route exact path="/forbidden">
                     <div className="usa-grid">
                       <h2>You are forbidden to use this endpoint</h2>
