@@ -12,40 +12,43 @@ type webhookSubscriptionUpdater struct {
 	builder webhookSubscriptionQueryBuilder
 }
 
-// UpdateWebhookSubscription updates a webhookSubscription
-func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription) (*models.WebhookSubscription, error) {
-	webhookSubscriptionID := uuid.FromStringOrNil(webhooksubscription.ID.String())
+// UpdateWebhookSubscription updates a webhook subscription
+// It uses the id in the passed in model to find the subscription.
+// For the severity field, it uses severity from the parameter not the model. If nil, severity will not be updated.
+// For all other fields, it uses the values found in the model.
+func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(requestedUpdate *models.WebhookSubscription, severity *int64) (*models.WebhookSubscription, error) {
+	webhookSubscriptionID := uuid.FromStringOrNil(requestedUpdate.ID.String())
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscriptionID)}
 
 	// Find the existing web subscription to update
-	var foundWebhookSubscription models.WebhookSubscription
-	err := o.builder.FetchOne(&foundWebhookSubscription, queryFilters)
+	var foundSub models.WebhookSubscription
+	err := o.builder.FetchOne(&foundSub, queryFilters)
 	if err != nil {
 		return nil, err
 	}
 
 	// Update webhook subscription new status for Active
-	if webhooksubscription.Status != "" {
-		foundWebhookSubscription.Status = webhooksubscription.Status
+	if requestedUpdate.Status != "" {
+		foundSub.Status = requestedUpdate.Status
 	}
 
-	if webhooksubscription.SubscriberID != uuid.Nil {
-		foundWebhookSubscription.SubscriberID = webhooksubscription.SubscriberID
+	if requestedUpdate.SubscriberID != uuid.Nil {
+		foundSub.SubscriberID = requestedUpdate.SubscriberID
 	}
 
-	if webhooksubscription.EventKey != "" {
-		foundWebhookSubscription.EventKey = webhooksubscription.EventKey
+	if requestedUpdate.EventKey != "" {
+		foundSub.EventKey = requestedUpdate.EventKey
 	}
 
-	if webhooksubscription.Severity != -1 {
-		foundWebhookSubscription.Severity = webhooksubscription.Severity
+	if severity != nil {
+		foundSub.Severity = int(*severity)
 	}
 
-	if webhooksubscription.CallbackURL != "" {
-		foundWebhookSubscription.CallbackURL = webhooksubscription.CallbackURL
+	if requestedUpdate.CallbackURL != "" {
+		foundSub.CallbackURL = requestedUpdate.CallbackURL
 	}
 
-	verrs, err := o.builder.UpdateOne(&foundWebhookSubscription, nil)
+	verrs, err := o.builder.UpdateOne(&foundSub, nil)
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(webhookSubscriptionID, err, verrs, "")
@@ -61,7 +64,7 @@ func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscripti
 		}
 	}
 	// return *webhooksubscription, nil
-	return &foundWebhookSubscription, nil
+	return &foundSub, nil
 }
 
 // NewWebhookSubscriptionUpdater returns an instance of the WebhookSubscriptionUpdater interface

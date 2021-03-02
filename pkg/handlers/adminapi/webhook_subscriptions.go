@@ -120,8 +120,7 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 	webhookSubscription := payloads.WebhookSubscriptionModel(payload)
 	output, _ := json.Marshal(webhookSubscription)
 	fmt.Println(string(output))
-
-	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription)
+	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, payload.Severity)
 	// Check that the webhook subscription in the model was updated
 
 	if err != nil {
