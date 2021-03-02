@@ -78,6 +78,40 @@ func updateDSN(dsn string) (string, error) {
 	return dsn, nil
 }
 
+// Refreshes the RDS IAM on a 10m interval.
+func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger) {
+	// Add some entropy to this value so all instances don't fire at the same time
+	minDur := 100
+	maxDur := 5000
+	randInt, err := random.GetRandomIntAddend(minDur, maxDur)
+	if err != nil {
+		logger.Error("Error building auth token", zap.Error(err))
+		return
+	}
+	wait := time.Millisecond * time.Duration(randInt+minDur)
+	logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
+	time.Sleep(wait)
+
+	// This for loop immediately runs the first tick then on interval
+	for ; true; <-ticker.C {
+		if creds == nil {
+			logger.Error("IAM Credentials are missing")
+			return
+		}
+		logger.Info("Using IAM Authentication")
+		authToken, err := rus.GetToken(host+":"+port, region, user, creds)
+		if err != nil {
+			logger.Error("Error building auth token", zap.Error(err))
+			return
+		}
+
+		iamConfig.currentPassMutex.Lock()
+		iamConfig.currentIamPass = url.QueryEscape(authToken)
+		iamConfig.currentPassMutex.Unlock()
+		logger.Info("Successfully generated new IAM token")
+	}
+}
+
 // EnableIAM enables the use of IAM and pulls first credential set as a sanity check
 // Note: This method is intended to be non-blocking, so please add any changes to the goroutine
 // Note: Ensure the timer is on an interval lower than 15 minutes (AWS RDS IAM auth limit)
@@ -88,39 +122,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	iamConfig.logger = logger
 
 	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
-	go func() {
-
-		// Add some entropy to this value so all instances don't fire at the same time
-		minDur := 100
-		maxDur := 5000
-		randInt, err := random.GetRandomIntAddend(minDur, maxDur)
-		if err != nil {
-			logger.Error("Error building auth token", zap.Error(err))
-			return
-		}
-		wait := time.Millisecond * time.Duration(randInt+minDur)
-		logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
-		time.Sleep(wait)
-
-		// This for loop immediately runs the first tick then on interval
-		for ; true; <-ticker.C {
-			if creds == nil {
-				logger.Error("IAM Credentials are missing")
-				return
-			}
-			logger.Info("Using IAM Authentication")
-			authToken, err := rus.GetToken(host+":"+port, region, user, creds)
-			if err != nil {
-				logger.Error("Error building auth token", zap.Error(err))
-				return
-			}
-
-			iamConfig.currentPassMutex.Lock()
-			iamConfig.currentIamPass = url.QueryEscape(authToken)
-			iamConfig.currentPassMutex.Unlock()
-			logger.Info("Successfully generated new IAM token")
-		}
-	}()
+	go refreshRDSIAM(host, port, region, user, creds, rus, ticker, logger)
 }
 
 // Open wrapper around postgres Open func
