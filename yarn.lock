@@ -3293,14 +3293,14 @@
     filter-console "^0.1.1"
     react-error-boundary "^3.1.0"
 
-"@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer#ds-enable-image-file-type-support":
+"@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer":
   version "1.2.1"
-  resolved "https://github.com/trussworks/react-file-viewer#0a671214303b4fbfaacf7bf498afb792fd878d59"
+  resolved "https://github.com/trussworks/react-file-viewer#5344ad893ce5b4e0038b4d8956b281154ce49ae3"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
     react-visibility-sensor "^5.0.2"
-    three "0.85.2"
+    three "0.126.0"
 
 "@trussworks/react-uswds@^1.10.0":
   version "1.10.0"
@@ -18590,10 +18590,10 @@ third-party-web@^0.12.2:
   resolved "https://registry.yarnpkg.com/third-party-web/-/third-party-web-0.12.2.tgz#6d9ce50ff94d88f7e57998dc4423a5e3e7b6735d"
   integrity sha512-LWkBqBnubxaXkKU1eoobaASUxzjqmIGSTrnei5OhrAvBPojq+d21/U5xbwh0LBaeMypCLBhlL3BneyDVjBc//A==
 
-three@0.85.2:
-  version "0.85.2"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.85.2.tgz#8936f89c3668f7bf12f9b085ddf5dd409916ea27"
-  integrity sha1-iTb4nDZo978S+bCF3fXdQJkW6ic=
+three@0.126.0:
+  version "0.126.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.126.0.tgz#924818341cd4441ef247e3cbf236f6160b90a216"
+  integrity sha512-/MecvboUefStCkUfXLImoJxthN+FoLPcEP7pz1r1Dd9i8BPGGuj+S1sOPRvW4Z+ViZjP2oWWm1inNC/MT52ybA==
 
 throat@^5.0.0:
   version "5.0.0"
