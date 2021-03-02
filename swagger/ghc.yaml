@@ -451,7 +451,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/PatchMTOShipmentStatusPayload'
+            $ref: '#/definitions/PatchMTOShipmentStatus'
         - in: header
           name: If-Match
           type: string
@@ -2301,7 +2301,7 @@ definitions:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
-  PatchMTOShipmentStatusPayload:
+  PatchMTOShipmentStatus:
     properties:
       status:
         type: string
@@ -2309,6 +2309,7 @@ definitions:
           - REJECTED
           - APPROVED
           - SUBMITTED
+          - CANCELLATION_REQUESTED
       rejectionReason:
         type: string
         example: MTO Shipment not good enough

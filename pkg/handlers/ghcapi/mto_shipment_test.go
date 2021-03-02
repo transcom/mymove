@@ -170,7 +170,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		HTTPRequest:     req,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
-		Body:            &ghcmessages.PatchMTOShipmentStatusPayload{Status: "APPROVED"},
+		Body:            &ghcmessages.PatchMTOShipmentStatus{Status: "APPROVED"},
 		IfMatch:         eTag,
 	}
 

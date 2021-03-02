@@ -1304,7 +1304,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatusPayload"
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
             }
           },
           {
@@ -3104,7 +3104,7 @@ func init() {
         }
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -3116,7 +3116,8 @@ func init() {
           "enum": [
             "REJECTED",
             "APPROVED",
-            "SUBMITTED"
+            "SUBMITTED",
+            "CANCELLATION_REQUESTED"
           ]
         }
       }
@@ -5343,7 +5344,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatusPayload"
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
             }
           },
           {
@@ -7224,7 +7225,7 @@ func init() {
         }
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -7236,7 +7237,8 @@ func init() {
           "enum": [
             "REJECTED",
             "APPROVED",
-            "SUBMITTED"
+            "SUBMITTED",
+            "CANCELLATION_REQUESTED"
           ]
         }
       }
