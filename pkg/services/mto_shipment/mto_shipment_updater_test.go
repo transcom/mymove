@@ -604,6 +604,25 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.IsType(services.ConflictError{}, err)
 		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved.")
 	})
+
+	suite.T().Run("An approved shipment can change to CANCELLATION_REQUESTED", func(t *testing.T) {
+		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		})
+		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(
+			approvedShipment.ID, models.MTOShipmentStatusCancellationRequested, nil, eTag)
+		suite.DB().Find(&approvedShipment, approvedShipment.ID)
+
+		suite.NoError(err)
+		suite.NotNil(updatedShipment)
+		suite.Equal(models.MTOShipmentStatusCancellationRequested, updatedShipment.Status)
+		suite.Equal(models.MTOShipmentStatusCancellationRequested, approvedShipment.Status)
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
