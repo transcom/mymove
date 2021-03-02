@@ -79,6 +79,18 @@ function server_report_cleanup()
     go tool cover -func=coverage.out -o "${test_dir}/go-coverage.txt"
     go tool cover -html=coverage.out -o "${test_dir}/go-coverage.html"
     cp coverage.out "${test_dir}"
+    # parse out the total coverage percentage which is on the line with (statements) and strip off the % sign
+    # https://unix.stackexchange.com/questions/305190/remove-last-character-from-string-captured-with-awk
+    percent=$(grep '(statements)' "${test_dir}/go-coverage.txt" | awk '{print substr($NF, 1, length($NF)-1)}')
+    goal_percent=70
+    # check the result of code coverage https://stackoverflow.com/questions/8654051/how-to-compare-two-floating-point-numbers-in-bash
+    if (( $(echo "${percent} < ${goal_percent}" |bc -l) )); then
+      echo "total coverage has dropped to ${percent}% needs to be at least ${goal_percent}%"
+      # fail build
+      exit 1
+    else
+      echo "total coverage is ${percent}%"
+    fi
   fi
 }
 
