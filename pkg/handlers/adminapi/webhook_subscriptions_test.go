@@ -173,10 +173,11 @@ func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
+	status := adminmessages.WebhookSubscriptionStatus(webhookSubscription.Status)
 	params := webhooksubscriptionop.CreateWebhookSubscriptionParams{
 		HTTPRequest: req,
 		WebhookSubscription: &adminmessages.CreateWebhookSubscription{
-			Status:       adminmessages.WebhookSubscriptionStatus(webhookSubscription.Status),
+			Status:       &status,
 			EventKey:     &webhookSubscription.EventKey,
 			SubscriberID: handlers.FmtUUID(webhookSubscription.SubscriberID),
 			CallbackURL:  &webhookSubscription.CallbackURL,
@@ -321,4 +322,3 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 	})
 
 }
-

@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// payloadForWebhookSubscriptionModel converts from model to payload
 func payloadForWebhookSubscriptionModel(subscription models.WebhookSubscription) *adminmessages.WebhookSubscription {
 	severity := int64(subscription.Severity)
 
@@ -33,17 +34,19 @@ func payloadForWebhookSubscriptionModel(subscription models.WebhookSubscription)
 	}
 }
 
-// Create payload to model function
+// payloadToWebhookSubscriptionModel converts from payload params to model
 func payloadToWebhookSubscriptionModel(params webhooksubscriptionop.CreateWebhookSubscriptionParams) models.WebhookSubscription {
 	subscription := params.WebhookSubscription
 
-	return models.WebhookSubscription{
+	model := models.WebhookSubscription{
 		EventKey:     *subscription.EventKey,
 		CallbackURL:  *subscription.CallbackURL,
 		SubscriberID: uuid.FromStringOrNil(subscription.SubscriberID.String()),
-		Status:       models.WebhookSubscriptionStatus(subscription.Status),
 	}
-
+	if subscription.Status != nil {
+		model.Status = models.WebhookSubscriptionStatus(*subscription.Status)
+	}
+	return model
 }
 
 // IndexWebhookSubscriptionsHandler returns a list of webhook subscriptions via GET /webhook_subscriptions
@@ -196,4 +199,3 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 	payload = payloadForWebhookSubscriptionModel(*updatedWebhookSubscription)
 	return webhooksubscriptionop.NewUpdateWebhookSubscriptionOK().WithPayload(payload)
 }
-
