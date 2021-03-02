@@ -543,7 +543,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "invalid", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(ConflictStatusError{}, err)
 	})
 
 	suite.T().Run("Passing in a bad shipment id", func(t *testing.T) {
