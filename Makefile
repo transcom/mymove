@@ -416,7 +416,7 @@ server_test_coverage_generate: db_test_reset db_test_migrate redis_reset server_
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
 	# Add coverage tracker via go cover
-	NO_DB=1 COVERAGE=1 scripts/run-server-test
+	NO_DB=1 SERVER_REPORT=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_coverage_generate ## Run server unit test coverage with html output
