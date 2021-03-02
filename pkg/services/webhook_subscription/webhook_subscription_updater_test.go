@@ -36,7 +36,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 		suite.Equal(origSub.Status, updatedSub.Status)
 	})
 
-	suite.T().Run("Fails to find correct webhookSuscription - return empty webhookSubscription and error", func(t *testing.T) {
+	suite.T().Run("Fails to find correct webhookSubscription - return empty webhookSubscription and error", func(t *testing.T) {
 		fakeID, _ := uuid.NewV4()
 
 		newSub := models.WebhookSubscription{
