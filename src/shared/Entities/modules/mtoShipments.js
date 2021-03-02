@@ -42,8 +42,8 @@ export function loadMTOShipments(
   return swaggerRequest(getClient, loadMTOShipmentsOperation, { moveTaskOrderID }, { label, schemaKey });
 }
 
-export function selectMTOShipments(state, moveOrderId) {
-  const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
+export function selectMTOShipments(state, orderId) {
+  const moveTaskOrders = selectMoveTaskOrders(state, orderId);
   return filter(state.entities.mtoShipments, (item) => moveTaskOrders.find((mto) => mto.id === item.moveTaskOrderID));
 }
 

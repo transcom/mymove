@@ -41,6 +41,7 @@ var gexPaths = []string{
 var gexChannels = []string{
 	"",
 	"TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM",
+	"TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM",
 }
 
 // InitGEXFlags initializes GEX command line flags
