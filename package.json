@@ -24,7 +24,7 @@
     "js-cookie": "^2.2.0",
     "lighthouse": "^7.2.0",
     "lodash": "^4.17.21",
-    "marked": "^2.0.0",
+    "marked": "^2.0.1",
     "moment": "^2.29.1",
     "node-sass": "^4.14.1",
     "normalizr": "^3.6.1",
