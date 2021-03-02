@@ -73,5 +73,6 @@ describe('Webhook Subscription Create Page', function () {
     cy.get('.ra-field-eventKey').contains('PaymentRequest.Update');
     cy.get('.ra-field-callbackUrl').contains('https://test1.com');
     cy.get('.ra-field-status').contains('ACTIVE');
+    cy.get('.ra-field-severity').contains('0');
   });
 });
