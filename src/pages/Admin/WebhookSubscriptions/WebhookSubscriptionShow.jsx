@@ -24,7 +24,7 @@ const WebhookSubscriptionShow = (props) => {
     <Show {...props} title={<WebhookSubscriptionShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" />
-        <TextField source="subscriberId" />
+        <TextField label="Subscriber Id" source="subscriberId" />
         <TextField source="eventKey" />
         <TextField source="callbackUrl" />
         <NumberField source="severity" />

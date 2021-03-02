@@ -7,7 +7,7 @@ const WebhookSubscriptionCreate = (props) => (
   /* eslint-disable-next-line react/jsx-props-no-spreading */
   <Create {...props}>
     <SimpleForm>
-      <TextInput source="subscriberId" validate={required()} />
+      <TextInput label="Subscriber Id" source="subscriberId" validate={required()} />
       <TextInput source="eventKey" validate={required()} />
       <TextInput source="callbackUrl" validate={required()} />
       <SelectInput
