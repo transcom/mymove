@@ -58,6 +58,7 @@ import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipme
 import Home from 'pages/MyMove/Home';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
+const AccessCode = lazy(() => import('shared/User/AccessCode'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -127,6 +128,7 @@ export class CustomerApp extends Component {
                 <Switch>
                   {/* no auth */}
                   <Route path="/sign-in" component={SignIn} />
+                  <Route path="/access-code" component={AccessCode} />
 
                   <Route exact path="/" component={Home} />
                   <Route exact path="/ppm" component={PpmLanding} />
