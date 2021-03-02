@@ -8,7 +8,7 @@
 # - CIRCLECI: Will reduce parallelism and make the test output verbose
 # - COVERAGE: '1' will enable test coverage flags
 # - DRY_RUN: '1' will build the tests but not run them
-# - JUNIT: '1' will run go-junit-report on test output
+# - SERVER_REPORT: '1' will run go-junit-report and go coverage on output
 # - LONG_TEST: '1' will remove the '-short' flag and run extended tests
 # - NO_DB: Will disable the db reset and migration steps
 #
@@ -18,7 +18,7 @@
 set -eu -o pipefail
 
 if [ "${APPLICATION}" == "app" ]; then
-  package_list=$(go list ./... | grep -v ordersapi | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+  package_list=$(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/pkg/assets/|/cmd/|mocks|/pkg/testdatagen)')
 elif [ "${APPLICATION}" == "orders" ]; then
   package_list=$(go list ./pkg/handlers/ordersapi)
 else
@@ -55,7 +55,8 @@ fi
 # Add coverage tracker via go cover
 coverage_flag=""
 if [[ "${COVERAGE:-}" == "1" ]]; then
-  coverage_flag="-coverprofile=coverage.out -covermode=count"
+  coverpkg=$(echo "${package_list}" | paste -s -d , - | tr '[:blank:]' ',')
+  coverage_flag="-coverprofile=coverage.out -covermode=count -coverpkg=${coverpkg}"
 fi
 
 # Set up the test DB instance and wipe it
@@ -70,19 +71,24 @@ test_output_file="${test_dir}/go-test.out"
 test_report_file="${test_dir}/go-test-report.xml"
 mkdir -p "${test_dir}"
 
-function junit_cleanup()
+function server_report_cleanup()
 {
   # generate the junit report
   bin/go-junit-report < "${test_output_file}" > "${test_report_file}"
+  if [[ "${COVERAGE:-}" == "1" ]]; then
+    go tool cover -func=coverage.out -o "${test_dir}/go-coverage.txt"
+    go tool cover -html=coverage.out -o "${test_dir}/go-coverage.html"
+    cp coverage.out "${test_dir}"
+  fi
 }
 
 # Set up junit report and ensure its run on exit
-if [[ "${JUNIT:-}" == "1" ]]; then
+if [[ "${SERVER_REPORT:-}" == "1" ]]; then
   if [ ! -f bin/go-junit-report ]; then
     make bin/go-junit-report
   fi
   # setup a trap incase the tests fail, we still want to generate the report
-  trap junit_cleanup EXIT
+  trap server_report_cleanup EXIT
 fi
 
 # shellcheck disable=SC2086

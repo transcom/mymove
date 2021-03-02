@@ -441,7 +441,7 @@ commands:
             ENV: test
             ENVIRONMENT: test
             GOFLAGS: '-p=4'
-            JUNIT: 1
+            SERVER_REPORT: 1
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
             SERVE_API_INTERNAL: true
