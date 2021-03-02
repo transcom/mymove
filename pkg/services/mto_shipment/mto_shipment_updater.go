@@ -530,9 +530,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 				fmt.Sprintf("Cannot approve a shipment if the move isn't approved. The current status for the move with ID %s is %s", move.ID, move.Status),
 			)
 		}
-	}
 
-	if shipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Now()
 		shipment.ApprovedDate = &approvedDate
 
