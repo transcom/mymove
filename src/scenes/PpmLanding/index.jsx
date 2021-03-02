@@ -17,33 +17,25 @@ import {
 } from 'store/entities/selectors';
 import { updatePPMs } from 'store/entities/actions';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectLoggedInUser } from 'store/entities/selectors';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
-import scrollToTop from 'shared/scrollToTop';
 import { getPPMsForMove } from 'services/internalApi';
-import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { selectGetCurrentUserIsSuccess, selectIsLoggedIn } from 'store/auth/selectors';
 
 export class PpmLanding extends Component {
   componentDidMount() {
-    // Load user into entities
-    const { isLoggedIn, showLoggedInUser } = this.props;
-    if (isLoggedIn) {
-      showLoggedInUser();
+    const { serviceMember, isProfileComplete } = this.props;
+    if (serviceMember && !isProfileComplete) {
+      // If the service member exists, but is not complete, redirect to next incomplete page.
+      this.resumeMove();
     }
-
-    scrollToTop();
   }
 
   componentDidUpdate(prevProps) {
-    const { serviceMember, loggedInUserSuccess, isProfileComplete } = this.props;
-    if (loggedInUserSuccess) {
-      if (serviceMember && !isProfileComplete) {
-        // If the service member exists, but is not complete, redirect to next incomplete page.
-        this.resumeMove();
-      }
+    const { serviceMember, isProfileComplete } = this.props;
+    if (!prevProps.serviceMember && serviceMember && !isProfileComplete) {
+      // If the service member exists, but is not complete, redirect to next incomplete page.
+      this.resumeMove();
     }
 
     if (prevProps.move && prevProps.move.id !== this.props.move.id) {
@@ -51,15 +43,6 @@ export class PpmLanding extends Component {
       getPPMsForMove(this.props.move.id).then((response) => this.props.updatePPMs(response));
     }
   }
-
-  startMove = (values) => {
-    const { serviceMember } = this.props;
-    if (!serviceMember) {
-      console.error('With no service member, you should have been redirected already.');
-    }
-
-    this.props.push(`service-member/${serviceMember.id}/create`);
-  };
 
   editMove = (move) => {
     this.props.push(`moves/${move.id}/edit`);
@@ -141,22 +124,18 @@ PpmLanding.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const user = selectLoggedInUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const move = selectCurrentMove(state) || {};
 
   const props = {
     lastMoveIsCanceled: selectHasCanceledMove(state),
     selectedMoveType: selectMoveType(state),
-    isLoggedIn: selectIsLoggedIn(state),
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     orders: selectCurrentOrders(state) || {},
     move: move,
     ppm: selectCurrentPPM(state) || {},
-    loggedInUser: user || {},
-    loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     entitlement: loadEntitlementsFromState(state),
   };
   return props;
@@ -166,7 +145,6 @@ const mapDispatchToProps = {
   push,
   loadMTOShipments,
   updatePPMs,
-  showLoggedInUser: showLoggedInUserAction,
 };
 
 export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(PpmLanding)));

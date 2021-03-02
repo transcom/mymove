@@ -23,7 +23,6 @@ import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
-import { selectGetCurrentUserIsSuccess, selectIsLoggedIn } from 'store/auth/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
@@ -62,20 +61,19 @@ Description.defaultProps = {
 
 class Home extends Component {
   componentDidMount() {
-    const { move, getSignedCertification } = this.props;
+    const { serviceMember, isProfileComplete, move, getSignedCertification } = this.props;
+    if (serviceMember && !isProfileComplete) {
+      // If the service member exists, but is not complete, redirect to next incomplete page.
+      this.resumeMove();
+    }
+
     if (Object.entries(move).length && move.status === MOVE_STATUSES.SUBMITTED) {
       getSignedCertification(move.id);
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { serviceMember, loggedInUserSuccess, isProfileComplete, move, getSignedCertification } = this.props;
-    if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
-      if (serviceMember && !isProfileComplete) {
-        // If the service member exists, but is not complete, redirect to next incomplete page.
-        this.resumeMove();
-      }
-    }
+    const { serviceMember, isProfileComplete, move, getSignedCertification } = this.props;
 
     if (!prevProps.serviceMember && serviceMember && !isProfileComplete) {
       this.resumeMove();
@@ -264,7 +262,6 @@ class Home extends Component {
   render() {
     const {
       currentPpm,
-      isLoggedIn,
       isProfileComplete,
       move,
       mtoShipments,
@@ -307,7 +304,7 @@ class Home extends Component {
             </div>
           </header>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-            {isLoggedIn && <ConnectedFlashMessage />}
+            <ConnectedFlashMessage />
 
             {isProfileComplete && (
               <>
@@ -428,8 +425,6 @@ Home.propTypes = {
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
   history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
-  isLoggedIn: bool.isRequired,
-  loggedInUserSuccess: bool.isRequired,
   isProfileComplete: bool.isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
@@ -469,8 +464,6 @@ const mapStateToProps = (state) => {
 
   return {
     currentPpm: selectCurrentPPM(state) || {},
-    isLoggedIn: selectIsLoggedIn(state),
-    loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     isProfileComplete: selectIsProfileComplete(state),
     orders: selectCurrentOrders(state) || {},
     uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
