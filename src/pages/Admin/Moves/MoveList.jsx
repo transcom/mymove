@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { Datagrid, Filter, List, TextField, TextInput, DateField } from 'react-admin';
+import { Datagrid, DateField, Filter, List, TextField, TextInput } from 'react-admin';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
@@ -13,7 +13,14 @@ const MoveFilter = (props) => (
 );
 
 const MoveList = (props) => (
-  <List {...props} pagination={<AdminPagination />} perPage={25} filters={<MoveFilter />} sort={defaultSort}>
+  <List
+    {...props}
+    pagination={<AdminPagination />}
+    perPage={25}
+    filters={<MoveFilter />}
+    sort={defaultSort}
+    bulkActionButtons={false}
+  >
     <Datagrid rowClick="show">
       <TextField source="id" reference="moves" />
       <TextField source="ordersId" reference="moves" label="Order Id" />
