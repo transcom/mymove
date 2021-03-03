@@ -879,10 +879,9 @@ definitions:
       - FAILING
       - DISABLED
     x-display-value:
-      DRAFT: Draft
-      SUBMITTED: Submitted
-      APPROVED: Approved
-      CANCELED: Canceled
+      ACTIVE: Active
+      FAILING: Failing
+      DISABLED: Disabled
   WebhookSubscriptions:
     type: array
     items:

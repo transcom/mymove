@@ -2607,10 +2607,9 @@ func init() {
         "DISABLED"
       ],
       "x-display-value": {
-        "APPROVED": "Approved",
-        "CANCELED": "Canceled",
-        "DRAFT": "Draft",
-        "SUBMITTED": "Submitted"
+        "ACTIVE": "Active",
+        "DISABLED": "Disabled",
+        "FAILING": "Failing"
       },
       "x-nullable": true
     },
@@ -5217,10 +5216,9 @@ func init() {
         "DISABLED"
       ],
       "x-display-value": {
-        "APPROVED": "Approved",
-        "CANCELED": "Canceled",
-        "DRAFT": "Draft",
-        "SUBMITTED": "Submitted"
+        "ACTIVE": "Active",
+        "DISABLED": "Disabled",
+        "FAILING": "Failing"
       },
       "x-nullable": true
     },
