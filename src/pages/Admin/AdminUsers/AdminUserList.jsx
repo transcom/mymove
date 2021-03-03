@@ -1,5 +1,7 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { BooleanField, Datagrid, List, TextField } from 'react-admin';
+
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const defaultSort = { field: 'last_name', order: 'ASC' };

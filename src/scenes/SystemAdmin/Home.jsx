@@ -10,9 +10,10 @@ import OfficeUserList from './OfficeUsers/OfficeUserList';
 import OfficeUserCreate from './OfficeUsers/OfficeUserCreate';
 import OfficeUserEdit from './OfficeUsers/OfficeUserEdit';
 import OfficeUserShow from './OfficeUsers/OfficeUserShow';
-import AdminUserList from './AdminUsers/AdminUserList';
-import AdminUserShow from './AdminUsers/AdminUserShow';
-import AdminUserCreate from './AdminUsers/AdminUserCreate';
+import AdminUserList from 'pages/Admin/AdminUsers/AdminUserList';
+import AdminUserShow from 'pages/Admin/AdminUsers/AdminUserShow';
+import AdminUserCreate from 'pages/Admin/AdminUsers/AdminUserCreate';
+import AdminUserEdit from 'pages/Admin/AdminUsers/AdminUserEdit';
 import OfficeList from './Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
@@ -28,7 +29,6 @@ import WebhookSubscriptionList from 'pages/Admin/WebhookSubscriptions/WebhookSub
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
 import customRoutes from './CustomRoutes';
-import AdminUserEdit from './AdminUsers/AdminUserEdit';
 import NotificationList from './Notifications/NotificationList';
 
 const httpClient = (url, options = {}) => {

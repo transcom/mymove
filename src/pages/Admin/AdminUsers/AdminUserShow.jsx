@@ -1,8 +1,24 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { BooleanField, DateField, Show, SimpleShowLayout, TextField } from 'react-admin';
+import PropTypes from 'prop-types';
 
 const AdminUserShowTitle = ({ record }) => {
   return <span>{`${record.firstName} ${record.lastName}`}</span>;
+};
+
+AdminUserShowTitle.propTypes = {
+  record: PropTypes.shape({
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+  }),
+};
+
+AdminUserShowTitle.defaultProps = {
+  record: {
+    firstName: '',
+    lastName: '',
+  },
 };
 
 const AdminUserShow = (props) => {
