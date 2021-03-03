@@ -1,5 +1,7 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { BooleanField, Datagrid, Filter, List, ReferenceField, TextField, TextInput } from 'react-admin';
+
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const OfficeUserListFilter = (props) => (

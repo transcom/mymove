@@ -1,7 +1,9 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, required } from 'react-admin';
+
 import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
-import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, required } from 'react-admin';
 
 const OfficeUserCreate = (props) => (
   <Create {...props}>

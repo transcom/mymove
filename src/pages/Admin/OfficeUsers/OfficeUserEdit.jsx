@@ -1,7 +1,9 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { Edit, SimpleForm, TextInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
+
 import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
-import { Edit, SimpleForm, TextInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
 
 const OfficeUserEditToolbar = (props) => (
   <Toolbar {...props}>

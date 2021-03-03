@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import {
   ArrayField,
@@ -9,9 +10,24 @@ import {
   SimpleShowLayout,
   TextField,
 } from 'react-admin';
+import PropTypes from 'prop-types';
 
 const OfficeUserShowTitle = ({ record }) => {
   return <span>{`${record.firstName} ${record.lastName}`}</span>;
+};
+
+OfficeUserShowTitle.propTypes = {
+  record: PropTypes.shape({
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+  }),
+};
+
+OfficeUserShowTitle.defaultProps = {
+  record: {
+    firstName: '',
+    lastName: '',
+  },
 };
 
 const OfficeUserShow = (props) => {
