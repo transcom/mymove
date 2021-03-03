@@ -29,11 +29,14 @@ func TestEnableIamNilCreds(t *testing.T) {
 
 	tmr := time.NewTicker(1 * time.Second)
 
+	shouldQuitChan := make(chan bool)
+
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		nil,
 		rdsu,
 		tmr,
-		logger)
+		logger,
+		shouldQuitChan)
 	time.Sleep(2 * time.Second)
 
 	iamConfig.currentPassMutex.Lock()
@@ -54,15 +57,19 @@ func TestGetCurrentPassword(t *testing.T) {
 
 	tmr := time.NewTicker(2 * time.Second)
 
+	shouldQuitChan := make(chan bool)
+
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		rdsu,
 		tmr,
-		logger)
+		logger,
+		shouldQuitChan)
 
 	// this should block for ~ 250ms and then continue
 	currentPass := GetCurrentPass()
 	assert.Equal(currentPass, "abc")
+	shouldQuitChan <- true
 
 	tmr.Stop()
 
@@ -80,15 +87,19 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 
 	tmr := time.NewTicker(1 * time.Second)
 
+	shouldQuitChan := make(chan bool)
+
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		rdsu,
 		tmr,
-		logger)
+		logger,
+		shouldQuitChan)
 
 	// this should block for 30s then return empty string
 	currentPass := GetCurrentPass()
 	assert.Equal(currentPass, "")
+	shouldQuitChan <- true
 	tmr.Stop()
 
 }
@@ -101,14 +112,18 @@ func TestEnableIAMNormal(t *testing.T) {
 	rdsu.passes = append(rdsu.passes, testData...)
 	logger, _ := zap.NewProduction()
 
-	tmr := time.NewTicker(2 * time.Second)
+	//tmr := time.NewTicker(2 * time.Second)
+	tmr := time.NewTicker(1 * time.Millisecond)
+
+	shouldQuitChan := make(chan bool)
 
 	// We use 2 second timer since that builds in a buffer so we have stable tests
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		rdsu,
 		tmr,
-		logger)
+		logger,
+		shouldQuitChan)
 
 	lenTestData := len(testData) - 1
 	counter := 0
@@ -142,6 +157,7 @@ func TestEnableIAMNormal(t *testing.T) {
 
 	// Check that all the passwords have been checked
 	assert.Equal(3, counter)
+	shouldQuitChan <- true
 	tmr.Stop()
 }
 
