@@ -65,8 +65,8 @@ describe('Webhook Subscription Create Page', function () {
     // redirected to details page
     cy.get('.ra-field-id span.MuiTypography-root')
       .invoke('text')
-      .then(() => {
-        cy.get('#react-admin-title').contains('Webhook Subscription ID: ');
+      .then((subID) => {
+        cy.get('#react-admin-title').contains('Webhook Subscription ID: ' + subID);
       });
 
     cy.get('.ra-field-subscriberId').contains('5db13bb4-6d29-4bdb-bc81-262f4513ecf6');
