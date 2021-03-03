@@ -1,7 +1,6 @@
 package adminapi
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -161,26 +160,27 @@ type UpdateWebhookSubscriptionHandler struct {
 	services.NewQueryFilter
 }
 
-// Handle updates a webhook subscription content
+// Handle updates a webhook subscription
 func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.UpdateWebhookSubscriptionParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	payload := params.WebhookSubscription
 
+	// Checks that ID in body matches ID in query
 	payloadID := uuid.FromStringOrNil(payload.ID.String())
 	if payloadID != uuid.Nil && params.WebhookSubscriptionID != payload.ID {
 		return webhooksubscriptionop.NewUpdateWebhookSubscriptionUnprocessableEntity()
 	}
-	fmt.Println("Passed ID check")
-	// Take the payload and update the ID with the param ID
+
+	// If no ID in body, use query ID
 	payload.ID = params.WebhookSubscriptionID
 
-	// Payload to model converter
+	// Convert payload to model
 	webhookSubscription := payloads.WebhookSubscriptionModel(payload)
-	output, _ := json.Marshal(webhookSubscription)
-	fmt.Println(string(output))
-	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, payload.Severity)
-	// Check that the webhook subscription in the model was updated
 
+	// Note we are not checking etag as adminapi does not seem to use this
+	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, payload.Severity)
+
+	// Return error response if not successful
 	if err != nil {
 		if err.Error() == models.RecordNotFoundErrorString {
 			logger.Error("Error finding webhookSubscription to update")
@@ -190,12 +190,7 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 		return handlers.ResponseForError(logger, err)
 	}
 
-	// if err != nil {
-	// 	logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
-	// 	return webhooksubscriptionop.NewUpdateWebhookSubscriptionNotFound()
-	// }
-
-	// Convert model back to a payload
+	// Convert model back to a payload and return to caller
 	payload = payloadForWebhookSubscriptionModel(*updatedWebhookSubscription)
 	return webhooksubscriptionop.NewUpdateWebhookSubscriptionOK().WithPayload(payload)
 }

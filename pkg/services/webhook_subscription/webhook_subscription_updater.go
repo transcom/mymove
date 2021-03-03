@@ -63,7 +63,6 @@ func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(requestedUpdate *
 			return nil, err
 		}
 	}
-	// return *webhooksubscription, nil
 	return &foundSub, nil
 }
 

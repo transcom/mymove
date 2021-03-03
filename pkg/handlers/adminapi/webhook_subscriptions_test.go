@@ -216,10 +216,10 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID), nil)
 
 	suite.T().Run("200 - OK, Successfully updated webhook subscription", func(t *testing.T) {
-		// Testing:             UpdateWebhookSubscriptionHandler, Updater
-		// Set up: 	            Provide a valid request with the id of a webhook_subscription
+		// Testing:             UpdateWebhookSubscriptionHandler, WebhookSubscriptionUpdater
+		// Set up:              Provide a valid request with the id of an existing webhook_subscription
 		//                      to the updateWebhookSubscription endpoint.
-		// Expected Outcome: 	The webhookSubscription is updated and we receive a 200 OK.
+		// Expected Outcome:    The webhookSubscription is updated and we receive a 200 OK.
 		//                      Fields are changed as expected.
 		status := adminmessages.WebhookSubscriptionStatusFAILING
 		subscriberID := strfmt.UUID(webhookSubscription.SubscriberID.String())
@@ -241,6 +241,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			query.NewQueryFilter,
 		}
 
+		suite.NoError(params.WebhookSubscription.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionOK{}, response)
@@ -253,7 +254,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 	})
 
 	suite.T().Run("200 - OK, Successfully partial updated webhook subscription", func(t *testing.T) {
-		// Testing:           UpdateWebhookSubscriptionHandler, Updater
+		// Testing:           UpdateWebhookSubscriptionHandler, WebhookSubscriptionUpdater
 		// Set up:            Provide a valid request with the id of a webhook_subscription
 		//                    to the updateWebhookSubscription endpoint and only some of the fields
 		// Expected Outcome:  The webhookSubscription is updated and we
@@ -276,6 +277,8 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			query.NewQueryFilter,
 		}
 
+		// Run swagger validations
+		suite.NoError(params.WebhookSubscription.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionOK{}, response)
@@ -290,7 +293,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 	})
 
 	suite.T().Run("404 - Not Found", func(t *testing.T) {
-		// Testing:           UpdateWebhookSubscriptionHandler, Updater
+		// Testing:           UpdateWebhookSubscriptionHandler, WebhookSubscriptionUpdater
 		// Set up:            Provide a valid request with the wrong ID
 		//                    to the updateWebhookSubscription endpoint
 		// Expected Outcome:  We receive a 404 Not Found error.
@@ -317,6 +320,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			query.NewQueryFilter,
 		}
 
+		suite.NoError(params.WebhookSubscription.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionNotFound{}, response)
 	})
