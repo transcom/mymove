@@ -17,6 +17,10 @@
 
 set -eu -o pipefail
 
+# colors
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
 if [ "${APPLICATION}" == "app" ]; then
   package_list=$(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/pkg/assets/|mocks|/pkg/testdatagen)')
 elif [ "${APPLICATION}" == "orders" ]; then
@@ -89,7 +93,7 @@ function server_report_cleanup()
       echo "total coverage is ${percent}%"
     else
       # coverage is under goal
-      echo "total coverage has dropped to ${percent}% needs to be at least ${goal_percent}%"
+      echo -e "${RED}total coverage has dropped to ${percent}% needs to be at least ${goal_percent}%${NC}"
       # fail build
       # commenting out the build failure line since we don't want to fail the build yet until we've had further discussions
       #exit 1
