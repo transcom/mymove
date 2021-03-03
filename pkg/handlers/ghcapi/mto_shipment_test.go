@@ -172,7 +172,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		HTTPRequest:     req,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
-		Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatus("APPROVED")},
+		Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatusAPPROVED},
 		IfMatch:         eTag,
 	}
 
@@ -416,7 +416,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			HTTPRequest:     req,
 			MoveTaskOrderID: *handlers.FmtUUID(approvedShipment.MoveTaskOrderID),
 			ShipmentID:      *handlers.FmtUUID(approvedShipment.ID),
-			Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatus("CANCELLATION_REQUESTED")},
+			Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatusCANCELLATIONREQUESTED},
 			IfMatch:         eTag,
 		}
 		suite.NoError(cancellationParams.Body.Validate(strfmt.Default))
