@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { BooleanField, DateField, Show, SimpleShowLayout, TextField } from 'react-admin';
 import PropTypes from 'prop-types';

@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { BooleanField, Datagrid, Filter, List, ReferenceField, TextField, TextInput } from 'react-admin';
 
