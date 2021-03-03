@@ -469,15 +469,9 @@ type mtoShipmentStatusUpdater struct {
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
 func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", shipmentID),
-	}
-	err := o.builder.FetchOne(&shipment, queryFilters)
-
+	shipment, err := fetchShipment(shipmentID, o.builder)
 	if err != nil {
-		return nil, services.NewNotFoundError(shipmentID, "Shipment not found")
+		return nil, err
 	}
 
 	switch shipment.Status {
@@ -578,85 +572,8 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 			}
 		}
 
-		// We will detect the type of shipment we're working with and then call a helper with the correct
-		// default service items that we want created as a side effect.
-		// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
-		var serviceItemsToCreate models.MTOServiceItems
-		switch shipment.ShipmentType {
-		case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDPK,
-				models.ReServiceCodeDUPK,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeHHGShortHaulDom:
-			//Need to create: Dom Shorthaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom Unpacking
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDSH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDPK,
-				models.ReServiceCodeDUPK,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeHHGIntoNTSDom:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom NTS Packing Factor
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDPK,
-				models.ReServiceCodeDNPKF,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeHHGOutOfNTSDom:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDUPK,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeMotorhome:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDMHF,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeBoatHaulAway:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDBHF,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeBoatTowAway:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDBTF,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		}
+		reServiceCodes := reServiceCodesForShipment(shipment)
+		serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		for _, serviceItem := range serviceItemsToCreate {
 			copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
 			_, verrs, err := o.siCreator.CreateMTOServiceItem(&copyOfServiceItem)
@@ -673,6 +590,98 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	return &shipment, nil
+}
+
+func fetchShipment(shipmentID uuid.UUID, builder UpdateMTOShipmentQueryBuilder) (models.MTOShipment, error) {
+	var shipment models.MTOShipment
+
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", shipmentID),
+	}
+	err := builder.FetchOne(&shipment, queryFilters)
+
+	if err != nil {
+		return shipment, services.NewNotFoundError(shipmentID, "Shipment not found")
+	}
+
+	return shipment, nil
+}
+
+func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCode {
+	// We will detect the type of shipment we're working with and then call a helper with the correct
+	// default service items that we want created as a side effect.
+	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
+
+	switch shipment.ShipmentType {
+	case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDUPK,
+		}
+	case models.MTOShipmentTypeHHGShortHaulDom:
+		// Need to create: Dom Shorthaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom Unpacking
+		return []models.ReServiceCode{
+			models.ReServiceCodeDSH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDUPK,
+		}
+	case models.MTOShipmentTypeHHGIntoNTSDom:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom NTS Packing Factor
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDNPKF,
+		}
+	case models.MTOShipmentTypeHHGOutOfNTSDom:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDUPK,
+		}
+	case models.MTOShipmentTypeMotorhome:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDMHF,
+		}
+	case models.MTOShipmentTypeBoatHaulAway:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDBHF,
+		}
+	case models.MTOShipmentTypeBoatTowAway:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDBTF,
+		}
+	}
+
+	return []models.ReServiceCode{}
 }
 
 // CalculateRequiredDeliveryDate function is used to get a distance calculation using the pickup and destination addresses. It then uses
