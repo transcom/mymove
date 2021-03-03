@@ -24,6 +24,54 @@ describe('Office Users List Page', function () {
   });
 });
 
+describe('Office User Create Page', function () {
+  before(() => {
+    cy.prepareAdminApp();
+  });
+
+  it('pulls up create page for an office user', function () {
+    cy.signInAsNewAdminUser();
+    // we tested the side nav in the previous test,
+    // so let's work with the assumption that we were already redirected to this page:
+    cy.url().should('eq', adminBaseURL + '/system/office_users');
+    cy.get('a[href*="system/office_users/create"]').first().click();
+    cy.url().should('eq', adminBaseURL + '/system/office_users/create');
+
+    // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
+    const testEmail = 'cy.office_user.' + Date.now() + '@example.com';
+
+    // create an admin user
+    cy.get('input[id="firstName"]').type('Cypress');
+    cy.get('input[id="middleInitials"]').type('CY');
+    cy.get('input[id="lastName"]').type('Test');
+    cy.get('input[id="email"]').type(testEmail);
+    cy.get('input[id="telephone"]').type('222-555-1234');
+    cy.get('.ra-input-roles input[type="checkbox"]').first().click();
+    cy.get('input[id="transportationOfficeId"]').type('JPPSO Testy McTest');
+    cy.wait(5000); // we have to wait for the autocomplete to give us something
+    cy.get('div[role="tooltip"] div[role="listbox"] li')
+      .first()
+      .then(($opt) => {
+        $opt.trigger('click');
+      });
+    cy.get('button').contains('Save').click();
+
+    // redirected to edit details page
+    cy.get('#id')
+      .invoke('val')
+      .then((officeUserID) => {
+        cy.url().should('contain', officeUserID);
+      });
+
+    cy.get('#email').should('have.value', testEmail);
+    cy.get('#firstName').should('have.value', 'Cypress');
+    cy.get('#middleInitials').should('have.value', 'CY');
+    cy.get('#lastName').should('have.value', 'Test');
+    cy.get('#telephone').should('have.value', '222-555-1234');
+    cy.get('#active').should('contain', 'Yes');
+  });
+});
+
 describe('Office Users Show Page', function () {
   before(() => {
     cy.prepareAdminApp();
@@ -31,8 +79,6 @@ describe('Office Users Show Page', function () {
 
   it('pulls up details page for an office user', function () {
     cy.signInAsNewAdminUser();
-    // we tested the side nav in the previous test,
-    // so let's work with the assumption that we were already redirected to this page:
     cy.url().should('eq', adminBaseURL + '/system/office_users');
     cy.get('tr[resource="office_users"]').first().click();
 
