@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { Edit, SaveButton, SelectInput, SimpleForm, TextInput, Toolbar } from 'react-admin';
 
