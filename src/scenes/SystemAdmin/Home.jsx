@@ -24,6 +24,7 @@ import MoveList from 'pages/Admin/Moves/MoveList';
 import MoveShow from 'pages/Admin/Moves/MoveShow';
 import MoveEdit from 'pages/Admin/Moves/MoveEdit';
 import WebhookSubscriptionList from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionsList';
+import WebhookSubscriptionShow from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionShow';
 
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
@@ -98,6 +99,7 @@ const Home = () => (
       <Resource
         name="webhook_subscriptions"
         options={{ label: 'Webhook Subscriptions' }}
+        show={WebhookSubscriptionShow}
         list={WebhookSubscriptionList}
       />
     </Admin>
