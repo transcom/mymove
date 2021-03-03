@@ -83,13 +83,15 @@ function server_report_cleanup()
     # https://unix.stackexchange.com/questions/305190/remove-last-character-from-string-captured-with-awk
     percent=$(grep '(statements)' "${test_dir}/go-coverage.txt" | awk '{print substr($NF, 1, length($NF)-1)}')
     goal_percent=70
-    # check the result of code coverage https://stackoverflow.com/questions/8654051/how-to-compare-two-floating-point-numbers-in-bash
-    if (( $(echo "${percent} < ${goal_percent}" |bc -l) )); then
+    # using a oneline python function to test if percent is less than goal and return a proper exit code
+    if python -c "exit(1) if ${percent} < ${goal_percent} else exit()"; then
+      # coverage is good
+      echo "total coverage is ${percent}%"
+    else
+      # coverage is under goal
       echo "total coverage has dropped to ${percent}% needs to be at least ${goal_percent}%"
       # fail build
       exit 1
-    else
-      echo "total coverage is ${percent}%"
     fi
   fi
 }
