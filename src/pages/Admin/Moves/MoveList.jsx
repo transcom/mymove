@@ -3,12 +3,11 @@ import React from 'react';
 import { Datagrid, Filter, List, TextField, TextInput, DateField } from 'react-admin';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
-import styles from 'scenes/SystemAdmin/Home.module.scss';
 
 const defaultSort = { field: 'locator', order: 'ASC' };
 
 const MoveFilter = (props) => (
-  <Filter {...props} className={styles['system-admin-filters']}>
+  <Filter {...props}>
     <TextInput label="Locator" source="locator" reference="locator" alwaysOn resettable />
   </Filter>
 );
