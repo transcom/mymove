@@ -67,7 +67,7 @@ const Home = () => (
     >
       <Resource
         name="office_users"
-        options={{ label: 'Office users' }}
+        options={{ label: 'Office Users' }}
         list={OfficeUserList}
         show={OfficeUserShow}
         create={OfficeUserCreate}
@@ -82,7 +82,7 @@ const Home = () => (
         create={AdminUserCreate}
         edit={AdminUserEdit}
       />
-      <Resource name="users" options={{ label: 'Users' }} show={UserShow} edit={UserEdit} list={UserList} />
+      <Resource name="users" options={{ label: 'Users' }} list={UserList} show={UserShow} edit={UserEdit} />
       <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} edit={MoveEdit} />
       <Resource
         name="transportation_service_provider_performances"
