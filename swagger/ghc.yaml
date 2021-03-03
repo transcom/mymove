@@ -451,7 +451,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/PatchMTOShipmentStatusPayload'
+            $ref: '#/definitions/PatchMTOShipmentStatus'
         - in: header
           name: If-Match
           type: string
@@ -2211,22 +2211,6 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
-  MTOShipmentType:
-    type: string
-    title: Shipment Type
-    example: HHG
-    enum:
-      - HHG
-      - HHG_LONGHAUL_DOMESTIC
-      - HHG_SHORTHAUL_DOMESTIC
-      - HHG_INTO_NTS_DOMESTIC
-      - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
-    x-display-value:
-      HHG: HHG
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -2282,11 +2266,7 @@ definitions:
           - INTERNATIONAL_HHG
           - INTERNATIONAL_UB
       status:
-        type: string
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
+        $ref: '#/definitions/MTOShipmentStatus'
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
@@ -2301,18 +2281,41 @@ definitions:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
-  PatchMTOShipmentStatusPayload:
+  MTOShipmentStatus:
+    type: string
+    title: Shipment Status
+    example: SUBMITTED
+    enum:
+      - SUBMITTED
+      - REJECTED
+      - APPROVED
+      - CANCELLATION_REQUESTED
+  MTOShipmentType:
+    type: string
+    title: Shipment Type
+    example: HHG
+    enum:
+      - HHG
+      - HHG_LONGHAUL_DOMESTIC
+      - HHG_SHORTHAUL_DOMESTIC
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+    x-display-value:
+      HHG: HHG
+      INTERNATIONAL_HHG: International HHG
+      INTERNATIONAL_UB: International UB
+  PatchMTOShipmentStatus:
     properties:
       status:
-        type: string
-        enum:
-          - REJECTED
-          - APPROVED
-          - SUBMITTED
+        $ref: '#/definitions/MTOShipmentStatus'
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+    required:
+      - status
   PatchMTOServiceItemStatusPayload:
     properties:
       status:

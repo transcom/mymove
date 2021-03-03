@@ -480,12 +480,39 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		return nil, services.NewNotFoundError(shipmentID, "Shipment not found")
 	}
 
-	if shipment.Status == models.MTOShipmentStatusDraft && status != models.MTOShipmentStatusSubmitted {
-		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
+	switch shipment.Status {
+	case models.MTOShipmentStatusDraft:
+		if status != models.MTOShipmentStatusSubmitted {
+			return nil, ConflictStatusError{
+				id:                        shipment.ID,
+				transitionFromStatus:      shipment.Status,
+				transitionToStatus:        status,
+				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusSubmitted},
+			}
+		}
+	case models.MTOShipmentStatusSubmitted:
+		if status != models.MTOShipmentStatusApproved && status != models.MTOShipmentStatusRejected {
+			return nil, ConflictStatusError{
+				id:                        shipment.ID,
+				transitionFromStatus:      shipment.Status,
+				transitionToStatus:        status,
+				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusApproved, models.MTOShipmentStatusRejected},
+			}
+		}
+	case models.MTOShipmentStatusApproved:
+		if status != models.MTOShipmentStatusCancellationRequested {
+			return nil, ConflictStatusError{
+				id:                        shipment.ID,
+				transitionFromStatus:      shipment.Status,
+				transitionToStatus:        status,
+				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusCancellationRequested},
+			}
+		}
+	default:
+		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: status}
 	}
-	if shipment.Status != models.MTOShipmentStatusSubmitted && shipment.Status != models.MTOShipmentStatusDraft {
-		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
-	} else if status != models.MTOShipmentStatusRejected {
+
+	if status != models.MTOShipmentStatusRejected {
 		rejectionReason = nil
 	}
 
@@ -503,9 +530,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 				fmt.Sprintf("Cannot approve a shipment if the move isn't approved. The current status for the move with ID %s is %s", move.ID, move.Status),
 			)
 		}
-	}
 
-	if shipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Now()
 		shipment.ApprovedDate = &approvedDate
 
@@ -724,15 +749,20 @@ func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentQu
 
 // ConflictStatusError returns an error for a conflict in status
 type ConflictStatusError struct {
-	id                   uuid.UUID
-	transitionFromStatus models.MTOShipmentStatus
-	transitionToStatus   models.MTOShipmentStatus
+	id                        uuid.UUID
+	transitionFromStatus      models.MTOShipmentStatus
+	transitionToStatus        models.MTOShipmentStatus
+	transitionAllowedStatuses *[]models.MTOShipmentStatus
 }
 
 // Error is the string representation of the error
 func (e ConflictStatusError) Error() string {
-	return fmt.Sprintf("shipment with id '%s' can not transition status from '%s' to '%s'. Must be in status '%s'.",
-		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
+	var allowedStatusMsg string
+	if e.transitionAllowedStatuses != nil {
+		allowedStatusMsg = fmt.Sprintf(" May only transition to: %+q.", *e.transitionAllowedStatuses)
+	}
+	return fmt.Sprintf("shipment with id '%s' cannot transition status from '%s' to '%s'.%s",
+		e.id.String(), e.transitionFromStatus, e.transitionToStatus, allowedStatusMsg)
 }
 
 func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {

@@ -5,7 +5,6 @@
     "airbnb",
     "prettier",
     "prettier/prettier",
-    "prettier/react",
     "plugin:security/recommended",
     "plugin:you-dont-need-lodash-underscore/compatible"
   ],
