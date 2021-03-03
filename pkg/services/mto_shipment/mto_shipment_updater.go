@@ -759,7 +759,7 @@ type ConflictStatusError struct {
 func (e ConflictStatusError) Error() string {
 	var allowedStatusMsg string
 	if e.transitionAllowedStatuses != nil {
-		allowedStatusMsg = fmt.Sprintf(" May only transition to: %+q.", e.transitionAllowedStatuses)
+		allowedStatusMsg = fmt.Sprintf(" May only transition to: %+q.", *e.transitionAllowedStatuses)
 	}
 	return fmt.Sprintf("shipment with id '%s' cannot transition status from '%s' to '%s'.%s",
 		e.id.String(), e.transitionFromStatus, e.transitionToStatus, allowedStatusMsg)
