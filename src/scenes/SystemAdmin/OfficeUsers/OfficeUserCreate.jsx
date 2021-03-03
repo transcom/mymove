@@ -7,7 +7,7 @@ const OfficeUserCreate = (props) => (
   <Create {...props}>
     <SimpleForm>
       <TextInput source="firstName" validate={required()} />
-      <TextInput source="middle_initial" />
+      <TextInput source="middleInitials" />
       <TextInput source="lastName" validate={required()} />
       <TextInput source="email" validate={required()} />
       <TextInput source="telephone" validate={phoneValidators} />
