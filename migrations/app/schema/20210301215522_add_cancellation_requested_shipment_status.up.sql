@@ -4,4 +4,4 @@ COMMENT ON COLUMN mto_shipments.status IS 'The status of a shipment. The list of
 2. SUBMITTED
 3. APPROVED
 4. REJECTED
-5. CANCELLATION REQUESTED';
+5. CANCELLATION_REQUESTED';
