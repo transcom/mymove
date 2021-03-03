@@ -124,6 +124,45 @@ describe('Admin Users Edit Page', function () {
       cy.get('[id="' + label + '"]').should('be.disabled');
     });
 
-    // todo: save update
+    cy.get('input[id="firstName"]').clear().type('Edit');
+    cy.get('input[id="lastName"]').clear().type('CypressUser');
+
+    // set the user to the active status they did NOT have before
+    cy.get('#active').click();
+    cy.get('ul[aria-labelledby="active-label"] li')
+      .not('[aria-selected="true"]')
+      .click()
+      .then(($selectedOpt) => {
+        // grab the value we selected for "Active"
+        const newActiveValue = $selectedOpt.attr('data-value');
+
+        cy.get('button').contains('Save').click();
+
+        // back in the move list screen, check that the row for this admin user was updated
+        cy.url().should('eq', adminBaseURL + '/system/admin_users');
+
+        // check that the correct values were saved:
+        cy.get('tr')
+          .contains(this.adminUserID)
+          .parents('tr')
+          .find('td.column-active svg') // this column uses icons to indicate true or false
+          .should(($activeCol) => {
+            expect($activeCol.attr('data-testid')).to.eq(newActiveValue);
+          });
+
+        cy.get('tr')
+          .contains(this.adminUserID)
+          .parents('tr')
+          .find('td.column-firstName span.MuiTypography-root')
+          .invoke('text')
+          .should('eq', 'Edit');
+
+        cy.get('tr')
+          .contains(this.adminUserID)
+          .parents('tr')
+          .find('td.column-lastName span.MuiTypography-root')
+          .invoke('text')
+          .should('eq', 'CypressUser');
+      });
   });
 });
