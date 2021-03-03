@@ -18,7 +18,7 @@
 set -eu -o pipefail
 
 if [ "${APPLICATION}" == "app" ]; then
-  package_list=$(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/pkg/assets/|/cmd/|mocks|/pkg/testdatagen)')
+  package_list=$(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/pkg/assets/|mocks|/pkg/testdatagen)')
 elif [ "${APPLICATION}" == "orders" ]; then
   package_list=$(go list ./pkg/handlers/ordersapi)
 else
