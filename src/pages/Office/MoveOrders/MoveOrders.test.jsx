@@ -92,7 +92,7 @@ describe('MoveOrders page', () => {
     expect(wrapper.find('OrdersDetailForm').exists()).toBe(true);
   });
 
-  it('populates inital field values', () => {
+  it('populates initial field values', () => {
     expect(wrapper.find('Select[name="originDutyStation"]').prop('value')).toEqual(mockOriginDutyStation);
     expect(wrapper.find('Select[name="newDutyStation"]').prop('value')).toEqual(mockDestinationDutyStation);
     expect(wrapper.find('input[name="issueDate"]').prop('value')).toBe('15 Mar 2018');

@@ -14,7 +14,7 @@ const defaultProps = {
 const serviceItemWithImg = {
   id: 'abc123',
   createdAt: '2020-11-20',
-  serviceItem: 'Domestic Crating',
+  serviceItem: 'Domestic crating',
   code: 'DCRT',
   details: {
     description: 'grandfather clock',
@@ -26,7 +26,7 @@ const serviceItemWithImg = {
 const serviceItemWithContact = {
   id: 'abc1234',
   createdAt: '2020-09-01',
-  serviceItem: 'Domestic Destination 1st Day SIT',
+  serviceItem: 'Domestic destination 1st day SIT',
   code: 'DDFSIT',
   details: {
     firstCustomerContact: { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15' },
@@ -37,7 +37,7 @@ const serviceItemWithContact = {
 const serviceItemWithDetails = {
   id: 'abc12345',
   createdAt: '2020-10-15',
-  serviceItem: 'Domestic Origin 1st Day SIT',
+  serviceItem: 'Domestic origin 1st day SIT',
   code: 'DOFSIT',
   details: {
     pickupPostalCode: '20050',
@@ -102,13 +102,13 @@ describe('RequestedServiceItemsTable', () => {
       />,
     );
 
-    expect(wrapper.find('.codeName').at(0).text()).toBe('Domestic Crating');
+    expect(wrapper.find('.codeName').at(0).text()).toBe('Domestic crating');
     expect(wrapper.find('.nameAndDate').at(0).text().includes('20 Nov 2020')).toBe(true);
 
-    expect(wrapper.find('.codeName').at(1).text()).toBe('Domestic Destination 1st Day SIT');
+    expect(wrapper.find('.codeName').at(1).text()).toBe('Domestic destination 1st day SIT');
     expect(wrapper.find('.nameAndDate').at(1).text().includes('1 Sep 2020')).toBe(true);
 
-    expect(wrapper.find('.codeName').at(2).text()).toBe('Domestic Origin 1st Day SIT');
+    expect(wrapper.find('.codeName').at(2).text()).toBe('Domestic origin 1st day SIT');
     expect(wrapper.find('.nameAndDate').at(2).text().includes('15 Oct 2020')).toBe(true);
   });
 

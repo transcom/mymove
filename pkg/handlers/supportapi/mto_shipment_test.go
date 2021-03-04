@@ -139,8 +139,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "X"},
 			IfMatch:       params.IfMatch,
 		}
-		response := handler.Handle(invalidInputParams)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusUnprocessableEntity{}, response)
+		// This input error would be caught by Swagger, not the service object:
+		suite.Error(invalidInputParams.Body.Validate(strfmt.Default))
 	})
 
 	// Second to last because many of the above tests fail because of a conflict error with APPROVED/REJECTED shipments

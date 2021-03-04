@@ -17,7 +17,7 @@ jest.mock('hooks/queries', () => ({
   useTXOMoveInfoQueries: () => {
     return {
       customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-      moveOrder: {
+      order: {
         id: '4321',
         customerID: '2468',
         uploaded_order_id: '2',

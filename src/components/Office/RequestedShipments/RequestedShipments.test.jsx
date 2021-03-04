@@ -4,6 +4,9 @@ import { mount, shallow } from 'enzyme';
 
 import RequestedShipments from './RequestedShipments';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { serviceItemCodes } from 'content/serviceItems';
+
 const shipments = [
   {
     approvedDate: '0001-01-01',
@@ -59,7 +62,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.404031Z',
   },
@@ -106,7 +109,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },
@@ -132,7 +135,7 @@ const shipments = [
     primeActualWeight: 890,
     requestedPickupDate: '2018-03-15',
     scheduledPickupDate: '2018-03-16',
-    shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+    shipmentType: SHIPMENT_OPTIONS.NTS,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },
@@ -239,7 +242,7 @@ const serviceItems = [
     mtoShipmentID: null,
     reServiceCode: 'MS',
     reServiceID: '6789',
-    reServiceName: 'Shipment Mgmt. Services',
+    reServiceName: serviceItemCodes.MS,
     status: 'APPROVED',
   },
   {
@@ -250,7 +253,7 @@ const serviceItems = [
     mtoShipmentID: null,
     reServiceCode: 'CS',
     reServiceID: '6790',
-    reServiceName: 'Counseling Services',
+    reServiceName: serviceItemCodes.CS,
     status: 'APPROVED',
   },
   {
@@ -261,7 +264,7 @@ const serviceItems = [
     mtoShipmentID: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
     reServiceCode: 'DLH',
     reServiceID: '6791',
-    reServiceRName: 'Dom. Linehaul',
+    reServiceRName: serviceItemCodes.DLH,
     status: 'SUBMITTED',
   },
 ];
@@ -436,11 +439,11 @@ describe('RequestedShipments', () => {
     expect(approvedServiceItemNames.length).toBe(2);
     expect(approvedServiceItemDates.length).toBe(2);
 
-    expect(approvedServiceItemNames.at(0).text()).toBe('Shipment Mgmt. Services');
+    expect(approvedServiceItemNames.at(0).text()).toBe('Move management');
     expect(approvedServiceItemDates.at(0).find('FontAwesomeIcon').prop('icon')).toEqual('check');
     expect(approvedServiceItemDates.at(0).text()).toBe(' 02 Oct 2020');
 
-    expect(approvedServiceItemNames.at(1).text()).toBe('Counseling Services');
+    expect(approvedServiceItemNames.at(1).text()).toBe('Counseling');
     expect(approvedServiceItemDates.at(1).find('FontAwesomeIcon').prop('icon')).toEqual('check');
     expect(approvedServiceItemDates.at(1).text()).toBe(' 02 Oct 2020');
   });

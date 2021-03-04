@@ -45,17 +45,17 @@ export const useUserQueries = () => {
 
 export const useTXOMoveInfoQueries = (moveCode) => {
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
-  const moveOrderId = move?.ordersId;
+  const orderId = move?.ordersId;
 
   // get move orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
-    enabled: !!moveOrderId,
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, orderId], getMoveOrder, {
+    enabled: !!orderId,
   });
 
   // TODO - Need to refactor if we pass include customer in move order payload
   // get customer
-  const moveOrder = moveOrders && Object.values(moveOrders)[0];
-  const customerId = moveOrder?.customerID;
+  const order = moveOrders && Object.values(moveOrders)[0];
+  const customerId = order?.customerID;
   const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
     enabled: !!customerId,
   });
@@ -63,7 +63,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, customerQuery]);
 
   return {
-    moveOrder,
+    order,
     customerData,
     isLoading,
     isError,
@@ -94,18 +94,18 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
 
 export const useMoveTaskOrderQueries = (moveCode) => {
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
-  const moveOrderId = move?.ordersId;
+  const orderId = move?.ordersId;
 
   // get move orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
-    enabled: !!moveOrderId,
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, orderId], getMoveOrder, {
+    enabled: !!orderId,
   });
 
   // get move task orders
   const { data: { moveTaskOrders } = {}, ...moveTaskOrderQuery } = useQuery(
-    [MOVE_TASK_ORDERS, moveOrderId],
+    [MOVE_TASK_ORDERS, orderId],
     getMoveTaskOrderList,
-    { enabled: !!moveOrderId },
+    { enabled: !!orderId },
   );
 
   const moveTaskOrder = moveTaskOrders && Object.values(moveTaskOrders)[0];
@@ -142,9 +142,9 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   };
 };
 
-export const useMoveOrderQueries = (moveOrderId) => {
+export const useMoveOrderQueries = (orderId) => {
   // get move orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, orderId], getMoveOrder);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveOrderQuery]);
 
@@ -160,14 +160,14 @@ export const useOrdersDocumentQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
 
-  const moveOrderId = move?.ordersId;
+  const orderId = move?.ordersId;
 
   // get orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
-    enabled: !!moveOrderId,
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, orderId], getMoveOrder, {
+    enabled: !!orderId,
   });
 
-  const orders = moveOrders && moveOrders[`${moveOrderId}`];
+  const orders = moveOrders && moveOrders[`${orderId}`];
   // eslint-disable-next-line camelcase
   const documentId = orders?.uploaded_order_id;
 
@@ -238,7 +238,7 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
 
   const mtoID = data[0]?.moveTaskOrderID;
 
-  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID], getMTOShipments, {
+  const { data: mtoShipments = [], ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
     enabled: !!mtoID,
   });
 
@@ -257,10 +257,10 @@ export const useMoveDetailsQueries = (moveCode) => {
   const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
 
   const moveId = move?.id;
-  const moveOrderId = move?.ordersId;
+  const orderId = move?.ordersId;
 
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder, {
-    enabled: !!moveOrderId,
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, orderId], getMoveOrder, {
+    enabled: !!orderId,
   });
 
   const moveOrder = Object.values(moveOrders || {})?.[0];

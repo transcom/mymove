@@ -358,6 +358,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
+	shipmentForAutoApprove := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
 	approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
@@ -439,6 +445,25 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.NotNil(fetchedShipment.RequiredDeliveryDate)
 	})
 
+	suite.T().Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func(t *testing.T) {
+		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
+		_, err := updater.UpdateMTOShipmentStatus(shipmentForAutoApprove.ID, status, nil, shipmentForAutoApproveEtag)
+		suite.NoError(err)
+		fetchedShipment := models.MTOShipment{}
+		serviceItems := models.MTOServiceItems{}
+		err = suite.DB().Find(&fetchedShipment, shipmentForAutoApprove.ID)
+		suite.NoError(err)
+		// Let's make sure the status is approved
+		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
+		err = suite.DB().Where("mto_shipment_id = ?", shipmentForAutoApprove.ID).All(&serviceItems)
+		suite.NoError(err)
+		// If we've gotten the shipment updated and fetched it without error then we can inspect the
+		// service items created as a side effect to see if they are approved.
+		for _, serviceItem := range serviceItems {
+			suite.Equal(models.MTOServiceItemStatusApproved, serviceItem.Status)
+		}
+	})
+
 	suite.T().Run("If we are approving a shipment but are missing key information (estimated weight and pickup date) it should fail", func(t *testing.T) {
 		_, err := updater.UpdateMTOShipmentStatus(shipment2.ID, status, nil, eTag)
 		suite.NotNil(err)
@@ -518,7 +543,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "invalid", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
-		suite.IsType(services.InvalidInputError{}, err)
+		suite.IsType(ConflictStatusError{}, err)
 	})
 
 	suite.T().Run("Passing in a bad shipment id", func(t *testing.T) {
@@ -578,6 +603,25 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved.")
+	})
+
+	suite.T().Run("An approved shipment can change to CANCELLATION_REQUESTED", func(t *testing.T) {
+		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		})
+		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(
+			approvedShipment.ID, models.MTOShipmentStatusCancellationRequested, nil, eTag)
+		suite.DB().Find(&approvedShipment, approvedShipment.ID)
+
+		suite.NoError(err)
+		suite.NotNil(updatedShipment)
+		suite.Equal(models.MTOShipmentStatusCancellationRequested, updatedShipment.Status)
+		suite.Equal(models.MTOShipmentStatusCancellationRequested, approvedShipment.Status)
 	})
 }
 

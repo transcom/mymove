@@ -7,7 +7,7 @@
 set -eu -o pipefail
 
 function usage() {
-  echo "Usage: $0 <moveTaskOrderID|moveOrderID> [[hostname] path/to/proof.pdf]"
+  echo "Usage: $0 <moveTaskOrderID|moveOrderID|moveCode> [[hostname] path/to/proof.pdf]"
   echo
   echo "If omitted, the optional parameters are set as follows:"
   echo "  hostname = local"
@@ -17,8 +17,9 @@ function usage() {
   echo "EXAMPLES:"
   echo "$0 --help # prints this help"
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d"
+  echo "$0 RDY4PY"
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d local path/to/proof.pdf path/to/proof.jpg"
-  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil"
+  echo "$0 RDY4PY api.stg.move.mil"
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil path/to/proof.pdf path/to/proof.jpg"
 }
 
@@ -118,19 +119,22 @@ printf "\nThe prime will now fetch the new MTO.\n\n"
 
 printf "\n==========\n\n"
 
+# Find MTO By MTO ID
 if jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
-  # MTO found
   echo "Found by Move Task Order ID"
+# Find MTO By moveOrderID
+elif jq -e 'map(select(.moveOrderID == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
+  # extract the mtoid
+  mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
+  echo "Found by Move Order ID. Actual MTO ID is ${mtoid}"
+# Find MTO by moveCode aka locator
+elif jq -e 'map(select(.moveCode == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
+  # extract the mtoid
+  mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
+  echo "Found by Move Code. Actual MTO ID is ${mtoid}"
 else
-  # maybe we have a moveOrderID
-  if jq -e 'map(select(.moveOrderID == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
-    # great
-    mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
-    echo "Found by Move Order ID. Actual MTO ID is ${mtoid}"
-  else
-    echo "ID not found"
-    exit 1
-  fi
+  echo "ID not found"
+  exit 1
 fi
 
 

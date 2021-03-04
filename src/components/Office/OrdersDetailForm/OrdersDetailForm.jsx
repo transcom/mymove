@@ -1,10 +1,17 @@
 import React from 'react';
+import { func, string } from 'prop-types';
 
 import { TextInput, DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import { DropdownArrayOf } from 'types/form';
 import styles from 'components/Office/OrdersDetailForm/OrdersDetailForm.module.scss';
 
-const OrdersDetailForm = ({ deptIndicatorOptions, ordersTypeOptions, ordersTypeDetailOptions }) => {
+const OrdersDetailForm = ({
+  deptIndicatorOptions,
+  ordersTypeOptions,
+  ordersTypeDetailOptions,
+  tacWarning,
+  validateTac,
+}) => {
   return (
     <div className={styles.OrdersDetailForm}>
       <DutyStationInput name="originDutyStation" label="Current duty station" displayAddress={false} />
@@ -15,7 +22,7 @@ const OrdersDetailForm = ({ deptIndicatorOptions, ordersTypeOptions, ordersTypeD
       <TextInput name="ordersNumber" label="Orders number" id="ordersNumberInput" />
       <DropdownInput name="ordersType" label="Orders type" options={ordersTypeOptions} />
       <DropdownInput name="ordersTypeDetail" label="Orders type detail" options={ordersTypeDetailOptions} />
-      <TextInput name="tac" label="TAC" id="tacInput" />
+      <TextInput name="tac" label="TAC" id="tacInput" warning={tacWarning} validate={validateTac} />
       <TextInput name="sac" label="SAC" id="sacInput" />
     </div>
   );
@@ -25,6 +32,12 @@ OrdersDetailForm.propTypes = {
   deptIndicatorOptions: DropdownArrayOf.isRequired,
   ordersTypeOptions: DropdownArrayOf.isRequired,
   ordersTypeDetailOptions: DropdownArrayOf.isRequired,
+  tacWarning: string,
+  validateTac: func.isRequired,
+};
+
+OrdersDetailForm.defaultProps = {
+  tacWarning: '',
 };
 
 export default OrdersDetailForm;

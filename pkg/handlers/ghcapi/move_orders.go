@@ -16,7 +16,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	moveorderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
+	orderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 )
@@ -28,21 +28,21 @@ type GetMoveOrdersHandler struct {
 }
 
 // Handle getting the information of a specific move order
-func (h GetMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) middleware.Responder {
+func (h GetMoveOrdersHandler) Handle(params orderop.GetMoveOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	moveOrderID, _ := uuid.FromString(params.MoveOrderID.String())
+	moveOrderID, _ := uuid.FromString(params.OrderID.String())
 	moveOrder, err := h.FetchMoveOrder(moveOrderID)
 	if err != nil {
 		logger.Error("fetching move order", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
-			return moveorderop.NewGetMoveOrderNotFound()
+			return orderop.NewGetMoveOrderNotFound()
 		default:
-			return moveorderop.NewGetMoveOrderInternalServerError()
+			return orderop.NewGetMoveOrderInternalServerError()
 		}
 	}
 	moveOrderPayload := payloads.MoveOrder(moveOrder)
-	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
+	return orderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
 }
 
 // ListMoveTaskOrdersHandler fetches all the move orders
@@ -52,17 +52,17 @@ type ListMoveTaskOrdersHandler struct {
 }
 
 // Handle getting the all move orders
-func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersParams) middleware.Responder {
+func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	moveOrderID, _ := uuid.FromString(params.MoveOrderID.String())
+	moveOrderID, _ := uuid.FromString(params.OrderID.String())
 	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID, nil) // nil searchParams exclude disabled MTOs by default
 	if err != nil {
 		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
-			return moveorderop.NewListMoveTaskOrdersNotFound()
+			return orderop.NewListMoveTaskOrdersNotFound()
 		default:
-			return moveorderop.NewListMoveTaskOrdersInternalServerError()
+			return orderop.NewListMoveTaskOrdersInternalServerError()
 		}
 	}
 	moveTaskOrdersPayload := make(ghcmessages.MoveTaskOrders, len(moveTaskOrders))
@@ -70,7 +70,7 @@ func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersP
 		copyOfMto := moveTaskOrder // Make copy to avoid implicit memory aliasing of items from a range statement.
 		moveTaskOrdersPayload[i] = payloads.MoveTaskOrder(&copyOfMto)
 	}
-	return moveorderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
+	return orderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
 }
 
 // UpdateMoveOrderHandler updates an order via PATCH /move-orders/{moveOrderId}
@@ -80,19 +80,19 @@ type UpdateMoveOrderHandler struct {
 }
 
 // Handle ... updates an order from a request payload
-func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams) middleware.Responder {
+func (h UpdateMoveOrderHandler) Handle(params orderop.UpdateMoveOrderParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	orderID, err := uuid.FromString(params.MoveOrderID.String())
+	orderID, err := uuid.FromString(params.OrderID.String())
 	if err != nil {
 		logger.Error("unable to parse move order id param to uuid", zap.Error(err))
-		return moveorderop.NewUpdateMoveOrderBadRequest()
+		return orderop.NewUpdateMoveOrderBadRequest()
 	}
 
 	newOrder, err := MoveOrder(*params.Body)
 	if err != nil {
 		logger.Error("error converting payload to move order model", zap.Error(err))
-		return moveorderop.NewUpdateMoveOrderBadRequest()
+		return orderop.NewUpdateMoveOrderBadRequest()
 	}
 	newOrder.ID = orderID
 
@@ -102,13 +102,13 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 		logger.Error("error updating move order", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
-			return moveorderop.NewUpdateMoveOrderNotFound()
+			return orderop.NewUpdateMoveOrderNotFound()
 		case services.InvalidInputError:
-			return moveorderop.NewUpdateMoveOrderBadRequest()
+			return orderop.NewUpdateMoveOrderBadRequest()
 		case services.PreconditionFailedError:
-			return moveorderop.NewUpdateMoveOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return orderop.NewUpdateMoveOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
-			return moveorderop.NewUpdateMoveOrderInternalServerError()
+			return orderop.NewUpdateMoveOrderInternalServerError()
 		}
 	}
 
@@ -142,7 +142,7 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 
 	moveOrderPayload := payloads.MoveOrder(updatedOrder)
 
-	return moveorderop.NewUpdateMoveOrderOK().WithPayload(moveOrderPayload)
+	return orderop.NewUpdateMoveOrderOK().WithPayload(moveOrderPayload)
 }
 
 // MoveOrder transforms UpdateMoveOrderPayload to Order model
