@@ -1,3 +1,11 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
+//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
 package migrate
 
 import (
@@ -14,7 +22,7 @@ func TestSplitStatementsCopyFromStdin(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdin.sql"
 	f, err := os.Open(fixture)
-	// #nosec G307 TODO needs review
+
 	defer f.Close()
 	require.Nil(t, err)
 
@@ -61,7 +69,7 @@ func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdinMultiple.sql"
 	f, err := os.Open(fixture)
-	// #nosec G307 TODO needs review
+
 	defer f.Close()
 	require.Nil(t, err)
 
@@ -105,7 +113,7 @@ func TestSplitStatementsLoop(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/loop.sql"
 	f, err := os.Open(fixture)
-	// #nosec G307 TODO needs review
+
 	defer f.Close()
 	require.Nil(t, err)
 

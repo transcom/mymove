@@ -151,7 +151,8 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 	var responseError error
 
 	// If the passed in function returns an error, the transaction is rolled back
-	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+
 		transactionError := errors.New("Rollback The transaction")
 
 		if serviceMember.ResidentialAddress != nil {
@@ -180,6 +181,10 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 
 		return nil
 	})
+
+	if transactionErr != nil {
+		return responseVErrors, transactionErr
+	}
 
 	return responseVErrors, responseError
 
@@ -223,7 +228,7 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	db.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 		uploadedOrders := Document{
 			ServiceMemberID: s.ID,
@@ -267,6 +272,10 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 
 		return nil
 	})
+
+	if transactionErr != nil {
+		return newOrders, responseVErrors, transactionErr
+	}
 
 	return newOrders, responseVErrors, responseError
 }

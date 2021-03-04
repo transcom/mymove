@@ -160,7 +160,12 @@ func testRedisConnection(redisURL, redisPassword string, redisDBName int, redisC
 		redis.DialUseTLS(redisSSLEnabled),
 		redis.DialTLSConfig(redisTLSConfig),
 	)
-	defer redisConnection.Close()
+
+	defer func() {
+		if redisDisconnectErr := redisConnection.Close(); redisDisconnectErr != nil {
+			logger.Error("Failed to close redis connection", zap.Error(redisDisconnectErr))
+		}
+	}()
 
 	errorString := fmt.Sprintf("Failed to connect to Redis after %s", redisConnectTimeout)
 	var finalErrorString string
