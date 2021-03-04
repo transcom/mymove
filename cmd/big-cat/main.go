@@ -18,14 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 )
 
-type logger interface {
-	Debug(msg string, fields ...zap.Field)
-	Info(msg string, fields ...zap.Field)
-	Error(msg string, fields ...zap.Field)
-	Warn(msg string, fields ...zap.Field)
-	Fatal(msg string, fields ...zap.Field)
-}
-
 func main() {
 	flag := pflag.CommandLine
 	cli.InitLoggingFlags(flag)
@@ -69,7 +61,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		if _, err := io.Copy(os.Stdout, bufio.NewReader(f)); err != nil {
+		if _, err = io.Copy(os.Stdout, bufio.NewReader(f)); err != nil {
 			panic(err)
 		}
 

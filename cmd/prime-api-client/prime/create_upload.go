@@ -87,7 +87,7 @@ func CreatePaymentRequestUpload(cmd *cobra.Command, args []string) error {
 	file, fileErr := os.Open(filepath.Clean(filename))
 
 	defer func() {
-		if fileErr := file.Close(); fileErr != nil {
+		if fileErr = file.Close(); fileErr != nil {
 			logger.Fatal(fileErr)
 		}
 	}()

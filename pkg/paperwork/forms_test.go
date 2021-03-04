@@ -23,7 +23,7 @@ func (suite *PaperworkSuite) TestFormFillerSmokeTest() {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	defer f.Close() // nolint:errcheck
+	defer f.Close() // nolint:errcheck #nosec G307
 
 	var fields = map[string]FieldPos{
 		"FieldName": FormField(28, 11, 79, nil, nil, nil),

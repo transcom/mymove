@@ -23,7 +23,8 @@ func TestSplitStatementsCopyFromStdin(t *testing.T) {
 	fixture := "./fixtures/copyFromStdin.sql"
 	f, err := os.Open(fixture)
 
-	defer f.Close()
+	// TODO
+	defer f.Close() // #nosec G307
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)
@@ -70,7 +71,8 @@ func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
 	fixture := "./fixtures/copyFromStdinMultiple.sql"
 	f, err := os.Open(fixture)
 
-	defer f.Close()
+	// TODO
+	defer f.Close() // #nosec G307
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)
@@ -114,7 +116,8 @@ func TestSplitStatementsLoop(t *testing.T) {
 	fixture := "./fixtures/loop.sql"
 	f, err := os.Open(fixture)
 
-	defer f.Close()
+	// TODO
+	defer f.Close() // #nosec G307
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)

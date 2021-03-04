@@ -79,7 +79,8 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
 
-		defer testFile.Close()
+		// TODO
+		defer testFile.Close() // #nosec G307
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
 		_, err = uploadCreator.CreateUpload(testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)
@@ -89,7 +90,8 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
 
-		defer testFile.Close()
+		// TODO
+		defer testFile.Close() // #nosec G307
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
@@ -103,7 +105,8 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
 		suite.NoError(err)
 
-		defer wrongTypeFile.Close()
+		// TODO
+		defer wrongTypeFile.Close() // #nosec G307
 
 		_, err = uploadCreator.CreateUpload(wrongTypeFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)

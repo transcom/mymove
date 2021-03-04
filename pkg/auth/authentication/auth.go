@@ -483,7 +483,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		auth.DeleteCookie(w, StateCookieName(session))
 
 		// This operation will delete all cookies from the session
-		err := h.sessionManager(session).Destroy(r.Context())
+		err = h.sessionManager(session).Destroy(r.Context())
 		if err != nil {
 			h.logger.Error("Deleting login.gov state cookie", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)

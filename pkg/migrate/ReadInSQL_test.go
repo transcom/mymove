@@ -20,7 +20,7 @@ func TestReadInSQLLine(t *testing.T) {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	defer f.Close() // nolint:errcheck
+	defer f.Close() // nolint:errcheck #nosec G307
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)
