@@ -21,7 +21,7 @@ function usage() {
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d"
   echo "$0 RDY4PY"
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d local path/to/proof.pdf path/to/proof.jpg"
-  echo "$0 RDY4PY api.stg.move<.mil"
+  echo "$0 RDY4PY api.stg.move.mil"
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil path/to/proof.pdf path/to/proof.jpg"
 }
 
