@@ -39,7 +39,7 @@ An example of the suite setup and test:
 func (suite *HandlerSuite) SetupTest() {
   if !testing.Short() {
 
-	suite.DB().TruncateAll()
+  suite.DB().TruncateAll()
   }
 }
 
