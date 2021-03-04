@@ -85,8 +85,9 @@ export const TextMaskedInput = ({
   const [field, meta, helpers] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
   const { value } = field;
+  const { warning } = props;
   return (
-    <FormGroup error={hasError}>
+    <FormGroup className={!!warning && !hasError && `warning`} error={hasError}>
       <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
         {label}
       </Label>
@@ -106,6 +107,11 @@ export const TextMaskedInput = ({
         }}
         {...props}
       />
+      {!!warning && !hasError && (
+        <p className="usa-hint" data-testid="textInputWarning">
+          {warning}
+        </p>
+      )}
     </FormGroup>
   );
 };
@@ -120,6 +126,7 @@ TextMaskedInput.propTypes = {
   mask: PropTypes.string,
   blocks: PropTypes.oneOfType([PropTypes.object]),
   lazy: PropTypes.bool,
+  warning: PropTypes.string,
 };
 
 TextMaskedInput.defaultProps = {
@@ -129,4 +136,5 @@ TextMaskedInput.defaultProps = {
   mask: '',
   blocks: {},
   lazy: true, // make placeholder not visible
+  warning: '',
 };
