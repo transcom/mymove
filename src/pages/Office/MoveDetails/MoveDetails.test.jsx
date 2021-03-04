@@ -266,6 +266,11 @@ describe('MoveDetails page', () => {
     it('renders the Customer Info Table', () => {
       expect(wrapper.find('#customer-info h4').text()).toEqual('Customer info');
     });
+
+    it('updates the unapproved shipments tag state', () => {
+      expect(setUnapprovedShipmentCount).toHaveBeenCalledWith(1);
+      expect(setUnapprovedShipmentCount.mock.calls[0][0]).toBe(1);
+    });
   });
 
   describe('requested and approved shipment', () => {
