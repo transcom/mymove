@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import { useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
+import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -26,7 +27,7 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-const MoveDetails = () => {
+const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
 
   const [activeSection, setActiveSection] = useState('');
@@ -73,6 +74,11 @@ const MoveDetails = () => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
     },
+  });
+
+  useEffect(() => {
+    const shipmentCount = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED').length;
+    setUnapprovedShipmentCount(shipmentCount);
   });
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -198,6 +204,10 @@ const MoveDetails = () => {
       </div>
     </div>
   );
+};
+
+MoveDetails.propTypes = {
+  setUnapprovedShipmentCount: func.isRequired,
 };
 
 export default MoveDetails;

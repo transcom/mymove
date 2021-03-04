@@ -10,6 +10,8 @@ jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
 }));
 
+const setUnapprovedShipmentCount = jest.fn();
+
 const move = {
   contractor: {
     contractNumber: 'HTC-123-3456',
@@ -93,7 +95,7 @@ describe('MovePaymentRequests', () => {
     const testMoveCode = 'L2BKD6';
     const component = mount(
       <MockProviders initialEntries={[`/moves/${testMoveCode}/payment-requests`]}>
-        <MovePaymentRequests />
+        <MovePaymentRequests setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
       </MockProviders>,
     );
 
@@ -111,7 +113,7 @@ describe('MovePaymentRequests', () => {
 
     const component = mount(
       <MockProviders initialEntries={[`/moves/FG7W32/payment-requests`]}>
-        <MovePaymentRequests />
+        <MovePaymentRequests setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
       </MockProviders>,
     );
 

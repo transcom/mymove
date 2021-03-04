@@ -13,6 +13,8 @@ jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
 }));
 
+const setUnapprovedShipmentCount = jest.fn();
+
 const requestedMoveDetailsQuery = {
   move: {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -233,7 +235,7 @@ describe('MoveDetails page', () => {
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-        <MoveDetails />
+        <MoveDetails setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
       </MockProviders>,
     );
 
@@ -271,7 +273,7 @@ describe('MoveDetails page', () => {
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-        <MoveDetails />
+        <MoveDetails setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
       </MockProviders>,
     );
 
@@ -289,7 +291,7 @@ describe('MoveDetails page', () => {
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-        <MoveDetails />
+        <MoveDetails setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
       </MockProviders>,
     );
 

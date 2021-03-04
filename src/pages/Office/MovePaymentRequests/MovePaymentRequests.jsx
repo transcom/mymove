@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { func } from 'prop-types';
 
 import txoStyles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -9,10 +10,19 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
 
-const MovePaymentRequests = () => {
+const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
 
-  const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
+  const { paymentRequests, mtoShipments, unapprovedShipments, isLoading, isError } = useMovePaymentRequestsQueries(
+    moveCode,
+  );
+
+  useEffect(() => {
+    const shipmentCount = unapprovedShipments
+      ? Object.values(unapprovedShipments).filter((shipment) => shipment.status === 'SUBMITTED').length
+      : 0;
+    setUnapprovedShipmentCount(shipmentCount);
+  });
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -49,6 +59,10 @@ const MovePaymentRequests = () => {
       </div>
     </div>
   );
+};
+
+MovePaymentRequests.propTypes = {
+  setUnapprovedShipmentCount: func.isRequired,
 };
 
 export default MovePaymentRequests;
