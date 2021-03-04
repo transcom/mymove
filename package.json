@@ -71,7 +71,7 @@
     "request": "^2.85.0",
     "swagger-client": "^3.13.1",
     "swagger-ui-dist": "^3.44.0",
-    "uswds": "2.9.0",
+    "uswds": "2.10.2",
     "uuid": "^8.3.2",
     "yup": "^0.32.9"
   },
