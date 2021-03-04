@@ -117,7 +117,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
-	expectedServiceItemName := "Test Service"
+	expectedServiceItemName := "Move Management"
 	expectedShipmentType := models.MTOShipmentTypeHHG
 
 	move := testdatagen.MakeAvailableMove(suite.DB())
@@ -125,7 +125,12 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
 		Move: move,
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key: models.ServiceItemParamNameRequestedPickupDate,
+			Key:  models.ServiceItemParamNameRequestedPickupDate,
+			Type: models.ServiceItemParamTypeDate,
+		},
+		ReService: models.ReService{
+			Code: models.ReServiceCodeMS,
+			Name: "Move Management",
 		},
 	})
 	paymentRequest := paymentServiceItemParam.PaymentServiceItem.PaymentRequest
