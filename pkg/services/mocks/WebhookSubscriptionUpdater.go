@@ -12,13 +12,13 @@ type WebhookSubscriptionUpdater struct {
 	mock.Mock
 }
 
-// UpdateWebhookSubscription provides a mock function with given fields: webhooksubscription
-func (_m *WebhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription) (*models.WebhookSubscription, error) {
-	ret := _m.Called(webhooksubscription)
+// UpdateWebhookSubscription provides a mock function with given fields: webhooksubscription, severity
+func (_m *WebhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription, severity *int64) (*models.WebhookSubscription, error) {
+	ret := _m.Called(webhooksubscription, severity)
 
 	var r0 *models.WebhookSubscription
-	if rf, ok := ret.Get(0).(func(*models.WebhookSubscription) *models.WebhookSubscription); ok {
-		r0 = rf(webhooksubscription)
+	if rf, ok := ret.Get(0).(func(*models.WebhookSubscription, *int64) *models.WebhookSubscription); ok {
+		r0 = rf(webhooksubscription, severity)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.WebhookSubscription)
@@ -26,8 +26,8 @@ func (_m *WebhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscript
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.WebhookSubscription) error); ok {
-		r1 = rf(webhooksubscription)
+	if rf, ok := ret.Get(1).(func(*models.WebhookSubscription, *int64) error); ok {
+		r1 = rf(webhooksubscription, severity)
 	} else {
 		r1 = ret.Error(1)
 	}

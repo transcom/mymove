@@ -153,7 +153,7 @@ func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Cr
 	return webhooksubscriptionop.NewCreateWebhookSubscriptionCreated().WithPayload(returnPayload)
 }
 
-// UpdateWebhookSubscriptionHandler returns an updated webhook subscription via PUT
+// UpdateWebhookSubscriptionHandler returns an updated webhook subscription via PATCH
 type UpdateWebhookSubscriptionHandler struct {
 	handlers.HandlerContext
 	services.WebhookSubscriptionUpdater
