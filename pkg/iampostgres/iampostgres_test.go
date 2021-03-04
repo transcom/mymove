@@ -112,8 +112,7 @@ func TestEnableIAMNormal(t *testing.T) {
 	rdsu.passes = append(rdsu.passes, testData...)
 	logger, _ := zap.NewProduction()
 
-	//tmr := time.NewTicker(2 * time.Second)
-	tmr := time.NewTicker(1 * time.Millisecond)
+	tmr := time.NewTicker(2 * time.Second)
 
 	shouldQuitChan := make(chan bool)
 

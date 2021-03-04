@@ -11,8 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/transcom/mymove/pkg/random"
-
 	"database/sql"
 	"database/sql/driver"
 
@@ -80,19 +78,21 @@ func updateDSN(dsn string) (string, error) {
 
 // Refreshes the RDS IAM on the given interval.
 func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger, errorMessagesChan chan error, shouldQuitChan chan bool) {
-	// Add some entropy to this value so all instances don't fire at the same time
-	minDur := 100
-	maxDur := 5000
-	randInt, err := random.GetRandomIntAddend(minDur, maxDur)
-	if err != nil {
-		logger.Error("Error building auth token", zap.Error(err))
-		errorMessagesChan <- fmt.Errorf("Error building auth token %v", err)
-		close(errorMessagesChan)
-		return
-	}
-	wait := time.Millisecond * time.Duration(randInt+minDur)
-	logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
-	time.Sleep(wait)
+	/*
+		// Add some entropy to this value so all instances don't fire at the same time
+		minDur := 100
+		maxDur := 5000
+		randInt, err := random.GetRandomIntAddend(minDur, maxDur)
+		if err != nil {
+			logger.Error("Error building auth token", zap.Error(err))
+			errorMessagesChan <- fmt.Errorf("Error building auth token %v", err)
+			close(errorMessagesChan)
+			return
+		}
+		wait := time.Millisecond * time.Duration(randInt+minDur)
+		logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
+		time.Sleep(wait)
+	*/
 
 	// This for loop immediately runs the first tick then on interval
 	for {
@@ -100,7 +100,7 @@ func refreshRDSIAM(host string, port string, region string, user string, creds *
 		case <-shouldQuitChan:
 			close(errorMessagesChan)
 			return
-		default:
+		case <-ticker.C:
 			if creds == nil {
 				logger.Error("IAM Credentials are missing")
 				errorMessagesChan <- errors.New("IAM Credientials are missing")
@@ -120,7 +120,6 @@ func refreshRDSIAM(host string, port string, region string, user string, creds *
 			iamConfig.currentIamPass = url.QueryEscape(authToken)
 			iamConfig.currentPassMutex.Unlock()
 			logger.Info("Successfully generated new IAM token")
-			<-ticker.C
 		}
 	}
 	/*
@@ -162,13 +161,15 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	// GoRoutine to continually refresh the RDS IAM auth on the given interval.
 	go refreshRDSIAM(host, port, region, user, creds, rus, ticker, logger, errorMessagesChan, shouldQuitChan)
 
-	/*
-		errorMessages := <-errorMessagesChan
+	go logEnableIAMFailed(logger, errorMessagesChan)
+}
 
-		if errorMessages != nil {
-			logger.Fatal("Refreshing RDS IAM failed")
-		}
-	*/
+func logEnableIAMFailed(logger Logger, errorMessagesChan chan error) {
+	errorMessages := <-errorMessagesChan
+
+	if errorMessages != nil {
+		logger.Error("Refreshing RDS IAM failed")
+	}
 }
 
 // Open wrapper around postgres Open func
