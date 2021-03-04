@@ -76,10 +76,12 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
     },
   });
 
+  const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
+
   useEffect(() => {
-    const shipmentCount = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED').length;
+    const shipmentCount = submittedShipments.length;
     setUnapprovedShipmentCount(shipmentCount);
-  }, [mtoShipments, setUnapprovedShipmentCount]);
+  }, [mtoShipments, submittedShipments, setUnapprovedShipmentCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -87,7 +89,6 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   const { customer, entitlement: allowances } = moveOrder;
 
   const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
-  const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
 
   if (submittedShipments.length > 0 && approvedShipments.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];

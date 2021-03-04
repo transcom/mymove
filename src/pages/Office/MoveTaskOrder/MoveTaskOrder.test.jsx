@@ -126,4 +126,8 @@ describe('MoveTaskOrder', () => {
   it('should render the RequestedServiceItemsTable', () => {
     expect(wrapper.find('RequestedServiceItemsTable').exists()).toBe(true);
   });
+
+  it('updates the unapproved shipments tag state', () => {
+    expect(setUnapprovedShipmentCount).toHaveBeenCalledWith(0);
+  });
 });

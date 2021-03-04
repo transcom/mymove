@@ -15,12 +15,14 @@ const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
 
   const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
 
+  const mtoShipmentsArr = Object.values(mtoShipments);
+
   useEffect(() => {
     const shipmentCount = mtoShipments
-      ? Object.values(mtoShipments).filter((shipment) => shipment.status === 'SUBMITTED').length
+      ? mtoShipmentsArr.filter((shipment) => shipment.status === 'SUBMITTED').length
       : 0;
     setUnapprovedShipmentCount(shipmentCount);
-  }, [mtoShipments, setUnapprovedShipmentCount]);
+  }, [mtoShipments, mtoShipmentsArr, setUnapprovedShipmentCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -28,7 +30,7 @@ const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
   const shipmentAddresses = [];
 
   if (paymentRequests.length) {
-    Object.values(mtoShipments).forEach((shipment) => {
+    mtoShipmentsArr.forEach((shipment) => {
       shipmentAddresses.push({
         mtoShipmentID: shipment.id,
         shipmentAddress: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),

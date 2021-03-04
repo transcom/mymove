@@ -106,6 +106,10 @@ describe('MovePaymentRequests', () => {
     it('renders mulitple payment requests', () => {
       expect(component.find('PaymentRequestCard').length).toBe(2);
     });
+
+    it('updates the unapproved shipments tag state', () => {
+      expect(setUnapprovedShipmentCount).toHaveBeenCalledWith(0);
+    });
   });
 
   describe('no payment requests for move', () => {
