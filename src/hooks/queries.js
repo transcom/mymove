@@ -231,18 +231,21 @@ export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], curre
 };
 
 export const useMovePaymentRequestsQueries = (moveCode) => {
+  // This queries for the payment request
   const { data = [], ...movePaymentRequestsQuery } = useQuery(
     [MOVE_PAYMENT_REQUESTS, moveCode],
     getMovePaymentRequests,
   );
+  const { data: move = {} } = useQuery([MOVES, moveCode], getMove);
 
-  const mtoID = data[0]?.moveTaskOrderID;
+  const mtoID = data[0]?.moveTaskOrderID || move?.id;
 
   const { data: mtoShipments = [], ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
     enabled: !!mtoID,
   });
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery, mtoShipmentQuery]);
+
   return {
     paymentRequests: data,
     mtoShipments,

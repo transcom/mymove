@@ -88,6 +88,8 @@ jest.mock('hooks/queries', () => ({
   },
 }));
 
+const setUnapprovedShipmentCount = jest.fn();
+
 describe('MoveTaskOrder', () => {
   const moveCode = 'WE31AZ';
   const requiredProps = {
@@ -96,7 +98,7 @@ describe('MoveTaskOrder', () => {
   };
 
   // eslint-disable-next-line react/jsx-props-no-spreading
-  const wrapper = mount(<MoveTaskOrder {...requiredProps} />);
+  const wrapper = mount(<MoveTaskOrder {...requiredProps} setUnapprovedShipmentCount={setUnapprovedShipmentCount} />);
 
   it('should render the h1', () => {
     expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
@@ -123,5 +125,9 @@ describe('MoveTaskOrder', () => {
 
   it('should render the RequestedServiceItemsTable', () => {
     expect(wrapper.find('RequestedServiceItemsTable').exists()).toBe(true);
+  });
+
+  it('updates the unapproved shipments tag state', () => {
+    expect(setUnapprovedShipmentCount).toHaveBeenCalledWith(0);
   });
 });
