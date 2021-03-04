@@ -13,13 +13,11 @@ import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
 const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
 
-  const { paymentRequests, mtoShipments, unapprovedShipments, isLoading, isError } = useMovePaymentRequestsQueries(
-    moveCode,
-  );
+  const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
 
   useEffect(() => {
-    const shipmentCount = unapprovedShipments
-      ? Object.values(unapprovedShipments).filter((shipment) => shipment.status === 'SUBMITTED').length
+    const shipmentCount = mtoShipments
+      ? Object.values(mtoShipments).filter((shipment) => shipment.status === 'SUBMITTED').length
       : 0;
     setUnapprovedShipmentCount(shipmentCount);
   });

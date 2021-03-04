@@ -236,32 +236,19 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
     [MOVE_PAYMENT_REQUESTS, moveCode],
     getMovePaymentRequests,
   );
-  const mtoID = data[0]?.moveTaskOrderID;
+  const { data: move = {} } = useQuery([MOVES, moveCode], getMove);
+
+  const mtoID = data[0]?.moveTaskOrderID || move?.id;
+
   const { data: mtoShipments = [], ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
     enabled: !!mtoID,
   });
 
-  // This queries for the unapproved shipments count used in the Navbar
-  const { data: move = {} } = useQuery([MOVES, moveCode], getMove);
-  const moveId = move?.id;
-  const { data: unapprovedShipments = [], ...unapprovedShipmentsQuery } = useQuery(
-    [MTO_SHIPMENTS, moveId, false],
-    getMTOShipments,
-    {
-      enabled: !!moveId,
-    },
-  );
-
-  const { isLoading, isError, isSuccess } = getQueriesStatus([
-    movePaymentRequestsQuery,
-    mtoShipmentQuery,
-    unapprovedShipmentsQuery,
-  ]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery, mtoShipmentQuery]);
 
   return {
     paymentRequests: data,
     mtoShipments,
-    unapprovedShipments,
     isLoading,
     isError,
     isSuccess,
