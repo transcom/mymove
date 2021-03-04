@@ -12,9 +12,10 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"go.uber.org/zap"
 )
 
 type logger interface {
@@ -38,7 +39,6 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	dbEnv := v.GetString(cli.DbEnvFlag)
 	dbEnv := v.GetString(cli.DbEnvFlag)
 
 	logger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))

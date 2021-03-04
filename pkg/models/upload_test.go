@@ -160,7 +160,7 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
 	models.DeleteUpload(suite.DB(), &upload) // nolint:errcheck
-	up, _ := models.FetchUserUpload(ctx, suite.DB(), &session, upload.ID)
+	up, _ := models.FetchUserUpload(suite.DB(), &session, upload.ID)
 
 	// fetches a nil upload
 	suite.Equal(up.ID, uuid.Nil)

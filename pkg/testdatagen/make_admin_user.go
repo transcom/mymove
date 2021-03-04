@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gobuffalo/pop/v5"
 
@@ -75,7 +76,11 @@ func MakeActiveAdminUser(db *pop.Connection) models.AdminUser {
 
 	adminUser.Active = true
 
-	db.Update(&adminUser)
+	err := db.Update(&adminUser)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return adminUser
 

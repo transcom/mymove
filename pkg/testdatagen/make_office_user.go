@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -113,7 +114,11 @@ func MakeActiveOfficeUser(db *pop.Connection) models.OfficeUser {
 
 	officeUser.Active = true
 
-	db.Update(&officeUser)
+	err := db.Update(&officeUser)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return officeUser
 }

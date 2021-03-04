@@ -99,7 +99,7 @@ func GetForeignKeyAssociations(c *pop.Connection, model interface{}) ([]interfac
 			}
 		}
 	}
-	return foreignKeyAssociations
+	return foreignKeyAssociations, nil
 }
 
 // GetHasOneForeignKeyAssociation fetches the "has_one" foreign key association if not an empty model
