@@ -17,3 +17,9 @@ type WebhookSubscriptionFetcher interface {
 type WebhookSubscriptionCreator interface {
 	CreateWebhookSubscription(subscription *models.WebhookSubscription, subscriberIDFilter []QueryFilter) (*models.WebhookSubscription, *validate.Errors, error)
 }
+
+//WebhookSubscriptionUpdater is the service object interface for UpdateWebhookSubscription
+//go:generate mockery -name WebhookSubscriptionUpdater
+type WebhookSubscriptionUpdater interface {
+	UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription, severity *int64) (*models.WebhookSubscription, error)
+}
