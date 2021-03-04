@@ -104,19 +104,47 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 
 }
 
+/*
+Test to see that the EnableIAM method is working.
+It should be sufficient to check that the EnableIAM method is working by:
+Setting an initial password, running EnableIAM, and then verifying that the
+currentPassword is no longer the initial password, but is instead the password
+that EnableIAM is cycling through.
+
+While this wont completely eliminate the flakiness (since the test still needs
+to wait for the password to change), it should significantly reduce the
+flakiness by only having 1 sleep and 1 password to swtich to.
+
+The test was written in this manner since testing to see that multiple
+passwords are being cycled through will inherently make the test timing
+dependent and thus, flaky.
+i.e. If a new password gets cycled every 1 minute, the test would need to
+sleep for a minute and then check to see that the current password is correct
+one in the sequence. If anything falls out of sync, then the tests will fail
+since what is expected will be dsycned from what is retrieved.
+*/
 func TestEnableIAMNormal(t *testing.T) {
 	assert := assert.New(t)
 
-	testData := []string{"abc", "123", "xyz", "999"}
+	// Cycle through 1 password so that the test doesn't have to get too exact
+	// about when the password changed and what password it is on.
+	testData := []string{"abc"}
 	rdsu := RDSUTest{}
 	rdsu.passes = append(rdsu.passes, testData...)
 	logger, _ := zap.NewProduction()
+	// Set the current password to something not in the above list of passwords
+	// to cycle through.
+	iamConfig.currentIamPass = "123"
 
-	tmr := time.NewTicker(2 * time.Second)
+	tmr := time.NewTicker(1 * time.Second)
 
 	shouldQuitChan := make(chan bool)
 
-	// We use 2 second timer since that builds in a buffer so we have stable tests
+	// Confirm that the password got set to what we initially set it to.
+	pass := GetCurrentPass()
+	assert.Equal("123", pass)
+
+	// Start cycling through the list of passwords.
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		rdsu,
@@ -124,38 +152,15 @@ func TestEnableIAMNormal(t *testing.T) {
 		logger,
 		shouldQuitChan)
 
-	lenTestData := len(testData) - 1
-	counter := 0
-	expectedPass := testData[counter]
-	for {
-		// Poll for the password change
-		time.Sleep(250 * time.Millisecond)
+	// The sleep time should be greater than how often the password will cycle
+	// so that the next time the password is fetched, it will have changed.
+	time.Sleep(2 * time.Second)
 
-		// If the current pass does not match the last known password
-		// then we should check the next password in the slice
-		pass := GetCurrentPass()
-		if pass != expectedPass {
-			t.Logf("Counter %d, Current/expected password: %s, %s", counter, pass, expectedPass)
-			counter++
-			// Don't allow looking items that don't exist
-			if counter > lenTestData {
-				break
-			}
-			expectedPass = testData[counter]
-		}
+	// Confirm that the password has changed (it's no longer the initial
+	// password) to the 1 password being cycled through.
+	pass = GetCurrentPass()
+	assert.Equal("abc", pass)
 
-		// Check that the expected password is what we want
-		t.Logf("Counter %d, Current/expected password: %s, %s", counter, pass, expectedPass)
-		assert.Equal(expectedPass, pass)
-
-		// Once the end has been reached then end the test
-		if counter == lenTestData && expectedPass == testData[lenTestData] {
-			break
-		}
-	}
-
-	// Check that all the passwords have been checked
-	assert.Equal(3, counter)
 	shouldQuitChan <- true
 	tmr.Stop()
 }

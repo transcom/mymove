@@ -78,23 +78,9 @@ func updateDSN(dsn string) (string, error) {
 
 // Refreshes the RDS IAM on the given interval.
 func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger, errorMessagesChan chan error, shouldQuitChan chan bool) {
-	/*
-		// Add some entropy to this value so all instances don't fire at the same time
-		minDur := 100
-		maxDur := 5000
-		randInt, err := random.GetRandomIntAddend(minDur, maxDur)
-		if err != nil {
-			logger.Error("Error building auth token", zap.Error(err))
-			errorMessagesChan <- fmt.Errorf("Error building auth token %v", err)
-			close(errorMessagesChan)
-			return
-		}
-		wait := time.Millisecond * time.Duration(randInt+minDur)
-		logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
-		time.Sleep(wait)
-	*/
-
 	// This for loop immediately runs the first tick then on interval
+	// This for loop will run indefinitely until it either errors or true is
+	// passed to the should quit channel.
 	for {
 		select {
 		case <-shouldQuitChan:
@@ -122,29 +108,6 @@ func refreshRDSIAM(host string, port string, region string, user string, creds *
 			logger.Info("Successfully generated new IAM token")
 		}
 	}
-	/*
-		for ; true; <-ticker.C {
-			if creds == nil {
-				logger.Error("IAM Credentials are missing")
-				errorMessagesChan <- errors.New("IAM Credientials are missing")
-				close(errorMessagesChan)
-				return
-			}
-			logger.Info("Using IAM Authentication")
-			authToken, err := rus.GetToken(host+":"+port, region, user, creds)
-			if err != nil {
-				logger.Error("Error building auth token", zap.Error(err))
-				errorMessagesChan <- fmt.Errorf("Error building auth token %v", err)
-				close(errorMessagesChan)
-				return
-			}
-
-			iamConfig.currentPassMutex.Lock()
-			iamConfig.currentIamPass = url.QueryEscape(authToken)
-			iamConfig.currentPassMutex.Unlock()
-			logger.Info("Successfully generated new IAM token")
-		}
-	*/
 }
 
 // EnableIAM enables the use of IAM and pulls first credential set as a sanity check
