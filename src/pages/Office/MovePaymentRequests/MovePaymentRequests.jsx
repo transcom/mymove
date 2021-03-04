@@ -20,7 +20,7 @@ const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
       ? Object.values(mtoShipments).filter((shipment) => shipment.status === 'SUBMITTED').length
       : 0;
     setUnapprovedShipmentCount(shipmentCount);
-  });
+  }, [mtoShipments, setUnapprovedShipmentCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;

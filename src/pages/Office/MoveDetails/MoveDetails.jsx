@@ -79,7 +79,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   useEffect(() => {
     const shipmentCount = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED').length;
     setUnapprovedShipmentCount(shipmentCount);
-  });
+  }, [mtoShipments, setUnapprovedShipmentCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
