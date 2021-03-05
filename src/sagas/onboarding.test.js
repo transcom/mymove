@@ -28,7 +28,8 @@ import { addEntities } from 'shared/Entities/actions';
 import { CREATE_SERVICE_MEMBER } from 'scenes/ServiceMembers/ducks';
 import sampleLoggedInUserPayload from 'shared/User/sampleLoggedInUserPayload';
 import { normalizeResponse } from 'services/swaggerRequest';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectServiceMemberProfileState } from 'store/entities/selectors';
+import { profileStates } from 'constants/customerStates';
 
 describe('watchInitializeOnboarding', () => {
   const generator = watchInitializeOnboarding();
@@ -173,13 +174,17 @@ describe('initializeOnboarding', () => {
       expect(generator.next().value).toEqual(select(selectServiceMemberFromLoggedInUser));
     });
 
-    it('redirects the user to the first step of the profile wizard', () => {
-      const nextPath = `/service-member/testServiceMemberId/conus-status`;
+    it('selects the service member’s profile state from the store', () => {
       expect(
         generator.next({
           id: 'testServiceMemberId',
         }).value,
-      ).toEqual(put(push(nextPath)));
+      ).toEqual(select(selectServiceMemberProfileState));
+    });
+
+    it('redirects the user to the first step of the profile wizard', () => {
+      const nextPath = `/service-member/testServiceMemberId/conus-status`;
+      expect(generator.next(profileStates.EMPTY_PROFILE).value).toEqual(put(push(nextPath)));
     });
 
     it('puts action initOnboardingComplete', () => {
@@ -218,9 +223,15 @@ describe('initializeOnboarding', () => {
     describe('with no data', () => {
       const clone = generator.clone();
 
+      it('selects the service member’s profile state from the store', () => {
+        expect(clone.next(mockResponseData.serviceMembers.testServiceMemberId).value).toEqual(
+          select(selectServiceMemberProfileState),
+        );
+      });
+
       it('redirects the user to the first step of the profile wizard', () => {
         const nextPath = `/service-member/testServiceMemberId/conus-status`;
-        expect(clone.next(mockResponseData.serviceMembers.testServiceMemberId).value).toEqual(put(push(nextPath)));
+        expect(clone.next(profileStates.EMPTY_PROFILE).value).toEqual(put(push(nextPath)));
       });
 
       it('puts action initOnboardingComplete', () => {
@@ -246,9 +257,13 @@ describe('initializeOnboarding', () => {
         affiliation: 'ARMY',
       };
 
+      it('selects the service member’s profile state from the store', () => {
+        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
+      });
+
       it('redirects the user to the name step of the profile wizard', () => {
         const nextPath = `/service-member/testServiceMemberId/name`;
-        expect(clone.next(serviceMemberData).value).toEqual(put(push(nextPath)));
+        expect(clone.next(profileStates.DOD_INFO_COMPLETE).value).toEqual(put(push(nextPath)));
       });
 
       it('puts action initOnboardingComplete', () => {
@@ -276,9 +291,13 @@ describe('initializeOnboarding', () => {
         last_name: 'Testperson',
       };
 
+      it('selects the service member’s profile state from the store', () => {
+        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
+      });
+
       it('redirects the user to the contact info step of the profile wizard', () => {
         const nextPath = `/service-member/testServiceMemberId/contact-info`;
-        expect(clone.next(serviceMemberData).value).toEqual(put(push(nextPath)));
+        expect(clone.next(profileStates.NAME_COMPLETE).value).toEqual(put(push(nextPath)));
       });
 
       it('puts action initOnboardingComplete', () => {
@@ -309,9 +328,13 @@ describe('initializeOnboarding', () => {
         email_is_preferred: true,
       };
 
+      it('selects the service member’s profile state from the store', () => {
+        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
+      });
+
       it('redirects the user to the duty station step of the profile wizard', () => {
         const nextPath = `/service-member/testServiceMemberId/duty-station`;
-        expect(clone.next(serviceMemberData).value).toEqual(put(push(nextPath)));
+        expect(clone.next(profileStates.CONTACT_INFO_COMPLETE).value).toEqual(put(push(nextPath)));
       });
 
       it('puts action initOnboardingComplete', () => {
@@ -345,9 +368,13 @@ describe('initializeOnboarding', () => {
         },
       };
 
+      it('selects the service member’s profile state from the store', () => {
+        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
+      });
+
       it('redirects the user to the address step of the profile wizard', () => {
         const nextPath = `/service-member/testServiceMemberId/residence-address`;
-        expect(clone.next(serviceMemberData).value).toEqual(put(push(nextPath)));
+        expect(clone.next(profileStates.DUTY_STATION_COMPLETE).value).toEqual(put(push(nextPath)));
       });
 
       it('puts action initOnboardingComplete', () => {
@@ -384,9 +411,13 @@ describe('initializeOnboarding', () => {
         },
       };
 
+      it('selects the service member’s profile state from the store', () => {
+        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
+      });
+
       it('redirects the user to the backup address step of the profile wizard', () => {
         const nextPath = `/service-member/testServiceMemberId/backup-mailing-address`;
-        expect(clone.next(serviceMemberData).value).toEqual(put(push(nextPath)));
+        expect(clone.next(profileStates.ADDRESS_COMPLETE).value).toEqual(put(push(nextPath)));
       });
 
       it('puts action initOnboardingComplete', () => {
@@ -426,9 +457,13 @@ describe('initializeOnboarding', () => {
         },
       };
 
+      it('selects the service member’s profile state from the store', () => {
+        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
+      });
+
       it('redirects the user to the backup contacts step of the profile wizard', () => {
         const nextPath = `/service-member/testServiceMemberId/backup-contacts`;
-        expect(clone.next(serviceMemberData).value).toEqual(put(push(nextPath)));
+        expect(clone.next(profileStates.BACKUP_ADDRESS_COMPLETE).value).toEqual(put(push(nextPath)));
       });
 
       it('puts action initOnboardingComplete', () => {
@@ -473,8 +508,12 @@ describe('initializeOnboarding', () => {
         ],
       };
 
+      it('selects the service member’s profile state from the store', () => {
+        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
+      });
+
       it('redirects the user to the Home page', () => {
-        expect(clone.next(serviceMemberData).value).toEqual(put(push('/')));
+        expect(clone.next(profileStates.BACKUP_CONTACTS_COMPLETE).value).toEqual(put(push('/')));
       });
 
       it('puts action initOnboardingComplete', () => {

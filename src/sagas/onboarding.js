@@ -16,8 +16,8 @@ import {
 import { addEntities } from 'shared/Entities/actions';
 import { CREATE_SERVICE_MEMBER } from 'scenes/ServiceMembers/ducks';
 import { normalizeResponse } from 'services/swaggerRequest';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import { NULL_UUID } from 'shared/constants';
+import { selectServiceMemberFromLoggedInUser, selectServiceMemberProfileState } from 'store/entities/selectors';
+import { profileStates } from 'constants/customerStates';
 
 export function* fetchCustomerData() {
   // First load the user & store in entities
@@ -72,32 +72,27 @@ export function* createServiceMember() {
   }
 }
 
-const findNextServiceMemberStep = (serviceMember) => {
-  const profilePathPrefix = `/service-member/${serviceMember.id}`;
+const findNextServiceMemberStep = (serviceMemberId, profileState) => {
+  const profilePathPrefix = `/service-member/${serviceMemberId}`;
 
-  if (!serviceMember.rank || !serviceMember.edipi || !serviceMember.affiliation)
-    return `${profilePathPrefix}/conus-status`;
-
-  if (!serviceMember.first_name || !serviceMember.last_name) return `${profilePathPrefix}/name`;
-
-  if (
-    !serviceMember.telephone ||
-    !serviceMember.personal_email ||
-    !(serviceMember.phone_is_preferred || serviceMember.email_is_preferred)
-  )
-    return `${profilePathPrefix}/contact-info`;
-
-  if (!serviceMember.current_station || serviceMember.current_station.id === NULL_UUID)
-    return `${profilePathPrefix}/duty-station`;
-
-  if (!serviceMember.residential_address) return `${profilePathPrefix}/residence-address`;
-
-  if (!serviceMember.backup_mailing_address) return `${profilePathPrefix}/backup-mailing-address`;
-
-  if (!serviceMember.backup_contacts || !serviceMember.backup_contacts.length)
-    return `${profilePathPrefix}/backup-contacts`;
-
-  return '/';
+  switch (profileState) {
+    case profileStates.EMPTY_PROFILE:
+      return `${profilePathPrefix}/conus-status`;
+    case profileStates.DOD_INFO_COMPLETE:
+      return `${profilePathPrefix}/name`;
+    case profileStates.NAME_COMPLETE:
+      return `${profilePathPrefix}/contact-info`;
+    case profileStates.CONTACT_INFO_COMPLETE:
+      return `${profilePathPrefix}/duty-station`;
+    case profileStates.DUTY_STATION_COMPLETE:
+      return `${profilePathPrefix}/residence-address`;
+    case profileStates.ADDRESS_COMPLETE:
+      return `${profilePathPrefix}/backup-mailing-address`;
+    case profileStates.BACKUP_ADDRESS_COMPLETE:
+      return `${profilePathPrefix}/backup-contacts`;
+    default:
+      return '/';
+  }
 };
 
 export function* initializeOnboarding() {
@@ -109,7 +104,8 @@ export function* initializeOnboarding() {
 
     // Determine where user should be directed
     const serviceMember = yield select(selectServiceMemberFromLoggedInUser);
-    const nextPagePath = findNextServiceMemberStep(serviceMember);
+    const serviceMemberProfileState = yield select(selectServiceMemberProfileState);
+    const nextPagePath = findNextServiceMemberStep(serviceMember.id, serviceMemberProfileState);
 
     yield put(push(nextPagePath));
 
