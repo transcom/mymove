@@ -19,7 +19,7 @@ func (s *AK2) StringArray() []string {
 	}
 }
 
-// Parse parses an AK2 string that's split into an array into the AK2 struct
+// Parse parses an X12 string that's split into an array into the AK2 struct
 func (s *AK2) Parse(elements []string) error {
 	expectedNumElements := 2
 	if len(elements) != expectedNumElements {
