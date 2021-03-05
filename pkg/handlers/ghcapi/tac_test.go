@@ -12,7 +12,7 @@ import (
 
 func (suite *HandlerSuite) TestTacValidation() {
 	user := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-	transportationAccountingCode := testdatagen.MakeTransportationAccountingCode(suite.DB(), testdatagen.Assertions{})
+	transportationAccountingCode := testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
 
 	tests := []struct {
 		tacCode string

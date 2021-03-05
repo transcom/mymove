@@ -18,3 +18,8 @@ func MakeTransportationAccountingCode(db *pop.Connection, assertions Assertions)
 
 	return transportationAccountingCode
 }
+
+// MakeDefaultTransportationAccountingCode makes a TransportationAccountingCode with default values
+func MakeDefaultTransportationAccountingCode(db *pop.Connection) models.TransportationAccountingCode {
+	return MakeTransportationAccountingCode(db, Assertions{})
+}
