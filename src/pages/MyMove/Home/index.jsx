@@ -43,6 +43,7 @@ import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { MtoShipmentShape, UploadShape, HistoryShape, MoveShape, OrdersShape } from 'types/customerShapes';
+import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -63,7 +64,10 @@ Description.defaultProps = {
 
 class Home extends Component {
   componentDidMount() {
-    const { move, getSignedCertification } = this.props;
+    const { initOnboarding, move, getSignedCertification } = this.props;
+
+    initOnboarding();
+
     if (Object.entries(move).length && move.status === MOVE_STATUSES.SUBMITTED) {
       getSignedCertification(move.id);
     }
@@ -431,6 +435,7 @@ class Home extends Component {
 }
 
 Home.propTypes = {
+  initOnboarding: func.isRequired,
   orders: OrdersShape,
   serviceMember: shape({
     first_name: string,
@@ -506,6 +511,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = {
+  initOnboarding: initOnboardingAction,
   getSignedCertification: getSignedCertificationAction,
 };
 

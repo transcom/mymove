@@ -1,4 +1,5 @@
-import { takeLatest, put, call, all } from 'redux-saga/effects';
+import { takeLatest, put, call, all, select } from 'redux-saga/effects';
+import { push } from 'connected-react-router';
 
 import {
   INIT_ONBOARDING,
@@ -15,6 +16,8 @@ import {
 import { addEntities } from 'shared/Entities/actions';
 import { CREATE_SERVICE_MEMBER } from 'scenes/ServiceMembers/ducks';
 import { normalizeResponse } from 'services/swaggerRequest';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { NULL_UUID } from 'shared/constants';
 
 export function* fetchCustomerData() {
   // First load the user & store in entities
@@ -69,12 +72,47 @@ export function* createServiceMember() {
   }
 }
 
+const findNextServiceMemberStep = (serviceMember) => {
+  const profilePathPrefix = `/service-member/${serviceMember.id}`;
+
+  if (!serviceMember.rank || !serviceMember.edipi || !serviceMember.affiliation)
+    return `${profilePathPrefix}/conus-status`;
+
+  if (!serviceMember.first_name || !serviceMember.last_name) return `${profilePathPrefix}/name`;
+
+  if (
+    !serviceMember.telephone ||
+    !serviceMember.personal_email ||
+    !(serviceMember.phone_is_preferred || serviceMember.email_is_preferred)
+  )
+    return `${profilePathPrefix}/contact-info`;
+
+  if (!serviceMember.current_station || serviceMember.current_station.id === NULL_UUID)
+    return `${profilePathPrefix}/duty-station`;
+
+  if (!serviceMember.residential_address) return `${profilePathPrefix}/residence-address`;
+
+  if (!serviceMember.backup_mailing_address) return `${profilePathPrefix}/backup-mailing-address`;
+
+  if (!serviceMember.backup_contacts || !serviceMember.backup_contacts.length)
+    return `${profilePathPrefix}/backup-contacts`;
+
+  return '/';
+};
+
 export function* initializeOnboarding() {
   try {
     const user = yield call(fetchCustomerData);
     if (!user.serviceMembers) {
       yield call(createServiceMember);
     }
+
+    // Determine where user should be directed
+    const serviceMember = yield select(selectServiceMemberFromLoggedInUser);
+    const nextPagePath = findNextServiceMemberStep(serviceMember);
+
+    yield put(push(nextPagePath));
+
     yield put(initOnboardingComplete());
     yield all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]);
   } catch (error) {
