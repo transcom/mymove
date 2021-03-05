@@ -12,8 +12,7 @@
 coverage.out
 __snapshots__
 cypress/cypress
-/puppeteer/lighthouse-report-fast.json
-/puppeteer/performance-trace-fast.json
+/puppeteer/reports
 
 # production
 /build

@@ -9,7 +9,6 @@
       "height": 900
     }
   },
-  "network": "fast",
-  "fileSize": "large",
-  "cpuSlowdownRate": 2
+  "fileSize": "small",
+  "cpuSlowdownRate": 1
 }

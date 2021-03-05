@@ -27,6 +27,7 @@ const runNetworkComparison = async (scenario, host, saveReports, verbose) => {
     // eslint-disable-next-line no-await-in-loop
     results[`${speed}`] = await totalDuration({
       scenario,
+      measurement: measurementTypes.networkComparison,
       host,
       config: configStore,
       debug,
@@ -54,6 +55,7 @@ const runFileSizeComparison = async (scenario, host, saveReports, verbose) => {
     // eslint-disable-next-line no-await-in-loop
     const elapsedTimeResults = await totalDuration({
       scenario,
+      measurement: measurementTypes.fileDuration,
       host,
       config: configStore,
       debug,
@@ -79,7 +81,15 @@ const runAction = async ({ scenario, measurementType, host, verbose, saveReports
   let results = {};
   switch (measurementType) {
     case measurementTypes.totalDuration:
-      results = await totalDuration({ scenario, host, config: config.store, debug, saveReports, verbose }).catch(() => {
+      results = await totalDuration({
+        scenario,
+        measurementType,
+        host,
+        config: config.store,
+        debug,
+        saveReports,
+        verbose,
+      }).catch(() => {
         process.exit(1);
       });
 
