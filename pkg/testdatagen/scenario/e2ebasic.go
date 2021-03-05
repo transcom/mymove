@@ -1,5 +1,3 @@
-package scenario
-
 //RA Summary: gosec - errcheck - Unchecked return value
 //RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
 //RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
@@ -8,7 +6,10 @@ package scenario
 //RA Developer Status: Mitigated
 //RA Validator Status: Mitigated
 //RA Modified Severity: N/A
-//nolint:errcheck
+// nolint:errcheck
+// nolint:golint
+package scenario
+
 import (
 	"fmt"
 	"log"

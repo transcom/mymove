@@ -6,6 +6,7 @@
 //RA Validator Status: Mitigated
 //RA Modified Severity: N/A
 // nolint:errcheck
+// #nosec G307
 package migrate
 
 import (
@@ -22,9 +23,7 @@ func TestSplitStatementsCopyFromStdin(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdin.sql"
 	f, err := os.Open(fixture)
-
-	// TODO
-	defer f.Close() // #nosec G307
+	defer f.Close()
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)
@@ -71,8 +70,7 @@ func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
 	fixture := "./fixtures/copyFromStdinMultiple.sql"
 	f, err := os.Open(fixture)
 
-	// TODO
-	defer f.Close() // #nosec G307
+	defer f.Close() //lint:ignore SA5001
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)
