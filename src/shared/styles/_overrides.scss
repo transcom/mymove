@@ -74,7 +74,9 @@
   }
   &--destructive {
     background-color: $error;
-    &:hover {
+    &:hover,
+    &:active,
+    &:focus {
       background-color: $error-dark;
     }
   }
