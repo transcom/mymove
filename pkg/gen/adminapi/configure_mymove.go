@@ -175,6 +175,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation users.UpdateUser has not yet been implemented")
 		})
 	}
+	if api.WebhookSubscriptionsUpdateWebhookSubscriptionHandler == nil {
+		api.WebhookSubscriptionsUpdateWebhookSubscriptionHandler = webhook_subscriptions.UpdateWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.UpdateWebhookSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook_subscriptions.UpdateWebhookSubscription has not yet been implemented")
+		})
+	}
 
 	api.PreServerShutdown = func() {}
 

@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MoveOrders.module.scss';
 
-import { updateMoveOrder } from 'services/ghcApi';
+import { getTacValid, updateMoveOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
@@ -36,13 +36,14 @@ const validationSchema = Yup.object({
   ordersNumber: Yup.string().required('Required'),
   ordersType: Yup.string().required('Required'),
   ordersTypeDetail: Yup.string().required('Required'),
-  tac: Yup.string().required('Required'),
+  tac: Yup.string().min(4, 'Enter a 4-character TAC').required('Required'),
   sac: Yup.string().required('Required'),
 });
 
 const MoveOrders = () => {
   const history = useHistory();
   const { moveCode } = useParams();
+  const [isValidTac, setIsValidTac] = useState(true);
   const { move, moveOrders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
@@ -77,10 +78,21 @@ const MoveOrders = () => {
     },
   });
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  const handleTacValidation = (value) => {
+    if (value.length === 4) {
+      getTacValid({ tac: value }).then((response) => setIsValidTac(response.isValid));
+    }
+  };
 
   const moveOrder = Object.values(moveOrders)?.[0];
+
+  useEffect(() => {
+    // if the initial value === value, and it's 4 digits, run validator and show warning if invalid
+    if (moveOrder?.tac) handleTacValidation(moveOrder.tac);
+  }, [moveOrder]);
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values) => {
     const { originDutyStation, newDutyStation, ...fields } = values;
@@ -93,6 +105,9 @@ const MoveOrders = () => {
     };
     mutateOrders({ orderID: orderId, ifMatchETag: moveOrder.eTag, body });
   };
+
+  const tacWarningMsg =
+    'This TAC does not appear in TGET, so it might not be valid. Make sure it matches what‘s on the orders before you continue.';
 
   const initialValues = {
     agency: moveOrder?.agency,
@@ -111,46 +126,52 @@ const MoveOrders = () => {
   return (
     <div className={styles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-        {(formik) => (
-          <form onSubmit={formik.handleSubmit}>
-            <div className={styles.orderDetails}>
-              <div className={styles.top}>
-                <Button
-                  className={styles.closeButton}
-                  data-testid="closeSidebar"
-                  type="button"
-                  onClick={handleClose}
-                  unstyled
-                >
-                  <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
-                </Button>
-                <h2 className={styles.header}>View Orders</h2>
-                <div>
-                  <Link className={styles.viewAllowances} data-testid="view-allowances" to="allowances">
-                    View Allowances
-                  </Link>
+        {(formik) => {
+          // onBlur, if the value has 4 digits, run validator and show warning if invalid
+          const tacWarning = isValidTac ? '' : tacWarningMsg;
+          return (
+            <form onSubmit={formik.handleSubmit}>
+              <div className={styles.orderDetails}>
+                <div className={styles.top}>
+                  <Button
+                    className={styles.closeButton}
+                    data-testid="closeSidebar"
+                    type="button"
+                    onClick={handleClose}
+                    unstyled
+                  >
+                    <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
+                  </Button>
+                  <h2 className={styles.header}>View Orders</h2>
+                  <div>
+                    <Link className={styles.viewAllowances} data-testid="view-allowances" to="allowances">
+                      View Allowances
+                    </Link>
+                  </div>
+                </div>
+                <div className={styles.body}>
+                  <OrdersDetailForm
+                    deptIndicatorOptions={deptIndicatorDropdownOptions}
+                    ordersTypeOptions={ordersTypeDropdownOptions}
+                    ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
+                    tacWarning={tacWarning}
+                    validateTac={handleTacValidation}
+                  />
+                </div>
+                <div className={styles.bottom}>
+                  <div className={styles.buttonGroup}>
+                    <Button type="submit" disabled={formik.isSubmitting}>
+                      Save
+                    </Button>
+                    <Button type="button" secondary onClick={handleClose}>
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
               </div>
-              <div className={styles.body}>
-                <OrdersDetailForm
-                  deptIndicatorOptions={deptIndicatorDropdownOptions}
-                  ordersTypeOptions={ordersTypeDropdownOptions}
-                  ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
-                />
-              </div>
-              <div className={styles.bottom}>
-                <div className={styles.buttonGroup}>
-                  <Button type="submit" disabled={formik.isSubmitting}>
-                    Save
-                  </Button>
-                  <Button type="button" secondary onClick={handleClose}>
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </form>
-        )}
+            </form>
+          );
+        }}
       </Formik>
     </div>
   );
