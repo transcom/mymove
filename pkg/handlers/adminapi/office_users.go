@@ -47,6 +47,12 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              handlers.FmtDateTime(o.UpdatedAt),
 	}
+	if o.UserID != nil {
+		userIDFmt := handlers.FmtUUID(*o.UserID)
+		if userIDFmt != nil {
+			payload.UserID = *userIDFmt
+		}
+	}
 	for _, role := range user.Roles {
 		payload.Roles = append(payload.Roles, payloadForRole(role))
 	}
