@@ -7,4 +7,4 @@ export default {
   component: RequestShipmentCancellationModal,
 };
 
-export const Basic = () => <RequestShipmentCancellationModal />;
+export const Basic = () => <RequestShipmentCancellationModal onClose={() => {}} onSubmit={() => {}} />;

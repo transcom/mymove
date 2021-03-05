@@ -26,13 +26,8 @@ export const RequestShipmentCancellationModal = ({ onClose, onSubmit }) => (
 );
 
 RequestShipmentCancellationModal.propTypes = {
-  onClose: PropTypes.func,
-  onSubmit: PropTypes.func,
-};
-
-RequestShipmentCancellationModal.defaultProps = {
-  onClose: () => {},
-  onSubmit: () => {},
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
 
 RequestShipmentCancellationModal.displayName = 'RequestShipmentCancellationModal';
