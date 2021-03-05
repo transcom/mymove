@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/transcom/mymove/pkg/random"
+
 	"database/sql"
 	"database/sql/driver"
 
@@ -78,6 +80,20 @@ func updateDSN(dsn string) (string, error) {
 
 // Refreshes the RDS IAM on the given interval.
 func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger, errorMessagesChan chan error, shouldQuitChan chan bool) {
+	logger.Info("Starting refresh of RDS IAM")
+
+	// Add some entropy to this value so all instances don't fire at the same time
+	minDur := 100
+	maxDur := 5000
+	randInt, err := random.GetRandomIntAddend(minDur, maxDur)
+	if err != nil {
+		logger.Error("Error building auth token", zap.Error(err))
+		return
+	}
+	wait := time.Millisecond * time.Duration(randInt+minDur)
+	logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
+	time.Sleep(wait)
+
 	// This for loop immediately runs the first tick then on interval
 	// This for loop will run indefinitely until it either errors or true is
 	// passed to the should quit channel.

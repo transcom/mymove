@@ -154,7 +154,7 @@ func TestEnableIAMNormal(t *testing.T) {
 
 	// The sleep time should be greater than how often the password will cycle
 	// so that the next time the password is fetched, it will have changed.
-	time.Sleep(2 * time.Second)
+	time.Sleep(7 * time.Second)
 
 	// Confirm that the password has changed (it's no longer the initial
 	// password) to the 1 password being cycled through.
