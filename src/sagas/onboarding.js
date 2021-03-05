@@ -17,7 +17,7 @@ import { addEntities } from 'shared/Entities/actions';
 import { CREATE_SERVICE_MEMBER } from 'scenes/ServiceMembers/ducks';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { selectServiceMemberFromLoggedInUser, selectServiceMemberProfileState } from 'store/entities/selectors';
-import { profileStates } from 'constants/customerStates';
+import { findNextServiceMemberStep } from 'utils/customer';
 
 export function* fetchCustomerData() {
   // First load the user & store in entities
@@ -71,29 +71,6 @@ export function* createServiceMember() {
     );
   }
 }
-
-const findNextServiceMemberStep = (serviceMemberId, profileState) => {
-  const profilePathPrefix = `/service-member/${serviceMemberId}`;
-
-  switch (profileState) {
-    case profileStates.EMPTY_PROFILE:
-      return `${profilePathPrefix}/conus-status`;
-    case profileStates.DOD_INFO_COMPLETE:
-      return `${profilePathPrefix}/name`;
-    case profileStates.NAME_COMPLETE:
-      return `${profilePathPrefix}/contact-info`;
-    case profileStates.CONTACT_INFO_COMPLETE:
-      return `${profilePathPrefix}/duty-station`;
-    case profileStates.DUTY_STATION_COMPLETE:
-      return `${profilePathPrefix}/residence-address`;
-    case profileStates.ADDRESS_COMPLETE:
-      return `${profilePathPrefix}/backup-mailing-address`;
-    case profileStates.BACKUP_ADDRESS_COMPLETE:
-      return `${profilePathPrefix}/backup-contacts`;
-    default:
-      return '/';
-  }
-};
 
 export function* initializeOnboarding() {
   try {
