@@ -79,7 +79,7 @@ const MoveOrders = () => {
   });
 
   const handleTacValidation = (value) => {
-    if (value.length === 4) {
+    if (value && value.length === 4) {
       getTacValid({ tac: value }).then((response) => setIsValidTac(response.isValid));
     }
   };
