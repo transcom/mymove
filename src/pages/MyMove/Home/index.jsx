@@ -16,7 +16,6 @@ import {
 
 import { withContext } from 'shared/AppContext';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
-import SignIn from 'pages/SignIn/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -24,7 +23,6 @@ import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
-import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess, selectIsLoggedIn } from 'store/auth/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
@@ -74,13 +72,7 @@ class Home extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { serviceMember, loggedInUserSuccess, isProfileComplete, move, getSignedCertification } = this.props;
-    if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
-      if (serviceMember && !isProfileComplete) {
-        // If the service member exists, but is not complete, redirect to next incomplete page.
-        this.resumeMove();
-      }
-    }
+    const { serviceMember, isProfileComplete, move, getSignedCertification } = this.props;
 
     if (!prevProps.serviceMember && serviceMember && !isProfileComplete) {
       this.resumeMove();
@@ -269,10 +261,7 @@ class Home extends Component {
   render() {
     const {
       currentPpm,
-      isLoggedIn,
       isProfileComplete,
-      location,
-      loggedInUserIsLoading,
       move,
       mtoShipments,
       serviceMember,
@@ -281,24 +270,11 @@ class Home extends Component {
     } = this.props;
 
     // early return if loading user/service member
-    // TODO - handle this at the top level MyMove/index instead
-    if (loggedInUserIsLoading || (isLoggedIn && !serviceMember)) {
+    if (!serviceMember) {
       return (
         <div className={styles.homeContainer}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             <LoadingPlaceholder />
-          </div>
-        </div>
-      );
-    }
-
-    // early return if not logged in
-    // TODO - handle this at the top level MyMove/index instead, and use a redirect instead
-    if (!isLoggedIn && !loggedInUserIsLoading) {
-      return (
-        <div className={styles.homeContainer}>
-          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-            <SignIn location={location} />
           </div>
         </div>
       );
@@ -327,7 +303,7 @@ class Home extends Component {
             </div>
           </header>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-            {isLoggedIn && <ConnectedFlashMessage />}
+            <ConnectedFlashMessage />
 
             {isProfileComplete && (
               <>
@@ -449,11 +425,7 @@ Home.propTypes = {
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
   history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
-  isLoggedIn: bool.isRequired,
-  loggedInUserIsLoading: bool.isRequired,
-  loggedInUserSuccess: bool.isRequired,
   isProfileComplete: bool.isRequired,
-  location: shape({}).isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
   backupContacts: arrayOf(string),
@@ -492,9 +464,6 @@ const mapStateToProps = (state) => {
 
   return {
     currentPpm: selectCurrentPPM(state) || {},
-    isLoggedIn: selectIsLoggedIn(state),
-    loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
-    loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     isProfileComplete: selectIsProfileComplete(state),
     orders: selectCurrentOrders(state) || {},
     uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
