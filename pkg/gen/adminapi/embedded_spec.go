@@ -2004,6 +2004,10 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -4609,6 +4613,10 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
