@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { arrayOf, bool, shape, string, node, func } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './Home.module.scss';
@@ -15,7 +14,6 @@ import {
 } from './HomeHelpers';
 
 import { withContext } from 'shared/AppContext';
-import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -36,7 +34,6 @@ import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
@@ -72,16 +69,7 @@ class Home extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { serviceMember, isProfileComplete, move, getSignedCertification } = this.props;
-
-    if (!prevProps.serviceMember && serviceMember && !isProfileComplete) {
-      this.resumeMove();
-    }
-
-    if (prevProps.serviceMember && prevProps.serviceMember !== serviceMember && !isProfileComplete) {
-      // if service member existed but was updated, redirect to next incomplete page.
-      this.resumeMove();
-    }
+    const { move, getSignedCertification } = this.props;
 
     if (!Object.entries(prevProps.move).length && Object.entries(move).length) {
       getSignedCertification(move.id);
@@ -132,38 +120,6 @@ class Home extends Component {
     }
     return 'Plan your shipments';
   }
-
-  resumeMove = () => {
-    const { history } = this.props;
-    history.push(this.getNextIncompletePage());
-  };
-
-  getNextIncompletePage = () => {
-    const {
-      selectedMoveType,
-      lastMoveIsCanceled,
-      serviceMember,
-      orders,
-      uploadedOrderDocuments,
-      move,
-      currentPpm,
-      mtoShipment,
-      backupContacts,
-      context,
-    } = this.props;
-    return getNextIncompletePageInternal({
-      selectedMoveType,
-      lastMoveIsCanceled,
-      serviceMember,
-      orders,
-      uploads: uploadedOrderDocuments,
-      move,
-      currentPpm,
-      mtoShipment,
-      backupContacts,
-      context,
-    });
-  };
 
   renderHelper = () => {
     if (!this.hasOrders) return <HelperNeedsOrders />;
@@ -426,16 +382,6 @@ Home.propTypes = {
   history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
   isProfileComplete: bool.isRequired,
-  selectedMoveType: string,
-  lastMoveIsCanceled: bool,
-  backupContacts: arrayOf(string),
-  context: shape({
-    flags: shape({
-      hhgFlow: bool,
-      ghcFlow: bool,
-    }),
-  }),
-  mtoShipment: MtoShipmentShape.isRequired,
   signedCertification: shape({
     signature: string,
     created_at: string,
@@ -446,16 +392,7 @@ Home.propTypes = {
 Home.defaultProps = {
   orders: null,
   serviceMember: null,
-  selectedMoveType: '',
-  lastMoveIsCanceled: false,
-  backupContacts: [],
   signedCertification: {},
-  context: {
-    flags: {
-      hhgFlow: false,
-      ghcFlow: false,
-    },
-  },
 };
 
 const mapStateToProps = (state) => {
@@ -474,8 +411,6 @@ const mapStateToProps = (state) => {
     mtoShipments: selectMTOShipmentsForCurrentMove(state),
     // TODO: change when we support multiple moves
     move,
-    // TODO - deprecate this prop (need to refactor wizard flow)
-    mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
   };
 };
 
