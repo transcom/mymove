@@ -78,6 +78,7 @@ func updateDSN(dsn string) (string, error) {
 
 // Refreshes the RDS IAM on the given interval.
 func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger, errorMessagesChan chan error, shouldQuitChan chan bool) {
+	logger.Info("Starting refresh of RDS IAM")
 	// This for loop immediately runs the first tick then on interval
 	// This for loop will run indefinitely until it either errors or true is
 	// passed to the should quit channel.
@@ -86,7 +87,7 @@ func refreshRDSIAM(host string, port string, region string, user string, creds *
 		case <-shouldQuitChan:
 			close(errorMessagesChan)
 			return
-		case <-ticker.C:
+		default:
 			if creds == nil {
 				logger.Error("IAM Credentials are missing")
 				errorMessagesChan <- errors.New("IAM Credientials are missing")
@@ -106,6 +107,7 @@ func refreshRDSIAM(host string, port string, region string, user string, creds *
 			iamConfig.currentIamPass = url.QueryEscape(authToken)
 			iamConfig.currentPassMutex.Unlock()
 			logger.Info("Successfully generated new IAM token")
+			<-ticker.C
 		}
 	}
 }
