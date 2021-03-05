@@ -10,6 +10,7 @@ import (
 type webhookSubscriptionQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	CreateOne(model interface{}) (*validate.Errors, error)
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type webhookSubscriptionFetcher struct {

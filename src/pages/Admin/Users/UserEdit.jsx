@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, SimpleForm, TextInput, SelectInput, Toolbar, SaveButton } from 'react-admin';
+import { Edit, SaveButton, SelectInput, SimpleForm, TextInput, Toolbar } from 'react-admin';
 
 const UserEditToolbar = (props) => (
   <Toolbar {...props}>

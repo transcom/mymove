@@ -1361,6 +1361,60 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Update a webhook subscription",
+        "operationId": "updateWebhookSubscription",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "webhookSubscriptionId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Webhook subscription information",
+            "name": "WebhookSubscription",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update this webhook subscription"
+          },
+          "404": {
+            "description": "subscription not found"
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     }
   },
@@ -1950,6 +2004,10 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -2506,7 +2564,8 @@ func init() {
       "properties": {
         "callbackUrl": {
           "description": "The URL to which the notifications for this subscription will be pushed to.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
@@ -2514,7 +2573,8 @@ func init() {
         },
         "eventKey": {
           "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -2523,7 +2583,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "severity": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/WebhookSubscriptionStatus"
@@ -2532,6 +2593,7 @@ func init() {
           "description": "Unique identifier for the subscriber",
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
         },
         "updatedAt": {
@@ -2552,7 +2614,8 @@ func init() {
         "ACTIVE": "Active",
         "DISABLED": "Disabled",
         "FAILING": "Failing"
-      }
+      },
+      "x-nullable": true
     },
     "WebhookSubscriptions": {
       "type": "array",
@@ -3906,6 +3969,60 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "webhook_subscriptions"
+        ],
+        "summary": "Update a webhook subscription",
+        "operationId": "updateWebhookSubscription",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "webhookSubscriptionId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Webhook subscription information",
+            "name": "WebhookSubscription",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated webhook subscription",
+            "schema": {
+              "$ref": "#/definitions/WebhookSubscription"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update this webhook subscription"
+          },
+          "404": {
+            "description": "subscription not found"
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     }
   },
@@ -4496,6 +4613,10 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid"
         }
       }
     },
@@ -5055,7 +5176,8 @@ func init() {
       "properties": {
         "callbackUrl": {
           "description": "The URL to which the notifications for this subscription will be pushed to.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
@@ -5063,7 +5185,8 @@ func init() {
         },
         "eventKey": {
           "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -5073,7 +5196,8 @@ func init() {
         },
         "severity": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/WebhookSubscriptionStatus"
@@ -5082,6 +5206,7 @@ func init() {
           "description": "Unique identifier for the subscriber",
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "d494f114-05a2-4b39-840c-3d33243b7e29"
         },
         "updatedAt": {
@@ -5102,7 +5227,8 @@ func init() {
         "ACTIVE": "Active",
         "DISABLED": "Disabled",
         "FAILING": "Failing"
-      }
+      },
+      "x-nullable": true
     },
     "WebhookSubscriptions": {
       "type": "array",

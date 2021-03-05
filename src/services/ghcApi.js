@@ -110,6 +110,11 @@ export async function patchPaymentServiceItemStatus({
   );
 }
 
+export async function getTacValid({ tac }) {
+  const operationPath = 'order.tacValidation';
+  return makeGHCRequest(operationPath, { tac }, { normalize: false });
+}
+
 export async function updateMoveOrder({ orderID, ifMatchETag, body }) {
   const operationPath = 'order.updateMoveOrder';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
