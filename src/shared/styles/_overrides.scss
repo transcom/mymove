@@ -30,7 +30,8 @@
   .active & {
     @include u-bg('primary-darker');
   }
-  &--secondary {
+  &--secondary,
+  &--tertiary {
     @include u-radius('md');
     @include u-text('primary-vivid');
     @include u-bg('transparent');
@@ -68,6 +69,17 @@
       }
     }
   } //close &--secondary
+  &--tertiary {
+    box-shadow: inset 0 0 0 2px #dcdee0;
+  }
+  &--destructive {
+    background-color: $error;
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: $error-dark;
+    }
+  }
   &--icon {
     .icon {
       @include u-padding-right('05');
