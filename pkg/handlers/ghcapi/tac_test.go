@@ -12,9 +12,10 @@ import (
 
 func (suite *HandlerSuite) TestTacValidation() {
 	user := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+	transportationAccountingCode := testdatagen.MakeTransportationAccountingCode(suite.DB(), testdatagen.Assertions{})
 
 	suite.T().Run("Successful Valid TAC validation", func(t *testing.T) {
-		tac := "RTUC"
+		tac := transportationAccountingCode.TAC
 		request := httptest.NewRequest("GET", fmt.Sprintf("/tac/valid?tac=%s", tac), nil)
 		request = suite.AuthenticateOfficeRequest(request, user)
 		params := tacop.TacValidationParams{
