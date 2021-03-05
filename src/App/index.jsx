@@ -76,9 +76,11 @@ const App = () => {
   return (
     <Provider store={store}>
       <AppContext.Provider value={myMoveContext}>
-        <Suspense fallback={<LoadingPlaceholder />}>
-          <MyMove />
-        </Suspense>
+        <ConnectedRouter history={history}>
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <MyMove />
+          </Suspense>
+        </ConnectedRouter>
       </AppContext.Provider>
     </Provider>
   );

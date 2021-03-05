@@ -1,13 +1,13 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { AppWrapper } from './index';
+import { CustomerApp } from './index';
 
 import Header from 'shared/Header/MyMove';
 import Footer from 'shared/Footer';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-describe('AppWrapper tests', () => {
+describe('CustomerApp tests', () => {
   let wrapper;
 
   const minProps = {
@@ -21,7 +21,7 @@ describe('AppWrapper tests', () => {
   };
 
   beforeEach(() => {
-    wrapper = shallow(<AppWrapper {...minProps} />);
+    wrapper = shallow(<CustomerApp {...minProps} />);
   });
 
   it('renders without crashing or erroring', () => {

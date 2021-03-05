@@ -17,6 +17,8 @@ const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
 const TXOMoveInfo = () => {
+  const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
+
   const { moveCode } = useParams();
   const { pathname } = useLocation();
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
@@ -47,7 +49,7 @@ const TXOMoveInfo = () => {
               items={[
                 <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/details`} role="tab">
                   <span className="tab-title">Move details</span>
-                  <Tag>2</Tag>
+                  {unapprovedShipmentCount > 0 && <Tag>{unapprovedShipmentCount}</Tag>}
                 </NavLink>,
                 <NavLink
                   data-testid="MoveTaskOrder-Tab"
@@ -72,7 +74,7 @@ const TXOMoveInfo = () => {
       <Suspense fallback={<LoadingPlaceholder />}>
         <Switch>
           <Route path="/moves/:moveCode/details" exact>
-            <MoveDetails />
+            <MoveDetails setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
           </Route>
 
           <Route path={['/moves/:moveCode/allowances', '/moves/:moveCode/orders']} exact>
@@ -80,7 +82,7 @@ const TXOMoveInfo = () => {
           </Route>
 
           <Route path="/moves/:moveCode/mto" exact>
-            <MoveTaskOrder />
+            <MoveTaskOrder setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
           </Route>
 
           <Route path="/moves/:moveCode/payment-requests/:paymentRequestId" exact>
@@ -88,7 +90,7 @@ const TXOMoveInfo = () => {
           </Route>
 
           <Route path="/moves/:moveCode/payment-requests" exact>
-            <MovePaymentRequests />
+            <MovePaymentRequests setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>
