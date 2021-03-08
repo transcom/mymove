@@ -199,6 +199,7 @@ export class CustomerApp extends Component {
 CustomerApp.propTypes = {
   loadInternalSchema: PropTypes.func,
   loadUser: PropTypes.func,
+  initOnboarding: PropTypes.func,
   conusStatus: PropTypes.string,
   context: PropTypes.shape({
     flags: PropTypes.shape({
@@ -211,6 +212,7 @@ CustomerApp.propTypes = {
 CustomerApp.defaultProps = {
   loadInternalSchema: no_op,
   loadUser: no_op,
+  initOnboarding: no_op,
   conusStatus: '',
   context: {
     flags: {
