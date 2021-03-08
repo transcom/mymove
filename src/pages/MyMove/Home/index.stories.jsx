@@ -26,7 +26,20 @@ const defaultProps = {
   showLoggedInUser() {},
   loadMTOShipments() {},
   history: { push: () => {}, goBack: () => {} },
+  getSignedCertification() {},
+  mtoShipments: [],
+  mtoShipment: {},
+  isLoggedIn: true,
+  loggedInUserIsLoading: false,
+  loggedInUserSuccess: true,
+  isProfileComplete: true,
+  currentPpm: {},
+  orders: {},
+  location: {},
+  move: {},
+  uploadedOrderDocuments: [],
 };
+
 export const Basic = () => (
   <MockProviders>
     <div className="grid-container usa-prose">
