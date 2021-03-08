@@ -7,6 +7,14 @@
   scroll-behavior: smooth;
   flex-grow: 1;
 
+  h1 {
+    @include u-margin-bottom(3);
+  }
+
+  .emptyMessage p {
+    @include u-margin-top(0);
+  }
+
   .gridContainer {
     .shipmentCard {
       @include u-padding-left(4);

@@ -29,7 +29,19 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 		return unit.Cents(0), err
 	}
 
-	return pricer.PriceUsingParams(item.PaymentServiceItemParams)
+	priceCents, pricingParams, err := pricer.PriceUsingParams(item.PaymentServiceItemParams)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	// createPricerGeneratedParams will throw an error if pricingParams is an empty slice
+	// currently our pricers are returning empty slices for pricingParams
+	// once all pricers have been updated to return pricingParams
+	// TODO: this conditional logic should be removed
+	if len(pricingParams) > 0 {
+		_, err = createPricerGeneratedParams(p.db, item.ID, pricingParams)
+	}
+	return priceCents, err
 }
 
 func (p serviceItemPricer) UsingConnection(db *pop.Connection) services.ServiceItemPricer {

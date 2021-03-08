@@ -167,20 +167,20 @@ func init() {
         }
       }
     },
-    "/move-orders/{moveOrderID}": {
+    "/move-orders/{orderID}": {
       "get": {
-        "description": "Gets a move order",
+        "description": "Gets an order",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "moveOrder"
+          "order"
         ],
-        "summary": "Gets a move order by ID",
+        "summary": "Gets an order by ID",
         "operationId": "getMoveOrder",
         "responses": {
           "200": {
-            "description": "Successfully retrieved move order",
+            "description": "Successfully retrieved order",
             "schema": {
               "$ref": "#/definitions/MoveOrder"
             }
@@ -218,7 +218,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "All fields sent in this request will be set on the move order referenced",
+        "description": "All fields sent in this request will be set on the order referenced",
         "consumes": [
           "application/json"
         ],
@@ -226,9 +226,9 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveOrder"
+          "order"
         ],
-        "summary": "Updates a move order",
+        "summary": "Updates an order",
         "operationId": "updateMoveOrder",
         "parameters": [
           {
@@ -292,27 +292,27 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of move order to use",
-          "name": "moveOrderID",
+          "description": "ID of order to use",
+          "name": "orderID",
           "in": "path",
           "required": true
         }
       ]
     },
-    "/move-orders/{moveOrderID}/move-task-orders": {
+    "/move-orders/{orderID}/move-task-orders": {
       "get": {
-        "description": "Gets move task orders associated with a move order",
+        "description": "Gets move task orders associated with an order",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "moveOrder"
+          "order"
         ],
-        "summary": "Gets move task orders associated with a move order",
+        "summary": "Gets move task orders associated with an order",
         "operationId": "listMoveTaskOrders",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move task orders associated with a move order",
+            "description": "Successfully retrieved all move task orders associated with an order",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
             }
@@ -353,8 +353,8 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of move order to use",
-          "name": "moveOrderID",
+          "description": "ID of order to use",
+          "name": "orderID",
           "in": "path",
           "required": true
         }
@@ -1304,7 +1304,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatusPayload"
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
             }
           },
           {
@@ -1814,7 +1814,7 @@ func init() {
         "description": "Returns a boolean based on whether a tac value is valid or not",
         "tags": [
           "tac",
-          "moveOrder"
+          "order"
         ],
         "summary": "Validation of a TAC value",
         "operationId": "tacValidation",
@@ -2761,18 +2761,24 @@ func init() {
           ]
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "MTOShipmentStatus": {
+      "type": "string",
+      "title": "Shipment Status",
+      "enum": [
+        "SUBMITTED",
+        "REJECTED",
+        "APPROVED",
+        "CANCELLATION_REQUESTED"
+      ],
+      "example": "SUBMITTED"
     },
     "MTOShipmentType": {
       "type": "string",
@@ -3015,7 +3021,7 @@ func init() {
           "type": "string",
           "example": "1K43AR"
         },
-        "moveOrderID": {
+        "orderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -3104,7 +3110,10 @@ func init() {
         }
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
+      "required": [
+        "status"
+      ],
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -3112,12 +3121,7 @@ func init() {
           "example": "MTO Shipment not good enough"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "REJECTED",
-            "APPROVED",
-            "SUBMITTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -3216,7 +3220,7 @@ func init() {
         },
         "mtoServiceItemName": {
           "type": "string",
-          "example": "Shipment Mgmt. Services"
+          "example": "Move management"
         },
         "mtoShipmentID": {
           "type": "string",
@@ -3755,7 +3759,7 @@ func init() {
       "name": "move"
     },
     {
-      "name": "moveOrder"
+      "name": "order"
     },
     {
       "name": "moveTaskOrder"
@@ -3963,20 +3967,20 @@ func init() {
         }
       }
     },
-    "/move-orders/{moveOrderID}": {
+    "/move-orders/{orderID}": {
       "get": {
-        "description": "Gets a move order",
+        "description": "Gets an order",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "moveOrder"
+          "order"
         ],
-        "summary": "Gets a move order by ID",
+        "summary": "Gets an order by ID",
         "operationId": "getMoveOrder",
         "responses": {
           "200": {
-            "description": "Successfully retrieved move order",
+            "description": "Successfully retrieved order",
             "schema": {
               "$ref": "#/definitions/MoveOrder"
             }
@@ -4029,7 +4033,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "All fields sent in this request will be set on the move order referenced",
+        "description": "All fields sent in this request will be set on the order referenced",
         "consumes": [
           "application/json"
         ],
@@ -4037,9 +4041,9 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveOrder"
+          "order"
         ],
-        "summary": "Updates a move order",
+        "summary": "Updates an order",
         "operationId": "updateMoveOrder",
         "parameters": [
           {
@@ -4118,27 +4122,27 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of move order to use",
-          "name": "moveOrderID",
+          "description": "ID of order to use",
+          "name": "orderID",
           "in": "path",
           "required": true
         }
       ]
     },
-    "/move-orders/{moveOrderID}/move-task-orders": {
+    "/move-orders/{orderID}/move-task-orders": {
       "get": {
-        "description": "Gets move task orders associated with a move order",
+        "description": "Gets move task orders associated with an order",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "moveOrder"
+          "order"
         ],
-        "summary": "Gets move task orders associated with a move order",
+        "summary": "Gets move task orders associated with an order",
         "operationId": "listMoveTaskOrders",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move task orders associated with a move order",
+            "description": "Successfully retrieved all move task orders associated with an order",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
             }
@@ -4194,8 +4198,8 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of move order to use",
-          "name": "moveOrderID",
+          "description": "ID of order to use",
+          "name": "orderID",
           "in": "path",
           "required": true
         }
@@ -5343,7 +5347,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatusPayload"
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
             }
           },
           {
@@ -5919,7 +5923,7 @@ func init() {
         "description": "Returns a boolean based on whether a tac value is valid or not",
         "tags": [
           "tac",
-          "moveOrder"
+          "order"
         ],
         "summary": "Validation of a TAC value",
         "operationId": "tacValidation",
@@ -6881,18 +6885,24 @@ func init() {
           ]
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "MTOShipmentStatus": {
+      "type": "string",
+      "title": "Shipment Status",
+      "enum": [
+        "SUBMITTED",
+        "REJECTED",
+        "APPROVED",
+        "CANCELLATION_REQUESTED"
+      ],
+      "example": "SUBMITTED"
     },
     "MTOShipmentType": {
       "type": "string",
@@ -7135,7 +7145,7 @@ func init() {
           "type": "string",
           "example": "1K43AR"
         },
-        "moveOrderID": {
+        "orderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -7224,7 +7234,10 @@ func init() {
         }
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
+      "required": [
+        "status"
+      ],
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -7232,12 +7245,7 @@ func init() {
           "example": "MTO Shipment not good enough"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "REJECTED",
-            "APPROVED",
-            "SUBMITTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -7336,7 +7344,7 @@ func init() {
         },
         "mtoServiceItemName": {
           "type": "string",
-          "example": "Shipment Mgmt. Services"
+          "example": "Move management"
         },
         "mtoShipmentID": {
           "type": "string",
@@ -7878,7 +7886,7 @@ func init() {
       "name": "move"
     },
     {
-      "name": "moveOrder"
+      "name": "order"
     },
     {
       "name": "moveTaskOrder"

@@ -16,7 +16,7 @@ const serviceItems = [
     createdAt: '2020-11-20T00:00:00',
     approvedAt: '2020-11-20T00:00:00',
     rejectedAt: '2020-11-20T00:00:00',
-    serviceItem: 'Dom. Origin 1st Day SIT',
+    serviceItem: 'Domestic origin 1st day SIT',
     code: 'DOFSIT',
     status: 'SUBMITTED',
     details: {
@@ -29,7 +29,7 @@ const serviceItems = [
     createdAt: '2020-11-20T00:00:00',
     approvedAt: '2020-11-20T00:00:00',
     rejectedAt: '2020-11-20T00:00:00',
-    serviceItem: 'Dom. Destination 1st Day SIT',
+    serviceItem: 'Domestic destination 1st day SIT',
     code: 'DDFSIT',
     status: 'SUBMITTED',
     details: {
@@ -42,7 +42,7 @@ const serviceItems = [
     createdAt: '2020-11-20T00:00:00',
     approvedAt: '2020-11-20T00:00:00',
     rejectedAt: '2020-11-20T00:00:00',
-    serviceItem: 'Dom. Origin Shuttle Service',
+    serviceItem: 'Domestic origin shuttle service',
     code: 'DOSHUT',
     status: 'SUBMITTED',
     details: {
@@ -54,7 +54,7 @@ const serviceItems = [
     createdAt: '2020-11-20T00:00:00',
     approvedAt: '2020-11-20T00:00:00',
     rejectedAt: '2020-11-20T00:00:00',
-    serviceItem: 'Dom. Destination Shuttle Service',
+    serviceItem: 'Domestic destination shuttle service',
     code: 'DDSHUT',
     status: 'SUBMITTED',
     details: {
@@ -66,7 +66,7 @@ const serviceItems = [
     createdAt: '2020-11-20T00:00:00',
     approvedAt: '2020-11-20T00:00:00',
     rejectedAt: '2020-11-20T00:00:00',
-    serviceItem: 'Dom. Crating',
+    serviceItem: 'Domestic crating',
     code: 'DCRT',
     status: 'SUBMITTED',
     details: {

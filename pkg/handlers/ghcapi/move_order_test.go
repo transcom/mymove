@@ -12,7 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
-	moveorderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
+	orderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -24,9 +24,9 @@ func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 	moveOrder := moveTaskOrder.Orders
 	request := httptest.NewRequest("GET", "/move-orders/{moveOrderID}", nil)
-	params := moveorderop.GetMoveOrderParams{
+	params := orderop.GetMoveOrderParams{
 		HTTPRequest: request,
-		MoveOrderID: strfmt.UUID(moveOrder.ID.String()),
+		OrderID:     strfmt.UUID(moveOrder.ID.String()),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMoveOrdersHandler{
@@ -36,10 +36,10 @@ func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-	moveOrderOK := response.(*moveorderop.GetMoveOrderOK)
+	moveOrderOK := response.(*orderop.GetMoveOrderOK)
 	moveOrdersPayload := moveOrderOK.Payload
 
-	suite.Assertions.IsType(&moveorderop.GetMoveOrderOK{}, response)
+	suite.Assertions.IsType(&orderop.GetMoveOrderOK{}, response)
 	suite.Equal(moveOrder.ID.String(), moveOrdersPayload.ID.String())
 	suite.Equal(moveTaskOrder.Locator, moveOrdersPayload.MoveCode)
 	suite.Equal(moveOrder.ServiceMemberID.String(), moveOrdersPayload.Customer.ID.String())
@@ -68,9 +68,9 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 			},
 		})
 		request := httptest.NewRequest("GET", "/move-orders/{moveOrderID}", nil)
-		params := moveorderop.GetMoveOrderParams{
+		params := orderop.GetMoveOrderParams{
 			HTTPRequest: request,
-			MoveOrderID: strfmt.UUID(order.ID.String()),
+			OrderID:     strfmt.UUID(order.ID.String()),
 		}
 		moveOrderFetcher := mocks.MoveOrderFetcher{}
 		moveOrderFetcher.On("FetchMoveOrder", order.ID).Return(&order, nil)
@@ -84,7 +84,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 
 		suite.IsNotErrResponse(response)
 
-		orderOK := response.(*moveorderop.GetMoveOrderOK)
+		orderOK := response.(*orderop.GetMoveOrderOK)
 		orderPayload := orderOK.Payload
 		payloadEntitlement := orderPayload.Entitlement
 		orderEntitlement := order.Entitlement
@@ -106,9 +106,9 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		})
 
 		request := httptest.NewRequest("GET", "/move-orders/{orderID}", nil)
-		params := moveorderop.GetMoveOrderParams{
+		params := orderop.GetMoveOrderParams{
 			HTTPRequest: request,
-			MoveOrderID: strfmt.UUID(order.ID.String()),
+			OrderID:     strfmt.UUID(order.ID.String()),
 		}
 		moveOrderFetcher := mocks.MoveOrderFetcher{}
 		moveOrderFetcher.On("FetchMoveOrder", order.ID).Return(&order, nil)
@@ -122,7 +122,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 
 		suite.IsNotErrResponse(response)
 
-		orderOK := response.(*moveorderop.GetMoveOrderOK)
+		orderOK := response.(*orderop.GetMoveOrderOK)
 		orderPayload := orderOK.Payload
 		payloadEntitlement := orderPayload.Entitlement
 		orderEntitlement := order.Entitlement
@@ -167,9 +167,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 		Sac:                  handlers.FmtString("987654321"),
 	}
 
-	params := moveorderop.UpdateMoveOrderParams{
+	params := orderop.UpdateMoveOrderParams{
 		HTTPRequest: request,
-		MoveOrderID: strfmt.UUID(moveOrder.ID.String()),
+		OrderID:     strfmt.UUID(moveOrder.ID.String()),
 		IfMatch:     etag.GenerateEtag(moveOrder.UpdatedAt),
 		Body:        body,
 	}
@@ -182,10 +182,10 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-	moveOrderOK := response.(*moveorderop.UpdateMoveOrderOK)
+	moveOrderOK := response.(*orderop.UpdateMoveOrderOK)
 	moveOrdersPayload := moveOrderOK.Payload
 
-	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderOK{}, response)
+	suite.Assertions.IsType(&orderop.UpdateMoveOrderOK{}, response)
 	suite.Equal(moveOrder.ID.String(), moveOrdersPayload.ID.String())
 	suite.Equal(body.NewDutyStationID.String(), moveOrdersPayload.DestinationDutyStation.ID.String())
 	suite.Equal(body.OriginDutyStationID.String(), moveOrdersPayload.OriginDutyStation.ID.String())
@@ -230,9 +230,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
-	params := moveorderop.UpdateMoveOrderParams{
+	params := orderop.UpdateMoveOrderParams{
 		HTTPRequest: request,
-		MoveOrderID: strfmt.UUID(moveOrder.ID.String()),
+		OrderID:     strfmt.UUID(moveOrder.ID.String()),
 		IfMatch:     etag.GenerateEtag(moveOrder.UpdatedAt), // This is broken if you get a preconditioned failed error
 		Body:        body,
 	}
@@ -248,12 +248,12 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 	handler.SetTraceID(traceID)        // traceID is inserted into handler
 	response := handler.Handle(params) // This step also saves traceID into DB
 	suite.IsNotErrResponse(response)
-	moveOrderOK := response.(*moveorderop.UpdateMoveOrderOK)
+	moveOrderOK := response.(*orderop.UpdateMoveOrderOK)
 	moveOrdersPayload := moveOrderOK.Payload
 
 	suite.FatalNoError(err, "Error creating a new trace ID.")
 
-	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderOK{}, response)
+	suite.Assertions.IsType(&orderop.UpdateMoveOrderOK{}, response)
 	suite.Equal(moveOrdersPayload.ID, strfmt.UUID(moveOrder.ID.String()))
 	suite.HasWebhookNotification(moveOrder.ID, traceID)
 }
@@ -266,9 +266,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
-	params := moveorderop.UpdateMoveOrderParams{
+	params := orderop.UpdateMoveOrderParams{
 		HTTPRequest: request,
-		MoveOrderID: "8d013ebb-9561-467b-ae6d-853d2bceadde",
+		OrderID:     "8d013ebb-9561-467b-ae6d-853d2bceadde",
 		IfMatch:     "",
 		Body: &ghcmessages.UpdateMoveOrderPayload{
 			IssueDate:           handlers.FmtDatePtr(&issueDate),
@@ -292,7 +292,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderNotFound{}, response)
+	suite.Assertions.IsType(&orderop.UpdateMoveOrderNotFound{}, response)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
@@ -321,9 +321,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
-	params := moveorderop.UpdateMoveOrderParams{
+	params := orderop.UpdateMoveOrderParams{
 		HTTPRequest: request,
-		MoveOrderID: strfmt.UUID(moveOrder.ID.String()),
+		OrderID:     strfmt.UUID(moveOrder.ID.String()),
 		IfMatch:     etag.GenerateEtag(moveOrder.UpdatedAt.Add(time.Second * 30)),
 		Body:        body,
 	}
@@ -336,7 +336,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderPreconditionFailed{}, response)
+	suite.Assertions.IsType(&orderop.UpdateMoveOrderPreconditionFailed{}, response)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
@@ -364,9 +364,9 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
-	params := moveorderop.UpdateMoveOrderParams{
+	params := orderop.UpdateMoveOrderParams{
 		HTTPRequest: request,
-		MoveOrderID: strfmt.UUID(moveOrder.ID.String()),
+		OrderID:     strfmt.UUID(moveOrder.ID.String()),
 		IfMatch:     etag.GenerateEtag(moveOrder.UpdatedAt.Add(time.Second * 30)),
 		Body:        body,
 	}
@@ -379,5 +379,5 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderPreconditionFailed{}, response)
+	suite.Assertions.IsType(&orderop.UpdateMoveOrderPreconditionFailed{}, response)
 }

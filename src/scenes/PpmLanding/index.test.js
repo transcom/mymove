@@ -46,7 +46,7 @@ describe('PPM landing page tests', () => {
           <Provider store={store}>
             <PpmLanding
               isLoggedIn={true}
-              serviceMember={service_member}
+              serviceMember={undefined}
               createdServiceMemberIsLoading={false}
               loggedInUserSuccess={true}
               isProfileComplete={false}
@@ -58,13 +58,13 @@ describe('PPM landing page tests', () => {
         );
         const landing = wrapper.find(PpmLanding).dive();
         const resumeMoveFn = jest.spyOn(landing.instance(), 'resumeMove');
-        landing.setProps({ createdServiceMemberIsLoading: true });
+        landing.setProps({ serviceMember: service_member });
         expect(resumeMoveFn).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('When the user profile has started but is not complete', () => {
-      it('Ppmummary does not render', () => {
+      it('PpmSummary does not render', () => {
         const div = document.createElement('div');
         wrapper = shallow(
           <PpmLanding
@@ -72,6 +72,7 @@ describe('PPM landing page tests', () => {
             isLoggedIn={true}
             loggedInUserSuccess={true}
             isProfileComplete={false}
+            push={jest.fn()}
             {...minProps}
           />,
           div,

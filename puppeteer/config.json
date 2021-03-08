@@ -10,5 +10,6 @@
     }
   },
   "network": "fast",
+  "fileSize": "large",
   "cpuSlowdownRate": 2
 }

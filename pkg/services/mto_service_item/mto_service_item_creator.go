@@ -65,7 +65,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	}
 	// set re service for service item
 	serviceItem.ReServiceID = reService.ID
-	serviceItem.Status = models.MTOServiceItemStatusSubmitted
 
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
@@ -85,6 +84,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		createdServiceItems = append(createdServiceItems, *serviceItem)
 
 		return &createdServiceItems, nil, nil
+	}
+
+	// By the time the serviceItem model object gets here to the creator it should have a status attached to it.
+	// If for some reason that isn't the case we will set it
+	if serviceItem.Status == "" {
+		serviceItem.Status = models.MTOServiceItemStatusSubmitted
 	}
 
 	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
@@ -187,7 +192,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
 	}
-
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure
@@ -258,16 +262,48 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			}
 		}
 
-		// Once the service item is successfully created, the Move's status needs to
-		// be updated to 'Approvals Requested' if it's not already in that state,
-		// which will let the TOO know they need to review it.
-		err = move.SetApprovalsRequested()
-		if err != nil {
-			return fmt.Errorf("%e", err)
+		moveShouldBeApproved := true
+
+		// If any of the requested service items are in SUBMITTED status, then
+		// we need to change the move status to APPROVALS REQUESTED so the TOO
+		// can review them. Setting moveSouldBeApproved to false is how we know
+		// to set it to APPROVALS REQUESTED further down below.
+		for _, serviceItem := range requestedServiceItems {
+			if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+				moveShouldBeApproved = false
+				break
+			}
 		}
-		verrs, err = txBuilder.UpdateOne(&move, nil)
-		if verrs != nil || err != nil {
-			return fmt.Errorf("%#v %e", verrs, err)
+
+		// In case other service items have been created at the same time on this
+		// same move, we fetch the move from the DB and check if it has any
+		// submitted service items.
+		tx.Reload(&move)
+		for _, serviceItem := range move.MTOServiceItems {
+			if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+				moveShouldBeApproved = false
+				break
+			}
+		}
+
+		if moveShouldBeApproved {
+			err = move.Approve()
+			if err != nil {
+				return fmt.Errorf("%e", err)
+			}
+			verrs, err = txBuilder.UpdateOne(&move, nil)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("%#v %e", verrs, err)
+			}
+		} else {
+			err = move.SetApprovalsRequested()
+			if err != nil {
+				return fmt.Errorf("%e", err)
+			}
+			verrs, err = txBuilder.UpdateOne(&move, nil)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("%#v %e", verrs, err)
+			}
 		}
 
 		return nil
@@ -441,7 +477,7 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *mode
 		verrs := validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s invalid code", serviceItem.ReService.Code))
 		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
-			fmt.Sprintf(fmt.Sprintf("No additional items can be created for this service item with code %s", serviceItem.ReService.Code)))
+			fmt.Sprintf("No additional items can be created for this service item with code %s", serviceItem.ReService.Code))
 
 	}
 

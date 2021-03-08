@@ -469,23 +469,44 @@ type mtoShipmentStatusUpdater struct {
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
 func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", shipmentID),
-	}
-	err := o.builder.FetchOne(&shipment, queryFilters)
-
+	shipment, err := fetchShipment(shipmentID, o.builder)
 	if err != nil {
-		return nil, services.NewNotFoundError(shipmentID, "Shipment not found")
+		return nil, err
 	}
 
-	if shipment.Status == models.MTOShipmentStatusDraft && status != models.MTOShipmentStatusSubmitted {
-		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
+	switch shipment.Status {
+	case models.MTOShipmentStatusDraft:
+		if status != models.MTOShipmentStatusSubmitted {
+			return nil, ConflictStatusError{
+				id:                        shipment.ID,
+				transitionFromStatus:      shipment.Status,
+				transitionToStatus:        status,
+				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusSubmitted},
+			}
+		}
+	case models.MTOShipmentStatusSubmitted:
+		if status != models.MTOShipmentStatusApproved && status != models.MTOShipmentStatusRejected {
+			return nil, ConflictStatusError{
+				id:                        shipment.ID,
+				transitionFromStatus:      shipment.Status,
+				transitionToStatus:        status,
+				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusApproved, models.MTOShipmentStatusRejected},
+			}
+		}
+	case models.MTOShipmentStatusApproved:
+		if status != models.MTOShipmentStatusCancellationRequested {
+			return nil, ConflictStatusError{
+				id:                        shipment.ID,
+				transitionFromStatus:      shipment.Status,
+				transitionToStatus:        status,
+				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusCancellationRequested},
+			}
+		}
+	default:
+		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: status}
 	}
-	if shipment.Status != models.MTOShipmentStatusSubmitted && shipment.Status != models.MTOShipmentStatusDraft {
-		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
-	} else if status != models.MTOShipmentStatusRejected {
+
+	if status != models.MTOShipmentStatusRejected {
 		rejectionReason = nil
 	}
 
@@ -503,9 +524,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 				fmt.Sprintf("Cannot approve a shipment if the move isn't approved. The current status for the move with ID %s is %s", move.ID, move.Status),
 			)
 		}
-	}
 
-	if shipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Now()
 		shipment.ApprovedDate = &approvedDate
 
@@ -553,85 +572,8 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 			}
 		}
 
-		// We will detect the type of shipment we're working with and then call a helper with the correct
-		// default service items that we want created as a side effect.
-		// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
-		var serviceItemsToCreate models.MTOServiceItems
-		switch shipment.ShipmentType {
-		case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDPK,
-				models.ReServiceCodeDUPK,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeHHGShortHaulDom:
-			//Need to create: Dom Shorthaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom Unpacking
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDSH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDPK,
-				models.ReServiceCodeDUPK,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeHHGIntoNTSDom:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom NTS Packing Factor
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDPK,
-				models.ReServiceCodeDNPKF,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeHHGOutOfNTSDom:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDUPK,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeMotorhome:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDMHF,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeBoatHaulAway:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDBHF,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		case models.MTOShipmentTypeBoatTowAway:
-			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
-			reServiceCodes := []models.ReServiceCode{
-				models.ReServiceCodeDLH,
-				models.ReServiceCodeFSC,
-				models.ReServiceCodeDOP,
-				models.ReServiceCodeDDP,
-				models.ReServiceCodeDBTF,
-			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		}
+		reServiceCodes := reServiceCodesForShipment(shipment)
+		serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		for _, serviceItem := range serviceItemsToCreate {
 			copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
 			_, verrs, err := o.siCreator.CreateMTOServiceItem(&copyOfServiceItem)
@@ -648,6 +590,98 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	return &shipment, nil
+}
+
+func fetchShipment(shipmentID uuid.UUID, builder UpdateMTOShipmentQueryBuilder) (models.MTOShipment, error) {
+	var shipment models.MTOShipment
+
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", shipmentID),
+	}
+	err := builder.FetchOne(&shipment, queryFilters)
+
+	if err != nil {
+		return shipment, services.NewNotFoundError(shipmentID, "Shipment not found")
+	}
+
+	return shipment, nil
+}
+
+func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCode {
+	// We will detect the type of shipment we're working with and then call a helper with the correct
+	// default service items that we want created as a side effect.
+	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
+
+	switch shipment.ShipmentType {
+	case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDUPK,
+		}
+	case models.MTOShipmentTypeHHGShortHaulDom:
+		// Need to create: Dom Shorthaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom Unpacking
+		return []models.ReServiceCode{
+			models.ReServiceCodeDSH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDUPK,
+		}
+	case models.MTOShipmentTypeHHGIntoNTSDom:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom NTS Packing Factor
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDNPKF,
+		}
+	case models.MTOShipmentTypeHHGOutOfNTSDom:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDUPK,
+		}
+	case models.MTOShipmentTypeMotorhome:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDMHF,
+		}
+	case models.MTOShipmentTypeBoatHaulAway:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDBHF,
+		}
+	case models.MTOShipmentTypeBoatTowAway:
+		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
+		return []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDBTF,
+		}
+	}
+
+	return []models.ReServiceCode{}
 }
 
 // CalculateRequiredDeliveryDate function is used to get a distance calculation using the pickup and destination addresses. It then uses
@@ -724,15 +758,20 @@ func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentQu
 
 // ConflictStatusError returns an error for a conflict in status
 type ConflictStatusError struct {
-	id                   uuid.UUID
-	transitionFromStatus models.MTOShipmentStatus
-	transitionToStatus   models.MTOShipmentStatus
+	id                        uuid.UUID
+	transitionFromStatus      models.MTOShipmentStatus
+	transitionToStatus        models.MTOShipmentStatus
+	transitionAllowedStatuses *[]models.MTOShipmentStatus
 }
 
 // Error is the string representation of the error
 func (e ConflictStatusError) Error() string {
-	return fmt.Sprintf("shipment with id '%s' can not transition status from '%s' to '%s'. Must be in status '%s'.",
-		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
+	var allowedStatusMsg string
+	if e.transitionAllowedStatuses != nil {
+		allowedStatusMsg = fmt.Sprintf(" May only transition to: %+q.", *e.transitionAllowedStatuses)
+	}
+	return fmt.Sprintf("shipment with id '%s' cannot transition status from '%s' to '%s'.%s",
+		e.id.String(), e.transitionFromStatus, e.transitionToStatus, allowedStatusMsg)
 }
 
 func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
