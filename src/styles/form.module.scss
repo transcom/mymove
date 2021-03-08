@@ -41,6 +41,10 @@
     @include u-margin-top('205');
   }
 
+  :global(.usa-form-group--error) {
+    @include u-margin(0);
+  }
+
   :global(.usa-label) {
     color: $base-darker;
     font-size: 13px;
