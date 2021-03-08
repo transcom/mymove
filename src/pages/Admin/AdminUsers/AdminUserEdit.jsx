@@ -11,6 +11,7 @@ const AdminUserEdit = (props) => (
   <Edit {...props}>
     <SimpleForm toolbar={<AdminUserEditToolbar />}>
       <TextInput source="id" disabled />
+      <TextInput source="userId" label="User Id" disabled />
       <TextInput source="email" disabled />
       <TextInput source="firstName" validate={required()} />
       <TextInput source="lastName" validate={required()} />
