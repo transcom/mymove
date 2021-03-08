@@ -9,4 +9,16 @@
   small {
     @include u-text('base-light');
   }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    //padding-left: 0;
+
+    button small {
+     color: $link
+    }
+  }
 }
+
+
