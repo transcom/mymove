@@ -28,6 +28,8 @@ export const selectCurrentDutyStation = (state) => {
 };
 
 export const selectServiceMemberProfileState = createSelector(selectServiceMemberFromLoggedInUser, (serviceMember) => {
+  if (!serviceMember) return profileStates.EMPTY_PROFILE;
+
   /* eslint-disable camelcase */
   const {
     rank,

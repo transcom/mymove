@@ -1,5 +1,4 @@
-import { takeLatest, put, call, all, select } from 'redux-saga/effects';
-import { push } from 'connected-react-router';
+import { takeLatest, put, call, all } from 'redux-saga/effects';
 
 import {
   INIT_ONBOARDING,
@@ -16,8 +15,6 @@ import {
 import { addEntities } from 'shared/Entities/actions';
 import { CREATE_SERVICE_MEMBER } from 'scenes/ServiceMembers/ducks';
 import { normalizeResponse } from 'services/swaggerRequest';
-import { selectServiceMemberFromLoggedInUser, selectServiceMemberProfileState } from 'store/entities/selectors';
-import { findNextServiceMemberStep } from 'utils/customer';
 
 export function* fetchCustomerData() {
   // First load the user & store in entities
@@ -78,13 +75,6 @@ export function* initializeOnboarding() {
     if (!user.serviceMembers) {
       yield call(createServiceMember);
     }
-
-    // Determine where user should be directed
-    const serviceMember = yield select(selectServiceMemberFromLoggedInUser);
-    const serviceMemberProfileState = yield select(selectServiceMemberProfileState);
-    const nextPagePath = findNextServiceMemberStep(serviceMember.id, serviceMemberProfileState);
-
-    yield put(push(nextPagePath));
 
     yield put(initOnboardingComplete());
     yield all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]);

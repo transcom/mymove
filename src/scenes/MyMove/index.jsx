@@ -22,6 +22,7 @@ import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { withContext } from 'shared/AppContext';
 import { no_op } from 'shared/utils';
 import { loadUser as loadUserAction } from 'store/auth/actions';
+import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
 import { selectConusStatus } from 'store/onboarding/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -67,10 +68,11 @@ export class CustomerApp extends Component {
   }
 
   componentDidMount() {
-    const { loadUser, loadInternalSchema } = this.props;
+    const { loadUser, initOnboarding, loadInternalSchema } = this.props;
 
     loadInternalSchema();
     loadUser();
+    initOnboarding();
   }
 
   componentDidCatch(error, info) {
@@ -239,6 +241,7 @@ const mapDispatchToProps = (dispatch) =>
       push,
       loadInternalSchema,
       loadUser: loadUserAction,
+      initOnboarding: initOnboardingAction,
     },
     dispatch,
   );

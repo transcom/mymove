@@ -1,6 +1,4 @@
-import { takeLatest, put, call, all, select } from 'redux-saga/effects';
-import { cloneableGenerator } from '@redux-saga/testing-utils';
-import { push } from 'connected-react-router';
+import { takeLatest, put, call, all } from 'redux-saga/effects';
 
 import {
   watchInitializeOnboarding,
@@ -28,8 +26,6 @@ import { addEntities } from 'shared/Entities/actions';
 import { CREATE_SERVICE_MEMBER } from 'scenes/ServiceMembers/ducks';
 import sampleLoggedInUserPayload from 'shared/User/sampleLoggedInUserPayload';
 import { normalizeResponse } from 'services/swaggerRequest';
-import { selectServiceMemberFromLoggedInUser, selectServiceMemberProfileState } from 'store/entities/selectors';
-import { profileStates } from 'constants/customerStates';
 
 describe('watchInitializeOnboarding', () => {
   const generator = watchInitializeOnboarding();
@@ -170,23 +166,6 @@ describe('initializeOnboarding', () => {
       expect(generator.next(mockResponseData).value).toEqual(call(createServiceMember));
     });
 
-    it('selects the service member from the store', () => {
-      expect(generator.next().value).toEqual(select(selectServiceMemberFromLoggedInUser));
-    });
-
-    it('selects the service member’s profile state from the store', () => {
-      expect(
-        generator.next({
-          id: 'testServiceMemberId',
-        }).value,
-      ).toEqual(select(selectServiceMemberProfileState));
-    });
-
-    it('redirects the user to the first step of the profile wizard', () => {
-      const nextPath = `/service-member/testServiceMemberId/conus-status`;
-      expect(generator.next(profileStates.EMPTY_PROFILE).value).toEqual(put(push(nextPath)));
-    });
-
     it('puts action initOnboardingComplete', () => {
       expect(generator.next().value).toEqual(put(initOnboardingComplete()));
     });
@@ -201,6 +180,8 @@ describe('initializeOnboarding', () => {
   });
 
   describe('if the user is logged in and has a serviceMember', () => {
+    const generator = initializeOnboarding();
+
     const mockResponseData = {
       user: {
         testUserId: {
@@ -216,317 +197,20 @@ describe('initializeOnboarding', () => {
       },
     };
 
-    const generator = cloneableGenerator(initializeOnboarding)();
-    generator.next(); // fetchCustomerData
-    generator.next(mockResponseData); // selectServiceMember
-
-    describe('with no data', () => {
-      const clone = generator.clone();
-
-      it('selects the service member’s profile state from the store', () => {
-        expect(clone.next(mockResponseData.serviceMembers.testServiceMemberId).value).toEqual(
-          select(selectServiceMemberProfileState),
-        );
-      });
-
-      it('redirects the user to the first step of the profile wizard', () => {
-        const nextPath = `/service-member/testServiceMemberId/conus-status`;
-        expect(clone.next(profileStates.EMPTY_PROFILE).value).toEqual(put(push(nextPath)));
-      });
-
-      it('puts action initOnboardingComplete', () => {
-        expect(clone.next().value).toEqual(put(initOnboardingComplete()));
-      });
-
-      it('starts the watch saga', () => {
-        expect(clone.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
-      });
-
-      it('is done', () => {
-        expect(clone.next().done).toEqual(true);
-      });
+    it('calls the fetchCustomerData saga', () => {
+      expect(generator.next().value).toEqual(call(fetchCustomerData));
     });
 
-    describe('with DOD info complete', () => {
-      const clone = generator.clone();
-
-      const serviceMemberData = {
-        ...mockResponseData.serviceMembers.testServiceMemberId,
-        rank: 'test rank',
-        edipi: '1234567890',
-        affiliation: 'ARMY',
-      };
-
-      it('selects the service member’s profile state from the store', () => {
-        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
-      });
-
-      it('redirects the user to the name step of the profile wizard', () => {
-        const nextPath = `/service-member/testServiceMemberId/name`;
-        expect(clone.next(profileStates.DOD_INFO_COMPLETE).value).toEqual(put(push(nextPath)));
-      });
-
-      it('puts action initOnboardingComplete', () => {
-        expect(clone.next().value).toEqual(put(initOnboardingComplete()));
-      });
-
-      it('starts the watch saga', () => {
-        expect(clone.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
-      });
-
-      it('is done', () => {
-        expect(clone.next().done).toEqual(true);
-      });
+    it('puts action initOnboardingComplete', () => {
+      expect(generator.next(mockResponseData).value).toEqual(put(initOnboardingComplete()));
     });
 
-    describe('with name complete', () => {
-      const clone = generator.clone();
-
-      const serviceMemberData = {
-        ...mockResponseData.serviceMembers.testServiceMemberId,
-        rank: 'test rank',
-        edipi: '1234567890',
-        affiliation: 'ARMY',
-        first_name: 'Tester',
-        last_name: 'Testperson',
-      };
-
-      it('selects the service member’s profile state from the store', () => {
-        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
-      });
-
-      it('redirects the user to the contact info step of the profile wizard', () => {
-        const nextPath = `/service-member/testServiceMemberId/contact-info`;
-        expect(clone.next(profileStates.NAME_COMPLETE).value).toEqual(put(push(nextPath)));
-      });
-
-      it('puts action initOnboardingComplete', () => {
-        expect(clone.next().value).toEqual(put(initOnboardingComplete()));
-      });
-
-      it('starts the watch saga', () => {
-        expect(clone.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
-      });
-
-      it('is done', () => {
-        expect(clone.next().done).toEqual(true);
-      });
+    it('starts the watch saga', () => {
+      expect(generator.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
     });
 
-    describe('with contact info complete', () => {
-      const clone = generator.clone();
-
-      const serviceMemberData = {
-        ...mockResponseData.serviceMembers.testServiceMemberId,
-        rank: 'test rank',
-        edipi: '1234567890',
-        affiliation: 'ARMY',
-        first_name: 'Tester',
-        last_name: 'Testperson',
-        telephone: '1234567890',
-        personal_email: 'test@example.com',
-        email_is_preferred: true,
-      };
-
-      it('selects the service member’s profile state from the store', () => {
-        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
-      });
-
-      it('redirects the user to the duty station step of the profile wizard', () => {
-        const nextPath = `/service-member/testServiceMemberId/duty-station`;
-        expect(clone.next(profileStates.CONTACT_INFO_COMPLETE).value).toEqual(put(push(nextPath)));
-      });
-
-      it('puts action initOnboardingComplete', () => {
-        expect(clone.next().value).toEqual(put(initOnboardingComplete()));
-      });
-
-      it('starts the watch saga', () => {
-        expect(clone.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
-      });
-
-      it('is done', () => {
-        expect(clone.next().done).toEqual(true);
-      });
-    });
-
-    describe('with duty station info complete', () => {
-      const clone = generator.clone();
-
-      const serviceMemberData = {
-        ...mockResponseData.serviceMembers.testServiceMemberId,
-        rank: 'test rank',
-        edipi: '1234567890',
-        affiliation: 'ARMY',
-        first_name: 'Tester',
-        last_name: 'Testperson',
-        telephone: '1234567890',
-        personal_email: 'test@example.com',
-        email_is_preferred: true,
-        current_station: {
-          id: 'testDutyStationId',
-        },
-      };
-
-      it('selects the service member’s profile state from the store', () => {
-        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
-      });
-
-      it('redirects the user to the address step of the profile wizard', () => {
-        const nextPath = `/service-member/testServiceMemberId/residence-address`;
-        expect(clone.next(profileStates.DUTY_STATION_COMPLETE).value).toEqual(put(push(nextPath)));
-      });
-
-      it('puts action initOnboardingComplete', () => {
-        expect(clone.next().value).toEqual(put(initOnboardingComplete()));
-      });
-
-      it('starts the watch saga', () => {
-        expect(clone.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
-      });
-
-      it('is done', () => {
-        expect(clone.next().done).toEqual(true);
-      });
-    });
-
-    describe('with address info complete', () => {
-      const clone = generator.clone();
-
-      const serviceMemberData = {
-        ...mockResponseData.serviceMembers.testServiceMemberId,
-        rank: 'test rank',
-        edipi: '1234567890',
-        affiliation: 'ARMY',
-        first_name: 'Tester',
-        last_name: 'Testperson',
-        telephone: '1234567890',
-        personal_email: 'test@example.com',
-        email_is_preferred: true,
-        current_station: {
-          id: 'testDutyStationId',
-        },
-        residential_address: {
-          street: '123 Main St',
-        },
-      };
-
-      it('selects the service member’s profile state from the store', () => {
-        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
-      });
-
-      it('redirects the user to the backup address step of the profile wizard', () => {
-        const nextPath = `/service-member/testServiceMemberId/backup-mailing-address`;
-        expect(clone.next(profileStates.ADDRESS_COMPLETE).value).toEqual(put(push(nextPath)));
-      });
-
-      it('puts action initOnboardingComplete', () => {
-        expect(clone.next().value).toEqual(put(initOnboardingComplete()));
-      });
-
-      it('starts the watch saga', () => {
-        expect(clone.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
-      });
-
-      it('is done', () => {
-        expect(clone.next().done).toEqual(true);
-      });
-    });
-
-    describe('with backup address info complete', () => {
-      const clone = generator.clone();
-
-      const serviceMemberData = {
-        ...mockResponseData.serviceMembers.testServiceMemberId,
-        rank: 'test rank',
-        edipi: '1234567890',
-        affiliation: 'ARMY',
-        first_name: 'Tester',
-        last_name: 'Testperson',
-        telephone: '1234567890',
-        personal_email: 'test@example.com',
-        email_is_preferred: true,
-        current_station: {
-          id: 'testDutyStationId',
-        },
-        residential_address: {
-          street: '123 Main St',
-        },
-        backup_mailing_address: {
-          street: '456 Main St',
-        },
-      };
-
-      it('selects the service member’s profile state from the store', () => {
-        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
-      });
-
-      it('redirects the user to the backup contacts step of the profile wizard', () => {
-        const nextPath = `/service-member/testServiceMemberId/backup-contacts`;
-        expect(clone.next(profileStates.BACKUP_ADDRESS_COMPLETE).value).toEqual(put(push(nextPath)));
-      });
-
-      it('puts action initOnboardingComplete', () => {
-        expect(clone.next().value).toEqual(put(initOnboardingComplete()));
-      });
-
-      it('starts the watch saga', () => {
-        expect(clone.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
-      });
-
-      it('is done', () => {
-        expect(clone.next().done).toEqual(true);
-      });
-    });
-
-    describe('with all profile info complete', () => {
-      const clone = generator.clone();
-
-      const serviceMemberData = {
-        ...mockResponseData.serviceMembers.testServiceMemberId,
-        rank: 'test rank',
-        edipi: '1234567890',
-        affiliation: 'ARMY',
-        first_name: 'Tester',
-        last_name: 'Testperson',
-        telephone: '1234567890',
-        personal_email: 'test@example.com',
-        email_is_preferred: true,
-        current_station: {
-          id: 'testDutyStationId',
-        },
-        residential_address: {
-          street: '123 Main St',
-        },
-        backup_mailing_address: {
-          street: '456 Main St',
-        },
-        backup_contacts: [
-          {
-            id: 'testBackupContact',
-          },
-        ],
-      };
-
-      it('selects the service member’s profile state from the store', () => {
-        expect(clone.next(serviceMemberData).value).toEqual(select(selectServiceMemberProfileState));
-      });
-
-      it('redirects the user to the Home page', () => {
-        expect(clone.next(profileStates.BACKUP_CONTACTS_COMPLETE).value).toEqual(put(push('/')));
-      });
-
-      it('puts action initOnboardingComplete', () => {
-        expect(clone.next().value).toEqual(put(initOnboardingComplete()));
-      });
-
-      it('starts the watch saga', () => {
-        expect(clone.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
-      });
-
-      it('is done', () => {
-        expect(clone.next().done).toEqual(true);
-      });
+    it('is done', () => {
+      expect(generator.next().done).toEqual(true);
     });
   });
 });
