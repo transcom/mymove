@@ -6,11 +6,11 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MoveOrderFetcher is the service object interface for FetchMoveOrder
-//go:generate mockery -name MoveOrderFetcher
-type MoveOrderFetcher interface {
-	FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.Order, error)
-	ListMoveOrders(officeUserID uuid.UUID, params *ListMoveOrderParams) ([]models.Move, int, error)
+// OrderFetcher is the service object interface for FetchOrder
+//go:generate mockery -name OrderFetcher
+type OrderFetcher interface {
+	FetchOrder(moveTaskOrderID uuid.UUID) (*models.Order, error)
+	ListOrders(officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
 }
 
 //OrderUpdater is the service object interface for updating fields of an Order
@@ -19,8 +19,8 @@ type OrderUpdater interface {
 	UpdateOrder(eTag string, order models.Order) (*models.Order, error)
 }
 
-// ListMoveOrderParams is a public struct that's used to pass filter arguments to the ListMoveOrders
-type ListMoveOrderParams struct {
+// ListOrderParams is a public struct that's used to pass filter arguments to the ListOrders
+type ListOrderParams struct {
 	Branch                 *string
 	Locator                *string
 	DodID                  *string

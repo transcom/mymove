@@ -51,7 +51,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const { setUnapprovedShipmentCount } = props;
 
   const {
-    moveOrders = {},
+    orders = {},
     moveTaskOrders,
     mtoShipments,
     mtoServiceItems,
@@ -60,7 +60,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   } = useMoveTaskOrderQueries(moveCode);
 
   const mtoServiceItemsArr = Object.values(mtoServiceItems || {});
-  const moveOrder = Object.values(moveOrders)?.[0];
+  const moveOrder = Object.values(orders)?.[0];
   const moveTaskOrder = Object.values(moveTaskOrders || {})?.[0];
 
   const shipmentServiceItems = useMemo(() => {

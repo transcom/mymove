@@ -42,7 +42,7 @@ const mockDestinationDutyStation = {
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: () => {
     return {
-      moveOrders: {
+      orders: {
         1: {
           agency: 'ARMY',
           customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
@@ -105,7 +105,7 @@ const testMoveId = '10000';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ moveOrderId: testMoveId }),
+  useParams: jest.fn().mockReturnValue({ orderId: testMoveId }),
 }));
 
 describe('MoveDocumentWrapper', () => {

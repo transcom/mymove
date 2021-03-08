@@ -14,8 +14,8 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// GetMoveOrderURL generates an URL for the get move order operation
-type GetMoveOrderURL struct {
+// GetOrderURL generates an URL for the get order operation
+type GetOrderURL struct {
 	OrderID strfmt.UUID
 
 	_basePath string
@@ -26,7 +26,7 @@ type GetMoveOrderURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetMoveOrderURL) WithBasePath(bp string) *GetMoveOrderURL {
+func (o *GetOrderURL) WithBasePath(bp string) *GetOrderURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -34,12 +34,12 @@ func (o *GetMoveOrderURL) WithBasePath(bp string) *GetMoveOrderURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetMoveOrderURL) SetBasePath(bp string) {
+func (o *GetOrderURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *GetMoveOrderURL) Build() (*url.URL, error) {
+func (o *GetOrderURL) Build() (*url.URL, error) {
 	var _result url.URL
 
 	var _path = "/move-orders/{orderID}"
@@ -48,7 +48,7 @@ func (o *GetMoveOrderURL) Build() (*url.URL, error) {
 	if orderID != "" {
 		_path = strings.Replace(_path, "{orderID}", orderID, -1)
 	} else {
-		return nil, errors.New("orderId is required on GetMoveOrderURL")
+		return nil, errors.New("orderId is required on GetOrderURL")
 	}
 
 	_basePath := o._basePath
@@ -61,7 +61,7 @@ func (o *GetMoveOrderURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *GetMoveOrderURL) Must(u *url.URL, err error) *url.URL {
+func (o *GetOrderURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -72,17 +72,17 @@ func (o *GetMoveOrderURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *GetMoveOrderURL) String() string {
+func (o *GetOrderURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *GetMoveOrderURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *GetOrderURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on GetMoveOrderURL")
+		return nil, errors.New("scheme is required for a full url on GetOrderURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on GetMoveOrderURL")
+		return nil, errors.New("host is required for a full url on GetOrderURL")
 	}
 
 	base, err := o.Build()
@@ -96,6 +96,6 @@ func (o *GetMoveOrderURL) BuildFull(scheme, host string) (*url.URL, error) {
 }
 
 // StringFull returns the string representation of a complete url
-func (o *GetMoveOrderURL) StringFull(scheme, host string) string {
+func (o *GetOrderURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

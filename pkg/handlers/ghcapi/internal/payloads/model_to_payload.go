@@ -45,7 +45,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		Contractor:         Contractor(move.Contractor),
 		Locator:            move.Locator,
 		OrdersID:           strfmt.UUID(move.OrdersID.String()),
-		Orders:             MoveOrder(&move.Orders),
+		Orders:             Order(&move.Orders),
 		ReferenceID:        handlers.FmtStringPtr(move.ReferenceID),
 		Status:             ghcmessages.MoveStatus(move.Status),
 		CreatedAt:          strfmt.DateTime(move.CreatedAt),
@@ -99,68 +99,68 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	return &payload
 }
 
-// MoveOrder payload
-func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
-	if moveOrder == nil {
+// Order payload
+func Order(order *models.Order) *ghcmessages.Order {
+	if order == nil {
 		return nil
 	}
-	if moveOrder.ID == uuid.Nil {
+	if order.ID == uuid.Nil {
 		return nil
 	}
 
-	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
-	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
-	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
-		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
+	destinationDutyStation := DutyStation(&order.NewDutyStation)
+	originDutyStation := DutyStation(order.OriginDutyStation)
+	if order.Grade != nil && order.Entitlement != nil {
+		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
-	entitlements := Entitlement(moveOrder.Entitlement)
+	entitlements := Entitlement(order.Entitlement)
 
 	var deptIndicator ghcmessages.DeptIndicator
-	if moveOrder.DepartmentIndicator != nil {
-		deptIndicator = ghcmessages.DeptIndicator(*moveOrder.DepartmentIndicator)
+	if order.DepartmentIndicator != nil {
+		deptIndicator = ghcmessages.DeptIndicator(*order.DepartmentIndicator)
 	}
 
 	var ordersTypeDetail ghcmessages.OrdersTypeDetail
-	if moveOrder.OrdersTypeDetail != nil {
-		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
+	if order.OrdersTypeDetail != nil {
+		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*order.OrdersTypeDetail)
 	}
 
 	var grade ghcmessages.Grade
-	if moveOrder.Grade != nil {
-		grade = ghcmessages.Grade(*moveOrder.Grade)
+	if order.Grade != nil {
+		grade = ghcmessages.Grade(*order.Grade)
 	}
 	//
 	var branch ghcmessages.Branch
-	if moveOrder.ServiceMember.Affiliation != nil {
-		branch = ghcmessages.Branch(*moveOrder.ServiceMember.Affiliation)
+	if order.ServiceMember.Affiliation != nil {
+		branch = ghcmessages.Branch(*order.ServiceMember.Affiliation)
 	}
 
 	var moveCode string
-	if moveOrder.Moves != nil && len(moveOrder.Moves) > 0 {
-		moveCode = moveOrder.Moves[0].Locator
+	if order.Moves != nil && len(order.Moves) > 0 {
+		moveCode = order.Moves[0].Locator
 	}
 
-	payload := ghcmessages.MoveOrder{
+	payload := ghcmessages.Order{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
 		Grade:                  &grade,
-		OrderNumber:            moveOrder.OrdersNumber,
+		OrderNumber:            order.OrdersNumber,
 		OrderTypeDetail:        &ordersTypeDetail,
-		ID:                     strfmt.UUID(moveOrder.ID.String()),
+		ID:                     strfmt.UUID(order.ID.String()),
 		OriginDutyStation:      originDutyStation,
-		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+		ETag:                   etag.GenerateEtag(order.UpdatedAt),
 		Agency:                 branch,
-		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
-		Customer:               Customer(&moveOrder.ServiceMember),
-		FirstName:              swag.StringValue(moveOrder.ServiceMember.FirstName),
-		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),
-		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
-		DateIssued:             strfmt.Date(moveOrder.IssueDate),
-		OrderType:              ghcmessages.OrdersType(moveOrder.OrdersType),
+		CustomerID:             strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:               Customer(&order.ServiceMember),
+		FirstName:              swag.StringValue(order.ServiceMember.FirstName),
+		LastName:               swag.StringValue(order.ServiceMember.LastName),
+		ReportByDate:           strfmt.Date(order.ReportByDate),
+		DateIssued:             strfmt.Date(order.IssueDate),
+		OrderType:              ghcmessages.OrdersType(order.OrdersType),
 		DepartmentIndicator:    &deptIndicator,
-		Tac:                    handlers.FmtStringPtr(moveOrder.TAC),
-		Sac:                    handlers.FmtStringPtr(moveOrder.SAC),
-		UploadedOrderID:        strfmt.UUID(moveOrder.UploadedOrdersID.String()),
+		Tac:                    handlers.FmtStringPtr(order.TAC),
+		Sac:                    handlers.FmtStringPtr(order.SAC),
+		UploadedOrderID:        strfmt.UUID(order.UploadedOrdersID.String()),
 		MoveCode:               moveCode,
 	}
 

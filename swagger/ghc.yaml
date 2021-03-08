@@ -136,7 +136,7 @@ paths:
         '200':
           description: updated instance of orders
           schema:
-            $ref: '#/definitions/MoveOrder'
+            $ref: '#/definitions/Order'
         '400':
           description: The request payload is invalid
           schema:
@@ -167,7 +167,7 @@ paths:
         '200':
           description: Successfully retrieved order
           schema:
-            $ref: '#/definitions/MoveOrder'
+            $ref: '#/definitions/Order'
         '400':
           description: The request payload is invalid
           schema:
@@ -191,7 +191,7 @@ paths:
       tags:
         - order
       description: Gets an order
-      operationId: getMoveOrder
+      operationId: getOrder
       summary: Gets an order by ID
   '/move-orders/{orderID}/move-task-orders':
     parameters:
@@ -1670,7 +1670,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       orders:
-        $ref: '#/definitions/MoveOrder'
+        $ref: '#/definitions/Order'
       referenceId:
         example: 1001-3456
         type: string
@@ -1742,7 +1742,7 @@ definitions:
       INSTRUCTION_20_WEEKS: Course of Instruction 20 Weeks or More
       HHG_PROHIBITED_20_WEEKS: Shipment of HHG Prohibited but Authorized within 20 weeks
       DELAYED_APPROVAL: Delayed Approval 20 Weeks or More
-  MoveOrder:
+  Order:
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054

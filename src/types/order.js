@@ -31,7 +31,7 @@ export const EntitlementShape = PropTypes.shape({
   totalDependents: PropTypes.number,
 });
 
-export const MoveOrderShape = PropTypes.shape({
+export const OrderShape = PropTypes.shape({
   date_issued: PropTypes.string,
   report_by_date: PropTypes.string,
   department_indicator: PropTypes.string,

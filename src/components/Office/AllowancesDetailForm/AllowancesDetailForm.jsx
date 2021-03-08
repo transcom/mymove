@@ -6,7 +6,7 @@ import styles from './AllowancesDetailForm.module.scss';
 import { TextMaskedInput } from 'components/form/fields/TextInput';
 import { DropdownInput } from 'components/form/fields';
 import { DropdownArrayOf } from 'types/form';
-import { EntitlementShape } from 'types/moveOrder';
+import { EntitlementShape } from 'types/order';
 import { formatWeight, formatDaysInTransit } from 'shared/formatters';
 
 const AllowancesDetailForm = ({ entitlements, rankOptions, branchOptions }) => {

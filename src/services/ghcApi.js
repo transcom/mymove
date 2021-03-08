@@ -28,8 +28,8 @@ export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
 
-export async function getMoveOrder(key, orderID) {
-  return makeGHCRequest('order.getMoveOrder', { orderID });
+export async function getOrder(key, orderID) {
+  return makeGHCRequest('order.getOrder', { orderID });
 }
 
 export async function getMovePaymentRequests(key, locator) {

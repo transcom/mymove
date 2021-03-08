@@ -5,7 +5,7 @@ import {
   getPaymentRequest,
   getMTOShipments,
   getMTOServiceItems,
-  getMoveOrder,
+  getOrder,
   getMove,
   getMoveTaskOrderList,
   getDocument,
@@ -21,7 +21,7 @@ import {
   MTO_SHIPMENTS,
   MTO_SERVICE_ITEMS,
   MOVES,
-  MOVE_ORDERS,
+  ORDERS,
   MOVE_PAYMENT_REQUESTS,
   MOVE_TASK_ORDERS,
   ORDERS_DOCUMENTS,
@@ -48,13 +48,13 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const orderId = move?.ordersId;
 
   // get move orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, orderId], getMoveOrder, {
+  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
 
   // TODO - Need to refactor if we pass include customer in move order payload
   // get customer
-  const order = moveOrders && Object.values(moveOrders)[0];
+  const order = orders && Object.values(orders)[0];
   const customerId = order?.customerID;
   const { data: { customer } = {}, ...customerQuery } = useQuery([CUSTOMER, customerId], getCustomer, {
     enabled: !!customerId,
@@ -97,7 +97,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   const orderId = move?.ordersId;
 
   // get move orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, orderId], getMoveOrder, {
+  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
 
@@ -132,7 +132,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   ]);
 
   return {
-    moveOrders,
+    orders,
     moveTaskOrders,
     mtoShipments,
     mtoServiceItems,
@@ -144,12 +144,12 @@ export const useMoveTaskOrderQueries = (moveCode) => {
 
 export const useMoveOrderQueries = (orderId) => {
   // get move orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, orderId], getMoveOrder);
+  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, orderId], getOrder);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveOrderQuery]);
 
   return {
-    moveOrders,
+    orders,
     isLoading,
     isError,
     isSuccess,
@@ -163,13 +163,13 @@ export const useOrdersDocumentQueries = (moveCode) => {
   const orderId = move?.ordersId;
 
   // get orders
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, orderId], getMoveOrder, {
+  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
 
-  const orders = moveOrders && moveOrders[`${orderId}`];
+  const order = orders && orders[`${orderId}`];
   // eslint-disable-next-line camelcase
-  const documentId = orders?.uploaded_order_id;
+  const documentId = order?.uploaded_order_id;
 
   // Get a document
   // TODO - "upload" instead of "uploads" is because of the schema.js entity name. Change to "uploads"
@@ -190,7 +190,7 @@ export const useOrdersDocumentQueries = (moveCode) => {
 
   return {
     move,
-    moveOrders,
+    orders,
     documents,
     upload,
     isLoading,
@@ -262,11 +262,11 @@ export const useMoveDetailsQueries = (moveCode) => {
   const moveId = move?.id;
   const orderId = move?.ordersId;
 
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, orderId], getMoveOrder, {
+  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
 
-  const moveOrder = Object.values(moveOrders || {})?.[0];
+  const order = Object.values(orders || {})?.[0];
 
   const { data: mtoShipments = [], ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
     enabled: !!moveId,
@@ -288,7 +288,7 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   return {
     move,
-    moveOrder,
+    order,
     mtoShipments,
     mtoServiceItems,
     isLoading,

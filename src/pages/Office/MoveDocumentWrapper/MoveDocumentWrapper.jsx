@@ -1,13 +1,13 @@
 import React from 'react';
 import { useParams, matchPath, useLocation } from 'react-router-dom';
 
-import moveOrdersStyles from '../MoveOrders/MoveOrders.module.scss';
+import moveOrdersStyles from '../Orders/Orders.module.scss';
 
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import MoveOrders from 'pages/Office/MoveOrders/MoveOrders';
+import MoveOrders from 'pages/Office/Orders/Orders';
 import MoveAllowances from 'pages/Office/MoveAllowances/MoveAllowances';
 
 const MoveDocumentWrapper = () => {

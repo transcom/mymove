@@ -22,7 +22,7 @@ const requestedMoveDetailsQuery = {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
     ordersId: '1',
   },
-  moveOrder: {
+  order: {
     id: '1',
     originDutyStation: {
       address: {

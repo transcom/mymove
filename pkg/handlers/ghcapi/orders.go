@@ -21,28 +21,28 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 )
 
-// GetMoveOrdersHandler fetches the information of a specific move order
-type GetMoveOrdersHandler struct {
+// GetOrdersHandler fetches the information of a specific move order
+type GetOrdersHandler struct {
 	handlers.HandlerContext
-	services.MoveOrderFetcher
+	services.OrderFetcher
 }
 
 // Handle getting the information of a specific move order
-func (h GetMoveOrdersHandler) Handle(params orderop.GetMoveOrderParams) middleware.Responder {
+func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	moveOrderID, _ := uuid.FromString(params.OrderID.String())
-	moveOrder, err := h.FetchMoveOrder(moveOrderID)
+	orderID, _ := uuid.FromString(params.OrderID.String())
+	order, err := h.FetchOrder(orderID)
 	if err != nil {
 		logger.Error("fetching move order", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
-			return orderop.NewGetMoveOrderNotFound()
+			return orderop.NewGetOrderNotFound()
 		default:
-			return orderop.NewGetMoveOrderInternalServerError()
+			return orderop.NewGetOrderInternalServerError()
 		}
 	}
-	moveOrderPayload := payloads.MoveOrder(moveOrder)
-	return orderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
+	orderPayload := payloads.Order(order)
+	return orderop.NewGetOrderOK().WithPayload(orderPayload)
 }
 
 // ListMoveTaskOrdersHandler fetches all the move orders
@@ -54,8 +54,8 @@ type ListMoveTaskOrdersHandler struct {
 // Handle getting the all move orders
 func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	moveOrderID, _ := uuid.FromString(params.OrderID.String())
-	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID, nil) // nil searchParams exclude disabled MTOs by default
+	orderID, _ := uuid.FromString(params.OrderID.String())
+	moveTaskOrders, err := h.ListMoveTaskOrders(orderID, nil) // nil searchParams exclude disabled MTOs by default
 	if err != nil {
 		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {
@@ -73,7 +73,7 @@ func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParam
 	return orderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
 }
 
-// UpdateMoveOrderHandler updates an order via PATCH /move-orders/{moveOrderId}
+// UpdateMoveOrderHandler updates an order via PATCH /move-orders/{orderId}
 type UpdateMoveOrderHandler struct {
 	handlers.HandlerContext
 	orderUpdater services.OrderUpdater
@@ -89,7 +89,7 @@ func (h UpdateMoveOrderHandler) Handle(params orderop.UpdateMoveOrderParams) mid
 		return orderop.NewUpdateMoveOrderBadRequest()
 	}
 
-	newOrder, err := MoveOrder(*params.Body)
+	newOrder, err := Order(*params.Body)
 	if err != nil {
 		logger.Error("error converting payload to move order model", zap.Error(err))
 		return orderop.NewUpdateMoveOrderBadRequest()
@@ -112,7 +112,7 @@ func (h UpdateMoveOrderHandler) Handle(params orderop.UpdateMoveOrderParams) mid
 		}
 	}
 
-	// Find the record where orderID matches moveOrder.ID
+	// Find the record where orderID matches order.ID
 	var move models.Move
 	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
 	err = query.First(&move)
@@ -140,13 +140,13 @@ func (h UpdateMoveOrderHandler) Handle(params orderop.UpdateMoveOrderParams) mid
 		logger.Error("ghcapi.UpdateMoveOrderHandler could not generate the event")
 	}
 
-	moveOrderPayload := payloads.MoveOrder(updatedOrder)
+	orderPayload := payloads.Order(updatedOrder)
 
-	return orderop.NewUpdateMoveOrderOK().WithPayload(moveOrderPayload)
+	return orderop.NewUpdateMoveOrderOK().WithPayload(orderPayload)
 }
 
-// MoveOrder transforms UpdateMoveOrderPayload to Order model
-func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error) {
+// Order transforms UpdateMoveOrderPayload to Order model
+func Order(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error) {
 
 	var originDutyStationID uuid.UUID
 	if payload.OriginDutyStationID != nil {

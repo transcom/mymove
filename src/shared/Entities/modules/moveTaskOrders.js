@@ -13,14 +13,14 @@ export function updateMoveTaskOrderStatus(moveTaskOrderID, ifMatchETag, mtoAppro
   );
 }
 
-const getMoveOrderLabel = 'moveOrder.getMoveOrder';
-export function getMoveOrder(orderID, label = getMoveOrderLabel) {
-  const swaggerTag = 'moveOrder.getMoveOrder';
+const getOrderLabel = 'order.getOrder';
+export function getOrder(orderID, label = getOrderLabel) {
+  const swaggerTag = 'order.getOrder';
   return swaggerRequest(getGHCClient, swaggerTag, { orderID }, { label });
 }
 
 export function selectMoveOrder(state, orderId) {
-  return get(state, `entities.moveOrders.${orderId}`, {});
+  return get(state, `entities.orders.${orderId}`, {});
 }
 
 export function selectMoveTaskOrders(state, orderId) {
@@ -38,9 +38,9 @@ export function getMoveTaskOrder(moveTaskOrderID, label = getMoveTaskOrderLabel)
   return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { label });
 }
 
-const getAllMoveTaskOrdersLabel = 'moveOrder.listMoveTaskOrders';
+const getAllMoveTaskOrdersLabel = 'order.listMoveTaskOrders';
 export function getAllMoveTaskOrders(orderID, label = getAllMoveTaskOrdersLabel) {
-  const swaggerTag = 'moveOrder.listMoveTaskOrders';
+  const swaggerTag = 'order.listMoveTaskOrders';
   return swaggerRequest(getGHCClient, swaggerTag, { orderID }, { label });
 }
 

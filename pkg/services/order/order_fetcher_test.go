@@ -1,4 +1,4 @@
-package moveorder
+package order
 
 import (
 	"testing"
@@ -13,30 +13,30 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
-	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
-	expectedMoveOrder := expectedMoveTaskOrder.Orders
-	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+func (suite *OrderServiceSuite) TestOrderFetcher() {
+	expectedMove := testdatagen.MakeDefaultMove(suite.DB())
+	expectedOrder := expectedMove.Orders
+	orderFetcher := NewOrderFetcher(suite.DB())
 
-	moveOrder, err := moveOrderFetcher.FetchMoveOrder(expectedMoveOrder.ID)
+	order, err := orderFetcher.FetchOrder(expectedOrder.ID)
 	suite.FatalNoError(err)
 
-	suite.Equal(expectedMoveOrder.ID, moveOrder.ID)
-	suite.Equal(expectedMoveOrder.ServiceMemberID, moveOrder.ServiceMemberID)
-	suite.NotNil(moveOrder.NewDutyStation)
-	suite.Equal(expectedMoveOrder.NewDutyStationID, moveOrder.NewDutyStation.ID)
-	suite.Equal(expectedMoveOrder.NewDutyStation.AddressID, moveOrder.NewDutyStation.AddressID)
-	suite.Equal(expectedMoveOrder.NewDutyStation.Address.StreetAddress1, moveOrder.NewDutyStation.Address.StreetAddress1)
-	suite.NotNil(moveOrder.Entitlement)
-	suite.Equal(*expectedMoveOrder.EntitlementID, moveOrder.Entitlement.ID)
-	suite.Equal(expectedMoveOrder.OriginDutyStation.ID, moveOrder.OriginDutyStation.ID)
-	suite.Equal(expectedMoveOrder.OriginDutyStation.AddressID, moveOrder.OriginDutyStation.AddressID)
-	suite.Equal(expectedMoveOrder.OriginDutyStation.Address.StreetAddress1, moveOrder.OriginDutyStation.Address.StreetAddress1)
-	suite.NotZero(moveOrder.OriginDutyStation)
-	suite.Equal(expectedMoveTaskOrder.Locator, moveOrder.Moves[0].Locator)
+	suite.Equal(expectedOrder.ID, order.ID)
+	suite.Equal(expectedOrder.ServiceMemberID, order.ServiceMemberID)
+	suite.NotNil(order.NewDutyStation)
+	suite.Equal(expectedOrder.NewDutyStationID, order.NewDutyStation.ID)
+	suite.Equal(expectedOrder.NewDutyStation.AddressID, order.NewDutyStation.AddressID)
+	suite.Equal(expectedOrder.NewDutyStation.Address.StreetAddress1, order.NewDutyStation.Address.StreetAddress1)
+	suite.NotNil(order.Entitlement)
+	suite.Equal(*expectedOrder.EntitlementID, order.Entitlement.ID)
+	suite.Equal(expectedOrder.OriginDutyStation.ID, order.OriginDutyStation.ID)
+	suite.Equal(expectedOrder.OriginDutyStation.AddressID, order.OriginDutyStation.AddressID)
+	suite.Equal(expectedOrder.OriginDutyStation.Address.StreetAddress1, order.OriginDutyStation.Address.StreetAddress1)
+	suite.NotZero(order.OriginDutyStation)
+	suite.Equal(expectedMove.Locator, order.Moves[0].Locator)
 }
 
-func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
+func (suite *OrderServiceSuite) TestOrderFetcherWithEmptyFields() {
 	// When move_orders and orders were consolidated, we moved the OriginDutyStation
 	// field that used to only exist on the move_orders table into the orders table.
 	// This means that existing orders in production won't have any values in the
@@ -57,16 +57,16 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
 	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: expectedOrder,
 	})
-	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrder, err := moveOrderFetcher.FetchMoveOrder(expectedOrder.ID)
+	orderFetcher := NewOrderFetcher(suite.DB())
+	order, err := orderFetcher.FetchOrder(expectedOrder.ID)
 
 	suite.FatalNoError(err)
-	suite.Nil(moveOrder.Entitlement)
-	suite.Nil(moveOrder.OriginDutyStation)
-	suite.Nil(moveOrder.Grade)
+	suite.Nil(order.Entitlement)
+	suite.Nil(order.OriginDutyStation)
+	suite.Nil(order.Grade)
 }
 
-func (suite *MoveOrderServiceSuite) TestListMoves() {
+func (suite *OrderServiceSuite) TestListMoves() {
 	// Create a Move without a shipment to test that only Orders with shipments
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
@@ -75,10 +75,10 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+	orderFetcher := NewOrderFetcher(suite.DB())
 
 	suite.T().Run("returns moves", func(t *testing.T) {
-		moves, moveCount, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{})
+		moves, moveCount, err := orderFetcher.ListOrders(officeUser.ID, &services.ListOrderParams{})
 
 		suite.FatalNoError(err)
 		suite.Equal(1, moveCount)
@@ -109,17 +109,17 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 			},
 		})
 
-		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{Page: swag.Int64(1)})
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &services.ListOrderParams{Page: swag.Int64(1)})
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 	})
 
 	suite.T().Run("only returns visible moves (where show = True)", func(t *testing.T) {
-		params := services.ListMoveOrderParams{}
+		params := services.ListOrderParams{}
 		testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
-		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -129,7 +129,7 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 		// Create a combination HHG and PPM move and make sure it's included
 		expectedComboMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
-		moves, moveCount, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{})
+		moves, moveCount, err := orderFetcher.ListOrders(officeUser.ID, &services.ListOrderParams{})
 
 		suite.FatalNoError(err)
 		suite.Equal(2, moveCount)
@@ -143,22 +143,22 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 	suite.T().Run("returns moves filtered by service member affiliation", func(t *testing.T) {
 		airForce := models.AffiliationAIRFORCE
 		airForceString := "AIR_FORCE"
-		params := services.ListMoveOrderParams{Branch: &airForceString, Page: swag.Int64(1)}
+		params := services.ListOrderParams{Branch: &airForceString, Page: swag.Int64(1)}
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{
 				Affiliation: &airForce,
 			},
 		})
 
-		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 	})
 }
 
-func (suite *MoveOrderServiceSuite) TestListMovesUSMCGBLOC() {
-	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
+	orderFetcher := NewOrderFetcher(suite.DB())
 
 	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
 		marines := models.AffiliationMARINES
@@ -175,15 +175,15 @@ func (suite *MoveOrderServiceSuite) TestListMovesUSMCGBLOC() {
 		// Create office user tied to the default LKNQ GBLOC
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-		params := services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
-		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUserOooRah.ID, &params)
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(officeUserOooRah.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(models.AffiliationMARINES, *moves[0].Orders.ServiceMember.Affiliation)
 
-		params = services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
-		moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+		params = services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -191,24 +191,24 @@ func (suite *MoveOrderServiceSuite) TestListMovesUSMCGBLOC() {
 	})
 }
 
-func (suite *MoveOrderServiceSuite) TestListMovesMarines() {
+func (suite *OrderServiceSuite) TestListMovesMarines() {
 	suite.T().Run("does not return moves where the service member affiliation is Marines for non-USMC office user", func(t *testing.T) {
-		moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+		orderFetcher := NewOrderFetcher(suite.DB())
 		marines := models.AffiliationMARINES
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{Affiliation: &marines},
 		})
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-		params := services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
-		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+		params := services.ListOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(0, len(moves))
 	})
 }
 
-func (suite *MoveOrderServiceSuite) TestListMovesWithEmptyFields() {
+func (suite *OrderServiceSuite) TestListMovesWithEmptyFields() {
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 
 	expectedOrder.Entitlement = nil
@@ -239,24 +239,24 @@ func (suite *MoveOrderServiceSuite) TestListMovesWithEmptyFields() {
 	})
 
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
+	orderFetcher := NewOrderFetcher(suite.DB())
+	moves, _, err := orderFetcher.ListOrders(officeUser.ID, &services.ListOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
 
 	suite.FatalNoError(err)
 	suite.Nil(moves)
 
 }
 
-func (suite *MoveOrderServiceSuite) TestListMovesWithPagination() {
+func (suite *OrderServiceSuite) TestListMovesWithPagination() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	for i := 0; i < 2; i++ {
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 	}
 
-	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	params := services.ListMoveOrderParams{Page: swag.Int64(1), PerPage: swag.Int64(1)}
-	moves, count, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	orderFetcher := NewOrderFetcher(suite.DB())
+	params := services.ListOrderParams{Page: swag.Int64(1), PerPage: swag.Int64(1)}
+	moves, count, err := orderFetcher.ListOrders(officeUser.ID, &params)
 
 	suite.NoError(err)
 	suite.Equal(1, len(moves))
@@ -264,7 +264,7 @@ func (suite *MoveOrderServiceSuite) TestListMovesWithPagination() {
 
 }
 
-func (suite *MoveOrderServiceSuite) TestListMovesWithSortOrder() {
+func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	// Default New Duty Station name is Fort Gordon
 	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -295,78 +295,78 @@ func (suite *MoveOrderServiceSuite) TestListMovesWithSortOrder() {
 		},
 	})
 
-	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+	orderFetcher := NewOrderFetcher(suite.DB())
 	// Sort by service member name
-	params := services.ListMoveOrderParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
-	moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	params := services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
+	moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
 
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal("Spacemen, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
 	suite.Equal("Zephyer, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
 
-	params = services.ListMoveOrderParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
-	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	params = services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
+	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal("Zephyer, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
 	suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
 
 	// Sort by locator
-	params = services.ListMoveOrderParams{Sort: swag.String("locator"), Order: swag.String("asc")}
-	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	params = services.ListOrderParams{Sort: swag.String("locator"), Order: swag.String("asc")}
+	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal(expectedMove1.Locator, moves[0].Locator)
 	suite.Equal(expectedMove2.Locator, moves[1].Locator)
 
-	params = services.ListMoveOrderParams{Sort: swag.String("locator"), Order: swag.String("desc")}
-	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	params = services.ListOrderParams{Sort: swag.String("locator"), Order: swag.String("desc")}
+	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal(expectedMove2.Locator, moves[0].Locator)
 	suite.Equal(expectedMove1.Locator, moves[1].Locator)
 
 	// sort by move statuses
-	params = services.ListMoveOrderParams{Sort: swag.String("status"), Order: swag.String("asc")}
-	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	params = services.ListOrderParams{Sort: swag.String("status"), Order: swag.String("asc")}
+	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal(expectedMove1.Status, moves[0].Status)
 	suite.Equal(expectedMove2.Status, moves[1].Status)
 
-	params = services.ListMoveOrderParams{Sort: swag.String("status"), Order: swag.String("desc")}
-	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	params = services.ListOrderParams{Sort: swag.String("status"), Order: swag.String("desc")}
+	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal(expectedMove2.Status, moves[0].Status)
 	suite.Equal(expectedMove1.Status, moves[1].Status)
 
 	// Sort by service member affiliations
-	params = services.ListMoveOrderParams{Sort: swag.String("branch"), Order: swag.String("asc")}
-	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	params = services.ListOrderParams{Sort: swag.String("branch"), Order: swag.String("asc")}
+	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
 	suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
 
-	params = services.ListMoveOrderParams{Sort: swag.String("branch"), Order: swag.String("desc")}
-	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	params = services.ListOrderParams{Sort: swag.String("branch"), Order: swag.String("desc")}
+	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
 	suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
 
 	// Sort by destination duty station
-	params = services.ListMoveOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("asc")}
-	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	params = services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("asc")}
+	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
 	suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
 
-	params = services.ListMoveOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("desc")}
-	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	params = services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("desc")}
+	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)

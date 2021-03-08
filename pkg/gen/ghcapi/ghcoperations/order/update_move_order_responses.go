@@ -25,7 +25,7 @@ type UpdateMoveOrderOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.MoveOrder `json:"body,omitempty"`
+	Payload *ghcmessages.Order `json:"body,omitempty"`
 }
 
 // NewUpdateMoveOrderOK creates UpdateMoveOrderOK with default headers values
@@ -35,13 +35,13 @@ func NewUpdateMoveOrderOK() *UpdateMoveOrderOK {
 }
 
 // WithPayload adds the payload to the update move order o k response
-func (o *UpdateMoveOrderOK) WithPayload(payload *ghcmessages.MoveOrder) *UpdateMoveOrderOK {
+func (o *UpdateMoveOrderOK) WithPayload(payload *ghcmessages.Order) *UpdateMoveOrderOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move order o k response
-func (o *UpdateMoveOrderOK) SetPayload(payload *ghcmessages.MoveOrder) {
+func (o *UpdateMoveOrderOK) SetPayload(payload *ghcmessages.Order) {
 	o.Payload = payload
 }
 

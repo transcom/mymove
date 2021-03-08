@@ -7,7 +7,7 @@ import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import styles from './MoveOrders.module.scss';
+import styles from './Orders.module.scss';
 
 import { getTacValid, updateMoveOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -16,7 +16,7 @@ import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailFor
 import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import { MOVE_ORDERS } from 'constants/queryKeys';
+import { ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
@@ -40,11 +40,11 @@ const validationSchema = Yup.object({
   sac: Yup.string().required('Required'),
 });
 
-const MoveOrders = () => {
+const Orders = () => {
   const history = useHistory();
   const { moveCode } = useParams();
   const [isValidTac, setIsValidTac] = useState(true);
-  const { move, moveOrders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
   const handleClose = () => {
@@ -53,13 +53,13 @@ const MoveOrders = () => {
 
   const [mutateOrders] = useMutation(updateMoveOrder, {
     onSuccess: (data, variables) => {
-      const updatedOrder = data.moveOrders[variables.orderID];
-      queryCache.setQueryData([MOVE_ORDERS, variables.orderID], {
-        moveOrders: {
+      const updatedOrder = data.orders[variables.orderID];
+      queryCache.setQueryData([ORDERS, variables.orderID], {
+        orders: {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryCache.invalidateQueries(MOVE_ORDERS);
+      queryCache.invalidateQueries(ORDERS);
       handleClose();
     },
     onError: (error) => {
@@ -84,12 +84,12 @@ const MoveOrders = () => {
     }
   };
 
-  const moveOrder = Object.values(moveOrders)?.[0];
+  const order = Object.values(orders)?.[0];
 
   useEffect(() => {
     // if the initial value === value, and it's 4 digits, run validator and show warning if invalid
-    if (moveOrder?.tac) handleTacValidation(moveOrder.tac);
-  }, [moveOrder]);
+    if (order?.tac) handleTacValidation(order.tac);
+  }, [order]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -103,24 +103,24 @@ const MoveOrders = () => {
       issueDate: formatSwaggerDate(values.issueDate),
       reportByDate: formatSwaggerDate(values.reportByDate),
     };
-    mutateOrders({ orderID: orderId, ifMatchETag: moveOrder.eTag, body });
+    mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
   const tacWarningMsg =
     'This TAC does not appear in TGET, so it might not be valid. Make sure it matches what‘s on the orders before you continue.';
 
   const initialValues = {
-    agency: moveOrder?.agency,
-    originDutyStation: moveOrder?.originDutyStation,
-    newDutyStation: moveOrder?.destinationDutyStation,
-    issueDate: moveOrder?.date_issued,
-    reportByDate: moveOrder?.report_by_date,
-    departmentIndicator: moveOrder?.department_indicator,
-    ordersNumber: moveOrder?.order_number,
-    ordersType: moveOrder?.order_type,
-    ordersTypeDetail: moveOrder?.order_type_detail,
-    tac: moveOrder?.tac,
-    sac: moveOrder?.sac,
+    agency: order?.agency,
+    originDutyStation: order?.originDutyStation,
+    newDutyStation: order?.destinationDutyStation,
+    issueDate: order?.date_issued,
+    reportByDate: order?.report_by_date,
+    departmentIndicator: order?.department_indicator,
+    ordersNumber: order?.order_number,
+    ordersType: order?.order_type,
+    ordersTypeDetail: order?.order_type_detail,
+    tac: order?.tac,
+    sac: order?.sac,
   };
 
   return (
@@ -177,4 +177,4 @@ const MoveOrders = () => {
   );
 };
 
-export default MoveOrders;
+export default Orders;

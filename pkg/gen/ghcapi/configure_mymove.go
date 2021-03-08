@@ -85,11 +85,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
 		})
 	}
-	if api.OrderGetMoveOrderHandler == nil {
-		api.OrderGetMoveOrderHandler = order.GetMoveOrderHandlerFunc(func(params order.GetMoveOrderParams) middleware.Responder {
-			return middleware.NotImplemented("operation order.GetMoveOrder has not yet been implemented")
-		})
-	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		api.MoveTaskOrderGetMoveTaskOrderHandler = move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
@@ -98,6 +93,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.QueuesGetMovesQueueHandler == nil {
 		api.QueuesGetMovesQueueHandler = queues.GetMovesQueueHandlerFunc(func(params queues.GetMovesQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetMovesQueue has not yet been implemented")
+		})
+	}
+	if api.OrderGetOrderHandler == nil {
+		api.OrderGetOrderHandler = order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestsGetPaymentRequestHandler == nil {

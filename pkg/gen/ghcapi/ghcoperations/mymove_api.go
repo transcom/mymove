@@ -78,14 +78,14 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveGetMoveHandler: move.GetMoveHandlerFunc(func(params move.GetMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
 		}),
-		OrderGetMoveOrderHandler: order.GetMoveOrderHandlerFunc(func(params order.GetMoveOrderParams) middleware.Responder {
-			return middleware.NotImplemented("operation order.GetMoveOrder has not yet been implemented")
-		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		}),
 		QueuesGetMovesQueueHandler: queues.GetMovesQueueHandlerFunc(func(params queues.GetMovesQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetMovesQueue has not yet been implemented")
+		}),
+		OrderGetOrderHandler: order.GetOrderHandlerFunc(func(params order.GetOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		}),
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
@@ -181,12 +181,12 @@ type MymoveAPI struct {
 	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
 	// MoveGetMoveHandler sets the operation handler for the get move operation
 	MoveGetMoveHandler move.GetMoveHandler
-	// OrderGetMoveOrderHandler sets the operation handler for the get move order operation
-	OrderGetMoveOrderHandler order.GetMoveOrderHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// QueuesGetMovesQueueHandler sets the operation handler for the get moves queue operation
 	QueuesGetMovesQueueHandler queues.GetMovesQueueHandler
+	// OrderGetOrderHandler sets the operation handler for the get order operation
+	OrderGetOrderHandler order.GetOrderHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// PaymentRequestsGetPaymentRequestsForMoveHandler sets the operation handler for the get payment requests for move operation
@@ -307,14 +307,14 @@ func (o *MymoveAPI) Validate() error {
 	if o.MoveGetMoveHandler == nil {
 		unregistered = append(unregistered, "move.GetMoveHandler")
 	}
-	if o.OrderGetMoveOrderHandler == nil {
-		unregistered = append(unregistered, "order.GetMoveOrderHandler")
-	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
 	}
 	if o.QueuesGetMovesQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetMovesQueueHandler")
+	}
+	if o.OrderGetOrderHandler == nil {
+		unregistered = append(unregistered, "order.GetOrderHandler")
 	}
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
@@ -484,15 +484,15 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-orders/{orderID}"] = order.NewGetMoveOrder(o.context, o.OrderGetMoveOrderHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}"] = move_task_order.NewGetMoveTaskOrder(o.context, o.MoveTaskOrderGetMoveTaskOrderHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/queues/moves"] = queues.NewGetMovesQueue(o.context, o.QueuesGetMovesQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-orders/{orderID}"] = order.NewGetOrder(o.context, o.OrderGetOrderHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
