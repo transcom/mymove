@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, security/detect-non-literal-fs-filename */
 const fs = require('fs');
 
 const lighthouse = require('lighthouse');
@@ -119,58 +119,36 @@ const lighthouseFromPuppeteer = async (
     let lhReportPath;
     let pTracePath;
 
+    const dateTime = new Date();
+    const dateString = [
+      dateTime.getFullYear(),
+      dateTime.getMonth() + 1,
+      dateTime.getDate(),
+      dateTime.getHours(),
+      dateTime.getMinutes(),
+      dateTime.getSeconds(),
+    ].join('');
+
     if (measurement === measurementTypes.networkComparison || measurement === measurementTypes.totalDuration) {
       lhReportPath = networkProfileName
-        ? `puppeteer/reports/lighthouse-report-${networkProfileName}.json`
-        : 'puppeteer/reports/lighthouse-report.json';
+        ? `puppeteer/reports/lighthouse-report-${networkProfileName}-${dateString}.json`
+        : `puppeteer/reports/lighthouse-report-${dateString}.json`;
       pTracePath = networkProfileName
-        ? `puppeteer/reports/performance-trace-${networkProfileName}.json`
-        : 'puppeteer/reports/performance-trace.json';
+        ? `puppeteer/reports/performance-trace-${networkProfileName}-${dateString}.json`
+        : `puppeteer/reports/performance-trace-${dateString}.json`;
 
-      // Need literal string to work around the detect-non-literal-fs-filename
-      switch (networkProfileName) {
-        case 'fast':
-          fs.writeFileSync('puppeteer/reports/lighthouse-report-fast.json', json);
-          fs.writeFileSync('puppeteer/reports/performance-trace-fast.json', trace);
-          break;
-        case 'average':
-          fs.writeFileSync('puppeteer/reports/lighthouse-report-average.json', json);
-          fs.writeFileSync('puppeteer/reports/performance-trace-average.json', trace);
-          break;
-        case 'slow':
-          fs.writeFileSync('puppeteer/reports/lighthouse-report-slow.json', json);
-          fs.writeFileSync('puppeteer/reports/performance-trace-slow.json', trace);
-          break;
-        default:
-          fs.writeFileSync('puppeteer/reports/lighthouse-report.json', json);
-          fs.writeFileSync('puppeteer/reports/performance-trace.json', trace);
-      }
+      fs.writeFileSync(lhReportPath, json);
+      fs.writeFileSync(pTracePath, trace);
     } else if (measurement === measurementTypes.fileDuration) {
       lhReportPath = fileSizeName
-        ? `puppeteer/reports/lighthouse-report-${fileSizeName}.json`
-        : 'puppeteer/reports/lighthouse-report.json';
+        ? `puppeteer/reports/lighthouse-report-${fileSizeName}-${dateString}.json`
+        : `puppeteer/reports/lighthouse-report-${dateString}.json`;
       pTracePath = fileSizeName
-        ? `puppeteer/reports/performance-trace-${fileSizeName}.json`
-        : 'puppeteer/reports/performance-trace.json';
+        ? `puppeteer/reports/performance-trace-${fileSizeName}-${dateString}.json`
+        : `puppeteer/reports/performance-trace-${dateString}.json`;
 
-      // Need literal string to work around the detect-non-literal-fs-filename
-      switch (fileSizeName) {
-        case 'large':
-          fs.writeFileSync('puppeteer/reports/lighthouse-report-large.json', json);
-          fs.writeFileSync('puppeteer/reports/performance-trace-large.json', trace);
-          break;
-        case 'medium':
-          fs.writeFileSync('puppeteer/reports/lighthouse-report-medium.json', json);
-          fs.writeFileSync('puppeteer/reports/performance-trace-medium.json', trace);
-          break;
-        case 'small':
-          fs.writeFileSync('puppeteer/reports/lighthouse-report-small.json', json);
-          fs.writeFileSync('puppeteer/reports/performance-trace-small.json', trace);
-          break;
-        default:
-          fs.writeFileSync('puppeteer/reports/lighthouse-report.json', json);
-          fs.writeFileSync('puppeteer/reports/performance-trace.json', trace);
-      }
+      fs.writeFileSync(lhReportPath, json);
+      fs.writeFileSync(pTracePath, trace);
     }
 
     // eslint-disable-next-line no-console
@@ -263,7 +241,7 @@ const totalDuration = async ({ scenario, measurement, host, config, debug, saveR
   const lhConfig = {
     extends: 'lighthouse:default',
     settings: {
-      maxWaitForLoad: 200000, // 200,000 ms. Increase max wait so lighthouse can gather metrics.
+      maxWaitForLoad: 300000, // 300,000 ms. Increase max wait so lighthouse can gather metrics.
       formFactor: 'desktop', // TODO - Will need to change once we do device emulation
       screenEmulation: {
         mobile: false,

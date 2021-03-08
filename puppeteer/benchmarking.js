@@ -83,7 +83,7 @@ const runAction = async ({ scenario, measurementType, host, verbose, saveReports
     case measurementTypes.totalDuration:
       results = await totalDuration({
         scenario,
-        measurementType,
+        measurement: measurementType,
         host,
         config: config.store,
         debug,
