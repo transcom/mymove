@@ -57,21 +57,23 @@ const SubmitMoveForm = (props) => {
                   <Grid row gap>
                     <Grid tablet={{ col: 'fill' }}>
                       <FormGroup error={showSignatureError}>
-                        <Label>Signature</Label>
+                        <Label htmlFor="signature">Signature</Label>
                         {showSignatureError && (
                           <ErrorMessage id="signature-error-message">{errors.signature}</ErrorMessage>
                         )}
                         <Field
                           as={TextInput}
                           name="signature"
-                          aria-describedby={showSignatureError && 'signature-error-message'}
+                          id="signature"
+                          required
+                          aria-describedby={showSignatureError ? 'signature-error-message' : null}
                         />
                       </FormGroup>
                     </Grid>
                     <Grid tablet={{ col: 'auto' }}>
                       <FormGroup>
-                        <Label>Date</Label>
-                        <Field as={TextInput} name="date" disabled />
+                        <Label htmlFor="date">Date</Label>
+                        <Field as={TextInput} name="date" id="date" disabled />
                       </FormGroup>
                     </Grid>
                   </Grid>

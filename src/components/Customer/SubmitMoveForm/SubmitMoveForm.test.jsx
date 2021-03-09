@@ -1,25 +1,55 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import SubmitMoveForm from './SubmitMoveForm';
 
 describe('SubmitMoveForm component', () => {
-  let wrapper;
-  let onSubmit;
-  let onPrint;
+  const testProps = {
+    onSubmit: jest.fn(),
+    onPrint: jest.fn(),
+  };
 
-  beforeEach(() => {
-    onSubmit = jest.fn();
-    onPrint = jest.fn();
-    wrapper = mount(<SubmitMoveForm onSubmit={onSubmit} onPrint={onPrint} />);
+  it('renders the signature and date inputs', () => {
+    const { getByLabelText } = render(<SubmitMoveForm {...testProps} />);
+    expect(getByLabelText('Signature')).toBeInTheDocument();
+    expect(getByLabelText('Signature')).toBeRequired();
+    expect(getByLabelText('Date')).toBeInTheDocument();
+    expect(getByLabelText('Date')).toBeDisabled();
   });
 
-  it('renders the default state', () => {
-    expect(wrapper.exists()).toBe(true);
-    expect(wrapper.find('input[name="signature"]').length).toBe(1);
-    expect(wrapper.find('input[name="date"]').length).toBe(1);
-    expect(wrapper.find('input[name="date"]').prop('disabled')).toBe(true);
-    expect(wrapper.find('button[data-testid="wizardCompleteButton"]').length).toBe(1);
+  it('shows an error message if trying to submit an invalid form', async () => {
+    const { getByTestId, getByText } = render(<SubmitMoveForm {...testProps} />);
+    const submitBtn = getByTestId('wizardCompleteButton');
+
+    userEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(getByText('Required')).toBeInTheDocument();
+    });
+  });
+
+  it('submits the form when its valid', async () => {
+    const { getByLabelText, getByTestId } = render(<SubmitMoveForm {...testProps} />);
+
+    const signatureInput = getByLabelText('Signature');
+    const submitBtn = getByTestId('wizardCompleteButton');
+
+    userEvent.type(signatureInput, 'My Name');
+    userEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(testProps.onSubmit).toHaveBeenCalled();
+    });
+  });
+
+  it('implements the onPrint handler', () => {
+    const { getByText } = render(<SubmitMoveForm {...testProps} />);
+
+    const printBtn = getByText('Print');
+    userEvent.click(printBtn);
+
+    expect(testProps.onPrint).toHaveBeenCalled();
   });
 });
