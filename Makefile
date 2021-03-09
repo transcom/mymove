@@ -636,9 +636,8 @@ ifndef CIRCLECI
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p $(DB_PORT_TEST):$(DB_PORT_DOCKER)\
-			$(DB_DOCKER_CONTAINER_IMAGE)\
-			-c fsync=off\
-			-c full_page_writes=off
+			--mount type=tmpfs,destination=/var/lib/postgresql/data \
+			$(DB_DOCKER_CONTAINER_IMAGE)
 else
 	@echo "Relying on CircleCI's database setup to start the DB."
 endif
