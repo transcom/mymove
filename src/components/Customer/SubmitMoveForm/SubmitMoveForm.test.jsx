@@ -9,6 +9,7 @@ describe('SubmitMoveForm component', () => {
   const testProps = {
     onSubmit: jest.fn(),
     onPrint: jest.fn(),
+    onBack: jest.fn(),
   };
 
   it('renders the signature and date inputs', () => {
@@ -51,5 +52,14 @@ describe('SubmitMoveForm component', () => {
     userEvent.click(printBtn);
 
     expect(testProps.onPrint).toHaveBeenCalled();
+  });
+
+  it('implements the onBack handler', () => {
+    const { getByTestId } = render(<SubmitMoveForm {...testProps} />);
+
+    const backBtn = getByTestId('wizardBackButton');
+    userEvent.click(backBtn);
+
+    expect(testProps.onBack).toHaveBeenCalled();
   });
 });

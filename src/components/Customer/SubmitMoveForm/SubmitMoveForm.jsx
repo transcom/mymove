@@ -14,7 +14,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import CertificationText from 'scenes/Legalese/CertificationText';
 
 const SubmitMoveForm = (props) => {
-  const { onPrint, onSubmit, certificationText, error } = props;
+  const { onPrint, onSubmit, onBack, certificationText, error } = props;
 
   const validationSchema = Yup.object().shape({
     signature: Yup.string().required('Required'),
@@ -87,7 +87,12 @@ const SubmitMoveForm = (props) => {
               )}
             </SectionWrapper>
             <div className={formStyles.formActions}>
-              <WizardNavigation isLastPage disableNext={!isValid || isSubmitting} onNextClick={handleSubmit} />
+              <WizardNavigation
+                isLastPage
+                onBackClick={onBack}
+                disableNext={!isValid || isSubmitting}
+                onNextClick={handleSubmit}
+              />
             </div>
           </Form>
         );
@@ -99,6 +104,7 @@ const SubmitMoveForm = (props) => {
 SubmitMoveForm.propTypes = {
   certificationText: PropTypes.string,
   onSubmit: PropTypes.func.isRequired,
+  onBack: PropTypes.func.isRequired,
   onPrint: PropTypes.func,
   error: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
 };

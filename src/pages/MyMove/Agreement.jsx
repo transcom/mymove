@@ -21,6 +21,8 @@ export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlas
     getPPMsForMove(moveId).then((response) => updatePPMs(response));
   });
 
+  const handleBack = () => push(`/moves/${moveId}/review`);
+
   const handleSubmit = (values) => {
     const submitDate = moment().format();
 
@@ -49,7 +51,12 @@ export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlas
       <ScrollToTop otherDep={serverError} />
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <SubmitMoveForm onSubmit={handleSubmit} certificationText={completeCertificationText} error={serverError} />
+          <SubmitMoveForm
+            onBack={handleBack}
+            onSubmit={handleSubmit}
+            certificationText={completeCertificationText}
+            error={serverError}
+          />
         </Grid>
       </Grid>
     </GridContainer>
