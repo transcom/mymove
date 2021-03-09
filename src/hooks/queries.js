@@ -112,7 +112,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   const mtoID = moveTaskOrder?.id;
 
   // get MTO shipments
-  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, true], getMTOShipments, {
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
     enabled: !!mtoID,
   });
 
