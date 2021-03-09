@@ -65,14 +65,23 @@ let EditProfileForm = (props) => {
               <SwaggerField fieldName="last_name" swagger={schema} required />
               <SwaggerField fieldName="suffix" swagger={schema} />
               <hr className="spacer" />
-              {!moveIsApproved && (
-                <Fragment>
-                  <SwaggerField fieldName="affiliation" swagger={schema} required />
-                  <SwaggerField fieldName="rank" swagger={schema} required />
-                  <SwaggerField fieldName="edipi" swagger={schema} required />
-                  <Field name="current_station" title="Current duty station" component={DutyStationSearchBox} />
-                </Fragment>
+              {moveIsApproved && (
+                <div>
+                  To change information in this section, contact the {get(currentStation, 'name')} transportation office
+                  {stationPhone ? ` at ${stationPhone}` : ''}
+                </div>
               )}
+              <>
+                <SwaggerField fieldName="affiliation" swagger={schema} disabled={moveIsApproved} required />
+                <SwaggerField fieldName="rank" swagger={schema} disabled={moveIsApproved} required />
+                <SwaggerField fieldName="edipi" swagger={schema} disabled={moveIsApproved} required />
+                <Field
+                  disabled={moveIsApproved}
+                  name="current_station"
+                  title="Current duty station"
+                  component={DutyStationSearchBox}
+                />
+              </>
               {moveIsApproved && (
                 <Fragment>
                   <div>
