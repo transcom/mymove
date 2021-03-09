@@ -13,10 +13,20 @@
   .row {
     display: flex;
     justify-content: space-between;
-    //padding-left: 0;
 
     button small {
-     color: $link
+     color: $link;
+    }
+
+    button:disabled {
+        background-color: $base-dark;
+        padding: 2px 8px;
+        text-transform: uppercase;
+        border-radius: 2px;
+
+        & small {
+          color: #ffffff;
+        }
     }
   }
 }

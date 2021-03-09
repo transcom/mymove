@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
+import { PropTypes } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../types/address';
 
 import styles from './shipmentHeading.module.scss';
+
+import { MTO_SHIPMENT_STATUSES } from 'shared/constants';
 
 function formatDestinationAddress(address) {
   if (address.city) {
@@ -17,17 +19,30 @@ function formatDestinationAddress(address) {
 }
 
 function ShipmentHeading({ shipmentInfo }) {
+  // Using hooks to illustrate disabled button state
+  // This will be modified once the modal is hooked up, as the button will only
+  // be used to trigger the modal.
+  const [shipmentStatus, setShipmentStatus] = useState('');
+
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
       <h3 data-testid="office-shipment-heading-h3">{shipmentInfo.shipmentType}</h3>
-
       <div className={styles.row}>
         <small>
           {`${shipmentInfo.originCity}, ${shipmentInfo.originState} ${shipmentInfo.originPostalCode} to
         ${formatDestinationAddress(shipmentInfo.destinationAddress)} on ${shipmentInfo.scheduledPickupDate}`}
         </small>
-        <Button type="button" unstyled>
-          <small>Request Cancellation</small>
+        <Button
+          type="button"
+          onClick={() => setShipmentStatus(MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED)}
+          unstyled
+          disabled={shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED}
+        >
+          <small>
+            {shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED
+              ? 'Cancellation Requested'
+              : 'Request Cancellation'}
+          </small>
         </Button>
       </div>
     </div>
@@ -42,6 +57,7 @@ ShipmentHeading.propTypes = {
     originPostalCode: PropTypes.string.isRequired,
     destinationAddress: AddressShape,
     scheduledPickupDate: PropTypes.string.isRequired,
+    shipmentStatus: PropTypes.string.isRequired,
   }).isRequired,
 };
 
