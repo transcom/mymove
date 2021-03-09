@@ -133,20 +133,13 @@ export class Home extends Component {
     return <HelperSubmittedMove />;
   };
 
-  renderCustomerHeader = () => {
+  renderCustomerHeaderText = () => {
     const { serviceMember, orders, move } = this.props;
-    if (!this.hasOrders) {
-      return (
-        <p>
-          You‘re leaving <strong>{serviceMember.current_station?.name}</strong>
-        </p>
-      );
-    }
     return (
       <>
         <p>
           You’re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
-          <strong>{serviceMember.current_station?.name}.</strong> Report by{' '}
+          <strong>{orders.origin_duty_station?.name}.</strong> Report by{' '}
           <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         </p>
 
@@ -253,7 +246,7 @@ export class Home extends Component {
               <h2>
                 {serviceMember.first_name} {serviceMember.last_name}
               </h2>
-              {this.renderCustomerHeader()}
+              {(this.hasOrdersNoUpload || this.hasOrders) && this.renderCustomerHeaderText()}
             </div>
           </header>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
