@@ -5,6 +5,8 @@ import { string } from 'prop-types';
 
 import reviewStyles from '../Review.module.scss';
 
+import serviceInfoTableStyles from './ServiceInfoTable.module.scss';
+
 const ServiceInfoTable = ({
   affiliation,
   currentDutyStationName,
@@ -14,7 +16,11 @@ const ServiceInfoTable = ({
   lastName,
   rank,
 }) => {
-  const containerClassNames = classnames(reviewStyles['review-container'], reviewStyles['profile-container']);
+  const containerClassNames = classnames(
+    reviewStyles['review-container'],
+    reviewStyles['profile-container'],
+    serviceInfoTableStyles.ServiceInfoTable,
+  );
   const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
   return (
     <div className={containerClassNames}>
