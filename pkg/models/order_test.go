@@ -88,6 +88,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		suite.Equal(order.OriginDutyStation.ID, goodOrder.OriginDutyStation.ID)
 		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
 		suite.Equal(order.Grade, goodOrder.Grade)
+		suite.Equal(order.UploadedOrders.UserUploads, goodOrder.UploadedOrders)
 	}
 
 	// Wrong Order ID
