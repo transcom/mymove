@@ -11,6 +11,7 @@ describe('CustomerApp tests', () => {
   let wrapper;
 
   const minProps = {
+    initOnboarding: jest.fn(),
     loadInternalSchema: jest.fn(),
     loadUser: jest.fn(),
     context: {
