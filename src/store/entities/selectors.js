@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect';
 
-import { MOVE_STATUSES } from '../../shared/constants';
+import { profileStates } from 'constants/customerStates';
+import { MOVE_STATUSES, NULL_UUID } from 'shared/constants';
 
 /**
  * Use this file for selecting "slices" of state from Redux and for computed
@@ -25,6 +26,38 @@ export const selectCurrentDutyStation = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   return serviceMember?.current_station || null;
 };
+
+export const selectServiceMemberProfileState = createSelector(selectServiceMemberFromLoggedInUser, (serviceMember) => {
+  if (!serviceMember) return profileStates.EMPTY_PROFILE;
+
+  /* eslint-disable camelcase */
+  const {
+    rank,
+    edipi,
+    affiliation,
+    first_name,
+    last_name,
+    telephone,
+    personal_email,
+    phone_is_preferred,
+    email_is_preferred,
+    current_station,
+    residential_address,
+    backup_mailing_address,
+    backup_contacts,
+  } = serviceMember;
+
+  if (!rank || !edipi || !affiliation) return profileStates.EMPTY_PROFILE;
+  if (!first_name || !last_name) return profileStates.DOD_INFO_COMPLETE;
+  if (!telephone || !personal_email || !(phone_is_preferred || email_is_preferred)) return profileStates.NAME_COMPLETE;
+  if (!current_station || !current_station.id || current_station.id === NULL_UUID)
+    return profileStates.CONTACT_INFO_COMPLETE;
+  if (!residential_address) return profileStates.DUTY_STATION_COMPLETE;
+  if (!backup_mailing_address) return profileStates.ADDRESS_COMPLETE;
+  if (!backup_contacts || !backup_contacts.length) return profileStates.BACKUP_ADDRESS_COMPLETE;
+  return profileStates.BACKUP_CONTACTS_COMPLETE;
+  /* eslint-enable camelcase */
+});
 
 // TODO: this is similar to service_member.isProfileComplete and we should figure out how to use just one if possible
 export const selectIsProfileComplete = createSelector(

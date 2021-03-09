@@ -1,16 +1,67 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
-import { CustomerApp } from './index';
+import ConnectedCustomerApp, { CustomerApp } from './index';
 
 import Header from 'shared/Header/MyMove';
 import Footer from 'shared/Footer';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { MockProviders } from 'testUtils';
+import { AppContext } from 'shared/AppContext';
+
+describe('ConnectedCustomerApp tests', () => {
+  describe('with GHC/HHG feature flags turned off', () => {
+    const mockContext = {
+      flags: {
+        hhgFlow: false,
+        ghcFlow: false,
+      },
+    };
+
+    it('renders without crashing or erroring', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={['/']}>
+          <AppContext.Provider value={mockContext}>
+            <ConnectedCustomerApp />
+          </AppContext.Provider>
+        </MockProviders>,
+      );
+      const appWrapper = wrapper.find('#app-root');
+      expect(appWrapper).toBeDefined();
+      expect(appWrapper.find('PageNotInFlow')).toHaveLength(0);
+      expect(wrapper.find(SomethingWentWrong)).toHaveLength(0);
+    });
+  });
+
+  describe('with GHC/HHG feature flags turned on', () => {
+    const mockContext = {
+      flags: {
+        hhgFlow: true,
+        ghcFlow: true,
+      },
+    };
+
+    it('renders without crashing or erroring', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={['/']}>
+          <AppContext.Provider value={mockContext}>
+            <ConnectedCustomerApp />
+          </AppContext.Provider>
+        </MockProviders>,
+      );
+      const appWrapper = wrapper.find('#app-root');
+      expect(appWrapper).toBeDefined();
+      expect(appWrapper.find('PageNotInFlow')).toHaveLength(0);
+      expect(wrapper.find(SomethingWentWrong)).toHaveLength(0);
+    });
+  });
+});
 
 describe('CustomerApp tests', () => {
   let wrapper;
 
   const minProps = {
+    initOnboarding: jest.fn(),
     loadInternalSchema: jest.fn(),
     loadUser: jest.fn(),
     context: {
