@@ -98,7 +98,7 @@ SubmitMoveForm.propTypes = {
   certificationText: PropTypes.string,
   onSubmit: PropTypes.func.isRequired,
   onPrint: PropTypes.func,
-  error: PropTypes.oneOf([PropTypes.bool, PropTypes.object]),
+  error: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
 };
 
 SubmitMoveForm.defaultProps = {
