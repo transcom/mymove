@@ -109,8 +109,6 @@ func (suite *HandlerSuite) TestShowOrder() {
 	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
 	suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(order.OrdersTypeDetail, okResponse.Payload.OrdersTypeDetail)
-	suite.Assertions.Equal(order.OriginDutyStation, okResponse.Payload.OriginDutyStation)
-	suite.Assertions.Equal(order.NewDutyStation, okResponse.Payload.NewDutyStation)
 	suite.Assertions.Equal(*order.Grade, *okResponse.Payload.Grade)
 	suite.Assertions.Equal(*order.TAC, *okResponse.Payload.Tac)
 	suite.Assertions.Equal(*order.DepartmentIndicator, string(*okResponse.Payload.DepartmentIndicator))

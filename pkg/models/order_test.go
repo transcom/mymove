@@ -33,6 +33,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	dutyStation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -59,8 +60,8 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		SpouseHasProGear:    spouseHasProGear,
 		OriginDutyStationID: &dutyStation.ID,
 		OriginDutyStation:   &dutyStation,
-		NewDutyStationID:    dutyStation.ID,
-		NewDutyStation:      dutyStation,
+		NewDutyStationID:    dutyStation2.ID,
+		NewDutyStation:      dutyStation2,
 		UploadedOrdersID:    uploadedOrder.ID,
 		UploadedOrders:      uploadedOrder,
 		Status:              OrderStatusSUBMITTED,
@@ -86,8 +87,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
 		suite.Equal(order.OriginDutyStation.ID, goodOrder.OriginDutyStation.ID)
 		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
-		suite.Assertions.Equal(order.OriginDutyStation, goodOrder.OriginDutyStation)
-		suite.Assertions.Equal(order.NewDutyStation, goodOrder.NewDutyStation)
+		suite.Equal(order.Grade, goodOrder.Grade)
 	}
 
 	// Wrong Order ID
