@@ -1,5 +1,7 @@
 import { createSelector } from 'reselect';
 
+import { MOVE_STATUSES } from '../../shared/constants';
+
 /**
  * Use this file for selecting "slices" of state from Redux and for computed
  * properties given state. Selectors can be memoized for performance.
@@ -101,6 +103,11 @@ export const selectCurrentMove = (state) => {
 };
 
 export const selectMoveIsApproved = createSelector(selectCurrentMove, (move) => move?.status === 'APPROVED');
+
+export const selectMoveIsSubmitted = createSelector(
+  selectCurrentMove,
+  (move) => move?.status === MOVE_STATUSES.SUBMITTED,
+);
 
 export const selectHasCanceledMove = createSelector(selectMovesForLoggedInUser, (moves) =>
   moves.some((m) => m.status === 'CANCELED'),
