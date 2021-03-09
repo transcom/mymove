@@ -1304,7 +1304,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatusPayload"
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
             }
           },
           {
@@ -2761,18 +2761,24 @@ func init() {
           ]
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "MTOShipmentStatus": {
+      "type": "string",
+      "title": "Shipment Status",
+      "enum": [
+        "SUBMITTED",
+        "REJECTED",
+        "APPROVED",
+        "CANCELLATION_REQUESTED"
+      ],
+      "example": "SUBMITTED"
     },
     "MTOShipmentType": {
       "type": "string",
@@ -3104,7 +3110,10 @@ func init() {
         }
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
+      "required": [
+        "status"
+      ],
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -3112,12 +3121,7 @@ func init() {
           "example": "MTO Shipment not good enough"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "REJECTED",
-            "APPROVED",
-            "SUBMITTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -5343,7 +5347,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatusPayload"
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
             }
           },
           {
@@ -6881,18 +6885,24 @@ func init() {
           ]
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
       }
+    },
+    "MTOShipmentStatus": {
+      "type": "string",
+      "title": "Shipment Status",
+      "enum": [
+        "SUBMITTED",
+        "REJECTED",
+        "APPROVED",
+        "CANCELLATION_REQUESTED"
+      ],
+      "example": "SUBMITTED"
     },
     "MTOShipmentType": {
       "type": "string",
@@ -7224,7 +7234,10 @@ func init() {
         }
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
+      "required": [
+        "status"
+      ],
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -7232,12 +7245,7 @@ func init() {
           "example": "MTO Shipment not good enough"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "REJECTED",
-            "APPROVED",
-            "SUBMITTED"
-          ]
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },

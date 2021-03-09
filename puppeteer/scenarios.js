@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, security/detect-non-literal-fs-filename */
 const fs = require('fs');
 
 const lighthouse = require('lighthouse');
@@ -6,7 +6,13 @@ const puppeteer = require('puppeteer');
 const reportGenerator = require('lighthouse/lighthouse-core/report/report-generator');
 const { throttling } = require('lighthouse/lighthouse-core/config/constants');
 
-const { networkProfiles, fileSizeMoveCodes, fileSizePaymentRequestIds, scenarios } = require('./constants');
+const {
+  networkProfiles,
+  fileSizeMoveCodes,
+  fileSizePaymentRequestIds,
+  scenarios,
+  measurementTypes,
+} = require('./constants');
 
 // Gets the total request time based on the responseEnd - requestStart
 // in secs
@@ -84,42 +90,71 @@ const setupCPU = async (config, page) => {
       return Promise.resolve(rate);
     });
   }
-  return Promise.resolve();
+  return Promise.resolve(1);
 };
 
-const lighthouseFromPuppeteer = async (url, options, config = null, saveReports = false, networkProfileName = '') => {
+const lighthouseFromPuppeteer = async (
+  url,
+  options,
+  config = null,
+  saveReports = false,
+  networkProfileName = '',
+  fileSizeName = '',
+  measurement,
+) => {
   // Run Lighthouse
-  const { lhr, artifacts } = await lighthouse(url, options, config);
+  const { lhr, artifacts } = await lighthouse(url, options, config).catch((err) => {
+    console.error('lighthouse audit error \n', err);
+    process.exit(1);
+  });
+
+  if (!fs.existsSync('puppeteer/reports')) {
+    fs.mkdirSync('puppeteer/reports');
+  }
 
   // For debugging
   const json = reportGenerator.generateReport(lhr, 'json');
   if (saveReports) {
     const trace = reportGenerator.generateReport(artifacts, 'json');
-    const lhReportPath = `puppeteer/lighthouse-report-${networkProfileName}.json`;
-    const pTracePath = `puppeteer/performance-trace-${networkProfileName}.json`;
-    // eslint-disable-next-line no-console
-    console.debug(`\n
-    Generating lighthouse reports:
-      ${lhReportPath}
-      ${pTracePath}`);
-    // Need literal string to work around the detect-non-literal-fs-filename
-    switch (networkProfileName) {
-      case 'fast':
-        fs.writeFileSync('puppeteer/lighthouse-report-fast.json', json);
-        fs.writeFileSync('puppeteer/performance-trace-fast.json', trace);
-        break;
-      case 'medium':
-        fs.writeFileSync('puppeteer/lighthouse-report-medium.json', json);
-        fs.writeFileSync('puppeteer/performance-trace-medium.json', trace);
-        break;
-      case 'slow':
-        fs.writeFileSync('puppeteer/lighthouse-report-slow.json', json);
-        fs.writeFileSync('puppeteer/performance-trace-slow.json', trace);
-        break;
-      default:
-        fs.writeFileSync('puppeteer/lighthouse-report.json', json);
-        fs.writeFileSync('puppeteer/performance-trace.json', trace);
+    let lhReportPath;
+    let pTracePath;
+
+    const dateTime = new Date();
+    const dateString = [
+      dateTime.getFullYear(),
+      dateTime.getMonth() + 1,
+      dateTime.getDate(),
+      dateTime.getHours(),
+      dateTime.getMinutes(),
+      dateTime.getSeconds(),
+    ].join('');
+
+    if (measurement === measurementTypes.networkComparison || measurement === measurementTypes.totalDuration) {
+      lhReportPath = networkProfileName
+        ? `puppeteer/reports/lighthouse-report-${networkProfileName}-${dateString}.json`
+        : `puppeteer/reports/lighthouse-report-${dateString}.json`;
+      pTracePath = networkProfileName
+        ? `puppeteer/reports/performance-trace-${networkProfileName}-${dateString}.json`
+        : `puppeteer/reports/performance-trace-${dateString}.json`;
+
+      fs.writeFileSync(lhReportPath, json);
+      fs.writeFileSync(pTracePath, trace);
+    } else if (measurement === measurementTypes.fileDuration) {
+      lhReportPath = fileSizeName
+        ? `puppeteer/reports/lighthouse-report-${fileSizeName}-${dateString}.json`
+        : `puppeteer/reports/lighthouse-report-${dateString}.json`;
+      pTracePath = fileSizeName
+        ? `puppeteer/reports/performance-trace-${fileSizeName}-${dateString}.json`
+        : `puppeteer/reports/performance-trace-${dateString}.json`;
+
+      fs.writeFileSync(lhReportPath, json);
+      fs.writeFileSync(pTracePath, trace);
     }
+
+    // eslint-disable-next-line no-console
+    console.debug(`Generating lighthouse reports:
+        ${lhReportPath}
+        ${pTracePath}`);
   }
 
   const { audits } = JSON.parse(json); // Lighthouse audits
@@ -134,7 +169,7 @@ const lighthouseFromPuppeteer = async (url, options, config = null, saveReports 
   };
 };
 
-const totalDuration = async ({ scenario, host, config, debug, saveReports, verbose }) => {
+const totalDuration = async ({ scenario, measurement, host, config, debug, saveReports, verbose }) => {
   const waitOptions = { timeout: 0, waitUntil: 'networkidle0' };
 
   const browser = await puppeteer.launch(config.launch);
@@ -175,38 +210,39 @@ const totalDuration = async ({ scenario, host, config, debug, saveReports, verbo
   }
 
   debug(`URL to gather metrics from: ${url}`);
-  await page.goto(url, waitOptions);
+  await page.goto(url, waitOptions).catch((err) => {
+    console.error(`failed to navigate to page ${url}\n`, err);
+    process.exit(1);
+  });
 
   const docViewerContentSelector = 'div[data-testid="DocViewerContent"]';
-  await page.waitForSelector(docViewerContentSelector);
+  await page.waitForSelector(docViewerContentSelector).catch((err) => {
+    console.error('waiting for document viewer selector timed out\n', err);
+    process.exit(1);
+  });
 
   // Will return all http requests and navigation performance on last navigation
   debug('Gathering performance timing metrics');
-  const navigationEntries = JSON.parse(
-    await page.evaluate(() => {
+  const performanceEntries = await page
+    .evaluate(() => {
       return JSON.stringify(performance.getEntries());
-    }),
-  );
+    })
+    .catch((err) => {
+      console.error('failed to fetch performance entries', err);
+    });
+  const navigationEntries = JSON.parse(performanceEntries);
 
   const lhOptions = {
     port: new URL(browser.wsEndpoint()).port,
     logLevel: verbose ? 'info' : 'error',
     chromeFlags: ['--disable-mobile-emulation'],
   };
+
   const lhConfig = {
     extends: 'lighthouse:default',
     settings: {
-      maxWaitForLoad: 200000, // 200,000 ms. Increase max wait so lighthouse can gather metrics.
+      maxWaitForLoad: 300000, // 300,000 ms. Increase max wait so lighthouse can gather metrics.
       formFactor: 'desktop', // TODO - Will need to change once we do device emulation
-      throttlingMethod: 'devtools',
-      throttling: {
-        // Lighthouse expects kilobits per sec instead of bytes per sec
-        // 1 byte = 0.008 kilobits
-        cpuSlowdownMultiplier: cpuRateConfig.rate,
-        requestLatencyMs: networkConfig.latency * throttling.DEVTOOLS_RTT_ADJUSTMENT_FACTOR,
-        downloadThroughputKbps: networkConfig.download * 0.008 * throttling.DEVTOOLS_THROUGHPUT_ADJUSTMENT_FACTOR,
-        uploadThroughputKbps: networkConfig.upload * 0.008 * throttling.DEVTOOLS_THROUGHPUT_ADJUSTMENT_FACTOR,
-      },
       screenEmulation: {
         mobile: false,
         width: deviceEmulationConfig.viewport.width,
@@ -215,11 +251,40 @@ const totalDuration = async ({ scenario, host, config, debug, saveReports, verbo
         disabled: false,
       },
       emulatedUserAgent: deviceEmulationConfig.userAgent,
+      throttlingMethod: 'devtools',
+      throttling: {
+        cpuSlowdownMultiplier: cpuRateConfig.rate,
+        requestLatencyMs: 0,
+        downloadThroughputKbps: 0,
+        uploadThroughputKbps: 0,
+      },
     },
   };
 
+  if (networkConfig) {
+    lhConfig.settings.throttling = {
+      ...lhConfig.settings.throttling,
+      // Lighthouse expects kilobits per sec instead of bytes per sec
+      // 1 byte = 0.008 kilobits
+      requestLatencyMs: networkConfig.latency * throttling.DEVTOOLS_RTT_ADJUSTMENT_FACTOR,
+      downloadThroughputKbps: networkConfig.download * 0.008 * throttling.DEVTOOLS_THROUGHPUT_ADJUSTMENT_FACTOR,
+      uploadThroughputKbps: networkConfig.upload * 0.008 * throttling.DEVTOOLS_THROUGHPUT_ADJUSTMENT_FACTOR,
+    };
+  }
+
   debug('Gathering lighthouse metrics');
-  const lhResults = await lighthouseFromPuppeteer(url, lhOptions, lhConfig, saveReports, config.network);
+  const lhResults = await lighthouseFromPuppeteer(
+    url,
+    lhOptions,
+    lhConfig,
+    saveReports,
+    config.network,
+    config.fileSize,
+    measurement,
+  ).catch((err) => {
+    console.error('error running lighthouse\n', err);
+  });
+
   const pfTimingResults = getTotalRequestTime(navigationEntries);
 
   await browser.close();

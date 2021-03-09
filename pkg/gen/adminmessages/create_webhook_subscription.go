@@ -27,7 +27,7 @@ type CreateWebhookSubscription struct {
 
 	// status
 	// Required: true
-	Status WebhookSubscriptionStatus `json:"status"`
+	Status *WebhookSubscriptionStatus `json:"status"`
 
 	// subscriber Id
 	// Required: true
@@ -81,11 +81,17 @@ func (m *CreateWebhookSubscription) validateEventKey(formats strfmt.Registry) er
 
 func (m *CreateWebhookSubscription) validateStatus(formats strfmt.Registry) error {
 
-	if err := m.Status.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		}
+	if err := validate.Required("status", "body", m.Status); err != nil {
 		return err
+	}
+
+	if m.Status != nil {
+		if err := m.Status.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			}
+			return err
+		}
 	}
 
 	return nil

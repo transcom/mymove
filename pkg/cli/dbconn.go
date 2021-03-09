@@ -282,8 +282,9 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 			passHolder,
 			creds,
 			iampg.RDSU{},
-			time.NewTicker(10*time.Minute),
-			logger)
+			time.NewTicker(10*time.Minute), // Refresh every 10 minutes
+			logger,
+			make(chan bool))
 
 		dbConnectionDetails.Password = passHolder
 	}
