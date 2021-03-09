@@ -135,6 +135,10 @@ export class CustomerApp extends Component {
 
                   {/* auth required */}
                   <CustomerPrivateRoute exact path="/ppm" component={PpmLanding} />
+
+                  {/* ROOT */}
+                  <CustomerPrivateRoute path="/" exact component={Home} />
+
                   {getWorkflowRoutes(props)}
                   <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <CustomerPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
@@ -178,9 +182,6 @@ export class CustomerApp extends Component {
                       <h2>We are experiencing an internal server error</h2>
                     </div>
                   </Route>
-
-                  {/* ROOT */}
-                  <CustomerPrivateRoute path="/" exact component={Home} />
 
                   {/* 404 */}
                   <Route component={this.noMatch} />
