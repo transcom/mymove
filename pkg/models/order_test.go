@@ -57,6 +57,8 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		OrdersType:          ordersType,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
+		OriginDutyStationID: &dutyStation.ID,
+		OriginDutyStation:   &dutyStation,
 		NewDutyStationID:    dutyStation.ID,
 		NewDutyStation:      dutyStation,
 		UploadedOrdersID:    uploadedOrder.ID,
@@ -82,7 +84,10 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		suite.Equal(order.OrdersType, goodOrder.OrdersType)
 		suite.Equal(order.HasDependents, goodOrder.HasDependents)
 		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
+		suite.Equal(order.OriginDutyStation.ID, goodOrder.OriginDutyStation.ID)
 		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
+		suite.Assertions.Equal(order.OriginDutyStation, goodOrder.OriginDutyStation)
+		suite.Assertions.Equal(order.NewDutyStation, goodOrder.NewDutyStation)
 	}
 
 	// Wrong Order ID

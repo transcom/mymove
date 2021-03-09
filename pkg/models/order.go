@@ -43,6 +43,8 @@ type Order struct {
 	OrdersTypeDetail    *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents       bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear    bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
+	OriginDutyStation   *DutyStation                       `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
+	OriginDutyStationID *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 	NewDutyStationID    uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
 	NewDutyStation      DutyStation                        `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
 	UploadedOrders      Document                           `belongs_to:"documents"`
@@ -56,8 +58,6 @@ type Order struct {
 	Grade               *string                            `json:"grade" db:"grade"`
 	Entitlement         *Entitlement                       `belongs_to:"entitlements"`
 	EntitlementID       *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
-	OriginDutyStation   *DutyStation                       `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
-	OriginDutyStationID *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 }
 
 // Orders is not required by pop and may be deleted
@@ -150,7 +150,9 @@ func (o *Order) Cancel() error {
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
-	err := db.Q().Eager("ServiceMember.User",
+	err := db.Q().EagerPreload("ServiceMember.User",
+		"OriginDutyStation.Address",
+		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
 		"NewDutyStation.TransportationOffice",
 		"UploadedOrders.UserUploads.Upload",

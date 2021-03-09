@@ -320,7 +320,9 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 
 	var order Order
 	query := db.Where("orders.service_member_id = $1", s.ID).Order("created_at desc")
-	err := query.Eager("ServiceMember.User",
+	err := query.EagerPreload("ServiceMember.User",
+		"OriginDutyStation.Address",
+		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
 		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",

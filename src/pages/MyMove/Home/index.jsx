@@ -138,7 +138,7 @@ export class Home extends Component {
     if (!this.hasOrders) {
       return (
         <p>
-          You&apos;re leaving <strong>{serviceMember.current_station?.name}</strong>
+          You‘re leaving <strong>{serviceMember.current_station?.name}</strong>
         </p>
       );
     }
