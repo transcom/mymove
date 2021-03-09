@@ -68,7 +68,7 @@ export class CustomerApp extends Component {
   }
 
   componentDidMount() {
-    const { loadUser, loadInternalSchema, initOnboarding } = this.props;
+    const { loadUser, initOnboarding, loadInternalSchema } = this.props;
 
     loadInternalSchema();
     loadUser();
