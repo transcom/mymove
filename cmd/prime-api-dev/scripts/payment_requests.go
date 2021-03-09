@@ -361,7 +361,7 @@ func (pr *paymentRequestsData) displayMTOS() {
 	// display to screen
 
 	fmt.Printf("\n\n -------------- Returning MTOs -------------- \n\n")
-	fmt.Printf(header)
+	fmt.Print(header)
 	for i, description := range pr.mtoDisplayList {
 		fmt.Printf("%d: %s\n", i, description.description)
 	}

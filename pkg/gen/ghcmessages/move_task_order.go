@@ -48,9 +48,9 @@ type MoveTaskOrder struct {
 	// locator
 	Locator string `json:"locator,omitempty"`
 
-	// move order ID
+	// order ID
 	// Format: uuid
-	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
+	OrderID strfmt.UUID `json:"orderID,omitempty"`
 
 	// origin duty station
 	// Format: uuid
@@ -99,7 +99,7 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateMoveOrderID(formats); err != nil {
+	if err := m.validateOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -213,13 +213,13 @@ func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
+func (m *MoveTaskOrder) validateOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveOrderID) { // not required
+	if swag.IsZero(m.OrderID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("moveOrderID", "body", "uuid", m.MoveOrderID.String(), formats); err != nil {
+	if err := validate.FormatOf("orderID", "body", "uuid", m.OrderID.String(), formats); err != nil {
 		return err
 	}
 

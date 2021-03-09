@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-2344eda297d5e8cefd3b6401275cd0cfd6086846
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-eaef02734833321cab72652613f07651fc7c99f0
 
   postgres: &postgres postgres:12.4
 
@@ -908,7 +908,7 @@ jobs:
       - run: make server_build
       - build_image:
           dockerfile: Dockerfile
-          image_name: ppp
+          image_name: app
           tag: web-dev
           working_dir: ~/transcom/mymove
       - announce_failure
@@ -922,7 +922,7 @@ jobs:
       - aws_vars_transcom_gov_dev
       - push_image:
           ecr_env: gov_dev
-          image_name: ppp
+          image_name: app
           tag: web-dev
           repo: app
       - announce_failure
@@ -936,7 +936,7 @@ jobs:
       - aws_vars_exp
       - push_image:
           ecr_env: exp
-          image_name: ppp
+          image_name: app
           tag: web-dev
           repo: app
       - announce_failure
@@ -950,7 +950,7 @@ jobs:
       - aws_vars_stg
       - push_image:
           ecr_env: stg
-          image_name: ppp
+          image_name: app
           tag: web-dev
           repo: app
       - announce_failure
@@ -964,7 +964,7 @@ jobs:
       - aws_vars_prd
       - push_image:
           ecr_env: prd
-          image_name: ppp
+          image_name: app
           tag: web-dev
           repo: app
       - announce_failure
@@ -1014,7 +1014,7 @@ jobs:
       - run: make server_build
       - build_image:
           dockerfile: Dockerfile.migrations
-          image_name: ppp-migrations
+          image_name: app-migrations
           tag: dev
           working_dir: ~/transcom/mymove
       - announce_failure
@@ -1028,7 +1028,7 @@ jobs:
       - aws_vars_transcom_gov_dev
       - push_image:
           ecr_env: gov_dev
-          image_name: ppp-migrations
+          image_name: app-migrations
           tag: dev
           repo: app-migrations
       - announce_failure
@@ -1042,7 +1042,7 @@ jobs:
       - aws_vars_exp
       - push_image:
           ecr_env: exp
-          image_name: ppp-migrations
+          image_name: app-migrations
           tag: dev
           repo: app-migrations
       - announce_failure
@@ -1056,7 +1056,7 @@ jobs:
       - aws_vars_stg
       - push_image:
           ecr_env: stg
-          image_name: ppp-migrations
+          image_name: app-migrations
           tag: dev
           repo: app-migrations
       - announce_failure
@@ -1070,7 +1070,7 @@ jobs:
       - aws_vars_prd
       - push_image:
           ecr_env: prd
-          image_name: ppp-migrations
+          image_name: app-migrations
           tag: dev
           repo: app-migrations
       - announce_failure

@@ -81,15 +81,15 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		context,
 		customer.NewCustomerFetcher(context.DB()),
 	}
-	ghcAPI.MoveOrderGetMoveOrderHandler = GetMoveOrdersHandler{
+	ghcAPI.OrderGetMoveOrderHandler = GetMoveOrdersHandler{
 		context,
 		moveorder.NewMoveOrderFetcher(context.DB()),
 	}
-	ghcAPI.MoveOrderUpdateMoveOrderHandler = UpdateMoveOrderHandler{
+	ghcAPI.OrderUpdateMoveOrderHandler = UpdateMoveOrderHandler{
 		context,
 		moveorder.NewOrderUpdater(context.DB()),
 	}
-	ghcAPI.MoveOrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
+	ghcAPI.OrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
 
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
 		context,
@@ -123,6 +123,10 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{
 		context,
 		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
+	}
+
+	ghcAPI.TacTacValidationHandler = TacValidationHandler{
+		context,
 	}
 
 	return ghcAPI

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -157,4 +158,57 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
 	return totalPriceCents, nil, nil
+}
+
+func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params services.PricingParams) (models.PaymentServiceItemParams, error) {
+	var paymentServiceItemParams models.PaymentServiceItemParams
+
+	if len(params) == 0 {
+		return paymentServiceItemParams, fmt.Errorf("PricingParams must not be empty")
+	}
+
+	for _, param := range params {
+		var serviceItemParamKey models.ServiceItemParamKey
+		err := db.Q().
+			Where("key = ?", param.Key).
+			First(&serviceItemParamKey)
+		if err != nil {
+			return paymentServiceItemParams, fmt.Errorf("Unable to find service item param key for %v", serviceItemParamKey.Key)
+		}
+		if serviceItemParamKey.Origin != models.ServiceItemParamOriginPricer {
+			return paymentServiceItemParams, fmt.Errorf("Service item param key is not a pricer param. Param key: %v", serviceItemParamKey.Key)
+		}
+
+		value := param.Value
+		switch serviceItemParamKey.Type {
+		case models.ServiceItemParamTypeTimestamp:
+			if timestampValue, ok := param.Value.(time.Time); ok {
+				value = timestampValue.Format(TimestampParamFormat)
+			} else {
+				return paymentServiceItemParams, fmt.Errorf("Pricing param value is invalid timestamp time.Time type for key: %v", serviceItemParamKey.Key)
+			}
+		case models.ServiceItemParamTypeDate:
+			if dateValue, ok := param.Value.(time.Time); ok {
+				value = dateValue.Format(DateParamFormat)
+			} else {
+				return paymentServiceItemParams, fmt.Errorf("Pricing param value is invalid date time.Time type for key: %v", serviceItemParamKey.Key)
+			}
+		}
+
+		newParam := models.PaymentServiceItemParam{
+			PaymentServiceItemID:  paymentServiceItemID,
+			ServiceItemParamKeyID: serviceItemParamKey.ID,
+			Value:                 fmt.Sprintf("%v", value),
+		}
+
+		verrs, err := db.ValidateAndCreate(&newParam)
+		if err != nil {
+			return paymentServiceItemParams, fmt.Errorf("failure creating payment service item param: %w", err)
+		} else if verrs.HasAny() {
+			return paymentServiceItemParams, services.NewInvalidCreateInputError(verrs, "validation error with creating payment service item param")
+		} else {
+			paymentServiceItemParams = append(paymentServiceItemParams, newParam)
+		}
+	}
+	return paymentServiceItemParams, nil
 }

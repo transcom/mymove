@@ -2,10 +2,12 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"go.uber.org/zap"
 
 	tacop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // TacValidationHandler validates a TAC value
@@ -15,7 +17,7 @@ type TacValidationHandler struct {
 
 // Handle accepts the TAC value and returns a payload showing if it is valid
 func (h TacValidationHandler) Handle(params tacop.TacValidationParams) middleware.Responder {
-	session, _ := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if session == nil {
 		return tacop.NewTacValidationUnauthorized()
@@ -25,22 +27,12 @@ func (h TacValidationHandler) Handle(params tacop.TacValidationParams) middlewar
 		return tacop.NewTacValidationForbidden()
 	}
 
-	// TODO: when we have access to TAC data in the db, replace this with an actual query
-	// stub tac codes to use when we want to return invalid status
-	isValid := false
-	invalidTACs := [4]string{
-		"2LGT",
-		"4EVR",
-		"5ALV",
-		"MOBTR",
-	}
+	db := h.DB()
+	isValid, err := db.Where("tac = $1", params.Tac).Exists(&models.TransportationAccountingCode{})
 
-	for _, code := range invalidTACs {
-		if code == params.Tac {
-			isValid = false
-			break
-		}
-		isValid = true
+	if err != nil {
+		logger.Error("Error looking for transportation accounting code", zap.Error(err))
+		return tacop.NewTacValidationInternalServerError()
 	}
 
 	tacValidationPayload := &ghcmessages.TacValid{
