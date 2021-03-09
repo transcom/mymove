@@ -128,7 +128,7 @@ func connectToGEXViaSFTP(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("%v", pwd)
+	fmt.Printf("Successfully connected via SFTP. The present working directory is %v", pwd)
 
 	return nil
 }
