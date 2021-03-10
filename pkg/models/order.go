@@ -150,11 +150,12 @@ func (o *Order) Cancel() error {
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
-	err := db.Q().Eager("ServiceMember.User",
-		"OriginDutyStation",
+	err := db.Q().EagerPreload("ServiceMember.User",
+		"OriginDutyStation.Address",
+		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
 		"NewDutyStation.TransportationOffice",
-		"UploadedOrders.UserUploads.Upload",
+		"UploadedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
@@ -167,20 +168,10 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		return Order{}, err
 	}
 
-	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-	// cannot use Eager to load the address as "OriginDutyStation.Address" because
-	// OriginDutyStation is a pointer.
-	// We cannot use EagerPreload here because "UploadedOrders.UserUploads.Upload" doesn't load the uploads
-	if order.OriginDutyStation != nil {
-		err = db.Load(order.OriginDutyStation, "Address")
-		if err != nil {
-			return Order{}, err
-		}
-
-		err = db.Load(order.OriginDutyStation, "TransportationOffice")
-		if err != nil {
-			return Order{}, err
-		}
+	// Upload is not included 3 levels deep on the eager fetch, so it gets loaded here
+	err = db.Load(&order.UploadedOrders, "UserUploads.Upload")
+	if err != nil {
+		return Order{}, err
 	}
 
 	// Only return user uploads that haven't been deleted

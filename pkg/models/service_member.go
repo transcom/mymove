@@ -317,13 +317,13 @@ func (s *ServiceMember) IsProfileComplete() bool {
 
 // FetchLatestOrder gets the latest order for a service member
 func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) {
-
 	var order Order
 	query := db.Where("orders.service_member_id = $1", s.ID).Order("created_at desc")
 	err := query.EagerPreload("ServiceMember.User",
-		"OriginDutyStation",
+		"OriginDutyStation.Address",
+		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
-		"UploadedOrders.UserUploads.Upload",
+		"UploadedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
@@ -335,21 +335,12 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 		return Order{}, err
 	}
 
-	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
-	// cannot use Eager to load the address as "OriginDutyStation.Address" because
-	// OriginDutyStation is a pointer.
-	// We cannot use EagerPreload here because "UploadedOrders.UserUploads.Upload" doesn't load the uploads
-	if order.OriginDutyStation != nil {
-		err = db.Load(order.OriginDutyStation, "Address")
-		if err != nil {
-			return Order{}, err
-		}
-
-		err = db.Load(order.OriginDutyStation, "TransportationOffice")
-		if err != nil {
-			return Order{}, err
-		}
+	// Upload is not included 3 levels deep on the eager fetch, so it gets loaded here
+	err = db.Load(&order.UploadedOrders, "UserUploads.Upload")
+	if err != nil {
+		return Order{}, err
 	}
+
 	// Only return user uploads that haven't been deleted
 	userUploads := order.UploadedOrders.UserUploads
 	relevantUploads := make([]UserUpload, 0, len(userUploads))
