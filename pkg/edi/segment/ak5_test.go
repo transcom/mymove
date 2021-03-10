@@ -16,12 +16,6 @@ func (suite *SegmentSuite) TestValidateAK5() {
 		}
 		err := suite.validator.Struct(validAK5)
 		suite.NoError(err)
-
-		validOptionalAK5 := AK5{
-			TransactionSetAcknowledgmentCode: "A",
-		}
-		err = suite.validator.Struct(validOptionalAK5)
-		suite.NoError(err)
 	})
 
 	suite.T().Run("validate success only required fields", func(t *testing.T) {
@@ -46,7 +40,7 @@ func (suite *SegmentSuite) TestValidateAK5() {
 	})
 
 	suite.T().Run("validate failure max", func(t *testing.T) {
-		// numbers of characters are more than max
+		// length of characters are more than max
 		ak5 := AK5{
 			TransactionSetAcknowledgmentCode:   "AAAAA",
 			TransactionSetSyntaxErrorCodeAK502: "abcz",
@@ -67,6 +61,7 @@ func (suite *SegmentSuite) TestValidateAK5() {
 	})
 
 	suite.T().Run("validate failure min", func(t *testing.T) {
+		// length of characters are less than min
 		ak5 := AK5{
 			TransactionSetAcknowledgmentCode:   "",
 			TransactionSetSyntaxErrorCodeAK502: "",

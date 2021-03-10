@@ -8,7 +8,7 @@ import (
 // Purpose: To acknowledge acceptance or rejection and report errors in a transaction set (direct language
 // from the 997 spec, though we don't expect to process any errors in the 997, only expect to get acks here)
 type AK5 struct {
-	TransactionSetAcknowledgmentCode   string `validate:"min=1,max=1"`     // only expect to use this field
+	TransactionSetAcknowledgmentCode   string `validate:"len=1"`           // only expect to use this field
 	TransactionSetSyntaxErrorCodeAK502 string `validate:"omitempty,max=3"` // not expecting these fields to be set
 	TransactionSetSyntaxErrorCodeAK503 string `validate:"omitempty,max=3"` // not expecting these fields to be set
 	TransactionSetSyntaxErrorCodeAK504 string `validate:"omitempty,max=3"` // not expecting these fields to be set
