@@ -29,3 +29,19 @@ func (p *paymentRequestReviewedFetcher) FetchReviewedPaymentRequest() (models.Pa
 	}
 	return reviewedPaymentRequests, err
 }
+
+//FetchAndLockReviewedPaymentRequest finds all payment request with status 'reviewed'
+func (p *paymentRequestReviewedFetcher) FetchAndLockReviewedPaymentRequest() (models.PaymentRequests, error) {
+	var reviewedPaymentRequests models.PaymentRequests
+
+	err := p.db.RawQuery(`
+    SELECT *
+	FROM payment_requests
+	WHERE status = $1 FOR UPDATE
+	LIMIT $2`, models.PaymentRequestStatusReviewed, limitOfPRsToProcess).All(&reviewedPaymentRequests)
+
+	if err != nil {
+		return reviewedPaymentRequests, services.NewQueryError("PaymentRequests", err, fmt.Sprintf("Could not find reviewed payment requests: %s", err))
+	}
+	return reviewedPaymentRequests, err
+}

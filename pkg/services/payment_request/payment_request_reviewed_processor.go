@@ -28,6 +28,8 @@ type paymentRequestReviewedProcessor struct {
 	sftpSender                    services.SyncadaSFTPSender
 }
 
+const limitOfPRsToProcess int = 100
+
 // NewPaymentRequestReviewedProcessor returns a new payment request reviewed processor
 func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 	logger Logger,
@@ -72,76 +74,77 @@ func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, s
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
-
-	// Fetch all payment request that have been reviewed
-	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
-	if err != nil {
-		return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest: %w", err)
-	}
-
-	if len(reviewedPaymentRequests) == 0 {
-		// No reviewed payment requests to process
-		return nil
-	}
-
-	// records for successfully sent PRs
-	var sentToGexStatuses []string
-	// records for PRs that failed to send
-	var failed []string
-
-	// Send all reviewed payment request to Syncada
-	for _, pr := range reviewedPaymentRequests {
-
-		// generate EDI file
-		var edi858c ediinvoice.Invoice858C
-		edi858c, err = p.ediGenerator.Generate(pr, false)
-		if err != nil {
-			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
-
-		}
-		var edi858cString string
-		edi858cString, err = edi858c.EDIString(p.logger)
-		if err != nil {
-			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to edi858c.EDIString: %w", err)
-
-		}
-
-		// Send EDI string to Syncada
-		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
-		err = paymentrequesthelper.SendToSyncada(edi858cString, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
-		if err != nil {
-			// save payment request ID and error
-			// TODO: if there is an error, no way to flag it with a status.
-			// (ID, error string) to be returned in an error message
-			f := []string{pr.ID.String(), err.Error()}
-			value := "('" + strings.Join(f, "','") + "')"
-			failed = append(failed, value)
-		} else {
-			// (ID, status, sentToGexAt) to be used in update query
-			// ('a2c34dba-015f-4f96-a38b-0c0b9272e208'::uuid,'SENT_TO_GEX'::payment_request_status,'2020-11-24 03:09:36.873'::*time.Time)
-			sentToGexAt := strfmt.DateTime(time.Now()).String()
-
-			status := []string{"'" + pr.ID.String() + "'::uuid",
-				"'" + models.PaymentRequestStatusSentToGex.String() + "'::payment_request_status",
-				"'" + sentToGexAt + "'::timestamp"}
-			value := "(" + strings.Join(status, ",") + ")"
-			sentToGexStatuses = append(sentToGexStatuses, value)
-		}
-	}
-
-	// save error messages from failed sends
-	var errFailedToSendString string
-	if len(failed) > 0 {
-		errFailedToSendString = "error sending the following EDIs (PaymentRequest.ID, error string) to Syncada:\n\t"
-		for _, e := range failed {
-			errFailedToSendString += "\t" + e + "\n"
-		}
-	}
-
 	var transactionError error
-	// If we have successfully sent EDIs to Syncada, then update status in the DB
-	if len(sentToGexStatuses) > 0 {
-		transactionError = p.db.Transaction(func(tx *pop.Connection) error {
+
+	transactionError = p.db.Transaction(func(tx *pop.Connection) error {
+
+		// Fetch all payment request that have been reviewed
+		reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
+		if err != nil {
+			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest: %w", err)
+		}
+
+		if len(reviewedPaymentRequests) == 0 {
+			// No reviewed payment requests to process
+			return nil
+		}
+
+		// records for successfully sent PRs
+		var sentToGexStatuses []string
+		// records for PRs that failed to send
+		var failed []string
+
+		// Send all reviewed payment request to Syncada
+		for _, pr := range reviewedPaymentRequests {
+
+			// generate EDI file
+			var edi858c ediinvoice.Invoice858C
+			edi858c, err = p.ediGenerator.Generate(pr, false)
+			if err != nil {
+				return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
+
+			}
+			var edi858cString string
+			edi858cString, err = edi858c.EDIString(p.logger)
+			if err != nil {
+				return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to edi858c.EDIString: %w", err)
+
+			}
+
+			// Send EDI string to Syncada
+			// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
+			err = paymentrequesthelper.SendToSyncada(edi858cString, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
+			if err != nil {
+				// save payment request ID and error
+				// TODO: if there is an error, no way to flag it with a status.
+				// (ID, error string) to be returned in an error message
+				f := []string{pr.ID.String(), err.Error()}
+				value := "('" + strings.Join(f, "','") + "')"
+				failed = append(failed, value)
+			} else {
+				// (ID, status, sentToGexAt) to be used in update query
+				// ('a2c34dba-015f-4f96-a38b-0c0b9272e208'::uuid,'SENT_TO_GEX'::payment_request_status,'2020-11-24 03:09:36.873'::*time.Time)
+				sentToGexAt := strfmt.DateTime(time.Now()).String()
+
+				status := []string{"'" + pr.ID.String() + "'::uuid",
+					"'" + models.PaymentRequestStatusSentToGex.String() + "'::payment_request_status",
+					"'" + sentToGexAt + "'::timestamp"}
+				value := "(" + strings.Join(status, ",") + ")"
+				sentToGexStatuses = append(sentToGexStatuses, value)
+			}
+		}
+
+		// save error messages from failed sends
+		var errFailedToSendString string
+		if len(failed) > 0 {
+			errFailedToSendString = "error sending the following EDIs (PaymentRequest.ID, error string) to Syncada:\n\t"
+			for _, e := range failed {
+				errFailedToSendString += "\t" + e + "\n"
+			}
+		}
+
+		// If we have successfully sent EDIs to Syncada, then update status in the DB
+		if len(sentToGexStatuses) > 0 {
 			// Save PRs with successful sent to GEX
 
 			/* Use `update...from` postgres syntax described here https://stackoverflow.com/a/18799497
@@ -163,30 +166,30 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 					%s
 					) AS c(id, status, sentToGexAt)
 				WHERE c.id = pr.id;`
-			qq := fmt.Sprintf(q, values)
+			qq := fmt.Sprintf(q, values, limitOfPRsToProcess)
 			err = tx.RawQuery(qq).Exec()
 			if err != nil {
 				return fmt.Errorf("failure updating payment request status: %w", err)
 			}
 
-			return nil
-		})
-	}
-
-	// Build up error string
-	returnError := ""
-	if errFailedToSendString != "" {
-		returnError += errFailedToSendString
-	}
-	if transactionError != nil {
-		if returnError != "" {
-			returnError += "\n"
 		}
-		returnError += transactionError.Error()
-	}
-	if returnError != "" {
-		return fmt.Errorf("function ProcessReviewedPaymentRequest has failure(s): %s", returnError)
-	}
+
+		// Build up error string
+		returnError := ""
+		if errFailedToSendString != "" {
+			returnError += errFailedToSendString
+		}
+		if transactionError != nil {
+			if returnError != "" {
+				returnError += "\n"
+			}
+			returnError += transactionError.Error()
+		}
+		if returnError != "" {
+			return fmt.Errorf("function ProcessReviewedPaymentRequest has failure(s): %s", returnError)
+		}
+		return nil
+	})
 
 	return nil
 }
