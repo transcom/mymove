@@ -163,7 +163,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 					%s
 					) AS c(id, status, sentToGexAt)
 				WHERE c.id = pr.id;`
-			qq := fmt.Sprintf(q, values, limitOfPRsToProcess)
+			qq := fmt.Sprintf(q, values)
 			err = tx.RawQuery(qq).Exec()
 			if err != nil {
 				return fmt.Errorf("failure updating payment request status: %w", err)
