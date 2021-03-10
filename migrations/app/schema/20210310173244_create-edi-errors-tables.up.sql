@@ -14,10 +14,10 @@ create table edi_errors_acknowledgement_code_errors (
 );
 
 create table edi_errors_technical_error_descriptions (
+     id uuid not null primary key,
      code varchar,
      description varchar,
      source edi_response_type,
-     id uuid not null primary key,
      created_at timestamp not null,
      updated_at timestamp not null,
      deleted_at timestamp with time zone
@@ -38,6 +38,9 @@ create table edi_errors (
     updated_at timestamp not null,
     deleted_at timestamp with time zone
 );
+create index on edi_errors(payment_request_id);
+create index on edi_errors(edi_errors_acknowledgement_code_error_id);
+create index on edi_errors(edi_errors_technical_error_description_id);
 
 ALTER TYPE payment_request_status
     ADD VALUE 'EDI_ERROR';
