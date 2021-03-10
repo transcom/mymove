@@ -30,11 +30,11 @@ func (suite *SegmentSuite) TestValidateAK4() {
 
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		ak4 := AK4{
-			PositionInSegment:                       -1, // min                                                                                                     // min
-			ElementPositionInSegment:                -1, // min                                                                                                     // min
-			ComponentDataElementPositionInComposite: -1, // min                                                                                                     // min
-			DataElementReferenceNumber:              -1, // min                                                                                                     // min
-			DataElementSyntaxErrorCode:              "", // min                                                                                                     // min
+			PositionInSegment:                       -1, // min
+			ElementPositionInSegment:                -1, // min
+			ComponentDataElementPositionInComposite: -1, // min
+			DataElementReferenceNumber:              -1, // min
+			DataElementSyntaxErrorCode:              "", // min
 		}
 
 		err := suite.validator.Struct(ak4)
