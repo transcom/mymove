@@ -67,6 +67,16 @@ func main() {
 	initPostFileToGEXFlags(postFileToGEXCommand.Flags())
 	root.AddCommand(postFileToGEXCommand)
 
+	connectToGEXViaSFTPCommand := &cobra.Command{
+		Use:          "connect-to-gex-via-sftp",
+		Short:        "connects to GEX via SFTP",
+		Long:         "connects to GEX via SFTP",
+		RunE:         connectToGEXViaSFTP,
+		SilenceUsage: true,
+	}
+	initConnectToGEXViaSFTPFlags(connectToGEXViaSFTPCommand.Flags())
+	root.AddCommand(connectToGEXViaSFTPCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
