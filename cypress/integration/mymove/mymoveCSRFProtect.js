@@ -93,12 +93,14 @@ describe('testing CSRF protection updating user profile', function () {
   });
 
   beforeEach(() => {
-    // sm_no_move_type@example.com
-    const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
-    cy.apiSignInAsPpmUser(userId);
+    cy.intercept('PATCH', '**/internal/service_members/**').as('patchServiceMember');
   });
 
   it('tests updating user profile with proper tokens', function () {
+    // sm_no_move_type@example.com
+    const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
+    cy.apiSignInAsPpmUser(userId);
+
     cy.visit('/moves/review/edit-profile');
 
     // update info
@@ -108,18 +110,31 @@ describe('testing CSRF protection updating user profile', function () {
 
     // save info
     cy.get('button[type="submit"]').click();
+    cy.wait('@patchServiceMember');
 
+    cy.getCookie('_gorilla_csrf').should('exist');
+    cy.getCookie('masked_gorilla_csrf').should('exist');
+
+    /*
     cy.location().should((loc) => {
       expect(loc.pathname).to.match(/^\/ppm$/);
     });
+    */
 
     // reload page
+    cy.getCookie('_gorilla_csrf').should('exist');
+    cy.getCookie('masked_gorilla_csrf').should('exist');
+
     cy.visit('/moves/review/edit-profile');
 
     cy.get('input[name="middle_name"]').should('exist').should('have.value', 'CSRF Test');
   });
 
   it('tests updating user profile without masked token', function () {
+    // sm_no_move_type@example.com
+    const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
+    cy.apiSignInAsPpmUser(userId);
+
     cy.visit('/moves/review/edit-profile');
 
     // update info

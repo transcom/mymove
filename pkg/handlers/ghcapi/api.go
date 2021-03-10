@@ -125,5 +125,9 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
 	}
 
+	ghcAPI.TacTacValidationHandler = TacValidationHandler{
+		context,
+	}
+
 	return ghcAPI
 }
