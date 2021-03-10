@@ -22,7 +22,7 @@ function ShipmentHeading({ shipmentInfo }) {
   // Using hooks to illustrate disabled button state
   // This will be modified once the modal is hooked up, as the button will only
   // be used to trigger the modal.
-  const [shipmentStatus, setShipmentStatus] = useState('');
+  const [shipmentStatus, setShipmentStatus] = useState(shipmentInfo.shipmentStatus);
 
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
