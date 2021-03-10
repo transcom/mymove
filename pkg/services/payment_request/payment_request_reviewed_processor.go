@@ -28,8 +28,6 @@ type paymentRequestReviewedProcessor struct {
 	sftpSender                    services.SyncadaSFTPSender
 }
 
-const limitOfPRsToProcess int = 100
-
 // NewPaymentRequestReviewedProcessor returns a new payment request reviewed processor
 func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 	logger Logger,
@@ -77,7 +75,6 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 	var transactionError error
 
 	transactionError = p.db.Transaction(func(tx *pop.Connection) error {
-
 		// Fetch all payment request that have been reviewed
 		reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
 		if err != nil {
