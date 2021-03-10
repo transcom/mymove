@@ -168,4 +168,40 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		response := handler.Handle(conflictParams)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusConflict{}, response)
 	})
+
+	// Test Successful Cancellation Request
+
+	suite.T().Run("Successful patch - Integration Test for CANCELLATION_REQUESTED", func(t *testing.T) {
+		//creator := mtoshipment.NewMTOShipmentStatusUpdater(builder)
+		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
+			Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "CANCELLATION_REQUESTED"},
+			IfMatch:       eTag,
+		}
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		fetcher := fetch.NewFetcher(queryBuilder)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		planner := &routemocks.Planner{}
+		planner.On("Zip5TransitDistanceLineHaul",
+			mock.Anything,
+			mock.Anything,
+		).Return(500, nil)
+		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
+		handler := UpdateMTOShipmentStatusHandlerFunc{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+		fmt.Println(params)
+		fmt.Println(params.Body)
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusOK)
+		suite.NotEmpty(okResponse, supportmessages.UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED)
+		//suite.NotZero(okResponse.Payload.ID())
+	})
 }
