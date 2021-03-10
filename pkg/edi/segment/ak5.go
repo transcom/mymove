@@ -45,3 +45,15 @@ func (s *AK5) Parse(elements []string) error {
 
 	return nil
 }
+
+// Accepted returns if the 997 was accepted as via the AK501 field using the 717 Definition
+func (s *AK5) Accepted() bool {
+	de := dataElement717{}
+	return de.Accepted(s.TransactionSetAcknowledgmentCode)
+}
+
+// AckDescription returns the 997 AK501 field description using the 717 Definition
+func (s *AK5) AckDescription() (string, error) {
+	de := dataElement717{}
+	return de.Description(s.TransactionSetAcknowledgmentCode)
+}
