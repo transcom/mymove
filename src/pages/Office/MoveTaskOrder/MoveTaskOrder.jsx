@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import { get } from 'lodash';
 import { GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
+import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -33,11 +34,12 @@ function formatShipmentDate(shipmentDateString) {
   return `${weekday}, ${day} ${month} ${year}`;
 }
 
-export const MoveTaskOrder = ({ match }) => {
+export const MoveTaskOrder = ({ match, ...props }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
 
   const { moveCode } = match.params;
+  const { setUnapprovedShipmentCount } = props;
 
   // TODO - Do something with moveOrder and moveTaskOrder?
   const {
@@ -101,6 +103,13 @@ export const MoveTaskOrder = ({ match }) => {
     });
   };
 
+  useEffect(() => {
+    const shipmentCount = mtoShipments
+      ? Object.values(mtoShipments).filter((shipment) => shipment.status === 'SUBMITTED').length
+      : 0;
+    setUnapprovedShipmentCount(shipmentCount);
+  }, [mtoShipments, setUnapprovedShipmentCount]);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -132,8 +141,15 @@ export const MoveTaskOrder = ({ match }) => {
 
   if (!mtoShipmentsArr.some(approved)) {
     return (
-      <div>
-        <p>This Move does not have any approved shipments yet.</p>
+      <div className={styles.tabContent}>
+        <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+          <div className={styles.pageHeader}>
+            <h1>Move task order</h1>
+          </div>
+          <div className={styles.emptyMessage}>
+            <p>This move does not have any approved shipments yet.</p>
+          </div>
+        </GridContainer>
       </div>
     );
   }
@@ -237,6 +253,7 @@ export const MoveTaskOrder = ({ match }) => {
 
 MoveTaskOrder.propTypes = {
   match: MatchShape.isRequired,
+  setUnapprovedShipmentCount: func.isRequired,
 };
 
 export default withRouter(MoveTaskOrder);

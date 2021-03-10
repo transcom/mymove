@@ -28,8 +28,8 @@ export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
 
-export async function getMoveOrder(key, moveOrderID) {
-  return makeGHCRequest('moveOrder.getMoveOrder', { moveOrderID });
+export async function getMoveOrder(key, orderID) {
+  return makeGHCRequest('order.getMoveOrder', { orderID });
 }
 
 export async function getMovePaymentRequests(key, locator) {
@@ -40,8 +40,8 @@ export async function getMovePaymentRequests(key, locator) {
   );
 }
 
-export async function getMoveTaskOrderList(key, moveOrderID) {
-  return makeGHCRequest('moveOrder.listMoveTaskOrders', { moveOrderID });
+export async function getMoveTaskOrderList(key, orderID) {
+  return makeGHCRequest('order.listMoveTaskOrders', { orderID });
 }
 
 export async function getMTOShipments(key, moveTaskOrderID, normalize = true) {
@@ -110,9 +110,14 @@ export async function patchPaymentServiceItemStatus({
   );
 }
 
-export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
-  const operationPath = 'moveOrder.updateMoveOrder';
-  return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
+export async function getTacValid({ tac }) {
+  const operationPath = 'order.tacValidation';
+  return makeGHCRequest(operationPath, { tac }, { normalize: false });
+}
+
+export async function updateMoveOrder({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.updateMoveOrder';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
 export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServiceItemCodes, normalize = true }) {

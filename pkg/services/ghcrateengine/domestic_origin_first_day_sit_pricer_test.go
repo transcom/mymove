@@ -27,38 +27,38 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
 	pricer := NewDomesticOriginFirstDaySITPricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dofsitTestPriceCents, priceCents)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, dofsitTestIsPeakPeriod, dofsitTestWeight, dofsitTestServiceArea)
+		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, dofsitTestWeight, dofsitTestServiceArea)
 		suite.NoError(err)
 		suite.Equal(dofsitTestPriceCents, priceCents)
 	})
 
 	suite.T().Run("PriceUsingParams but sending empty params", func(t *testing.T) {
-		_, err := pricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		_, _, err := pricer.PriceUsingParams(models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.T().Run("invalid weight", func(t *testing.T) {
 		badWeight := unit.Pound(250)
-		_, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, dofsitTestIsPeakPeriod, badWeight, dofsitTestServiceArea)
+		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, badWeight, dofsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "weight of 250 less than the minimum")
 	})
 
 	suite.T().Run("not finding a rate record", func(t *testing.T) {
-		_, err := pricer.Price("BOGUS", dofsitTestRequestedPickupDate, dofsitTestIsPeakPeriod, dofsitTestWeight, dofsitTestServiceArea)
+		_, _, err := pricer.Price("BOGUS", dofsitTestRequestedPickupDate, dofsitTestWeight, dofsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic origin first day SIT rate")
 	})
 
 	suite.T().Run("not finding a contract year record", func(t *testing.T) {
 		twoYearsLaterPickupDate := dofsitTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dofsitTestIsPeakPeriod, dofsitTestWeight, dofsitTestServiceArea)
+		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dofsitTestWeight, dofsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch contract year")
 	})

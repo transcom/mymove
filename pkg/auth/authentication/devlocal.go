@@ -304,7 +304,7 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	jsonOut, _ := json.Marshal(user)
-	fmt.Fprintf(w, string(jsonOut))
+	fmt.Fprint(w, string(jsonOut))
 }
 
 // CreateAndLoginUserHandler creates and then logs in a new user

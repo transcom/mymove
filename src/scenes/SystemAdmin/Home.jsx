@@ -6,16 +6,14 @@ import Menu from './shared/Menu';
 import FOUOHeader from 'components/FOUOHeader';
 import AccessCodeList from './AccessCodes/AccessCodeList';
 import UploadShow from './Uploads/UploadShow';
-import UserShow from '../../pages/Admin/Users/UserShow';
-import UserEdit from './Users/UserEdit';
-import OfficeUserList from './OfficeUsers/OfficeUserList';
-import OfficeUserCreate from './OfficeUsers/OfficeUserCreate';
-import OfficeUserEdit from './OfficeUsers/OfficeUserEdit';
-import OfficeUserShow from './OfficeUsers/OfficeUserShow';
-import AdminUserList from './AdminUsers/AdminUserList';
-import AdminUserShow from './AdminUsers/AdminUserShow';
-import AdminUserCreate from './AdminUsers/AdminUserCreate';
-import UserList from 'pages/Admin/Users/UserList';
+import OfficeUserList from 'pages/Admin/OfficeUsers/OfficeUserList';
+import OfficeUserShow from 'pages/Admin/OfficeUsers/OfficeUserShow';
+import OfficeUserCreate from 'pages/Admin/OfficeUsers/OfficeUserCreate';
+import OfficeUserEdit from 'pages/Admin/OfficeUsers/OfficeUserEdit';
+import AdminUserList from 'pages/Admin/AdminUsers/AdminUserList';
+import AdminUserShow from 'pages/Admin/AdminUsers/AdminUserShow';
+import AdminUserCreate from 'pages/Admin/AdminUsers/AdminUserCreate';
+import AdminUserEdit from 'pages/Admin/AdminUsers/AdminUserEdit';
 import OfficeList from './Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
@@ -23,12 +21,16 @@ import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import MoveList from 'pages/Admin/Moves/MoveList';
 import MoveShow from 'pages/Admin/Moves/MoveShow';
 import MoveEdit from 'pages/Admin/Moves/MoveEdit';
+import UserList from 'pages/Admin/Users/UserList';
+import UserShow from 'pages/Admin/Users/UserShow';
+import UserEdit from 'pages/Admin/Users/UserEdit';
 import WebhookSubscriptionList from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionsList';
+import WebhookSubscriptionShow from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionShow';
+import WebhookSubscriptionCreate from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionCreate';
 
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
 import customRoutes from './CustomRoutes';
-import AdminUserEdit from './AdminUsers/AdminUserEdit';
 import NotificationList from './Notifications/NotificationList';
 
 const httpClient = (url, options = {}) => {
@@ -67,7 +69,7 @@ const Home = () => (
     >
       <Resource
         name="office_users"
-        options={{ label: 'Office users' }}
+        options={{ label: 'Office Users' }}
         list={OfficeUserList}
         show={OfficeUserShow}
         create={OfficeUserCreate}
@@ -82,7 +84,7 @@ const Home = () => (
         create={AdminUserCreate}
         edit={AdminUserEdit}
       />
-      <Resource name="users" options={{ label: 'Users' }} show={UserShow} edit={UserEdit} list={UserList} />
+      <Resource name="users" options={{ label: 'Users' }} list={UserList} show={UserShow} edit={UserEdit} />
       <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} edit={MoveEdit} />
       <Resource
         name="transportation_service_provider_performances"
@@ -98,6 +100,8 @@ const Home = () => (
       <Resource
         name="webhook_subscriptions"
         options={{ label: 'Webhook Subscriptions' }}
+        show={WebhookSubscriptionShow}
+        create={WebhookSubscriptionCreate}
         list={WebhookSubscriptionList}
       />
     </Admin>

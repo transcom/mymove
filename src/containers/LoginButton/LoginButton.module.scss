@@ -1,6 +1,5 @@
 @import '../../shared/styles/basics';
 @import '../../shared/styles/mixins';
-
 .signIn,
 .signOut {
   height: 46px;
@@ -26,7 +25,11 @@
 }
 
 :global(.my-move-header .usa-nav__primary button) {
-  color: white;
+  color: black;
+  display: block;
+  @include at-media('desktop') {
+    color: white;
+  }
   &:hover,
   &:focus {
     background-color: inherit;

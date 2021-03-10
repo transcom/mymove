@@ -91,6 +91,9 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      userId:
+        type: string
+        format: uuid
       firstName:
         type: string
       middleInitials:
@@ -873,15 +876,15 @@ definitions:
   WebhookSubscriptionStatus:
     type: string
     title: Webhook subscription status
+    x-nullable: true
     enum:
       - ACTIVE
       - FAILING
       - DISABLED
     x-display-value:
-      DRAFT: Draft
-      SUBMITTED: Submitted
-      APPROVED: Approved
-      CANCELED: Canceled
+      ACTIVE: Active
+      FAILING: Failing
+      DISABLED: Disabled
   WebhookSubscriptions:
     type: array
     items:
@@ -902,19 +905,23 @@ definitions:
         format: uuid
         example: d494f114-05a2-4b39-840c-3d33243b7e29
         description: Unique identifier for the subscriber
+        x-nullable: true
       status:
         $ref: '#/definitions/WebhookSubscriptionStatus'
       callbackUrl:
         type: string
         description: The URL to which the notifications for this subscription will be pushed to.
+        x-nullable: true
       severity:
         type: integer
         minimum: 0
+        x-nullable: true
       eventKey:
         type: string
         description: >-
           A string used to represent which events this subscriber expects to be notified about.
           Corresponds to the possible event_key values in webhook_notifications.
+        x-nullable: true
       createdAt:
         type: string
         format: date-time
@@ -1808,3 +1815,39 @@ paths:
           description: subscription not found
         500:
           description: server error
+    patch:
+      summary: Update a webhook subscription
+      operationId: updateWebhookSubscription
+      tags:
+        - webhook_subscriptions
+      parameters:
+        - in: path
+          name: webhookSubscriptionId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: WebhookSubscription
+          description: Webhook subscription information
+          required: true
+          schema:
+            $ref: '#/definitions/WebhookSubscription'
+      responses:
+        200:
+          description: Successfully updated webhook subscription
+          schema:
+            $ref: '#/definitions/WebhookSubscription'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to update this webhook subscription
+        404:
+          description: subscription not found
+        422:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        500:
+          description: Server error

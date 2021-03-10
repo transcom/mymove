@@ -1,5 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 
+import { SHIPMENT_OPTIONS } from '../shared/constants';
+
 import {
   usePaymentRequestQueries,
   useMoveTaskOrderQueries,
@@ -10,6 +12,8 @@ import {
   useTXOMoveInfoQueries,
   useMoveDetailsQueries,
 } from './queries';
+
+import { serviceItemCodes } from 'content/serviceItems';
 
 jest.mock('services/ghcApi', () => ({
   getCustomer: (key, id) =>
@@ -30,7 +34,7 @@ jest.mock('services/ghcApi', () => ({
       return Promise.resolve({
         mtoShipments: {
           a1: {
-            shipmentType: 'HHG',
+            shipmentType: 'HHG_LONGHAUL_DOMESTIC',
             mtoAgents: [
               {
                 agentType: 'RELEASING_AGENT',
@@ -43,10 +47,10 @@ jest.mock('services/ghcApi', () => ({
             ],
             mtoServiceItems: [
               {
-                reServiceName: 'Domestic Linehaul',
+                reServiceName: 'Domestic linehaul',
               },
               {
-                reServiceName: 'Fuel Surcharge',
+                reServiceName: 'Fuel surcharge',
               },
             ],
           },
@@ -64,10 +68,10 @@ jest.mock('services/ghcApi', () => ({
             ],
             mtoServiceItems: [
               {
-                reServiceName: 'Domestic Origin Price',
+                reServiceName: 'Domestic origin price',
               },
               {
-                reServiceName: 'Domestic Unpacking',
+                reServiceName: 'Domestic unpacking',
               },
             ],
           },
@@ -76,7 +80,7 @@ jest.mock('services/ghcApi', () => ({
     }
     return Promise.resolve([
       {
-        shipmentType: 'HHG',
+        shipmentType: 'HHG_LONGHAUL_DOMESTIC',
         mtoAgents: [
           {
             agentType: 'RELEASING_AGENT',
@@ -89,10 +93,10 @@ jest.mock('services/ghcApi', () => ({
         ],
         mtoServiceItems: [
           {
-            reServiceName: 'Domestic Linehaul',
+            reServiceName: 'Domestic linehaul',
           },
           {
-            reServiceName: 'Fuel Surcharge',
+            reServiceName: 'Fuel surcharge',
           },
         ],
       },
@@ -110,10 +114,10 @@ jest.mock('services/ghcApi', () => ({
         ],
         mtoServiceItems: [
           {
-            reServiceName: 'Domestic Origin Price',
+            reServiceName: 'Domestic origin price',
           },
           {
-            reServiceName: 'Domestic Unpacking',
+            reServiceName: 'Domestic unpacking',
           },
         ],
       },
@@ -124,20 +128,20 @@ jest.mock('services/ghcApi', () => ({
       return Promise.resolve({
         mtoServiceItems: {
           a: {
-            reServiceName: 'Counseling Services',
+            reServiceName: 'Counseling',
           },
           b: {
-            reServiceName: 'Shipment Management Services',
+            reServiceName: 'Move management',
           },
         },
       });
     }
     return Promise.resolve([
       {
-        reServiceName: 'Counseling Services',
+        reServiceName: 'Counseling',
       },
       {
-        reServiceName: 'Shipment Management Services',
+        reServiceName: 'Move management',
       },
     ]);
   },
@@ -234,7 +238,7 @@ describe('useTXOMoveInfoQueries', () => {
     const { result, waitForNextUpdate } = renderHook(() => useTXOMoveInfoQueries(testMoveCode));
 
     expect(result.current).toEqual({
-      moveOrder: undefined,
+      order: undefined,
       customerData: undefined,
       isLoading: true,
       isError: false,
@@ -245,7 +249,7 @@ describe('useTXOMoveInfoQueries', () => {
 
     expect(result.current).toEqual({
       customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-      moveOrder: {
+      order: {
         id: '4321',
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
@@ -342,7 +346,7 @@ describe('useMoveTaskOrderQueries', () => {
       },
       mtoShipments: {
         a1: {
-          shipmentType: 'HHG',
+          shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -355,15 +359,15 @@ describe('useMoveTaskOrderQueries', () => {
           ],
           mtoServiceItems: [
             {
-              reServiceName: 'Domestic Linehaul',
+              reServiceName: serviceItemCodes.DLH,
             },
             {
-              reServiceName: 'Fuel Surcharge',
+              reServiceName: serviceItemCodes.FSC,
             },
           ],
         },
         b2: {
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          shipmentType: SHIPMENT_OPTIONS.NTSR,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -376,20 +380,20 @@ describe('useMoveTaskOrderQueries', () => {
           ],
           mtoServiceItems: [
             {
-              reServiceName: 'Domestic Origin Price',
+              reServiceName: serviceItemCodes.DOP,
             },
             {
-              reServiceName: 'Domestic Unpacking',
+              reServiceName: serviceItemCodes.DUPK,
             },
           ],
         },
       },
       mtoServiceItems: {
         a: {
-          reServiceName: 'Counseling Services',
+          reServiceName: serviceItemCodes.CS,
         },
         b: {
-          reServiceName: 'Shipment Management Services',
+          reServiceName: serviceItemCodes.MS,
         },
       },
       isLoading: false,
@@ -457,7 +461,7 @@ describe('useMoveDetailsQueries', () => {
       },
       mtoShipments: [
         {
-          shipmentType: 'HHG',
+          shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -470,15 +474,15 @@ describe('useMoveDetailsQueries', () => {
           ],
           mtoServiceItems: [
             {
-              reServiceName: 'Domestic Linehaul',
+              reServiceName: serviceItemCodes.DLH,
             },
             {
-              reServiceName: 'Fuel Surcharge',
+              reServiceName: serviceItemCodes.FSC,
             },
           ],
         },
         {
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          shipmentType: SHIPMENT_OPTIONS.NTSR,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -491,20 +495,20 @@ describe('useMoveDetailsQueries', () => {
           ],
           mtoServiceItems: [
             {
-              reServiceName: 'Domestic Origin Price',
+              reServiceName: serviceItemCodes.DOP,
             },
             {
-              reServiceName: 'Domestic Unpacking',
+              reServiceName: serviceItemCodes.DUPK,
             },
           ],
         },
       ],
       mtoServiceItems: [
         {
-          reServiceName: 'Counseling Services',
+          reServiceName: serviceItemCodes.CS,
         },
         {
-          reServiceName: 'Shipment Management Services',
+          reServiceName: serviceItemCodes.MS,
         },
       ],
       isLoading: false,

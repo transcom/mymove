@@ -14,7 +14,7 @@ schemes:
 tags:
   - name: queues
   - name: move
-  - name: moveOrder
+  - name: order
   - name: moveTaskOrder
   - name: customer
   - name: mtoServiceItem
@@ -104,20 +104,20 @@ paths:
       description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
-  '/move-orders/{moveOrderID}':
+  '/move-orders/{orderID}':
     parameters:
-      - description: ID of move order to use
+      - description: ID of order to use
         in: path
-        name: moveOrderID
+        name: orderID
         required: true
         type: string
         format: uuid
     patch:
-      summary: Updates a move order
-      description: All fields sent in this request will be set on the move order referenced
+      summary: Updates an order
+      description: All fields sent in this request will be set on the order referenced
       operationId: updateMoveOrder
       tags:
-        - moveOrder
+        - order
       consumes:
         - application/json
       produces:
@@ -165,7 +165,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully retrieved move order
+          description: Successfully retrieved order
           schema:
             $ref: '#/definitions/MoveOrder'
         '400':
@@ -189,15 +189,15 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - moveOrder
-      description: Gets a move order
+        - order
+      description: Gets an order
       operationId: getMoveOrder
-      summary: Gets a move order by ID
-  '/move-orders/{moveOrderID}/move-task-orders':
+      summary: Gets an order by ID
+  '/move-orders/{orderID}/move-task-orders':
     parameters:
-      - description: ID of move order to use
+      - description: ID of order to use
         in: path
-        name: moveOrderID
+        name: orderID
         required: true
         type: string
         format: uuid
@@ -207,7 +207,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully retrieved all move task orders associated with a move order
+          description: Successfully retrieved all move task orders associated with an order
           schema:
             $ref: '#/definitions/MoveTaskOrders'
         '400':
@@ -231,10 +231,10 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - moveOrder
-      description: Gets move task orders associated with a move order
+        - order
+      description: Gets move task orders associated with an order
       operationId: listMoveTaskOrders
-      summary: Gets move task orders associated with a move order
+      summary: Gets move task orders associated with an order
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
       - description: ID of move order to use
@@ -451,7 +451,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/PatchMTOShipmentStatusPayload'
+            $ref: '#/definitions/PatchMTOShipmentStatus'
         - in: header
           name: If-Match
           type: string
@@ -1221,7 +1221,7 @@ paths:
         operationId: tacValidation
         tags:
           - tac
-          - moveOrder
+          - order
         parameters:
           - in: query
             name: tac
@@ -1901,7 +1901,7 @@ definitions:
       createdAt:
         format: date-time
         type: string
-      moveOrderID:
+      orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -2057,7 +2057,7 @@ definitions:
         format: uuid
         type: string
       mtoServiceItemName:
-        example: Shipment Mgmt. Services
+        example: Move management
         type: string
       mtoShipmentType:
         $ref: '#/definitions/MTOShipmentType'
@@ -2211,22 +2211,6 @@ definitions:
         items:
           $ref: '#/definitions/Upload'
         type: array
-  MTOShipmentType:
-    type: string
-    title: Shipment Type
-    example: HHG
-    enum:
-      - HHG
-      - HHG_LONGHAUL_DOMESTIC
-      - HHG_SHORTHAUL_DOMESTIC
-      - HHG_INTO_NTS_DOMESTIC
-      - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
-    x-display-value:
-      HHG: HHG
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -2282,11 +2266,7 @@ definitions:
           - INTERNATIONAL_HHG
           - INTERNATIONAL_UB
       status:
-        type: string
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
+        $ref: '#/definitions/MTOShipmentStatus'
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
@@ -2301,18 +2281,41 @@ definitions:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
-  PatchMTOShipmentStatusPayload:
+  MTOShipmentStatus:
+    type: string
+    title: Shipment Status
+    example: SUBMITTED
+    enum:
+      - SUBMITTED
+      - REJECTED
+      - APPROVED
+      - CANCELLATION_REQUESTED
+  MTOShipmentType:
+    type: string
+    title: Shipment Type
+    example: HHG
+    enum:
+      - HHG
+      - HHG_LONGHAUL_DOMESTIC
+      - HHG_SHORTHAUL_DOMESTIC
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+    x-display-value:
+      HHG: HHG
+      INTERNATIONAL_HHG: International HHG
+      INTERNATIONAL_UB: International UB
+  PatchMTOShipmentStatus:
     properties:
       status:
-        type: string
-        enum:
-          - REJECTED
-          - APPROVED
-          - SUBMITTED
+        $ref: '#/definitions/MTOShipmentStatus'
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+    required:
+      - status
   PatchMTOServiceItemStatusPayload:
     properties:
       status:

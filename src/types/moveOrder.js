@@ -94,7 +94,7 @@ export const MoveTaskOrderShape = PropTypes.shape({
   createdAt: PropTypes.string,
   eTag: PropTypes.string,
   isCanceled: PropTypes.bool,
-  moveOrderId: PropTypes.string,
+  orderId: PropTypes.string,
   referenceId: PropTypes.string,
   requestedPickupDate: PropTypes.string,
   updatedAt: PropTypes.string,
