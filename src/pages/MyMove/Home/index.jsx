@@ -13,6 +13,7 @@ import {
   HelperSubmittedPPM,
 } from './HomeHelpers';
 
+import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Step from 'components/Customer/Home/Step';
@@ -236,7 +237,7 @@ export class Home extends Component {
 
     // eslint-disable-next-line camelcase
     const { current_station } = serviceMember;
-    const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
+    const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD : customerRoutes.ORDERS_INFO;
     const shipmentSelectionPath = this.hasAnyShipments
       ? `/moves/${move.id}/select-type`
       : `/moves/${move.id}/moving-info`;

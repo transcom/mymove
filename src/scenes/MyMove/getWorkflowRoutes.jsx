@@ -2,7 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { every, some, get, findKey, pick } from 'lodash';
 
-import { customerRoutes } from 'constants/routes';
+import { generalRoutes, customerRoutes } from 'constants/routes';
 import CustomerPrivateRoute from 'containers/CustomerPrivateRoute/CustomerPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
@@ -136,7 +136,7 @@ const pages = {
     render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
     description: 'Backup contacts',
   },
-  '/': {
+  [generalRoutes.HOME]: {
     isInFlow: (props) => {
       return myFirstRodeo(props) && inGhcFlow(props);
     },
@@ -150,7 +150,7 @@ const pages = {
     isComplete: always,
     render: (key, pages) => ({ match }) => <ProfileReview pages={pages} pageKey={key} match={match} />,
   },
-  '/orders': {
+  [customerRoutes.ORDERS_INFO]: {
     isInFlow: always,
     isComplete: ({ sm, orders }) =>
       every([
@@ -163,7 +163,7 @@ const pages = {
       <Orders pages={pages} pageKey={key} match={match} history={history} />
     ),
   },
-  '/orders/upload': {
+  [customerRoutes.ORDERS_UPLOAD]: {
     isInFlow: always,
     isComplete: ({ sm, orders, uploads }) =>
       get(orders, 'uploaded_orders.uploads', []).length > 0 || uploads.length > 0,

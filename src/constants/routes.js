@@ -1,4 +1,5 @@
 export const generalRoutes = {
+  HOME: '/',
   SIGN_IN: '/sign-in',
   PRIVACY_SECURITY_POLICY: '/privacy-and-security-policy',
 };
@@ -12,4 +13,6 @@ export const customerRoutes = {
   CURRENT_ADDRESS: '/service-member/current-address',
   BACKUP_ADDRESS: '/service-member/backup-address',
   BACKUP_CONTACTS: '/service-member/backup-contact',
+  ORDERS_INFO: '/orders/info',
+  ORDERS_UPLOAD: '/orders/upload',
 };
