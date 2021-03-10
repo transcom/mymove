@@ -185,8 +185,17 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return handlers.ResponseForError(logger, err)
 	}
 
+	var move models.Move
+	moves, err := models.GetMovesForUserID(h.DB(), serviceMember.UserID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	if len(moves) != 0 {
+		move = moves[0]
+	}
+
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
+	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload, move); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
@@ -197,15 +206,15 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
-func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
+func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload, move models.Move) (*validate.Errors, error) {
 
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
 	}
-	if payload.Affiliation != nil {
+	if payload.Affiliation != nil && move.Status != "" && move.Status != models.MoveStatusSUBMITTED {
 		serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
 	}
-	if payload.Rank != nil {
+	if payload.Rank != nil && move.Status != "" && move.Status != models.MoveStatusSUBMITTED {
 		serviceMember.Rank = (*models.ServiceMemberRank)(payload.Rank)
 	}
 	if payload.FirstName != nil {
@@ -235,7 +244,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	if payload.EmailIsPreferred != nil {
 		serviceMember.EmailIsPreferred = payload.EmailIsPreferred
 	}
-	if payload.CurrentStationID != nil {
+	if payload.CurrentStationID != nil && move.Status != "" && move.Status != models.MoveStatusSUBMITTED {
 		stationID, err := uuid.FromString(payload.CurrentStationID.String())
 		if err != nil {
 			return validate.NewErrors(), err
