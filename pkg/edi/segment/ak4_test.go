@@ -16,34 +16,15 @@ func (suite *SegmentSuite) TestValidateAK4() {
 		}
 		err := suite.validator.Struct(validAK4)
 		suite.NoError(err)
-
-		validOptionalAK4 := AK4{
-			PositionInSegment:          1,
-			ElementPositionInSegment:   1,
-			DataElementSyntaxErrorCode: "ABC",
-		}
-		err = suite.validator.Struct(validOptionalAK4)
-		suite.NoError(err)
 	})
 
 	suite.T().Run("validate success only required fields", func(t *testing.T) {
-		validAK4 := AK4{
-			PositionInSegment:                       1,
-			ElementPositionInSegment:                1,
-			ComponentDataElementPositionInComposite: 11,
-			DataElementReferenceNumber:              1111,
-			DataElementSyntaxErrorCode:              "ABC",
-			CopyOfBadDataElement:                    "Bad data element",
-		}
-		err := suite.validator.Struct(validAK4)
-		suite.NoError(err)
-
 		validOptionalAK4 := AK4{
 			PositionInSegment:          1,
 			ElementPositionInSegment:   1,
 			DataElementSyntaxErrorCode: "ABC",
 		}
-		err = suite.validator.Struct(validOptionalAK4)
+		err := suite.validator.Struct(validOptionalAK4)
 		suite.NoError(err)
 	})
 
