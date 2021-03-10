@@ -67,7 +67,7 @@ export class ResidentialAddress extends Component {
 
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = get(currentServiceMember, 'residential_address');
-    const serviceMemberId = this.props.match.params.serviceMemberId;
+    const serviceMemberId = currentServiceMember.id;
     return (
       <ResidentalWizardForm
         handleSubmit={this.handleSubmit}

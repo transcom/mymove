@@ -2,6 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { every, some, get, findKey, pick } from 'lodash';
 
+import { customerRoutes } from 'constants/routes';
 import CustomerPrivateRoute from 'containers/CustomerPrivateRoute/CustomerPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
@@ -74,7 +75,7 @@ const isCurrentMoveSubmitted = ({ move }) => {
 };
 
 const pages = {
-  '/service-member/:serviceMemberId/conus-status': {
+  [customerRoutes.CONUS_OCONUS]: {
     isInFlow: inGhcFlow,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
     render: (key, pages, description, props) => ({ match }) => {
@@ -91,24 +92,24 @@ const pages = {
       );
     },
   },
-  '/service-member/:serviceMemberId/create': {
+  [customerRoutes.DOD_INFO]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
     render: (key, pages) => ({ match }) => <DodInfo pages={pages} pageKey={key} match={match} />,
   },
-  '/service-member/:serviceMemberId/name': {
+  [customerRoutes.NAME]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.first_name, sm.last_name]),
     render: (key, pages) => ({ match }) => <SMName pages={pages} pageKey={key} match={match} />,
   },
-  '/service-member/:serviceMemberId/contact-info': {
+  [customerRoutes.CONTACT_INFO]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) =>
       sm.is_profile_complete ||
       (every([sm.telephone, sm.personal_email]) && some([sm.phone_is_preferred, sm.email_is_preferred])),
     render: (key, pages) => ({ match }) => <ContactInfo pages={pages} pageKey={key} match={match} />,
   },
-  '/service-member/:serviceMemberId/duty-station': {
+  [customerRoutes.CURRENT_DUTY_STATION]: {
     isInFlow: myFirstRodeo,
 
     // api for duty station always returns an object, even when duty station is not set
@@ -117,17 +118,17 @@ const pages = {
     render: (key, pages) => ({ match }) => <DutyStation pages={pages} pageKey={key} match={match} />,
     description: 'current duty station',
   },
-  '/service-member/:serviceMemberId/residence-address': {
+  [customerRoutes.CURRENT_ADDRESS]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.residential_address),
     render: (key, pages) => ({ match }) => <ResidentialAddress pages={pages} pageKey={key} match={match} />,
   },
-  '/service-member/:serviceMemberId/backup-mailing-address': {
+  [customerRoutes.BACKUP_ADDRESS]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.backup_mailing_address),
     render: (key, pages) => ({ match }) => <BackupMailingAddress pages={pages} pageKey={key} match={match} />,
   },
-  '/service-member/:serviceMemberId/backup-contacts': {
+  [customerRoutes.BACKUP_CONTACTS]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm, orders, move, ppm, backupContacts }) => {
       return sm.is_profile_complete || backupContacts.length > 0;

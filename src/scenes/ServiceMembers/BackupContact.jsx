@@ -19,7 +19,7 @@ import { reduxForm } from 'redux-form';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 import scrollToTop from 'shared/scrollToTop';
-import { selectBackupContacts } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectBackupContacts } from 'store/entities/selectors';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -87,7 +87,13 @@ export class BackupContact extends Component {
   }
 
   handleSubmit = () => {
-    const { values, updateBackupContact, updateServiceMember, currentBackupContacts, match } = this.props;
+    const {
+      values,
+      updateBackupContact,
+      updateServiceMember,
+      currentServiceMember,
+      currentBackupContacts,
+    } = this.props;
 
     if (values) {
       const payload = {
@@ -96,7 +102,7 @@ export class BackupContact extends Component {
         permission: values.permission === undefined ? NonePermission : values.permission,
       };
 
-      const { serviceMemberId } = match.params;
+      const serviceMemberId = currentServiceMember.id;
 
       if (currentBackupContacts.length > 0) {
         const [firstBackupContact] = currentBackupContacts;
@@ -182,6 +188,7 @@ export class BackupContact extends Component {
     );
   }
 }
+
 BackupContact.propTypes = {
   schema: PropTypes.object.isRequired,
 };
@@ -193,6 +200,7 @@ const mapDispatchToProps = {
 
 function mapStateToProps(state) {
   return {
+    currentServiceMember: selectServiceMemberFromLoggedInUser(state),
     currentBackupContacts: selectBackupContacts(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),
     values: getFormValues(formName)(state),

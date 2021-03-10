@@ -53,7 +53,7 @@ export class BackupMailingAddress extends Component {
 
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = get(currentServiceMember, 'backup_mailing_address');
-    const serviceMemberId = this.props.match.params.serviceMemberId;
+    const serviceMemberId = currentServiceMember.id;
     return (
       <BackupMailingWizardForm
         handleSubmit={this.handleSubmit}

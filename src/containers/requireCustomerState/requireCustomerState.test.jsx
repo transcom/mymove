@@ -46,7 +46,7 @@ describe('requireCustomerState HOC', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/testServiceMemberId/conus-status'));
+    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/conus-oconus'));
   });
 
   it('does not redirect if the current state equals the required state', () => {
