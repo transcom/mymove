@@ -19,7 +19,7 @@ const rejectionSchema = Yup.object().shape({
 });
 
 const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
-  const { serviceItem: serviceItemName, id, code, status, createdAt, approvedAt, details } = serviceItem;
+  const { serviceItem: serviceItemName, id, mtoShipmentID, code, status, createdAt, approvedAt, details } = serviceItem;
   return (
     <>
       <Overlay />
@@ -42,7 +42,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
               initialValues={{ rejectionReason: '' }}
               validationSchema={rejectionSchema}
               onSubmit={(values) => {
-                onSubmit(id, SERVICE_ITEM_STATUS.REJECTED, values.rejectionReason);
+                onSubmit(id, mtoShipmentID, SERVICE_ITEM_STATUS.REJECTED, values.rejectionReason);
               }}
             >
               {({ handleChange, values, isValid, dirty }) => {
@@ -104,6 +104,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
 RejectServiceItemModal.propTypes = {
   serviceItem: PropTypes.shape({
     id: PropTypes.string,
+    mtoShipmentID: PropTypes.string,
     code: PropTypes.string,
     status: PropTypes.string,
     serviceItem: PropTypes.string,

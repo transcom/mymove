@@ -125,4 +125,64 @@ describe('ServiceItemTableHasImg', () => {
     expect(wrapper.find('dt').at(1).contains('Reason')).toBe(true);
     expect(wrapper.find('dd').at(1).contains('This is the reason')).toBe(true);
   });
+
+  it('should call update service item status handler when accepting button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Origin 1st Day SIT',
+        code: 'DOFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+
+    const wrapper = mount(
+      <ServiceItemTableHasImg
+        {...defaultProps}
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+      />,
+    );
+
+    wrapper.find('button[data-testid="acceptButton"]').simulate('click');
+
+    expect(defaultProps.handleUpdateMTOServiceItemStatus).toHaveBeenCalledWith(
+      'abc123',
+      'xyz789',
+      SERVICE_ITEM_STATUS.APPROVED,
+    );
+  });
+
+  it('should call show rejection handler when reject button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Origin 1st Day SIT',
+        code: 'DOFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+
+    const wrapper = mount(
+      <ServiceItemTableHasImg
+        {...defaultProps}
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+      />,
+    );
+
+    wrapper.find('button[data-testid="rejectButton"]').simulate('click');
+
+    expect(defaultProps.handleShowRejectionDialog).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
 });

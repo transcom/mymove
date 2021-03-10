@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { withRouter } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
@@ -69,18 +69,48 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const moveOrder = Object.values(moveOrders)?.[0];
   const moveTaskOrder = Object.values(moveTaskOrders || {})?.[0];
 
+  const shipmentServiceItems = useMemo(() => {
+    const serviceItemsForShipment = {};
+    mtoServiceItemsArr?.forEach((item) => {
+      // We're not interested in basic service items
+      if (!item.mtoShipmentID) {
+        return;
+      }
+      const newItem = { ...item };
+      newItem.code = item.reServiceCode;
+      newItem.serviceItem = item.reServiceName;
+      newItem.details = {
+        pickupPostalCode: item.pickupPostalCode,
+        reason: item.reason,
+        imgURL: '',
+        description: item.description,
+        itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),
+        crateDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.CRATE),
+        firstCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.FIRST),
+        secondCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.SECOND),
+      };
+
+      if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
+        serviceItemsForShipment[`${newItem.mtoShipmentID}`].push(newItem);
+      } else {
+        serviceItemsForShipment[`${newItem.mtoShipmentID}`] = [newItem];
+      }
+    });
+    return serviceItemsForShipment;
+  }, [mtoServiceItemsArr]);
+
   const [mutateMTOServiceItemStatus] = useMutation(patchMTOServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];
-      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.mtoServiceItemID], {
+      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveTaskOrderId, true], {
         mtoServiceItems: {
           ...mtoServiceItems,
           [`${variables.mtoServiceItemID}`]: newMTOServiceItem,
         },
       });
-      queryCache.invalidateQueries(MTO_SERVICE_ITEMS);
-      setSelectedServiceItem({});
+      queryCache.invalidateQueries(MTO_SERVICE_ITEMS, variables.moveTaskOrderId);
       setIsModalVisible(false);
+      setSelectedServiceItem({});
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -98,8 +128,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, status, rejectionReason) => {
-    const mtoServiceItemForRequest = mtoServiceItemsArr.find((s) => s.id === mtoServiceItemID);
+  const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, mtoShipmentID, status, rejectionReason) => {
+    const mtoServiceItemForRequest = shipmentServiceItems[`${mtoShipmentID}`]?.find((s) => s.id === mtoServiceItemID);
 
     mutateMTOServiceItemStatus({
       moveTaskOrderId: moveTaskOrder.id,
@@ -158,41 +188,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     };
   });
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
-  const shipmentServiceItems = {};
-  const serviceItems = mtoServiceItemsArr?.forEach((item) => {
-    // We're not interested in basic service items
-    if (!item.mtoShipmentID) {
-      return;
-    }
-    const newItem = { ...item };
-    newItem.code = item.reServiceCode;
-    newItem.serviceItem = item.reServiceName;
-    newItem.details = {
-      pickupPostalCode: item.pickupPostalCode,
-      reason: item.reason,
-      imgURL: '',
-      description: item.description,
-      itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),
-      crateDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.CRATE),
-      firstCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.FIRST),
-      secondCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.SECOND),
-    };
-
-    if (shipmentServiceItems[`${newItem.mtoShipmentID}`]) {
-      shipmentServiceItems[`${newItem.mtoShipmentID}`].push(newItem);
-    } else {
-      shipmentServiceItems[`${newItem.mtoShipmentID}`] = [newItem];
-    }
-  });
-
-  const handleShowRejectionDialog = (mtoServiceItemID) => {
-    const serviceItem = serviceItems?.find((item) => item.id === mtoServiceItemID);
+  const handleShowRejectionDialog = (mtoServiceItemID, mtoShipmentID) => {
+    const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
     setSelectedServiceItem(serviceItem);
     setIsModalVisible(true);
   };
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   if (moveTaskOrder.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(approvedFilter)) {
     return (
