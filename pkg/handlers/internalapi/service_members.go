@@ -180,16 +180,37 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	var err error
+	var serviceMember models.ServiceMember
+	var verrs *validate.Errors
+	var order models.Order
+
+	serviceMember, err = models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
+
+	if verrs, err = h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
-	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
+
+	order, err = models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
+
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	if verrs, err = models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
+		return handlers.ResponseForVErrors(logger, verrs, err)
+	}
+
+	order.Grade = (*string)(serviceMember.Rank)
+	order.OriginDutyStation = &serviceMember.DutyStation
+	order.OriginDutyStationID = &serviceMember.DutyStation.ID
+
+	if verrs, err = models.SaveOrder(h.DB(), &order); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
