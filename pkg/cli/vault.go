@@ -17,8 +17,6 @@ import (
 const (
 	// VaultAWSKeychainNameFlag is the aws-vault keychain name Flag
 	VaultAWSKeychainNameFlag string = "aws-vault-keychain-name"
-	// VaultAWSProfileFlag is the aws-vault profile name Flag
-	VaultAWSProfileFlag string = "aws-profile"
 	// VaultAWSVaultFlag is the aws-vault flag
 	VaultAWSVaultFlag string = "aws-vault"
 	// VaultAWSSessionTokenFlag is the AWS session token flag
