@@ -104,6 +104,7 @@ class EditProfile extends Component {
     if (fieldValues.rank !== this.props.serviceMember.rank) {
       this.props.entitlementChanged();
     }
+    fieldValues.move_id = this.props.move?.id;
 
     return patchServiceMember(fieldValues)
       .then((response) => {

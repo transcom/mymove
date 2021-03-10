@@ -45,6 +45,10 @@ type PatchServiceMemberPayload struct {
 	// Middle name
 	MiddleName *string `json:"middle_name,omitempty"`
 
+	// move id
+	// Format: uuid
+	MoveID strfmt.UUID `json:"move_id,omitempty"`
+
 	// Personal Email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	PersonalEmail *string `json:"personal_email,omitempty"`
@@ -91,6 +95,10 @@ func (m *PatchServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateEdipi(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -188,6 +196,19 @@ func (m *PatchServiceMemberPayload) validateEdipi(formats strfmt.Registry) error
 	}
 
 	if err := validate.Pattern("edipi", "body", string(*m.Edipi), `^\d{10}$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PatchServiceMemberPayload) validateMoveID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MoveID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("move_id", "body", "uuid", m.MoveID.String(), formats); err != nil {
 		return err
 	}
 

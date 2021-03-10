@@ -5284,6 +5284,11 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "personal_email": {
           "type": "string",
           "format": "x-email",
@@ -11783,6 +11788,11 @@ func init() {
           "title": "Middle name",
           "x-nullable": true,
           "example": "L."
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "personal_email": {
           "type": "string",
