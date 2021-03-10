@@ -1433,6 +1433,7 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+          - CANCELLATION_REQUESTED
       rejectionReason:
         type: string
         readOnly: true

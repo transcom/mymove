@@ -1725,6 +1725,7 @@ definitions:
           - REJECTED
           - APPROVED
           - SUBMITTED
+          - CANCELLATION_REQUESTED
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
