@@ -168,7 +168,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		return Order{}, err
 	}
 
-	// Upload is not included 3 levels deep on the eager fetch, so it gets loaded here
+	// Eager loading of nested has_many associations is broken
 	err = db.Load(&order.UploadedOrders, "UserUploads.Upload")
 	if err != nil {
 		return Order{}, err

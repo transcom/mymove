@@ -69,6 +69,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		TAC:                 &TAC,
 		SAC:                 &SAC,
 		DepartmentIndicator: &deptIndicator,
+		Grade:               swag.String("E-3"),
 	}
 	suite.MustSave(&order)
 
@@ -79,6 +80,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		ServiceMemberID: serviceMember1.ID,
 	}
 	goodOrder, err := FetchOrderForUser(suite.DB(), session, order.ID)
+
 	if suite.NoError(err) {
 		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
@@ -88,7 +90,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		suite.Equal(order.OriginDutyStation.ID, goodOrder.OriginDutyStation.ID)
 		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
 		suite.Equal(order.Grade, goodOrder.Grade)
-		suite.Equal(order.UploadedOrders.UserUploads, goodOrder.UploadedOrders)
+		suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
 	}
 
 	// Wrong Order ID

@@ -1,7 +1,12 @@
 package models_test
 
 import (
+	"time"
+
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
 	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
@@ -147,5 +152,81 @@ func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
 	if suite.NoError(err) {
 		suite.Equal(sm.FirstName, goodSm.FirstName)
 		suite.Equal(sm.ResidentialAddressID, goodSm.ResidentialAddressID)
+	}
+}
+
+func (suite *ModelSuite) TestFetchLatestOrders() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
+	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	dutyStation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hasDependents := true
+	spouseHasProGear := true
+	uploadedOrder := Document{
+		ServiceMember:   serviceMember,
+		ServiceMemberID: serviceMember.ID,
+	}
+	deptIndicator := testdatagen.DefaultDepartmentIndicator
+	TAC := testdatagen.DefaultTransportationAccountingCode
+	suite.MustSave(&uploadedOrder)
+
+	SAC := "N002214CSW32Y9"
+	ordersNumber := "FD4534JFJ"
+
+	order := Order{
+		ServiceMemberID:     serviceMember.ID,
+		ServiceMember:       serviceMember,
+		IssueDate:           issueDate,
+		ReportByDate:        reportByDate,
+		OrdersType:          ordersType,
+		HasDependents:       hasDependents,
+		SpouseHasProGear:    spouseHasProGear,
+		OriginDutyStationID: &dutyStation.ID,
+		OriginDutyStation:   &dutyStation,
+		NewDutyStationID:    dutyStation2.ID,
+		NewDutyStation:      dutyStation2,
+		UploadedOrdersID:    uploadedOrder.ID,
+		UploadedOrders:      uploadedOrder,
+		Status:              OrderStatusSUBMITTED,
+		OrdersNumber:        &ordersNumber,
+		TAC:                 &TAC,
+		SAC:                 &SAC,
+		DepartmentIndicator: &deptIndicator,
+		Grade:               swag.String("E-1"),
+	}
+	suite.MustSave(&order)
+
+	// User is authorized to fetch service member
+	session := &auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          user.ID,
+		ServiceMemberID: serviceMember.ID,
+	}
+
+	actualOrder, err := serviceMember.FetchLatestOrder(session, suite.DB())
+
+	if suite.NoError(err) {
+		suite.Equal(order.Grade, actualOrder.Grade)
+		suite.Equal(order.OriginDutyStationID, actualOrder.OriginDutyStationID)
+		suite.Equal(order.NewDutyStationID, actualOrder.NewDutyStationID)
+		suite.True(order.IssueDate.Equal(actualOrder.IssueDate))
+		suite.True(order.ReportByDate.Equal(actualOrder.ReportByDate))
+		suite.Equal(order.OrdersType, actualOrder.OrdersType)
+		suite.Equal(order.HasDependents, actualOrder.HasDependents)
+		suite.Equal(order.SpouseHasProGear, actualOrder.SpouseHasProGear)
+		suite.Equal(order.UploadedOrdersID, actualOrder.UploadedOrdersID)
+
+	}
+
+	// Wrong ServiceMember
+	wrongID, _ := uuid.NewV4()
+	_, err = FetchServiceMemberForUser(suite.DB(), session, wrongID)
+	if suite.Error(err) {
+		suite.Equal(ErrFetchNotFound, err)
 	}
 }
