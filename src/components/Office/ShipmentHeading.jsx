@@ -38,11 +38,9 @@ function ShipmentHeading({ shipmentInfo }) {
           unstyled
           disabled={shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED}
         >
-          <small>
-            {shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED
-              ? 'Cancellation Requested'
-              : 'Request Cancellation'}
-          </small>
+          {shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED
+            ? 'Cancellation Requested'
+            : 'Request Cancellation'}
         </Button>
       </div>
     </div>

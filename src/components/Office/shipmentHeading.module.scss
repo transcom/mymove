@@ -14,19 +14,18 @@
     display: flex;
     justify-content: space-between;
 
-    button small {
+    button {
      color: $link;
+     padding: 2px 8px;
+     font-size: 13px;
     }
 
     button:disabled {
         background-color: $base-dark;
-        padding: 2px 8px;
         text-transform: uppercase;
         border-radius: 2px;
+        color: #ffffff;
 
-        & small {
-          color: #ffffff;
-        }
     }
   }
 }
