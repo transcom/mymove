@@ -6,6 +6,10 @@ import styles from './ServiceItemCalculations.module.scss';
 
 const ServiceItemCalculations = ({ calculations, tableSize }) => {
   const appendSign = (index, length) => {
+    if (tableSize === 'small') {
+      return <></>;
+    }
+
     const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
     const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
 
@@ -22,22 +26,25 @@ const ServiceItemCalculations = ({ calculations, tableSize }) => {
 
   return (
     <div
+      data-testid="ServiceItemCalculations"
       className={`${styles.ServiceItemCalculations}
         ${tableSize === 'small' ? styles.ServiceItemCalculationsSmall : ''}`}
     >
       <h4 className={styles.title}>Calculations</h4>
-      <div className={`${styles.flexGrid} ${tableSize === 'small' ? styles.flexGridSmall : ''}`}>
+      <div data-testid="flexGrid" className={`${styles.flexGrid} ${tableSize === 'small' ? styles.flexGridSmall : ''}`}>
         {calculations.map((calc, index) => {
           return (
-            <div key={calc.label} className={styles.col}>
-              <div className={styles.value}>
+            <div data-testid="column" key={calc.label} className={styles.col}>
+              <div data-testid="value" className={styles.value}>
                 {appendSign(index, calculations.length)}
                 {calc.value}
               </div>
               <hr />
               <div>
-                <div className={styles.descriptionTitle}>{calc.label}</div>
-                <div className={styles.descriptionContent}>
+                <div data-testid="label" className={styles.descriptionTitle}>
+                  {calc.label}
+                </div>
+                <div data-testid="details" className={styles.descriptionContent}>
                   {calc.details &&
                     calc.details.map((detail, i) => {
                       if (i === calc.details.length - 1) {
