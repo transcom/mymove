@@ -1,13 +1,14 @@
-create type edi_response_type as enum (
+create type edi_types as enum (
     'EDI997',
-    'EDI824'
+    'EDI824',
+    'EDI858'
     );
 
 create table edi_errors_acknowledgement_code_errors (
     id uuid not null primary key,
     code varchar,
     description varchar,
-    source edi_response_type,
+    source edi_types,
     created_at timestamp not null,
     updated_at timestamp not null,
     deleted_at timestamp with time zone
@@ -17,10 +18,20 @@ create table edi_errors_technical_error_descriptions (
      id uuid not null primary key,
      code varchar,
      description varchar,
-     source edi_response_type,
+     source edi_types,
      created_at timestamp not null,
      updated_at timestamp not null,
      deleted_at timestamp with time zone
+);
+
+create table edi_errors_send_to_syncada_errors
+(
+    id uuid not null primary key,
+    source edi_types,
+    description varchar,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    deleted_at timestamp with time zone
 );
 
 create table edi_errors (
@@ -34,6 +45,9 @@ create table edi_errors (
     edi_errors_acknowledgement_code_error_id uuid
         constraint edi_errors_edi_errors_acknowledgement_code_error_id_fkey
             references edi_errors_acknowledgement_code_errors,
+    edi_errors_send_to_syncada_errors_id uuid
+        constraint edi_errors_edi_errors_send_to_syncada_error_id_fkey
+            references edi_errors_send_to_syncada_errors,
     created_at timestamp not null,
     updated_at timestamp not null,
     deleted_at timestamp with time zone
