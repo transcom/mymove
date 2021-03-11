@@ -196,22 +196,24 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	order, err = models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
-
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-
 	if verrs, err = models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	order.Grade = (*string)(serviceMember.Rank)
-	order.OriginDutyStation = &serviceMember.DutyStation
-	order.OriginDutyStationID = &serviceMember.DutyStation.ID
+	if len(serviceMember.Orders) != 0 {
+		order, err = models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
 
-	if verrs, err = models.SaveOrder(h.DB(), &order); verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+		if err != nil {
+			return handlers.ResponseForError(logger, err)
+		}
+
+		order.Grade = (*string)(serviceMember.Rank)
+		order.OriginDutyStation = &serviceMember.DutyStation
+		order.OriginDutyStationID = &serviceMember.DutyStation.ID
+
+		if verrs, err = models.SaveOrder(h.DB(), &order); verrs.HasAny() || err != nil {
+			return handlers.ResponseForVErrors(logger, verrs, err)
+		}
 	}
 
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
