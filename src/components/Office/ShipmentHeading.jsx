@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { PropTypes } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
@@ -18,12 +18,7 @@ function formatDestinationAddress(address) {
   return `${address.postal_code}`;
 }
 
-function ShipmentHeading({ shipmentInfo }) {
-  // Using hooks to illustrate disabled button state
-  // This will be modified once the modal is hooked up, as the button will only
-  // be used to trigger the modal.
-  const [shipmentStatus, setShipmentStatus] = useState(shipmentInfo.shipmentStatus);
-
+function ShipmentHeading({ shipmentInfo, handleUpdateMTOShipmentStatus }) {
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
       <h3 data-testid="office-shipment-heading-h3">{shipmentInfo.shipmentType}</h3>
@@ -34,11 +29,13 @@ function ShipmentHeading({ shipmentInfo }) {
         </small>
         <Button
           type="button"
-          onClick={() => setShipmentStatus(MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED)}
+          onClick={() =>
+            handleUpdateMTOShipmentStatus(shipmentInfo.shipmentID, MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED)
+          }
           unstyled
-          disabled={shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED}
+          disabled={shipmentInfo.shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED}
         >
-          {shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED
+          {shipmentInfo.shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED
             ? 'Cancellation Requested'
             : 'Request Cancellation'}
         </Button>
@@ -48,7 +45,9 @@ function ShipmentHeading({ shipmentInfo }) {
 }
 
 ShipmentHeading.propTypes = {
+  handleUpdateMTOShipmentStatus: PropTypes.func.isRequired,
   shipmentInfo: PropTypes.shape({
+    shipmentID: PropTypes.string.isRequired,
     shipmentType: PropTypes.string.isRequired,
     originCity: PropTypes.string.isRequired,
     originState: PropTypes.string.isRequired,
