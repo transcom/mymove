@@ -126,23 +126,23 @@ export class CustomerApp extends Component {
               {!hasError && !props.swaggerError && (
                 <Switch>
                   {/* no auth */}
-                  <Route path={generalRoutes.SIGN_IN} component={SignIn} />
-                  <Route path={customerRoutes.ACCESS_CODE} component={AccessCode} />
-                  <Route path={generalRoutes.PRIVACY_SECURITY_POLICY} component={PrivacyPolicyStatement} />
-                  <Route path={generalRoutes.ACCESSIBILITY} component={AccessibilityStatement} />
+                  <Route path={generalRoutes.SIGN_IN_PATH} component={SignIn} />
+                  <Route path={customerRoutes.ACCESS_CODE_PATH} component={AccessCode} />
+                  <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} component={PrivacyPolicyStatement} />
+                  <Route path={generalRoutes.ACCESSIBILITY_PATH} component={AccessibilityStatement} />
 
                   {/* auth required */}
                   <CustomerPrivateRoute exact path="/ppm" component={PpmLanding} />
 
                   {/* ROOT */}
-                  <CustomerPrivateRoute path={generalRoutes.HOME} exact component={Home} />
+                  <CustomerPrivateRoute path={generalRoutes.HOME_PATH} exact component={Home} />
 
                   {getWorkflowRoutes(props)}
                   <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <CustomerPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
                   <CustomerPrivateRoute
                     exact
-                    path={customerRoutes.SHIPMENT_EDIT}
+                    path={customerRoutes.SHIPMENT_EDIT_PATH}
                     component={ConnectedCreateOrEditMtoShipment}
                   />
                   <CustomerPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />

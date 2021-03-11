@@ -177,8 +177,7 @@ export class Summary extends Component {
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
-    const rootAddressWithMoveId = `/moves/${moveId}`;
-    const rootReviewAddressWithMoveId = `${rootAddressWithMoveId}/review`;
+    const rootReviewAddressWithMoveId = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
     // isReviewPage being false is the same thing as being in the /edit route
     const isReviewPage = rootReviewAddressWithMoveId === match.url;
@@ -193,7 +192,7 @@ export class Summary extends Component {
     const canAddAnotherShipment = isReviewPage && !!(currentMove.status === MOVE_STATUSES.DRAFT || !hasPPM);
 
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
-    const shipmentSelectionPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE, { moveId: currentMove.id });
+    const shipmentSelectionPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: currentMove.id });
 
     return (
       <>

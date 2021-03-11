@@ -24,8 +24,7 @@ function ServiceMemberSummary(props) {
     uploads,
   } = props;
 
-  const rootPath = `/moves/review`;
-  const editProfilePath = rootPath + '/edit-profile';
+  const editProfilePath = '/moves/review/edit-profile';
 
   const yesNoMap = { true: 'Yes', false: 'No' };
 

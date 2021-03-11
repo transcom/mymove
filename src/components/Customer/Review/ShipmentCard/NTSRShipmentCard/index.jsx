@@ -23,7 +23,7 @@ const NTSRShipmentCard = ({
   shipmentType,
   showEditBtn,
 }) => {
-  const editPath = generatePath(customerRoutes.SHIPMENT_EDIT, {
+  const editPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
     moveId,
     mtoShipmentId: shipmentId,
   });
