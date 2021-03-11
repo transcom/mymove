@@ -38,7 +38,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/backup-contact',
           '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
@@ -54,7 +54,7 @@ describe('when getting the routes for the current workflow', () => {
           '/profile-review',
           '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
@@ -81,7 +81,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/backup-contact',
           '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -108,7 +108,7 @@ describe('when getting the routes for the current workflow', () => {
             '/orders/info',
             '/orders/upload',
             '/moves/:moveId/moving-info',
-            '/moves/:moveId/select-type',
+            '/moves/:moveId/shipment-type',
 
             '/moves/:moveId/review',
             '/moves/:moveId/agreement',
@@ -133,7 +133,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/backup-contact',
           '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
@@ -158,7 +158,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/backup-contact',
           '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/hhg-start',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
@@ -182,7 +182,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/backup-contact',
           '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/nts-start',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
@@ -206,7 +206,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/backup-contact',
           '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/ntsr-start',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
@@ -480,7 +480,7 @@ describe('when getting the next incomplete page', () => {
           ],
           context: ppmContext,
         });
-        expect(result).toEqual('/moves/bar/select-type');
+        expect(result).toEqual('/moves/bar/shipment-type');
       });
     });
     describe('when ppm date is complete', () => {

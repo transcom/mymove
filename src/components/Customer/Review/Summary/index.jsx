@@ -5,9 +5,11 @@ import { withRouter } from 'react-router-dom';
 import { arrayOf, func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
 import { Button } from '@trussworks/react-uswds';
+import { generatePath } from 'react-router';
 
 import styles from './Summary.module.scss';
 
+import { customerRoutes } from 'constants/routes';
 import { checkEntitlement } from 'scenes/Review/ducks';
 import ConnectedPPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
@@ -191,7 +193,8 @@ export class Summary extends Component {
     const canAddAnotherShipment = isReviewPage && !!(currentMove.status === MOVE_STATUSES.DRAFT || !hasPPM);
 
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
-    const shipmentSelectionPath = `/moves/${currentMove.id}/select-type`;
+    const shipmentSelectionPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE, { moveId: currentMove.id });
+
     return (
       <>
         {get(reviewState.error, 'statusCode', false) === 409 && (

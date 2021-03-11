@@ -172,7 +172,7 @@ const pages = {
     ),
     description: 'Upload your orders',
   },
-  '/moves/:moveId/moving-info': {
+  [customerRoutes.SHIPMENT_MOVING_INFO]: {
     isInFlow: (props) => inGhcFlow(props),
     isComplete: always,
     render: (key, pages) => () => {
@@ -183,7 +183,7 @@ const pages = {
       );
     },
   },
-  '/moves/:moveId/select-type': {
+  [customerRoutes.SHIPMENT_SELECT_TYPE]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
     render: (key, pages, props) => ({ match, history }) => (
@@ -205,6 +205,7 @@ const pages = {
       get(ppm, 'weight_estimate', null) && get(ppm, 'weight_estimate', 0) !== 0,
     render: (key, pages) => ({ match }) => <PpmWeight pages={pages} pageKey={key} match={match} />,
   },
+  // convert to query params
   '/moves/:moveId/hhg-start': {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
