@@ -173,6 +173,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	suite.T().Run("Successful patch - Integration Test for CANCELLATION_REQUESTED", func(t *testing.T) {
 		//creator := mtoshipment.NewMTOShipmentStatusUpdater(builder)
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				Status:       models.MTOShipmentStatusSubmitted,
+				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+			},
+		})
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
@@ -198,7 +207,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// TODO: Fix Etag mismatch error
 		fmt.Println(params)
 		fmt.Println(params.Body)
-
+		fmt.Println("DEBUG TEST")
+		fmt.Println(eTag)
 		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
@@ -206,5 +216,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusOK)
 		suite.NotEmpty(okResponse, supportmessages.UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED)
 		//suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload.ETag)
 	})
 }
