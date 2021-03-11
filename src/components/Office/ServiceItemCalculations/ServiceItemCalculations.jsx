@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './ServiceItemCalculations.module.scss';
 
 const ServiceItemCalculations = ({ calculations, tableSize }) => {
-  // TODO - incorporate fontawesome for signs
   const appendSign = (index, length) => {
-    const multiplies = <span className={styles.multiplier}>X</span>;
-    const equals = <span className={styles.equal}>=</span>;
+    const multiplies = <FontAwesomeIcon className={styles.icon} icon="times" />;
+    const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
 
     if (index > 0 && index !== length - 1) {
       return multiplies;
