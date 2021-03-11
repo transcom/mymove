@@ -15,4 +15,6 @@ export const customerRoutes = {
   BACKUP_CONTACTS: '/service-member/backup-contact',
   ORDERS_INFO: '/orders/info',
   ORDERS_UPLOAD: '/orders/upload',
+  SHIPMENT_MOVING_INFO: '/moves/:moveId/moving-info',
+  SHIPMENT_SELECT_TYPE: '/moves/:moveId/shipment-type',
 };

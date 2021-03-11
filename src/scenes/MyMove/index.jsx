@@ -30,6 +30,7 @@ import {
   selectHasCanceledMove,
   selectMoveType,
 } from 'store/entities/selectors';
+import { generalRoutes } from 'constants/routes';
 /** Pages */
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
@@ -137,7 +138,7 @@ export class CustomerApp extends Component {
                   <CustomerPrivateRoute exact path="/ppm" component={PpmLanding} />
 
                   {/* ROOT */}
-                  <CustomerPrivateRoute path="/" exact component={Home} />
+                  <CustomerPrivateRoute path={generalRoutes.HOME} exact component={Home} />
 
                   {getWorkflowRoutes(props)}
                   <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />

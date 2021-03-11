@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { profileStates } from 'constants/customerStates';
-import { customerRoutes } from 'constants/routes';
+import { generalRoutes, customerRoutes } from 'constants/routes';
 
 export const findNextServiceMemberStep = (profileState) => {
   switch (profileState) {
@@ -19,6 +19,6 @@ export const findNextServiceMemberStep = (profileState) => {
     case profileStates.BACKUP_ADDRESS_COMPLETE:
       return customerRoutes.BACKUP_CONTACTS;
     default:
-      return '/';
+      return generalRoutes.HOME;
   }
 };

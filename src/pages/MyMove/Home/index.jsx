@@ -3,6 +3,7 @@ import { arrayOf, bool, shape, string, node, func } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Button } from '@trussworks/react-uswds';
+import { generatePath } from 'react-router';
 
 import styles from './Home.module.scss';
 import {
@@ -239,8 +240,9 @@ export class Home extends Component {
     const { current_station } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD : customerRoutes.ORDERS_INFO;
     const shipmentSelectionPath = this.hasAnyShipments
-      ? `/moves/${move.id}/select-type`
-      : `/moves/${move.id}/moving-info`;
+      ? generatePath(customerRoutes.SHIPMENT_SELECT_TYPE, { moveId: move.id })
+      : generatePath(customerRoutes.SHIPMENT_MOVING_INFO, { moveId: move.id });
+
     const confirmationPath = `/moves/${move.id}/review`;
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
