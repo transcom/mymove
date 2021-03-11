@@ -46,19 +46,21 @@ func (suite *PaymentRequestServiceSuite) TestFetchAndLockReviewedPaymentRequest(
 	})
 
 	// suite.T().Run("throw an error if a locked payment request is updated", func(t *testing.T) {
-	// 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
+	// 	_ = suite.createPaymentRequest(100)
+
+	// 	suite.DB().Transaction(func(tx *pop.Connection) error {
 	// 		_, err := reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
 	// 		suite.NoError(err)
 	// 		return err
 	// 	})
 	// 	suite.DB().Transaction(func(tx *pop.Connection) error {
-	// 		err := suite.DB().RawQuery(`UPDATE payment_requests SET status = $1 WHERE id = $2;`, models.PaymentRequestStatusPaid, prs[99].ID).Exec()
+	// 		err := suite.DB().RawQuery(`UPDATE payment_requests SET status = $1 WHERE status = $2;`, models.PaymentRequestStatusPaid, models.PaymentRequestStatusReviewed).Exec()
 
 	// 		suite.NoError(err)
 	// 		return err
 	// 	})
-	// 	suite.Error(errTransaction)
 	// })
+
 	_ = suite.createPaymentRequest(101)
 	var paymentRequests models.PaymentRequests
 	suite.DB().All(&paymentRequests)

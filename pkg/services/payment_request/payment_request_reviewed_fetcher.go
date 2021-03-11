@@ -40,7 +40,7 @@ func (p *paymentRequestReviewedFetcher) FetchAndLockReviewedPaymentRequest() (mo
 	var err error
 	err = p.db.RawQuery(`SET LOCAL lock_timeout = '1s';`).Exec()
 	// TODO Figure out why this syntax throws an error
-	//    err = p.db.RawQuery(`SET LOCAL lock_timeout = $1;`, lockTimeout).Exec()
+	// err = p.db.RawQuery(`SET LOCAL lock_timeout = ?;`, lockTimeout).Exec()
 	if err != nil {
 		return reviewedPaymentRequests, services.NewQueryError("PaymentRequests", err, fmt.Sprintf("Could not set lock timeout: %s", err))
 	}
