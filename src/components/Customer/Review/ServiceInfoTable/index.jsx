@@ -1,4 +1,3 @@
-/* eslint-ignore */
 import React from 'react';
 import classnames from 'classnames';
 import { string } from 'prop-types';
