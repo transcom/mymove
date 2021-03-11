@@ -1,19 +1,21 @@
 package paymentrequest
 
 import (
-	"errors"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/services"
+	"github.com/pkg/errors"
 
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/services"
+
+	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/services/invoice"
+
 	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -314,7 +316,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		// models.PaymentRequests, error
 		reviewedPaymentRequestFetcher := &mocks.PaymentRequestReviewedFetcher{}
 		reviewedPaymentRequestFetcher.
-			On("FetchReviewedPaymentRequest").Return(models.PaymentRequests{}, errors.New("test error"))
+			On("FetchAndLockReviewedPaymentRequest").Return(models.PaymentRequests{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -365,6 +367,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "error sending the following EDIs")
+
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
 		fetcher := NewPaymentRequestFetcher(suite.DB())
 		for _, pr := range prs {

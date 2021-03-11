@@ -73,7 +73,10 @@ func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, s
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
 	var transactionError error
-
+	// records for successfully sent PRs
+	var sentToGexStatuses []string
+	// records for PRs that failed to send
+	var failed []string
 	transactionError = p.db.Transaction(func(tx *pop.Connection) error {
 		// Fetch all payment request that have been reviewed
 		reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
@@ -85,11 +88,6 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 			// No reviewed payment requests to process
 			return nil
 		}
-
-		// records for successfully sent PRs
-		var sentToGexStatuses []string
-		// records for PRs that failed to send
-		var failed []string
 
 		// Send all reviewed payment request to Syncada
 		for _, pr := range reviewedPaymentRequests {
@@ -131,15 +129,6 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 			}
 		}
 
-		// save error messages from failed sends
-		var errFailedToSendString string
-		if len(failed) > 0 {
-			errFailedToSendString = "error sending the following EDIs (PaymentRequest.ID, error string) to Syncada:\n\t"
-			for _, e := range failed {
-				errFailedToSendString += "\t" + e + "\n"
-			}
-		}
-
 		// If we have successfully sent EDIs to Syncada, then update status in the DB
 		if len(sentToGexStatuses) > 0 {
 			// Save PRs with successful sent to GEX
@@ -171,22 +160,30 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 
 		}
 
-		// Build up error string
-		returnError := ""
-		if errFailedToSendString != "" {
-			returnError += errFailedToSendString
-		}
-		if transactionError != nil {
-			if returnError != "" {
-				returnError += "\n"
-			}
-			returnError += transactionError.Error()
-		}
-		if returnError != "" {
-			return fmt.Errorf("function ProcessReviewedPaymentRequest has failure(s): %s", returnError)
-		}
 		return nil
 	})
+	// save error messages from failed sends
+	var errFailedToSendString string
+	if len(failed) > 0 {
+		errFailedToSendString = "error sending the following EDIs (PaymentRequest.ID, error string) to Syncada:\n\t"
+		for _, e := range failed {
+			errFailedToSendString += "\t" + e + "\n"
+		}
+	}
+	// Build up error string
+	returnError := ""
+	if errFailedToSendString != "" {
+		returnError += errFailedToSendString
+	}
+	if transactionError != nil {
+		if returnError != "" {
+			returnError += "\n"
+		}
+		returnError += transactionError.Error()
+	}
+	if returnError != "" {
+		return fmt.Errorf("function ProcessReviewedPaymentRequest has failure(s): %s", returnError)
+	}
 
 	return nil
 }
