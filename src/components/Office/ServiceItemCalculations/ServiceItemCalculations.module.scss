@@ -5,11 +5,6 @@
 
 .ServiceItemCalculations {
   @include u-font-size('body', 2);
-  @include u-padding(2);
-  border: 1px solid $base-lighter;
-  border-radius: 3px;
-  min-width: 892px;
-  background-color: $base-lightest;
 
   .title {
     @include u-font-size('body', 6);
@@ -32,6 +27,11 @@
   }
 
   .flexGrid {
+    @include u-padding(2);
+    border: 1px solid $base-lighter;
+    border-radius: 3px;
+    background-color: $base-lightest;
+    min-width: 892px;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -62,6 +62,38 @@
       hr {
         width: 100%;
       }
+    }
+  }
+
+  .flexGridSmall {
+    flex-direction: column;
+    min-width: unset;
+
+    .col {
+      @include u-margin-x(0);
+      @include u-padding-y(1);
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: space-between;
+
+      .value {
+        @include u-margin-left(4);
+      }
+
+      hr {
+        display: none;
+      }
+    }
+
+    .col:first-of-type {
+      @include u-padding-top(0);
+    }
+
+    .col:last-of-type {
+      @include u-margin-top(1);
+      @include u-padding-top(2);
+      @include u-padding-bottom(0);
+      border-top: 1px solid $base-lighter;
     }
   }
 
