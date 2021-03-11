@@ -37,6 +37,7 @@ import {
   faMinusSquare,
   faCaretDown,
   faCopy,
+  faEquals,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -80,4 +81,5 @@ library.add(
   faTimesCircle,
   faCalendar,
   faCopy,
+  faEquals,
 );
