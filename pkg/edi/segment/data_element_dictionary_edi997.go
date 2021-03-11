@@ -7,7 +7,7 @@ import (
 // Helpful Data Element Dictionary definitions found in the 997 Function Acknowledgment spec
 // for use with Syncada application
 
-// 717 Transaction SEt Acknowledgement Code
+// 717 Transaction Set Acknowledgement Code
 // Code indicating accept or reject condition based on the syntax editing of the transaction set
 var transactionSetAckCode717 = map[string]string{
 	"A": "Accepted",
