@@ -18,13 +18,15 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
-import { MOVE_STATUSES, SERVICE_ITEM_STATUS } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 import { patchMTOServiceItemStatus } from 'services/ghcApi';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 import dimensionTypes from 'constants/dimensionTypes';
 import customerContactTypes from 'constants/customerContactTypes';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import LeftNav from 'components/LeftNav';
+import { shipmentSectionLabels } from 'content/shipments';
+import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
 function formatShipmentDate(shipmentDateString) {
   const dateObj = new Date(shipmentDateString);
@@ -38,14 +40,6 @@ function formatShipmentDate(shipmentDateString) {
 function approvedFilter(shipment) {
   return shipment.status === shipmentStatuses.APPROVED || shipment.status === shipmentStatuses.CANCELLATION_REQUESTED;
 }
-
-const sectionLabels = {
-  HHG: 'HHG shipment',
-  HHG_LONGHAUL_DOMESTIC: 'HHG shipment',
-  HHG_SHORTHAUL_DOMESTIC: 'HHG shipment',
-  HHG_INTO_NTS_DOMESTIC: 'NTS shipment',
-  HHG_OUTOF_NTS_DOMESTIC: 'NTS-R shipment',
-};
 
 export const MoveTaskOrder = ({ match, ...props }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -155,7 +149,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       if (shipment.status === shipmentStatuses.APPROVED) {
         shipmentSections.push({
           id: shipment.id,
-          label: sectionLabels[`${shipment.shipmentType}`] || shipment.shipmentType,
+          label: shipmentSectionLabels[`${shipment.shipmentType}`] || shipment.shipmentType,
         });
       }
     });
@@ -240,23 +234,22 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
             </div>
           </div>
-
           {mtoShipments.map((mtoShipment) => {
             if (
-              mtoShipment.status !== shipmentStatuses.APPROVED ||
+              mtoShipment.status !== shipmentStatuses.APPROVED &&
               mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED
             ) {
               return false;
             }
             const serviceItemsForShipment = shipmentServiceItems[`${mtoShipment.id}`];
             const requestedServiceItems = serviceItemsForShipment?.filter(
-              (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
+              (item) => item.status === SERVICE_ITEM_STATUSES.SUBMITTED,
             );
             const approvedServiceItems = serviceItemsForShipment?.filter(
-              (item) => item.status === SERVICE_ITEM_STATUS.APPROVED,
+              (item) => item.status === SERVICE_ITEM_STATUSES.APPROVED,
             );
             const rejectedServiceItems = serviceItemsForShipment?.filter(
-              (item) => item.status === SERVICE_ITEM_STATUS.REJECTED,
+              (item) => item.status === SERVICE_ITEM_STATUSES.REJECTED,
             );
             // eslint-disable-next-line camelcase
             const dutyStationPostal = { postal_code: moveOrder.destinationDutyStation.address.postal_code };
@@ -295,7 +288,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                       serviceItems={requestedServiceItems}
                       handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                       handleShowRejectionDialog={handleShowRejectionDialog}
-                      statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+                      statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
                     />
                   )}
                   {approvedServiceItems?.length > 0 && (
@@ -303,7 +296,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                       serviceItems={approvedServiceItems}
                       handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                       handleShowRejectionDialog={handleShowRejectionDialog}
-                      statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+                      statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
                     />
                   )}
                   {rejectedServiceItems?.length > 0 && (
@@ -311,7 +304,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                       serviceItems={rejectedServiceItems}
                       handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                       handleShowRejectionDialog={handleShowRejectionDialog}
-                      statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
+                      statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
                     />
                   )}
                 </ShipmentContainer>

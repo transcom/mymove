@@ -12,7 +12,7 @@ describe('ServiceItemTableHasImg', () => {
     handleShowRejectionDialog: jest.fn(),
   };
 
-  it('should render no details', () => {
+  it('renders with no details', () => {
     const serviceItems = [
       {
         id: 'abc123',
@@ -32,7 +32,7 @@ describe('ServiceItemTableHasImg', () => {
     expect(wrapper.find('td').at(1).text()).toBe('—');
   });
 
-  it('should render a thumbnail image with dimensions for item and crating', () => {
+  it('renders a thumbnail image with dimensions for item and crating', () => {
     const serviceItems = [
       {
         id: 'abc123',
@@ -64,7 +64,7 @@ describe('ServiceItemTableHasImg', () => {
     expect(wrapper.find('dd').at(1).text()).toBe('10"x2.5"x5"');
   });
 
-  it('should render customer contacts for DDFSIT service item', () => {
+  it('renders the customer contacts for DDFSIT service item', () => {
     const serviceItems = [
       {
         id: 'abc123',
@@ -126,7 +126,7 @@ describe('ServiceItemTableHasImg', () => {
     expect(wrapper.find('dd').at(1).contains('This is the reason')).toBe(true);
   });
 
-  it('should call update service item status handler when accepting button is clicked', () => {
+  it('calls the update service item status handler when the accept button is clicked', () => {
     const serviceItems = [
       {
         id: 'abc123',
@@ -158,7 +158,7 @@ describe('ServiceItemTableHasImg', () => {
     );
   });
 
-  it('should call show rejection handler when reject button is clicked', () => {
+  it('calls the show rejection handler when the reject button is clicked', () => {
     const serviceItems = [
       {
         id: 'abc123',

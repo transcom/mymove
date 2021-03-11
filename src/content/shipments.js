@@ -17,3 +17,11 @@ export const shipmentForm = {
     [SHIPMENT_OPTIONS.NTSR]: 'Where and when should the movers release your things from storage?',
   },
 };
+
+export const shipmentSectionLabels = {
+  HHG: 'HHG shipment',
+  HHG_LONGHAUL_DOMESTIC: 'HHG shipment',
+  HHG_SHORTHAUL_DOMESTIC: 'HHG shipment',
+  HHG_INTO_NTS_DOMESTIC: 'NTS shipment',
+  HHG_OUTOF_NTS_DOMESTIC: 'NTS-R shipment',
+};
