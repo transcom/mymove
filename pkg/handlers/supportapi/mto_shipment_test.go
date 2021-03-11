@@ -193,6 +193,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			fetcher,
 			updater,
 		}
+
+		// NOTE: DEBUGGING to figure out what params is passing in.
+		// TODO: Fix Etag mismatch error
 		fmt.Println(params)
 		fmt.Println(params.Body)
 
