@@ -36,7 +36,7 @@ function formatShipmentDate(shipmentDateString) {
 }
 
 function approvedFilter(shipment) {
-  return shipment.status === 'APPROVED';
+  return shipment.status === shipmentStatuses.APPROVED || shipment.status === shipmentStatuses.CANCELLATION_REQUESTED;
 }
 
 const sectionLabels = {
@@ -242,7 +242,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           </div>
 
           {mtoShipments.map((mtoShipment) => {
-            if (mtoShipment.status !== shipmentStatuses.APPROVED) {
+            if (
+              mtoShipment.status !== shipmentStatuses.APPROVED ||
+              mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED
+            ) {
               return false;
             }
             const serviceItemsForShipment = shipmentServiceItems[`${mtoShipment.id}`];
@@ -263,7 +266,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               <div id={`shipment-${mtoShipment.id}`} key={mtoShipment.id}>
                 <ShipmentContainer shipmentType={mtoShipment.shipmentType} className={styles.shipmentCard}>
                   <ShipmentHeading
-                    key={mtoShipment.id}
                     shipmentInfo={{
                       shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
                       originCity: pickupAddress?.city,
@@ -271,6 +273,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                       originPostalCode: pickupAddress?.postal_code,
                       destinationAddress: destinationAddress || dutyStationPostal,
                       scheduledPickupDate: formattedScheduledPickup,
+                      shipmentStatus: mtoShipment.status,
                     }}
                   />
                   <ImportantShipmentDates
