@@ -203,6 +203,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   originPostalCode: get(mtoShipment.pickupAddress, 'postal_code'),
                   destinationAddress: mtoShipment.destinationAddress || dutyStationPostal,
                   scheduledPickupDate: formatShipmentDate(mtoShipment.scheduledPickupDate),
+                  shipmentStatus: mtoShipment.status,
                 }}
               />
               <ImportantShipmentDates

@@ -1,70 +1,15 @@
 @import '../../shared/styles/_variables';
 
-.box_top {
-  display: flex;
-  justify-content: space-between;
-}
-
 h2 {
   margin-top: 1em;
-}
-
-.instructions {
-  margin: 0;
 }
 
 .usa-width-one-whole > h3 {
   margin-top: 1em;
 }
 
-.signature-form {
-  margin-top: 1em;
-}
-
-.signature-box {
-  background-color: #e8e8e8;
-  margin-top: 1em;
-  padding: 1em;
-}
-
-.signature-box > h3 {
-  margin-top: 0.5em;
-}
-
-.signature-fields {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin: 0 -10px; /* This trick stolen from https://stackoverflow.com/a/48450531/559073 */
-}
-
-.signature-fields > * {
-  margin-top: 0;
-  margin: 0 10px;
-}
-
-div.signature {
-  flex-grow: 1;
-}
-
-div.signature-date {
-  flex-grow: 1;
-  max-width: 200px;
-}
-
-@media (min-width: $tablet) {
-  .box_top {
-    display: flex;
-    justify-content: right;
-  }
-}
-
 /* This matches the width at which submit buttons go full-width for mobile devices */
 @media only screen and (max-width: 481px) {
-  input[name='date'] {
-    max-width: none;
-  }
-
   .review-customer-agreement label {
     font-size: 1.6rem;
   }
@@ -74,19 +19,4 @@ div.signature-date {
   .review-customer-agreement label {
     font-size: 1.4rem;
   }
-}
-
-.signature_form h3 {
-  margin-top: 10px;
-}
-
-@media print {
-  .legalese .lower-nav-btns,
-  .legalese .pdf {
-    display: none;
-  }
-}
-
-.usa-input-error.signature {
-  margin-top: 2rem;
 }
