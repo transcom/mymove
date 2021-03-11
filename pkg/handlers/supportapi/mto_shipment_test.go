@@ -172,12 +172,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	// Test Successful Cancellation Request
 
 	suite.T().Run("Successful patch - Integration Test for CANCELLATION_REQUESTED", func(t *testing.T) {
-		//creator := mtoshipment.NewMTOShipmentStatusUpdater(builder)
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
 		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusSubmitted,
+				Status:       models.MTOShipmentStatusApproved,
 				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
 			},
 		})
@@ -188,34 +187,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "CANCELLATION_REQUESTED"},
 			IfMatch:       eTag,
 		}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		fetcher := fetch.NewFetcher(queryBuilder)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-		planner := &routemocks.Planner{}
-		planner.On("Zip5TransitDistanceLineHaul",
-			mock.Anything,
-			mock.Anything,
-		).Return(500, nil)
-		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
-		handler := UpdateMTOShipmentStatusHandlerFunc{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			fetcher,
-			updater,
-		}
 
-		// NOTE: DEBUGGING to figure out what params is passing in.
-		// TODO: Fix Etag mismatch error
-		fmt.Println(params)
-		fmt.Println(params.Body)
-		fmt.Println("DEBUG TEST")
-		fmt.Println(eTag)
 		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusOK)
 		suite.NotEmpty(okResponse, supportmessages.UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED)
-		//suite.NotZero(okResponse.Payload.ID())
+		suite.Equal(supportmessages.UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED, okResponse.Payload.Status)
 		suite.NotZero(okResponse.Payload.ETag)
 	})
 }
