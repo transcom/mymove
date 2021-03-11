@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 
 import styles from './ServiceItemCalculations.module.scss';
 
-const ServiceItemCalculations = ({ calculations }) => {
+const ServiceItemCalculations = ({ calculations, tableSize }) => {
+  // TODO - incorporate fontawesome for signs
   const appendSign = (index, length) => {
     const multiplies = <span className={styles.multiplier}>X</span>;
     const equals = <span className={styles.equal}>=</span>;
@@ -20,8 +21,12 @@ const ServiceItemCalculations = ({ calculations }) => {
   };
 
   return (
-    <div className={styles.ServiceItemCalculations}>
-      <div className={styles.flexGrid}>
+    <div
+      className={`${styles.ServiceItemCalculations}
+        ${tableSize === 'small' ? styles.ServiceItemCalculationsSmall : ''}`}
+    >
+      <h4 className={styles.title}>Calculations</h4>
+      <div className={`${styles.flexGrid} ${tableSize === 'small' ? styles.flexGridSmall : ''}`}>
         {calculations.map((calc, index) => {
           return (
             <div key={calc.label} className={styles.col}>
@@ -65,8 +70,12 @@ ServiceItemCalculations.propTypes = {
       details: PropTypes.arrayOf(PropTypes.string),
     }),
   ).isRequired,
+  // apply small or large styling
+  tableSize: PropTypes.oneOf(['small', 'large']),
 };
 
-ServiceItemCalculations.defaultProps = {};
+ServiceItemCalculations.defaultProps = {
+  tableSize: 'large',
+};
 
 export default ServiceItemCalculations;

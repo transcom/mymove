@@ -15,7 +15,7 @@ export default {
   ],
 };
 
-const data = [
+const largeData = [
   {
     value: '85 cwt',
     label: 'Billable weight (cwt)',
@@ -43,4 +43,10 @@ const data = [
   },
 ];
 
-export const Default = () => <ServiceItemCalculations calculations={data} />;
+// modify data to match high fidelity mock up
+const smallData = [...largeData];
+smallData[0].value = '85';
+
+export const LargeTable = () => <ServiceItemCalculations calculations={largeData} />;
+
+export const SmallTable = () => <ServiceItemCalculations calculations={smallData} tableSize="small" />;
