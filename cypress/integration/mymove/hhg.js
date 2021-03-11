@@ -121,7 +121,7 @@ function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('[data-testid="edit-shipment-btn"]').contains('Edit').click();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/mto-shipments\/[^/]+\/edit-shipment/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
   });
 
   cy.get(`[data-testid="firstName"]`).last().type('Johnson').blur();
