@@ -36,7 +36,7 @@ func (suite *SegmentSuite) TestValidateAK5() {
 			TransactionSetSyntaxErrorCodeAK506: "mno",
 		}
 		err := suite.validator.Struct(ak5)
-		suite.ValidateError(err, "TransactionSetAcknowledgmentCode", "min")
+		suite.ValidateError(err, "TransactionSetAcknowledgmentCode", "len")
 	})
 
 	suite.T().Run("validate failure max", func(t *testing.T) {
@@ -51,7 +51,7 @@ func (suite *SegmentSuite) TestValidateAK5() {
 		}
 
 		err := suite.validator.Struct(ak5)
-		suite.ValidateError(err, "TransactionSetAcknowledgmentCode", "max")
+		suite.ValidateError(err, "TransactionSetAcknowledgmentCode", "len")
 		suite.ValidateError(err, "TransactionSetSyntaxErrorCodeAK502", "max")
 		suite.ValidateError(err, "TransactionSetSyntaxErrorCodeAK503", "max")
 		suite.ValidateError(err, "TransactionSetSyntaxErrorCodeAK504", "max")
@@ -72,7 +72,7 @@ func (suite *SegmentSuite) TestValidateAK5() {
 		}
 
 		err := suite.validator.Struct(ak5)
-		suite.ValidateError(err, "TransactionSetAcknowledgmentCode", "min")
+		suite.ValidateError(err, "TransactionSetAcknowledgmentCode", "len")
 		suite.ValidateErrorLen(err, 1)
 	})
 }
