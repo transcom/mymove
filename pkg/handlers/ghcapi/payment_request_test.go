@@ -30,7 +30,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
-	expectedServiceItemName := "Move Management"
+	expectedServiceItemName := "Test Service"
 	expectedShipmentType := models.MTOShipmentTypeHHG
 
 	move := testdatagen.MakeAvailableMove(suite.DB())
@@ -41,10 +41,6 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 			Key:  models.ServiceItemParamNameRequestedPickupDate,
 			Type: models.ServiceItemParamTypeDate,
 		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeMS,
-			Name: "Move Management",
-		},
 	})
 	paymentRequest := paymentServiceItemParam.PaymentServiceItem.PaymentRequest
 
@@ -54,7 +50,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 	})
 
 	suite.T().Run("successful fetch of payment request", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/:paymentRequestID"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		params := paymentrequestop.GetPaymentRequestParams{
@@ -93,7 +89,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/:paymentRequestID"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUserTOO)
 
 		params := paymentrequestop.GetPaymentRequestParams{
@@ -114,7 +110,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(models.PaymentRequest{}, nil).Once()
 
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/:paymentRequestID"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		params := paymentrequestop.GetPaymentRequestParams{
@@ -133,7 +129,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
-	expectedServiceItemName := "Move Management"
+	expectedServiceItemName := "Test Service"
 	expectedShipmentType := models.MTOShipmentTypeHHG
 
 	move := testdatagen.MakeAvailableMove(suite.DB())
@@ -143,10 +139,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key:  models.ServiceItemParamNameRequestedPickupDate,
 			Type: models.ServiceItemParamTypeDate,
-		},
-		ReService: models.ReService{
-			Code: models.ReServiceCodeMS,
-			Name: "Move Management",
 		},
 	})
 	paymentRequest := paymentServiceItemParam.PaymentServiceItem.PaymentRequest
