@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import classnames from 'classnames';
 
 import styles from './OrdersTable.module.scss';
 
@@ -58,7 +59,7 @@ function OrdersTable({ ordersInfo }) {
             <th scope="row">Orders type detail</th>
             <td data-testid="ordersTypeDetail">{ordersTypeDetailReadable(ordersInfo.ordersTypeDetail)}</td>
           </tr>
-          <tr className={ordersInfo.tacMDC === '' ? styles.missingInfoError : ''}>
+          <tr className={classnames({ [styles.missingInfoError]: ordersInfo.tacMDC === '' })}>
             <th scope="row">TAC / MDC</th>
             <td data-testid="tacMDC">{ordersInfo.tacMDC === '' ? 'Missing' : ordersInfo.tacMDC}</td>
           </tr>
