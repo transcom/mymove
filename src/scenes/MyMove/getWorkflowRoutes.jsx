@@ -28,7 +28,7 @@ import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipme
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import Review from 'pages/MyMove/Review';
-import Agreement from 'scenes/Legalese';
+import Agreement from 'pages/MyMove/Agreement';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
@@ -277,9 +277,7 @@ const pages = {
   '/moves/:moveId/agreement': {
     isInFlow: always,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
-    render: (key, pages, description, props) => ({ match }) => {
-      return <Agreement pages={pages} pageKey={key} match={match} />;
-    },
+    render: () => () => <Agreement />,
   },
 };
 

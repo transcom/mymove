@@ -30,10 +30,6 @@ const (
 
 	// VaultAWSKeychainNameDefault is the aws-vault default keychain name
 	VaultAWSKeychainNameDefault string = "login"
-	// VaultAWSProfileTranscomPPP is the aws-vault profile name for transcom-ppp
-	VaultAWSProfileTranscomPPP string = "transcom-ppp"
-	// VaultAWSProfileTranscomComLegacy is the aws-vault profile name for transcom-com-legacy
-	VaultAWSProfileTranscomComLegacy string = "transcom-com-legacy"
 )
 
 type errInvalidKeychainName struct {
@@ -44,12 +40,12 @@ func (e *errInvalidKeychainName) Error() string {
 	return fmt.Sprintf("invalid keychain name '%s'", e.KeychainName)
 }
 
-type errInvalidAWSProfile struct {
+type errMissingAWSProfile struct {
 	Profile string
 }
 
-func (e *errInvalidAWSProfile) Error() string {
-	return fmt.Sprintf("invalid aws profile '%s'", e.Profile)
+func (e *errMissingAWSProfile) Error() string {
+	return fmt.Sprintf("missing aws profile '%s'", e.Profile)
 }
 
 type errInvalidVault struct {
@@ -88,19 +84,9 @@ func CheckVault(v *viper.Viper) error {
 		}
 
 		awsProfile := v.GetString(VaultAWSProfileFlag)
-		awsProfiles := []string{
-			VaultAWSProfileTranscomPPP,
-			VaultAWSProfileTranscomComLegacy,
-		}
-		if len(awsProfile) > 0 && !stringSliceContains(awsProfiles, awsProfile) {
-			return errors.Wrap(&errInvalidAWSProfile{Profile: awsProfile},
-				fmt.Sprintf("%s is invalid, expected %v", VaultAWSProfileFlag, awsProfiles))
-		}
-
-		// Require both are set or neither are set
-		if (len(keychainName) != 0 && len(awsProfile) == 0) || (len(keychainName) == 0 && len(awsProfile) != 0) {
-			return errors.Wrap(&errInvalidVault{KeychainName: keychainName, Profile: awsProfile},
-				fmt.Sprintf("If either %s or %s is set the other is required", VaultAWSKeychainNameFlag, VaultAWSProfileFlag))
+		if len(awsProfile) == 0 {
+			return errors.Wrap(&errMissingAWSProfile{Profile: awsProfile},
+				fmt.Sprintf("%s is missing.", VaultAWSProfileFlag))
 		}
 	}
 	return nil
