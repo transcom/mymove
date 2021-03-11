@@ -1,0 +1,79 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+@import 'shared/styles/_custom';
+
+.ServiceItemCalculations {
+  min-width: 892px;
+  @include u-font-size('body', 2);
+  @include u-padding(2);
+  background-color: $base-lightest;
+
+  .title {
+    @include u-font-size('body', 6);
+    @include u-font-weight('bold');
+    @include u-padding-bottom(2);
+    color: $base-darkest;
+  }
+
+  .value {
+    div {
+      @include u-font-weight('normal');
+      @include u-font-size('body', 4);
+      color: $base-darkest;
+    }
+  }
+
+  .multiplier {
+    color: $base-darkest;
+  }
+
+  .equal {
+    color: $base-darkest;
+  }
+
+  .flexGrid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+
+    .col {
+      flex-shrink: 0;
+      flex-grow: 0;
+      @include u-margin-right(4);
+
+      hr {
+        @include u-margin-y(1);
+        width: calc(100% + 4rem);
+        border: 1px solid $base-lighter;
+      }
+    }
+
+    .col:nth-last-of-type(2) {
+      flex-shrink: 0;
+      flex-grow: 1;
+    }
+
+    // Pushes the last item to the right by filling up the margin
+    .col:last-of-type {
+      @include u-margin-right(0);
+      @include u-text-align('right');
+
+      hr {
+        width: 100%;
+      }
+    }
+  }
+
+  .descriptionTitle {
+    @include u-font-weight('bold');
+    color: $base-darker;
+  }
+
+  .descriptionContent {
+    @include u-margin-y(0.5);
+    color: $base-darkest;
+    margin-left: 0;
+  }
+}
