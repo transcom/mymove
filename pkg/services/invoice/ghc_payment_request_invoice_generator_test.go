@@ -295,7 +295,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("00", bx.TransactionSetPurposeCode)
 		suite.Equal("J", bx.TransactionMethodTypeCode)
 		suite.Equal("PP", bx.ShipmentMethodOfPayment)
-		suite.Equal(*paymentRequest.MoveTaskOrder.ReferenceID, bx.ShipmentIdentificationNumber)
+		suite.Equal(paymentRequest.PaymentRequestNumber, bx.ShipmentIdentificationNumber)
 		suite.Equal("TRUS", bx.StandardCarrierAlphaCode)
 		suite.Equal("4", bx.ShipmentQualifier)
 	})
