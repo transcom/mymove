@@ -42,6 +42,7 @@ const ServiceItemCalculations = ({ calculations }) => {
                       return <React.Fragment key={detail}>{detail}</React.Fragment>;
                     }
 
+                    // each item, add line breaks
                     return (
                       <React.Fragment key={detail}>
                         {detail} <br />
