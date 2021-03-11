@@ -34,7 +34,7 @@
     @include u-font-weight(bold);
     color: $base-darker;
   }
-  :global .error {
+  .missingInfoError {
     color: $error;
     @include u-border-left(0.5); //4px
     @include u-border-left('error');

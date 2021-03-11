@@ -129,20 +129,21 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
     backupContact: customer.backup_contact,
   };
 
-  const defineSectionLink = (s) => {
-    const hasMissingOrdersInfo = () => {
-      return Object.values(ordersInfo).some((x) => x === '');
-    };
+  const hasMissingOrdersInfo = () => {
+    return Object.values(ordersInfo).some((entry) => entry === '');
+  };
 
+  const defineSectionLink = (section) => {
     let showErrorTag = false;
 
-    if (s === 'orders' && hasMissingOrdersInfo()) {
+    // TODO This will likely become a switch statement or be refactored as more values are considered required
+    if (section === 'orders' && hasMissingOrdersInfo()) {
       showErrorTag = true;
     }
 
     return (
-      <a key={`sidenav_${s}`} href={`#${s}`} className={s === activeSection ? 'active' : ''}>
-        {sectionLabels[`${s}`]}
+      <a key={`sidenav_${section}`} href={`#${section}`} className={section === activeSection ? 'active' : ''}>
+        {sectionLabels[`${section}`]}
         {showErrorTag && (
           <Tag className="usa-tag usa-tag--alert">
             <FontAwesomeIcon icon="exclamation" />

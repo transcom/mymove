@@ -58,7 +58,7 @@ function OrdersTable({ ordersInfo }) {
             <th scope="row">Orders type detail</th>
             <td data-testid="ordersTypeDetail">{ordersTypeDetailReadable(ordersInfo.ordersTypeDetail)}</td>
           </tr>
-          <tr className={ordersInfo.tacMDC === '' ? 'error' : ''}>
+          <tr className={ordersInfo.tacMDC === '' ? styles.missingInfoError : ''}>
             <th scope="row">TAC / MDC</th>
             <td data-testid="tacMDC">{ordersInfo.tacMDC === '' ? 'Missing' : ordersInfo.tacMDC}</td>
           </tr>

@@ -23,7 +23,7 @@ export const Basic = () => (
       <a href="#" className="active">
         Allowances
       </a>
-      <a href="#" className="error">
+      <a href="#">
         Requested Shipments
         <Tag className="usa-tag usa-tag--alert">
           <FontAwesomeIcon icon="exclamation" />
