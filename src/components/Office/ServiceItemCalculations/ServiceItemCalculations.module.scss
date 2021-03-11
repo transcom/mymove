@@ -27,9 +27,10 @@
     }
   }
 
-  .multiplier, .equal {
+  .icon {
     @include u-padding-right(1);
-    color: $base-darkest;
+    color: $base-dark;
+    width: auto;
   }
 
   .flexGrid {
@@ -80,7 +81,7 @@
         @include u-margin-left(4);
       }
 
-      .multiplier, .equal, hr {
+      .icon, hr {
         display: none;
       }
     }
