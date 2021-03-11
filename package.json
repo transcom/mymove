@@ -43,7 +43,7 @@
     "react-dom": "^17.0.1",
     "react-filepond": "^7.1.1",
     "react-highlight-words": "^0.17.0",
-    "react-idle-timer": "^4.5.5",
+    "react-idle-timer": "^4.5.6",
     "react-imask": "^6.0.7",
     "react-query": "^2.26.4",
     "react-query-devtools": "^2.6.3",
