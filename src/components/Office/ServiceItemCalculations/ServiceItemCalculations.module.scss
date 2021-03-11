@@ -24,11 +24,8 @@
     }
   }
 
-  .multiplier {
-    color: $base-darkest;
-  }
-
-  .equal {
+  .multiplier, .equal {
+    @include u-padding-right(1);
     color: $base-darkest;
   }
 
