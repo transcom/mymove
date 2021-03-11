@@ -30,7 +30,7 @@ import {
   selectHasCanceledMove,
   selectMoveType,
 } from 'store/entities/selectors';
-import { generalRoutes } from 'constants/routes';
+import { generalRoutes, customerRoutes } from 'constants/routes';
 /** Pages */
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
@@ -128,11 +128,11 @@ export class CustomerApp extends Component {
               {!hasError && !props.swaggerError && (
                 <Switch>
                   {/* no auth */}
-                  <Route path="/sign-in" component={SignIn} />
-                  <Route path="/access-code" component={AccessCode} />
+                  <Route path={generalRoutes.SIGN_IN} component={SignIn} />
+                  <Route path={customerRoutes.ACCESS_CODE} component={AccessCode} />
                   <Route exact path="/sm_style_guide" component={StyleGuide} />
-                  <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
-                  <Route path="/accessibility" component={AccessibilityStatement} />
+                  <Route path={generalRoutes.PRIVACY_SECURITY_POLICY} component={PrivacyPolicyStatement} />
+                  <Route path={generalRoutes.ACCESSIBILITY} component={AccessibilityStatement} />
 
                   {/* auth required */}
                   <CustomerPrivateRoute exact path="/ppm" component={PpmLanding} />

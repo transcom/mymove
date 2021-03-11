@@ -1,10 +1,12 @@
 export const generalRoutes = {
   HOME: '/',
   SIGN_IN: '/sign-in',
-  PRIVACY_SECURITY_POLICY: '/privacy-and-security-policy',
+  PRIVACY_SECURITY_POLICY: '/privacy-security',
+  ACCESSIBILITY: '/accessibility',
 };
 
 export const customerRoutes = {
+  ACCESS_CODE: '/access-code',
   CONUS_OCONUS: '/service-member/conus-oconus',
   DOD_INFO: '/service-member/dod-info',
   NAME: '/service-member/name',
