@@ -179,10 +179,16 @@ export class Home extends Component {
     if (shipmentType === 'PPM') {
       destLink = `/moves/${move.id}/review/edit-date-and-location`;
     } else if (shipmentType === 'HHG') {
-      destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`;
+      destLink = `${generatePath(customerRoutes.SHIPMENT_EDIT, {
+        moveId: move.id,
+        mtoShipmentId: shipmentId,
+      })}${queryString}`;
     } else {
       // nts/ntsr shipment
-      destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment`;
+      destLink = generatePath(customerRoutes.SHIPMENT_EDIT, {
+        moveId: move.id,
+        mtoShipmentId: shipmentId,
+      });
     }
 
     history.push(destLink);

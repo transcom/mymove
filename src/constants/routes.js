@@ -19,4 +19,5 @@ export const customerRoutes = {
   ORDERS_UPLOAD: '/orders/upload',
   SHIPMENT_MOVING_INFO: '/moves/:moveId/moving-info',
   SHIPMENT_SELECT_TYPE: '/moves/:moveId/shipment-type',
+  SHIPMENT_EDIT: '/moves/:moveId/shipments/:mtoShipmentId/edit',
 };
