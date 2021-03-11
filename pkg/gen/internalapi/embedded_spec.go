@@ -4912,6 +4912,9 @@ func init() {
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
+        "grade": {
+          "$ref": "#/definitions/ServiceMemberRank"
+        },
         "has_dependents": {
           "type": "boolean",
           "title": "Are dependents included in your orders?"
@@ -4945,6 +4948,9 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "origin_duty_station": {
+          "$ref": "#/definitions/DutyStationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -11410,6 +11416,9 @@ func init() {
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
+        "grade": {
+          "$ref": "#/definitions/ServiceMemberRank"
+        },
         "has_dependents": {
           "type": "boolean",
           "title": "Are dependents included in your orders?"
@@ -11443,6 +11452,9 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "origin_duty_station": {
+          "$ref": "#/definitions/DutyStationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",
