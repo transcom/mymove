@@ -34,7 +34,6 @@ import { generalRoutes, customerRoutes } from 'constants/routes';
 /** Pages */
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
-import StyleGuide from 'scenes/StyleGuide';
 import PpmLanding from 'scenes/PpmLanding';
 import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
@@ -51,7 +50,6 @@ import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import DPSAuthCookie from 'scenes/DPSAuthCookie';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
@@ -130,7 +128,6 @@ export class CustomerApp extends Component {
                   {/* no auth */}
                   <Route path={generalRoutes.SIGN_IN} component={SignIn} />
                   <Route path={customerRoutes.ACCESS_CODE} component={AccessCode} />
-                  <Route exact path="/sm_style_guide" component={StyleGuide} />
                   <Route path={generalRoutes.PRIVACY_SECURITY_POLICY} component={PrivacyPolicyStatement} />
                   <Route path={generalRoutes.ACCESSIBILITY} component={AccessibilityStatement} />
 
@@ -170,7 +167,6 @@ export class CustomerApp extends Component {
                   <CustomerPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
                   <CustomerPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
                   <CustomerPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
-                  <CustomerPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
 
                   {/* Errors */}
                   <Route exact path="/forbidden">
