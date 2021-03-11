@@ -38,7 +38,7 @@ const data = [
   },
   {
     value: '$6.423',
-    label: ['Total amount requested'],
+    label: 'Total amount requested',
     details: [],
   },
 ];
