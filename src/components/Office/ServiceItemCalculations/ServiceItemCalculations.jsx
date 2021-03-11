@@ -6,11 +6,11 @@ import styles from './ServiceItemCalculations.module.scss';
 
 const ServiceItemCalculations = ({ calculations, tableSize }) => {
   const appendSign = (index, length) => {
-    const multiplies = <FontAwesomeIcon className={styles.icon} icon="times" />;
+    const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
     const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
 
     if (index > 0 && index !== length - 1) {
-      return multiplies;
+      return times;
     }
 
     if (index === length - 1) {
