@@ -4,9 +4,11 @@
 @import 'shared/styles/_custom';
 
 .ServiceItemCalculations {
-  min-width: 892px;
   @include u-font-size('body', 2);
   @include u-padding(2);
+  border: 1px solid $base-lighter;
+  border-radius: 3px;
+  min-width: 892px;
   background-color: $base-lightest;
 
   .title {
