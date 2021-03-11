@@ -46,7 +46,7 @@ func (p *paymentRequestReviewedFetcher) FetchAndLockReviewedPaymentRequest() (mo
 	}
 	query := `
 		SELECT * FROM payment_requests
-		WHERE status = $1 FOR UPDATE
+		WHERE status = $1 FOR UPDATE SKIP LOCKED
 		LIMIT $2;
 	`
 	err = p.db.RawQuery(query, models.PaymentRequestStatusReviewed, limitOfPRsToProcess).All(&reviewedPaymentRequests)
