@@ -8,6 +8,7 @@
   :global .stackedtable-header {
     max-width: unset;
     h4 {
+      @include u-font-weight(bold);
       color: $base-darkest;
     }
 
@@ -32,5 +33,14 @@
   th {
     @include u-font-weight(bold);
     color: $base-darker;
+  }
+  :global .error {
+    color: $error;
+    @include u-border-left(0.5); //4px
+    @include u-border-left('error');
+    @include u-padding-left(2);
+    //changes to 16px to get the active item to still left align to the other items. accounts for the 4px of border.
+
+    @include u-font-weight(bold);
   }
 }

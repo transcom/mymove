@@ -36,7 +36,8 @@
       border-top-left-radius: 0px;
     }
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       @include u-text('no-underline');
       @include u-text('primary-vivid');
     }

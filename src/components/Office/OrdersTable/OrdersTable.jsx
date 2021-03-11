@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import styles from '../MoveDetailTable.module.scss';
+import styles from './OrdersTable.module.scss';
 
 import { OrdersInfoShape } from 'types/moveOrder';
 import { formatDate } from 'shared/dates';
@@ -9,7 +9,7 @@ import { departmentIndicatorReadable, ordersTypeReadable, ordersTypeDetailReadab
 
 function OrdersTable({ ordersInfo }) {
   return (
-    <div className={styles.MoveDetailTable}>
+    <div className={styles.OrdersTable}>
       <div className="stackedtable-header">
         <div>
           <h4>Orders</h4>
@@ -58,9 +58,9 @@ function OrdersTable({ ordersInfo }) {
             <th scope="row">Orders type detail</th>
             <td data-testid="ordersTypeDetail">{ordersTypeDetailReadable(ordersInfo.ordersTypeDetail)}</td>
           </tr>
-          <tr>
+          <tr className={ordersInfo.tacMDC === '' ? 'error' : ''}>
             <th scope="row">TAC / MDC</th>
-            <td data-testid="tacMDC">{ordersInfo.tacMDC}</td>
+            <td data-testid="tacMDC">{ordersInfo.tacMDC === '' ? 'Missing' : ordersInfo.tacMDC}</td>
           </tr>
           <tr>
             <th scope="row">SAC / SDN</th>

@@ -18,12 +18,27 @@ const ordersInfo = {
   sacSDN: '999 999999 999',
 };
 
+const ordersInfoMissingTAC = {
+  currentDutyStation: { name: 'JBSA Lackland' },
+  newDutyStation: { name: 'JB Lewis-McChord' },
+  issuedDate: '2020-03-08',
+  reportByDate: '2020-04-01',
+  departmentIndicator: 'NAVY_AND_MARINES',
+  ordersNumber: '999999999',
+  ordersType: 'PERMANENT_CHANGE_OF_STATION',
+  ordersTypeDetail: 'HHG_PERMITTED',
+  tacMDC: '',
+  sacSDN: '999 999999 999',
+};
+
 const ordersInfoOptional = {
   currentDutyStation: { name: 'JBSA Lackland' },
   newDutyStation: { name: 'JB Lewis-McChord' },
   issuedDate: '2020-03-08',
   reportByDate: '2020-04-01',
   ordersType: 'SEPARATION',
+  tacMDC: '9999',
+  sacSDN: '999 999999 999',
 };
 
 describe('Orders Table', () => {
@@ -51,8 +66,13 @@ describe('Orders Table', () => {
     expect(wrapper.find({ 'data-testid': 'ordersNumber' }).text()).toMatch('');
     expect(wrapper.find({ 'data-testid': 'ordersType' }).text()).toMatch('Separation');
     expect(wrapper.find({ 'data-testid': 'ordersTypeDetail' }).text()).toMatch('');
-    expect(wrapper.find({ 'data-testid': 'tacMDC' }).text()).toMatch('');
-    expect(wrapper.find({ 'data-testid': 'sacSDN' }).text()).toMatch('');
+    expect(wrapper.find({ 'data-testid': 'tacMDC' }).text()).toMatch('9999');
+    expect(wrapper.find({ 'data-testid': 'sacSDN' }).text()).toMatch('999 999999 999');
+  });
+
+  it('should render the table with a "Missing" message when the TAC is missing', () => {
+    const wrapper = shallow(<OrdersTable ordersInfo={ordersInfoMissingTAC} />);
+    expect(wrapper.find({ 'data-testid': 'tacMDC' }).text()).toMatch('Missing');
   });
 
   it('should link to the edit orders page with order id param', () => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import classnames from 'classnames';
 import { useParams } from 'react-router-dom';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { GridContainer, Grid, Tag } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
 
@@ -129,17 +129,35 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
     backupContact: customer.backup_contact,
   };
 
+  const defineSectionLink = (s) => {
+    const hasMissingOrdersInfo = () => {
+      return Object.values(ordersInfo).some((x) => x === '');
+    };
+
+    let showErrorTag = false;
+
+    if (s === 'orders' && hasMissingOrdersInfo()) {
+      showErrorTag = true;
+    }
+
+    return (
+      <a key={`sidenav_${s}`} href={`#${s}`} className={s === activeSection ? 'active' : ''}>
+        {sectionLabels[`${s}`]}
+        {showErrorTag && (
+          <Tag className="usa-tag usa-tag--alert">
+            <FontAwesomeIcon icon="exclamation" />
+          </Tag>
+        )}
+      </a>
+    );
+  };
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
         <LeftNav className={styles.sidebar}>
           {sections.map((s) => {
-            const classes = classnames({ active: s === activeSection });
-            return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
-                {sectionLabels[`${s}`]}
-              </a>
-            );
+            return defineSectionLink(s);
           })}
         </LeftNav>
 

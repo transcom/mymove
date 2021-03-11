@@ -18,7 +18,12 @@ export default {
 export const Basic = () => (
   <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
     <LeftNav>
+      <a href="#">Default</a>
+
       <a href="#" className="active">
+        Allowances
+      </a>
+      <a href="#" className="error">
         Requested Shipments
         <Tag className="usa-tag usa-tag--alert">
           <FontAwesomeIcon icon="exclamation" />
@@ -28,7 +33,7 @@ export const Basic = () => (
         Orders
         <Tag className="usa-tag--teal">INTL</Tag>
       </a>
-      <a href="#">Allowances</a>
+
       <a href="#">
         Customer Info
         <Tag>3</Tag>
