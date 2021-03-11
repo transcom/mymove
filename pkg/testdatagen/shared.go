@@ -82,6 +82,7 @@ type Assertions struct {
 	Tariff400ngItemRate                      models.Tariff400ngItemRate
 	Tariff400ngZip3                          models.Tariff400ngZip3
 	TrafficDistributionList                  models.TrafficDistributionList
+	TransportationAccountingCode             models.TransportationAccountingCode
 	TransportationOffice                     models.TransportationOffice
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance

@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
+import { IMaskInput } from 'react-imask';
 
 import MoveOrders from './MoveOrders';
 
@@ -101,7 +102,7 @@ describe('MoveOrders page', () => {
     expect(wrapper.find('input[name="ordersNumber"]').prop('value')).toBe('ORDER3');
     expect(wrapper.find('select[name="ordersType"]').prop('value')).toBe('PERMANENT_CHANGE_OF_STATION');
     expect(wrapper.find('select[name="ordersTypeDetail"]').prop('value')).toBe('HHG_PERMITTED');
-    expect(wrapper.find('input[name="tac"]').prop('value')).toBe('F8E1');
+    expect(wrapper.find(IMaskInput).getDOMNode().value).toBe('F8E1');
     expect(wrapper.find('input[name="sac"]').prop('value')).toBe('E2P3');
   });
 });

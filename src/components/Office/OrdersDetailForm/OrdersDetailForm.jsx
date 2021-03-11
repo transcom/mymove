@@ -2,6 +2,7 @@ import React from 'react';
 import { func, string } from 'prop-types';
 
 import { TextInput, DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
+import { TextMaskedInput } from 'components/form/fields/TextInput';
 import { DropdownArrayOf } from 'types/form';
 import styles from 'components/Office/OrdersDetailForm/OrdersDetailForm.module.scss';
 
@@ -22,7 +23,7 @@ const OrdersDetailForm = ({
       <TextInput name="ordersNumber" label="Orders number" id="ordersNumberInput" />
       <DropdownInput name="ordersType" label="Orders type" options={ordersTypeOptions} />
       <DropdownInput name="ordersTypeDetail" label="Orders type detail" options={ordersTypeDetailOptions} />
-      <TextInput name="tac" label="TAC" id="tacInput" warning={tacWarning} validate={validateTac} />
+      <TextMaskedInput name="tac" label="TAC" id="tacInput" mask="****" warning={tacWarning} validate={validateTac} />
       <TextInput name="sac" label="SAC" id="sacInput" />
     </div>
   );
