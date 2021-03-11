@@ -9,8 +9,8 @@ import (
 type AK3 struct {
 	SegmentIDCode                   string `validate:"min=2,max=3"`
 	SegmentPositionInTransactionSet int    `validate:"min=1,max=999999"`
-	LoopIdentifierCode              string `validate:"min=1,max=6"`
-	SegmentSyntaxErrorCode          string `validate:"min=1,max=3"`
+	LoopIdentifierCode              string `validate:"omitempty,min=1,max=6"`
+	SegmentSyntaxErrorCode          string `validate:"omitempty,min=1,max=3"`
 }
 
 // StringArray converts AK3 to an array of strings

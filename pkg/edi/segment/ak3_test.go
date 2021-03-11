@@ -12,29 +12,35 @@ func (suite *SegmentSuite) TestValidateAK3() {
 		SegmentSyntaxErrorCode:          "ERR",
 	}
 
-	suite.T().Run("validate success", func(t *testing.T) {
+	suite.T().Run("validate success all fields", func(t *testing.T) {
 		err := suite.validator.Struct(validAK3)
 		suite.NoError(err)
-		suite.Equal([]string{"AK3", "ID", "12345", "CODE", "ERR"}, validAK3.StringArray())
 	})
 
-	suite.T().Run("validate failure 1", func(t *testing.T) {
+	altValidAK3 := AK3{
+		SegmentIDCode:                   "ID",
+		SegmentPositionInTransactionSet: 12345,
+	}
+
+	suite.T().Run("validate success with only required fields", func(t *testing.T) {
+		err := suite.validator.Struct(altValidAK3)
+		suite.NoError(err)
+		suite.Equal([]string{"AK3", "ID", "12345", "", ""}, altValidAK3.StringArray())
+	})
+
+	suite.T().Run("validate failure for min", func(t *testing.T) {
 		ak3 := AK3{
 			SegmentIDCode:                   "", // min
 			SegmentPositionInTransactionSet: 0,  // min
-			LoopIdentifierCode:              "", // min
-			SegmentSyntaxErrorCode:          "", // min
 		}
 
 		err := suite.validator.Struct(ak3)
 		suite.ValidateError(err, "SegmentIDCode", "min")
 		suite.ValidateError(err, "SegmentPositionInTransactionSet", "min")
-		suite.ValidateError(err, "LoopIdentifierCode", "min")
-		suite.ValidateError(err, "SegmentSyntaxErrorCode", "min")
-		suite.ValidateErrorLen(err, 4)
+		suite.ValidateErrorLen(err, 2)
 	})
 
-	suite.T().Run("validate failure 2", func(t *testing.T) {
+	suite.T().Run("validate failure for max", func(t *testing.T) {
 		ak3 := AK3{
 			SegmentIDCode:                   "XXXX",    // max
 			SegmentPositionInTransactionSet: 9999999,   // max
@@ -48,5 +54,70 @@ func (suite *SegmentSuite) TestValidateAK3() {
 		suite.ValidateError(err, "LoopIdentifierCode", "max")
 		suite.ValidateError(err, "SegmentSyntaxErrorCode", "max")
 		suite.ValidateErrorLen(err, 4)
+	})
+}
+
+func (suite *SegmentSuite) TestStringArrayAK3() {
+	suite.T().Run("string array all fields", func(t *testing.T) {
+		validAK3 := AK3{
+			SegmentIDCode:                   "ID",
+			SegmentPositionInTransactionSet: 12345,
+			LoopIdentifierCode:              "CODE",
+			SegmentSyntaxErrorCode:          "ERR",
+		}
+		arrayValidAK3 := []string{"AK3", "ID", "12345", "CODE", "ERR"}
+		suite.Equal(arrayValidAK3, validAK3.StringArray())
+	})
+
+	suite.T().Run("string array only required fields", func(t *testing.T) {
+		validAK3 := AK3{
+			SegmentIDCode:                   "ID",
+			SegmentPositionInTransactionSet: 12345,
+		}
+		arrayValidAK3 := []string{"AK3", "ID", "12345", "", ""}
+		suite.Equal(arrayValidAK3, validAK3.StringArray())
+	})
+}
+
+func (suite *SegmentSuite) TestParseAK5() {
+	suite.T().Run("parse success all fields", func(t *testing.T) {
+		arrayValidAK3 := []string{"ID", "12345", "CODE", "ERR"}
+
+		expectedAK3 := AK3{
+			SegmentIDCode:                   "ID",
+			SegmentPositionInTransactionSet: 12345,
+			LoopIdentifierCode:              "CODE",
+			SegmentSyntaxErrorCode:          "ERR",
+		}
+
+		var validAK3 AK3
+		err := validAK3.Parse(arrayValidAK3)
+		if suite.NoError(err) {
+			suite.Equal(expectedAK3, validAK3)
+		}
+	})
+
+	suite.T().Run("parse success on required fields", func(t *testing.T) {
+		arrayValidAK3 := []string{"ID", "12345", "", ""}
+
+		expectedAK3 := AK3{
+			SegmentIDCode:                   "ID",
+			SegmentPositionInTransactionSet: 12345,
+		}
+
+		var validAK3 AK3
+		err := validAK3.Parse(arrayValidAK3)
+		if suite.NoError(err) {
+			suite.Equal(expectedAK3, validAK3)
+		}
+	})
+
+	suite.T().Run("wrong number of elements", func(t *testing.T) {
+		badArrayAK3 := []string{"11", "hello"}
+		var badAK3 AK3
+		err := badAK3.Parse(badArrayAK3)
+		if suite.Error(err) {
+			suite.Contains(err.Error(), "Wrong number of elements")
+		}
 	})
 }
