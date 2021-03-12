@@ -245,11 +245,14 @@ export class Home extends Component {
     // eslint-disable-next-line camelcase
     const { current_station } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
-    const shipmentSelectionPath = this.hasAnyShipments
-      ? generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: move.id })
-      : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id });
 
-    const confirmationPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
+    const shipmentSelectionPath =
+      move?.id &&
+      (this.hasAnyShipments
+        ? generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: move.id })
+        : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id }));
+
+    const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
