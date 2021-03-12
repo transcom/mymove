@@ -34,7 +34,7 @@ const data = [
 describe('ServiceItemCalculations', () => {
   const serviceItemCalculations = mount(<ServiceItemCalculations calculations={[]} />);
   const siCalcLargeWithData = mount(<ServiceItemCalculations calculations={data} />);
-  const siCalcSmallWIthData = mount(<ServiceItemCalculations calculations={data} tableSize="small" />);
+  const siCalcSmallWithData = mount(<ServiceItemCalculations calculations={data} tableSize="small" />);
 
   it('renders without crashing', () => {
     expect(serviceItemCalculations.length).toBe(1);
@@ -69,12 +69,12 @@ describe('ServiceItemCalculations', () => {
   describe('for service item calculations small table', () => {
     it('renders small table styling', () => {
       expect(
-        siCalcSmallWIthData.find('[data-testid="ServiceItemCalculations"]').hasClass('ServiceItemCalculationsSmall'),
+        siCalcSmallWithData.find('[data-testid="ServiceItemCalculations"]').hasClass('ServiceItemCalculationsSmall'),
       ).toBe(true);
     });
 
     it('renders no icons', () => {
-      const wrapper = siCalcSmallWIthData;
+      const wrapper = siCalcSmallWithData;
       const timesIcons = wrapper.find('[icon="times"]');
       const equalsIcons = wrapper.find('[icon="equals"]');
 
@@ -83,7 +83,7 @@ describe('ServiceItemCalculations', () => {
     });
 
     it('renders correct data', () => {
-      const wrapper = siCalcSmallWIthData.find('[data-testid="column"]');
+      const wrapper = siCalcSmallWithData.find('[data-testid="column"]');
 
       data.forEach((obj, index) => {
         expect(wrapper.at(index).find('[data-testid="value"]').text()).toBe(obj.value);
