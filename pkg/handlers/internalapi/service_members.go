@@ -200,6 +200,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	}
 
 	if len(serviceMember.Orders) != 0 {
+		// Will have to be refactored once we support multiple moves/orders
 		order, err := models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
 
 		if err != nil {
