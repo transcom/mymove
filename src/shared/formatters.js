@@ -315,14 +315,14 @@ export const moveStatusLabel = (status) => {
 };
 
 export const ordersTypeReadable = (ordersType) => {
-  if (ordersType === '') {
+  if (!ordersType) {
     return 'Missing';
   }
   return ORDERS_TYPE_OPTIONS[`${ordersType}`] || ordersType;
 };
 
 export const ordersTypeDetailReadable = (ordersTypeDetail) => {
-  if (ordersTypeDetail === '') {
+  if (!ordersTypeDetail) {
     return 'Missing';
   }
   return ORDERS_TYPE_DETAILS_OPTIONS[`${ordersTypeDetail}`] || ordersTypeDetail;

@@ -47,21 +47,21 @@ function OrdersTable({ ordersInfo }) {
             <th scope="row">Department indicator</th>
             <td data-testid="departmentIndicator">{departmentIndicatorReadable(ordersInfo.departmentIndicator)}</td>
           </tr>
-          <tr className={classnames({ [styles.missingInfoError]: ordersInfo.ordersNumber === '' })}>
+          <tr className={classnames({ [styles.missingInfoError]: !ordersInfo.ordersNumber })}>
             <th scope="row">Orders number</th>
-            <td data-testid="ordersNumber">{ordersInfo.ordersNumber === '' ? 'Missing' : ordersInfo.ordersNumber}</td>
+            <td data-testid="ordersNumber">{!ordersInfo.ordersNumber ? 'Missing' : ordersInfo.ordersNumber}</td>
           </tr>
-          <tr className={classnames({ [styles.missingInfoError]: ordersInfo.ordersType === '' })}>
+          <tr className={classnames({ [styles.missingInfoError]: !ordersInfo.ordersType })}>
             <th scope="row">Orders type</th>
             <td data-testid="ordersType">{ordersTypeReadable(ordersInfo.ordersType)}</td>
           </tr>
-          <tr className={classnames({ [styles.missingInfoError]: ordersInfo.ordersTypeDetail === '' })}>
+          <tr className={classnames({ [styles.missingInfoError]: !ordersInfo.ordersTypeDetail })}>
             <th scope="row">Orders type detail</th>
             <td data-testid="ordersTypeDetail">{ordersTypeDetailReadable(ordersInfo.ordersTypeDetail)}</td>
           </tr>
-          <tr className={classnames({ [styles.missingInfoError]: ordersInfo.tacMDC === '' })}>
+          <tr className={classnames({ [styles.missingInfoError]: !ordersInfo.tacMDC })}>
             <th scope="row">TAC / MDC</th>
-            <td data-testid="tacMDC">{ordersInfo.tacMDC === '' ? 'Missing' : ordersInfo.tacMDC}</td>
+            <td data-testid="tacMDC">{!ordersInfo.tacMDC ? 'Missing' : ordersInfo.tacMDC}</td>
           </tr>
           <tr>
             <th scope="row">SAC / SDN</th>
