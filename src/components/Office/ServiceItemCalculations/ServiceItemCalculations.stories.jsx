@@ -45,7 +45,11 @@ const largeData = [
 
 // modify data to match high fidelity mock up
 const smallData = [...largeData];
-smallData[0].value = '85';
+smallData[0] = {
+  value: '85',
+  label: 'Billable weight (cwt)',
+  details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000'],
+};
 
 export const LargeTable = () => <ServiceItemCalculations calculations={largeData} />;
 
