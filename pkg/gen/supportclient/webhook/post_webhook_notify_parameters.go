@@ -14,6 +14,8 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // NewPostWebhookNotifyParams creates a new PostWebhookNotifyParams object
@@ -64,7 +66,7 @@ type PostWebhookNotifyParams struct {
 	  The notification sent by webhook-client.
 
 	*/
-	Body PostWebhookNotifyBody
+	Body *supportmessages.WebhookNotification
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +107,13 @@ func (o *PostWebhookNotifyParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the post webhook notify params
-func (o *PostWebhookNotifyParams) WithBody(body PostWebhookNotifyBody) *PostWebhookNotifyParams {
+func (o *PostWebhookNotifyParams) WithBody(body *supportmessages.WebhookNotification) *PostWebhookNotifyParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the post webhook notify params
-func (o *PostWebhookNotifyParams) SetBody(body PostWebhookNotifyBody) {
+func (o *PostWebhookNotifyParams) SetBody(body *supportmessages.WebhookNotification) {
 	o.Body = body
 }
 
@@ -123,8 +125,10 @@ func (o *PostWebhookNotifyParams) WriteToRequest(r runtime.ClientRequest, reg st
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

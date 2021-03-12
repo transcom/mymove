@@ -6,7 +6,6 @@ package webhook
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -16,24 +15,23 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
-// NewPostWebhookNotifyParams creates a new PostWebhookNotifyParams object
+// NewCreateWebhookNotificationParams creates a new CreateWebhookNotificationParams object
 // no default values defined in spec.
-func NewPostWebhookNotifyParams() PostWebhookNotifyParams {
+func NewCreateWebhookNotificationParams() CreateWebhookNotificationParams {
 
-	return PostWebhookNotifyParams{}
+	return CreateWebhookNotificationParams{}
 }
 
-// PostWebhookNotifyParams contains all the bound params for the post webhook notify operation
+// CreateWebhookNotificationParams contains all the bound params for the create webhook notification operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters postWebhookNotify
-type PostWebhookNotifyParams struct {
+// swagger:parameters createWebhookNotification
+type CreateWebhookNotificationParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
 	/*The notification sent by webhook-client.
-	  Required: true
 	  In: body
 	*/
 	Body *supportmessages.WebhookNotification
@@ -42,8 +40,8 @@ type PostWebhookNotifyParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewPostWebhookNotifyParams() beforehand.
-func (o *PostWebhookNotifyParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewCreateWebhookNotificationParams() beforehand.
+func (o *CreateWebhookNotificationParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -52,11 +50,7 @@ func (o *PostWebhookNotifyParams) BindRequest(r *http.Request, route *middleware
 		defer r.Body.Close()
 		var body supportmessages.WebhookNotification
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			if err == io.EOF {
-				res = append(res, errors.Required("body", "body", ""))
-			} else {
-				res = append(res, errors.NewParseError("body", "body", "", err))
-			}
+			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {
 			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
@@ -67,8 +61,6 @@ func (o *PostWebhookNotifyParams) BindRequest(r *http.Request, route *middleware
 				o.Body = &body
 			}
 		}
-	} else {
-		res = append(res, errors.Required("body", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

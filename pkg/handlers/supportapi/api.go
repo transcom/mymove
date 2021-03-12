@@ -99,5 +99,9 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		// is called directly in the handler
 	}
 
+	supportAPI.WebhookCreateWebhookNotificationHandler = CreateWebhookNotificationHandler{
+		HandlerContext: context,
+	}
+
 	return supportAPI.Serve(nil)
 }

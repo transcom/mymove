@@ -50,6 +50,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderCreateMoveTaskOrderHandler: move_task_order.CreateMoveTaskOrderHandlerFunc(func(params move_task_order.CreateMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.CreateMoveTaskOrder has not yet been implemented")
 		}),
+		WebhookCreateWebhookNotificationHandler: webhook.CreateWebhookNotificationHandlerFunc(func(params webhook.CreateWebhookNotificationParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook.CreateWebhookNotification has not yet been implemented")
+		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		}),
@@ -123,6 +126,8 @@ type MymoveAPI struct {
 
 	// MoveTaskOrderCreateMoveTaskOrderHandler sets the operation handler for the create move task order operation
 	MoveTaskOrderCreateMoveTaskOrderHandler move_task_order.CreateMoveTaskOrderHandler
+	// WebhookCreateWebhookNotificationHandler sets the operation handler for the create webhook notification operation
+	WebhookCreateWebhookNotificationHandler webhook.CreateWebhookNotificationHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// PaymentRequestGetPaymentRequestEDIHandler sets the operation handler for the get payment request e d i operation
@@ -213,6 +218,9 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderCreateMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.CreateMoveTaskOrderHandler")
+	}
+	if o.WebhookCreateWebhookNotificationHandler == nil {
+		unregistered = append(unregistered, "webhook.CreateWebhookNotificationHandler")
 	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
@@ -339,6 +347,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/move-task-orders"] = move_task_order.NewCreateMoveTaskOrder(o.context, o.MoveTaskOrderCreateMoveTaskOrderHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/webhook-notifications"] = webhook.NewCreateWebhookNotification(o.context, o.WebhookCreateWebhookNotificationHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
