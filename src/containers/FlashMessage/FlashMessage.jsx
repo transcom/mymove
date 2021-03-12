@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Alert } from '@trussworks/react-uswds';
 
 import { clearFlashMessage as clearFlashMessageAction } from 'store/flash/actions';
-import Alert from 'shared/Alert';
 import { FlashMessageShape } from 'types/flash';
 
 export const FlashMessage = ({ flash, clearFlashMessage }) => {
-  const { message, title, type, key } = flash;
+  const { message, title, type, slim, key } = flash;
 
   useEffect(() => () => {
     // Clear this flash message on unmount (this will happen on navigation or if flash state changes)
@@ -15,7 +15,7 @@ export const FlashMessage = ({ flash, clearFlashMessage }) => {
   });
 
   return (
-    <Alert type={type} heading={title}>
+    <Alert slim={slim} type={type} heading={title}>
       {message}
     </Alert>
   );
@@ -51,6 +51,7 @@ const connectFlashMessage = (Component) => {
       title: PropTypes.string,
       message: PropTypes.string,
       key: PropTypes.string,
+      slim: PropTypes.bool,
     }),
     clearFlashMessage: PropTypes.func.isRequired,
   };
