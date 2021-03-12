@@ -36,6 +36,8 @@ type Engine struct {
 	PeriodInSeconds     int
 	MaxImmediateRetries int
 	SeverityThresholds  []int
+	QuitChannel         chan os.Signal
+	DoneChannel         chan bool
 }
 
 // processNotifications reads all the notifications and all the subscriptions and processes them one by one
@@ -48,6 +50,8 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 		for _, sub := range subscriptions {
 			sub := sub
 			if sub.EventKey == notif.EventKey {
+				fmt.Println("🎉🎉🎉🎉🎉🎉🎉🎉🎉 Start of loop right before 60 second timer")
+				time.Sleep(60 * time.Second)
 				foundSub = true
 				stopLoop := false
 				var sev int
@@ -92,9 +96,15 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				if errDB != nil {
 					eng.Logger.Error("Webhook Subscription update failed", zap.Error(err))
 				}
+
 				if stopLoop {
 					return
 				}
+
+				// Return out of loop if quit signal recieved
+				<-eng.QuitChannel
+				fmt.Println("🤞🏻🤞🏻🤞🏻🤞🏻🤞🏻🤞🏻🤞🏻 End of subscription loop")
+				eng.DoneChannel <- true
 			}
 		}
 		if foundSub == false {
@@ -106,7 +116,6 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				eng.Logger.Error("Notification update failed", zap.Error(err))
 			}
 		}
-
 	}
 }
 
@@ -263,7 +272,6 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 // If a new notification or subscription were to be adding during the course of one run
 // by the Milmove server, it would only be processed on the next call of run().
 func (eng *Engine) run() error {
-	time.Sleep(60 * time.Second)
 	logger := eng.Logger
 	// Read all notifications
 	notifications := []models.WebhookNotification{}
@@ -297,14 +305,14 @@ func (eng *Engine) run() error {
 
 	// process notifications
 	eng.processNotifications(notifications, subscriptions)
-	fmt.Println("🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠")
+	fmt.Println("🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠 End of eng.run function")
 	return nil
 }
 
 // Start starts the timer for the webhook engine
 // The process will run once every period to send pending notifications
 // The period is defined in the Engine.PeriodInSeconds
-func (eng *Engine) Start(quit chan os.Signal, done chan bool) error {
+func (eng *Engine) Start() error {
 
 	// Set timer tick
 	t := time.Tick(time.Duration(eng.PeriodInSeconds) * time.Second)
@@ -315,9 +323,8 @@ func (eng *Engine) Start(quit chan os.Signal, done chan bool) error {
 	// Run on each timer tick
 	for range t {
 		select {
-		case <-quit:
-			fmt.Println("🍑🍑🍑🍑🍑🍑🍑🍑🍑")
-			done <- true
+		case <-eng.QuitChannel:
+			eng.DoneChannel <- true
 		default:
 			eng.run()
 		}
