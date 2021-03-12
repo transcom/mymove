@@ -2,6 +2,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
+import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
+
 import MoveDetails from './MoveDetails';
 
 import { MockProviders } from 'testUtils';
@@ -77,6 +79,9 @@ const requestedMoveDetailsQuery = {
       totalDependents: 1,
       totalWeight: 8000,
     },
+    order_number: 'ORDER3',
+    order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+    order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
     tac: '9999',
   },
   mtoShipments: [
@@ -182,7 +187,6 @@ const requestedMoveDetailsMissingInfoQuery = {
       totalDependents: 1,
       totalWeight: 8000,
     },
-    tac: '',
   },
   mtoShipments: [
     {

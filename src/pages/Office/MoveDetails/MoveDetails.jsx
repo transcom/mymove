@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import classnames from 'classnames';
 import { GridContainer, Grid, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
@@ -129,8 +130,17 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
     backupContact: customer.backup_contact,
   };
 
+  const requiredOrdersInfo = {
+    ordersNumber: moveOrder.order_number,
+    ordersType: moveOrder.order_type,
+    ordersTypeDetail: moveOrder.order_type_detail,
+    tacMDC: moveOrder.tac,
+  };
+
   const hasMissingOrdersInfo = () => {
-    return Object.values(ordersInfo).some((entry) => entry === '');
+    return !Object.values(requiredOrdersInfo).every((value) => {
+      return !!value;
+    });
   };
 
   const defineSectionLink = (section) => {
@@ -142,7 +152,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
     }
 
     return (
-      <a key={`sidenav_${section}`} href={`#${section}`} className={section === activeSection ? 'active' : ''}>
+      <a key={`sidenav_${section}`} href={`#${section}`} className={classnames({ active: section === activeSection })}>
         {sectionLabels[`${section}`]}
         {showErrorTag && (
           <Tag className="usa-tag usa-tag--alert">
