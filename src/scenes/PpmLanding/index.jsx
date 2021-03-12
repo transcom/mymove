@@ -21,23 +21,11 @@ import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/M
 import { getPPMsForMove } from 'services/internalApi';
 import { loadMTOShipments } from 'shared/Entities/modules/mtoShipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import { profileStates } from 'constants/customerStates';
 
 export class PpmLanding extends Component {
-  componentDidMount() {
-    const { serviceMember, isProfileComplete } = this.props;
-    if (serviceMember && !isProfileComplete) {
-      // If the service member exists, but is not complete, redirect to next incomplete page.
-      this.resumeMove();
-    }
-  }
-
   componentDidUpdate(prevProps) {
-    const { serviceMember, isProfileComplete } = this.props;
-    if (!prevProps.serviceMember && serviceMember && !isProfileComplete) {
-      // If the service member exists, but is not complete, redirect to next incomplete page.
-      this.resumeMove();
-    }
-
     if (prevProps.move && prevProps.move.id !== this.props.move.id) {
       this.props.loadMTOShipments(this.props.move.id);
       getPPMsForMove(this.props.move.id).then((response) => this.props.updatePPMs(response));
@@ -147,4 +135,11 @@ const mapDispatchToProps = {
   updatePPMs,
 };
 
-export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(PpmLanding)));
+export default withContext(
+  withLastLocation(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps,
+    )(requireCustomerState(PpmLanding, profileStates.BACKUP_CONTACTS_COMPLETE)),
+  ),
+);

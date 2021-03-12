@@ -33,8 +33,8 @@ func InitNewSyncadaSFTPSession() (services.SyncadaSFTPSender, error) {
 		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_USER_ID")
 	}
 
-	ipAddress := os.Getenv("SYNCADA_SFTP_IP_ADDRESS")
-	if ipAddress == "" {
+	remote := os.Getenv("SYNCADA_SFTP_IP_ADDRESS")
+	if remote == "" {
 		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_IP_ADDRESS")
 	}
 
@@ -60,7 +60,7 @@ func InitNewSyncadaSFTPSession() (services.SyncadaSFTPSender, error) {
 	return &SyncadaSenderSFTPSession{
 		port,
 		userID,
-		ipAddress,
+		remote,
 		password,
 		inboundDir,
 		hostKey,

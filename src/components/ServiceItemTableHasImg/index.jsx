@@ -32,7 +32,8 @@ const ServiceItemTableHasImg = ({
     default:
       dateField = 'createdAt';
   }
-  const tableRows = serviceItems.map(({ id, code, serviceItem, details, ...item }) => {
+
+  const tableRows = serviceItems.map(({ id, code, serviceItem, details, mtoShipmentID, ...item }) => {
     return (
       <tr key={id}>
         <td className={styles.nameAndDate}>
@@ -49,7 +50,7 @@ const ServiceItemTableHasImg = ({
                 type="button"
                 className="usa-button--icon usa-button--small acceptButton"
                 data-testid="acceptButton"
-                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
+                onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
               >
                 <span className="icon">
                   <FontAwesomeIcon icon="check" />
@@ -61,7 +62,7 @@ const ServiceItemTableHasImg = ({
                 secondary
                 className="usa-button--small usa-button--icon margin-left-1 rejectButton"
                 data-testid="rejectButton"
-                onClick={() => handleShowRejectionDialog(id)}
+                onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
               >
                 <span className="icon">
                   <FontAwesomeIcon icon="times" />
@@ -76,7 +77,7 @@ const ServiceItemTableHasImg = ({
                 type="button"
                 data-testid="rejectTextButton"
                 className="text-blue usa-button--unstyled margin-left-1"
-                onClick={() => handleShowRejectionDialog(id)}
+                onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
               >
                 <span className="icon">
                   <FontAwesomeIcon icon="times" />
@@ -91,7 +92,7 @@ const ServiceItemTableHasImg = ({
                 type="button"
                 data-testid="approveTextButton"
                 className="text-blue usa-button--unstyled"
-                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
+                onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
               >
                 <span className="icon">
                   <FontAwesomeIcon icon="times" />
@@ -128,6 +129,7 @@ ServiceItemTableHasImg.propTypes = {
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
+      mtoShipmentID: PropTypes.string,
       submittedAt: PropTypes.string,
       serviceItem: PropTypes.string,
       code: PropTypes.string,

@@ -32,4 +32,4 @@ function cleanup()
 
 ## setup a trap incase the tests fail, we still want to generate the report
 trap cleanup EXIT
-JUNIT=1 make server_test_standalone
+SERVER_REPORT=1 make server_test_standalone

@@ -317,12 +317,13 @@ func (s *ServiceMember) IsProfileComplete() bool {
 
 // FetchLatestOrder gets the latest order for a service member
 func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) {
-
 	var order Order
 	query := db.Where("orders.service_member_id = $1", s.ID).Order("created_at desc")
-	err := query.Eager("ServiceMember.User",
+	err := query.EagerPreload("ServiceMember.User",
+		"OriginDutyStation.Address",
+		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
-		"UploadedOrders.UserUploads.Upload",
+		"UploadedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
@@ -331,6 +332,12 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
+		return Order{}, err
+	}
+
+	// Eager loading of nested has_many associations is broken
+	err = db.Load(&order.UploadedOrders, "UserUploads.Upload")
+	if err != nil {
 		return Order{}, err
 	}
 

@@ -34,16 +34,23 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	if order.Entitlement != nil {
 		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
 	}
+	var originDutyStation models.DutyStation
+	originDutyStation = models.DutyStation{}
+	if order.OriginDutyStation != nil {
+		originDutyStation = *order.OriginDutyStation
+	}
 
 	payload := &internalmessages.Orders{
 		ID:                  handlers.FmtUUID(order.ID),
 		CreatedAt:           handlers.FmtDateTime(order.CreatedAt),
 		UpdatedAt:           handlers.FmtDateTime(order.UpdatedAt),
 		ServiceMemberID:     handlers.FmtUUID(order.ServiceMemberID),
+		Grade:               order.Grade,
 		IssueDate:           handlers.FmtDate(order.IssueDate),
 		ReportByDate:        handlers.FmtDate(order.ReportByDate),
 		OrdersType:          order.OrdersType,
 		OrdersTypeDetail:    order.OrdersTypeDetail,
+		OriginDutyStation:   payloadForDutyStationModel(originDutyStation),
 		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
 		HasDependents:       handlers.FmtBool(order.HasDependents),
 		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
