@@ -103,6 +103,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		}
 	}
 
+	// Get the count
+	count := query.Paginator.TotalEntriesSize
+
 	for i := range paymentRequests {
 		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
 		// where the first 2 levels match.  For example:
@@ -119,9 +122,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 			return nil, 0, err
 		}
 	}
-
-	// Get the count
-	count := query.Paginator.TotalEntriesSize
 
 	return &paymentRequests, count, nil
 }

@@ -97,9 +97,25 @@ func setupScsSession(ctx context.Context, session *auth.Session, sessionManager 
 	expiry := time.Now().Add(30 * time.Minute).UTC()
 	b, _ := sessionManager.Codec.Encode(expiry, values)
 
-	sessionManager.Store.Commit("session_token", b, expiry)
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+	//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+	//RA: in which this would be considered a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
+	sessionManager.Store.Commit("session_token", b, expiry) // nolint:errcheck
 	scsContext, _ := sessionManager.Load(ctx, "session_token")
-	sessionManager.Commit(scsContext)
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+	//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+	//RA: in which this would be considered a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
+	sessionManager.Commit(scsContext) // nolint:errcheck
 	return scsContext
 }
 
