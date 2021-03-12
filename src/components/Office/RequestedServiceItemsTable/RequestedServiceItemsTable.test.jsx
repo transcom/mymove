@@ -67,7 +67,7 @@ const testDetails = (wrapper) => {
 };
 
 describe('RequestedServiceItemsTable', () => {
-  it('show the correct number of service items in the table', () => {
+  it('shows the correct number of service items in the table', () => {
     const serviceItems = [serviceItemWithImg];
 
     let wrapper = shallow(

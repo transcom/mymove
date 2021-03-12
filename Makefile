@@ -416,7 +416,7 @@ server_test_coverage_generate: db_test_reset db_test_migrate redis_reset server_
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
 	# Add coverage tracker via go cover
-	NO_DB=1 COVERAGE=1 scripts/run-server-test
+	NO_DB=1 SERVER_REPORT=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_coverage_generate ## Run server unit test coverage with html output
@@ -532,7 +532,7 @@ db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-t
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
@@ -548,7 +548,7 @@ db_dev_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate dat
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
