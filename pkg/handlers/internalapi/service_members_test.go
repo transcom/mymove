@@ -168,14 +168,21 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// TODO: add more fields to change
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
-	orgRank := models.ServiceMemberRankE1
+
+	origRank := models.ServiceMemberRankE1
+
+	origAffiliation := models.AffiliationAIRFORCE
+	newAffiliation := internalmessages.AffiliationARMY
+
 	dutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+
 	newServiceMember := models.ServiceMember{
 		UserID:        user.ID,
 		Edipi:         &origEdipi,
 		DutyStationID: &dutyStation.ID,
 		DutyStation:   dutyStation,
-		Rank:          &orgRank,
+		Rank:          &origRank,
+		Affiliation:   &origAffiliation,
 	}
 	suite.MustSave(&newServiceMember)
 
@@ -191,7 +198,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		},
 	})
 
-	affiliation := internalmessages.AffiliationARMY
 	rank := internalmessages.ServiceMemberRankE1
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()
@@ -199,7 +205,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		Edipi:                &newEdipi,
 		BackupMailingAddress: backupAddress,
 		ResidentialAddress:   resAddress,
-		Affiliation:          &affiliation,
+		Affiliation:          &newAffiliation,
 		EmailIsPreferred:     swag.Bool(true),
 		FirstName:            swag.String("Firstname"),
 		LastName:             swag.String("Lastname"),
@@ -227,19 +233,19 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	handler := PatchServiceMemberHandler{context}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
+	suite.IsType(&servicememberop.PatchServiceMemberOK{}, response)
 	okResponse := response.(*servicememberop.PatchServiceMemberOK)
 
 	serviceMemberPayload := okResponse.Payload
 
-	suite.Assertions.Equal(*serviceMemberPayload.Edipi, newEdipi)
-	suite.Assertions.Equal(*serviceMemberPayload.Affiliation, affiliation)
-	suite.Assertions.Equal(*serviceMemberPayload.ResidentialAddress.StreetAddress1, *resAddress.StreetAddress1)
-	suite.Assertions.Equal(*serviceMemberPayload.BackupMailingAddress.StreetAddress1, *backupAddress.StreetAddress1)
+	suite.Equal(newEdipi, *serviceMemberPayload.Edipi)
+	suite.Equal(newAffiliation, *serviceMemberPayload.Affiliation)
+	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
+	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
 	// Editing SM info DutyStation and Rank fields should edit Orders OriginDutyStation and Grade fields
-	suite.Assertions.Equal(*serviceMemberPayload.Orders[0].OriginDutyStation.Name, newServiceMember.DutyStation.Name)
-	suite.Assertions.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
-	suite.Assertions.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
+	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyStation.Name, newServiceMember.DutyStation.Name)
+	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
+	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
