@@ -178,22 +178,9 @@ func (h PatchServiceMemberHandler) isDraftMove(serviceMember *models.ServiceMemb
 		return true
 	}
 
-	order := serviceMember.Orders[0]
-	moves := order.Moves
-	var draftMoves []*models.Move
-	for i := range moves {
-		if moves[i].Status == models.MoveStatusDRAFT {
-			draftMoves = append(draftMoves, &moves[i])
-		}
-	}
+	move := serviceMember.Orders[0].Moves[0]
 
-	// Don't allow the customer to edit certain fields if there are no
-	// moves in draft status.
-	if len(draftMoves) <= 0 {
-		return false
-	}
-
-	return true
+	return move.Status == models.MoveStatusDRAFT
 }
 
 // Handle ... patches a new ServiceMember from a request payload
