@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import { get } from 'lodash';
-import { GridContainer } from '@trussworks/react-uswds';
+import { GridContainer, Alert } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
 
@@ -35,6 +35,11 @@ function formatShipmentDate(shipmentDateString) {
 }
 
 export const MoveTaskOrder = ({ match, ...props }) => {
+  // Using hooks to illustrate disabled button state for shipment cancellation
+  // This will be modified once the modal is hooked up, as the button will only
+  // be used to trigger the modal.
+  const [mockShipmentStatus, setMockShipmentStatus] = useState(undefined);
+  const [currentAlert, setCurrentAlert] = useState(undefined);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
 
@@ -90,6 +95,18 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       console.log(errorMsg);
     },
   });
+
+  const handleUpdateMTOShipmentStatus = (mtoShipmentID, status) => {
+    setCurrentAlert({
+      type: 'success',
+      msg: 'The request to cancel that shipment has been sent to the movers.',
+    });
+    setMockShipmentStatus({
+      id: mtoShipmentID,
+      status,
+    });
+    // TODO mutateMTOShipmentStatus(); to implement updateMTOShipmentStatus endpoint
+  };
 
   const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, status, rejectionReason) => {
     const mtoServiceItemForRequest = mtoServiceItemsArr.find((s) => s.id === mtoServiceItemID);
@@ -164,6 +181,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             onClose={setIsModalVisible}
           />
         )}
+        {currentAlert && (
+          <Alert slim type={currentAlert.type}>
+            {currentAlert.msg}
+          </Alert>
+        )}
+
         <div className={styles.pageHeader}>
           <h1>Move task order</h1>
           <div className={styles.pageHeaderDetails}>
@@ -176,6 +199,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           if (mtoShipment.status !== 'APPROVED') {
             return false;
           }
+          // This code mocks a "CANCELLATION_REQUESTED" status change on a shipment so we can test that behavior
+          const mockStatus =
+            mockShipmentStatus && mockShipmentStatus.id === mtoShipment.id
+              ? mockShipmentStatus.status
+              : mtoShipment.status;
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
           const requestedServiceItems = serviceItemsForShipment.filter(
             (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
@@ -197,14 +225,16 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               <ShipmentHeading
                 key={mtoShipment.id}
                 shipmentInfo={{
+                  shipmentID: mtoShipment.id,
                   shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
                   originCity: get(mtoShipment.pickupAddress, 'city'),
                   originState: get(mtoShipment.pickupAddress, 'state'),
                   originPostalCode: get(mtoShipment.pickupAddress, 'postal_code'),
                   destinationAddress: mtoShipment.destinationAddress || dutyStationPostal,
                   scheduledPickupDate: formatShipmentDate(mtoShipment.scheduledPickupDate),
-                  shipmentStatus: mtoShipment.status,
+                  shipmentStatus: mockStatus,
                 }}
+                handleUpdateMTOShipmentStatus={handleUpdateMTOShipmentStatus}
               />
               <ImportantShipmentDates
                 requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
