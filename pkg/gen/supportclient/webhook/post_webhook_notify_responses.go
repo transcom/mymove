@@ -9,11 +9,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
+
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // PostWebhookNotifyReader is a Reader for the PostWebhookNotify structure.
@@ -73,23 +72,23 @@ func NewPostWebhookNotifyOK() *PostWebhookNotifyOK {
 
 /*PostWebhookNotifyOK handles this case with default header values.
 
-Sent
+Successful creation
 */
 type PostWebhookNotifyOK struct {
-	Payload *PostWebhookNotifyOKBody
+	Payload *supportmessages.WebhookNotification
 }
 
 func (o *PostWebhookNotifyOK) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] postWebhookNotifyOK  %+v", 200, o.Payload)
 }
 
-func (o *PostWebhookNotifyOK) GetPayload() *PostWebhookNotifyOKBody {
+func (o *PostWebhookNotifyOK) GetPayload() *supportmessages.WebhookNotification {
 	return o.Payload
 }
 
 func (o *PostWebhookNotifyOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(PostWebhookNotifyOKBody)
+	o.Payload = new(supportmessages.WebhookNotification)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -201,175 +200,5 @@ func (o *PostWebhookNotifyInternalServerError) Error() string {
 
 func (o *PostWebhookNotifyInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	return nil
-}
-
-/*PostWebhookNotifyBody post webhook notify body
-swagger:model PostWebhookNotifyBody
-*/
-type PostWebhookNotifyBody struct {
-
-	// Name of event triggered
-	EventName string `json:"eventName,omitempty"`
-
-	// id
-	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
-
-	// object
-	Object string `json:"object,omitempty"`
-
-	// The type of object that's being updated
-	ObjectType string `json:"objectType,omitempty"`
-
-	// Time representing when the event was triggered
-	// Format: date-time
-	TriggeredAt strfmt.DateTime `json:"triggeredAt,omitempty"`
-}
-
-// Validate validates this post webhook notify body
-func (o *PostWebhookNotifyBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateTriggeredAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *PostWebhookNotifyBody) validateID(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"id", "body", "uuid", o.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *PostWebhookNotifyBody) validateTriggeredAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.TriggeredAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"triggeredAt", "body", "date-time", o.TriggeredAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *PostWebhookNotifyBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *PostWebhookNotifyBody) UnmarshalBinary(b []byte) error {
-	var res PostWebhookNotifyBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*PostWebhookNotifyOKBody post webhook notify o k body
-swagger:model PostWebhookNotifyOKBody
-*/
-type PostWebhookNotifyOKBody struct {
-
-	// Name of event triggered
-	EventName string `json:"eventName,omitempty"`
-
-	// id
-	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
-
-	// object
-	Object string `json:"object,omitempty"`
-
-	// The type of object that's being updated
-	ObjectType string `json:"objectType,omitempty"`
-
-	// Time representing when the event was triggered
-	// Format: date-time
-	TriggeredAt strfmt.DateTime `json:"triggeredAt,omitempty"`
-}
-
-// Validate validates this post webhook notify o k body
-func (o *PostWebhookNotifyOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateTriggeredAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *PostWebhookNotifyOKBody) validateID(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("postWebhookNotifyOK"+"."+"id", "body", "uuid", o.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *PostWebhookNotifyOKBody) validateTriggeredAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.TriggeredAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("postWebhookNotifyOK"+"."+"triggeredAt", "body", "date-time", o.TriggeredAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *PostWebhookNotifyOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *PostWebhookNotifyOKBody) UnmarshalBinary(b []byte) error {
-	var res PostWebhookNotifyOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

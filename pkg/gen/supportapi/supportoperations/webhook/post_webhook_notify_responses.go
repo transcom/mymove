@@ -9,12 +9,14 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
+
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // PostWebhookNotifyOKCode is the HTTP code returned for type PostWebhookNotifyOK
 const PostWebhookNotifyOKCode int = 200
 
-/*PostWebhookNotifyOK Sent
+/*PostWebhookNotifyOK Successful creation
 
 swagger:response postWebhookNotifyOK
 */
@@ -23,7 +25,7 @@ type PostWebhookNotifyOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *PostWebhookNotifyOKBody `json:"body,omitempty"`
+	Payload *supportmessages.WebhookNotification `json:"body,omitempty"`
 }
 
 // NewPostWebhookNotifyOK creates PostWebhookNotifyOK with default headers values
@@ -33,13 +35,13 @@ func NewPostWebhookNotifyOK() *PostWebhookNotifyOK {
 }
 
 // WithPayload adds the payload to the post webhook notify o k response
-func (o *PostWebhookNotifyOK) WithPayload(payload *PostWebhookNotifyOKBody) *PostWebhookNotifyOK {
+func (o *PostWebhookNotifyOK) WithPayload(payload *supportmessages.WebhookNotification) *PostWebhookNotifyOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the post webhook notify o k response
-func (o *PostWebhookNotifyOK) SetPayload(payload *PostWebhookNotifyOKBody) {
+func (o *PostWebhookNotifyOK) SetPayload(payload *supportmessages.WebhookNotification) {
 	o.Payload = payload
 }
 

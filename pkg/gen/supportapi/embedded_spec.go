@@ -658,6 +658,46 @@ func init() {
         }
       ]
     },
+    "/webhook-notifications": {
+      "post": {
+        "description": "This endpoint creates a webhook notification in the database. If the webhook client is running, it may send the notification soon after creation.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "summary": "Test endpoint for creatings webhook notifications",
+        "operationId": "createWebhookNotification",
+        "parameters": [
+          {
+            "description": "The notification sent by webhook-client.",
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WebhookNotification"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful creation",
+            "schema": {
+              "$ref": "#/definitions/WebhookNotification"
+            }
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/webhook-notify": {
       "post": {
         "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
@@ -679,67 +719,15 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "eventName": {
-                  "description": "Name of event triggered",
-                  "type": "string",
-                  "example": "paymentRequest.updated"
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-                },
-                "object": {
-                  "type": "string",
-                  "format": "object"
-                },
-                "objectType": {
-                  "description": "The type of object that's being updated",
-                  "type": "string",
-                  "example": "paymentRequest"
-                },
-                "triggeredAt": {
-                  "description": "Time representing when the event was triggered",
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
+              "$ref": "#/definitions/WebhookNotification"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Sent",
+            "description": "Successful creation",
             "schema": {
-              "type": "object",
-              "properties": {
-                "eventName": {
-                  "description": "Name of event triggered",
-                  "type": "string",
-                  "example": "paymentRequest.updated"
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-                },
-                "object": {
-                  "type": "string",
-                  "format": "object"
-                },
-                "objectType": {
-                  "description": "The type of object that's being updated",
-                  "type": "string",
-                  "example": "paymentRequest"
-                },
-                "triggeredAt": {
-                  "description": "Time representing when the event was triggered",
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
+              "$ref": "#/definitions/WebhookNotification"
             }
           },
           "400": {
@@ -2273,6 +2261,35 @@ func init() {
           }
         }
       }
+    },
+    "WebhookNotification": {
+      "type": "object",
+      "properties": {
+        "eventName": {
+          "description": "Name of event triggered",
+          "type": "string",
+          "example": "paymentRequest.updated"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "object": {
+          "type": "string",
+          "format": "object"
+        },
+        "objectType": {
+          "description": "The type of object that's being updated",
+          "type": "string",
+          "example": "paymentRequest"
+        },
+        "triggeredAt": {
+          "description": "Time representing when the event was triggered",
+          "type": "string",
+          "format": "date-time"
+        }
+      }
     }
   },
   "responses": {
@@ -3194,6 +3211,52 @@ func init() {
         }
       ]
     },
+    "/webhook-notifications": {
+      "post": {
+        "description": "This endpoint creates a webhook notification in the database. If the webhook client is running, it may send the notification soon after creation.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "summary": "Test endpoint for creatings webhook notifications",
+        "operationId": "createWebhookNotification",
+        "parameters": [
+          {
+            "description": "The notification sent by webhook-client.",
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WebhookNotification"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful creation",
+            "schema": {
+              "$ref": "#/definitions/WebhookNotification"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/webhook-notify": {
       "post": {
         "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
@@ -3215,67 +3278,15 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "eventName": {
-                  "description": "Name of event triggered",
-                  "type": "string",
-                  "example": "paymentRequest.updated"
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-                },
-                "object": {
-                  "type": "string",
-                  "format": "object"
-                },
-                "objectType": {
-                  "description": "The type of object that's being updated",
-                  "type": "string",
-                  "example": "paymentRequest"
-                },
-                "triggeredAt": {
-                  "description": "Time representing when the event was triggered",
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
+              "$ref": "#/definitions/WebhookNotification"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Sent",
+            "description": "Successful creation",
             "schema": {
-              "type": "object",
-              "properties": {
-                "eventName": {
-                  "description": "Name of event triggered",
-                  "type": "string",
-                  "example": "paymentRequest.updated"
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-                },
-                "object": {
-                  "type": "string",
-                  "format": "object"
-                },
-                "objectType": {
-                  "description": "The type of object that's being updated",
-                  "type": "string",
-                  "example": "paymentRequest"
-                },
-                "triggeredAt": {
-                  "description": "Time representing when the event was triggered",
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
+              "$ref": "#/definitions/WebhookNotification"
             }
           },
           "400": {
@@ -4812,6 +4823,35 @@ func init() {
     },
     "ValidationErrorAllOf1": {
       "type": "object"
+    },
+    "WebhookNotification": {
+      "type": "object",
+      "properties": {
+        "eventName": {
+          "description": "Name of event triggered",
+          "type": "string",
+          "example": "paymentRequest.updated"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "object": {
+          "type": "string",
+          "format": "object"
+        },
+        "objectType": {
+          "description": "The type of object that's being updated",
+          "type": "string",
+          "example": "paymentRequest"
+        },
+        "triggeredAt": {
+          "description": "Time representing when the event was triggered",
+          "type": "string",
+          "format": "date-time"
+        }
+      }
     }
   },
   "responses": {
