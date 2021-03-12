@@ -92,8 +92,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 
 			query := `
 				SELECT * FROM payment_requests
-				WHERE id = $1 FOR UPDATE SKIP LOCKED
-				LIMIT 1;
+				WHERE id = $1 FOR UPDATE SKIP LOCKED;
 			`
 			err = p.db.RawQuery(query, pr.ID).First(&lockedPR)
 			if err != nil {
@@ -123,12 +122,12 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 			sentToGexAt := strfmt.DateTime(time.Now()).String()
 
 			q := `
-				UPDATE payment_requests AS pr SET
+				UPDATE payment_requests
+				SET
 					status = $1,
 					sent_to_gex_at = $2
 				WHERE id = $3;`
-			qq := fmt.Sprintf(q, models.PaymentRequestStatusSentToGex.String(), sentToGexAt, lockedPR.ID.String())
-			err = tx.RawQuery(qq).Exec()
+			err = tx.RawQuery(q, models.PaymentRequestStatusSentToGex.String(), sentToGexAt, lockedPR.ID.String()).Exec()
 			if err != nil {
 				return fmt.Errorf("failure updating payment request status: %w", err)
 			}
