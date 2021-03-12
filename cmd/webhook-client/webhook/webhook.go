@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -296,22 +297,30 @@ func (eng *Engine) run() error {
 
 	// process notifications
 	eng.processNotifications(notifications, subscriptions)
+	fmt.Println("🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠")
 	return nil
 }
 
 // Start starts the timer for the webhook engine
 // The process will run once every period to send pending notifications
 // The period is defined in the Engine.PeriodInSeconds
-func (eng *Engine) Start() error {
+func (eng *Engine) Start(quit chan os.Signal, done chan bool) error {
 
 	// Set timer tick
 	t := time.Tick(time.Duration(eng.PeriodInSeconds) * time.Second)
 
 	// Run once prior to first wait period
 	eng.run()
+
 	// Run on each timer tick
 	for range t {
-		eng.run()
+		select {
+		case <-quit:
+			fmt.Println("🍑🍑🍑🍑🍑🍑🍑🍑🍑")
+			done <- true
+		default:
+			eng.run()
+		}
 	}
 
 	return nil

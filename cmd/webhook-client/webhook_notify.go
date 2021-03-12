@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -69,14 +70,18 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 		SeverityThresholds:  []int{60},
 	}
 
-	// Start polling the db for changes
-	go webhookEngine.Start()
-
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 5 seconds.
 	quit := make(chan os.Signal, 1)
+	done := make(chan bool, 1)
+
 	signal.Notify(quit, os.Interrupt)
-	<-quit
+
+	// Start polling the db for changes
+	go webhookEngine.Start(quit, done)
+
+	<-done
+	fmt.Println("🧽🧽🧽🧽🧽vv")
 	log.Println("Shutdown Server ...")
 	if err = db.Close(); err == nil {
 		logger.Info("Db connection closed")
