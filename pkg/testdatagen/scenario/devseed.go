@@ -2302,9 +2302,9 @@ func createMoveWithServiceItems(db *pop.Connection, userUploader *uploader.UserU
 
 	move9 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:       uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
-			OrdersID: orders9.ID,
-			// SelectedMoveType:   &hhgMoveType,
+			ID:                 uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
+			OrdersID:           orders9.ID,
+			SelectedMoveType:   &hhgMoveType,
 			Status:             models.MoveStatusSUBMITTED,
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},

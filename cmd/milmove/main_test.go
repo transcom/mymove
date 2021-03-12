@@ -1,11 +1,3 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used set up environment variables
-//RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-//RA Modified Severity: N/A
-// nolint:errcheck
 package main
 
 import (
@@ -36,7 +28,14 @@ func TestWebServerSuite(t *testing.T) {
 
 	flag := pflag.CommandLine
 	initServeFlags(flag)
-	flag.Parse([]string{})
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used set up environment variables
+	//RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Modified Severity: N/A
+	flag.Parse([]string{}) // nolint:errcheck
 
 	v := viper.New()
 	bindErr := v.BindPFlags(flag)

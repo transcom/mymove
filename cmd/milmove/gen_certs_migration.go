@@ -205,7 +205,7 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 
 		defer func() {
 			if closeErr := store.Close(); closeErr != nil {
-				fmt.Println(fmt.Errorf("Failed to close CAC store").Error())
+				fmt.Println("Failed to close CAC store")
 			}
 		}()
 

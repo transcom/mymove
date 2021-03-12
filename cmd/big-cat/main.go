@@ -65,10 +65,11 @@ func main() {
 			panic(err)
 		}
 
-		err = f.Close()
-		if err != nil {
-			logger.Debug("Failed to close filepath", zap.Error(err))
-		}
+		defer func() {
+			if closeErr := f.Close(); closeErr != nil {
+				logger.Debug("Failed to close filepath", zap.Error(closeErr))
+			}
+		}()
 
 		count++
 		if limit >= 0 && count == limit {

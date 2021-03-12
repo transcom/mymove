@@ -81,7 +81,7 @@ func (fs *Memory) Store(key string, data io.ReadSeeker, checksum string, tags *s
 
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
-			fmt.Println(fmt.Errorf("Failed to close file").Error())
+			fmt.Println("Failed to close file")
 		}
 	}()
 
