@@ -1,3 +1,13 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+//RA: in which this would be considered a risk
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
+// nolint:golint
 package scenario
 
 import (
@@ -2293,9 +2303,9 @@ func createMoveWithServiceItems(db *pop.Connection, userUploader *uploader.UserU
 
 	move9 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:       uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
-			OrdersID: orders9.ID,
-			// SelectedMoveType:   &hhgMoveType,
+			ID:                 uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
+			OrdersID:           orders9.ID,
+			SelectedMoveType:   &hhgMoveType,
 			Status:             models.MoveStatusSUBMITTED,
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},

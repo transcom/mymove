@@ -188,10 +188,17 @@ func auditModel(db *pop.Connection, model Model) (bool, error) {
 func main() {
 	flag := pflag.CommandLine
 	initFlags(flag)
-	flag.Parse(os.Args[1:])
+	err := flag.Parse(os.Args[1:])
+	if err != nil {
+		log.Fatalf("Could not parse flags: %v\n", err)
+	}
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	bindErr := v.BindPFlags(flag)
+	if bindErr != nil {
+		log.Fatal("failed to bind flags", zap.Error(bindErr))
+	}
+
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 

@@ -1,6 +1,7 @@
 package migrate
 
 import (
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -15,7 +16,11 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 		for line := range lines {
 			// Ignore empty lines when writing to the buffer
 			if len(line) > 0 {
-				in.WriteString(line + "\n")
+
+				_, err := in.WriteString(line + "\n")
+				if err != nil {
+					fmt.Println(fmt.Errorf("Failed to ignore empty lines when writing to the buffer: %s", err).Error())
+				}
 			}
 		}
 		in.Close()
