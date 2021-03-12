@@ -61,15 +61,15 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		if _, err = io.Copy(os.Stdout, bufio.NewReader(f)); err != nil {
-			panic(err)
-		}
-
 		defer func() {
 			if closeErr := f.Close(); closeErr != nil {
 				logger.Debug("Failed to close filepath", zap.Error(closeErr))
 			}
 		}()
+
+		if _, err = io.Copy(os.Stdout, bufio.NewReader(f)); err != nil {
+			panic(err)
+		}
 
 		count++
 		if limit >= 0 && count == limit {
