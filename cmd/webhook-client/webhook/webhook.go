@@ -263,7 +263,7 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 // If a new notification or subscription were to be adding during the course of one run
 // by the Milmove server, it would only be processed on the next call of run().
 func (eng *Engine) run() error {
-
+	time.Sleep(60 * time.Second)
 	logger := eng.Logger
 	// Read all notifications
 	notifications := []models.WebhookNotification{}

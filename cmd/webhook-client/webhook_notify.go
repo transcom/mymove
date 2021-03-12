@@ -81,7 +81,7 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 	go webhookEngine.Start(quit, done)
 
 	<-done
-	fmt.Println("🧽🧽🧽🧽🧽vv")
+	fmt.Println("🧽🧽🧽🧽🧽")
 	log.Println("Shutdown Server ...")
 	if err = db.Close(); err == nil {
 		logger.Info("Db connection closed")
