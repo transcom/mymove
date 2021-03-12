@@ -23,7 +23,7 @@ const ServiceInfoTable = ({
   const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
   return (
     <div className={containerClassNames}>
-      <div className={reviewStyles['review-header']}>
+      <div className={classnames(reviewStyles['review-header'], serviceInfoTableStyles.ReviewHeader)}>
         <h2>Service info</h2>
       </div>
       <div>
