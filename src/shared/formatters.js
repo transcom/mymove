@@ -299,6 +299,9 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
 };
 
 export const departmentIndicatorReadable = (departmentIndicator) => {
+  if (!departmentIndicator) {
+    return 'Missing';
+  }
   return DEPARTMENT_INDICATOR_OPTIONS[`${departmentIndicator}`] || departmentIndicator;
 };
 

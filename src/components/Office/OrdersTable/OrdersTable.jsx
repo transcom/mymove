@@ -43,7 +43,7 @@ function OrdersTable({ ordersInfo }) {
             <th scope="row">Report by date</th>
             <td data-testid="reportByDate">{formatDate(ordersInfo.reportByDate, 'DD MMM YYYY')}</td>
           </tr>
-          <tr>
+          <tr className={classnames({ [styles.missingInfoError]: !ordersInfo.departmentIndicator })}>
             <th scope="row">Department indicator</th>
             <td data-testid="departmentIndicator">{departmentIndicatorReadable(ordersInfo.departmentIndicator)}</td>
           </tr>
