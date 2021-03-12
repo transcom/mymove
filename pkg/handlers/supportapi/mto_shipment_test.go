@@ -197,7 +197,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusOK)
-		suite.NotEmpty(okResponse, supportmessages.UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED)
 		suite.Equal(supportmessages.UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED, okResponse.Payload.Status)
 		suite.NotZero(okResponse.Payload.ETag)
 	})
