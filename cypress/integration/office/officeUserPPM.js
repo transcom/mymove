@@ -171,9 +171,6 @@ function officeUserVerifiesOrders(moveLocator) {
   // Refresh browser and make sure changes persist
   cy.patientReload();
 
-  cy.get('span').contains('666666');
-  cy.get('span').contains('Delayed Approval 20 Weeks or More');
-
   // Enter SAC
   cy.get('.combo-button button').should('be.disabled');
 
