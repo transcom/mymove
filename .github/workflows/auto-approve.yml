@@ -9,7 +9,7 @@ on:
 jobs:
   approve:
     name: auto-approve dependabot PRs
-    if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
+    if: github.actor == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependencies')
     runs-on: ubuntu-latest
     steps:
       - name: approve
