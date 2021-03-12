@@ -16,18 +16,18 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
-// NewPostWebhookNotifyParams creates a new PostWebhookNotifyParams object
+// NewReceiveWebhookNotificationParams creates a new ReceiveWebhookNotificationParams object
 // no default values defined in spec.
-func NewPostWebhookNotifyParams() PostWebhookNotifyParams {
+func NewReceiveWebhookNotificationParams() ReceiveWebhookNotificationParams {
 
-	return PostWebhookNotifyParams{}
+	return ReceiveWebhookNotificationParams{}
 }
 
-// PostWebhookNotifyParams contains all the bound params for the post webhook notify operation
+// ReceiveWebhookNotificationParams contains all the bound params for the receive webhook notification operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters postWebhookNotify
-type PostWebhookNotifyParams struct {
+// swagger:parameters receiveWebhookNotification
+type ReceiveWebhookNotificationParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -42,8 +42,8 @@ type PostWebhookNotifyParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewPostWebhookNotifyParams() beforehand.
-func (o *PostWebhookNotifyParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewReceiveWebhookNotificationParams() beforehand.
+func (o *ReceiveWebhookNotificationParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r

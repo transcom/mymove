@@ -710,8 +710,8 @@ func init() {
         "tags": [
           "webhook"
         ],
-        "summary": "Test endpoint for sending messages via webhook",
-        "operationId": "postWebhookNotify",
+        "summary": "Test endpoint for receiving messages from our own webhook-client",
+        "operationId": "receiveWebhookNotification",
         "parameters": [
           {
             "description": "The notification sent by webhook-client.",
@@ -2265,7 +2265,13 @@ func init() {
     "WebhookNotification": {
       "type": "object",
       "properties": {
-        "eventName": {
+        "createdAt": {
+          "description": "Time representing when the event was triggered",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eventKey": {
           "description": "Name of event triggered",
           "type": "string",
           "example": "paymentRequest.updated"
@@ -2273,21 +2279,25 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "object": {
           "type": "string",
-          "format": "object"
+          "format": "JSON",
+          "x-nullable": true
         },
-        "objectType": {
-          "description": "The type of object that's being updated",
+        "objectID": {
           "type": "string",
-          "example": "paymentRequest"
-        },
-        "triggeredAt": {
-          "description": "Time representing when the event was triggered",
-          "type": "string",
-          "format": "date-time"
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     }
@@ -3269,8 +3279,8 @@ func init() {
         "tags": [
           "webhook"
         ],
-        "summary": "Test endpoint for sending messages via webhook",
-        "operationId": "postWebhookNotify",
+        "summary": "Test endpoint for receiving messages from our own webhook-client",
+        "operationId": "receiveWebhookNotification",
         "parameters": [
           {
             "description": "The notification sent by webhook-client.",
@@ -4827,7 +4837,13 @@ func init() {
     "WebhookNotification": {
       "type": "object",
       "properties": {
-        "eventName": {
+        "createdAt": {
+          "description": "Time representing when the event was triggered",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eventKey": {
           "description": "Name of event triggered",
           "type": "string",
           "example": "paymentRequest.updated"
@@ -4835,21 +4851,25 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "object": {
           "type": "string",
-          "format": "object"
+          "format": "JSON",
+          "x-nullable": true
         },
-        "objectType": {
-          "description": "The type of object that's being updated",
+        "objectID": {
           "type": "string",
-          "example": "paymentRequest"
-        },
-        "triggeredAt": {
-          "description": "Time representing when the event was triggered",
-          "type": "string",
-          "format": "date-time"
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     }

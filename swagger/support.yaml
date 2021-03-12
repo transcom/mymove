@@ -457,12 +457,12 @@ paths:
           $ref: '#/responses/ServerError'
   '/webhook-notify':
     post:
-      summary: Test endpoint for sending messages via webhook
+      summary: Test endpoint for receiving messages from our own webhook-client
       description: >
         This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow.
         The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and
         sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
-      operationId: postWebhookNotify
+      operationId: receiveWebhookNotification
       tags:
         - webhook
       produces:
@@ -1792,21 +1792,30 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      eventName:
+        readOnly: true
+      eventKey:
         type: string
         description: Name of event triggered
         example: paymentRequest.updated
-      triggeredAt:
+      createdAt:
         type: string
         format: date-time
         description: Time representing when the event was triggered
-      objectType:
+        readOnly: true
+      moveTaskOrderID:
         type: string
-        description: The type of object that's being updated
-        example: paymentRequest
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      objectID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       object:
         type: string
-        format: object
+        format: JSON
+        x-nullable: true
 responses:
   InvalidRequest:
     description: The request payload is invalid.
