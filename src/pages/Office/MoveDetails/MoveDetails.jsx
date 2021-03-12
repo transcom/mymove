@@ -138,8 +138,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   };
 
   const hasMissingOrdersInfo = () => {
-    return !Object.values(requiredOrdersInfo).every((value) => {
-      return !!value;
+    return Object.values(requiredOrdersInfo).some((value) => {
+      return !value || value === '';
     });
   };
 
