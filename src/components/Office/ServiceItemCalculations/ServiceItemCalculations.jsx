@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import classnames from 'classnames';
 
 import styles from './ServiceItemCalculations.module.scss';
 
@@ -27,11 +28,17 @@ const ServiceItemCalculations = ({ calculations, tableSize }) => {
   return (
     <div
       data-testid="ServiceItemCalculations"
-      className={`${styles.ServiceItemCalculations}
-        ${tableSize === 'small' ? styles.ServiceItemCalculationsSmall : ''}`}
+      className={classnames(styles.ServiceItemCalculations, {
+        [styles.ServiceItemCalculationsSmall]: tableSize === 'small',
+      })}
     >
       <h4 className={styles.title}>Calculations</h4>
-      <div data-testid="flexGrid" className={`${styles.flexGrid} ${tableSize === 'small' ? styles.flexGridSmall : ''}`}>
+      <div
+        data-testid="flexGrid"
+        className={classnames(styles.flexGrid, {
+          [styles.flexGridSmall]: tableSize === 'small',
+        })}
+      >
         {calculations.map((calc, index) => {
           return (
             <div data-testid="column" key={calc.label} className={styles.col}>
