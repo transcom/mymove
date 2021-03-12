@@ -8,7 +8,7 @@
 # - CIRCLECI: Will reduce parallelism and make the test output verbose
 # - COVERAGE: '1' will enable test coverage flags
 # - DRY_RUN: '1' will build the tests but not run them
-# - JUNIT: '1' will run go-junit-report on test output
+# - SERVER_REPORT: '1' will run go-junit-report and go coverage on output
 # - LONG_TEST: '1' will remove the '-short' flag and run extended tests
 # - NO_DB: Will disable the db reset and migration steps
 #
@@ -17,8 +17,12 @@
 
 set -eu -o pipefail
 
+# colors
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
 if [ "${APPLICATION}" == "app" ]; then
-  package_list=$(go list ./... | grep -v ordersapi | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+  package_list=$(go list ./... | grep -E -v '(ordersapi|/pkg/gen/|/pkg/assets/|/cmd|mocks|/pkg/testdatagen)')
 elif [ "${APPLICATION}" == "orders" ]; then
   package_list=$(go list ./pkg/handlers/ordersapi)
 else
@@ -55,7 +59,8 @@ fi
 # Add coverage tracker via go cover
 coverage_flag=""
 if [[ "${COVERAGE:-}" == "1" ]]; then
-  coverage_flag="-coverprofile=coverage.out -covermode=count"
+  coverpkg=$(echo "${package_list}" | paste -s -d , - | tr '[:blank:]' ',')
+  coverage_flag="-coverprofile=coverage.out -covermode=count -coverpkg=${coverpkg}"
 fi
 
 # Set up the test DB instance and wipe it
@@ -70,19 +75,39 @@ test_output_file="${test_dir}/go-test.out"
 test_report_file="${test_dir}/go-test-report.xml"
 mkdir -p "${test_dir}"
 
-function junit_cleanup()
+function server_report_cleanup()
 {
   # generate the junit report
   bin/go-junit-report < "${test_output_file}" > "${test_report_file}"
+  if [[ "${COVERAGE:-}" == "1" ]]; then
+    go tool cover -func=coverage.out -o "${test_dir}/go-coverage.txt"
+    go tool cover -html=coverage.out -o "${test_dir}/go-coverage.html"
+    cp coverage.out "${test_dir}"
+    # parse out the total coverage percentage which is on the line with (statements) and strip off the % sign
+    # https://unix.stackexchange.com/questions/305190/remove-last-character-from-string-captured-with-awk
+    percent=$(grep '(statements)' "${test_dir}/go-coverage.txt" | awk '{print substr($NF, 1, length($NF)-1)}')
+    goal_percent=50
+    # using a oneline python function to test if percent is less than goal and return a proper exit code
+    if python -c "exit(1) if ${percent} < ${goal_percent} else exit()"; then
+      # coverage is good
+      echo "total coverage is ${percent}%"
+    else
+      # coverage is under goal
+      echo -e "${RED}total coverage has dropped to ${percent}% needs to be at least ${goal_percent}%${NC}"
+      # fail build
+      # commenting out the build failure line since we don't want to fail the build yet until we've had further discussions
+      #exit 1
+    fi
+  fi
 }
 
 # Set up junit report and ensure its run on exit
-if [[ "${JUNIT:-}" == "1" ]]; then
+if [[ "${SERVER_REPORT:-}" == "1" ]]; then
   if [ ! -f bin/go-junit-report ]; then
     make bin/go-junit-report
   fi
   # setup a trap incase the tests fail, we still want to generate the report
-  trap junit_cleanup EXIT
+  trap server_report_cleanup EXIT
 fi
 
 # shellcheck disable=SC2086

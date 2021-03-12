@@ -344,8 +344,8 @@ describe('useMoveTaskOrderQueries', () => {
           id: '1',
         },
       },
-      mtoShipments: {
-        a1: {
+      mtoShipments: [
+        {
           shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
           mtoAgents: [
             {
@@ -366,7 +366,7 @@ describe('useMoveTaskOrderQueries', () => {
             },
           ],
         },
-        b2: {
+        {
           shipmentType: SHIPMENT_OPTIONS.NTSR,
           mtoAgents: [
             {
@@ -387,7 +387,7 @@ describe('useMoveTaskOrderQueries', () => {
             },
           ],
         },
-      },
+      ],
       mtoServiceItems: {
         a: {
           reServiceName: serviceItemCodes.CS,

@@ -18,3 +18,11 @@ export const mtoShipmentTypes = {
   [SHIPMENT_OPTIONS.NTS]: 'Non-temp storage',
   [SHIPMENT_OPTIONS.NTSR]: 'Non-temp storage release',
 };
+
+export const shipmentStatuses = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLATION_REQUESTED: 'CANCELLATION_REQUESTED',
+};

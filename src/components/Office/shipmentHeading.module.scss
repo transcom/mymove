@@ -9,4 +9,25 @@
   small {
     @include u-text('base-light');
   }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+
+    button {
+     color: $link;
+     padding: 2px 8px;
+     font-size: 13px;
+    }
+
+    button:disabled {
+        background-color: $base-dark;
+        text-transform: uppercase;
+        border-radius: 2px;
+        color: #ffffff;
+
+    }
+  }
 }
+
+

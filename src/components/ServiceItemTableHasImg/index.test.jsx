@@ -12,7 +12,7 @@ describe('ServiceItemTableHasImg', () => {
     handleShowRejectionDialog: jest.fn(),
   };
 
-  it('should render no details', () => {
+  it('renders with no details', () => {
     const serviceItems = [
       {
         id: 'abc123',
@@ -32,7 +32,7 @@ describe('ServiceItemTableHasImg', () => {
     expect(wrapper.find('td').at(1).text()).toBe('—');
   });
 
-  it('should render a thumbnail image with dimensions for item and crating', () => {
+  it('renders a thumbnail image with dimensions for item and crating', () => {
     const serviceItems = [
       {
         id: 'abc123',
@@ -64,7 +64,7 @@ describe('ServiceItemTableHasImg', () => {
     expect(wrapper.find('dd').at(1).text()).toBe('10"x2.5"x5"');
   });
 
-  it('should render customer contacts for DDFSIT service item', () => {
+  it('renders the customer contacts for DDFSIT service item', () => {
     const serviceItems = [
       {
         id: 'abc123',
@@ -124,5 +124,65 @@ describe('ServiceItemTableHasImg', () => {
     expect(wrapper.find('dd').at(0).contains('11111')).toBe(true);
     expect(wrapper.find('dt').at(1).contains('Reason')).toBe(true);
     expect(wrapper.find('dd').at(1).contains('This is the reason')).toBe(true);
+  });
+
+  it('calls the update service item status handler when the accept button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Origin 1st Day SIT',
+        code: 'DOFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+
+    const wrapper = mount(
+      <ServiceItemTableHasImg
+        {...defaultProps}
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+      />,
+    );
+
+    wrapper.find('button[data-testid="acceptButton"]').simulate('click');
+
+    expect(defaultProps.handleUpdateMTOServiceItemStatus).toHaveBeenCalledWith(
+      'abc123',
+      'xyz789',
+      SERVICE_ITEM_STATUS.APPROVED,
+    );
+  });
+
+  it('calls the show rejection handler when the reject button is clicked', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Origin 1st Day SIT',
+        code: 'DOFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+
+    const wrapper = mount(
+      <ServiceItemTableHasImg
+        {...defaultProps}
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+      />,
+    );
+
+    wrapper.find('button[data-testid="rejectButton"]').simulate('click');
+
+    expect(defaultProps.handleShowRejectionDialog).toHaveBeenCalledWith('abc123', 'xyz789');
   });
 });

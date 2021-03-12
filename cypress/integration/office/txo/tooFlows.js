@@ -77,6 +77,25 @@ describe('TOO user', () => {
     });
   });
 
+  it('is able to request cancellation for a shipment', () => {
+    const moveLocator = 'TEST12';
+
+    // TOO Moves queue
+    cy.wait(['@getSortedMoveOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
+    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.url().should('include', `/moves/${moveLocator}/mto`);
+
+    // Move Task Order page
+    const shipments = cy.get('[data-testid="ShipmentContainer"]');
+    shipments.should('have.length', 1);
+
+    // Request Cancellation
+    cy.get('.shipment-heading').find('button').click();
+  });
+
   it('is able to approve and reject mto service items', () => {
     const moveLocator = 'TEST12';
 
