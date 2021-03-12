@@ -44,6 +44,8 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		ReportByDate:        handlers.FmtDate(order.ReportByDate),
 		OrdersType:          order.OrdersType,
 		OrdersTypeDetail:    order.OrdersTypeDetail,
+		Grade:               (*internalmessages.ServiceMemberRank)(order.Grade),
+		OriginDutyStation:   payloadForDutyStationModel(*order.OriginDutyStation),
 		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
 		HasDependents:       handlers.FmtBool(order.HasDependents),
 		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),

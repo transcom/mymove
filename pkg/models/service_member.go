@@ -100,6 +100,7 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 		"DutyStation.TransportationOffice",
 		"DutyStation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyStation.TransportationOffice",
+		"Orders.OriginDutyStation",
 		"Orders.UploadedOrders.UserUploads.Upload",
 		"Orders.Moves",
 		"ResidentialAddress").Find(&serviceMember, id)

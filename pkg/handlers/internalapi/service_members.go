@@ -216,9 +216,11 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 			order.OriginDutyStationID = &serviceMember.DutyStation.ID
 		}
 
-		if verrs, err = h.DB().ValidateAndSave(&order); verrs.HasAny() || err != nil {
+		verrs, err = h.DB().ValidateAndSave(&order)
+		if verrs.HasAny() || err != nil {
 			return handlers.ResponseForVErrors(logger, verrs, err)
 		}
+		serviceMember.Orders[0] = order
 	}
 
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
