@@ -14,6 +14,12 @@
     @include u-margin-y(0);
   }
 
+  ul {
+    @include u-margin-y(0);
+    @include u-padding(0);
+    list-style: none;
+  }
+
   .title {
     @include u-font-weight('bold');
     @include u-margin-top(0);

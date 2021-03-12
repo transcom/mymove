@@ -5,14 +5,14 @@ import classnames from 'classnames';
 
 import styles from './ServiceItemCalculations.module.scss';
 
+const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
+const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
+
 const ServiceItemCalculations = ({ calculations, tableSize }) => {
   const appendSign = (index, length) => {
     if (tableSize === 'small') {
       return <></>;
     }
-
-    const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
-    const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
 
     if (index > 0 && index !== length - 1) {
       return times;
@@ -51,21 +51,13 @@ const ServiceItemCalculations = ({ calculations, tableSize }) => {
                 <small data-testid="label" className={styles.descriptionTitle}>
                   {calc.label}
                 </small>
-                <br />
                 <small data-testid="details" className={styles.descriptionContent}>
-                  {calc.details &&
-                    calc.details.map((detail, i) => {
-                      if (i === calc.details.length - 1) {
-                        return <React.Fragment key={detail}>{detail}</React.Fragment>;
-                      }
-
-                      // each item, add line breaks
-                      return (
-                        <React.Fragment key={detail}>
-                          {detail} <br />
-                        </React.Fragment>
-                      );
-                    })}
+                  <ul>
+                    {calc.details &&
+                      calc.details.map((detail) => {
+                        return <li key={detail}>{detail}</li>;
+                      })}
+                  </ul>
                 </small>
               </p>
             </div>
