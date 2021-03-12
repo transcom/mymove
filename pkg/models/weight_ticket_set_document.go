@@ -129,6 +129,7 @@ func (m Move) CreateWeightTicketSetDocument(
 			weightTicketSetTitle,
 			weightTicketSetDocument.VehicleNickname,
 			moveType)
+		responseError = errors.Wrap(responseError, "Error creating move document")
 		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
 		}
@@ -148,7 +149,7 @@ func (m Move) CreateWeightTicketSetDocument(
 	})
 
 	if transactionErr != nil {
-		return weightTicketSetDocument, responseVErrors, transactionErr
+		return weightTicketSetDocument, responseVErrors, responseError
 	}
 
 	return weightTicketSetDocument, responseVErrors, responseError

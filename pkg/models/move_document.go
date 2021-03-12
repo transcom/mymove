@@ -393,7 +393,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 	})
 
 	if err != nil {
-		return responseVErrors, err
+		return responseVErrors, responseError
 	}
 
 	return responseVErrors, responseError

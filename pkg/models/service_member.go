@@ -183,7 +183,7 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 	})
 
 	if transactionErr != nil {
-		return responseVErrors, transactionErr
+		return responseVErrors, responseError
 	}
 
 	return responseVErrors, responseError
@@ -274,7 +274,7 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	})
 
 	if transactionErr != nil {
-		return newOrders, responseVErrors, transactionErr
+		return newOrders, responseVErrors, responseError
 	}
 
 	return newOrders, responseVErrors, responseError

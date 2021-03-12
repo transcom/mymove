@@ -104,6 +104,7 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 
 		ppm, err := FetchPersonallyProcuredMoveByOrderID(db, order.ID)
 		if err != nil {
+			responseError = err
 			return transactionError
 		}
 
@@ -123,7 +124,7 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	})
 
 	if transactionErr != nil {
-		return responseVErrors, transactionErr
+		return responseVErrors, responseError
 	}
 
 	return responseVErrors, responseError

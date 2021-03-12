@@ -363,7 +363,7 @@ func (m Move) CreateMoveDocument(
 	})
 
 	if transactionErr != nil {
-		return nil, responseVErrors, transactionErr
+		return nil, responseVErrors, responseError
 	}
 
 	return newMoveDocument, responseVErrors, responseError
