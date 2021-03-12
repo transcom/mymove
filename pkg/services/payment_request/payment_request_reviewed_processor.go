@@ -74,27 +74,38 @@ func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, s
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
 	var transactionError error
 	// records for successfully sent PRs
-	var sentToGexStatuses []string
+	var sentToGexStatus string
 	// records for PRs that failed to send
 	var failed []string
-	transactionError = p.db.Transaction(func(tx *pop.Connection) error {
-		// Fetch all payment request that have been reviewed
-		reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
-		if err != nil {
-			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest: %w", err)
-		}
+	// Fetch all payment request that have been reviewed
+	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
+	if err != nil {
+		return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest: %w", err)
+	}
 
-		if len(reviewedPaymentRequests) == 0 {
-			// No reviewed payment requests to process
-			return nil
-		}
+	if len(reviewedPaymentRequests) == 0 {
+		// No reviewed payment requests to process
+		return nil
+	}
 
-		// Send all reviewed payment request to Syncada
-		for _, pr := range reviewedPaymentRequests {
+	// Send all reviewed payment request to Syncada
+	for _, pr := range reviewedPaymentRequests {
+		// TODO create goroutine
+		transactionError = p.db.Transaction(func(tx *pop.Connection) error {
+			var lockedPR models.PaymentRequest
 
+			query := `
+				SELECT * FROM payment_requests
+				WHERE id = $1 FOR UPDATE SKIP LOCKED
+				LIMIT 1;
+			`
+			err = p.db.RawQuery(query, pr.ID).First(&lockedPR)
+			if err != nil {
+				return fmt.Errorf("failure retrieving and locking payment request: %w", err)
+			}
 			// generate EDI file
 			var edi858c ediinvoice.Invoice858C
-			edi858c, err = p.ediGenerator.Generate(pr, false)
+			edi858c, err = p.ediGenerator.Generate(lockedPR, false)
 			if err != nil {
 				return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
 
@@ -117,6 +128,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 				value := "('" + strings.Join(f, "','") + "')"
 				failed = append(failed, value)
 			} else {
+
 				// (ID, status, sentToGexAt) to be used in update query
 				// ('a2c34dba-015f-4f96-a38b-0c0b9272e208'::uuid,'SENT_TO_GEX'::payment_request_status,'2020-11-24 03:09:36.873'::*time.Time)
 				sentToGexAt := strfmt.DateTime(time.Now()).String()
@@ -124,27 +136,22 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 				status := []string{"'" + pr.ID.String() + "'::uuid",
 					"'" + models.PaymentRequestStatusSentToGex.String() + "'::payment_request_status",
 					"'" + sentToGexAt + "'::timestamp"}
-				value := "(" + strings.Join(status, ",") + ")"
-				sentToGexStatuses = append(sentToGexStatuses, value)
-			}
-		}
+				sentToGexStatus = "(" + strings.Join(status, ",") + ")"
 
-		// If we have successfully sent EDIs to Syncada, then update status in the DB
-		if len(sentToGexStatuses) > 0 {
-			// Save PRs with successful sent to GEX
+				// If we have successfully sent EDIs to Syncada, then update status in the DB
+				// Save PRs with successful sent to GEX
 
-			/* Use `update...from` postgres syntax described here https://stackoverflow.com/a/18799497
-			   To have one call to the DB if we have multiple updates.
-			UPDATE payment_requests AS pr SET
-			    status = c.status
-			FROM (VALUES
-			    ('id1', 'status1'),
-			    ('id2', 'status2')
-			    ) AS c(id, status)
-			WHERE c.id = pr.id;
-			*/
-			values := strings.Join(sentToGexStatuses, ",")
-			q := `
+				/* Use `update...from` postgres syntax described here https://stackoverflow.com/a/18799497
+				   To have one call to the DB if we have multiple updates.
+				UPDATE payment_requests AS pr SET
+				    status = c.status
+				FROM (VALUES
+				    ('id1', 'status1'),
+				    ('id2', 'status2')
+				    ) AS c(id, status)
+				WHERE c.id = pr.id;
+				*/
+				q := `
 				UPDATE payment_requests AS pr SET
 					status = c.status,
 					sent_to_gex_at = c.sentToGexAt
@@ -152,16 +159,15 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 					%s
 					) AS c(id, status, sentToGexAt)
 				WHERE c.id = pr.id;`
-			qq := fmt.Sprintf(q, values)
-			err = tx.RawQuery(qq).Exec()
-			if err != nil {
-				return fmt.Errorf("failure updating payment request status: %w", err)
+				qq := fmt.Sprintf(q, sentToGexStatus)
+				err = tx.RawQuery(qq).Exec()
+				if err != nil {
+					return fmt.Errorf("failure updating payment request status: %w", err)
+				}
 			}
-
-		}
-
-		return nil
-	})
+			return nil
+		})
+	}
 	// save error messages from failed sends
 	var errFailedToSendString string
 	if len(failed) > 0 {
