@@ -7,10 +7,10 @@ import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as Yup from 'yup';
 
-import moveOrdersStyles from '../Orders/Orders.module.scss';
+import ordersStyles from '../Orders/Orders.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
-import { updateMoveOrder } from 'services/ghcApi';
+import { updateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -37,7 +37,7 @@ const MoveAllowances = () => {
     history.push(`/moves/${moveCode}/details`);
   };
 
-  const [mutateOrders] = useMutation(updateMoveOrder, {
+  const [mutateOrders] = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {
@@ -91,14 +91,14 @@ const MoveAllowances = () => {
   const initialValues = { authorizedWeight: `${authorizedWeight}`, grade, agency, dependentsAuthorized };
 
   return (
-    <div className={moveOrdersStyles.sidebar}>
+    <div className={ordersStyles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => (
           <form onSubmit={formik.handleSubmit}>
-            <div className={moveOrdersStyles.orderDetails}>
-              <div className={moveOrdersStyles.top}>
+            <div className={ordersStyles.orderDetails}>
+              <div className={ordersStyles.top}>
                 <Button
-                  className={moveOrdersStyles.closeButton}
+                  className={ordersStyles.closeButton}
                   data-testid="closeSidebar"
                   type="button"
                   onClick={handleClose}
@@ -106,24 +106,24 @@ const MoveAllowances = () => {
                 >
                   <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                 </Button>
-                <h2 className={moveOrdersStyles.header} data-testid="allowances-header">
+                <h2 className={ordersStyles.header} data-testid="allowances-header">
                   View Allowances
                 </h2>
                 <div>
-                  <Link className={moveOrdersStyles.viewAllowances} data-testid="view-orders" to="orders">
+                  <Link className={ordersStyles.viewAllowances} data-testid="view-orders" to="orders">
                     View Orders
                   </Link>
                 </div>
               </div>
-              <div className={moveOrdersStyles.body}>
+              <div className={ordersStyles.body}>
                 <AllowancesDetailForm
                   entitlements={order.entitlement}
                   rankOptions={rankDropdownOptions}
                   branchOptions={branchDropdownOption}
                 />
               </div>
-              <div className={moveOrdersStyles.bottom}>
-                <div className={moveOrdersStyles.buttonGroup}>
+              <div className={ordersStyles.bottom}>
+                <div className={ordersStyles.buttonGroup}>
                   <Button disabled={formik.isSubmitting} type="submit">
                     Save
                   </Button>

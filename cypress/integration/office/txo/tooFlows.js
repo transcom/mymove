@@ -7,7 +7,7 @@ describe('TOO user', () => {
 
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedMoveOrders');
+    cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedOrders');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('**/ghc/v1/move-orders/**').as('getOrders');
     cy.intercept('**/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
@@ -26,7 +26,7 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
@@ -81,7 +81,7 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
@@ -100,7 +100,7 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
@@ -174,7 +174,7 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
@@ -247,7 +247,7 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
 

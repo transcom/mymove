@@ -1,13 +1,13 @@
 import React from 'react';
 import { useParams, matchPath, useLocation } from 'react-router-dom';
 
-import moveOrdersStyles from '../Orders/Orders.module.scss';
+import ordersStyles from '../Orders/Orders.module.scss';
 
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import MoveOrders from 'pages/Office/Orders/Orders';
+import Orders from 'pages/Office/Orders/Orders';
 import MoveAllowances from 'pages/Office/MoveAllowances/MoveAllowances';
 
 const MoveDocumentWrapper = () => {
@@ -27,13 +27,13 @@ const MoveDocumentWrapper = () => {
   const documentsForViewer = Object.values(upload);
 
   return (
-    <div className={moveOrdersStyles.MoveOrders}>
+    <div className={ordersStyles.Orders}>
       {documentsForViewer && (
-        <div className={moveOrdersStyles.embed}>
+        <div className={ordersStyles.embed}>
           <DocumentViewer files={documentsForViewer} />
         </div>
       )}
-      {showOrders ? <MoveOrders moveCode={moveCode} /> : <MoveAllowances moveCode={moveCode} />}
+      {showOrders ? <Orders moveCode={moveCode} /> : <MoveAllowances moveCode={moveCode} />}
     </div>
   );
 };

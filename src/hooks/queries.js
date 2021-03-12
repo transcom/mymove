@@ -48,7 +48,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const orderId = move?.ordersId;
 
   // get move orders
-  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, orderId], getOrder, {
+  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
 
@@ -60,7 +60,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
     enabled: !!customerId,
   });
   const customerData = customer && Object.values(customer)[0];
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, customerQuery]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
 
   return {
     order,
@@ -97,7 +97,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   const orderId = move?.ordersId;
 
   // get move orders
-  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, orderId], getOrder, {
+  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
 
@@ -125,7 +125,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
-    moveOrderQuery,
+    orderQuery,
     moveTaskOrderQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
@@ -142,20 +142,6 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   };
 };
 
-export const useMoveOrderQueries = (orderId) => {
-  // get move orders
-  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, orderId], getOrder);
-
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveOrderQuery]);
-
-  return {
-    orders,
-    isLoading,
-    isError,
-    isSuccess,
-  };
-};
-
 export const useOrdersDocumentQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
@@ -163,7 +149,7 @@ export const useOrdersDocumentQueries = (moveCode) => {
   const orderId = move?.ordersId;
 
   // get orders
-  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, orderId], getOrder, {
+  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
 
@@ -186,7 +172,7 @@ export const useOrdersDocumentQueries = (moveCode) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, moveOrderQuery, ordersDocumentsQuery]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, ordersDocumentsQuery]);
 
   return {
     move,
@@ -262,7 +248,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   const moveId = move?.id;
   const orderId = move?.ordersId;
 
-  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, orderId], getOrder, {
+  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
 
@@ -281,7 +267,7 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
-    moveOrderQuery,
+    orderQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
   ]);

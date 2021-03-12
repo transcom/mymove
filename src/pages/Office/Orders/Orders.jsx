@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Orders.module.scss';
 
-import { getTacValid, updateMoveOrder } from 'services/ghcApi';
+import { getTacValid, updateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
@@ -51,7 +51,7 @@ const Orders = () => {
     history.push(`/moves/${moveCode}/details`);
   };
 
-  const [mutateOrders] = useMutation(updateMoveOrder, {
+  const [mutateOrders] = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {

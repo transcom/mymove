@@ -70,8 +70,8 @@ const GhcGetPaymentRequestEndpointKey = "Ghc.GetPaymentRequest"
 // GhcUpdatePaymentRequestStatusEndpointKey is the key for the updatePaymentRequestStatus endpoint in ghc
 const GhcUpdatePaymentRequestStatusEndpointKey = "Ghc.UpdatePaymentRequestStatus"
 
-// GhcUpdateMoveOrderEndpointKey is the key for the updateMoveOrder endpoint in ghc
-const GhcUpdateMoveOrderEndpointKey = "Ghc.UpdateMoveOrder"
+// GhcUpdateOrderEndpointKey is the key for the updateOrder endpoint in ghc
+const GhcUpdateOrderEndpointKey = "Ghc.UpdateOrder"
 
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var ghcEndpoints = EndpointMapType{
@@ -159,8 +159,8 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "updatePaymentRequestStatus",
 	},
-	GhcUpdateMoveOrderEndpointKey: {
+	GhcUpdateOrderEndpointKey: {
 		APIName:     GhcAPIName,
-		OperationID: "updateMoveOrder",
+		OperationID: "updateOrder",
 	},
 }

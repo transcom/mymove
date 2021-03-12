@@ -115,8 +115,8 @@ export async function getTacValid({ tac }) {
   return makeGHCRequest(operationPath, { tac }, { normalize: false });
 }
 
-export async function updateMoveOrder({ orderID, ifMatchETag, body }) {
-  const operationPath = 'order.updateMoveOrder';
+export async function updateOrder({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.updateOrder';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 

@@ -135,7 +135,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 	})
 }
 
-func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
+func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 	order := moveTaskOrder.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
@@ -150,7 +150,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	affiliation := ghcmessages.BranchAIRFORCE
 	grade := ghcmessages.GradeO5
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
-	body := &ghcmessages.UpdateMoveOrderPayload{
+	body := &ghcmessages.UpdateOrderPayload{
 		AuthorizedWeight:     &newAuthorizedWeight,
 		Agency:               affiliation,
 		DependentsAuthorized: swag.Bool(true),
@@ -167,7 +167,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 		Sac:                  handlers.FmtString("987654321"),
 	}
 
-	params := orderop.UpdateMoveOrderParams{
+	params := orderop.UpdateOrderParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
 		IfMatch:     etag.GenerateEtag(order.UpdatedAt),
@@ -175,17 +175,17 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	handler := UpdateMoveOrderHandler{
+	handler := UpdateOrderHandler{
 		context,
 		orderservice.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-	orderOK := response.(*orderop.UpdateMoveOrderOK)
+	orderOK := response.(*orderop.UpdateOrderOK)
 	ordersPayload := orderOK.Payload
 
-	suite.Assertions.IsType(&orderop.UpdateMoveOrderOK{}, response)
+	suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
 	suite.Equal(order.ID.String(), ordersPayload.ID.String())
 	suite.Equal(body.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
 	suite.Equal(body.OriginDutyStationID.String(), ordersPayload.OriginDutyStation.ID.String())
@@ -204,7 +204,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 }
 
 // Test that a move order notification got stored Successfully
-func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
+func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
 	order := moveTaskOrder.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
@@ -217,7 +217,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
-	body := &ghcmessages.UpdateMoveOrderPayload{
+	body := &ghcmessages.UpdateOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
@@ -230,7 +230,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
-	params := orderop.UpdateMoveOrderParams{
+	params := orderop.UpdateOrderParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
 		IfMatch:     etag.GenerateEtag(order.UpdatedAt), // This is broken if you get a preconditioned failed error
@@ -239,7 +239,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	// Set up handler:
-	handler := UpdateMoveOrderHandler{
+	handler := UpdateOrderHandler{
 		context,
 		orderservice.NewOrderUpdater(suite.DB()),
 	}
@@ -248,17 +248,17 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 	handler.SetTraceID(traceID)        // traceID is inserted into handler
 	response := handler.Handle(params) // This step also saves traceID into DB
 	suite.IsNotErrResponse(response)
-	orderOK := response.(*orderop.UpdateMoveOrderOK)
+	orderOK := response.(*orderop.UpdateOrderOK)
 	ordersPayload := orderOK.Payload
 
 	suite.FatalNoError(err, "Error creating a new trace ID.")
 
-	suite.Assertions.IsType(&orderop.UpdateMoveOrderOK{}, response)
+	suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
 	suite.Equal(ordersPayload.ID, strfmt.UUID(order.ID.String()))
 	suite.HasWebhookNotification(order.ID, traceID)
 }
 
-func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
+func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
 	request := httptest.NewRequest("PATCH", "/move-orders/{orderID}", nil)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
@@ -266,11 +266,11 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
-	params := orderop.UpdateMoveOrderParams{
+	params := orderop.UpdateOrderParams{
 		HTTPRequest: request,
 		OrderID:     "8d013ebb-9561-467b-ae6d-853d2bceadde",
 		IfMatch:     "",
-		Body: &ghcmessages.UpdateMoveOrderPayload{
+		Body: &ghcmessages.UpdateOrderPayload{
 			IssueDate:           handlers.FmtDatePtr(&issueDate),
 			ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 			OrdersType:          "RETIREMENT",
@@ -285,17 +285,17 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	handler := UpdateMoveOrderHandler{
+	handler := UpdateOrderHandler{
 		context,
 		orderservice.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&orderop.UpdateMoveOrderNotFound{}, response)
+	suite.Assertions.IsType(&orderop.UpdateOrderNotFound{}, response)
 }
 
-func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
+func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
 	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 	order := moveTaskOrder.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
@@ -308,7 +308,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
 	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
-	body := &ghcmessages.UpdateMoveOrderPayload{
+	body := &ghcmessages.UpdateOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
@@ -321,7 +321,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
-	params := orderop.UpdateMoveOrderParams{
+	params := orderop.UpdateOrderParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
 		IfMatch:     etag.GenerateEtag(order.UpdatedAt.Add(time.Second * 30)),
@@ -329,17 +329,17 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	handler := UpdateMoveOrderHandler{
+	handler := UpdateOrderHandler{
 		context,
 		orderservice.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&orderop.UpdateMoveOrderPreconditionFailed{}, response)
+	suite.Assertions.IsType(&orderop.UpdateOrderPreconditionFailed{}, response)
 }
 
-func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
+func (suite *HandlerSuite) TestUpdateOrderHandlerBadRequest() {
 	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 	order := moveTaskOrder.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
@@ -351,7 +351,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 
-	body := &ghcmessages.UpdateMoveOrderPayload{
+	body := &ghcmessages.UpdateOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
@@ -364,7 +364,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
-	params := orderop.UpdateMoveOrderParams{
+	params := orderop.UpdateOrderParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
 		IfMatch:     etag.GenerateEtag(order.UpdatedAt.Add(time.Second * 30)),
@@ -372,12 +372,12 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	handler := UpdateMoveOrderHandler{
+	handler := UpdateOrderHandler{
 		context,
 		orderservice.NewOrderUpdater(suite.DB()),
 	}
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&orderop.UpdateMoveOrderPreconditionFailed{}, response)
+	suite.Assertions.IsType(&orderop.UpdateOrderPreconditionFailed{}, response)
 }

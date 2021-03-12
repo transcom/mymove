@@ -115,7 +115,7 @@ paths:
     patch:
       summary: Updates an order
       description: All fields sent in this request will be set on the order referenced
-      operationId: updateMoveOrder
+      operationId: updateOrder
       tags:
         - order
       consumes:
@@ -127,7 +127,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateMoveOrderPayload'
+            $ref: '#/definitions/UpdateOrderPayload'
         - in: header
           name: If-Match
           type: string
@@ -1825,7 +1825,7 @@ definitions:
       eTag:
         type: string
     type: object
-  UpdateMoveOrderPayload:
+  UpdateOrderPayload:
     type: object
     properties:
       issueDate:

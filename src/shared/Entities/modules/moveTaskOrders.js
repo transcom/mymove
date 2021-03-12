@@ -19,10 +19,6 @@ export function getOrder(orderID, label = getOrderLabel) {
   return swaggerRequest(getGHCClient, swaggerTag, { orderID }, { label });
 }
 
-export function selectMoveOrder(state, orderId) {
-  return get(state, `entities.orders.${orderId}`, {});
-}
-
 export function selectMoveTaskOrders(state, orderId) {
   const mtos = get(state, 'entities.moveTaskOrders', {});
   return filter(mtos, (mto) => mto.orderID === orderId);

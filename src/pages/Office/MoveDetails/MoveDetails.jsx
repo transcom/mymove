@@ -131,10 +131,10 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   };
 
   const requiredOrdersInfo = {
-    ordersNumber: moveOrder.order_number,
-    ordersType: moveOrder.order_type,
-    ordersTypeDetail: moveOrder.order_type_detail,
-    tacMDC: moveOrder.tac,
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
   };
 
   const hasMissingOrdersInfo = () => {

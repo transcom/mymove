@@ -229,14 +229,14 @@ func init() {
           "order"
         ],
         "summary": "Updates an order",
-        "operationId": "updateMoveOrder",
+        "operationId": "updateOrder",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateMoveOrderPayload"
+              "$ref": "#/definitions/UpdateOrderPayload"
             }
           },
           {
@@ -3539,7 +3539,7 @@ func init() {
         }
       }
     },
-    "UpdateMoveOrderPayload": {
+    "UpdateOrderPayload": {
       "type": "object",
       "required": [
         "issueDate",
@@ -4044,14 +4044,14 @@ func init() {
           "order"
         ],
         "summary": "Updates an order",
-        "operationId": "updateMoveOrder",
+        "operationId": "updateOrder",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateMoveOrderPayload"
+              "$ref": "#/definitions/UpdateOrderPayload"
             }
           },
           {
@@ -7663,7 +7663,7 @@ func init() {
         }
       }
     },
-    "UpdateMoveOrderPayload": {
+    "UpdateOrderPayload": {
       "type": "object",
       "required": [
         "issueDate",
