@@ -171,6 +171,31 @@ type PatchServiceMemberHandler struct {
 	handlers.HandlerContext
 }
 
+// Check to see if a move is in draft state. If there are no orders, then the
+// move still counts as in draft state.
+func (h PatchServiceMemberHandler) isDraftMove(serviceMember *models.ServiceMember) bool {
+	if serviceMember.Orders == nil || len(serviceMember.Orders) <= 0 {
+		return true
+	}
+
+	order := serviceMember.Orders[0]
+	moves := order.Moves
+	var draftMoves []*models.Move
+	for i := range moves {
+		if moves[i].Status == models.MoveStatusDRAFT {
+			draftMoves = append(draftMoves, &moves[i])
+		}
+	}
+
+	// Don't allow the customer to edit certain fields if there are no
+	// moves in draft status.
+	if len(draftMoves) <= 0 {
+		return false
+	}
+
+	return true
+}
+
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
 
@@ -185,26 +210,8 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return handlers.ResponseForError(logger, err)
 	}
 
-	allowEditIfMoveInDraft := true
-	if serviceMember.Orders != nil && len(serviceMember.Orders) > 0 {
-		orders := serviceMember.Orders[0]
-		moves := orders.Moves
-		var draftMoves []*models.Move
-		for i := range moves {
-			if moves[i].Status == models.MoveStatusDRAFT {
-				draftMoves = append(draftMoves, &moves[i])
-			}
-		}
-
-		// Don't allow the customer to edit certain fields if there are no
-		// moves in draft status.
-		if len(draftMoves) <= 0 {
-			allowEditIfMoveInDraft = false
-		}
-	}
-
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload, allowEditIfMoveInDraft); verrs.HasAny() || err != nil {
+	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
@@ -215,17 +222,34 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
-func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload, allowEditIfMoveInDraft bool) (*validate.Errors, error) {
+func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
+	if h.isDraftMove(serviceMember) {
+		if payload.CurrentStationID != nil {
+			stationID, err := uuid.FromString(payload.CurrentStationID.String())
+			if err != nil {
+				return validate.NewErrors(), err
+			}
+			// Fetch the model partially as a validation on the ID
+			station, err := models.FetchDutyStation(h.DB(), stationID)
+			if err != nil {
+				return validate.NewErrors(), err
+			}
+			serviceMember.DutyStation = station
+			serviceMember.DutyStationID = &stationID
+		}
 
+		if payload.Affiliation != nil {
+			serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
+		}
+
+		if payload.Rank != nil {
+			serviceMember.Rank = (*models.ServiceMemberRank)(payload.Rank)
+		}
+	}
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
 	}
-	if payload.Affiliation != nil && allowEditIfMoveInDraft {
-		serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
-	}
-	if payload.Rank != nil && allowEditIfMoveInDraft {
-		serviceMember.Rank = (*models.ServiceMemberRank)(payload.Rank)
-	}
+
 	if payload.FirstName != nil {
 		serviceMember.FirstName = payload.FirstName
 	}
@@ -253,19 +277,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	if payload.EmailIsPreferred != nil {
 		serviceMember.EmailIsPreferred = payload.EmailIsPreferred
 	}
-	if payload.CurrentStationID != nil && allowEditIfMoveInDraft {
-		stationID, err := uuid.FromString(payload.CurrentStationID.String())
-		if err != nil {
-			return validate.NewErrors(), err
-		}
-		// Fetch the model partially as a validation on the ID
-		station, err := models.FetchDutyStation(h.DB(), stationID)
-		if err != nil {
-			return validate.NewErrors(), err
-		}
-		serviceMember.DutyStation = station
-		serviceMember.DutyStationID = &stationID
-	}
+
 	if payload.ResidentialAddress != nil {
 		if serviceMember.ResidentialAddress == nil {
 			serviceMember.ResidentialAddress = addressModelFromPayload(payload.ResidentialAddress)

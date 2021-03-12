@@ -18,6 +18,7 @@ import scrollToTop from 'shared/scrollToTop';
 import {
   selectServiceMemberFromLoggedInUser,
   selectMoveIsInDraft,
+  selectCurrentOrders,
   selectCurrentMove,
   selectHasCurrentPPM,
 } from 'store/entities/selectors';
@@ -172,7 +173,8 @@ function mapStateToProps(state) {
     serviceMember,
     move: selectCurrentMove(state) || {},
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
-    moveIsInDraft: selectMoveIsInDraft(state) || true,
+    // The move still counts as in draft if there are no orders.
+    moveIsInDraft: selectMoveIsInDraft(state) || !selectCurrentOrders(state),
     isPpm: selectHasCurrentPPM(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),

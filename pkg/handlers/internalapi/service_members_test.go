@@ -230,8 +230,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	edipi := "2342342344"
 
-	// If there are no orders, then the rank, duty station, and affiliation
-	// are still editable.
+	// If there are orders and the move has been submitted, then the
+	// affiliation rank, and duty station should not be editable.
 	origRank := models.ServiceMemberRankE1
 	newRank := internalmessages.ServiceMemberRankE2
 
@@ -243,13 +243,23 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	newDutyStationID := strfmt.UUID(newDutyStation.ID.String())
 
 	newServiceMember := models.ServiceMember{
-		UserID:      user.ID,
-		Edipi:       &edipi,
-		Rank:        &origRank,
-		Affiliation: &origAffiliation,
-		DutyStation: origDutyStation,
+		UserID:        user.ID,
+		Edipi:         &edipi,
+		Rank:          &origRank,
+		Affiliation:   &origAffiliation,
+		DutyStationID: &origDutyStation.ID,
+		DutyStation:   origDutyStation,
 	}
 	suite.MustSave(&newServiceMember)
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMember:   newServiceMember,
+			ServiceMemberID: newServiceMember.ID,
+		},
+	})
+	move.Submit(time.Now())
+	suite.MustSave(&move)
 
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()
@@ -280,7 +290,10 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+	handler := PatchServiceMemberHandler{context}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
@@ -288,86 +301,16 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	serviceMemberPayload := okResponse.Payload
 
-	suite.Assertions.Equal(*serviceMemberPayload.Affiliation, newAffiliation)
-	suite.Assertions.Equal(*serviceMemberPayload.Rank, newRank)
-	suite.Assertions.Equal(*serviceMemberPayload.CurrentStation, newDutyStation)
-	suite.Assertions.Equal(*serviceMemberPayload.ResidentialAddress.StreetAddress1, *resAddress.StreetAddress1)
-	suite.Assertions.Equal(*serviceMemberPayload.BackupMailingAddress.StreetAddress1, *backupAddress.StreetAddress1)
+	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
+	suite.Equal(origRank, models.ServiceMemberRank(*serviceMemberPayload.Rank))
+	suite.Equal(origDutyStation.ID.String(), string(*serviceMemberPayload.CurrentStation.ID))
+	suite.Equal(*serviceMemberPayload.ResidentialAddress.StreetAddress1, *resAddress.StreetAddress1)
+	suite.Equal(*serviceMemberPayload.BackupMailingAddress.StreetAddress1, *backupAddress.StreetAddress1)
 
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}
 	suite.DB().All(&addresses)
-	suite.Assertions.Len(addresses, 2)
-
-	// If there are orders and the move has been submitted, then the
-	// affiliation rank, and duty station should not be editable.
-
-	orderID := uuid.Must(uuid.NewV4())
-	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
-
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ID: orderID,
-		},
-	})
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			ID:       moveID,
-			OrdersID: orderID,
-			Orders:   order,
-		},
-	})
-	move.Submit(time.Now())
-
-	newServiceMember = models.ServiceMember{
-		UserID:      user.ID,
-		Edipi:       &edipi,
-		Rank:        &origRank,
-		Affiliation: &origAffiliation,
-		DutyStation: origDutyStation,
-		Orders:      []models.Order{order},
-	}
-
-	// Check that the branch, rank, or duty station have not changed.
-	// These fields should not be changed once a move is submitted
-	patchPayload = internalmessages.PatchServiceMemberPayload{
-		Edipi:                &edipi,
-		BackupMailingAddress: backupAddress,
-		ResidentialAddress:   resAddress,
-		Affiliation:          &newAffiliation,
-		EmailIsPreferred:     swag.Bool(true),
-		FirstName:            swag.String("Firstname"),
-		LastName:             swag.String("Lastname"),
-		MiddleName:           swag.String("Middlename"),
-		PersonalEmail:        swag.String("name@domain.com"),
-		PhoneIsPreferred:     swag.Bool(true),
-		Rank:                 &newRank,
-		SecondaryTelephone:   swag.String("555555555"),
-		Suffix:               swag.String("Sr."),
-		Telephone:            swag.String("555555555"),
-		CurrentStationID:     &newDutyStationID,
-	}
-
-	req = httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	req = suite.AuthenticateRequest(req, newServiceMember)
-
-	params = servicememberop.PatchServiceMemberParams{
-		HTTPRequest:               req,
-		ServiceMemberID:           strfmt.UUID(newServiceMember.ID.String()),
-		PatchServiceMemberPayload: &patchPayload,
-	}
-
-	handler = PatchServiceMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response = handler.Handle(params)
-
-	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
-	okResponse = response.(*servicememberop.PatchServiceMemberOK)
-
-	serviceMemberPayload = okResponse.Payload
-
-	suite.Assertions.Equal(*serviceMemberPayload.Affiliation, origAffiliation)
-	suite.Assertions.Equal(*serviceMemberPayload.Rank, origRank)
-	suite.Assertions.Equal(*serviceMemberPayload.CurrentStation, origDutyStation)
+	suite.Equal(8, len(addresses))
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
