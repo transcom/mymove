@@ -98,7 +98,7 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 		}
 		if foundSub == false {
 			//If no subscription was found, update notification status to skipped.
-			eng.Logger.Debug("No subscription found for notification event, skipping.", zap.String("eventKey", notif.EventKey))
+			eng.Logger.Info("No subscription found for notification event, skipping.", zap.String("eventKey", notif.EventKey))
 			notif.Status = models.WebhookNotificationSkipped
 			err := eng.updateNotification(&notif)
 			if err != nil {
@@ -227,14 +227,14 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		}
 		// If there was an error sending, log error and continue
 		if err2 != nil {
-			logger.Debug("Failed to send, error sending webhook:", zap.Error(err2),
+			logger.Error("Failed to send, error sending webhook:", zap.Error(err2),
 				zap.String("notificationID", notif.ID.String()),
 				zap.Int("Retry #", try))
 			continue
 		}
 		// If there was an error response from server, log error and continue
 		if resp.StatusCode != 200 {
-			logger.Debug("Received error on sending notification",
+			logger.Error("Received error on sending notification",
 				zap.String("Response Status", resp.Status),
 				zap.String("Response Body", string(body)),
 				zap.String("notificationID", notif.ID.String()),
@@ -272,7 +272,7 @@ func (eng *Engine) run() error {
 		logger.Error("Error:", zap.Error(err))
 		return err
 	}
-	logger.Debug("Notification Check:", zap.Int("Num notifications found", len(notifications)))
+	logger.Info("Notification Check:", zap.Int("Num notifications found", len(notifications)))
 
 	// If none, return
 	if len(notifications) == 0 {
@@ -287,7 +287,7 @@ func (eng *Engine) run() error {
 		logger.Error("Error:", zap.Error(err))
 		return err
 	}
-	logger.Debug("Subscription Check!", zap.Int("Num subscriptions found", len(subscriptions)))
+	logger.Info("Subscription Check!", zap.Int("Num subscriptions found", len(subscriptions)))
 
 	// If none, return
 	if len(notifications) == 0 {
