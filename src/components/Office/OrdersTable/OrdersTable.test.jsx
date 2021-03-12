@@ -18,15 +18,15 @@ const ordersInfo = {
   sacSDN: '999 999999 999',
 };
 
-const ordersInfoMissingTAC = {
+const ordersInfoMissing = {
   currentDutyStation: { name: 'JBSA Lackland' },
   newDutyStation: { name: 'JB Lewis-McChord' },
   issuedDate: '2020-03-08',
   reportByDate: '2020-04-01',
   departmentIndicator: 'NAVY_AND_MARINES',
-  ordersNumber: '999999999',
-  ordersType: 'PERMANENT_CHANGE_OF_STATION',
-  ordersTypeDetail: 'HHG_PERMITTED',
+  ordersNumber: '',
+  ordersType: '',
+  ordersTypeDetail: '',
   tacMDC: '',
   sacSDN: '999 999999 999',
 };
@@ -71,7 +71,10 @@ describe('Orders Table', () => {
   });
 
   it('should render the table with a "Missing" message when the TAC is missing', () => {
-    const wrapper = shallow(<OrdersTable ordersInfo={ordersInfoMissingTAC} />);
+    const wrapper = shallow(<OrdersTable ordersInfo={ordersInfoMissing} />);
+    expect(wrapper.find({ 'data-testid': 'ordersNumber' }).text()).toMatch('Missing');
+    expect(wrapper.find({ 'data-testid': 'ordersType' }).text()).toMatch('Missing');
+    expect(wrapper.find({ 'data-testid': 'ordersTypeDetail' }).text()).toMatch('Missing');
     expect(wrapper.find({ 'data-testid': 'tacMDC' }).text()).toMatch('Missing');
   });
 
