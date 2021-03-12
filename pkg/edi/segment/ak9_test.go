@@ -196,4 +196,29 @@ func (suite *SegmentSuite) TestParseAK9() {
 			suite.Contains(err.Error(), "Wrong number of elements")
 		}
 	})
+
+	suite.T().Run("parse fails for invalid ints", func(t *testing.T) {
+		var validOptionalAK9 AK9
+		arrayInvalidIntsAK9 := []string{"A", "g", "2", "3", "", "", "", "", ""}
+
+		err := validOptionalAK9.Parse(arrayInvalidIntsAK9)
+		if suite.Error(err) {
+			suite.Contains(err.Error(), "invalid syntax")
+		}
+
+		arrayInvalidIntsAK9[1] = "1"
+		arrayInvalidIntsAK9[2] = "AAA"
+
+		err = validOptionalAK9.Parse(arrayInvalidIntsAK9)
+		if suite.Error(err) {
+			suite.Contains(err.Error(), "invalid syntax")
+		}
+		arrayInvalidIntsAK9[2] = "2"
+		arrayInvalidIntsAK9[3] = "3.0"
+
+		err = validOptionalAK9.Parse(arrayInvalidIntsAK9)
+		if suite.Error(err) {
+			suite.Contains(err.Error(), "invalid syntax")
+		}
+	})
 }
