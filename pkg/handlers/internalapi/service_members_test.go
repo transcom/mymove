@@ -240,11 +240,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Assertions.Equal(*serviceMemberPayload.Orders[0].OriginDutyStation.Name, newServiceMember.DutyStation.Name)
 	suite.Assertions.Equal(*serviceMemberPayload.Orders[0].Grade, rank)
 	suite.Assertions.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
-
-	//// Then: we expect addresses to have been created
-	//addresses := []models.Address{}
-	//suite.DB().All(&addresses)
-	//suite.Assertions.Len(addresses, 2)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
