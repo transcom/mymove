@@ -130,6 +130,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       'MSG_CANCEL_SUCCESS_'.concat(mtoShipmentID),
       'success',
       'The request to cancel that shipment has been sent to the movers.',
+      '',
+      true,
     );
     // TODO mutateMTOShipmentStatus(); to implement updateMTOShipmentStatus endpoint
   };
