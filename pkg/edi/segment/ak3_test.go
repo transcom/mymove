@@ -25,7 +25,6 @@ func (suite *SegmentSuite) TestValidateAK3() {
 	suite.T().Run("validate success with only required fields", func(t *testing.T) {
 		err := suite.validator.Struct(altValidAK3)
 		suite.NoError(err)
-		suite.Equal([]string{"AK3", "ID", "12345", "", ""}, altValidAK3.StringArray())
 	})
 
 	suite.T().Run("validate failure for min", func(t *testing.T) {
@@ -118,6 +117,16 @@ func (suite *SegmentSuite) TestParseAK5() {
 		err := badAK3.Parse(badArrayAK3)
 		if suite.Error(err) {
 			suite.Contains(err.Error(), "Wrong number of elements")
+		}
+	})
+
+	suite.T().Run("fail when SegmentPositionInTransactionSet not a valid int", func(t *testing.T) {
+		badArrayAK3 := []string{"ID", "12345.4", "", ""}
+
+		var badAK3 AK3
+		err := badAK3.Parse(badArrayAK3)
+		if suite.Error(err) {
+			suite.Contains(err.Error(), "invalid syntax")
 		}
 	})
 }
