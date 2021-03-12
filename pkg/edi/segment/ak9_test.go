@@ -80,9 +80,9 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		// length of characters are more than max
 		ak9 := AK9{
 			FunctionalGroupAcknowledgeCode:      "AA",
-			NumberOfTransactionSetsIncluded:     1,
-			NumberOfReceivedTransactionSets:     2,
-			NumberOfAcceptedTransactionSets:     3,
+			NumberOfTransactionSetsIncluded:     1000000,
+			NumberOfReceivedTransactionSets:     1000000,
+			NumberOfAcceptedTransactionSets:     1000000,
 			FunctionalGroupSyntaxErrorCodeAK905: "AAAA",
 			FunctionalGroupSyntaxErrorCodeAK906: "BBBB",
 			FunctionalGroupSyntaxErrorCodeAK907: "CCCC",
@@ -92,12 +92,15 @@ func (suite *SegmentSuite) TestValidateAK9() {
 
 		err := suite.validator.Struct(ak9)
 		suite.ValidateError(err, "FunctionalGroupAcknowledgeCode", "oneof")
+		suite.ValidateError(err, "NumberOfTransactionSetsIncluded", "max")
+		suite.ValidateError(err, "NumberOfReceivedTransactionSets", "max")
+		suite.ValidateError(err, "NumberOfAcceptedTransactionSets", "max")
 		suite.ValidateError(err, "FunctionalGroupSyntaxErrorCodeAK905", "max")
 		suite.ValidateError(err, "FunctionalGroupSyntaxErrorCodeAK906", "max")
 		suite.ValidateError(err, "FunctionalGroupSyntaxErrorCodeAK907", "max")
 		suite.ValidateError(err, "FunctionalGroupSyntaxErrorCodeAK908", "max")
 		suite.ValidateError(err, "FunctionalGroupSyntaxErrorCodeAK909", "max")
-		suite.ValidateErrorLen(err, 6)
+		suite.ValidateErrorLen(err, 9)
 	})
 
 	suite.T().Run("validate failure min", func(t *testing.T) {
