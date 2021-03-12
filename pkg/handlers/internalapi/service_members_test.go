@@ -242,13 +242,49 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	newDutyStation := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
 	newDutyStationID := strfmt.UUID(newDutyStation.ID.String())
 
+	origFirstName := swag.String("random string bla")
+	newFirstName := swag.String("John")
+
+	origMiddleName := swag.String("random string bla")
+	newMiddleName := swag.String("")
+
+	origLastName := swag.String("random string bla")
+	newLastName := swag.String("Doe")
+
+	origSuffix := swag.String("random string bla")
+	newSuffix := swag.String("Mr.")
+
+	origTelephone := swag.String("random string bla")
+	newTelephone := swag.String("555-555-5555")
+
+	origSecondaryTelephone := swag.String("random string bla")
+	newSecondaryTelephone := swag.String("555-555-5555")
+
+	origPersonalEmail := swag.String("wml@example.com")
+	newPersonalEmail := swag.String("example@email.com")
+
+	origPhoneIsPreferred := swag.Bool(false)
+	newPhoneIsPreferred := swag.Bool(true)
+
+	origEmailIsPreferred := swag.Bool(true)
+	newEmailIsPreferred := swag.Bool(false)
+
 	newServiceMember := models.ServiceMember{
-		UserID:        user.ID,
-		Edipi:         &edipi,
-		Rank:          &origRank,
-		Affiliation:   &origAffiliation,
-		DutyStationID: &origDutyStation.ID,
-		DutyStation:   origDutyStation,
+		UserID:             user.ID,
+		Edipi:              &edipi,
+		Rank:               &origRank,
+		Affiliation:        &origAffiliation,
+		DutyStationID:      &origDutyStation.ID,
+		DutyStation:        origDutyStation,
+		FirstName:          origFirstName,
+		MiddleName:         origMiddleName,
+		LastName:           origLastName,
+		Suffix:             origSuffix,
+		Telephone:          origTelephone,
+		SecondaryTelephone: origSecondaryTelephone,
+		PersonalEmail:      origPersonalEmail,
+		PhoneIsPreferred:   origPhoneIsPreferred,
+		EmailIsPreferred:   origEmailIsPreferred,
 	}
 	suite.MustSave(&newServiceMember)
 
@@ -268,16 +304,16 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		BackupMailingAddress: backupAddress,
 		ResidentialAddress:   resAddress,
 		Affiliation:          &newAffiliation,
-		EmailIsPreferred:     swag.Bool(true),
-		FirstName:            swag.String("Firstname"),
-		LastName:             swag.String("Lastname"),
-		MiddleName:           swag.String("Middlename"),
-		PersonalEmail:        swag.String("name@domain.com"),
-		PhoneIsPreferred:     swag.Bool(true),
+		EmailIsPreferred:     newEmailIsPreferred,
+		FirstName:            newFirstName,
+		LastName:             newLastName,
+		MiddleName:           newMiddleName,
+		PersonalEmail:        newPersonalEmail,
+		PhoneIsPreferred:     newPhoneIsPreferred,
 		Rank:                 &newRank,
-		SecondaryTelephone:   swag.String("555555555"),
-		Suffix:               swag.String("Sr."),
-		Telephone:            swag.String("555555555"),
+		SecondaryTelephone:   newSecondaryTelephone,
+		Suffix:               newSuffix,
+		Telephone:            newTelephone,
 		CurrentStationID:     &newDutyStationID,
 	}
 
@@ -296,16 +332,30 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	handler := PatchServiceMemberHandler{context}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
+	suite.IsType(&servicememberop.PatchServiceMemberOK{}, response)
 	okResponse := response.(*servicememberop.PatchServiceMemberOK)
 
 	serviceMemberPayload := okResponse.Payload
 
+	// These fields should not change (they should still be the original
+	// values) after the move has been submitted.
 	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
 	suite.Equal(origRank, models.ServiceMemberRank(*serviceMemberPayload.Rank))
 	suite.Equal(origDutyStation.ID.String(), string(*serviceMemberPayload.CurrentStation.ID))
-	suite.Equal(*serviceMemberPayload.ResidentialAddress.StreetAddress1, *resAddress.StreetAddress1)
-	suite.Equal(*serviceMemberPayload.BackupMailingAddress.StreetAddress1, *backupAddress.StreetAddress1)
+
+	// These fields should change even if the move is submitted.
+	suite.Equal(*newFirstName, *serviceMemberPayload.FirstName)
+	suite.Equal(*newMiddleName, *serviceMemberPayload.MiddleName)
+	suite.Equal(*newLastName, *serviceMemberPayload.LastName)
+	suite.Equal(*newSuffix, *serviceMemberPayload.Suffix)
+	suite.Equal(*newTelephone, *serviceMemberPayload.Telephone)
+	suite.Equal(*newSecondaryTelephone, *serviceMemberPayload.SecondaryTelephone)
+	suite.Equal(*newPersonalEmail, *serviceMemberPayload.PersonalEmail)
+	suite.Equal(*newPhoneIsPreferred, *serviceMemberPayload.PhoneIsPreferred)
+	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
+
+	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
+	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
 
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}
