@@ -72,6 +72,38 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 		suite.Equal(updatedMoveOrder.Grade, actualOrder.Grade)
 	})
 
+	suite.T().Run("Service member current duty station updated if order origin duty station updated", func(t *testing.T) {
+		defaultMoveOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		serviceMember := defaultMoveOrder.ServiceMember
+
+		newDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+
+		suite.NotEqual(defaultMoveOrder.OriginDutyStationID, newDutyStation.ID)
+
+		updatedMoveOrder := models.Order{
+			ID:                  defaultMoveOrder.ID,
+			OriginDutyStationID: &newDutyStation.ID,
+			NewDutyStationID:    defaultMoveOrder.NewDutyStationID,
+			IssueDate:           defaultMoveOrder.IssueDate,
+			ReportByDate:        defaultMoveOrder.ReportByDate,
+			OrdersType:          defaultMoveOrder.OrdersType,
+		}
+
+		expectedETag := etag.GenerateEtag(defaultMoveOrder.UpdatedAt)
+		actualOrder, err := moveOrderUpdater.UpdateOrder(expectedETag, updatedMoveOrder)
+
+		suite.NoError(err)
+		suite.Equal(updatedMoveOrder.ID, actualOrder.ID)
+		suite.Equal(updatedMoveOrder.OriginDutyStationID.String(), actualOrder.OriginDutyStation.ID.String())
+
+		fetchedSM := models.ServiceMember{}
+		_ = suite.DB().EagerPreload("DutyStation").Find(&fetchedSM, serviceMember.ID)
+
+		suite.EqualValues(&newDutyStation.ID, fetchedSM.DutyStationID)
+		suite.EqualValues(newDutyStation.ID, fetchedSM.DutyStation.ID)
+		suite.EqualValues(newDutyStation.Name, fetchedSM.DutyStation.Name)
+	})
+
 	suite.T().Run("Entitlement is updated with authorizedWeight or dependentsAuthorized", func(t *testing.T) {
 		defaultMoveOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
 		updatedMoveOrder := models.Order{
