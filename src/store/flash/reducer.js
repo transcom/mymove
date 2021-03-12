@@ -20,11 +20,18 @@ const flashReducer = (state = initialState, action) => {
       };
     }
 
-    case CLEAR_FLASH_MESSAGE:
-      return {
-        ...state,
-        flashMessage: initialState.flashMessage,
-      };
+    case CLEAR_FLASH_MESSAGE: {
+      const { key } = action;
+
+      if (key && state.flashMessage?.key === key) {
+        return {
+          ...state,
+          flashMessage: initialState.flashMessage,
+        };
+      }
+
+      return state;
+    }
 
     default:
       return state;

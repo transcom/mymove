@@ -9,6 +9,7 @@ export const setFlashMessage = (key, messageType, message, title = '') => ({
   title,
 });
 
-export const clearFlashMessage = () => ({
+export const clearFlashMessage = (key = '') => ({
   type: CLEAR_FLASH_MESSAGE,
+  key,
 });

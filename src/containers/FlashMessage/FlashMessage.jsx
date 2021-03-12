@@ -7,12 +7,12 @@ import Alert from 'shared/Alert';
 import { FlashMessageShape } from 'types/flash';
 
 export const FlashMessage = ({ flash, clearFlashMessage }) => {
-  useEffect(() => () => {
-    // Clear flash message on unmount (this will happen on navigation or if flash state changes)
-    clearFlashMessage();
-  });
+  const { message, title, type, key } = flash;
 
-  const { message, title, type } = flash;
+  useEffect(() => () => {
+    // Clear this flash message on unmount (this will happen on navigation or if flash state changes)
+    clearFlashMessage(key);
+  });
 
   return (
     <Alert type={type} heading={title}>
@@ -37,7 +37,7 @@ const connectFlashMessage = (Component) => {
 
     if (showFlash) {
       // eslint-disable-next-line react/jsx-props-no-spreading
-      return <Component {...props} />;
+      return <Component key={showFlash} {...props} />;
     }
 
     return null;
