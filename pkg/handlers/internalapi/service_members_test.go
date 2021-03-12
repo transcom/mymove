@@ -174,15 +174,51 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
 
+	origFirstName := swag.String("random string bla")
+	newFirstName := swag.String("John")
+
+	origMiddleName := swag.String("random string bla")
+	newMiddleName := swag.String("")
+
+	origLastName := swag.String("random string bla")
+	newLastName := swag.String("Doe")
+
+	origSuffix := swag.String("random string bla")
+	newSuffix := swag.String("Mr.")
+
+	origTelephone := swag.String("random string bla")
+	newTelephone := swag.String("555-555-5555")
+
+	origSecondaryTelephone := swag.String("random string bla")
+	newSecondaryTelephone := swag.String("555-555-5555")
+
+	origPersonalEmail := swag.String("wml@example.com")
+	newPersonalEmail := swag.String("example@email.com")
+
+	origPhoneIsPreferred := swag.Bool(false)
+	newPhoneIsPreferred := swag.Bool(true)
+
+	origEmailIsPreferred := swag.Bool(true)
+	newEmailIsPreferred := swag.Bool(false)
+
 	dutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
 	newServiceMember := models.ServiceMember{
-		UserID:        user.ID,
-		Edipi:         &origEdipi,
-		DutyStationID: &dutyStation.ID,
-		DutyStation:   dutyStation,
-		Rank:          &origRank,
-		Affiliation:   &origAffiliation,
+		UserID:             user.ID,
+		Edipi:              &origEdipi,
+		DutyStationID:      &dutyStation.ID,
+		DutyStation:        dutyStation,
+		Rank:               &origRank,
+		Affiliation:        &origAffiliation,
+		FirstName:          origFirstName,
+		MiddleName:         origMiddleName,
+		LastName:           origLastName,
+		Suffix:             origSuffix,
+		Telephone:          origTelephone,
+		SecondaryTelephone: origSecondaryTelephone,
+		PersonalEmail:      origPersonalEmail,
+		PhoneIsPreferred:   origPhoneIsPreferred,
+		EmailIsPreferred:   origEmailIsPreferred,
 	}
 	suite.MustSave(&newServiceMember)
 
@@ -206,16 +242,16 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		BackupMailingAddress: backupAddress,
 		ResidentialAddress:   resAddress,
 		Affiliation:          &newAffiliation,
-		EmailIsPreferred:     swag.Bool(true),
-		FirstName:            swag.String("Firstname"),
-		LastName:             swag.String("Lastname"),
-		MiddleName:           swag.String("Middlename"),
-		PersonalEmail:        swag.String("name@domain.com"),
-		PhoneIsPreferred:     swag.Bool(true),
 		Rank:                 &rank,
-		SecondaryTelephone:   swag.String("555555555"),
-		Suffix:               swag.String("Sr."),
-		Telephone:            swag.String("555555555"),
+		EmailIsPreferred:     newEmailIsPreferred,
+		FirstName:            newFirstName,
+		LastName:             newLastName,
+		MiddleName:           newMiddleName,
+		PersonalEmail:        newPersonalEmail,
+		PhoneIsPreferred:     newPhoneIsPreferred,
+		SecondaryTelephone:   newSecondaryTelephone,
+		Suffix:               newSuffix,
+		Telephone:            newTelephone,
 	}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
@@ -240,6 +276,15 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 	suite.Equal(newEdipi, *serviceMemberPayload.Edipi)
 	suite.Equal(newAffiliation, *serviceMemberPayload.Affiliation)
+	suite.Equal(*newFirstName, *serviceMemberPayload.FirstName)
+	suite.Equal(*newMiddleName, *serviceMemberPayload.MiddleName)
+	suite.Equal(*newLastName, *serviceMemberPayload.LastName)
+	suite.Equal(*newSuffix, *serviceMemberPayload.Suffix)
+	suite.Equal(*newTelephone, *serviceMemberPayload.Telephone)
+	suite.Equal(*newSecondaryTelephone, *serviceMemberPayload.SecondaryTelephone)
+	suite.Equal(*newPersonalEmail, *serviceMemberPayload.PersonalEmail)
+	suite.Equal(*newPhoneIsPreferred, *serviceMemberPayload.PhoneIsPreferred)
+	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
 	// Editing SM info DutyStation and Rank fields should edit Orders OriginDutyStation and Grade fields
