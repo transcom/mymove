@@ -335,6 +335,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
 			ServiceMember:   smWithCombo,
 		},
+		UserUploader: userUploader,
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
 			Locator:          "COMBOS",
