@@ -19,7 +19,7 @@ import (
 // Message is the body of our request
 type Message struct {
 	ID              uuid.UUID       `json:"id"`
-	EventName       string          `json:"eventName"`
+	EventKey        string          `json:"eventName"`
 	TriggeredAt     strfmt.DateTime `json:"triggeredAt"`
 	ObjectType      string          `json:"objectType"`
 	UpdatedObjectID uuid.UUID       `json:"updatedObjectID"`
@@ -182,7 +182,7 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 	// 	string(notif.EventKey), notif.ID.String(), notif.MoveTaskOrderID.String())
 	message := &Message{
 		ID:          notif.ID,
-		EventName:   notif.EventKey,
+		EventKey:    notif.EventKey,
 		TriggeredAt: strfmt.DateTime(notif.UpdatedAt),
 	}
 	if notif.Payload != nil {
@@ -225,7 +225,7 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 			}
 			logger.Info("Notification successfully sent:",
 				zap.String("Status", resp.Status),
-				zap.String("EventName", message.EventName),
+				zap.String("EventName", message.EventKey),
 				zap.String("NotificationID", message.ID.String()),
 				zap.String("UpdatedObjectID", message.UpdatedObjectID.String()),
 			)
