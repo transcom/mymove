@@ -31,7 +31,6 @@ type PaymentRequestFetcher interface {
 //go:generate mockery -name PaymentRequestReviewedFetcher
 type PaymentRequestReviewedFetcher interface {
 	FetchReviewedPaymentRequest() (models.PaymentRequests, error)
-	FetchAndLockReviewedPaymentRequest() (models.PaymentRequests, error)
 }
 
 // PaymentRequestStatusUpdater is the exported interface for updating the status of a payment request

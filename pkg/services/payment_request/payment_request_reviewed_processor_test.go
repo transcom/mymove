@@ -324,7 +324,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		// models.PaymentRequests, error
 		reviewedPaymentRequestFetcher := &mocks.PaymentRequestReviewedFetcher{}
 		reviewedPaymentRequestFetcher.
-			On("FetchAndLockReviewedPaymentRequest").Return(models.PaymentRequests{}, errors.New("test error"))
+			On("FetchReviewedPaymentRequest").Return(models.PaymentRequests{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -454,3 +454,43 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(err)
 	})
 }
+
+// Test ported from now removed FetchAndLockReviewedPaymentRequest
+// TODO: will see what of this code is still relevant
+// func (suite *PaymentRequestServiceSuite) TestFetchAndLockReviewedPaymentRequest() {
+// 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+
+// 	_ = suite.createPaymentRequest(100)
+
+// 	suite.T().Run("successfully fetch given reviewed payment requests", func(t *testing.T) {
+// 		result, err := reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
+// 		suite.NoError(err)
+// 		suite.Equal(100, len(result))
+// 	})
+
+// 	// suite.T().Run("throw an error if a locked payment request is updated", func(t *testing.T) {
+// 	// 	_ = suite.createPaymentRequest(100)
+
+// 	// 	suite.DB().Transaction(func(tx *pop.Connection) error {
+// 	// 		_, err := reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
+// 	// 		suite.NoError(err)
+// 	// 		return err
+// 	// 	})
+// 	// 	suite.DB().Transaction(func(tx *pop.Connection) error {
+// 	// 		err := suite.DB().RawQuery(`UPDATE payment_requests SET status = $1 WHERE status = $2;`, models.PaymentRequestStatusPaid, models.PaymentRequestStatusReviewed).Exec()
+
+// 	// 		suite.NoError(err)
+// 	// 		return err
+// 	// 	})
+// 	// })
+
+// 	_ = suite.createPaymentRequest(101)
+// 	var paymentRequests models.PaymentRequests
+// 	suite.DB().All(&paymentRequests)
+// 	suite.T().Run("retrieve only the number of payment requests set by limitOfPRsToProcess", func(t *testing.T) {
+// 		result, err := reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
+// 		suite.NoError(err)
+// 		suite.Equal(limitOfPRsToProcess, len(result))
+// 		suite.Equal(201, len(paymentRequests))
+// 	})
+// }
