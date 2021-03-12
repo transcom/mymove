@@ -243,7 +243,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	// Verify that ServiceMember is Valid
 	err = tx.Load(&moveTaskOrder.Orders, "ServiceMember")
 	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrder.OrdersID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) not valid", moveTaskOrder.ID))
+		return nil, services.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) not valid", moveTaskOrder.ID))
 	}
 
 	serviceMember := moveTaskOrder.Orders.ServiceMember
