@@ -17,7 +17,7 @@ import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, 
 import scrollToTop from 'shared/scrollToTop';
 import {
   selectServiceMemberFromLoggedInUser,
-  selectMoveIsSubmitted,
+  selectMoveIsInDraft,
   selectCurrentMove,
   selectHasCurrentPPM,
 } from 'store/entities/selectors';
@@ -30,7 +30,7 @@ import ServiceInfoTable from 'components/Customer/Review/ServiceInfoTable';
 const editProfileFormName = 'edit_profile';
 
 let EditProfileForm = (props) => {
-  const { schema, handleSubmit, submitting, valid, moveIsSubmitted, initialValues, serviceMember } = props;
+  const { schema, handleSubmit, submitting, valid, moveIsInDraft, initialValues, serviceMember } = props;
   const currentStation = get(serviceMember, 'current_station');
   const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
@@ -56,7 +56,7 @@ let EditProfileForm = (props) => {
               <SwaggerField fieldName="last_name" swagger={schema} required />
               <SwaggerField fieldName="suffix" swagger={schema} />
               <hr className="spacer" />
-              {!moveIsSubmitted && (
+              {moveIsInDraft && (
                 <>
                   <SwaggerField fieldName="affiliation" swagger={schema} required />
                   <SwaggerField fieldName="rank" swagger={schema} required />
@@ -64,7 +64,7 @@ let EditProfileForm = (props) => {
                   <Field name="current_station" title="Current duty station" component={DutyStationSearchBox} />
                 </>
               )}
-              {moveIsSubmitted && (
+              {!moveIsInDraft && (
                 <ServiceInfoTable
                   firstName={initialValues.first_name}
                   lastName={initialValues.last_name}
@@ -104,7 +104,6 @@ class EditProfile extends Component {
     if (fieldValues.rank !== this.props.serviceMember.rank) {
       this.props.entitlementChanged();
     }
-    fieldValues.move_id = this.props.move?.id;
 
     return patchServiceMember(fieldValues)
       .then((response) => {
@@ -137,7 +136,7 @@ class EditProfile extends Component {
   }
 
   render() {
-    const { schema, serviceMember, moveIsSubmitted, schemaAffiliation, schemaRank } = this.props;
+    const { schema, serviceMember, moveIsInDraft, schemaAffiliation, schemaRank } = this.props;
     const { errorMessage } = this.state;
 
     return (
@@ -155,7 +154,7 @@ class EditProfile extends Component {
             onSubmit={this.updateProfile}
             onCancel={this.returnToReview}
             schema={schema}
-            moveIsSubmitted={moveIsSubmitted}
+            moveIsInDraft={moveIsInDraft}
             schemaRank={schemaRank}
             schemaAffiliation={schemaAffiliation}
             serviceMember={serviceMember}
@@ -173,7 +172,7 @@ function mapStateToProps(state) {
     serviceMember,
     move: selectCurrentMove(state) || {},
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
-    moveIsSubmitted: selectMoveIsSubmitted(state),
+    moveIsInDraft: selectMoveIsInDraft(state),
     isPpm: selectHasCurrentPPM(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),

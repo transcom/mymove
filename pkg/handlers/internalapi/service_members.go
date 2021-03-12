@@ -185,17 +185,24 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return handlers.ResponseForError(logger, err)
 	}
 
-	var move *models.Move
-	if len(serviceMember.Orders) != 0 {
-		moveID, _ := uuid.FromString(params.PatchServiceMemberPayload.MoveID.String())
-		move, err = models.FetchMove(h.DB(), session, moveID)
-		if err != nil {
-			return handlers.ResponseForError(logger, err)
+	var draftMove *models.Move
+	if len(serviceMember.Orders) > 0 {
+		orders := serviceMember.Orders[0]
+		moves := orders.Moves
+		var draftMoves []*models.Move
+		for i := range moves {
+			if moves[i].Status == models.MoveStatusDRAFT {
+				draftMoves = append(draftMoves, &moves[i])
+			}
+		}
+
+		if len(draftMoves) > 0 {
+			draftMove = draftMoves[0]
 		}
 	}
 
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload, move); verrs.HasAny() || err != nil {
+	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload, draftMove); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
@@ -206,15 +213,15 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
-func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload, move *models.Move) (*validate.Errors, error) {
+func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload, draftMove *models.Move) (*validate.Errors, error) {
 
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
 	}
-	if payload.Affiliation != nil && (move == nil || move.Status != models.MoveStatusSUBMITTED) {
+	if payload.Affiliation != nil && draftMove != nil {
 		serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
 	}
-	if payload.Rank != nil && (move == nil || move.Status != models.MoveStatusSUBMITTED) {
+	if payload.Rank != nil && draftMove != nil {
 		serviceMember.Rank = (*models.ServiceMemberRank)(payload.Rank)
 	}
 	if payload.FirstName != nil {
@@ -244,7 +251,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	if payload.EmailIsPreferred != nil {
 		serviceMember.EmailIsPreferred = payload.EmailIsPreferred
 	}
-	if payload.CurrentStationID != nil && (move == nil || move.Status != models.MoveStatusSUBMITTED) {
+	if payload.CurrentStationID != nil && draftMove != nil {
 		stationID, err := uuid.FromString(payload.CurrentStationID.String())
 		if err != nil {
 			return validate.NewErrors(), err

@@ -137,10 +137,7 @@ export const selectCurrentMove = (state) => {
 
 export const selectMoveIsApproved = createSelector(selectCurrentMove, (move) => move?.status === 'APPROVED');
 
-export const selectMoveIsSubmitted = createSelector(
-  selectCurrentMove,
-  (move) => move?.status === MOVE_STATUSES.SUBMITTED,
-);
+export const selectMoveIsInDraft = createSelector(selectCurrentMove, (move) => move?.status === MOVE_STATUSES.DRAFT);
 
 export const selectHasCanceledMove = createSelector(selectMovesForLoggedInUser, (moves) =>
   moves.some((m) => m.status === 'CANCELED'),
