@@ -11,20 +11,15 @@
   background-color: $bg-gray;
   min-width: 892px;
 
+  p {
+    @include u-margin-y(0);
+  }
+
   .title {
-    @include u-font-size('body', 6);
     @include u-font-weight('bold');
     @include u-margin-top(0);
     @include u-margin-bottom(2);
     color: $base-darkest;
-  }
-
-  .value {
-    div {
-      @include u-font-weight('normal');
-      @include u-font-size('body', 4);
-      color: $base-darkest;
-    }
   }
 
   .icon {
@@ -52,12 +47,12 @@
       }
     }
 
+    // Pushes the last item to the right by filling up the margin
     .col:nth-last-of-type(2) {
       flex-shrink: 0;
       flex-grow: 1;
     }
 
-    // Pushes the last item to the right by filling up the margin
     .col:last-of-type {
       @include u-margin-right(0);
       @include u-text-align('right');
@@ -68,6 +63,7 @@
     }
   }
 
+  // inverse the direction of the flexbox
   .flexGridSmall {
     flex-direction: column;
 

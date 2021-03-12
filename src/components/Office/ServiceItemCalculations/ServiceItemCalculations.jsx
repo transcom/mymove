@@ -35,16 +35,17 @@ const ServiceItemCalculations = ({ calculations, tableSize }) => {
         {calculations.map((calc, index) => {
           return (
             <div data-testid="column" key={calc.label} className={styles.col}>
-              <div data-testid="value" className={styles.value}>
+              <p data-testid="value" className={styles.value}>
                 {appendSign(index, calculations.length)}
                 {calc.value}
-              </div>
+              </p>
               <hr />
-              <div>
-                <div data-testid="label" className={styles.descriptionTitle}>
+              <p>
+                <small data-testid="label" className={styles.descriptionTitle}>
                   {calc.label}
-                </div>
-                <div data-testid="details" className={styles.descriptionContent}>
+                </small>
+                <br />
+                <small data-testid="details" className={styles.descriptionContent}>
                   {calc.details &&
                     calc.details.map((detail, i) => {
                       if (i === calc.details.length - 1) {
@@ -58,8 +59,8 @@ const ServiceItemCalculations = ({ calculations, tableSize }) => {
                         </React.Fragment>
                       );
                     })}
-                </div>
-              </div>
+                </small>
+              </p>
             </div>
           );
         })}
