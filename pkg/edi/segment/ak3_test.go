@@ -78,7 +78,7 @@ func (suite *SegmentSuite) TestStringArrayAK3() {
 	})
 }
 
-func (suite *SegmentSuite) TestParseAK5() {
+func (suite *SegmentSuite) TestParseAK3() {
 	suite.T().Run("parse success all fields", func(t *testing.T) {
 		arrayValidAK3 := []string{"ID", "12345", "CODE", "ERR"}
 
