@@ -13,29 +13,42 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// PostWebhookNotifyHandler passes through a message
-type PostWebhookNotifyHandler struct {
+// ReceiveWebhookNotificationHandler passes through a message
+type ReceiveWebhookNotificationHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle posts message
-func (h PostWebhookNotifyHandler) Handle(params webhookoperations.PostWebhookNotifyParams) middleware.Responder {
+// Handle receipt of message
+func (h ReceiveWebhookNotificationHandler) Handle(params webhookoperations.ReceiveWebhookNotificationParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	notif := params.Body
 
+	// This is a test endpoint, it receives a notification, logs it and simply responds with a 200
 	payload := &supportmessages.WebhookNotification{
-		ID:          params.Body.ID,
-		EventName:   params.Body.EventName,
-		TriggeredAt: params.Body.TriggeredAt,
-		ObjectType:  params.Body.ObjectType,
-		Object:      params.Body.Object,
+		ID:        params.Body.ID,
+		EventKey:  params.Body.EventKey,
+		CreatedAt: params.Body.CreatedAt,
+		Object:    params.Body.Object,
+	}
+	objectString := "<empty>"
+	if notif.Object != nil {
+		objectString = *notif.Object
 	}
 
-	return webhookoperations.NewPostWebhookNotifyOK().WithPayload(payload)
+	logger.Info("Received Webhook Notification: ",
+		zap.String("ID", notif.ID.String()),
+		zap.String("EventKey", notif.EventKey),
+		zap.String("createdAt", notif.CreatedAt.String()),
+		zap.String("object", objectString))
+	return webhookoperations.NewReceiveWebhookNotificationOK().WithPayload(payload)
 }
 
+// CreateWebhookNotificationHandler is the interface to handle the createWebhookNotification
 type CreateWebhookNotificationHandler struct {
 	handlers.HandlerContext
 }
 
+// Handle handles the endpoint request to the createWebhookNotification handler
 func (h CreateWebhookNotificationHandler) Handle(params webhookoperations.CreateWebhookNotificationParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -57,8 +70,8 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookoperations.Create
 	}
 
 	payload := supportmessages.WebhookNotification{
-		EventName: notification.EventKey,
-		Object:    *notification.Payload,
+		EventKey: notification.EventKey,
+		Object:   notification.Payload,
 	}
 	return webhookoperations.NewCreateWebhookNotificationCreated().WithPayload(&payload)
 }

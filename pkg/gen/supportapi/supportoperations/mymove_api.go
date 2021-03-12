@@ -71,11 +71,11 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderMakeMoveTaskOrderAvailableHandler: move_task_order.MakeMoveTaskOrderAvailableHandlerFunc(func(params move_task_order.MakeMoveTaskOrderAvailableParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.MakeMoveTaskOrderAvailable has not yet been implemented")
 		}),
-		WebhookPostWebhookNotifyHandler: webhook.PostWebhookNotifyHandlerFunc(func(params webhook.PostWebhookNotifyParams) middleware.Responder {
-			return middleware.NotImplemented("operation webhook.PostWebhookNotify has not yet been implemented")
-		}),
 		PaymentRequestProcessReviewedPaymentRequestsHandler: payment_request.ProcessReviewedPaymentRequestsHandlerFunc(func(params payment_request.ProcessReviewedPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.ProcessReviewedPaymentRequests has not yet been implemented")
+		}),
+		WebhookReceiveWebhookNotificationHandler: webhook.ReceiveWebhookNotificationHandlerFunc(func(params webhook.ReceiveWebhookNotificationParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook.ReceiveWebhookNotification has not yet been implemented")
 		}),
 		MtoServiceItemUpdateMTOServiceItemStatusHandler: mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
@@ -140,10 +140,10 @@ type MymoveAPI struct {
 	MoveTaskOrderListMTOsHandler move_task_order.ListMTOsHandler
 	// MoveTaskOrderMakeMoveTaskOrderAvailableHandler sets the operation handler for the make move task order available operation
 	MoveTaskOrderMakeMoveTaskOrderAvailableHandler move_task_order.MakeMoveTaskOrderAvailableHandler
-	// WebhookPostWebhookNotifyHandler sets the operation handler for the post webhook notify operation
-	WebhookPostWebhookNotifyHandler webhook.PostWebhookNotifyHandler
 	// PaymentRequestProcessReviewedPaymentRequestsHandler sets the operation handler for the process reviewed payment requests operation
 	PaymentRequestProcessReviewedPaymentRequestsHandler payment_request.ProcessReviewedPaymentRequestsHandler
+	// WebhookReceiveWebhookNotificationHandler sets the operation handler for the receive webhook notification operation
+	WebhookReceiveWebhookNotificationHandler webhook.ReceiveWebhookNotificationHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
 	MtoServiceItemUpdateMTOServiceItemStatusHandler mto_service_item.UpdateMTOServiceItemStatusHandler
 	// MtoShipmentUpdateMTOShipmentStatusHandler sets the operation handler for the update m t o shipment status operation
@@ -240,11 +240,11 @@ func (o *MymoveAPI) Validate() error {
 	if o.MoveTaskOrderMakeMoveTaskOrderAvailableHandler == nil {
 		unregistered = append(unregistered, "move_task_order.MakeMoveTaskOrderAvailableHandler")
 	}
-	if o.WebhookPostWebhookNotifyHandler == nil {
-		unregistered = append(unregistered, "webhook.PostWebhookNotifyHandler")
-	}
 	if o.PaymentRequestProcessReviewedPaymentRequestsHandler == nil {
 		unregistered = append(unregistered, "payment_request.ProcessReviewedPaymentRequestsHandler")
+	}
+	if o.WebhookReceiveWebhookNotificationHandler == nil {
+		unregistered = append(unregistered, "webhook.ReceiveWebhookNotificationHandler")
 	}
 	if o.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemStatusHandler")
@@ -375,14 +375,14 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/available-to-prime"] = move_task_order.NewMakeMoveTaskOrderAvailable(o.context, o.MoveTaskOrderMakeMoveTaskOrderAvailableHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/webhook-notify"] = webhook.NewPostWebhookNotify(o.context, o.WebhookPostWebhookNotifyHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/payment-requests/process-reviewed"] = payment_request.NewProcessReviewedPaymentRequests(o.context, o.PaymentRequestProcessReviewedPaymentRequestsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/webhook-notify"] = webhook.NewReceiveWebhookNotification(o.context, o.WebhookReceiveWebhookNotificationHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

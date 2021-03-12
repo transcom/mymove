@@ -17,39 +17,67 @@ import (
 // swagger:model WebhookNotification
 type WebhookNotification struct {
 
+	// Time representing when the event was triggered
+	// Read Only: true
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
 	// Name of event triggered
-	EventName string `json:"eventName,omitempty"`
+	EventKey string `json:"eventKey,omitempty"`
 
 	// id
+	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
+	// move task order ID
+	// Format: uuid
+	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
 	// object
-	Object string `json:"object,omitempty"`
+	Object *string `json:"object,omitempty"`
 
-	// The type of object that's being updated
-	ObjectType string `json:"objectType,omitempty"`
-
-	// Time representing when the event was triggered
-	// Format: date-time
-	TriggeredAt strfmt.DateTime `json:"triggeredAt,omitempty"`
+	// object ID
+	// Format: uuid
+	ObjectID *strfmt.UUID `json:"objectID,omitempty"`
 }
 
 // Validate validates this webhook notification
 func (m *WebhookNotification) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateTriggeredAt(formats); err != nil {
+	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObjectID(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *WebhookNotification) validateCreatedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -66,13 +94,26 @@ func (m *WebhookNotification) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *WebhookNotification) validateTriggeredAt(formats strfmt.Registry) error {
+func (m *WebhookNotification) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.TriggeredAt) { // not required
+	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("triggeredAt", "body", "date-time", m.TriggeredAt.String(), formats); err != nil {
+	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookNotification) validateObjectID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ObjectID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("objectID", "body", "uuid", m.ObjectID.String(), formats); err != nil {
 		return err
 	}
 
