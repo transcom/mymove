@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import { get } from 'lodash';
-import { GridContainer, Alert } from '@trussworks/react-uswds';
+import { GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
-import { func } from 'prop-types';
+import { func, string } from 'prop-types';
+import { connect } from 'react-redux';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import { MTO_SERVICE_ITEMS } from 'constants/queryKeys';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
+import ScrollToTop from 'components/ScrollToTop';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
@@ -24,6 +26,8 @@ import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/Shipm
 import dimensionTypes from 'constants/dimensionTypes';
 import customerContactTypes from 'constants/customerContactTypes';
 import { mtoShipmentTypes } from 'constants/shipments';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { clearFlashMessage, setFlashMessage } from 'store/flash/actions';
 
 function formatShipmentDate(shipmentDateString) {
   const dateObj = new Date(shipmentDateString);
@@ -39,12 +43,31 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   // This will be modified once the modal is hooked up, as the button will only
   // be used to trigger the modal.
   const [mockShipmentStatus, setMockShipmentStatus] = useState(undefined);
-  const [currentAlert, setCurrentAlert] = useState(undefined);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
 
   const { moveCode } = match.params;
-  const { setUnapprovedShipmentCount } = props;
+  const { setUnapprovedShipmentCount, setMessage, clearMessage, messageKey } = props;
+
+  // This reference keeps track of new flash messages and
+  // scrolls us up to the top of the page if a new message is added.
+  // NOTE: We should probably use `useRef` here instead,
+  // but it seems to introduce a delay with the ScrollToTop component.
+  const [newMessageKey, setNewMessageKey] = useState('');
+  useEffect(() => {
+    if (messageKey) {
+      setNewMessageKey(messageKey);
+    }
+  }, [messageKey, setNewMessageKey]);
+
+  // This effect clears out any previous messages when a service item is selected.
+  useEffect(() => {
+    // NOTE: messageKey is NOT a dependency here because we don't want it to trigger a change -
+    // we want this value to stay as it was when this function was defined.
+    // (so ignore the persistent warning - which is okay for the ATO)
+    clearMessage(messageKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedServiceItem, clearMessage]);
 
   // TODO - Do something with moveOrder and moveTaskOrder?
   const {
@@ -97,14 +120,17 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   });
 
   const handleUpdateMTOShipmentStatus = (mtoShipmentID, status) => {
-    setCurrentAlert({
-      type: 'success',
-      msg: 'The request to cancel that shipment has been sent to the movers.',
-    });
+    // This state change is for mocking the status without calling the endpoint,
+    // it will be removed later:
     setMockShipmentStatus({
       id: mtoShipmentID,
       status,
     });
+    setMessage(
+      'MSG_CANCEL_SUCCESS_'.concat(mtoShipmentID),
+      'success',
+      'The request to cancel that shipment has been sent to the movers.',
+    );
     // TODO mutateMTOShipmentStatus(); to implement updateMTOShipmentStatus endpoint
   };
 
@@ -181,11 +207,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             onClose={setIsModalVisible}
           />
         )}
-        {currentAlert && (
-          <Alert slim type={currentAlert.type}>
-            {currentAlert.msg}
-          </Alert>
-        )}
+        <ScrollToTop otherDep={newMessageKey} />
+        <ConnectedFlashMessage />
 
         <div className={styles.pageHeader}>
           <h1>Move task order</h1>
@@ -285,6 +308,20 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 MoveTaskOrder.propTypes = {
   match: MatchShape.isRequired,
   setUnapprovedShipmentCount: func.isRequired,
+  setMessage: func.isRequired,
+  clearMessage: func.isRequired,
+  messageKey: string.isRequired,
 };
 
-export default withRouter(MoveTaskOrder);
+const mapStateToProps = (state) => {
+  return {
+    messageKey: get(state, 'flash.flashMessage.key', ''),
+  };
+};
+
+const mapDispatchToProps = {
+  setMessage: setFlashMessage,
+  clearMessage: clearFlashMessage,
+};
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveTaskOrder));
