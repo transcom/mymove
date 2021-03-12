@@ -172,7 +172,7 @@ function mapStateToProps(state) {
     serviceMember,
     move: selectCurrentMove(state) || {},
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
-    moveIsInDraft: selectMoveIsInDraft(state),
+    moveIsInDraft: selectMoveIsInDraft(state) || true,
     isPpm: selectHasCurrentPPM(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),

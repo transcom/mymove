@@ -185,8 +185,8 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return handlers.ResponseForError(logger, err)
 	}
 
-	var draftMove *models.Move
-	if len(serviceMember.Orders) > 0 {
+	allowEditIfMoveInDraft := true
+	if serviceMember.Orders != nil && len(serviceMember.Orders) > 0 {
 		orders := serviceMember.Orders[0]
 		moves := orders.Moves
 		var draftMoves []*models.Move
@@ -196,13 +196,15 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 			}
 		}
 
-		if len(draftMoves) > 0 {
-			draftMove = draftMoves[0]
+		// Don't allow the customer to edit certain fields if there are no
+		// moves in draft status.
+		if len(draftMoves) <= 0 {
+			allowEditIfMoveInDraft = false
 		}
 	}
 
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload, draftMove); verrs.HasAny() || err != nil {
+	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload, allowEditIfMoveInDraft); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
@@ -213,15 +215,15 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
-func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload, draftMove *models.Move) (*validate.Errors, error) {
+func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload, allowEditIfMoveInDraft bool) (*validate.Errors, error) {
 
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
 	}
-	if payload.Affiliation != nil && draftMove != nil {
+	if payload.Affiliation != nil && allowEditIfMoveInDraft {
 		serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
 	}
-	if payload.Rank != nil && draftMove != nil {
+	if payload.Rank != nil && allowEditIfMoveInDraft {
 		serviceMember.Rank = (*models.ServiceMemberRank)(payload.Rank)
 	}
 	if payload.FirstName != nil {
@@ -251,7 +253,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	if payload.EmailIsPreferred != nil {
 		serviceMember.EmailIsPreferred = payload.EmailIsPreferred
 	}
-	if payload.CurrentStationID != nil && draftMove != nil {
+	if payload.CurrentStationID != nil && allowEditIfMoveInDraft {
 		stationID, err := uuid.FromString(payload.CurrentStationID.String())
 		if err != nil {
 			return validate.NewErrors(), err
