@@ -4913,7 +4913,9 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "grade": {
-          "$ref": "#/definitions/ServiceMemberRank"
+          "type": "string",
+          "x-nullable": true,
+          "example": "O-6"
         },
         "has_dependents": {
           "type": "boolean",
@@ -4950,6 +4952,7 @@ func init() {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
         "origin_duty_station": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyStationPayload"
         },
         "report_by_date": {
@@ -11417,7 +11420,9 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "grade": {
-          "$ref": "#/definitions/ServiceMemberRank"
+          "type": "string",
+          "x-nullable": true,
+          "example": "O-6"
         },
         "has_dependents": {
           "type": "boolean",
@@ -11454,6 +11459,7 @@ func init() {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
         "origin_duty_station": {
+          "x-nullable": true,
           "$ref": "#/definitions/DutyStationPayload"
         },
         "report_by_date": {

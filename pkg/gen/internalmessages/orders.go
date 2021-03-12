@@ -29,7 +29,7 @@ type Orders struct {
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 
 	// grade
-	Grade *ServiceMemberRank `json:"grade,omitempty"`
+	Grade *string `json:"grade,omitempty"`
 
 	// Are dependents included in your orders?
 	// Required: true
@@ -111,10 +111,6 @@ func (m *Orders) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDepartmentIndicator(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateGrade(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -203,24 +199,6 @@ func (m *Orders) validateDepartmentIndicator(formats strfmt.Registry) error {
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("department_indicator")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *Orders) validateGrade(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Grade) { // not required
-		return nil
-	}
-
-	if m.Grade != nil {
-		if err := m.Grade.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("grade")
 			}
 			return err
 		}

@@ -43,10 +43,10 @@ type Order struct {
 	OrdersTypeDetail    *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents       bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear    bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
-	NewDutyStationID    uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
-	NewDutyStation      DutyStation                        `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
 	OriginDutyStation   *DutyStation                       `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
 	OriginDutyStationID *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
+	NewDutyStationID    uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
+	NewDutyStation      DutyStation                        `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
 	UploadedOrders      Document                           `belongs_to:"documents"`
 	UploadedOrdersID    uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber        *string                            `json:"orders_number" db:"orders_number"`
@@ -150,10 +150,12 @@ func (o *Order) Cancel() error {
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
-	err := db.Q().Eager("ServiceMember.User",
+	err := db.Q().EagerPreload("ServiceMember.User",
+		"OriginDutyStation.Address",
+		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
 		"NewDutyStation.TransportationOffice",
-		"UploadedOrders.UserUploads.Upload",
+		"UploadedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement",
@@ -164,6 +166,12 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
+		return Order{}, err
+	}
+
+	// Eager loading of nested has_many associations is broken
+	err = db.Load(&order.UploadedOrders, "UserUploads.Upload")
+	if err != nil {
 		return Order{}, err
 	}
 
