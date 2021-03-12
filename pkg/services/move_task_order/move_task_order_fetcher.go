@@ -105,7 +105,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 		"MTOShipments.MTOAgents",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
-		"Orders.NewDutyStation.Address").Where("id = $1", moveTaskOrderID)
+		"Orders.OriginDutyStation",
+		"Orders.NewDutyStation").Where("id = $1", moveTaskOrderID)
 
 	if searchParams == nil || !searchParams.IncludeHidden {
 		query.Where("show = TRUE")

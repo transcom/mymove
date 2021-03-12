@@ -93,8 +93,16 @@ type MoveTaskOrder struct {
 	// Read Only: true
 	ReferenceID string `json:"referenceId,omitempty"`
 
+	// selected move type
+	SelectedMoveType *SelectedMoveType `json:"selectedMoveType,omitempty"`
+
 	// status
 	Status MoveStatus `json:"status,omitempty"`
+
+	// Date the MoveTaskOrder was submitted by customer.
+	// Read Only: true
+	// Format: date-time
+	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
 	// Date on which this MoveTaskOrder was last updated.
 	// Read Only: true
@@ -145,7 +153,11 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
+		SelectedMoveType *SelectedMoveType `json:"selectedMoveType,omitempty"`
+
 		Status MoveStatus `json:"status,omitempty"`
+
+		SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}
@@ -213,8 +225,14 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// referenceId
 	result.ReferenceID = data.ReferenceID
 
+	// selectedMoveType
+	result.SelectedMoveType = data.SelectedMoveType
+
 	// status
 	result.Status = data.Status
+
+	// submittedAt
+	result.SubmittedAt = data.SubmittedAt
 
 	// updatedAt
 	result.UpdatedAt = data.UpdatedAt
@@ -257,7 +275,11 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
+		SelectedMoveType *SelectedMoveType `json:"selectedMoveType,omitempty"`
+
 		Status MoveStatus `json:"status,omitempty"`
+
+		SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}{
@@ -290,7 +312,11 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		ReferenceID: m.ReferenceID,
 
+		SelectedMoveType: m.SelectedMoveType,
+
 		Status: m.Status,
+
+		SubmittedAt: m.SubmittedAt,
 
 		UpdatedAt: m.UpdatedAt,
 	})
@@ -354,7 +380,15 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSelectedMoveType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -546,6 +580,24 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MoveTaskOrder) validateSelectedMoveType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SelectedMoveType) { // not required
+		return nil
+	}
+
+	if m.SelectedMoveType != nil {
+		if err := m.SelectedMoveType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("selectedMoveType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MoveTaskOrder) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status) { // not required
@@ -556,6 +608,19 @@ func (m *MoveTaskOrder) validateStatus(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateSubmittedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SubmittedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("submittedAt", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
 		return err
 	}
 

@@ -135,30 +135,15 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		ShipmentType: models.MTOShipmentType(mtoShipment.ShipmentType),
 	}
 
-	scheduledPickupDate := time.Time(mtoShipment.ScheduledPickupDate)
-	if !scheduledPickupDate.IsZero() {
-		model.ScheduledPickupDate = &scheduledPickupDate
-	}
+	model.ScheduledPickupDate = handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate)
 
-	firstAvailableDeliveryDate := time.Time(mtoShipment.FirstAvailableDeliveryDate)
-	if !firstAvailableDeliveryDate.IsZero() {
-		model.FirstAvailableDeliveryDate = &firstAvailableDeliveryDate
-	}
+	model.FirstAvailableDeliveryDate = handlers.FmtDatePtrToPopPtr(mtoShipment.FirstAvailableDeliveryDate)
 
-	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
-	if !requestedPickupDate.IsZero() {
-		model.RequestedPickupDate = &requestedPickupDate
-	}
+	model.RequestedPickupDate = handlers.FmtDatePtrToPopPtr(mtoShipment.RequestedPickupDate)
 
-	actualPickupDate := time.Time(mtoShipment.ActualPickupDate)
-	if !actualPickupDate.IsZero() {
-		model.ActualPickupDate = &actualPickupDate
-	}
+	model.ActualPickupDate = handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate)
 
-	requiredDeliveryDate := time.Time(mtoShipment.RequiredDeliveryDate)
-	if !requiredDeliveryDate.IsZero() {
-		model.RequiredDeliveryDate = &requiredDeliveryDate
-	}
+	model.RequiredDeliveryDate = handlers.FmtDatePtrToPopPtr(mtoShipment.RequiredDeliveryDate)
 
 	if mtoShipment.PickupAddress != nil {
 		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
