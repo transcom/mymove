@@ -154,7 +154,7 @@ func (f *FormFiller) AppendPage(templateImage io.ReadSeeker, fields map[string]F
 	}
 	_, err = templateImage.Seek(0, io.SeekStart)
 	if err != nil {
-		return errors.Wrap(err, "could not find image config")
+		return errors.Wrap(err, "could not read image data")
 	}
 
 	// Use provided image as document background

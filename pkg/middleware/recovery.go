@@ -47,7 +47,7 @@ func Recovery(logger Logger) func(inner http.Handler) http.Handler {
 
 					_, err := w.Write(jsonBody)
 					if err != nil {
-						logger.Error("Failed to write data to the connection", zap.Error(err))
+						logger.Error("Failed to write json error to the response body", zap.Error(err))
 					}
 				}
 			}()
