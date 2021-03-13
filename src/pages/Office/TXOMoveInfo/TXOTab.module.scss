@@ -16,8 +16,8 @@
     }
   }
 
-  .pageHeader:first-child,
   h1:first-child,
+  .pageHeader:first-child,
   .sidebar,
   .emptyMessage p {
     @include u-margin-top(0);
