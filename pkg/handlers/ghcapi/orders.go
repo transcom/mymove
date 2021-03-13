@@ -21,28 +21,28 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 )
 
-// GetMoveOrdersHandler fetches the information of a specific move order
-type GetMoveOrdersHandler struct {
+// GetOrdersHandler fetches the information of a specific move order
+type GetOrdersHandler struct {
 	handlers.HandlerContext
-	services.MoveOrderFetcher
+	services.OrderFetcher
 }
 
 // Handle getting the information of a specific move order
-func (h GetMoveOrdersHandler) Handle(params orderop.GetMoveOrderParams) middleware.Responder {
+func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	moveOrderID, _ := uuid.FromString(params.OrderID.String())
-	moveOrder, err := h.FetchMoveOrder(moveOrderID)
+	orderID, _ := uuid.FromString(params.OrderID.String())
+	order, err := h.FetchOrder(orderID)
 	if err != nil {
 		logger.Error("fetching move order", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
-			return orderop.NewGetMoveOrderNotFound()
+			return orderop.NewGetOrderNotFound()
 		default:
-			return orderop.NewGetMoveOrderInternalServerError()
+			return orderop.NewGetOrderInternalServerError()
 		}
 	}
-	moveOrderPayload := payloads.MoveOrder(moveOrder)
-	return orderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
+	orderPayload := payloads.Order(order)
+	return orderop.NewGetOrderOK().WithPayload(orderPayload)
 }
 
 // ListMoveTaskOrdersHandler fetches all the move orders
@@ -54,8 +54,8 @@ type ListMoveTaskOrdersHandler struct {
 // Handle getting the all move orders
 func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	moveOrderID, _ := uuid.FromString(params.OrderID.String())
-	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID, nil) // nil searchParams exclude disabled MTOs by default
+	orderID, _ := uuid.FromString(params.OrderID.String())
+	moveTaskOrders, err := h.ListMoveTaskOrders(orderID, nil) // nil searchParams exclude disabled MTOs by default
 	if err != nil {
 		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {
@@ -73,26 +73,26 @@ func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParam
 	return orderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
 }
 
-// UpdateMoveOrderHandler updates an order via PATCH /move-orders/{moveOrderId}
-type UpdateMoveOrderHandler struct {
+// UpdateOrderHandler updates an order via PATCH /move-orders/{orderId}
+type UpdateOrderHandler struct {
 	handlers.HandlerContext
 	orderUpdater services.OrderUpdater
 }
 
 // Handle ... updates an order from a request payload
-func (h UpdateMoveOrderHandler) Handle(params orderop.UpdateMoveOrderParams) middleware.Responder {
+func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.OrderID.String())
 	if err != nil {
 		logger.Error("unable to parse move order id param to uuid", zap.Error(err))
-		return orderop.NewUpdateMoveOrderBadRequest()
+		return orderop.NewUpdateOrderBadRequest()
 	}
 
-	newOrder, err := MoveOrder(*params.Body)
+	newOrder, err := Order(*params.Body)
 	if err != nil {
 		logger.Error("error converting payload to move order model", zap.Error(err))
-		return orderop.NewUpdateMoveOrderBadRequest()
+		return orderop.NewUpdateOrderBadRequest()
 	}
 	newOrder.ID = orderID
 
@@ -102,17 +102,17 @@ func (h UpdateMoveOrderHandler) Handle(params orderop.UpdateMoveOrderParams) mid
 		logger.Error("error updating move order", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
-			return orderop.NewUpdateMoveOrderNotFound()
+			return orderop.NewUpdateOrderNotFound()
 		case services.InvalidInputError:
-			return orderop.NewUpdateMoveOrderBadRequest()
+			return orderop.NewUpdateOrderBadRequest()
 		case services.PreconditionFailedError:
-			return orderop.NewUpdateMoveOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
-			return orderop.NewUpdateMoveOrderInternalServerError()
+			return orderop.NewUpdateOrderInternalServerError()
 		}
 	}
 
-	// Find the record where orderID matches moveOrder.ID
+	// Find the record where orderID matches order.ID
 	var move models.Move
 	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
 	err = query.First(&move)
@@ -120,33 +120,33 @@ func (h UpdateMoveOrderHandler) Handle(params orderop.UpdateMoveOrderParams) mid
 	var moveID = move.ID
 
 	if err != nil {
-		logger.Error("ghcapi.UpdateMoveOrderHandler could not find move")
+		logger.Error("ghcapi.UpdateOrderHandler could not find move")
 		moveID = uuid.Nil
 	}
 
-	// UpdateMoveOrder event Trigger for the first updated move:
+	// UpdateOrder event Trigger for the first updated move:
 	_, err = event.TriggerEvent(event.Event{
-		EndpointKey: event.GhcUpdateMoveOrderEndpointKey,
+		EndpointKey: event.GhcUpdateOrderEndpointKey,
 		// Endpoint that is being handled
-		EventKey:        event.MoveOrderUpdateEventKey, // Event that you want to trigger
-		UpdatedObjectID: updatedOrder.ID,               // ID of the updated logical object (look at what the payload returns)
-		MtoID:           moveID,                        // ID of the associated Move
-		Request:         params.HTTPRequest,            // Pass on the http.Request
-		DBConnection:    h.DB(),                        // Pass on the pop.Connection
-		HandlerContext:  h,                             // Pass on the handlerContext
+		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: updatedOrder.ID,           // ID of the updated logical object (look at what the payload returns)
+		MtoID:           moveID,                    // ID of the associated Move
+		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    h.DB(),                    // Pass on the pop.Connection
+		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.UpdateMoveOrderHandler could not generate the event")
+		logger.Error("ghcapi.UpdateOrderHandler could not generate the event")
 	}
 
-	moveOrderPayload := payloads.MoveOrder(updatedOrder)
+	orderPayload := payloads.Order(updatedOrder)
 
-	return orderop.NewUpdateMoveOrderOK().WithPayload(moveOrderPayload)
+	return orderop.NewUpdateOrderOK().WithPayload(orderPayload)
 }
 
-// MoveOrder transforms UpdateMoveOrderPayload to Order model
-func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error) {
+// Order transforms UpdateOrderPayload to Order model
+func Order(payload ghcmessages.UpdateOrderPayload) (models.Order, error) {
 
 	var originDutyStationID uuid.UUID
 	if payload.OriginDutyStationID != nil {

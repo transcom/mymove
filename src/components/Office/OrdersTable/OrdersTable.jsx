@@ -4,7 +4,7 @@ import classnames from 'classnames';
 
 import styles from './OrdersTable.module.scss';
 
-import { OrdersInfoShape } from 'types/moveOrder';
+import { OrdersInfoShape } from 'types/order';
 import { formatDate } from 'shared/dates';
 import { departmentIndicatorReadable, ordersTypeReadable, ordersTypeDetailReadable } from 'shared/formatters';
 

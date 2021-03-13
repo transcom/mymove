@@ -1,4 +1,4 @@
-package moveorder
+package order
 
 import (
 	"fmt"
@@ -14,33 +14,33 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
-	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
-	expectedMoveOrder := expectedMoveTaskOrder.Orders
+func (suite *OrderServiceSuite) TestOrderUpdater() {
+	expectedMove := testdatagen.MakeDefaultMove(suite.DB())
+	expectedOrder := expectedMove.Orders
 
-	moveOrderUpdater := NewOrderUpdater(suite.DB())
+	orderUpdater := NewOrderUpdater(suite.DB())
 
 	suite.T().Run("NotFoundError when order id doesn't exit", func(t *testing.T) {
-		_, err := moveOrderUpdater.UpdateOrder("", models.Order{})
+		_, err := orderUpdater.UpdateOrder("", models.Order{})
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("PreconditionsError when etag is stale", func(t *testing.T) {
-		staleEtag := etag.GenerateEtag(expectedMoveOrder.UpdatedAt.Add(-1 * time.Minute))
-		_, err := moveOrderUpdater.UpdateOrder(staleEtag, models.Order{ID: expectedMoveOrder.ID})
+		staleEtag := etag.GenerateEtag(expectedOrder.UpdatedAt.Add(-1 * time.Minute))
+		_, err := orderUpdater.UpdateOrder(staleEtag, models.Order{ID: expectedOrder.ID})
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Orders fields are updated without entitlement", func(t *testing.T) {
-		defaultMoveOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
 		newDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 		issueDate := time.Now().Add(-48 * time.Hour)
 		reportByDate := time.Now().Add(72 * time.Hour)
 		ordersTypeDetail := internalmessages.OrdersTypeDetailINSTRUCTION20WEEKS
-		updatedMoveOrder := models.Order{
-			ID:                  defaultMoveOrder.ID,
+		updatedOrder := models.Order{
+			ID:                  defaultOrder.ID,
 			OriginDutyStationID: &newDutyStation.ID,
 			NewDutyStationID:    newDutyStation.ID,
 			IssueDate:           issueDate,
@@ -54,41 +54,41 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 			SAC:                 swag.String("7766"),
 		}
 
-		expectedETag := etag.GenerateEtag(defaultMoveOrder.UpdatedAt)
-		actualOrder, err := moveOrderUpdater.UpdateOrder(expectedETag, updatedMoveOrder)
+		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
+		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
 
 		suite.NoError(err)
-		suite.Equal(updatedMoveOrder.ID, actualOrder.ID)
-		suite.Equal(updatedMoveOrder.NewDutyStationID, actualOrder.NewDutyStation.ID)
-		suite.Equal(updatedMoveOrder.OriginDutyStationID.String(), actualOrder.OriginDutyStation.ID.String())
-		suite.Equal(updatedMoveOrder.IssueDate, actualOrder.IssueDate)
-		suite.Equal(updatedMoveOrder.ReportByDate, actualOrder.ReportByDate)
-		suite.Equal(updatedMoveOrder.OrdersType, actualOrder.OrdersType)
-		suite.Equal(updatedMoveOrder.OrdersTypeDetail, actualOrder.OrdersTypeDetail)
-		suite.Equal(updatedMoveOrder.OrdersNumber, actualOrder.OrdersNumber)
-		suite.Equal(updatedMoveOrder.DepartmentIndicator, actualOrder.DepartmentIndicator)
-		suite.Equal(updatedMoveOrder.TAC, actualOrder.TAC)
-		suite.Equal(updatedMoveOrder.SAC, actualOrder.SAC)
-		suite.Equal(updatedMoveOrder.Grade, actualOrder.Grade)
+		suite.Equal(updatedOrder.ID, actualOrder.ID)
+		suite.Equal(updatedOrder.NewDutyStationID, actualOrder.NewDutyStation.ID)
+		suite.Equal(updatedOrder.OriginDutyStationID.String(), actualOrder.OriginDutyStation.ID.String())
+		suite.Equal(updatedOrder.IssueDate, actualOrder.IssueDate)
+		suite.Equal(updatedOrder.ReportByDate, actualOrder.ReportByDate)
+		suite.Equal(updatedOrder.OrdersType, actualOrder.OrdersType)
+		suite.Equal(updatedOrder.OrdersTypeDetail, actualOrder.OrdersTypeDetail)
+		suite.Equal(updatedOrder.OrdersNumber, actualOrder.OrdersNumber)
+		suite.Equal(updatedOrder.DepartmentIndicator, actualOrder.DepartmentIndicator)
+		suite.Equal(updatedOrder.TAC, actualOrder.TAC)
+		suite.Equal(updatedOrder.SAC, actualOrder.SAC)
+		suite.Equal(updatedOrder.Grade, actualOrder.Grade)
 	})
 
 	suite.T().Run("Entitlement is updated with authorizedWeight or dependentsAuthorized", func(t *testing.T) {
-		defaultMoveOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		updatedMoveOrder := models.Order{
-			ID:                  defaultMoveOrder.ID,
-			OriginDutyStationID: defaultMoveOrder.OriginDutyStationID,
-			NewDutyStationID:    defaultMoveOrder.NewDutyStationID,
-			IssueDate:           defaultMoveOrder.IssueDate,
-			ReportByDate:        defaultMoveOrder.ReportByDate,
-			OrdersType:          defaultMoveOrder.OrdersType,
+		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		updatedOrder := models.Order{
+			ID:                  defaultOrder.ID,
+			OriginDutyStationID: defaultOrder.OriginDutyStationID,
+			NewDutyStationID:    defaultOrder.NewDutyStationID,
+			IssueDate:           defaultOrder.IssueDate,
+			ReportByDate:        defaultOrder.ReportByDate,
+			OrdersType:          defaultOrder.OrdersType,
 			Entitlement: &models.Entitlement{
 				DBAuthorizedWeight:   swag.Int(20000),
 				DependentsAuthorized: swag.Bool(true),
 			},
 		}
 
-		expectedETag := etag.GenerateEtag(defaultMoveOrder.UpdatedAt)
-		actualOrder, err := moveOrderUpdater.UpdateOrder(expectedETag, updatedMoveOrder)
+		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
+		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
 
 		suite.NoError(err)
 		suite.Equal(swag.Int(20000), actualOrder.Entitlement.DBAuthorizedWeight)
@@ -96,21 +96,21 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 	})
 
 	suite.T().Run("Transaction rolled back after Order model validation error", func(t *testing.T) {
-		defaultMoveOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		serviceMember := defaultMoveOrder.ServiceMember
+		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		serviceMember := defaultOrder.ServiceMember
 
 		// update service member to compare after a failed transaction
 		updateAffiliation := models.AffiliationCOASTGUARD
 		serviceMember.Affiliation = &updateAffiliation
 
 		emptyStrSAC := ""
-		updatedMoveOrder := models.Order{
-			ID:                  defaultMoveOrder.ID,
-			OriginDutyStationID: defaultMoveOrder.OriginDutyStationID,
-			NewDutyStationID:    defaultMoveOrder.NewDutyStationID,
-			IssueDate:           defaultMoveOrder.IssueDate,
-			ReportByDate:        defaultMoveOrder.ReportByDate,
-			OrdersType:          defaultMoveOrder.OrdersType,
+		updatedOrder := models.Order{
+			ID:                  defaultOrder.ID,
+			OriginDutyStationID: defaultOrder.OriginDutyStationID,
+			NewDutyStationID:    defaultOrder.NewDutyStationID,
+			IssueDate:           defaultOrder.IssueDate,
+			ReportByDate:        defaultOrder.ReportByDate,
+			OrdersType:          defaultOrder.OrdersType,
 			Entitlement: &models.Entitlement{ // try to update entitlement and see that it's not updated after failed transaction
 				DBAuthorizedWeight:   swag.Int(20000),
 				DependentsAuthorized: swag.Bool(false),
@@ -119,11 +119,11 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 			SAC:           &emptyStrSAC,  // this will trigger validation error on Order model
 		}
 
-		expectedETag := etag.GenerateEtag(defaultMoveOrder.UpdatedAt)
-		actualOrder, err := moveOrderUpdater.UpdateOrder(expectedETag, updatedMoveOrder)
+		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
+		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
 
 		// check that we get back a validation error
-		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", defaultMoveOrder.ID))
+		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", defaultOrder.ID))
 		suite.Nil(actualOrder)
 
 		// make sure that service member is not updated as well
@@ -134,7 +134,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderUpdater() {
 
 		// check that entitlement is not updated as well
 		fetchedEntitlement := models.Entitlement{}
-		_ = suite.DB().Find(&fetchedEntitlement, defaultMoveOrder.Entitlement.ID)
+		_ = suite.DB().Find(&fetchedEntitlement, defaultOrder.Entitlement.ID)
 		suite.NotEqual(20000, *fetchedEntitlement.DBAuthorizedWeight)
 		suite.EqualValues(true, *fetchedEntitlement.DependentsAuthorized)
 	})

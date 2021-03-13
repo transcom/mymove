@@ -1,4 +1,4 @@
-package moveorder
+package order
 
 import (
 	"github.com/gobuffalo/pop/v5"
@@ -12,17 +12,17 @@ import (
 
 type orderUpdater struct {
 	db *pop.Connection
-	moveOrderFetcher
+	orderFetcher
 }
 
 // NewOrderUpdater creates a new struct with the service dependencies
 func NewOrderUpdater(db *pop.Connection) services.OrderUpdater {
-	return &orderUpdater{db, moveOrderFetcher{db}}
+	return &orderUpdater{db, orderFetcher{db}}
 }
 
 // UpdateOrder updates the Order model
 func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Order, error) {
-	existingOrder, err := s.moveOrderFetcher.FetchMoveOrder(order.ID)
+	existingOrder, err := s.orderFetcher.FetchOrder(order.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(order.ID, "while looking for order")
 	}
