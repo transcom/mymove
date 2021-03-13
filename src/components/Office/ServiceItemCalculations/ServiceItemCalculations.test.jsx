@@ -61,7 +61,7 @@ describe('ServiceItemCalculations', () => {
       data.forEach((obj, index) => {
         expect(wrapper.at(index).find('[data-testid="value"]').text()).toBe(obj.value);
         expect(wrapper.at(index).find('[data-testid="label"]').text()).toBe(obj.label);
-        expect(wrapper.at(index).find('[data-testid="details"]').text()).toBe(obj.details ? obj.details.join(' ') : '');
+        expect(wrapper.at(index).find('[data-testid="details"]').text()).toBe(obj.details ? obj.details.join('') : '');
       });
     });
   });
@@ -88,7 +88,7 @@ describe('ServiceItemCalculations', () => {
       data.forEach((obj, index) => {
         expect(wrapper.at(index).find('[data-testid="value"]').text()).toBe(obj.value);
         expect(wrapper.at(index).find('[data-testid="label"]').text()).toBe(obj.label);
-        expect(wrapper.at(index).find('[data-testid="details"]').text()).toBe(obj.details ? obj.details.join(' ') : '');
+        expect(wrapper.at(index).find('[data-testid="details"]').text()).toBe(obj.details ? obj.details.join('') : '');
       });
     });
   });

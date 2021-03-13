@@ -47,19 +47,25 @@ const ServiceItemCalculations = ({ calculations, tableSize }) => {
                 {calc.value}
               </p>
               <hr />
-              <p>
-                <small data-testid="label" className={styles.descriptionTitle}>
-                  {calc.label}
-                </small>
-                <small data-testid="details" className={styles.descriptionContent}>
-                  <ul>
-                    {calc.details &&
-                      calc.details.map((detail) => {
-                        return <li key={detail}>{detail}</li>;
-                      })}
-                  </ul>
-                </small>
-              </p>
+              <div>
+                <p>
+                  <small data-testid="label" className={styles.descriptionTitle}>
+                    {calc.label}
+                  </small>
+                </p>
+                <ul data-testid="details" className={styles.descriptionContent}>
+                  {calc.details &&
+                    calc.details.map((detail) => {
+                      return (
+                        <li key={detail}>
+                          <p>
+                            <small>{detail}</small>
+                          </p>
+                        </li>
+                      );
+                    })}
+                </ul>
+              </div>
             </div>
           );
         })}
