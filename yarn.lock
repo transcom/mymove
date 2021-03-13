@@ -16102,10 +16102,10 @@ react-hotkeys@2.0.0:
   dependencies:
     prop-types "^15.6.1"
 
-react-idle-timer@^4.5.5:
-  version "4.5.5"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.5.5.tgz#73eeb816984d89fea1dda1225bd893bc4c2726be"
-  integrity sha512-hQpwbEmZq9NZyR3hsq9savk8SwKAyzBqqCpp3sjJQzMrYoQHMIxKrYy0dpCM0JbyHNmSDqD4vLTJAcA+BH47Dw==
+react-idle-timer@^4.5.6:
+  version "4.5.6"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.5.6.tgz#b3c541ba0526220f71f5820a81c0e1b2c55b0e73"
+  integrity sha512-7+sdN78SWu2vZpQsPWDbrgfZWkSqzzXeq5/bC3wvlRLj6xVTA1fA+8Qy0vJmNONz5UXu8Ymrj6rn6DFhcxgssg==
 
 react-imask@^6.0.7:
   version "6.0.7"
@@ -16419,10 +16419,10 @@ react-table@^7.6.3:
   resolved "https://registry.yarnpkg.com/react-table/-/react-table-7.6.3.tgz#76434392b3f62344bdb704f5b227c2f29c1ffb14"
   integrity sha512-hfPF13zDLxPMpLKzIKCE8RZud9T/XrRTsaCIf8zXpWZIZ2juCl7qrGpo3AQw9eAetXV5DP7s2GDm+hht7qq5Dw==
 
-react-tabs@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/react-tabs/-/react-tabs-3.2.0.tgz#0fd8d595ef26d3684da876c27a3cc90392dffb40"
-  integrity sha512-q7oNapNRoYTQq8gDhApXwdBheuuN5qQ4YvUaQUAkb6OSSttJulBAvxJ0FS6W5uojvMxbbIZKu1f2I+GXISoLjw==
+react-tabs@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/react-tabs/-/react-tabs-3.2.1.tgz#b0ce1e8b9f68bca82292ddecfb6480c9042bcb48"
+  integrity sha512-M7ERQvJgBVLTyojFmC3G4tpaJuMmUtsnYenVQm2oA1NjDrGXq1UuzHgxhVTDwimkJcKEbzgWCybXFSHQ/+2bsA==
   dependencies:
     clsx "^1.1.0"
     prop-types "^15.5.0"

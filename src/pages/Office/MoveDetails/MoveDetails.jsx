@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import classnames from 'classnames';
 import { useParams } from 'react-router-dom';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
+import classnames from 'classnames';
+import { GridContainer, Grid, Tag } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
 
@@ -129,17 +130,45 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
     backupContact: customer.backup_contact,
   };
 
+  const requiredOrdersInfo = {
+    ordersNumber: moveOrder.order_number,
+    ordersType: moveOrder.order_type,
+    ordersTypeDetail: moveOrder.order_type_detail,
+    tacMDC: moveOrder.tac,
+  };
+
+  const hasMissingOrdersInfo = () => {
+    return Object.values(requiredOrdersInfo).some((value) => {
+      return !value || value === '';
+    });
+  };
+
+  const defineSectionLink = (section) => {
+    let showErrorTag = false;
+
+    // TODO This will likely become a switch statement or be refactored as more values are considered required
+    if (section === 'orders' && hasMissingOrdersInfo()) {
+      showErrorTag = true;
+    }
+
+    return (
+      <a key={`sidenav_${section}`} href={`#${section}`} className={classnames({ active: section === activeSection })}>
+        {sectionLabels[`${section}`]}
+        {showErrorTag && (
+          <Tag className="usa-tag usa-tag--alert">
+            <FontAwesomeIcon icon="exclamation" />
+          </Tag>
+        )}
+      </a>
+    );
+  };
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
         <LeftNav className={styles.sidebar}>
           {sections.map((s) => {
-            const classes = classnames({ active: s === activeSection });
-            return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
-                {sectionLabels[`${s}`]}
-              </a>
-            );
+            return defineSectionLink(s);
           })}
         </LeftNav>
 

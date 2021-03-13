@@ -1,3 +1,11 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used set up environment variables
+//RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
+//RA Developer Status: Mitigated
+//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Modified Severity: N/A
+// nolint:errcheck
 package invoice
 
 import (
@@ -674,8 +682,16 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	// This won't work because we don't have PaymentServiceItems on the PaymentRequest right now.
 	// nilPaymentRequest.PaymentServiceItems[0].PriceCents = nil
 
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+	//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+	//RA: in a unit test, then there is no risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
 	panicFunc := func() {
-		generator.Generate(nilPaymentRequest, false)
+		generator.Generate(nilPaymentRequest, false) // nolint:errcheck
 	}
 
 	suite.T().Run("nil TAC does not cause panic", func(t *testing.T) {
