@@ -24,6 +24,7 @@ FROM alpine:3.12.3
 COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=builder --chown=root:root /home/circleci/project/bin/milmove /bin/milmove
 
+COPY migrations/app/secure /migrate/secure
 COPY migrations/app/schema /migrate/schema
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 

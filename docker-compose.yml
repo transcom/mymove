@@ -1,11 +1,24 @@
-version: '3.3'
+version: '3.9'
+
+x-aws-vpc: vpc-0d454e20ab91056a7
+
+x-aws-cloudformation:
+#  Resources:
+#    MilmoveTCP4000Listener:
+#      Properties:
+#        Certificates:
+#          - CertificateArn: "arn:aws:acm:us-west-2:313564602749:certificate/294dd59b-d62f-4739-9745-19d67320792e"
+#        Protocol: HTTPS
+    MilmoveTCP4000TargetGroup:
+      Properties:
+        HealthCheckPath: /health
+        Matcher:
+          HttpCode: 200-499
 
 services:
   database:
     image: postgres:12.4
     restart: always
-    ports:
-      - '6432:5432'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword
@@ -17,7 +30,7 @@ services:
   milmove_migrate:
     depends_on:
       - database
-    image: 021081706899.dkr.ecr.us-gov-west-1.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
+    image: 004351505091.dkr.ecr.us-west-2.amazonaws.com/milmove-docker-ecs/app-migrations:git-branch-mk-docker-ecs
     links:
       - database
     environment:
@@ -34,19 +47,16 @@ services:
     entrypoint:
       - '/bin/milmove'
       - 'migrate'
-    volumes:
-      - ./migrations/app/secure:/migrate/secure
 
   milmove:
     depends_on:
       - database
-      - milmove_migrate
       - redis
-    image: 021081706899.dkr.ecr.us-gov-west-1.amazonaws.com/app:git-branch-placeholder_branch_name
+    image: 004351505091.dkr.ecr.us-west-2.amazonaws.com/milmove-docker-ecs/app:git-branch-mk-docker-ecs
     links:
       - database
     ports:
-      - '4000:4000'
+      - 4000
     environment:
       - CLIENT_AUTH_SECRET_KEY
       - CSRF_AUTH_KEY
@@ -74,10 +84,10 @@ services:
       - HERE_MAPS_APP_ID
       - HERE_MAPS_GEOCODE_ENDPOINT
       - HERE_MAPS_ROUTING_ENDPOINT
-      - HTTP_ADMIN_SERVER_NAME=adminlocal
-      - HTTP_MY_SERVER_NAME=milmovelocal
-      - HTTP_OFFICE_SERVER_NAME=officelocal
-      - HTTP_ORDERS_SERVER_NAME=orderslocal
+      - HTTP_ADMIN_SERVER_NAME=admin-sandbox.truss.coffee
+      - HTTP_MY_SERVER_NAME=my-sandbox.truss.coffee
+      - HTTP_OFFICE_SERVER_NAME=office-sandbox.truss.coffee
+      - HTTP_ORDERS_SERVER_NAME=orders-sandbox.truss.coffee
       - AWS_CF_DOMAIN=assets.devlocal.move.mil
       - IWS_RBS_ENABLED=1
       - IWS_RBS_HOST
@@ -106,5 +116,4 @@ services:
       - STORAGE_BACKEND=local
       - TLS_ENABLED=1
       - TZ=UTC
-    volumes:
-      - ./tmp:/tmp
+
