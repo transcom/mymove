@@ -16,21 +16,18 @@
     }
   }
 
-  h1 {
-    @include u-margin(0);
-    @include u-margin-bottom(3);
-  }
-
+  .pageHeader:first-child,
+  h1:first-child,
   .sidebar,
   .emptyMessage p {
     @include u-margin-top(0);
   }
 
-  .gridContainer {
-    :first-child {
-      @include u-margin-top(0);
-    }
+  h1 {
+    @include u-margin-bottom(3);
+  }
 
+  .gridContainer {
     .shipmentCard {
       @include u-padding-left(4);
     }
