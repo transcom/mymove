@@ -59,25 +59,28 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const { moveCode } = match.params;
   const { setUnapprovedShipmentCount, setMessage, clearMessage, messageKey } = props;
 
-  // This reference keeps track of new flash messages and
-  // scrolls us up to the top of the page if a new message is added.
+  // This reference keeps track of new flash messages, scrolls us up to the top of the page if a new message is added,
+  // and adds an event listener to clear the message out when it is no longer needed.
   // NOTE: We should probably use `useRef` here instead,
   // but it seems to introduce a delay with the ScrollToTop component.
   const [newMessageKey, setNewMessageKey] = useState('');
   useEffect(() => {
+    const clearCurrentMessage = () => {
+      clearMessage(messageKey);
+    };
+
     if (messageKey) {
       setNewMessageKey(messageKey);
-    }
-  }, [messageKey, setNewMessageKey]);
 
-  // This effect clears out any previous messages when a service item is selected.
-  useEffect(() => {
-    // NOTE: messageKey is NOT a dependency here because we don't want it to trigger a change -
-    // we want this value to stay as it was when this function was defined.
-    // (so ignore the persistent warning - which is okay for the ATO)
-    clearMessage(messageKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedServiceItem, clearMessage]);
+      // clears the current message after another page element gets focused:
+      window.addEventListener('focusout', clearCurrentMessage);
+    }
+
+    // remove the listener on component unmount:
+    return () => {
+      window.removeEventListener('focusout', clearCurrentMessage);
+    };
+  }, [messageKey, setNewMessageKey, clearMessage]);
 
   const {
     moveOrders = {},
