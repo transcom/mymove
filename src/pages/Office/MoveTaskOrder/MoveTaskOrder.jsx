@@ -61,16 +61,17 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   // This reference keeps track of new flash messages, scrolls us up to the top of the page if a new message is added,
   // and adds an event listener to clear the message out when it is no longer needed.
-  // NOTE: We should probably use `useRef` here instead,
-  // but it seems to introduce a delay with the ScrollToTop component.
-  const [newMessageKey, setNewMessageKey] = useState('');
+  // NOTE: We should probably use `useRef` here instead (this isn't really state),
+  // but we do want to trigger a re-render when it changes.
+  // Otherwise, it introduces a delay with the ScrollToTop component.
+  const [currentMessageKey, setCurrentMessageKey] = useState('');
   useEffect(() => {
     const clearCurrentMessage = () => {
       clearMessage(messageKey);
     };
 
     if (messageKey) {
-      setNewMessageKey(messageKey);
+      setCurrentMessageKey(messageKey);
 
       // clears the current message after another page element gets focused:
       window.addEventListener('focusout', clearCurrentMessage);
@@ -80,7 +81,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     return () => {
       window.removeEventListener('focusout', clearCurrentMessage);
     };
-  }, [messageKey, setNewMessageKey, clearMessage]);
+  }, [messageKey, setCurrentMessageKey, clearMessage]);
 
   const {
     moveOrders = {},
@@ -276,7 +277,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               onClose={setIsModalVisible}
             />
           )}
-          <ScrollToTop otherDep={newMessageKey} />
+          <ScrollToTop otherDep={currentMessageKey} />
           <ConnectedFlashMessage />
 
           <div className={styles.pageHeader}>
