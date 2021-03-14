@@ -182,7 +182,7 @@ func (suite *EventServiceSuite) TestAssembleOrderPayload() {
 	suite.T().Run("Success with default Order", func(t *testing.T) {
 		payload, err := assembleOrderPayload(suite.DB(), order.ID)
 
-		data := &primemessages.MoveOrder{}
+		data := &primemessages.Order{}
 		unmarshalErr := data.UnmarshalBinary(payload)
 
 		suite.Nil(err)

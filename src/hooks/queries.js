@@ -47,12 +47,12 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
   const orderId = move?.ordersId;
 
-  // get move orders
+  // get orders
   const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
 
-  // TODO - Need to refactor if we pass include customer in move order payload
+  // TODO - Need to refactor if we pass include customer in order payload
   // get customer
   const order = orders && Object.values(orders)[0];
   const customerId = order?.customerID;
@@ -96,7 +96,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
   const orderId = move?.ordersId;
 
-  // get move orders
+  // get orders
   const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });

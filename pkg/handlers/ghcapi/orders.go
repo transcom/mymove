@@ -21,19 +21,19 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 )
 
-// GetOrdersHandler fetches the information of a specific move order
+// GetOrdersHandler fetches the information of a specific order
 type GetOrdersHandler struct {
 	handlers.HandlerContext
 	services.OrderFetcher
 }
 
-// Handle getting the information of a specific move order
+// Handle getting the information of a specific order
 func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	orderID, _ := uuid.FromString(params.OrderID.String())
 	order, err := h.FetchOrder(orderID)
 	if err != nil {
-		logger.Error("fetching move order", zap.Error(err))
+		logger.Error("fetching order", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
 			return orderop.NewGetOrderNotFound()
@@ -45,19 +45,19 @@ func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Respo
 	return orderop.NewGetOrderOK().WithPayload(orderPayload)
 }
 
-// ListMoveTaskOrdersHandler fetches all the move orders
+// ListMoveTaskOrdersHandler fetches all the moves
 type ListMoveTaskOrdersHandler struct {
 	handlers.HandlerContext
 	services.MoveTaskOrderFetcher
 }
 
-// Handle getting the all move orders
+// Handle getting the all moves
 func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	orderID, _ := uuid.FromString(params.OrderID.String())
 	moveTaskOrders, err := h.ListMoveTaskOrders(orderID, nil) // nil searchParams exclude disabled MTOs by default
 	if err != nil {
-		logger.Error("fetching all move orders", zap.Error(err))
+		logger.Error("fetching all moves", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
 			return orderop.NewListMoveTaskOrdersNotFound()
@@ -85,13 +85,13 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 
 	orderID, err := uuid.FromString(params.OrderID.String())
 	if err != nil {
-		logger.Error("unable to parse move order id param to uuid", zap.Error(err))
+		logger.Error("unable to parse order id param to uuid", zap.Error(err))
 		return orderop.NewUpdateOrderBadRequest()
 	}
 
 	newOrder, err := Order(*params.Body)
 	if err != nil {
-		logger.Error("error converting payload to move order model", zap.Error(err))
+		logger.Error("error converting payload to order model", zap.Error(err))
 		return orderop.NewUpdateOrderBadRequest()
 	}
 	newOrder.ID = orderID
@@ -99,7 +99,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	updatedOrder, err := h.orderUpdater.UpdateOrder(params.IfMatch, newOrder)
 
 	if err != nil {
-		logger.Error("error updating move order", zap.Error(err))
+		logger.Error("error updating order", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
 			return orderop.NewUpdateOrderNotFound()

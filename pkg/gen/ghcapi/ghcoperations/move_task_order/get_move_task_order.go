@@ -31,9 +31,9 @@ func NewGetMoveTaskOrder(ctx *middleware.Context, handler GetMoveTaskOrderHandle
 
 /*GetMoveTaskOrder swagger:route GET /move-task-orders/{moveTaskOrderID} moveTaskOrder getMoveTaskOrder
 
-Gets a move order by ID
+Gets a move by ID
 
-Gets a move order
+Gets a move
 
 */
 type GetMoveTaskOrder struct {

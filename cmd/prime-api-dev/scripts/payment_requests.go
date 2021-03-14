@@ -200,9 +200,9 @@ func (pr *paymentRequestsData) printMTO(mto *primemessages.MoveTaskOrder) bool {
 		return false
 	}
 
-	if mto.AvailableToPrimeAt != nil && mto.MoveOrder != nil && mto.MoveOrder.DestinationDutyStation != nil &&
-		mto.MoveOrder.DestinationDutyStation.Address != nil && mto.MoveOrder.DestinationDutyStation.Address.City != nil &&
-		mto.MoveOrder.Customer != nil {
+	if mto.AvailableToPrimeAt != nil && mto.Order != nil && mto.Order.DestinationDutyStation != nil &&
+		mto.Order.DestinationDutyStation.Address != nil && mto.Order.DestinationDutyStation.Address.City != nil &&
+		mto.Order.Customer != nil {
 		return true
 	}
 
@@ -225,10 +225,10 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 		fmt.Printf("Is Canceled: %s\n", strconv.FormatBool(*mto.IsCanceled))
 	}
 
-	fmt.Printf("%s, %s\n", mto.MoveOrder.Customer.LastName, mto.MoveOrder.Customer.FirstName)
+	fmt.Printf("%s, %s\n", mto.Order.Customer.LastName, mto.Order.Customer.FirstName)
 
-	fmt.Printf("Dest. Duty Station: %s, %s, %s\n", *mto.MoveOrder.DestinationDutyStation.Address.City,
-		*mto.MoveOrder.DestinationDutyStation.Address.State, *mto.MoveOrder.DestinationDutyStation.Address.PostalCode)
+	fmt.Printf("Dest. Duty Station: %s, %s, %s\n", *mto.Order.DestinationDutyStation.Address.City,
+		*mto.Order.DestinationDutyStation.Address.State, *mto.Order.DestinationDutyStation.Address.PostalCode)
 
 	// Build shipment display descriptions
 	for _, s := range mto.MtoShipments {
@@ -348,8 +348,8 @@ func (pr *paymentRequestsData) displayMTOS() {
 		if pr.printMTO(mto) == true {
 
 			description := fmt.Sprintf("%s|\t%s|\t%s,%s\n", mto.AvailableToPrimeAt.String(),
-				*mto.MoveOrder.DestinationDutyStation.Address.City,
-				mto.MoveOrder.Customer.LastName, mto.MoveOrder.Customer.FirstName)
+				*mto.Order.DestinationDutyStation.Address.City,
+				mto.Order.Customer.LastName, mto.Order.Customer.FirstName)
 			info := mtoDisplay{
 				mtoID:       mto.ID.String(),
 				description: description,

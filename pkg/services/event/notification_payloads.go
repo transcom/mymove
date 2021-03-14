@@ -34,9 +34,9 @@ type MoveTaskOrder struct {
 	// is canceled
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
-	// move order ID
+	// order ID
 	// Format: uuid
-	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
+	OrderID strfmt.UUID `json:"orderID,omitempty"`
 
 	// ppm estimated weight
 	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
@@ -66,7 +66,7 @@ func MoveTaskOrderModelToPayload(moveTaskOrder *models.Move) *MoveTaskOrder {
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         moveTaskOrder.IsCanceled(),
-		MoveOrderID:        strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		OrderID:            strfmt.UUID(moveTaskOrder.OrdersID.String()),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
