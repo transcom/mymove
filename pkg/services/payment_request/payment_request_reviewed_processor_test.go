@@ -494,15 +494,19 @@ func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest
 			BEGIN;
 			SELECT * FROM payment_requests
 			WHERE id = $1 FOR UPDATE SKIP LOCKED;
+			UPDATE payment_requests
+			SET
+				status = $2,
+			WHERE id = $3;
 		`
-		suite.DB().RawQuery(query, reviewedPaymentRequests[0].ID).Exec()
+		suite.DB().RawQuery(query, reviewedPaymentRequests[0].ID, models.PaymentRequestStatusPaid, reviewedPaymentRequests[0].ID).Exec()
 
 		for _, pr := range reviewedPaymentRequests {
 			err := paymentRequestReviewedProcessor.ProcessAndLockReviewedPR(pr)
 			suite.NoError(err)
 		}
 
-		suite.DB().RawQuery(`END;`).Exec()
+		suite.DB().RawQuery(`COMMIT;`).Exec()
 
 		fetcher := NewPaymentRequestFetcher(suite.DB())
 		for i, pr := range reviewedPaymentRequests {
