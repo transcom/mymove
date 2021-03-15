@@ -39,8 +39,8 @@ type Event struct {
 	logger          handlers.Logger         // The logger
 }
 
-// MoveOrderUpdateEventKey is a key containing MoveOrder.Update
-const MoveOrderUpdateEventKey KeyType = "MoveOrder.Update"
+// OrderUpdateEventKey is a key containing Order.Update
+const OrderUpdateEventKey KeyType = "Order.Update"
 
 // MoveTaskOrderCreateEventKey is a key containing MoveTaskOrder.Create
 const MoveTaskOrderCreateEventKey KeyType = "MoveTaskOrder.Create"
@@ -66,8 +66,8 @@ const PaymentRequestCreateEventKey KeyType = "PaymentRequest.Create"
 // PaymentRequestUpdateEventKey is a key containing PaymentRequest.Update
 const PaymentRequestUpdateEventKey KeyType = "PaymentRequest.Update"
 
-var eventModels map[KeyType]eventModel = map[KeyType]eventModel{
-	MoveOrderUpdateEventKey:      {MoveOrderUpdateEventKey, models.Order{}},
+var eventModels = map[KeyType]eventModel{
+	OrderUpdateEventKey:          {OrderUpdateEventKey, models.Order{}},
 	MoveTaskOrderCreateEventKey:  {MoveTaskOrderCreateEventKey, models.Move{}},
 	MoveTaskOrderUpdateEventKey:  {MoveTaskOrderUpdateEventKey, models.Move{}},
 	MTOShipmentCreateEventKey:    {MTOShipmentCreateEventKey, models.MTOShipment{}},

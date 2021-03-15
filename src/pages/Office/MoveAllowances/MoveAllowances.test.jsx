@@ -43,7 +43,7 @@ const mockDestinationDutyStation = {
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: () => {
     return {
-      moveOrders: {
+      orders: {
         1: {
           agency: 'ARMY',
           customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',

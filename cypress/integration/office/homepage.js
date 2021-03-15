@@ -57,13 +57,13 @@ describe('Office authorization', () => {
   describe('multiple role selection', () => {
     beforeEach(() => {
       cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
-      cy.intercept('**/ghc/v1/queues/moves?**').as('getMoveOrders');
+      cy.intercept('**/ghc/v1/queues/moves?**').as('getOrders');
       cy.intercept('**/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
     });
 
     it('can switch between TOO & TIO roles', () => {
       cy.signInAsMultiRoleOfficeUser();
-      cy.wait(['@getGHCClient', '@getMoveOrders']);
+      cy.wait(['@getGHCClient', '@getOrders']);
       cy.contains('All moves'); // TOO home
       cy.contains('Spaceman, Leo');
       cy.contains('LKNQ moves');
@@ -79,7 +79,7 @@ describe('Office authorization', () => {
       cy.contains('Change user role').click();
       cy.url().should('contain', '/select-application');
       cy.contains('Select transportation_ordering_officer').click();
-      cy.wait('@getMoveOrders');
+      cy.wait('@getOrders');
       cy.url().should('eq', officeBaseURL + '/');
       cy.contains('All moves');
     });
