@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -230,6 +231,145 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	addresses := []models.Address{}
 	suite.DB().All(&addresses)
 	suite.Assertions.Len(addresses, 2)
+}
+
+func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
+	// Given: a logged in user
+	user := testdatagen.MakeDefaultUser(suite.DB())
+
+	edipi := "2342342344"
+
+	// If there are orders and the move has been submitted, then the
+	// affiliation rank, and duty station should not be editable.
+	origRank := models.ServiceMemberRankE1
+	newRank := internalmessages.ServiceMemberRankE2
+
+	origAffiliation := models.AffiliationAIRFORCE
+	newAffiliation := internalmessages.AffiliationARMY
+
+	origDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	newDutyStation := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	newDutyStationID := strfmt.UUID(newDutyStation.ID.String())
+
+	origFirstName := swag.String("random string bla")
+	newFirstName := swag.String("John")
+
+	origMiddleName := swag.String("random string bla")
+	newMiddleName := swag.String("")
+
+	origLastName := swag.String("random string bla")
+	newLastName := swag.String("Doe")
+
+	origSuffix := swag.String("random string bla")
+	newSuffix := swag.String("Mr.")
+
+	origTelephone := swag.String("random string bla")
+	newTelephone := swag.String("555-555-5555")
+
+	origSecondaryTelephone := swag.String("random string bla")
+	newSecondaryTelephone := swag.String("555-555-5555")
+
+	origPersonalEmail := swag.String("wml@example.com")
+	newPersonalEmail := swag.String("example@email.com")
+
+	origPhoneIsPreferred := swag.Bool(false)
+	newPhoneIsPreferred := swag.Bool(true)
+
+	origEmailIsPreferred := swag.Bool(true)
+	newEmailIsPreferred := swag.Bool(false)
+
+	newServiceMember := models.ServiceMember{
+		UserID:             user.ID,
+		Edipi:              &edipi,
+		Rank:               &origRank,
+		Affiliation:        &origAffiliation,
+		DutyStationID:      &origDutyStation.ID,
+		DutyStation:        origDutyStation,
+		FirstName:          origFirstName,
+		MiddleName:         origMiddleName,
+		LastName:           origLastName,
+		Suffix:             origSuffix,
+		Telephone:          origTelephone,
+		SecondaryTelephone: origSecondaryTelephone,
+		PersonalEmail:      origPersonalEmail,
+		PhoneIsPreferred:   origPhoneIsPreferred,
+		EmailIsPreferred:   origEmailIsPreferred,
+	}
+	suite.MustSave(&newServiceMember)
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMember:   newServiceMember,
+			ServiceMemberID: newServiceMember.ID,
+		},
+	})
+	move.Submit(time.Now())
+	suite.MustSave(&move)
+
+	resAddress := fakeAddressPayload()
+	backupAddress := fakeAddressPayload()
+	patchPayload := internalmessages.PatchServiceMemberPayload{
+		Edipi:                &edipi,
+		BackupMailingAddress: backupAddress,
+		ResidentialAddress:   resAddress,
+		Affiliation:          &newAffiliation,
+		EmailIsPreferred:     newEmailIsPreferred,
+		FirstName:            newFirstName,
+		LastName:             newLastName,
+		MiddleName:           newMiddleName,
+		PersonalEmail:        newPersonalEmail,
+		PhoneIsPreferred:     newPhoneIsPreferred,
+		Rank:                 &newRank,
+		SecondaryTelephone:   newSecondaryTelephone,
+		Suffix:               newSuffix,
+		Telephone:            newTelephone,
+		CurrentStationID:     &newDutyStationID,
+	}
+
+	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
+	req = suite.AuthenticateRequest(req, newServiceMember)
+
+	params := servicememberop.PatchServiceMemberParams{
+		HTTPRequest:               req,
+		ServiceMemberID:           strfmt.UUID(newServiceMember.ID.String()),
+		PatchServiceMemberPayload: &patchPayload,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+	handler := PatchServiceMemberHandler{context}
+	response := handler.Handle(params)
+
+	suite.IsType(&servicememberop.PatchServiceMemberOK{}, response)
+	okResponse := response.(*servicememberop.PatchServiceMemberOK)
+
+	serviceMemberPayload := okResponse.Payload
+
+	// These fields should not change (they should still be the original
+	// values) after the move has been submitted.
+	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
+	suite.Equal(origRank, models.ServiceMemberRank(*serviceMemberPayload.Rank))
+	suite.Equal(origDutyStation.ID.String(), string(*serviceMemberPayload.CurrentStation.ID))
+
+	// These fields should change even if the move is submitted.
+	suite.Equal(*newFirstName, *serviceMemberPayload.FirstName)
+	suite.Equal(*newMiddleName, *serviceMemberPayload.MiddleName)
+	suite.Equal(*newLastName, *serviceMemberPayload.LastName)
+	suite.Equal(*newSuffix, *serviceMemberPayload.Suffix)
+	suite.Equal(*newTelephone, *serviceMemberPayload.Telephone)
+	suite.Equal(*newSecondaryTelephone, *serviceMemberPayload.SecondaryTelephone)
+	suite.Equal(*newPersonalEmail, *serviceMemberPayload.PersonalEmail)
+	suite.Equal(*newPhoneIsPreferred, *serviceMemberPayload.PhoneIsPreferred)
+	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
+
+	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
+	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
+
+	// Then: we expect addresses to have been created
+	addresses := []models.Address{}
+	suite.DB().All(&addresses)
+	suite.Equal(8, len(addresses))
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
