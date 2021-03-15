@@ -32,7 +32,9 @@ func TestEDI997Suite(t *testing.T) {
 }
 
 func (suite *EDI997Suite) TestParse() {
-	sample997EDIString := `
+
+	suite.T().Run("successfully parse simple 997 string", func(t *testing.T) {
+		sample997EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
 GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
 ST*997*0001
@@ -46,7 +48,6 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 `
-	suite.T().Run("successfully parse simple 997 string", func(t *testing.T) {
 		edi997 := EDI{}
 		err := edi997.Parse(sample997EDIString)
 		suite.NoError(err, "Successful parse of 997")
@@ -159,6 +160,371 @@ IEA*1*000000022
 		suite.validateIEA(ieaString, iea)
 	})
 
+	suite.T().Run("successfully parse simple 997 string with AK4 and AK5 present", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
+ST*997*0001
+AK1*SI*100001251
+AK2*858*0001
+AK3*ab*123
+AK4*1*2*3*4*MM*bad data goes here 89
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000022
+`
+		edi997 := EDI{}
+		err := edi997.Parse(sample997EDIString)
+		suite.NoError(err, "Successful parse of 997")
+		// Check the ISA segments
+		// ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+		isa := edi997.InterchangeControlEnvelope.ISA
+		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
+		suite.validateISA(isaString, isa)
+
+		// Check the GS segments
+		// GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
+		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups))
+		gs := edi997.InterchangeControlEnvelope.FunctionalGroups[0].GS
+		gsString := "GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010"
+		suite.validateGS(gsString, gs)
+
+		// Check the ST segments
+		// ST*997*0001
+		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets))
+		st := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].ST
+		stString := "ST*997*0001"
+		suite.validateST(stString, st)
+
+		// Check the AK1 segments
+		// AK1*SI*100001251
+		ak1 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
+		ak1String := "AK1*SI*100001251"
+		suite.validateAK1(ak1String, ak1)
+
+		// Check the AK2 segments
+		// AK2*858*0001
+		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses))
+		ak2 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].AK2
+		ak2String := "AK2*858*0001"
+		suite.validateAK2(ak2String, ak2)
+
+		// Check the AK3 segments
+		// AK3*ab*123
+		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments))
+		//ak3 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK3
+
+		// Check the AK4 segments
+		// AK4*1*2*3*4*MM*bad data goes here 89
+		ak4 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK4
+		ak4String := "AK4*1*2*3*4*MM*bad data goes here 89"
+		suite.validateAK4(ak4String, ak4)
+
+		// Check the AK5 segments
+		// AK5*A
+		ak5 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].AK5
+		ak5String := "AK5*A"
+		suite.validateAK5(ak5String, ak5)
+
+		// Check the AK9 segments
+		// AK9*A*1*1*1
+		// ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+
+		// Checking SE segments
+		// SE*6*0001
+		se := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].SE
+		seString := "SE*6*0001"
+		suite.validateSE(seString, se)
+
+		// Checking GE segments
+		// GE*1*220001
+		ge := edi997.InterchangeControlEnvelope.FunctionalGroups[0].GE
+		geString := "GE*1*220001"
+		suite.validateGE(geString, ge)
+
+		// Checking the IEA segments
+		// IEA*1*000000022
+		iea := edi997.InterchangeControlEnvelope.IEA
+		ieaString := "IEA*1*000000022"
+		suite.validateIEA(ieaString, iea)
+	})
+
+	suite.T().Run("successfully parse complex 997 with loops", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
+ST*997*0001
+AK1*SI*100001251
+AK2*858*0001
+AK3*ab*123
+AK4*1*2*3*4*MM*bad data goes here 89
+AK3*ab*124
+AK4*1*2*3*4*MM*bad data goes here 100
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+ST*997*0002
+AK1*SI*100001251
+AK2*858*0001
+AK3*ab*123
+AK4*1*2*3*4*MM*bad data goes here 90
+AK5*A
+AK2*858*0002
+AK3*ab*123
+AK4*1*2*3*4*MM*bad data goes here 91
+AK5*A
+AK2*858*0003
+AK3*ab*123
+AK4*1*2*3*4*MM*bad data goes here 92
+AK5*A
+AK9*A*1*1*1
+SE*6*0002
+GE*1*220001
+GS*FA*8004171844*MILMOVE*20210217*152945*220002*X*004010
+ST*997*0001
+AK1*SI*100001251
+AK2*858*0001
+AK3*ab*123
+AK4*1*2*3*4*MM*bad data goes here 93
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000022
+`
+		edi997 := EDI{}
+		err := edi997.Parse(sample997EDIString)
+		suite.NoError(err, "Successful parse of 997")
+
+		/*
+			scanner := bufio.NewScanner(strings.NewReader(sample997EDIString))
+			ediSegmentsIndex := 0
+			var ediSegments []string
+			for scanner.Scan() {
+				//record := strings.Split(scanner.Text(), "*")
+				ediSegments = append(ediSegments, scanner.Text())
+			}
+		*/
+
+		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
+		isa := edi997.InterchangeControlEnvelope.ISA
+		suite.validateISA(isaString, isa)
+
+		// FunctionalGroup 1
+		gsString := "GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010"
+		suite.Equal(2, len(edi997.InterchangeControlEnvelope.FunctionalGroups))
+		gs := edi997.InterchangeControlEnvelope.FunctionalGroups[0].GS
+		suite.validateGS(gsString, gs)
+
+		// FunctionalGroup 1 > TransactionSet 1
+		stString := "ST*997*0001"
+		suite.Equal(2, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets))
+		st := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].ST
+		suite.validateST(stString, st)
+
+		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse
+		ak1String := "AK1*SI*100001251"
+		ak1 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
+		suite.validateAK1(ak1String, ak1)
+
+		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1
+		ak2String := "AK2*858*0001"
+		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses))
+		ak2 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].AK2
+		suite.validateAK2(ak2String, ak2)
+
+		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 > Data Segment 1
+		//ak3String := "AK3*ab*123"
+		suite.Equal(2, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments))
+		//ak3 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK3
+		//suite.validateAK3
+
+		ak4String := "AK4*1*2*3*4*MM*bad data goes here 89"
+		ak4 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK4
+		suite.validateAK4(ak4String, ak4)
+
+		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 > Data Segment 2
+		//ak3String = "AK3*ab*124"
+
+		ak4String = "AK4*1*2*3*4*MM*bad data goes here 100"
+		ak4 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[1].AK4
+		suite.validateAK4(ak4String, ak4)
+
+		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 END
+		ak5String := "AK5*A"
+		ak5 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].AK5
+		suite.validateAK5(ak5String, ak5)
+
+		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse END
+		// ak9String := "AK9*A*1*1*1"
+		// ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+
+		// FunctionalGroup 1 > TransactionSet 1 END
+		seString := "SE*6*0001"
+		se := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].SE
+		suite.validateSE(seString, se)
+
+		// FunctionalGroup 1 > TransactionSet 2
+		stString = "ST*997*0002"
+		st = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].ST
+		suite.validateST(stString, st)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse
+		ak1String = "AK1*SI*100001251"
+		ak1 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.AK1
+		suite.validateAK1(ak1String, ak1)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1
+		ak2String = "AK2*858*0001"
+		suite.Equal(3, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses))
+		ak2 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses[0].AK2
+		suite.validateAK2(ak2String, ak2)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segment 1
+		// ak3String = "AK3*ab*123"
+
+		ak4String = "AK4*1*2*3*4*MM*bad data goes here 90"
+		ak4 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK4
+		suite.validateAK4(ak4String, ak4)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1 END
+		ak5String = "AK5*A"
+		ak5 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses[0].AK5
+		suite.validateAK5(ak5String, ak5)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 2
+		ak2String = "AK2*858*0002"
+		ak2 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses[1].AK2
+		suite.validateAK2(ak2String, ak2)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 2 > Data Segment 1
+		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses[1].dataSegments))
+
+		//ak3String = "AK3*ab*123
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 2 > Data Segment 1
+		ak4String = "AK4*1*2*3*4*MM*bad data goes here 91"
+		ak4 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses[1].dataSegments[0].AK4
+		suite.validateAK4(ak4String, ak4)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 2 END
+		fgIndex := 0
+		tsIndex := 1
+		tsrIndex := 1
+
+		fgInfo := edi997.InterchangeControlEnvelope.FunctionalGroups[fgIndex]
+		tsInfo := fgInfo.TransactionSets[tsIndex]
+		fgr := tsInfo.FunctionalGroupResponse
+		tsr := fgr.TransactionSetResponses[tsrIndex]
+
+		ak5String = "AK5*A"
+		ak5 = tsr.AK5
+		suite.validateAK5(ak5String, ak5)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 3
+		tsrIndex = 2
+		tsr = fgr.TransactionSetResponses[tsrIndex]
+		ak2 = tsr.AK2
+		ak2String = "AK2*858*0003"
+		suite.validateAK2(ak2String, ak2)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 3 > Data Segment 1
+		dsIndex := 0
+		ds := tsr.dataSegments[dsIndex]
+		// ak3 = ds.AK3
+		//ak3String = "AK3*ab*123"
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 3 > Data Segment 1
+		ak4String = "AK4*1*2*3*4*MM*bad data goes here 92"
+		ak4 = ds.AK4
+		suite.validateAK4(ak4String, ak4)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 3 END
+		ak5 = tsr.AK5
+		ak5String = "AK5*A"
+		suite.validateAK5(ak5String, ak5)
+
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse END
+		//ak9String = "AK9*A*1*1*1"
+		// ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+
+		// FunctionalGroup 1 > TransactionSet 2 END
+		seString = "SE*6*0002"
+		se = tsInfo.SE
+		suite.validateSE(seString, se)
+
+		// FunctionalGroup 1 END
+		geString := "GE*1*220001"
+		ge := edi997.InterchangeControlEnvelope.FunctionalGroups[0].GE
+		suite.validateGE(geString, ge)
+
+		// FunctionalGroup 2
+		fgIndex = 1
+		fgInfo = edi997.InterchangeControlEnvelope.FunctionalGroups[fgIndex]
+
+		gsString = "GS*FA*8004171844*MILMOVE*20210217*152945*220002*X*004010"
+		gs = fgInfo.GS
+		suite.validateGS(gsString, gs)
+
+		// FunctionalGroup 2 > TransactionSet 1
+		tsIndex = 0
+		tsInfo = fgInfo.TransactionSets[tsIndex]
+		st = fgInfo.TransactionSets[tsIndex].ST
+
+		stString = "ST*997*0001"
+		suite.validateST(stString, st)
+
+		// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse
+		fgr = tsInfo.FunctionalGroupResponse
+
+		ak1String = "AK1*SI*100001251"
+		ak1 = fgr.AK1
+		suite.validateAK1(ak1String, ak1)
+
+		// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponse 1
+		tsrIndex = 0
+		tsr = fgr.TransactionSetResponses[tsrIndex]
+
+		ak2String = "AK2*858*0001"
+		ak2 = tsr.AK2
+		suite.validateAK2(ak2String, ak2)
+
+		// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segments
+		dsIndex = 0
+		ds = tsr.dataSegments[dsIndex]
+		//ak3String = "AK3*ab*123"
+
+		// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segments
+		ak4String = "AK4*1*2*3*4*MM*bad data goes here 93"
+		ak4 = ds.AK4
+		suite.validateAK4(ak4String, ak4)
+
+		// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponse 1 END
+		ak5String = "AK5*A"
+		ak5 = tsr.AK5
+		suite.validateAK5(ak5String, ak5)
+
+		// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse END
+		//ak9String = "AK9*A*1*1*1"
+
+		// FunctionalGroup 2 > TransactionSet 1 END
+		seString = "SE*6*0001"
+		se = tsInfo.SE
+		suite.validateSE(seString, se)
+
+		// FunctionalGroup 2 END
+		geString = "GE*1*220001"
+		//ge = edi997.InterchangeControlEnvelope.FunctionalGroups[1].GE
+		ge = fgInfo.GE
+		suite.validateGE(geString, ge)
+
+		iea := edi997.InterchangeControlEnvelope.IEA
+		ieaString := "IEA*1*000000022"
+		suite.validateIEA(ieaString, iea)
+
+	})
 }
 
 func (suite *EDI997Suite) validateISA(row string, isa edisegment.ISA) {
