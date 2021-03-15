@@ -12,10 +12,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MoveOrder move order
+// Order order
 //
-// swagger:model MoveOrder
-type MoveOrder struct {
+// swagger:model Order
+type Order struct {
 
 	// agency
 	Agency Branch `json:"agency,omitempty"`
@@ -98,8 +98,8 @@ type MoveOrder struct {
 	UploadedOrderID strfmt.UUID `json:"uploaded_order_id,omitempty"`
 }
 
-// Validate validates this move order
-func (m *MoveOrder) Validate(formats strfmt.Registry) error {
+// Validate validates this order
+func (m *Order) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAgency(formats); err != nil {
@@ -168,7 +168,7 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateAgency(formats strfmt.Registry) error {
+func (m *Order) validateAgency(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Agency) { // not required
 		return nil
@@ -184,7 +184,7 @@ func (m *MoveOrder) validateAgency(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateCustomer(formats strfmt.Registry) error {
+func (m *Order) validateCustomer(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Customer) { // not required
 		return nil
@@ -202,7 +202,7 @@ func (m *MoveOrder) validateCustomer(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateCustomerID(formats strfmt.Registry) error {
+func (m *Order) validateCustomerID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.CustomerID) { // not required
 		return nil
@@ -215,7 +215,7 @@ func (m *MoveOrder) validateCustomerID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateDateIssued(formats strfmt.Registry) error {
+func (m *Order) validateDateIssued(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DateIssued) { // not required
 		return nil
@@ -228,7 +228,7 @@ func (m *MoveOrder) validateDateIssued(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateDepartmentIndicator(formats strfmt.Registry) error {
+func (m *Order) validateDepartmentIndicator(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DepartmentIndicator) { // not required
 		return nil
@@ -246,7 +246,7 @@ func (m *MoveOrder) validateDepartmentIndicator(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateDestinationDutyStation(formats strfmt.Registry) error {
+func (m *Order) validateDestinationDutyStation(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DestinationDutyStation) { // not required
 		return nil
@@ -264,7 +264,7 @@ func (m *MoveOrder) validateDestinationDutyStation(formats strfmt.Registry) erro
 	return nil
 }
 
-func (m *MoveOrder) validateEntitlement(formats strfmt.Registry) error {
+func (m *Order) validateEntitlement(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Entitlement) { // not required
 		return nil
@@ -282,7 +282,7 @@ func (m *MoveOrder) validateEntitlement(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateGrade(formats strfmt.Registry) error {
+func (m *Order) validateGrade(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Grade) { // not required
 		return nil
@@ -300,7 +300,7 @@ func (m *MoveOrder) validateGrade(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateID(formats strfmt.Registry) error {
+func (m *Order) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -313,7 +313,7 @@ func (m *MoveOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateMoveTaskOrderID(formats strfmt.Registry) error {
+func (m *Order) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
@@ -326,7 +326,7 @@ func (m *MoveOrder) validateMoveTaskOrderID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateOrderType(formats strfmt.Registry) error {
+func (m *Order) validateOrderType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OrderType) { // not required
 		return nil
@@ -342,7 +342,7 @@ func (m *MoveOrder) validateOrderType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateOrderTypeDetail(formats strfmt.Registry) error {
+func (m *Order) validateOrderTypeDetail(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OrderTypeDetail) { // not required
 		return nil
@@ -360,7 +360,7 @@ func (m *MoveOrder) validateOrderTypeDetail(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
+func (m *Order) validateOriginDutyStation(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OriginDutyStation) { // not required
 		return nil
@@ -378,7 +378,7 @@ func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateReportByDate(formats strfmt.Registry) error {
+func (m *Order) validateReportByDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ReportByDate) { // not required
 		return nil
@@ -391,7 +391,7 @@ func (m *MoveOrder) validateReportByDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateUploadedOrderID(formats strfmt.Registry) error {
+func (m *Order) validateUploadedOrderID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.UploadedOrderID) { // not required
 		return nil
@@ -405,7 +405,7 @@ func (m *MoveOrder) validateUploadedOrderID(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *MoveOrder) MarshalBinary() ([]byte, error) {
+func (m *Order) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -413,8 +413,8 @@ func (m *MoveOrder) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *MoveOrder) UnmarshalBinary(b []byte) error {
-	var res MoveOrder
+func (m *Order) UnmarshalBinary(b []byte) error {
+	var res Order
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

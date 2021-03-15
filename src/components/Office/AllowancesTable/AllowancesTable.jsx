@@ -2,7 +2,7 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import styles from '../MoveDetailTable.module.scss';
+import styles from '../OrdersTable/OrdersTable.module.scss';
 
 import { formatWeight, formatDaysInTransit } from 'shared/formatters';
 
@@ -27,7 +27,7 @@ const AllowancesTable = ({ showEditBtn, info }) => {
   };
 
   return (
-    <div className={styles.MoveDetailTable}>
+    <div className={styles.OrdersTable}>
       <div className="stackedtable-header">
         <div>
           <h4>Allowances</h4>

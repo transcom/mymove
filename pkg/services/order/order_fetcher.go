@@ -1,4 +1,4 @@
-package moveorder
+package order
 
 import (
 	"database/sql"
@@ -12,14 +12,14 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type moveOrderFetcher struct {
+type orderFetcher struct {
 	db *pop.Connection
 }
 
-// QueryOption defines the type for the functional arguments used for private functions in MoveOrderFetcher
+// QueryOption defines the type for the functional arguments used for private functions in OrderFetcher
 type QueryOption func(*pop.Query)
 
-func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *services.ListMoveOrderParams) ([]models.Move, int, error) {
+func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move.
 	var moves []models.Move
@@ -129,16 +129,16 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	return moves, count, nil
 }
 
-// NewMoveOrderFetcher creates a new struct with the service dependencies
-func NewMoveOrderFetcher(db *pop.Connection) services.MoveOrderFetcher {
-	return &moveOrderFetcher{db}
+// NewOrderFetcher creates a new struct with the service dependencies
+func NewOrderFetcher(db *pop.Connection) services.OrderFetcher {
+	return &orderFetcher{db}
 }
 
-// FetchMoveOrder retrieves a MoveOrder for a given UUID
-func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, error) {
+// FetchOrder retrieves an Order for a given UUID
+func (f orderFetcher) FetchOrder(orderID uuid.UUID) (*models.Order, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move_task_order.
-	moveOrder := &models.Order{}
+	order := &models.Order{}
 	err := f.db.Q().Eager(
 		"ServiceMember.BackupContacts",
 		"ServiceMember.ResidentialAddress",
@@ -146,12 +146,12 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 		"OriginDutyStation",
 		"Entitlement",
 		"Moves",
-	).Find(moveOrder, moveOrderID)
+	).Find(order, orderID)
 
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.Order{}, services.NewNotFoundError(moveOrderID, "")
+			return &models.Order{}, services.NewNotFoundError(orderID, "")
 		default:
 			return &models.Order{}, err
 		}
@@ -160,14 +160,17 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
 	// cannot eager load the address as "OriginDutyStation.Address" because
 	// OriginDutyStation is a pointer.
-	if moveOrder.OriginDutyStation != nil {
-		f.db.Load(moveOrder.OriginDutyStation, "Address")
+	if order.OriginDutyStation != nil {
+		err = f.db.Load(order.OriginDutyStation, "Address")
+		if err != nil {
+			return order, err
+		}
 	}
 
-	return moveOrder, nil
+	return order, nil
 }
 
-// These are a bunch of private functions that are used to cobble our list MoveOrders filters together.
+// These are a bunch of private functions that are used to cobble our list Orders filters together.
 func branchFilter(branch *string) QueryOption {
 	return func(query *pop.Query) {
 		if branch == nil {
