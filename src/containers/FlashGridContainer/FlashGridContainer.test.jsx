@@ -1,11 +1,16 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { GridContainer, Alert } from '@trussworks/react-uswds';
+import { Provider } from 'react-redux';
 
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import ScrollToTop from 'components/ScrollToTop';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { configureStore, history } from 'shared/store';
+import { setFlashMessage } from 'store/flash/actions';
 import { MockProviders } from 'testUtils';
+
+global.scrollTo = jest.fn();
 
 describe('FlashGridContainer component', () => {
   it('renders the same HTML as USWDS GridContainer if no message is set', () => {
@@ -68,7 +73,33 @@ describe('FlashGridContainer component', () => {
     expect(alert.text()).toEqual('This is a successful message!');
   });
 
-  it('scrolls up to the alert if a new message is set', () => {});
+  it('scrolls up to the alert if a new message is set', () => {
+    const mockStore = configureStore(history, {});
+    const wrapper = mount(
+      <Provider store={mockStore.store}>
+        <FlashGridContainer data-testid="test-store">
+          <p>Testing scroll.</p>
+        </FlashGridContainer>
+      </Provider>,
+    );
+
+    // ScrollToTop should fire at the initial mount
+    expect(global.scrollTo).toHaveBeenCalledTimes(1);
+
+    mockStore.store.dispatch(setFlashMessage('TEST_SUCCESS_FLASH', 'success', 'This is a successful message!'));
+
+    // Re-render after changing state with new message and ScrollToTop should fire again
+    wrapper.mount();
+    expect(global.scrollTo).toHaveBeenCalledTimes(2);
+
+    // Re-render without changing the message state and ScrollToTop should NOT fire
+    wrapper.mount();
+    expect(global.scrollTo).toHaveBeenCalledTimes(2);
+  });
 
   it('clears the alert if a new element is focused (in and out) and does not scroll', () => {});
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 });
