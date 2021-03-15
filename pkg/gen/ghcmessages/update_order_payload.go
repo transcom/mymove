@@ -12,10 +12,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdateMoveOrderPayload update move order payload
+// UpdateOrderPayload update order payload
 //
-// swagger:model UpdateMoveOrderPayload
-type UpdateMoveOrderPayload struct {
+// swagger:model UpdateOrderPayload
+type UpdateOrderPayload struct {
 
 	// the branch that the service member belongs to
 	// Required: true
@@ -75,8 +75,8 @@ type UpdateMoveOrderPayload struct {
 	Tac *string `json:"tac,omitempty"`
 }
 
-// Validate validates this update move order payload
-func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
+// Validate validates this update order payload
+func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAgency(formats); err != nil {
@@ -125,7 +125,7 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateAgency(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateAgency(formats strfmt.Registry) error {
 
 	if err := m.Agency.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -137,7 +137,7 @@ func (m *UpdateMoveOrderPayload) validateAgency(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateAuthorizedWeight(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateAuthorizedWeight(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.AuthorizedWeight) { // not required
 		return nil
@@ -150,7 +150,7 @@ func (m *UpdateMoveOrderPayload) validateAuthorizedWeight(formats strfmt.Registr
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateDepartmentIndicator(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateDepartmentIndicator(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DepartmentIndicator) { // not required
 		return nil
@@ -168,7 +168,7 @@ func (m *UpdateMoveOrderPayload) validateDepartmentIndicator(formats strfmt.Regi
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateGrade(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateGrade(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Grade) { // not required
 		return nil
@@ -186,7 +186,7 @@ func (m *UpdateMoveOrderPayload) validateGrade(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateIssueDate(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateIssueDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("issueDate", "body", m.IssueDate); err != nil {
 		return err
@@ -199,7 +199,7 @@ func (m *UpdateMoveOrderPayload) validateIssueDate(formats strfmt.Registry) erro
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateNewDutyStationID(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateNewDutyStationID(formats strfmt.Registry) error {
 
 	if err := validate.Required("newDutyStationId", "body", m.NewDutyStationID); err != nil {
 		return err
@@ -212,7 +212,7 @@ func (m *UpdateMoveOrderPayload) validateNewDutyStationID(formats strfmt.Registr
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateOrdersType(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateOrdersType(formats strfmt.Registry) error {
 
 	if err := m.OrdersType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -224,7 +224,7 @@ func (m *UpdateMoveOrderPayload) validateOrdersType(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateOrdersTypeDetail(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateOrdersTypeDetail(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OrdersTypeDetail) { // not required
 		return nil
@@ -242,7 +242,7 @@ func (m *UpdateMoveOrderPayload) validateOrdersTypeDetail(formats strfmt.Registr
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateOriginDutyStationID(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateOriginDutyStationID(formats strfmt.Registry) error {
 
 	if err := validate.Required("originDutyStationId", "body", m.OriginDutyStationID); err != nil {
 		return err
@@ -255,7 +255,7 @@ func (m *UpdateMoveOrderPayload) validateOriginDutyStationID(formats strfmt.Regi
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateReportByDate(formats strfmt.Registry) error {
+func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("reportByDate", "body", m.ReportByDate); err != nil {
 		return err
@@ -269,7 +269,7 @@ func (m *UpdateMoveOrderPayload) validateReportByDate(formats strfmt.Registry) e
 }
 
 // MarshalBinary interface implementation
-func (m *UpdateMoveOrderPayload) MarshalBinary() ([]byte, error) {
+func (m *UpdateOrderPayload) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -277,8 +277,8 @@ func (m *UpdateMoveOrderPayload) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *UpdateMoveOrderPayload) UnmarshalBinary(b []byte) error {
-	var res UpdateMoveOrderPayload
+func (m *UpdateOrderPayload) UnmarshalBinary(b []byte) error {
+	var res UpdateOrderPayload
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

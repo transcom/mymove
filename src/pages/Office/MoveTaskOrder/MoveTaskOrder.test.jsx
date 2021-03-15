@@ -14,7 +14,7 @@ jest.mock('hooks/queries', () => ({
 }));
 
 const unapprovedMTOQuery = {
-  moveOrders: {
+  orders: {
     1: {
       id: '1',
       originDutyStation: {
@@ -88,7 +88,7 @@ const unapprovedMTOQuery = {
 };
 
 const someShipmentsApprovedMTOQuery = {
-  moveOrders: {
+  orders: {
     1: {
       id: '1',
       originDutyStation: {
@@ -190,7 +190,7 @@ const someShipmentsApprovedMTOQuery = {
 };
 
 const allApprovedMTOQuery = {
-  moveOrders: {
+  orders: {
     1: {
       id: '1',
       originDutyStation: {

@@ -14,18 +14,18 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// NewGetMoveOrderParams creates a new GetMoveOrderParams object
+// NewGetOrderParams creates a new GetOrderParams object
 // no default values defined in spec.
-func NewGetMoveOrderParams() GetMoveOrderParams {
+func NewGetOrderParams() GetOrderParams {
 
-	return GetMoveOrderParams{}
+	return GetOrderParams{}
 }
 
-// GetMoveOrderParams contains all the bound params for the get move order operation
+// GetOrderParams contains all the bound params for the get order operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters getMoveOrder
-type GetMoveOrderParams struct {
+// swagger:parameters getOrder
+type GetOrderParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -40,8 +40,8 @@ type GetMoveOrderParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewGetMoveOrderParams() beforehand.
-func (o *GetMoveOrderParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewGetOrderParams() beforehand.
+func (o *GetOrderParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -58,7 +58,7 @@ func (o *GetMoveOrderParams) BindRequest(r *http.Request, route *middleware.Matc
 }
 
 // bindOrderID binds and validates parameter OrderID from path.
-func (o *GetMoveOrderParams) bindOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetOrderParams) bindOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -82,7 +82,7 @@ func (o *GetMoveOrderParams) bindOrderID(rawData []string, hasKey bool, formats 
 }
 
 // validateOrderID carries on validations for parameter OrderID
-func (o *GetMoveOrderParams) validateOrderID(formats strfmt.Registry) error {
+func (o *GetOrderParams) validateOrderID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("orderID", "path", "uuid", o.OrderID.String(), formats); err != nil {
 		return err

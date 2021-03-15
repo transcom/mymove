@@ -1,4 +1,4 @@
-package moveorder
+package order
 
 import (
 	"testing"
@@ -8,17 +8,17 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type MoveOrderServiceSuite struct {
+type OrderServiceSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *MoveOrderServiceSuite) SetupTest() {
+func (suite *OrderServiceSuite) SetupTest() {
 	err := suite.TruncateAll()
 	suite.FatalNoError(err)
 }
 
-func TestMoveOrderServiceSuite(t *testing.T) {
-	ts := &MoveOrderServiceSuite{
+func TestOrderServiceSuite(t *testing.T) {
+	ts := &OrderServiceSuite{
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)

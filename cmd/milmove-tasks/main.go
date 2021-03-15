@@ -77,6 +77,16 @@ func main() {
 	initConnectToGEXViaSFTPFlags(connectToGEXViaSFTPCommand.Flags())
 	root.AddCommand(connectToGEXViaSFTPCommand)
 
+	processEDIsCommand := &cobra.Command{
+		Use:          "process-edis",
+		Short:        "process EDIs asynchrounously",
+		Long:         "process EDIs asynchrounously",
+		RunE:         processEDIs,
+		SilenceUsage: true,
+	}
+	initConnectToGEXViaSFTPFlags(processEDIsCommand.Flags())
+	root.AddCommand(processEDIsCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",

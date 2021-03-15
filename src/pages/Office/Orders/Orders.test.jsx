@@ -3,7 +3,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { IMaskInput } from 'react-imask';
 
-import MoveOrders from './MoveOrders';
+import Orders from './Orders';
 
 import { MockProviders } from 'testUtils';
 
@@ -44,7 +44,7 @@ const mockDestinationDutyStation = {
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: () => {
     return {
-      moveOrders: {
+      orders: {
         1: {
           agency: 'ARMY',
           customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
@@ -82,10 +82,10 @@ jest.mock('hooks/queries', () => ({
   },
 }));
 
-describe('MoveOrders page', () => {
+describe('Orders page', () => {
   const wrapper = mount(
     <MockProviders initialEntries={['moves/FP24I2/orders']}>
-      <MoveOrders />
+      <Orders />
     </MockProviders>,
   );
 
