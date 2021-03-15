@@ -234,7 +234,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 	orderDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	orderGrade := (string)(models.ServiceMemberRankE5)
-	testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMember:       newServiceMember,
 			ServiceMemberID:     newServiceMember.ID,
