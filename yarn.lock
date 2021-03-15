@@ -8911,10 +8911,10 @@ filepond-polyfill@^1.0.2:
   resolved "https://registry.yarnpkg.com/filepond-polyfill/-/filepond-polyfill-1.0.4.tgz#cd816b4eb595dabd4baff215a797cb57ee1997ed"
   integrity sha512-ERBcCzqXadQB4mUaG34IOCsLStVpuG3F4a/nyYYeJLAfBIkT9DbQcJpIqcRQM+T3DyiNi1iZnq3rusFcQRaSMg==
 
-filepond@^4.25.2:
-  version "4.25.2"
-  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.25.2.tgz#5d1c087787851fae37f7a904ff518878b8a47dba"
-  integrity sha512-IQ71wW6PiDMvT0yTJBvnQmh5lOveM6lwwcqZBdKX7GATguuSQwcKB0g+/kD08hml4VAwR2fIyk3J1Vf0fGuxag==
+filepond@^4.25.3:
+  version "4.25.3"
+  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.25.3.tgz#7a6a793a9ffd2539fbbd1383d4864359f23bded4"
+  integrity sha512-xuY0a94jLs1je7ef5qjJJoOBnxvKk3dUo8inLfRk0aieaVqY37Xhkzx/ZYG1Tl70kuC6Yl5Ug9AJ6D4OaYvrxg==
 
 filesize@6.1.0:
   version "6.1.0"
