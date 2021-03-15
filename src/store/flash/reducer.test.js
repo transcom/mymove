@@ -14,11 +14,12 @@ describe('flashReducer', () => {
         type: 'success',
         message: 'test message',
         title: 'Success!',
+        slim: false,
       },
     });
   });
 
   it('handles the clearFlashMessage action', () => {
-    expect(flashReducer(initialState, clearFlashMessage())).toEqual(initialState);
+    expect(flashReducer(initialState, clearFlashMessage('TEST_SUCCESS'))).toEqual(initialState);
   });
 });
