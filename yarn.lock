@@ -1308,7 +1308,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@>=7.0.0", "@babel/runtime@^7.0.0", "@babel/runtime@^7.1.2", "@babel/runtime@^7.10.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.10.5", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.5", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.3", "@babel/runtime@^7.4.4", "@babel/runtime@^7.4.5", "@babel/runtime@^7.5.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+"@babel/runtime@>=7.0.0", "@babel/runtime@^7.0.0", "@babel/runtime@^7.1.2", "@babel/runtime@^7.10.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.10.5", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.5", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.3", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
   version "7.12.13"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.12.13.tgz#0a21452352b02542db0ffb928ac2d3ca7cb6d66d"
   integrity sha512-8+3UMPBrjFa/6TtKi/7sehPKqfAm4g6K+YQjyyFOLUTxzOngcRZTlAVY8sc2CORJYqdHQY8gRPHmn+qo15rCBw==
@@ -2223,11 +2223,6 @@
   integrity sha512-c/qwwcHyafOQuVQJj0IlBjf5yYgBI7YPJ77k4fOJYesb41jio65eaJODRUmfYKhTOFBrIZ66kgvGPlNbjuoRdQ==
   dependencies:
     any-observable "^0.3.0"
-
-"@scarf/scarf@^1.0.5":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@scarf/scarf/-/scarf-1.0.6.tgz#52011dfb19187b53b75b7b6eac20da0810ddd88f"
-  integrity sha512-y4+DuXrAd1W5UIY3zTcsosi/1GyYT8k5jGnZ/wG7UUHVrU+MHlH4Mp87KK2/lvMW4+H7HVcdB+aJhqywgXksjA==
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
@@ -8948,7 +8943,7 @@ filter-obj@^1.1.0:
   resolved "https://registry.yarnpkg.com/filter-obj/-/filter-obj-1.1.0.tgz#9b311112bc6c6127a16e016c6c5d7f19e0805c5b"
   integrity sha1-mzERErxsYSehbgFsbF1/GeCAXFs=
 
-final-form-arrays@^3.0.1:
+final-form-arrays@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/final-form-arrays/-/final-form-arrays-3.0.2.tgz#9f3bef778dec61432357744eb6f3abef7e7f3847"
   integrity sha512-TfO8aZNz3RrsZCDx8GHMQcyztDNpGxSSi9w4wpSNKlmv2PfFWVVM8P7Yj5tj4n0OWax+x5YwTLhT5BnqSlCi+w==
@@ -8958,10 +8953,10 @@ final-form-submit-errors@^0.1.2:
   resolved "https://registry.yarnpkg.com/final-form-submit-errors/-/final-form-submit-errors-0.1.2.tgz#1c59d10386d7b5a1a5e89f9389fa7cf85d1255c5"
   integrity sha512-2EwHSdf9Sy80bnsGRrDKBLp5C2uY7hL65o8tpqK/FWxyBpXtT519SsIZC4etLpGen2kjFCpYrxYkzFUfbIEXsQ==
 
-final-form@^4.20.0:
-  version "4.20.1"
-  resolved "https://registry.yarnpkg.com/final-form/-/final-form-4.20.1.tgz#525a7f7f27f55c28d8994b157b24d6104fc560e9"
-  integrity sha512-IIsOK3JRxJrN72OBj7vFWZxtGt3xc1bYwJVPchjVWmDol9DlzMSAOPB+vwe75TUYsw1JaH0fTQnIgwSQZQ9Acg==
+final-form@^4.20.2:
+  version "4.20.2"
+  resolved "https://registry.yarnpkg.com/final-form/-/final-form-4.20.2.tgz#c820b37d7ebb73d71169480256a36c7e6e6c9155"
+  integrity sha512-5i0IxqwjjPG1nUNCjWhqPCvQJJ2R+QwTwaAnjPmFnLbyjIHWuBPU8u+Ps4G3TcX2Sjno+O5xCZJzYcMJEzzfCQ==
   dependencies:
     "@babel/runtime" "^7.10.0"
 
@@ -15683,10 +15678,10 @@ querystringify@^2.1.1:
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.1.1.tgz#60e5a5fd64a7f8bfa4d2ab2ed6fdf4c85bad154e"
   integrity sha512-w7fLxIRCRT7U8Qu53jQnJyPkYZIaR4n5151KMfcJlO/A9397Wxb1amJvROTK6TOnp7PfoAmg/qXiNHI+08jRfA==
 
-ra-core@^3.13.2:
-  version "3.13.2"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.13.2.tgz#668c5d55eb0a09dc8da90702bdb189d5c441cfb3"
-  integrity sha512-1kmtNGI7McHP2D+cwZMyFJD1WIUOq2E57wdenWcdlPlxx0v0JTCQMvSmW9R14hAU6avluXsiZopI8C7ulzr27w==
+ra-core@^3.13.3:
+  version "3.13.3"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.13.3.tgz#6997f0c39d324214e4240bdbe8dbbf840706c91d"
+  integrity sha512-ryfulSlsAYqqwmrJFyIccdEJTGdwh855fIm6uRYJQGEgF5NbFdvCBIwOmvK2m9KjvW3cnNI9Bq9dAsnkRuuvUg==
   dependencies:
     classnames "~2.2.5"
     date-fns "^1.29.0"
@@ -15704,25 +15699,25 @@ ra-data-simple-rest@^3.10.4:
   dependencies:
     query-string "^5.1.1"
 
-ra-i18n-polyglot@^3.13.2:
-  version "3.13.2"
-  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.13.2.tgz#b043a20ef7649953e69e97591dfc50e7f4ffd5dc"
-  integrity sha512-4/KGskWe79IrCqPOw2HDkaDnFKONnjXGZ6mvAtILe7PTkqo9f6d0O6U9LeTysxsFOGfk93jCq6GqRoH3wCJlfA==
+ra-i18n-polyglot@^3.13.3:
+  version "3.13.3"
+  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.13.3.tgz#013c25c222bf705cfde3b1ecc172d837b26de163"
+  integrity sha512-KvhoRttmUcea1e4GygaKVwJ9OO6Va24SuuzsGZ8Hh96aVq3CW5axB5rZnTXlyz8WF2Ybc/c0VnLrr4gSwQLMnA==
   dependencies:
     node-polyglot "^2.2.2"
-    ra-core "^3.13.2"
+    ra-core "^3.13.3"
 
-ra-language-english@^3.13.0, ra-language-english@^3.13.2:
-  version "3.13.2"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.13.2.tgz#cf6fafa8aec333770fd009f1cfd7f9fbc50730d6"
-  integrity sha512-e7a9MLnexX8HQ0tDdEbrQVHHFw++6g8EYnYbhM47o0cvaLVs1UXkFR6FmkPVOnFkYzbqtMoVjbY2CG9Nbi8iwQ==
+ra-language-english@^3.13.0, ra-language-english@^3.13.3:
+  version "3.13.3"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.13.3.tgz#5eadedbdc7453e8134d06651be4eab50ceb99453"
+  integrity sha512-6ekNRB7BgIXtMFqMbTb+4YX+5uqlUnrybYO3/1h5iLByRGRzkXj3ZBwWZY3w+VrwUaFDuYtciaR14VaQpHNJQw==
   dependencies:
-    ra-core "^3.13.2"
+    ra-core "^3.13.3"
 
-ra-ui-materialui@^3.13.2:
-  version "3.13.2"
-  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.13.2.tgz#39826925dddd4d2569f04d23bfafef82c38446c5"
-  integrity sha512-h9x3Y84b/tdM4kUKlTA0sEHtVu84IY62dkX1angc2hT0XzBQD22oT5NXJKuxHbKy5Jfn4HG74qfk/+l3zbpiWw==
+ra-ui-materialui@^3.13.3:
+  version "3.13.3"
+  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.13.3.tgz#d9357531e4291618e282dc42e3c30e37b179a261"
+  integrity sha512-f1K3PiS117yHk4tm3zoPw2lR5zj1a0uCVjRpunPkFG4grRuRB4yWta6dzcX62/w/icA1Hf7rUbSALcGmf9UZdg==
   dependencies:
     autosuggest-highlight "^3.1.1"
     classnames "~2.2.5"
@@ -15844,24 +15839,24 @@ rdf-canonize@^1.0.2:
     node-forge "^0.10.0"
     semver "^6.3.0"
 
-react-admin@^3.13.2:
-  version "3.13.2"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.13.2.tgz#a256d5172a924b26380d7d3e619bd2d0d510c09e"
-  integrity sha512-WMDzWVcz+4LGbGzwS5O44Gsot3GaZdTJWaHhh00Q1RUuDu9f+5krpxbqqfkc++m1k7J2fZy2yE/yscTNCkVBuA==
+react-admin@^3.13.3:
+  version "3.13.3"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.13.3.tgz#cee3d9431a3d3e5f3c1ce461ad142e3c2e9d99f3"
+  integrity sha512-MEP8dV00zv9lek5SB8IHX/SVSQZ9wxnGcW2CNtt5dbjVPLSdEOggiGHolSdp3/uyrZjkm63sbWseq47GBG1XoQ==
   dependencies:
     "@material-ui/core" "^4.11.2"
     "@material-ui/icons" "^4.11.2"
     "@material-ui/styles" "^4.11.2"
     connected-react-router "^6.5.2"
-    final-form "^4.20.0"
-    final-form-arrays "^3.0.1"
+    final-form "^4.20.2"
+    final-form-arrays "^3.0.2"
     final-form-submit-errors "^0.1.2"
-    ra-core "^3.13.2"
-    ra-i18n-polyglot "^3.13.2"
-    ra-language-english "^3.13.2"
-    ra-ui-materialui "^3.13.2"
-    react-final-form "^6.3.3"
-    react-final-form-arrays "^3.1.1"
+    ra-core "^3.13.3"
+    ra-i18n-polyglot "^3.13.3"
+    ra-language-english "^3.13.3"
+    ra-ui-materialui "^3.13.3"
+    react-final-form "^6.5.2"
+    react-final-form-arrays "^3.1.3"
     react-redux "^7.1.0"
     react-router "^5.1.0"
     react-router-dom "^5.1.0"
@@ -16047,21 +16042,19 @@ react-filepond@^7.1.1:
   resolved "https://registry.yarnpkg.com/react-filepond/-/react-filepond-7.1.1.tgz#467aa45051da5dbbca03a2ce58d2aacbbcfbb0e9"
   integrity sha512-6Szyi3zY4AEiSlE5rztJov/xIDB107Sv31MctDoSutdLinMqmbMej6kJ2MtSGzAhsP2+h8cDDr51mdHNXt97Yw==
 
-react-final-form-arrays@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/react-final-form-arrays/-/react-final-form-arrays-3.1.1.tgz#39d23e7ede966e418cad209e8fde46da1d603e99"
-  integrity sha512-e6S1x9597cvI4QPniOPmllXXandDAqCCuBo4AvXstZYgcV8whsqzk8aCrmQEy6eEfy2tEhvn6f4VI1GY+JBRsg==
+react-final-form-arrays@^3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/react-final-form-arrays/-/react-final-form-arrays-3.1.3.tgz#d3594c500495a4cf5e437070ada989da9624bba2"
+  integrity sha512-dzBiLfbr9l1YRExARBpJ8uA/djBenCvFrbrsXjd362joDl3vT+WhmMKKr6HDQMJffjA8T4gZ3n5+G9M59yZfuQ==
   dependencies:
-    "@babel/runtime" "^7.4.5"
+    "@babel/runtime" "^7.12.1"
 
-react-final-form@^6.3.3:
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/react-final-form/-/react-final-form-6.5.0.tgz#b0440acf534fd57991c048764ab20af13124aed6"
-  integrity sha512-H97PLCtfMIN32NHqm85E738Pj+NOF1p0eQEG+h5DbdaofwtqDRp7taHu45+PlXOqg9ANbM6MyXkYxWpIiE6qbQ==
+react-final-form@^6.5.2:
+  version "6.5.2"
+  resolved "https://registry.yarnpkg.com/react-final-form/-/react-final-form-6.5.2.tgz#d04d1eb7d92eabc6f6c35206bb0eebfc4bfd924b"
+  integrity sha512-c5l45FYOoxtfpvsvMFh3w2WW8KNxbuebBUrM16rUrooQkewTs0Zahmv0TuKFX5jsC9BKn5Fo84j3ZVXQdURS4w==
   dependencies:
-    "@babel/runtime" "^7.10.0"
-    "@scarf/scarf" "^1.0.5"
-    ts-essentials "^6.0.5"
+    "@babel/runtime" "^7.12.1"
 
 react-focus-lock@^2.1.0:
   version "2.4.0"
@@ -18949,11 +18942,6 @@ ts-essentials@^2.0.3:
   version "2.0.12"
   resolved "https://registry.yarnpkg.com/ts-essentials/-/ts-essentials-2.0.12.tgz#c9303f3d74f75fa7528c3d49b80e089ab09d8745"
   integrity sha512-3IVX4nI6B5cc31/GFFE+i8ey/N2eA0CZDbo6n0yrz0zDX8ZJ8djmU1p+XRz7G3is0F3bB3pu2pAroFdAWQKU3w==
-
-ts-essentials@^6.0.5:
-  version "6.0.7"
-  resolved "https://registry.yarnpkg.com/ts-essentials/-/ts-essentials-6.0.7.tgz#5f4880911b7581a873783740ce8b94da163d18a6"
-  integrity sha512-2E4HIIj4tQJlIHuATRHayv0EfMGK3ris/GRk1E3CFnsZzeNV+hUmelbaTZHLtXaZppM5oLhHRtO04gINC4Jusw==
 
 ts-pnp@1.2.0, ts-pnp@^1.1.6:
   version "1.2.0"
