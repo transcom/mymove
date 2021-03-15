@@ -101,7 +101,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
 		err = paymentrequesthelper.SendToSyncada(edi858cString, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
 		if err != nil {
-			return fmt.Errorf("error sending the following EDIs (PaymentRequest.ID: %s, error string) to Syncada: %s", lockedPR.ID, err)
+			return fmt.Errorf("error sending the following EDI (PaymentRequest.ID: %s, error string) to Syncada: %s", lockedPR.ID, err)
 
 		}
 		sentToGexAt := strfmt.DateTime(time.Now()).String()

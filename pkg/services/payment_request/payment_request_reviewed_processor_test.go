@@ -374,7 +374,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sftpSender)
 
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.Contains(err.Error(), "error sending the following EDIs")
+		suite.Contains(err.Error(), "error sending the following EDI")
 
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
 		fetcher := NewPaymentRequestFetcher(suite.DB())
@@ -455,11 +455,11 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 	})
 }
 
-func (suite *PaymentRequestServiceSuite) delayedProcessPR(prProcessor services.PaymentRequestReviewedProcessor, pr models.PaymentRequest) error {
-	err := prProcessor.ProcessAndLockReviewedPR(pr)
-	time.Sleep(2 * time.Second)
-	return err
-}
+// func (suite *PaymentRequestServiceSuite) delayedProcessPR(prProcessor services.PaymentRequestReviewedProcessor, pr models.PaymentRequest) error {
+// 	err := prProcessor.ProcessAndLockReviewedPR(pr)
+// 	time.Sleep(2 * time.Second)
+// 	return err
+// }
 
 func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest() {
 	os.Setenv("SYNCADA_SFTP_PORT", "1234")
@@ -490,15 +490,19 @@ func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest
 
 	suite.T().Run("successfully process prs even when a locked row has a delay", func(t *testing.T) {
 		reviewedPaymentRequests := suite.createPaymentRequest(2)
-		for i, pr := range reviewedPaymentRequests {
-			if i == 0 {
-				err := suite.delayedProcessPR(paymentRequestReviewedProcessor, pr)
-				suite.NoError(err)
-			} else {
-				err := paymentRequestReviewedProcessor.ProcessAndLockReviewedPR(pr)
-				suite.NoError(err)
-			}
+		query := `
+			BEGIN;
+			SELECT * FROM payment_requests
+			WHERE id = $1 FOR UPDATE SKIP LOCKED;
+		`
+		suite.DB().RawQuery(query, reviewedPaymentRequests[0].ID).Exec()
+
+		for _, pr := range reviewedPaymentRequests {
+			err := paymentRequestReviewedProcessor.ProcessAndLockReviewedPR(pr)
+			suite.NoError(err)
 		}
+
+		suite.DB().RawQuery(`END;`).Exec()
 
 		fetcher := NewPaymentRequestFetcher(suite.DB())
 		for i, pr := range reviewedPaymentRequests {
