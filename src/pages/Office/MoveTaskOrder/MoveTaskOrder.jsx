@@ -285,61 +285,64 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             const { pickupAddress, destinationAddress } = mtoShipment;
             const formattedScheduledPickup = formatShipmentDate(mtoShipment.scheduledPickupDate);
             return (
-              <div id={`shipment-${mtoShipment.id}`} key={mtoShipment.id}>
-                <ShipmentContainer shipmentType={mtoShipment.shipmentType} className={styles.shipmentCard}>
-                  <ShipmentHeading
-                    shipmentInfo={{
-                      shipmentID: mtoShipment.id,
-                      shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
-                      originCity: pickupAddress?.city,
-                      originState: pickupAddress?.state,
-                      originPostalCode: pickupAddress?.postal_code,
-                      destinationAddress: destinationAddress || dutyStationPostal,
-                      scheduledPickupDate: formattedScheduledPickup,
-                      shipmentStatus: mockStatus,
-                    }}
-                    handleUpdateMTOShipmentStatus={handleUpdateMTOShipmentStatus}
+              <ShipmentContainer
+                id={`shipment-${mtoShipment.id}`}
+                key={mtoShipment.id}
+                shipmentType={mtoShipment.shipmentType}
+                className={styles.shipmentCard}
+              >
+                <ShipmentHeading
+                  shipmentInfo={{
+                    shipmentID: mtoShipment.id,
+                    shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
+                    originCity: pickupAddress?.city,
+                    originState: pickupAddress?.state,
+                    originPostalCode: pickupAddress?.postal_code,
+                    destinationAddress: destinationAddress || dutyStationPostal,
+                    scheduledPickupDate: formattedScheduledPickup,
+                    shipmentStatus: mockStatus,
+                  }}
+                  handleUpdateMTOShipmentStatus={handleUpdateMTOShipmentStatus}
+                />
+                <ImportantShipmentDates
+                  requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
+                  scheduledPickupDate={formattedScheduledPickup}
+                />
+                <ShipmentAddresses
+                  pickupAddress={pickupAddress}
+                  destinationAddress={destinationAddress || dutyStationPostal}
+                  originDutyStation={moveOrder.originDutyStation?.address}
+                  destinationDutyStation={moveOrder.destinationDutyStation?.address}
+                />
+                <ShipmentWeightDetails
+                  estimatedWeight={mtoShipment.primeEstimatedWeight}
+                  actualWeight={mtoShipment.primeActualWeight}
+                />
+                {requestedServiceItems?.length > 0 && (
+                  <RequestedServiceItemsTable
+                    serviceItems={requestedServiceItems}
+                    handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                    handleShowRejectionDialog={handleShowRejectionDialog}
+                    statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
                   />
-                  <ImportantShipmentDates
-                    requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
-                    scheduledPickupDate={formattedScheduledPickup}
+                )}
+                {approvedServiceItems?.length > 0 && (
+                  <RequestedServiceItemsTable
+                    serviceItems={approvedServiceItems}
+                    handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                    handleShowRejectionDialog={handleShowRejectionDialog}
+                    statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
                   />
-                  <ShipmentAddresses
-                    pickupAddress={pickupAddress}
-                    destinationAddress={destinationAddress || dutyStationPostal}
-                    originDutyStation={moveOrder.originDutyStation?.address}
-                    destinationDutyStation={moveOrder.destinationDutyStation?.address}
+                )}
+                {rejectedServiceItems?.length > 0 && (
+                  <RequestedServiceItemsTable
+                    serviceItems={rejectedServiceItems}
+                    handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                    handleShowRejectionDialog={handleShowRejectionDialog}
+                    statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
                   />
-                  <ShipmentWeightDetails
-                    estimatedWeight={mtoShipment.primeEstimatedWeight}
-                    actualWeight={mtoShipment.primeActualWeight}
-                  />
-                  {requestedServiceItems?.length > 0 && (
-                    <RequestedServiceItemsTable
-                      serviceItems={requestedServiceItems}
-                      handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
-                      handleShowRejectionDialog={handleShowRejectionDialog}
-                      statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
-                    />
-                  )}
-                  {approvedServiceItems?.length > 0 && (
-                    <RequestedServiceItemsTable
-                      serviceItems={approvedServiceItems}
-                      handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
-                      handleShowRejectionDialog={handleShowRejectionDialog}
-                      statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
-                    />
-                  )}
-                  {rejectedServiceItems?.length > 0 && (
-                    <RequestedServiceItemsTable
-                      serviceItems={rejectedServiceItems}
-                      handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
-                      handleShowRejectionDialog={handleShowRejectionDialog}
-                      statusForTableType={SERVICE_ITEM_STATUSES.REJECTED}
-                    />
-                  )}
-                </ShipmentContainer>
-              </div>
+                )}
+              </ShipmentContainer>
             );
           })}
         </FlashGridContainer>
