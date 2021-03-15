@@ -98,7 +98,7 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 		}
 		if foundSub == false {
 			//If no subscription was found, update notification status to skipped.
-			eng.Logger.Debug("No subscription found for notification event, skipping.", zap.String("eventKey", notif.EventKey))
+			eng.Logger.Info("No subscription found for notification event, skipping.", zap.String("eventKey", notif.EventKey))
 			notif.Status = models.WebhookNotificationSkipped
 			err := eng.updateNotification(&notif)
 			if err != nil {
@@ -233,14 +233,14 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		}
 		// If there was an error sending, log error and continue
 		if err2 != nil {
-			logger.Debug("Failed to send, error sending webhook:", zap.Error(err2),
+			logger.Error("Failed to send, error sending webhook:", zap.Error(err2),
 				zap.String("notificationID", notif.ID.String()),
 				zap.Int("Retry #", try))
 			continue
 		}
 		// If there was an error response from server, log error and continue
 		if resp.StatusCode != 200 {
-			logger.Debug("Received error on sending notification",
+			logger.Error("Received error on sending notification",
 				zap.String("Response Status", resp.Status),
 				zap.String("Response Body", string(body)),
 				zap.String("notificationID", notif.ID.String()),
@@ -273,6 +273,7 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 func (eng *Engine) run() error {
 
 	logger := eng.Logger
+
 	// Read all notifications
 	notifications := []models.WebhookNotification{}
 	err := eng.DB.Order("created_at asc").Where("status = ? OR status = ?", models.WebhookNotificationPending, models.WebhookNotificationFailing).All(&notifications)
@@ -281,7 +282,7 @@ func (eng *Engine) run() error {
 		logger.Error("Error:", zap.Error(err))
 		return err
 	}
-	logger.Debug("Notification Check:", zap.Int("Num notifications found", len(notifications)))
+	logger.Info("Notification Check:", zap.Int("Num notifications found", len(notifications)))
 
 	// If none, return
 	if len(notifications) == 0 {
@@ -296,7 +297,7 @@ func (eng *Engine) run() error {
 		logger.Error("Error:", zap.Error(err))
 		return err
 	}
-	logger.Debug("Subscription Check!", zap.Int("Num subscriptions found", len(subscriptions)))
+	logger.Info("Subscription Check!", zap.Int("Num subscriptions found", len(subscriptions)))
 
 	// If none, return
 	if len(notifications) == 0 {
@@ -312,6 +313,11 @@ func (eng *Engine) run() error {
 // The process will run once every period to send pending notifications
 // The period is defined in the Engine.PeriodInSeconds
 func (eng *Engine) Start() error {
+
+	logger := eng.Logger
+	logger.Info("Starting engine", zap.Int("periodInSeconds", eng.PeriodInSeconds),
+		zap.Int("maxImmediateRetries", eng.MaxImmediateRetries),
+		zap.Any("SeverityThresholds", eng.SeverityThresholds))
 
 	// Set timer tick
 	t := time.Tick(time.Duration(eng.PeriodInSeconds) * time.Second)
