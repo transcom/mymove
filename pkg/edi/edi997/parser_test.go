@@ -348,6 +348,7 @@ IEA*1*000000022
 		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 > Data Segment 2
 		//ak3String = "AK3*ab*124"
 
+		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 > Data Segment 2
 		ak4String = "AK4*1*2*3*4*MM*bad data goes here 100"
 		ak4 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[1].AK4
 		suite.validateAK4(ak4String, ak4)
@@ -385,6 +386,7 @@ IEA*1*000000022
 		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segment 1
 		// ak3String = "AK3*ab*123"
 
+		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segment 1
 		ak4String = "AK4*1*2*3*4*MM*bad data goes here 90"
 		ak4 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK4
 		suite.validateAK4(ak4String, ak4)
