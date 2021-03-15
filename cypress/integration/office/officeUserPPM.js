@@ -150,10 +150,6 @@ function officeUserVerifiesOrders(moveLocator) {
   // Click on edit orders
   cy.get('.editable-panel-header').contains('Orders').siblings().click();
 
-  // Enter details in form and save orders
-  cy.get('input[name="orders.orders_number"]').type('666666');
-  cy.get('select[name="orders.orders_type_detail"]').select('DELAYED_APPROVAL');
-
   cy.get('button').contains('Save').should('be.enabled');
 
   cy.get('button').contains('Save').click();
