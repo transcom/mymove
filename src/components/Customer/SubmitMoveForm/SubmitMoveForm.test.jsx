@@ -10,6 +10,7 @@ describe('SubmitMoveForm component', () => {
     onSubmit: jest.fn(),
     onPrint: jest.fn(),
     onBack: jest.fn(),
+    initialValues: { signature: '', date: '2021-01-20' },
   };
 
   it('renders the signature and date inputs', () => {
