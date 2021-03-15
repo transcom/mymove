@@ -99,11 +99,12 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	db.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		ppm, err := FetchPersonallyProcuredMoveByOrderID(db, order.ID)
 		if err != nil {
+			responseError = err
 			return transactionError
 		}
 
@@ -121,6 +122,11 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 		}
 		return nil
 	})
+
+	if transactionErr != nil {
+		return responseVErrors, responseError
+	}
+
 	return responseVErrors, responseError
 }
 

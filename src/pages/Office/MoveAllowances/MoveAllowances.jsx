@@ -7,16 +7,16 @@ import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as Yup from 'yup';
 
-import moveOrdersStyles from '../MoveOrders/MoveOrders.module.scss';
+import ordersStyles from '../Orders/Orders.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
-import { updateMoveOrder } from 'services/ghcApi';
+import { updateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
-import { MOVE_ORDERS } from 'constants/queryKeys';
+import { ORDERS } from 'constants/queryKeys';
 
 const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -30,22 +30,22 @@ const MoveAllowances = () => {
   const { moveCode } = useParams();
   const history = useHistory();
 
-  const { move, moveOrders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
   const handleClose = () => {
     history.push(`/moves/${moveCode}/details`);
   };
 
-  const [mutateOrders] = useMutation(updateMoveOrder, {
+  const [mutateOrders] = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
-      const updatedOrder = data.moveOrders[variables.orderID];
-      queryCache.setQueryData([MOVE_ORDERS, variables.orderID], {
-        moveOrders: {
+      const updatedOrder = data.orders[variables.orderID];
+      queryCache.setQueryData([ORDERS, variables.orderID], {
+        orders: {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryCache.invalidateQueries(MOVE_ORDERS);
+      queryCache.invalidateQueries(ORDERS);
       handleClose();
     },
     onError: (error) => {
@@ -67,38 +67,38 @@ const MoveAllowances = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const moveOrder = Object.values(moveOrders)?.[0];
+  const order = Object.values(orders)?.[0];
   const onSubmit = (values) => {
     const { grade, authorizedWeight, agency, dependentsAuthorized } = values;
     const body = {
-      issueDate: moveOrder.date_issued,
-      newDutyStationId: moveOrder.destinationDutyStation.id,
-      ordersNumber: moveOrder.order_number,
-      ordersType: moveOrder.order_type,
-      originDutyStationId: moveOrder.originDutyStation.id,
-      reportByDate: moveOrder.report_by_date,
+      issueDate: order.date_issued,
+      newDutyStationId: order.destinationDutyStation.id,
+      ordersNumber: order.order_number,
+      ordersType: order.order_type,
+      originDutyStationId: order.originDutyStation.id,
+      reportByDate: order.report_by_date,
       grade,
       authorizedWeight: Number(authorizedWeight),
       agency,
       dependentsAuthorized,
     };
-    mutateOrders({ orderID: orderId, ifMatchETag: moveOrder.eTag, body });
+    mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
-  const { entitlement, grade, agency } = moveOrder;
+  const { entitlement, grade, agency } = order;
   const { authorizedWeight, dependentsAuthorized } = entitlement;
 
   const initialValues = { authorizedWeight: `${authorizedWeight}`, grade, agency, dependentsAuthorized };
 
   return (
-    <div className={moveOrdersStyles.sidebar}>
+    <div className={ordersStyles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => (
           <form onSubmit={formik.handleSubmit}>
-            <div className={moveOrdersStyles.orderDetails}>
-              <div className={moveOrdersStyles.top}>
+            <div className={ordersStyles.orderDetails}>
+              <div className={ordersStyles.top}>
                 <Button
-                  className={moveOrdersStyles.closeButton}
+                  className={ordersStyles.closeButton}
                   data-testid="closeSidebar"
                   type="button"
                   onClick={handleClose}
@@ -106,24 +106,24 @@ const MoveAllowances = () => {
                 >
                   <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                 </Button>
-                <h2 className={moveOrdersStyles.header} data-testid="allowances-header">
+                <h2 className={ordersStyles.header} data-testid="allowances-header">
                   View Allowances
                 </h2>
                 <div>
-                  <Link className={moveOrdersStyles.viewAllowances} data-testid="view-orders" to="orders">
+                  <Link className={ordersStyles.viewAllowances} data-testid="view-orders" to="orders">
                     View Orders
                   </Link>
                 </div>
               </div>
-              <div className={moveOrdersStyles.body}>
+              <div className={ordersStyles.body}>
                 <AllowancesDetailForm
-                  entitlements={moveOrder.entitlement}
+                  entitlements={order.entitlement}
                   rankOptions={rankDropdownOptions}
                   branchOptions={branchDropdownOption}
                 />
               </div>
-              <div className={moveOrdersStyles.bottom}>
-                <div className={moveOrdersStyles.buttonGroup}>
+              <div className={ordersStyles.bottom}>
+                <div className={ordersStyles.buttonGroup}>
                   <Button disabled={formik.isSubmitting} type="submit">
                     Save
                   </Button>

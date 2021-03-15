@@ -1,3 +1,11 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
+//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
 package paymentrequest
 
 import (
@@ -70,8 +78,8 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	suite.T().Run("invalid payment request ID", func(t *testing.T) {
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
-		// #nosec G307 TODO needs review
-		defer testFile.Close()
+
+		defer testFile.Close() // #nosec G307
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
 		_, err = uploadCreator.CreateUpload(testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)
@@ -80,8 +88,8 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	suite.T().Run("invalid user ID", func(t *testing.T) {
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
-		// #nosec G307 TODO needs review
-		defer testFile.Close()
+
+		defer testFile.Close() // #nosec G307
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
@@ -94,8 +102,8 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
 		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
 		suite.NoError(err)
-		// #nosec G307 TODO needs review
-		defer wrongTypeFile.Close()
+
+		defer wrongTypeFile.Close() // #nosec G307
 
 		_, err = uploadCreator.CreateUpload(wrongTypeFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)

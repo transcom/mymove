@@ -18,18 +18,18 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
-// NewUpdateMoveOrderParams creates a new UpdateMoveOrderParams object
+// NewUpdateOrderParams creates a new UpdateOrderParams object
 // no default values defined in spec.
-func NewUpdateMoveOrderParams() UpdateMoveOrderParams {
+func NewUpdateOrderParams() UpdateOrderParams {
 
-	return UpdateMoveOrderParams{}
+	return UpdateOrderParams{}
 }
 
-// UpdateMoveOrderParams contains all the bound params for the update move order operation
+// UpdateOrderParams contains all the bound params for the update order operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters updateMoveOrder
-type UpdateMoveOrderParams struct {
+// swagger:parameters updateOrder
+type UpdateOrderParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -43,7 +43,7 @@ type UpdateMoveOrderParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.UpdateMoveOrderPayload
+	Body *ghcmessages.UpdateOrderPayload
 	/*ID of order to use
 	  Required: true
 	  In: path
@@ -54,8 +54,8 @@ type UpdateMoveOrderParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewUpdateMoveOrderParams() beforehand.
-func (o *UpdateMoveOrderParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewUpdateOrderParams() beforehand.
+func (o *UpdateOrderParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -66,7 +66,7 @@ func (o *UpdateMoveOrderParams) BindRequest(r *http.Request, route *middleware.M
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.UpdateMoveOrderPayload
+		var body ghcmessages.UpdateOrderPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))
@@ -98,7 +98,7 @@ func (o *UpdateMoveOrderParams) BindRequest(r *http.Request, route *middleware.M
 }
 
 // bindIfMatch binds and validates parameter IfMatch from header.
-func (o *UpdateMoveOrderParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateOrderParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("If-Match", "header", rawData)
 	}
@@ -119,7 +119,7 @@ func (o *UpdateMoveOrderParams) bindIfMatch(rawData []string, hasKey bool, forma
 }
 
 // bindOrderID binds and validates parameter OrderID from path.
-func (o *UpdateMoveOrderParams) bindOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateOrderParams) bindOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -143,7 +143,7 @@ func (o *UpdateMoveOrderParams) bindOrderID(rawData []string, hasKey bool, forma
 }
 
 // validateOrderID carries on validations for parameter OrderID
-func (o *UpdateMoveOrderParams) validateOrderID(formats strfmt.Registry) error {
+func (o *UpdateOrderParams) validateOrderID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("orderID", "path", "uuid", o.OrderID.String(), formats); err != nil {
 		return err

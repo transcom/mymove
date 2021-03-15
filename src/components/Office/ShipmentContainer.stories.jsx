@@ -70,13 +70,13 @@ export const MTOAccessorial = () => (
         state: 'CA',
         postal_code: '94535',
       })}
-      originDutyStation={object('MoveOrder.originDutyStation', {
+      originDutyStation={object('Order.originDutyStation', {
         street_address_1: '',
         city: 'Fort Knox',
         state: 'KY',
         postal_code: '40121',
       })}
-      destinationDutyStation={object('MoveOrder.destinationDutyStation', {
+      destinationDutyStation={object('Order.destinationDutyStation', {
         street_address_1: '',
         city: 'Fort Irwin',
         state: 'CA',
