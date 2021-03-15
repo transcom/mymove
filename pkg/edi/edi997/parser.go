@@ -7,7 +7,7 @@ import (
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 )
 
-// picture of what the envelopes look like https://docs.oracle.com/cd/E19398-01/820-1275/agdaw/index.html
+// Picture of what the envelopes look like https://docs.oracle.com/cd/E19398-01/820-1275/agdaw/index.html
 
 type dataSegment struct {
 	//AK3      edisegment.AK3 // data segment note (bump up counter for "AK3", create new dataSegment)
