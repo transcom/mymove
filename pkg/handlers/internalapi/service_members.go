@@ -192,17 +192,48 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
-	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
+	var err error
+	var serviceMember models.ServiceMember
+	var verrs *validate.Errors
+
+	serviceMember, err = models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
+
+	if verrs, err = h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
-	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
+
+	if verrs, err = models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
+	}
+
+	if len(serviceMember.Orders) != 0 {
+		// Will have to be refactored once we support multiple moves/orders
+		order, err := models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
+
+		if err != nil {
+			return handlers.ResponseForError(logger, err)
+		}
+
+		serviceMemberRank := (*string)(serviceMember.Rank)
+		if serviceMemberRank != order.Grade {
+			order.Grade = serviceMemberRank
+		}
+
+		if serviceMember.DutyStation.ID != order.OriginDutyStation.ID {
+			order.OriginDutyStation = &serviceMember.DutyStation
+			order.OriginDutyStationID = &serviceMember.DutyStation.ID
+		}
+
+		verrs, err = h.DB().ValidateAndSave(&order)
+		if verrs.HasAny() || err != nil {
+			return handlers.ResponseForVErrors(logger, verrs, err)
+		}
+		serviceMember.Orders[0] = order
 	}
 
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
