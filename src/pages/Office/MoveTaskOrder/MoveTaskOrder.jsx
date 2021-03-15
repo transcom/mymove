@@ -3,16 +3,14 @@ import { withRouter } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
-import { func, string } from 'prop-types';
+import { func } from 'prop-types';
 import classnames from 'classnames';
-import { get } from 'lodash';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import { MTO_SERVICE_ITEMS } from 'constants/queryKeys';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
-import ScrollToTop from 'components/ScrollToTop';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
@@ -30,8 +28,8 @@ import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import LeftNav from 'components/LeftNav';
 import { shipmentSectionLabels } from 'content/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { clearFlashMessage, setFlashMessage } from 'store/flash/actions';
+import { setFlashMessage } from 'store/flash/actions';
+import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 
 function formatShipmentDate(shipmentDateString) {
   const dateObj = new Date(shipmentDateString);
@@ -57,31 +55,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [activeSection, setActiveSection] = useState('');
 
   const { moveCode } = match.params;
-  const { setUnapprovedShipmentCount, setMessage, clearMessage, messageKey } = props;
-
-  // This reference keeps track of new flash messages, scrolls us up to the top of the page if a new message is added,
-  // and adds an event listener to clear the message out when it is no longer needed.
-  // NOTE: We should probably use `useRef` here instead (this isn't really state),
-  // but we do want to trigger a re-render when it changes.
-  // Otherwise, it introduces a delay with the ScrollToTop component.
-  const [currentMessageKey, setCurrentMessageKey] = useState('');
-  useEffect(() => {
-    const clearCurrentMessage = () => {
-      clearMessage(messageKey);
-    };
-
-    if (messageKey) {
-      setCurrentMessageKey(messageKey);
-
-      // clears the current message after another page element gets focused:
-      window.addEventListener('focusout', clearCurrentMessage);
-    }
-
-    // remove the listener on component unmount:
-    return () => {
-      window.removeEventListener('focusout', clearCurrentMessage);
-    };
-  }, [messageKey, setCurrentMessageKey, clearMessage]);
+  const { setUnapprovedShipmentCount, setMessage } = props;
 
   const {
     moveOrders = {},
@@ -269,7 +243,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             );
           })}
         </LeftNav>
-        <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+        <FlashGridContainer className={styles.gridContainer} data-testid="too-shipment-container">
           {isModalVisible && (
             <RejectServiceItemModal
               serviceItem={selectedServiceItem}
@@ -277,9 +251,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               onClose={setIsModalVisible}
             />
           )}
-          <ScrollToTop otherDep={currentMessageKey} />
-          <ConnectedFlashMessage />
-
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
@@ -371,7 +342,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               </div>
             );
           })}
-        </GridContainer>
+        </FlashGridContainer>
       </div>
     </div>
   );
@@ -381,19 +352,10 @@ MoveTaskOrder.propTypes = {
   match: MatchShape.isRequired,
   setUnapprovedShipmentCount: func.isRequired,
   setMessage: func.isRequired,
-  clearMessage: func.isRequired,
-  messageKey: string.isRequired,
-};
-
-const mapStateToProps = (state) => {
-  return {
-    messageKey: get(state, 'flash.flashMessage.key', ''),
-  };
 };
 
 const mapDispatchToProps = {
   setMessage: setFlashMessage,
-  clearMessage: clearFlashMessage,
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveTaskOrder));
+export default withRouter(connect(undefined, mapDispatchToProps)(MoveTaskOrder));
