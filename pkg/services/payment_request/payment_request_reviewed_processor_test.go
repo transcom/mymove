@@ -455,42 +455,48 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 	})
 }
 
-// Test ported from now removed FetchAndLockReviewedPaymentRequest
-// TODO: will see what of this code is still relevant
-// func (suite *PaymentRequestServiceSuite) TestFetchAndLockReviewedPaymentRequest() {
-// 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+func (suite *PaymentRequestServiceSuite) delayedProcessPR(prProcessor services.PaymentRequestReviewedProcessor, pr models.PaymentRequest) error {
+	err := prProcessor.ProcessAndLockReviewedPR(pr)
+	time.Sleep(2 * time.Second)
+	return err
+}
 
-// 	_ = suite.createPaymentRequest(100)
+func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest() {
+	os.Setenv("SYNCADA_SFTP_PORT", "1234")
+	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	// generated fake host key to pass parser used following command and only saved the pub key
+	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
+	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
 
-// 	suite.T().Run("successfully fetch given reviewed payment requests", func(t *testing.T) {
-// 		result, err := reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
-// 		suite.NoError(err)
-// 		suite.Equal(100, len(result))
-// 	})
+	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+	SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+	suite.NoError(SFTPSessionError)
+	var gexSender services.GexSender
+	gexSender = nil
+	sendToSyncada := false
 
-// 	// suite.T().Run("throw an error if a locked payment request is updated", func(t *testing.T) {
-// 	// 	_ = suite.createPaymentRequest(100)
-
-// 	// 	suite.DB().Transaction(func(tx *pop.Connection) error {
-// 	// 		_, err := reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
-// 	// 		suite.NoError(err)
-// 	// 		return err
-// 	// 	})
-// 	// 	suite.DB().Transaction(func(tx *pop.Connection) error {
-// 	// 		err := suite.DB().RawQuery(`UPDATE payment_requests SET status = $1 WHERE status = $2;`, models.PaymentRequestStatusPaid, models.PaymentRequestStatusReviewed).Exec()
-
-// 	// 		suite.NoError(err)
-// 	// 		return err
-// 	// 	})
-// 	// })
-
-// 	_ = suite.createPaymentRequest(101)
-// 	var paymentRequests models.PaymentRequests
-// 	suite.DB().All(&paymentRequests)
-// 	suite.T().Run("retrieve only the number of payment requests set by limitOfPRsToProcess", func(t *testing.T) {
-// 		result, err := reviewedPaymentRequestFetcher.FetchAndLockReviewedPaymentRequest()
-// 		suite.NoError(err)
-// 		suite.Equal(limitOfPRsToProcess, len(result))
-// 		suite.Equal(201, len(paymentRequests))
-// 	})
-// }
+	paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+		suite.DB(),
+		suite.logger,
+		reviewedPaymentRequestFetcher,
+		generator,
+		sendToSyncada,
+		gexSender,
+		SFTPSession)
+	suite.T().Run("successfully process prs even when a locked row has a delay", func(t *testing.T) {
+		reviewedPaymentRequests := suite.createPaymentRequest(2)
+		for i, pr := range reviewedPaymentRequests {
+			if i == 0 {
+				err := suite.delayedProcessPR(paymentRequestReviewedProcessor, pr)
+				suite.NoError(err)
+			} else {
+				err := paymentRequestReviewedProcessor.ProcessAndLockReviewedPR(pr)
+				suite.NoError(err)
+			}
+		}
+	})
+}

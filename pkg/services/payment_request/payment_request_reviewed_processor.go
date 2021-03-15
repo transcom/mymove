@@ -70,8 +70,62 @@ func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, s
 		sftpSession), nil
 }
 
-func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
+func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.PaymentRequest) error {
 	var transactionError error
+
+	transactionError = p.db.Transaction(func(tx *pop.Connection) error {
+		var lockedPR models.PaymentRequest
+
+		query := `
+			SELECT * FROM payment_requests
+			WHERE id = $1 FOR UPDATE SKIP LOCKED;
+		`
+		err := p.db.RawQuery(query, pr.ID).First(&lockedPR)
+		if err != nil {
+			return fmt.Errorf("failure retrieving and locking payment request: %w", err)
+		}
+		// generate EDI file
+		var edi858c ediinvoice.Invoice858C
+		edi858c, err = p.ediGenerator.Generate(lockedPR, false)
+		if err != nil {
+			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
+
+		}
+		var edi858cString string
+		edi858cString, err = edi858c.EDIString(p.logger)
+		if err != nil {
+			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to edi858c.EDIString: %w", err)
+		}
+
+		// Send EDI string to Syncada
+		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
+		err = paymentrequesthelper.SendToSyncada(edi858cString, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
+		if err != nil {
+			return fmt.Errorf("error sending the following EDIs (PaymentRequest.ID: %s, error string) to Syncada: %s", lockedPR.ID, err)
+
+		}
+		sentToGexAt := strfmt.DateTime(time.Now()).String()
+
+		q := `
+			UPDATE payment_requests
+			SET
+				status = $1,
+				sent_to_gex_at = $2
+			WHERE id = $3;`
+		err = tx.RawQuery(q, models.PaymentRequestStatusSentToGex.String(), sentToGexAt, lockedPR.ID.String()).Exec()
+		if err != nil {
+			return fmt.Errorf("failure updating payment request status: %w", err)
+		}
+
+		return nil
+	})
+	if transactionError != nil {
+		return transactionError
+	}
+	return nil
+}
+
+func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
 
 	// Fetch all payment request that have been reviewed
 	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
@@ -86,58 +140,10 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 
 	// Send all reviewed payment request to Syncada
 	for _, pr := range reviewedPaymentRequests {
-		// TODO create goroutine
-		transactionError = p.db.Transaction(func(tx *pop.Connection) error {
-			var lockedPR models.PaymentRequest
-
-			query := `
-				SELECT * FROM payment_requests
-				WHERE id = $1 FOR UPDATE SKIP LOCKED;
-			`
-			err = p.db.RawQuery(query, pr.ID).First(&lockedPR)
-			if err != nil {
-				return fmt.Errorf("failure retrieving and locking payment request: %w", err)
-			}
-			// generate EDI file
-			var edi858c ediinvoice.Invoice858C
-			edi858c, err = p.ediGenerator.Generate(lockedPR, false)
-			if err != nil {
-				return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
-
-			}
-			var edi858cString string
-			edi858cString, err = edi858c.EDIString(p.logger)
-			if err != nil {
-				return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to edi858c.EDIString: %w", err)
-
-			}
-
-			// Send EDI string to Syncada
-			// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
-			err = paymentrequesthelper.SendToSyncada(edi858cString, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
-			if err != nil {
-				return fmt.Errorf("error sending the following EDIs (PaymentRequest.ID: %s, error string) to Syncada: %s", lockedPR.ID, err)
-
-			}
-			sentToGexAt := strfmt.DateTime(time.Now()).String()
-
-			q := `
-				UPDATE payment_requests
-				SET
-					status = $1,
-					sent_to_gex_at = $2
-				WHERE id = $3;`
-			err = tx.RawQuery(q, models.PaymentRequestStatusSentToGex.String(), sentToGexAt, lockedPR.ID.String()).Exec()
-			if err != nil {
-				return fmt.Errorf("failure updating payment request status: %w", err)
-			}
-
-			return nil
-		})
-	}
-
-	if transactionError != nil {
-		return transactionError
+		err := p.ProcessAndLockReviewedPR(pr)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
