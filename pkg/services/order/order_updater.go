@@ -65,6 +65,15 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 			}
 			existingOrder.OriginDutyStationID = order.OriginDutyStationID
 			existingOrder.OriginDutyStation = &originDutyStation
+
+			existingOrder.ServiceMember.DutyStationID = &originDutyStation.ID
+			existingOrder.ServiceMember.DutyStation = originDutyStation
+
+			err = tx.Save(&existingOrder.ServiceMember)
+
+			if err != nil {
+				return err
+			}
 		}
 
 		if order.NewDutyStationID != existingOrder.NewDutyStationID {

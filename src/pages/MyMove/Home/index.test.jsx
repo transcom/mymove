@@ -43,12 +43,11 @@ const defaultProps = {
     push: jest.fn(),
   },
   location: {},
-  move: {},
+  move: {
+    id: 'testMoveId',
+    status: 'DRAFT',
+  },
   uploadedOrderDocuments: [],
-};
-
-const mountHome = (props = {}) => {
-  return mount(<Home {...defaultProps} {...props} />);
 };
 
 const mountHomeWithProviders = (props = {}) => {
@@ -61,7 +60,7 @@ const mountHomeWithProviders = (props = {}) => {
 
 describe('Home component', () => {
   describe('with default props', () => {
-    const wrapper = mountHome();
+    const wrapper = mountHomeWithProviders();
 
     it('renders Home with the right amount of components', () => {
       expect(wrapper.find('ConnectedFlashMessage').length).toBe(1);
@@ -86,7 +85,7 @@ describe('Home component', () => {
         ],
       };
 
-      const wrapper = mountHome(testProps);
+      const wrapper = mountHomeWithProviders(testProps);
       expect(wrapper.find('ShipmentListItem').length).toBe(3);
       expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('HHG 1');
       expect(wrapper.find('ShipmentListItem').at(1).text()).toContain('PPM');
@@ -106,17 +105,18 @@ describe('Home component', () => {
           },
         },
         move: {
+          id: 'testMoveId',
           status: MOVE_STATUSES.SUBMITTED,
         },
       };
 
-      const wrapper = mountHome(props);
+      const wrapper = mountHomeWithProviders(props);
       expect(wrapper.find('Contact').prop('moveSubmitted')).toEqual(true);
     });
   });
 
   describe('if the user does not have orders', () => {
-    const wrapper = mountHome();
+    const wrapper = mountHomeWithProviders();
 
     it('renders the NeedsOrders helper', () => {
       expect(wrapper.find('HelperNeedsOrders').exists()).toBe(true);
@@ -129,7 +129,7 @@ describe('Home component', () => {
   });
 
   describe('if the user has orders but not shipments', () => {
-    const wrapper = mountHome({
+    const wrapper = mountHomeWithProviders({
       orders: { testOrder: 'test', new_duty_station: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
     });
@@ -145,7 +145,7 @@ describe('Home component', () => {
   });
 
   describe('if the user has orders and shipments but has not submitted their move', () => {
-    const wrapper = mountHome({
+    const wrapper = mountHomeWithProviders({
       orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
       mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
@@ -157,7 +157,7 @@ describe('Home component', () => {
   });
 
   describe('if the user has orders and a currentPpm but has not submitted their move', () => {
-    const wrapper = mountHome({
+    const wrapper = mountHomeWithProviders({
       orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
       currentPpm: { id: 'testPpm123' },
@@ -177,7 +177,7 @@ describe('Home component', () => {
         },
       };
       const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
-      const move = { status: 'SUBMITTED' };
+      const move = { id: 'testMoveId', status: 'SUBMITTED' };
       const currentPpm = { id: 'mockPpm ' };
 
       const wrapper = mountHomeWithProviders({
@@ -207,11 +207,11 @@ describe('Home component', () => {
     });
 
     describe('for HHG moves (no PPM)', () => {
-      const wrapper = mountHome({
+      const wrapper = mountHomeWithProviders({
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
         mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
-        move: { status: 'SUBMITTED' },
+        move: { id: 'testMoveId', status: 'SUBMITTED' },
       });
 
       it('renders the SubmittedMove helper', () => {
@@ -230,11 +230,11 @@ describe('Home component', () => {
     });
 
     describe('for NTS moves (no PPM)', () => {
-      const wrapper = mountHome({
+      const wrapper = mountHomeWithProviders({
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ id: 'testDocument354', filename: 'testOrder1.pdf' }],
         mtoShipments: [{ id: 'test123', shipmentType: 'NTS' }],
-        move: { status: 'SUBMITTED' },
+        move: { id: 'testMoveId', status: 'SUBMITTED' },
       });
 
       it('renders the SubmittedMove helper', () => {
@@ -261,7 +261,7 @@ describe('Home component', () => {
         },
       };
       const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
-      const move = { status: 'SUBMITTED', submitted_at: submittedAt };
+      const move = { id: 'testMoveId', status: 'SUBMITTED', submitted_at: submittedAt };
       const currentPpm = { id: 'mockCombo' };
       const wrapper = mount(
         <MockProviders initialEntries={['/']}>

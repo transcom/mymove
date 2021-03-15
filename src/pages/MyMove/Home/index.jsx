@@ -3,6 +3,7 @@ import { arrayOf, bool, shape, string, node, func } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Button } from '@trussworks/react-uswds';
+import { generatePath } from 'react-router';
 
 import styles from './Home.module.scss';
 import {
@@ -13,6 +14,7 @@ import {
   HelperSubmittedPPM,
 } from './HomeHelpers';
 
+import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Step from 'components/Customer/Home/Step';
@@ -170,10 +172,16 @@ export class Home extends Component {
     if (shipmentType === 'PPM') {
       destLink = `/moves/${move.id}/review/edit-date-and-location`;
     } else if (shipmentType === 'HHG') {
-      destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`;
+      destLink = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: move.id,
+        mtoShipmentId: shipmentId,
+      })}${queryString}`;
     } else {
       // nts/ntsr shipment
-      destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment`;
+      destLink = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: move.id,
+        mtoShipmentId: shipmentId,
+      });
     }
 
     history.push(destLink);
@@ -229,11 +237,15 @@ export class Home extends Component {
 
     // eslint-disable-next-line camelcase
     const { current_station } = serviceMember;
-    const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
-    const shipmentSelectionPath = this.hasAnyShipments
-      ? `/moves/${move.id}/select-type`
-      : `/moves/${move.id}/moving-info`;
-    const confirmationPath = `/moves/${move.id}/review`;
+    const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
+
+    const shipmentSelectionPath =
+      move?.id &&
+      (this.hasAnyShipments
+        ? generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: move.id })
+        : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id }));
+
+    const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);

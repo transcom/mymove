@@ -13,7 +13,7 @@ const defaultProps = {
   pageKey: 'page1',
   match: {
     isExact: false,
-    path: 'moves/:moveId/mto-shipments/:mtoShipmentId/edit-shipment?shipmentNumber=2',
+    path: 'moves/:moveId/shipments/:mtoShipmentId/edit?shipmentNumber=2',
     url: '',
     params: { moveId: 'move123' },
   },
