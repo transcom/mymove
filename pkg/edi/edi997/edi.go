@@ -8,7 +8,7 @@ import edisegment "github.com/transcom/mymove/pkg/edi/segment"
 // Picture of what the envelopes look like https://docs.oracle.com/cd/E19398-01/820-1275/agdaw/index.html
 
 type dataSegment struct {
-	//AK3      edisegment.AK3 // data segment note (bump up counter for "AK3", create new dataSegment)
+	AK3 edisegment.AK3 // data segment note (bump up counter for "AK3", create new dataSegment)
 	AK4 edisegment.AK4 // data element note
 }
 
@@ -21,7 +21,7 @@ type transactionSetResponse struct {
 type functionalGroupResponse struct {
 	AK1                     edisegment.AK1           // functional group response header (create new functionalGroupResponse)
 	TransactionSetResponses []transactionSetResponse // transaction set responses, loop ID AK2
-	//AK9          edisegment.AK9 // functional group response trailer
+	AK9                     edisegment.AK9           // functional group response trailer
 }
 
 type transactionSet struct {

@@ -214,7 +214,9 @@ IEA*1*000000022
 		// Check the AK3 segments
 		// AK3*ab*123
 		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments))
-		//ak3 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK3
+		ak3String := "AK3*ab*123"
+		ak3 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK3
+		suite.validateAK3(ak3String, ak3)
 
 		// Check the AK4 segments
 		// AK4*1*2*3*4*MM*bad data goes here 89
@@ -336,17 +338,19 @@ IEA*1*000000022
 		suite.validateAK2(ak2String, ak2)
 
 		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 > Data Segment 1
-		//ak3String := "AK3*ab*123"
+		ak3String := "AK3*ab*123"
 		suite.Equal(2, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments))
-		//ak3 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK3
-		//suite.validateAK3
+		ak3 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK3
+		suite.validateAK3(ak3String, ak3)
 
 		ak4String := "AK4*1*2*3*4*MM*bad data goes here 89"
 		ak4 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK4
 		suite.validateAK4(ak4String, ak4)
 
 		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 > Data Segment 2
-		//ak3String = "AK3*ab*124"
+		ak3String = "AK3*ab*124"
+		ak3 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[1].AK3
+		suite.validateAK3(ak3String, ak3)
 
 		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 > Data Segment 2
 		ak4String = "AK4*1*2*3*4*MM*bad data goes here 100"
@@ -359,8 +363,9 @@ IEA*1*000000022
 		suite.validateAK5(ak5String, ak5)
 
 		// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse END
-		// ak9String := "AK9*A*1*1*1"
-		// ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+		ak9String := "AK9*A*1*1*1"
+		ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+		suite.validateAK9(ak9String, ak9)
 
 		// FunctionalGroup 1 > TransactionSet 1 END
 		seString := "SE*6*0001"
@@ -384,7 +389,9 @@ IEA*1*000000022
 		suite.validateAK2(ak2String, ak2)
 
 		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segment 1
-		// ak3String = "AK3*ab*123"
+		ak3String = "AK3*ab*123"
+		ak3 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK3
+		suite.validateAK3(ak3String, ak3)
 
 		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segment 1
 		ak4String = "AK4*1*2*3*4*MM*bad data goes here 90"
@@ -404,7 +411,9 @@ IEA*1*000000022
 		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 2 > Data Segment 1
 		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses[1].dataSegments))
 
-		//ak3String = "AK3*ab*123
+		ak3String = "AK3*ab*123"
+		ak3 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[1].FunctionalGroupResponse.TransactionSetResponses[1].dataSegments[0].AK3
+		suite.validateAK3(ak3String, ak3)
 
 		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 2 > Data Segment 1
 		ak4String = "AK4*1*2*3*4*MM*bad data goes here 91"
@@ -435,8 +444,9 @@ IEA*1*000000022
 		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 3 > Data Segment 1
 		dsIndex := 0
 		ds := tsr.dataSegments[dsIndex]
-		// ak3 = ds.AK3
-		//ak3String = "AK3*ab*123"
+		ak3 = ds.AK3
+		ak3String = "AK3*ab*123"
+		suite.validateAK3(ak3String, ak3)
 
 		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 3 > Data Segment 1
 		ak4String = "AK4*1*2*3*4*MM*bad data goes here 92"
@@ -449,8 +459,9 @@ IEA*1*000000022
 		suite.validateAK5(ak5String, ak5)
 
 		// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse END
-		//ak9String = "AK9*A*1*1*1"
-		// ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+		ak9String = "AK9*A*1*1*1"
+		ak9 = fgr.AK9
+		suite.validateAK9(ak9String, ak9)
 
 		// FunctionalGroup 1 > TransactionSet 2 END
 		seString = "SE*6*0002"
@@ -496,7 +507,9 @@ IEA*1*000000022
 		// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segments
 		dsIndex = 0
 		ds = tsr.dataSegments[dsIndex]
-		//ak3String = "AK3*ab*123"
+		ak3String = "AK3*ab*123"
+		ak3 = ds.AK3
+		suite.validateAK3(ak3String, ak3)
 
 		// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segments
 		ak4String = "AK4*1*2*3*4*MM*bad data goes here 93"
@@ -509,7 +522,9 @@ IEA*1*000000022
 		suite.validateAK5(ak5String, ak5)
 
 		// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse END
-		//ak9String = "AK9*A*1*1*1"
+		ak9String = "AK9*A*1*1*1"
+		ak9 = fgr.AK9
+		suite.validateAK9(ak9String, ak9)
 
 		// FunctionalGroup 2 > TransactionSet 1 END
 		seString = "SE*6*0001"
@@ -531,131 +546,172 @@ IEA*1*000000022
 
 func (suite *EDI997Suite) validateISA(row string, isa edisegment.ISA) {
 	elements := strings.Split(row, "*")
-	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(isa.AuthorizationInformationQualifier))
-	suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(isa.AuthorizationInformation))
-	suite.Equal(strings.TrimSpace(elements[3]), strings.TrimSpace(isa.SecurityInformationQualifier))
-	suite.Equal(strings.TrimSpace(elements[4]), strings.TrimSpace(isa.SecurityInformation))
-	suite.Equal(strings.TrimSpace(elements[5]), strings.TrimSpace(isa.InterchangeSenderIDQualifier))
-	suite.Equal(strings.TrimSpace(elements[6]), strings.TrimSpace(isa.InterchangeSenderID))
-	suite.Equal(strings.TrimSpace(elements[7]), strings.TrimSpace(isa.InterchangeReceiverIDQualifier))
-	suite.Equal(strings.TrimSpace(elements[8]), strings.TrimSpace(isa.InterchangeReceiverID))
-	suite.Equal(strings.TrimSpace(elements[9]), strings.TrimSpace(isa.InterchangeDate))
-	suite.Equal(strings.TrimSpace(elements[10]), strings.TrimSpace(isa.InterchangeTime))
-	suite.Equal(strings.TrimSpace(elements[11]), strings.TrimSpace(isa.InterchangeControlStandards))
-	suite.Equal(strings.TrimSpace(elements[12]), strings.TrimSpace(isa.InterchangeControlVersionNumber))
+	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(isa.AuthorizationInformationQualifier), row)
+	suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(isa.AuthorizationInformation), row)
+	suite.Equal(strings.TrimSpace(elements[3]), strings.TrimSpace(isa.SecurityInformationQualifier), row)
+	suite.Equal(strings.TrimSpace(elements[4]), strings.TrimSpace(isa.SecurityInformation), row)
+	suite.Equal(strings.TrimSpace(elements[5]), strings.TrimSpace(isa.InterchangeSenderIDQualifier), row)
+	suite.Equal(strings.TrimSpace(elements[6]), strings.TrimSpace(isa.InterchangeSenderID), row)
+	suite.Equal(strings.TrimSpace(elements[7]), strings.TrimSpace(isa.InterchangeReceiverIDQualifier), row)
+	suite.Equal(strings.TrimSpace(elements[8]), strings.TrimSpace(isa.InterchangeReceiverID), row)
+	suite.Equal(strings.TrimSpace(elements[9]), strings.TrimSpace(isa.InterchangeDate), row)
+	suite.Equal(strings.TrimSpace(elements[10]), strings.TrimSpace(isa.InterchangeTime), row)
+	suite.Equal(strings.TrimSpace(elements[11]), strings.TrimSpace(isa.InterchangeControlStandards), row)
+	suite.Equal(strings.TrimSpace(elements[12]), strings.TrimSpace(isa.InterchangeControlVersionNumber), row)
 	intValue, err := strconv.Atoi(elements[13])
-	suite.NoError(err)
-	suite.Equal(int64(intValue), isa.InterchangeControlNumber)
+	suite.NoError(err, row)
+	suite.Equal(int64(intValue), isa.InterchangeControlNumber, row)
 	intValue, err = strconv.Atoi(elements[14])
-	suite.NoError(err)
-	suite.Equal(intValue, isa.AcknowledgementRequested)
-	suite.Equal(strings.TrimSpace(elements[15]), strings.TrimSpace(isa.UsageIndicator))
-	suite.Equal(strings.TrimSpace(elements[16]), strings.TrimSpace(isa.ComponentElementSeparator))
+	suite.NoError(err, row)
+	suite.Equal(intValue, isa.AcknowledgementRequested, row)
+	suite.Equal(strings.TrimSpace(elements[15]), strings.TrimSpace(isa.UsageIndicator), row)
+	suite.Equal(strings.TrimSpace(elements[16]), strings.TrimSpace(isa.ComponentElementSeparator), row)
 }
 
 func (suite *EDI997Suite) validateGS(row string, gs edisegment.GS) {
 	elements := strings.Split(row, "*")
-	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(gs.FunctionalIdentifierCode))
-	suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(gs.ApplicationSendersCode))
-	suite.Equal(strings.TrimSpace(elements[3]), strings.TrimSpace(gs.ApplicationReceiversCode))
-	suite.Equal(strings.TrimSpace(elements[4]), strings.TrimSpace(gs.Date))
-	suite.Equal(strings.TrimSpace(elements[5]), strings.TrimSpace(gs.Time))
+	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(gs.FunctionalIdentifierCode), row)
+	suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(gs.ApplicationSendersCode), row)
+	suite.Equal(strings.TrimSpace(elements[3]), strings.TrimSpace(gs.ApplicationReceiversCode), row)
+	suite.Equal(strings.TrimSpace(elements[4]), strings.TrimSpace(gs.Date), row)
+	suite.Equal(strings.TrimSpace(elements[5]), strings.TrimSpace(gs.Time), row)
 	intValue, err := strconv.Atoi(elements[6])
-	suite.NoError(err)
-	suite.Equal(int64(intValue), gs.GroupControlNumber)
-	suite.Equal(strings.TrimSpace(elements[7]), strings.TrimSpace(gs.ResponsibleAgencyCode))
-	suite.Equal(strings.TrimSpace(elements[8]), strings.TrimSpace(gs.Version))
+	suite.NoError(err, row)
+	suite.Equal(int64(intValue), gs.GroupControlNumber, row)
+	suite.Equal(strings.TrimSpace(elements[7]), strings.TrimSpace(gs.ResponsibleAgencyCode), row)
+	suite.Equal(strings.TrimSpace(elements[8]), strings.TrimSpace(gs.Version), row)
 }
 
 func (suite *EDI997Suite) validateST(row string, st edisegment.ST) {
 	elements := strings.Split(row, "*")
-	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(st.TransactionSetIdentifierCode))
-	suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(st.TransactionSetControlNumber))
+	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(st.TransactionSetIdentifierCode), row)
+	suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(st.TransactionSetControlNumber), row)
 }
 
 func (suite *EDI997Suite) validateAK1(row string, ak1 edisegment.AK1) {
 	elements := strings.Split(row, "*")
-	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(ak1.FunctionalIdentifierCode))
+	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(ak1.FunctionalIdentifierCode), row)
 	intValue, err := strconv.Atoi(elements[2])
-	suite.NoError(err)
-	suite.Equal(int64(intValue), ak1.GroupControlNumber)
+	suite.NoError(err, row)
+	suite.Equal(int64(intValue), ak1.GroupControlNumber, row)
 }
 
 func (suite *EDI997Suite) validateAK2(row string, ak2 edisegment.AK2) {
 	elements := strings.Split(row, "*")
-	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(ak2.TransactionSetIdentifierCode))
-	suite.Equal(strings.TrimSpace(elements[2]), ak2.TransactionSetControlNumber)
+	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(ak2.TransactionSetIdentifierCode), row)
+	suite.Equal(strings.TrimSpace(elements[2]), ak2.TransactionSetControlNumber, row)
 }
 
-/*
 func (suite *EDI997Suite) validateAK3(row string, ak3 edisegment.AK3) {
-
+	elements := strings.Split(row, "*")
+	numElements := len(elements)
+	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(ak3.SegmentIDCode), row)
+	intValue, err := strconv.Atoi(elements[2])
+	suite.NoError(err, row)
+	suite.Equal(intValue, ak3.SegmentPositionInTransactionSet, row)
+	if numElements > 3 {
+		suite.Equal(strings.TrimSpace(elements[3]), strings.TrimSpace(ak3.LoopIdentifierCode), row)
+	}
+	if numElements > 4 {
+		suite.Equal(strings.TrimSpace(elements[4]), strings.TrimSpace(ak3.SegmentSyntaxErrorCode), row)
+	}
 }
-*/
 
 func (suite *EDI997Suite) validateAK4(row string, ak4 edisegment.AK4) {
 	elements := strings.Split(row, "*")
 	intValue, err := strconv.Atoi(elements[1])
-	suite.NoError(err)
-	suite.Equal(intValue, ak4.PositionInSegment)
+	suite.NoError(err, row)
+	suite.Equal(intValue, ak4.PositionInSegment, row)
 	intValue, err = strconv.Atoi(elements[2])
-	suite.NoError(err)
-	suite.Equal(intValue, ak4.ElementPositionInSegment)
+	suite.NoError(err, row)
+	suite.Equal(intValue, ak4.ElementPositionInSegment, row)
 	intValue, err = strconv.Atoi(elements[3])
-	suite.NoError(err)
-	suite.Equal(intValue, ak4.ComponentDataElementPositionInComposite)
+	suite.NoError(err, row)
+	suite.Equal(intValue, ak4.ComponentDataElementPositionInComposite, row)
 	intValue, err = strconv.Atoi(elements[4])
-	suite.NoError(err)
-	suite.Equal(intValue, ak4.DataElementReferenceNumber)
-	suite.Equal(strings.TrimSpace(elements[5]), strings.TrimSpace(ak4.DataElementSyntaxErrorCode))
-	suite.Equal(strings.TrimSpace(elements[6]), strings.TrimSpace(ak4.CopyOfBadDataElement))
+	suite.NoError(err, row)
+	suite.Equal(intValue, ak4.DataElementReferenceNumber, row)
+	suite.Equal(strings.TrimSpace(elements[5]), strings.TrimSpace(ak4.DataElementSyntaxErrorCode), row)
+	suite.Equal(strings.TrimSpace(elements[6]), strings.TrimSpace(ak4.CopyOfBadDataElement), row)
 }
 
 func (suite *EDI997Suite) validateAK5(row string, ak5 edisegment.AK5) {
 	elements := strings.Split(row, "*")
 	lenElements := len(elements)
-	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(ak5.TransactionSetAcknowledgmentCode))
+	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(ak5.TransactionSetAcknowledgmentCode), row)
 	if lenElements > 2 {
-		suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(ak5.TransactionSetSyntaxErrorCodeAK502))
+		suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(ak5.TransactionSetSyntaxErrorCodeAK502), row)
 	}
 	if lenElements > 3 {
-		suite.Equal(strings.TrimSpace(elements[3]), strings.TrimSpace(ak5.TransactionSetSyntaxErrorCodeAK503))
+		suite.Equal(strings.TrimSpace(elements[3]), strings.TrimSpace(ak5.TransactionSetSyntaxErrorCodeAK503), row)
 	}
 	if lenElements > 4 {
-		suite.Equal(strings.TrimSpace(elements[4]), strings.TrimSpace(ak5.TransactionSetSyntaxErrorCodeAK504))
+		suite.Equal(strings.TrimSpace(elements[4]), strings.TrimSpace(ak5.TransactionSetSyntaxErrorCodeAK504), row)
 	}
 	if lenElements > 5 {
-		suite.Equal(strings.TrimSpace(elements[5]), strings.TrimSpace(ak5.TransactionSetSyntaxErrorCodeAK505))
+		suite.Equal(strings.TrimSpace(elements[5]), strings.TrimSpace(ak5.TransactionSetSyntaxErrorCodeAK505), row)
 	}
 	if lenElements > 6 {
-		suite.Equal(strings.TrimSpace(elements[6]), strings.TrimSpace(ak5.TransactionSetSyntaxErrorCodeAK506))
+		suite.Equal(strings.TrimSpace(elements[6]), strings.TrimSpace(ak5.TransactionSetSyntaxErrorCodeAK506), row)
 	}
+}
+
+func (suite *EDI997Suite) validateAK9(row string, ak9 edisegment.AK9) {
+	elements := strings.Split(row, "*")
+	lenElements := len(elements)
+	suite.Equal(strings.TrimSpace(elements[1]), strings.TrimSpace(ak9.FunctionalGroupAcknowledgeCode), row)
+	intValue, err := strconv.Atoi(elements[2])
+	suite.NoError(err)
+	suite.Equal(intValue, ak9.NumberOfTransactionSetsIncluded, row)
+	intValue, err = strconv.Atoi(elements[3])
+	suite.NoError(err)
+	suite.Equal(intValue, ak9.NumberOfReceivedTransactionSets, row)
+	intValue, err = strconv.Atoi(elements[4])
+	suite.NoError(err)
+	suite.Equal(intValue, ak9.NumberOfAcceptedTransactionSets, row)
+
+	if lenElements > 5 {
+		suite.Equal(strings.TrimSpace(elements[5]), strings.TrimSpace(ak9.FunctionalGroupSyntaxErrorCodeAK905), row)
+	}
+	if lenElements > 6 {
+		suite.Equal(strings.TrimSpace(elements[6]), strings.TrimSpace(ak9.FunctionalGroupSyntaxErrorCodeAK906), row)
+	}
+	if lenElements > 7 {
+		suite.Equal(strings.TrimSpace(elements[7]), strings.TrimSpace(ak9.FunctionalGroupSyntaxErrorCodeAK907), row)
+	}
+	if lenElements > 8 {
+		suite.Equal(strings.TrimSpace(elements[8]), strings.TrimSpace(ak9.FunctionalGroupSyntaxErrorCodeAK908), row)
+	}
+	if lenElements > 9 {
+		suite.Equal(strings.TrimSpace(elements[9]), strings.TrimSpace(ak9.FunctionalGroupSyntaxErrorCodeAK909), row)
+	}
+
 }
 
 func (suite *EDI997Suite) validateSE(row string, se edisegment.SE) {
 	elements := strings.Split(row, "*")
 	intValue, err := strconv.Atoi(elements[1])
 	suite.NoError(err)
-	suite.Equal(intValue, se.NumberOfIncludedSegments)
-	suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(se.TransactionSetControlNumber))
+	suite.Equal(intValue, se.NumberOfIncludedSegments, row)
+	suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(se.TransactionSetControlNumber), row)
 }
 
 func (suite *EDI997Suite) validateGE(row string, ge edisegment.GE) {
 	elements := strings.Split(row, "*")
 	intValue, err := strconv.Atoi(elements[1])
-	suite.NoError(err)
-	suite.Equal(intValue, ge.NumberOfTransactionSetsIncluded)
+	suite.NoError(err, row)
+	suite.Equal(intValue, ge.NumberOfTransactionSetsIncluded, row)
 	intValue, err = strconv.Atoi(elements[2])
-	suite.NoError(err)
-	suite.Equal(int64(intValue), ge.GroupControlNumber)
+	suite.NoError(err, row)
+	suite.Equal(int64(intValue), ge.GroupControlNumber, row)
 }
 
 func (suite *EDI997Suite) validateIEA(row string, iea edisegment.IEA) {
 	elements := strings.Split(row, "*")
 	intValue, err := strconv.Atoi(elements[1])
-	suite.NoError(err)
-	suite.Equal(intValue, iea.NumberOfIncludedFunctionalGroups)
+	suite.NoError(err, row)
+	suite.Equal(intValue, iea.NumberOfIncludedFunctionalGroups, row)
 	intValue, err = strconv.Atoi(elements[2])
-	suite.NoError(err)
-	suite.Equal(int64(intValue), iea.InterchangeControlNumber)
+	suite.NoError(err, row)
+	suite.Equal(int64(intValue), iea.InterchangeControlNumber, row)
 }

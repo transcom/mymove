@@ -105,10 +105,10 @@ func (e *EDI) Parse(ediString string) error {
 			tsrIndex := counter.fg[fgIndex].ts[tsIndex].fgr.tsrCounter - 1
 
 			ds := dataSegment{}
-			// err = ds.AK3.Parse(record[1:])
-			// 			if err != nil {
-			//				return err
-			//			}
+			err = ds.AK3.Parse(record[1:])
+			if err != nil {
+				return err
+			}
 			e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.TransactionSetResponses[tsrIndex].dataSegments = append(e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.TransactionSetResponses[tsrIndex].dataSegments, ds)
 
 			counter.fg[fgIndex].ts[tsIndex].fgr.tsr[tsrIndex].dsCounter++
@@ -137,12 +137,12 @@ func (e *EDI) Parse(ediString string) error {
 		case "AK9": // trailer to AK1
 			// functional group response trailer
 			// inside functional group > transaction set > functional group response
-			//fgIndex := counter.fgCounter - 1
-			//tsIndex := counter.fg[fgIndex].tsCounter - 1
-			//err = e.interchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].functionalGroupResponse.AK9.Parse(record[1:])
-			// 			if err != nil {
-			//				return err
-			//			}
+			fgIndex := counter.fgCounter - 1
+			tsIndex := counter.fg[fgIndex].tsCounter - 1
+			err = e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.AK9.Parse(record[1:])
+			if err != nil {
+				return err
+			}
 		case "SE": // trailer to ST
 			// transaction set trailer
 			// inside functional group > transaction set
