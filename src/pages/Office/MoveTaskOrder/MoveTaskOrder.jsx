@@ -361,4 +361,4 @@ const mapDispatchToProps = {
   setMessage: setFlashMessage,
 };
 
-export default withRouter(connect({}, mapDispatchToProps)(MoveTaskOrder));
+export default withRouter(connect(() => ({}), mapDispatchToProps)(MoveTaskOrder));
