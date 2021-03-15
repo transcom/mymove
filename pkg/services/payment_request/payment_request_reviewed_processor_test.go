@@ -487,6 +487,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest
 		sendToSyncada,
 		gexSender,
 		SFTPSession)
+
 	suite.T().Run("successfully process prs even when a locked row has a delay", func(t *testing.T) {
 		reviewedPaymentRequests := suite.createPaymentRequest(2)
 		for i, pr := range reviewedPaymentRequests {
@@ -496,6 +497,16 @@ func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest
 			} else {
 				err := paymentRequestReviewedProcessor.ProcessAndLockReviewedPR(pr)
 				suite.NoError(err)
+			}
+		}
+
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for i, pr := range reviewedPaymentRequests {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			if i == 0 {
+				suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
+			} else {
+				suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
 			}
 		}
 	})
