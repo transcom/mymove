@@ -62,13 +62,13 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.Lis
 	return r0, r1
 }
 
-// ListMoveTaskOrders provides a mock function with given fields: moveOrderID, searchParams
-func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, searchParams *services.ListMoveTaskOrderParams) ([]models.Move, error) {
-	ret := _m.Called(moveOrderID, searchParams)
+// ListMoveTaskOrders provides a mock function with given fields: orderID, searchParams
+func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(orderID uuid.UUID, searchParams *services.ListMoveTaskOrderParams) ([]models.Move, error) {
+	ret := _m.Called(orderID, searchParams)
 
 	var r0 []models.Move
 	if rf, ok := ret.Get(0).(func(uuid.UUID, *services.ListMoveTaskOrderParams) []models.Move); ok {
-		r0 = rf(moveOrderID, searchParams)
+		r0 = rf(orderID, searchParams)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.Move)
@@ -77,7 +77,7 @@ func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, search
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(uuid.UUID, *services.ListMoveTaskOrderParams) error); ok {
-		r1 = rf(moveOrderID, searchParams)
+		r1 = rf(orderID, searchParams)
 	} else {
 		r1 = ret.Error(1)
 	}

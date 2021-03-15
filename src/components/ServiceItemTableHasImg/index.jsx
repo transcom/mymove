@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { SERVICE_ITEM_STATUS } from '../../shared/constants';
-import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from '../../types/moveOrder';
+import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from '../../types/order';
 
 import styles from './index.module.scss';
 

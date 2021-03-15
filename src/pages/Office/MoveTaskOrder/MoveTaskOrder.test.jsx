@@ -7,13 +7,14 @@ import { shipmentStatuses } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import SERVICE_ITEM_STATUS from 'constants/serviceItems';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
+import { MockProviders } from 'testUtils';
 
 jest.mock('hooks/queries', () => ({
   useMoveTaskOrderQueries: jest.fn(),
 }));
 
 const unapprovedMTOQuery = {
-  moveOrders: {
+  orders: {
     1: {
       id: '1',
       originDutyStation: {
@@ -87,7 +88,7 @@ const unapprovedMTOQuery = {
 };
 
 const someShipmentsApprovedMTOQuery = {
-  moveOrders: {
+  orders: {
     1: {
       id: '1',
       originDutyStation: {
@@ -189,7 +190,7 @@ const someShipmentsApprovedMTOQuery = {
 };
 
 const allApprovedMTOQuery = {
-  moveOrders: {
+  orders: {
     1: {
       id: '1',
       originDutyStation: {
@@ -335,12 +336,17 @@ describe('MoveTaskOrder', () => {
   const requiredProps = {
     match: { params: { moveCode } },
     history: { push: jest.fn() },
+    setMessage: jest.fn(),
   };
 
   describe('move is not available to prime', () => {
     useMoveTaskOrderQueries.mockImplementation(() => unapprovedMTOQuery);
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    const wrapper = mount(<MoveTaskOrder {...requiredProps} setUnapprovedShipmentCount={setUnapprovedShipmentCount} />);
+    const wrapper = mount(
+      <MockProviders>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <MoveTaskOrder {...requiredProps} setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+      </MockProviders>,
+    );
 
     it('should render the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
@@ -362,8 +368,12 @@ describe('MoveTaskOrder', () => {
 
   describe('approved mto with both submitted and approved shipments', () => {
     useMoveTaskOrderQueries.mockImplementation(() => someShipmentsApprovedMTOQuery);
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    const wrapper = mount(<MoveTaskOrder {...requiredProps} setUnapprovedShipmentCount={setUnapprovedShipmentCount} />);
+    const wrapper = mount(
+      <MockProviders>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <MoveTaskOrder {...requiredProps} setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+      </MockProviders>,
+    );
 
     it('should render the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
@@ -416,8 +426,12 @@ describe('MoveTaskOrder', () => {
 
   describe('approved mto with approved shipments', () => {
     useMoveTaskOrderQueries.mockImplementation(() => allApprovedMTOQuery);
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    const wrapper = mount(<MoveTaskOrder {...requiredProps} setUnapprovedShipmentCount={setUnapprovedShipmentCount} />);
+    const wrapper = mount(
+      <MockProviders>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <MoveTaskOrder {...requiredProps} setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+      </MockProviders>,
+    );
 
     it('should render the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);

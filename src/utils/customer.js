@@ -1,25 +1,24 @@
 /* eslint-disable import/prefer-default-export */
 import { profileStates } from 'constants/customerStates';
+import { generalRoutes, customerRoutes } from 'constants/routes';
 
-export const findNextServiceMemberStep = (serviceMemberId, profileState) => {
-  const profilePathPrefix = `/service-member/${serviceMemberId}`;
-
+export const findNextServiceMemberStep = (profileState) => {
   switch (profileState) {
     case profileStates.EMPTY_PROFILE:
-      return `${profilePathPrefix}/conus-status`;
+      return customerRoutes.CONUS_OCONUS_PATH;
     case profileStates.DOD_INFO_COMPLETE:
-      return `${profilePathPrefix}/name`;
+      return customerRoutes.NAME_PATH;
     case profileStates.NAME_COMPLETE:
-      return `${profilePathPrefix}/contact-info`;
+      return customerRoutes.CONTACT_INFO_PATH;
     case profileStates.CONTACT_INFO_COMPLETE:
-      return `${profilePathPrefix}/duty-station`;
+      return customerRoutes.CURRENT_DUTY_STATION_PATH;
     case profileStates.DUTY_STATION_COMPLETE:
-      return `${profilePathPrefix}/residence-address`;
+      return customerRoutes.CURRENT_ADDRESS_PATH;
     case profileStates.ADDRESS_COMPLETE:
-      return `${profilePathPrefix}/backup-mailing-address`;
+      return customerRoutes.BACKUP_ADDRESS_PATH;
     case profileStates.BACKUP_ADDRESS_COMPLETE:
-      return `${profilePathPrefix}/backup-contacts`;
+      return customerRoutes.BACKUP_CONTACTS_PATH;
     default:
-      return '/';
+      return generalRoutes.HOME_PATH;
   }
 };

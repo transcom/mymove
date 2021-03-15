@@ -106,8 +106,8 @@ func loadModelsFromFile(path string) ([]Model, error) {
 						// Build an internal representation of the model, which will
 						// also house the fields when we get to them.
 						m := Model{
-							name:   typeSpec.Name.Name,                  // Name of the struct, e.g. MoveOrder
-							dbName: nflect.Tableize(typeSpec.Name.Name), // e.g. move_order
+							name:   typeSpec.Name.Name,                  // Name of the struct, e.g. ServiceMember
+							dbName: nflect.Tableize(typeSpec.Name.Name), // e.g. service_members
 						}
 
 						// Loop through fields and add them to m

@@ -2173,7 +2173,8 @@ func init() {
           "enum": [
             "REJECTED",
             "APPROVED",
-            "SUBMITTED"
+            "SUBMITTED",
+            "CANCELLATION_REQUESTED"
           ]
         }
       }
@@ -4709,7 +4710,8 @@ func init() {
           "enum": [
             "REJECTED",
             "APPROVED",
-            "SUBMITTED"
+            "SUBMITTED",
+            "CANCELLATION_REQUESTED"
           ]
         }
       }

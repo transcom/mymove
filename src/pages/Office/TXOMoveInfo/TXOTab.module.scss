@@ -6,13 +6,25 @@
   background: $bg-gray;
   scroll-behavior: smooth;
   flex-grow: 1;
+  padding-top: 26px;
+
+  .pageHeader {
+    @include u-margin-y(3);
+
+    h1 {
+      @include u-margin(0);
+    }
+  }
+
+  h1:first-child,
+  .pageHeader:first-child,
+  .sidebar,
+  .emptyMessage p {
+    @include u-margin-top(0);
+  }
 
   h1 {
     @include u-margin-bottom(3);
-  }
-
-  .emptyMessage p {
-    @include u-margin-top(0);
   }
 
   .gridContainer {

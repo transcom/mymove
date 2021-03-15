@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import { profileStates } from 'constants/customerStates';
-import { NULL_UUID } from 'shared/constants';
+import { MOVE_STATUSES, NULL_UUID } from 'shared/constants';
 
 /**
  * Use this file for selecting "slices" of state from Redux and for computed
@@ -136,6 +136,8 @@ export const selectCurrentMove = (state) => {
 };
 
 export const selectMoveIsApproved = createSelector(selectCurrentMove, (move) => move?.status === 'APPROVED');
+
+export const selectMoveIsInDraft = createSelector(selectCurrentMove, (move) => move?.status === MOVE_STATUSES.DRAFT);
 
 export const selectHasCanceledMove = createSelector(selectMovesForLoggedInUser, (moves) =>
   moves.some((m) => m.status === 'CANCELED'),

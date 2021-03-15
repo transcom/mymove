@@ -286,7 +286,7 @@ func (suite *HandlerSuite) makeAvailableMoveWithAddress(addressToSet models.Addr
 		},
 	})
 
-	moveOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			NewDutyStationID: newDutyStation.ID,
 			NewDutyStation:   newDutyStation,
@@ -298,7 +298,7 @@ func (suite *HandlerSuite) makeAvailableMoveWithAddress(addressToSet models.Addr
 			AvailableToPrimeAt: swag.Time(time.Now()),
 			Status:             models.MoveStatusAPPROVED,
 		},
-		Order: moveOrder,
+		Order: order,
 	})
 
 	return move
