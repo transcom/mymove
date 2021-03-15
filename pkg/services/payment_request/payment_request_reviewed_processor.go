@@ -79,6 +79,8 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 		return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest: %w", err)
 	}
 
+	p.logger.Info(fmt.Sprintf("Number of reviewed payment requests to process: %v", len(reviewedPaymentRequests)))
+
 	if len(reviewedPaymentRequests) == 0 {
 		// No reviewed payment requests to process
 		return nil
@@ -128,6 +130,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 			sentToGexStatuses = append(sentToGexStatuses, value)
 		}
 	}
+	p.logger.Info(fmt.Sprintf("Number of reviewed payment requests sent to GEX: %v", len(sentToGexStatuses)))
 
 	// save error messages from failed sends
 	var errFailedToSendString string
