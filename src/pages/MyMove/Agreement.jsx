@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import moment from 'moment';
 import { connect } from 'react-redux';
+import { generatePath } from 'react-router';
 import { push as pushAction } from 'connected-react-router';
 
+import { customerRoutes } from 'constants/routes';
 import SubmitMoveForm from 'components/Customer/SubmitMoveForm/SubmitMoveForm';
 import ScrollToTop from 'components/ScrollToTop';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
@@ -21,7 +23,9 @@ export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlas
     getPPMsForMove(moveId).then((response) => updatePPMs(response));
   });
 
-  const handleBack = () => push(`/moves/${moveId}/review`);
+  const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
+
+  const handleBack = () => push(reviewPath);
 
   const handleSubmit = (values) => {
     const submitDate = moment().format();

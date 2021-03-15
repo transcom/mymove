@@ -84,7 +84,7 @@ describe('CreateOrEditMtoShipment component', () => {
   describe('when editing an existing shipment', () => {
     const editWrapper = mountCreateOrEditMtoShipment({
       selectedMoveType: SHIPMENT_OPTIONS.NTS,
-      match: getMockMatchProp('/moves/:moveId/mto-shipments/:mtoShipmentId/edit'),
+      match: getMockMatchProp('/moves/:moveId/shipments/:mtoShipmentId/edit'),
     });
 
     it('renders the loader right away', () => {
