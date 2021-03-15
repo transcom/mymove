@@ -61,7 +61,7 @@ export class Name extends Component {
 
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentServiceMember ? pick(currentServiceMember, subsetOfFields) : null;
-    const serviceMemberId = this.props.match.params.serviceMemberId;
+    const serviceMemberId = currentServiceMember.id;
     return (
       <NameWizardForm
         handleSubmit={this.handleSubmit}

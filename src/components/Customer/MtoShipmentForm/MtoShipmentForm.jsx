@@ -2,10 +2,12 @@
 import React, { Component } from 'react';
 import { bool, string, func, shape, number } from 'prop-types';
 import { Formik } from 'formik';
+import { generatePath } from 'react-router';
 
 import getShipmentOptions from './getShipmentOptions';
 import MtoShipmentFormFields from './MtoShipmentFormFields';
 
+import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { WizardPage } from 'shared/WizardPage/index';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -55,7 +57,8 @@ class MtoShipmentForm extends Component {
       patchMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag)
         .then((response) => {
           updateMTOShipment(response);
-          history.push(`/moves/${moveId}/review`);
+          const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
+          history.push(reviewPath);
         })
         .catch((e) => {
           const { response } = e;

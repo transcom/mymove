@@ -3,7 +3,7 @@ import { string } from 'prop-types';
 
 import styles from './index.module.scss';
 
-import { MoveOrderShape, CustomerShape } from 'types/moveOrder';
+import { OrderShape, CustomerShape } from 'types/order';
 import { formatCustomerDate } from 'utils/formatters';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders.js';
 
@@ -49,7 +49,7 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
 
 CustomerHeader.propTypes = {
   customer: CustomerShape.isRequired,
-  order: MoveOrderShape.isRequired,
+  order: OrderShape.isRequired,
   moveCode: string.isRequired,
 };
 

@@ -12,7 +12,7 @@ import SelectableCard from 'components/Customer/SelectableCard';
 import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
 import { patchMove, getResponseError } from 'services/internalApi';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
-import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
+import { MoveTaskOrderShape, MTOShipmentShape } from 'types/order';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import classnames from 'classnames';
 import { useParams } from 'react-router-dom';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
+import classnames from 'classnames';
+import { GridContainer, Grid, Tag } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
 
@@ -32,7 +33,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
 
   const [activeSection, setActiveSection] = useState('');
 
-  const { move, moveOrder, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
   let sections = ['orders', 'allowances', 'customer-info'];
 
@@ -86,7 +87,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { customer, entitlement: allowances } = moveOrder;
+  const { customer, entitlement: allowances } = order;
 
   const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
 
@@ -99,20 +100,20 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   }
 
   const ordersInfo = {
-    newDutyStation: moveOrder.destinationDutyStation,
-    currentDutyStation: moveOrder.originDutyStation,
-    issuedDate: moveOrder.date_issued,
-    reportByDate: moveOrder.report_by_date,
-    departmentIndicator: moveOrder.department_indicator,
-    ordersNumber: moveOrder.order_number,
-    ordersType: moveOrder.order_type,
-    ordersTypeDetail: moveOrder.order_type_detail,
-    tacMDC: moveOrder.tac,
-    sacSDN: moveOrder.sac,
+    newDutyStation: order.destinationDutyStation,
+    currentDutyStation: order.originDutyStation,
+    issuedDate: order.date_issued,
+    reportByDate: order.report_by_date,
+    departmentIndicator: order.department_indicator,
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
+    sacSDN: order.sac,
   };
   const allowancesInfo = {
     branch: customer.agency,
-    rank: moveOrder.grade,
+    rank: order.grade,
     weightAllowance: allowances.totalWeight,
     authorizedWeight: allowances.authorizedWeight,
     progear: allowances.proGearWeight,
@@ -129,17 +130,45 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
     backupContact: customer.backup_contact,
   };
 
+  const requiredOrdersInfo = {
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
+  };
+
+  const hasMissingOrdersInfo = () => {
+    return Object.values(requiredOrdersInfo).some((value) => {
+      return !value || value === '';
+    });
+  };
+
+  const defineSectionLink = (section) => {
+    let showErrorTag = false;
+
+    // TODO This will likely become a switch statement or be refactored as more values are considered required
+    if (section === 'orders' && hasMissingOrdersInfo()) {
+      showErrorTag = true;
+    }
+
+    return (
+      <a key={`sidenav_${section}`} href={`#${section}`} className={classnames({ active: section === activeSection })}>
+        {sectionLabels[`${section}`]}
+        {showErrorTag && (
+          <Tag className="usa-tag usa-tag--alert">
+            <FontAwesomeIcon icon="exclamation" />
+          </Tag>
+        )}
+      </a>
+    );
+  };
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
         <LeftNav className={styles.sidebar}>
           {sections.map((s) => {
-            const classes = classnames({ active: s === activeSection });
-            return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
-                {sectionLabels[`${s}`]}
-              </a>
-            );
+            return defineSectionLink(s);
           })}
         </LeftNav>
 

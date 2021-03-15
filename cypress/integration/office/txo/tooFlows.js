@@ -7,9 +7,9 @@ describe('TOO user', () => {
 
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedMoveOrders');
+    cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedOrders');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
-    cy.intercept('**/ghc/v1/move-orders/**').as('getMoveOrders');
+    cy.intercept('**/ghc/v1/move-orders/**').as('getOrders');
     cy.intercept('**/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
@@ -26,12 +26,12 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
     // Move Details page
-    cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('#approved-shipments').should('not.exist');
     cy.get('#requested-shipments');
     cy.contains('Approve selected shipments').should('be.disabled');
@@ -69,7 +69,7 @@ describe('TOO user', () => {
       // Page refresh
       cy.url().should('include', `/moves/${moveLocator}/details`);
       cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
-      cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
+      cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
       cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
       cy.get('#approved-shipments');
       cy.get('#requested-shipments').should('not.exist');
@@ -81,7 +81,7 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
@@ -100,7 +100,7 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
@@ -174,12 +174,12 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
     // Move Details page
-    cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // Navigate to Edit orders page
     cy.get('[data-testid="edit-orders"]').contains('Edit orders').click();
@@ -247,12 +247,12 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
     // Move Details page
-    cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // Navigate to Edit allowances page
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();

@@ -15,10 +15,10 @@ type moveTaskOrderFetcher struct {
 	db *pop.Connection
 }
 
-// ListMoveTaskOrders retrieves all MTOs for a specific MoveOrder. Can filter out hidden MTOs (show=False)
-func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID, searchParams *services.ListMoveTaskOrderParams) ([]models.Move, error) {
+// ListMoveTaskOrders retrieves all MTOs for a specific Order. Can filter out hidden MTOs (show=False)
+func (f moveTaskOrderFetcher) ListMoveTaskOrders(orderID uuid.UUID, searchParams *services.ListMoveTaskOrderParams) ([]models.Move, error) {
 	var moveTaskOrders []models.Move
-	query := f.db.Where("orders_id = $1", moveOrderID)
+	query := f.db.Where("orders_id = $1", orderID)
 
 	// The default behavior of this query is to exclude any disabled moves:
 	if searchParams == nil || !searchParams.IncludeHidden {
