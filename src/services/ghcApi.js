@@ -28,8 +28,8 @@ export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
 
-export async function getMoveOrder(key, orderID) {
-  return makeGHCRequest('order.getMoveOrder', { orderID });
+export async function getOrder(key, orderID) {
+  return makeGHCRequest('order.getOrder', { orderID });
 }
 
 export async function getMovePaymentRequests(key, locator) {
@@ -115,8 +115,8 @@ export async function getTacValid({ tac }) {
   return makeGHCRequest(operationPath, { tac }, { normalize: false });
 }
 
-export async function updateMoveOrder({ orderID, ifMatchETag, body }) {
-  const operationPath = 'order.updateMoveOrder';
+export async function updateOrder({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.updateOrder';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 

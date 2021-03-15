@@ -20,10 +20,10 @@ import (
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
 type GetMovesQueueHandler struct {
 	handlers.HandlerContext
-	services.MoveOrderFetcher
+	services.OrderFetcher
 }
 
-// FilterOption defines the type for the functional arguments used for private functions in MoveOrderFetcher
+// FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
 type FilterOption func(*pop.Query)
 
 // Handle returns the paginated list of moves for the TOO user
@@ -35,7 +35,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueForbidden()
 	}
 
-	listMoveOrderParams := services.ListMoveOrderParams{
+	ListOrderParams := services.ListOrderParams{
 		Branch:                 params.Branch,
 		Locator:                params.Locator,
 		DodID:                  params.DodID,
@@ -51,16 +51,16 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 	// for perPage.
 	if params.Page == nil {
-		listMoveOrderParams.Page = swag.Int64(1)
+		ListOrderParams.Page = swag.Int64(1)
 	}
 	// Same for perPage
 	if params.PerPage == nil {
-		listMoveOrderParams.PerPage = swag.Int64(20)
+		ListOrderParams.PerPage = swag.Int64(20)
 	}
 
-	moves, count, err := h.MoveOrderFetcher.ListMoveOrders(
+	moves, count, err := h.OrderFetcher.ListOrders(
 		session.OfficeUserID,
-		&listMoveOrderParams,
+		&ListOrderParams,
 	)
 
 	if err != nil {
@@ -71,8 +71,8 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	queueMoves := payloads.QueueMoves(moves)
 
 	result := &ghcmessages.QueueMovesResult{
-		Page:       *listMoveOrderParams.Page,
-		PerPage:    *listMoveOrderParams.PerPage,
+		Page:       *ListOrderParams.Page,
+		PerPage:    *ListOrderParams.PerPage,
 		TotalCount: int64(count),
 		QueueMoves: *queueMoves,
 	}

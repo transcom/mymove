@@ -6,11 +6,11 @@ export {
   DestinationDutyStationShape,
   OriginDutyStationShape,
   EntitlementShape,
-  MoveOrderShape,
+  OrderShape,
   CustomerShape,
   MTOShipmentShape,
   MTOServiceItemShape,
   PaymentRequestShape,
   PaymentServiceItemShape,
-} from './moveOrder';
+} from './order';
 export { MatchShape, LocationShape } from './router';

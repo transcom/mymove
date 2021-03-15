@@ -1,3 +1,12 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+//RA: in which this would be considered a risk
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
 package models_test
 
 import (
@@ -740,10 +749,10 @@ func (suite *ModelSuite) TestFormatOrdersIssueDate() {
 func (suite *ModelSuite) TestFormatOrdersType() {
 	pcsOrder := models.Order{OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION}
 	var unknownOrdersType internalmessages.OrdersType = "UNKNOWN_ORDERS_TYPE"
-	localMoveOrder := models.Order{OrdersType: unknownOrdersType}
+	localOrder := models.Order{OrdersType: unknownOrdersType}
 
 	suite.Equal("PCS", models.FormatOrdersType(pcsOrder))
-	suite.Equal("", models.FormatOrdersType(localMoveOrder))
+	suite.Equal("", models.FormatOrdersType(localOrder))
 }
 
 func (suite *ModelSuite) TestFormatServiceMemberAffiliation() {

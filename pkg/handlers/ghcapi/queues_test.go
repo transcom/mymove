@@ -16,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	moveorder "github.com/transcom/mymove/pkg/services/move_order"
+	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -68,7 +68,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -90,7 +90,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
-	suite.Run("displays move attributes for all move types returned by ListMoveOrders", func() {
+	suite.Run("displays move attributes for all move types returned by ListOrders", func() {
 		stub := testdatagen.Assertions{Stub: true}
 
 		// Stub HHG move
@@ -110,8 +110,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), stub)
 
-		moveOrderFetcher := mocks.MoveOrderFetcher{}
-		moveOrderFetcher.On("ListMoveOrders", officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
+		orderFetcher := mocks.OrderFetcher{}
+		orderFetcher.On("ListOrders", officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -121,7 +121,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		handler := GetMovesQueueHandler{
 			context,
-			&moveOrderFetcher,
+			&orderFetcher,
 		}
 		response := handler.Handle(params)
 		payload := response.(*queues.GetMovesQueueOK).Payload
@@ -177,7 +177,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -244,7 +244,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -360,7 +360,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	suite.Run("loads results with all STATUSes selected", func() {
@@ -564,7 +564,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	suite.Run("returns unfiltered results", func() {
@@ -678,7 +678,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -701,7 +701,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -742,7 +742,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)

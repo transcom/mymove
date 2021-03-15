@@ -75,6 +75,7 @@ export function* initializeOnboarding() {
     if (!user.serviceMembers) {
       yield call(createServiceMember);
     }
+
     yield put(initOnboardingComplete());
     yield all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]);
   } catch (error) {
