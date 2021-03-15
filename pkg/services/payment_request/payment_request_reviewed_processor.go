@@ -79,14 +79,16 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 			SELECT * FROM payment_requests
 			WHERE id = $1 FOR UPDATE SKIP LOCKED;
 		`
-		p.db.RawQuery(query, pr.ID).First(&lockedPR)
+		err := p.db.RawQuery(query, pr.ID).First(&lockedPR)
+		if err != nil {
+			return nil
+		}
 
 		// generate EDI file
 		var edi858c ediinvoice.Invoice858C
-		edi858c, err := p.ediGenerator.Generate(lockedPR, false)
+		edi858c, err = p.ediGenerator.Generate(lockedPR, false)
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
-
 		}
 		var edi858cString string
 		edi858cString, err = edi858c.EDIString(p.logger)
