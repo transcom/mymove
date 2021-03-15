@@ -15,12 +15,13 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"go.uber.org/zap"
 )
 
 // Call this from the command line with go run ./cmd/milmove-tasks process-edis
