@@ -186,8 +186,7 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.get('.combo-button .dropdown').contains('Approve PPM').should('have.class', 'disabled');
   cy.get('.combo-button').click();
 
-  cy.get('span').contains('666666');
-  cy.get('span').contains('Delayed Approval 20 Weeks or More');
+  cy.patientReload();
 }
 
 function officeUserVerifiesAccounting() {
