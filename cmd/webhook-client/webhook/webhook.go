@@ -273,6 +273,7 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 func (eng *Engine) run() error {
 
 	logger := eng.Logger
+
 	// Read all notifications
 	notifications := []models.WebhookNotification{}
 	err := eng.DB.Order("created_at asc").Where("status = ? OR status = ?", models.WebhookNotificationPending, models.WebhookNotificationFailing).All(&notifications)
@@ -312,6 +313,11 @@ func (eng *Engine) run() error {
 // The process will run once every period to send pending notifications
 // The period is defined in the Engine.PeriodInSeconds
 func (eng *Engine) Start() error {
+
+	logger := eng.Logger
+	logger.Info("Starting engine", zap.Int("periodInSeconds", eng.PeriodInSeconds),
+		zap.Int("maxImmediateRetries", eng.MaxImmediateRetries),
+		zap.Any("SeverityThresholds", eng.SeverityThresholds))
 
 	// Set timer tick
 	t := time.Tick(time.Duration(eng.PeriodInSeconds) * time.Second)
