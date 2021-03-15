@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/benbjohnson/clock"
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -80,13 +79,11 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 			SELECT * FROM payment_requests
 			WHERE id = $1 FOR UPDATE SKIP LOCKED;
 		`
-		err := p.db.RawQuery(query, pr.ID).First(&lockedPR)
-		if err != nil {
-			return fmt.Errorf("failure retrieving and locking payment request: %w", err)
-		}
+		p.db.RawQuery(query, pr.ID).First(&lockedPR)
+
 		// generate EDI file
 		var edi858c ediinvoice.Invoice858C
-		edi858c, err = p.ediGenerator.Generate(lockedPR, false)
+		edi858c, err := p.ediGenerator.Generate(lockedPR, false)
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
 
@@ -102,17 +99,12 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		err = paymentrequesthelper.SendToSyncada(edi858cString, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
 		if err != nil {
 			return fmt.Errorf("error sending the following EDI (PaymentRequest.ID: %s, error string) to Syncada: %s", lockedPR.ID, err)
-
 		}
-		sentToGexAt := strfmt.DateTime(time.Now()).String()
+		sentToGexAt := time.Now()
+		lockedPR.SentToGexAt = &sentToGexAt
+		lockedPR.Status = models.PaymentRequestStatusSentToGex
+		err = p.db.Update(&lockedPR)
 
-		q := `
-			UPDATE payment_requests
-			SET
-				status = $1,
-				sent_to_gex_at = $2
-			WHERE id = $3;`
-		err = tx.RawQuery(q, models.PaymentRequestStatusSentToGex.String(), sentToGexAt, lockedPR.ID.String()).Exec()
 		if err != nil {
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}

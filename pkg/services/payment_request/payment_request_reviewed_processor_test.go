@@ -466,7 +466,7 @@ func (suite *PaymentRequestServiceSuite) lockPR(prID uuid.UUID) {
 		WHERE id = $1;
 	`
 	suite.DB().RawQuery(query, prID, models.PaymentRequestStatusPaid).Exec()
-	time.Sleep(2 * time.Second)
+	time.Sleep(1 * time.Second)
 	suite.DB().RawQuery(`COMMIT;`).Exec()
 }
 
@@ -511,7 +511,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest
 		for i, pr := range reviewedPaymentRequests {
 			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
 			if i == 0 {
-				suite.Equal(models.PaymentRequestStatusPaid, paymentRequest.Status)
+				suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
 			} else {
 				suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
 			}
