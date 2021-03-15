@@ -22,7 +22,7 @@ const FlashGridContainer = ({ children, messageKey, clearMessage, ...gridContain
     if (messageKey) {
       setCurrentMessageKey(messageKey);
 
-      // clears the current message after another page element gets focused:
+      // clears the current message after another element on the same page gets focused (not on window blur):
       window.addEventListener('focusout', clearCurrentMessage);
     }
 
