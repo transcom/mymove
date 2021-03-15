@@ -137,7 +137,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       status,
     });
     setMessage(
-      'MSG_CANCEL_SUCCESS_'.concat(mtoShipmentID),
+      `MSG_CANCEL_SUCCESS_${mtoShipmentID}`,
       'success',
       'The request to cancel that shipment has been sent to the movers.',
       '',
@@ -361,4 +361,4 @@ const mapDispatchToProps = {
   setMessage: setFlashMessage,
 };
 
-export default withRouter(connect(undefined, mapDispatchToProps)(MoveTaskOrder));
+export default withRouter(connect({}, mapDispatchToProps)(MoveTaskOrder));

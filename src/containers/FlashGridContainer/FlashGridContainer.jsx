@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 import { GridContainer } from '@trussworks/react-uswds';
 
 import ScrollToTop from 'components/ScrollToTop';
@@ -51,7 +50,7 @@ FlashGridContainer.propTypes = {
 
 const mapStateToProps = (state) => {
   return {
-    messageKey: get(state, 'flash.flashMessage.key', ''),
+    messageKey: state.flash.flashMessage?.key || '',
   };
 };
 
