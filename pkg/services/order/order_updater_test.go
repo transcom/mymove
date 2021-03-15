@@ -73,28 +73,28 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 	})
 
 	suite.T().Run("Service member current duty station updated if order origin duty station updated", func(t *testing.T) {
-		defaultMoveOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		serviceMember := defaultMoveOrder.ServiceMember
+		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		serviceMember := defaultOrder.ServiceMember
 
 		newDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
-		suite.NotEqual(defaultMoveOrder.OriginDutyStationID, newDutyStation.ID)
+		suite.NotEqual(defaultOrder.OriginDutyStationID, newDutyStation.ID)
 
-		updatedMoveOrder := models.Order{
-			ID:                  defaultMoveOrder.ID,
+		updatedOrder := models.Order{
+			ID:                  defaultOrder.ID,
 			OriginDutyStationID: &newDutyStation.ID,
-			NewDutyStationID:    defaultMoveOrder.NewDutyStationID,
-			IssueDate:           defaultMoveOrder.IssueDate,
-			ReportByDate:        defaultMoveOrder.ReportByDate,
-			OrdersType:          defaultMoveOrder.OrdersType,
+			NewDutyStationID:    defaultOrder.NewDutyStationID,
+			IssueDate:           defaultOrder.IssueDate,
+			ReportByDate:        defaultOrder.ReportByDate,
+			OrdersType:          defaultOrder.OrdersType,
 		}
 
-		expectedETag := etag.GenerateEtag(defaultMoveOrder.UpdatedAt)
-		actualOrder, err := moveOrderUpdater.UpdateOrder(expectedETag, updatedMoveOrder)
+		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
+		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
 
 		suite.NoError(err)
-		suite.Equal(updatedMoveOrder.ID, actualOrder.ID)
-		suite.Equal(updatedMoveOrder.OriginDutyStationID.String(), actualOrder.OriginDutyStation.ID.String())
+		suite.Equal(updatedOrder.ID, actualOrder.ID)
+		suite.Equal(updatedOrder.OriginDutyStationID.String(), actualOrder.OriginDutyStation.ID.String())
 
 		fetchedSM := models.ServiceMember{}
 		_ = suite.DB().EagerPreload("DutyStation").Find(&fetchedSM, serviceMember.ID)
