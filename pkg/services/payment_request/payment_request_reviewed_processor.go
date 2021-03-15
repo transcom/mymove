@@ -1,6 +1,7 @@
 package paymentrequest
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -81,7 +82,10 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		`
 		err := p.db.RawQuery(query, pr.ID).First(&lockedPR)
 		if err != nil {
-			return nil
+			if err == sql.ErrNoRows {
+				return nil
+			}
+			return fmt.Errorf("failure retrieving payment request with ID: %s. Err: %w", pr.ID, err)
 		}
 
 		// generate EDI file
