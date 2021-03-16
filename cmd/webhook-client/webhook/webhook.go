@@ -184,9 +184,7 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		ID:          notif.ID,
 		EventKey:    notif.EventKey,
 		TriggeredAt: strfmt.DateTime(notif.UpdatedAt),
-	}
-	if notif.Payload != nil {
-		message.Object = *notif.Payload
+		Object:      notif.Payload,
 	}
 	if notif.ObjectID != nil {
 		message.UpdatedObjectID = *notif.ObjectID

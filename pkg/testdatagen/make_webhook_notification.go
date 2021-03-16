@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -21,7 +20,7 @@ func MakeWebhookNotification(db *pop.Connection, assertions Assertions) models.W
 	notification := models.WebhookNotification{
 		EventKey:        "Payment.Create",
 		MoveTaskOrderID: &move.ID,
-		Payload:         swag.String("{\"message\":\"This is a default Payment.Create notification.\"}"),
+		Payload:         "{\"message\":\"This is a default Payment.Create notification.\"}",
 		Status:          models.WebhookNotificationPending,
 	}
 

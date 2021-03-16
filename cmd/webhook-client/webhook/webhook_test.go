@@ -17,7 +17,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
@@ -75,7 +74,7 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 	notification := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
 			Status:  models.WebhookNotificationPending,
-			Payload: swag.String("{\"message\":\"This is an updated notification #1\"}"),
+			Payload: "{\"message\":\"This is an updated notification #1\"}",
 		},
 	})
 	// Create a subscription
@@ -133,7 +132,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 	notification := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
 			Status:  models.WebhookNotificationSent,
-			Payload: swag.String("{\"message\":\"This is an updated notification #1\"}"),
+			Payload: "{\"message\":\"This is an updated notification #1\"}",
 		},
 	})
 	// Create a subscription
@@ -985,21 +984,21 @@ func setupEngineRun(suite *WebhookClientTestingSuite) (*Engine, []models.Webhook
 	notification0 := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
 			EventKey: "Payment.Update",
-			Payload:  swag.String("{\"message\":\"This is an updated notification #0\"}"),
+			Payload:  "{\"message\":\"This is an updated notification #0\"}",
 		},
 	})
 	// Pending notification for Payment.Create
 	notification1 := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
 			EventKey: "Payment.Create",
-			Payload:  swag.String("{\"message\":\"This is an updated notification #1\"}"),
+			Payload:  "{\"message\":\"This is an updated notification #1\"}",
 		},
 	})
 	// Pending notification for Payment.Update
 	notification2 := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
 			EventKey: "Payment.Update",
-			Payload:  swag.String("{\"message\":\"This is an updated notification #2\"}"),
+			Payload:  "{\"message\":\"This is an updated notification #2\"}",
 		},
 	})
 

@@ -2,6 +2,7 @@ package supportapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
 	webhookoperations "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
@@ -57,7 +58,7 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookoperations.Create
 	notification := models.WebhookNotification{
 		EventKey: string(event.MoveTaskOrderUpdateEventKey),
 		TraceID:  &traceID,
-		Payload:  &message,
+		Payload:  message,
 		Status:   models.WebhookNotificationPending,
 	}
 	verrs, err := h.DB().ValidateAndCreate(&notification)
@@ -71,7 +72,7 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookoperations.Create
 
 	payload := supportmessages.WebhookNotification{
 		EventKey: notification.EventKey,
-		Object:   notification.Payload,
+		Object:   swag.String(notification.Payload),
 	}
 	return webhookoperations.NewCreateWebhookNotificationCreated().WithPayload(&payload)
 }
