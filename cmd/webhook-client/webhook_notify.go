@@ -81,7 +81,7 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Interrupt singnal recieved
 	<-webhookEngine.DoneChannel
-	log.Println("Shutdown Server ...")
+	logger.Info("Starting DB shutdown")
 	if err = db.Close(); err == nil {
 		logger.Info("Db connection closed")
 	} else {
