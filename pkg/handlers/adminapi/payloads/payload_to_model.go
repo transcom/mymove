@@ -30,7 +30,6 @@ func UserModel(user *adminmessages.UserUpdatePayload, id uuid.UUID) (*models.Use
 
 // WebhookSubscriptionModel converts a webhook subscription payload to a model
 func WebhookSubscriptionModel(sub *adminmessages.WebhookSubscription) *models.WebhookSubscription {
-
 	model := &models.WebhookSubscription{
 		ID: uuid.FromStringOrNil(sub.ID.String()),
 	}

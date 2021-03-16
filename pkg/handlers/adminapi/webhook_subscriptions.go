@@ -16,23 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-// payloadForWebhookSubscriptionModel converts from model to payload
-func payloadForWebhookSubscriptionModel(subscription models.WebhookSubscription) *adminmessages.WebhookSubscription {
-	severity := int64(subscription.Severity)
-
-	status := adminmessages.WebhookSubscriptionStatus(subscription.Status)
-	return &adminmessages.WebhookSubscription{
-		ID:           *handlers.FmtUUID(subscription.ID),
-		SubscriberID: handlers.FmtUUID(subscription.SubscriberID),
-		CallbackURL:  &subscription.CallbackURL,
-		Severity:     &severity,
-		EventKey:     &subscription.EventKey,
-		Status:       &status,
-		CreatedAt:    *handlers.FmtDateTime(subscription.CreatedAt),
-		UpdatedAt:    *handlers.FmtDateTime(subscription.UpdatedAt),
-	}
-}
-
 // payloadToWebhookSubscriptionModel converts from payload params to model
 func payloadToWebhookSubscriptionModel(params webhooksubscriptionop.CreateWebhookSubscriptionParams) models.WebhookSubscription {
 	subscription := params.WebhookSubscription
@@ -82,7 +65,7 @@ func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.In
 	payload := make(adminmessages.WebhookSubscriptions, queriedWebhookSubscriptionsCount)
 
 	for i, s := range webhookSubscriptions {
-		payload[i] = payloadForWebhookSubscriptionModel(s)
+		payload[i] = payloads.WebhookSubscriptionPayload(s)
 	}
 
 	return webhooksubscriptionop.NewIndexWebhookSubscriptionsOK().WithContentRange(fmt.Sprintf("webhookSubscriptions %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedWebhookSubscriptionsCount, totalWebhookSubscriptionsCount)).WithPayload(payload)
@@ -107,7 +90,7 @@ func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWe
 		return handlers.ResponseForError(logger, err)
 	}
 
-	payload := payloadForWebhookSubscriptionModel(webhookSubscription)
+	payload := payloads.WebhookSubscriptionPayload(webhookSubscription)
 	return webhooksubscriptionop.NewGetWebhookSubscriptionOK().WithPayload(payload)
 }
 
@@ -149,7 +132,7 @@ func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Cr
 		}
 	}
 
-	returnPayload := payloadForWebhookSubscriptionModel(*createdWebhookSubscription)
+	returnPayload := payloads.WebhookSubscriptionPayload(*createdWebhookSubscription)
 	return webhooksubscriptionop.NewCreateWebhookSubscriptionCreated().WithPayload(returnPayload)
 }
 
@@ -191,6 +174,6 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 	}
 
 	// Convert model back to a payload and return to caller
-	payload = payloadForWebhookSubscriptionModel(*updatedWebhookSubscription)
+	payload = payloads.WebhookSubscriptionPayload(*updatedWebhookSubscription)
 	return webhooksubscriptionop.NewUpdateWebhookSubscriptionOK().WithPayload(payload)
 }
