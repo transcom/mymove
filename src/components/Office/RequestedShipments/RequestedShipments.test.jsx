@@ -4,10 +4,11 @@ import { mount, shallow } from 'enzyme';
 
 import { ORDERS_TYPE, ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from '../../../constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../constants/departmentIndicators';
+import MOVE_STATUSES from '../../../constants/moves';
 
 import RequestedShipments from './RequestedShipments';
 
-import { SHIPMENT_OPTIONS, MTOAgentType, MOVE_STATUSES } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MTOAgentType } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
 
 const shipments = [
