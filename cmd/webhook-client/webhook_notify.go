@@ -75,9 +75,7 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 		DoneChannel:         make(chan bool, 1),
 	}
 
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 5 seconds.
-
+	// Wait for interrupt signal to gracefully shutdown the client
 	signal.Notify(webhookEngine.QuitChannel, os.Interrupt)
 
 	// Start polling the db for changes
@@ -87,7 +85,7 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
-	// Interrupt singnal recieved
+	// Done channel was set to true and code becomes unblocked
 	<-webhookEngine.DoneChannel
 	logger.Info("Starting DB shutdown")
 	if err = db.Close(); err == nil {
