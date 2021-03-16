@@ -873,22 +873,6 @@ definitions:
         type: string
         title: Last Name
         x-nullable: true
-  WebhookSubscriptionStatus:
-    type: string
-    title: Webhook subscription status
-    x-nullable: true
-    enum:
-      - ACTIVE
-      - FAILING
-      - DISABLED
-    x-display-value:
-      ACTIVE: Active
-      FAILING: Failing
-      DISABLED: Disabled
-  WebhookSubscriptions:
-    type: array
-    items:
-      $ref: '#/definitions/WebhookSubscription'
   WebhookSubscription:
     type: object
     description: >-
@@ -928,6 +912,22 @@ definitions:
       updatedAt:
         type: string
         format: date-time
+  WebhookSubscriptions:
+    type: array
+    items:
+      $ref: '#/definitions/WebhookSubscription'
+  WebhookSubscriptionStatus:
+    type: string
+    title: Webhook subscription status
+    x-nullable: true
+    enum:
+      - ACTIVE
+      - FAILING
+      - DISABLED
+    x-display-value:
+      ACTIVE: Active
+      FAILING: Failing
+      DISABLED: Disabled
   CreateWebhookSubscription:
     type: object
     properties:
