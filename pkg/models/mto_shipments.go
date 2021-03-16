@@ -57,6 +57,8 @@ const (
 	MTOShipmentStatusApproved MTOShipmentStatus = "APPROVED"
 	// MTOShipmentStatusRejected is the rejected status type for MTO Shipments
 	MTOShipmentStatusRejected MTOShipmentStatus = "REJECTED"
+	// MTOShipmentStatusCancellationRequested is the status that indicates the TOO has requested that the Prime cancel the shipment
+	MTOShipmentStatusCancellationRequested MTOShipmentStatus = "CANCELLATION_REQUESTED"
 )
 
 // MTOShipment is an object representing data for a move task order shipment
@@ -104,6 +106,7 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusRejected),
 		string(MTOShipmentStatusSubmitted),
 		string(MTOShipmentStatusDraft),
+		string(MTOShipmentStatusCancellationRequested),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {

@@ -26,6 +26,13 @@ export const MOVE_STATUSES = {
   CANCELED: 'CANCELED',
 };
 
+export const MTO_SHIPMENT_STATUSES = {
+  SUBMITTED: 'SUBMITTED',
+  REJECTED: 'REJECTED',
+  APPROVED: 'APPROVED',
+  CANCELLATION_REQUESTED: 'CANCELLATION_REQUESTED',
+};
+
 export const MOVE_DOC_TYPE = {
   WEIGHT_TICKET_SET: 'WEIGHT_TICKET_SET',
   EXPENSE: 'EXPENSE',
@@ -100,15 +107,10 @@ export const PAYMENT_SERVICE_ITEM_STATUS = {
   APPROVED: 'APPROVED',
 };
 
-export const SERVICE_ITEM_CODES = {
-  CS: 'Counseling Services',
-  MS: 'Shipment Mgmt. Services',
-  DLH: 'Dom. Linehaul',
-  FSC: 'Fuel Surcharge',
-  DOP: 'Dom. Origin Price',
-  DDP: 'Dom. Destination Price',
-  DPK: 'Dom. Packing',
-  DUPK: 'Dom. Unpacking',
+export const WEBHOOK_SUBSCRIPTION_STATUS = {
+  ACTIVE: 'ACTIVE',
+  DISABLED: 'DISABLED',
+  FAILING: 'FAILING',
 };
 
 export const MTOAgentType = {

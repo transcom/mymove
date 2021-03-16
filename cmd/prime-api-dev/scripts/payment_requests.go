@@ -186,7 +186,11 @@ func cleanup() {
 func (pr *paymentRequestsData) cleanup() {
 	// Defer closing the store until after the API call has completed
 	if pr.store != nil {
-		pr.store.Close()
+		defer func() {
+			if closeErr := pr.store.Close(); closeErr != nil {
+				pr.logger.Fatal(closeErr)
+			}
+		}()
 	}
 }
 
@@ -361,7 +365,7 @@ func (pr *paymentRequestsData) displayMTOS() {
 	// display to screen
 
 	fmt.Printf("\n\n -------------- Returning MTOs -------------- \n\n")
-	fmt.Printf(header)
+	fmt.Print(header)
 	for i, description := range pr.mtoDisplayList {
 		fmt.Printf("%d: %s\n", i, description.description)
 	}
@@ -582,12 +586,18 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 		fmt.Printf("\nSelect field to update: ")
 		var selection int
 		selection, err = getIntInput()
+		if err != nil {
+			log.Fatal("Cannot get int input", err)
+		}
 		selectedField := fields[selection]
 		switch selectedField.field {
 		case actualPickupDate:
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
 			strFmtDate, err = getStrFmtDateInput()
+			if err != nil {
+				log.Fatal("Cannot get date input", err)
+			}
 			shipment.ActualPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -598,6 +608,9 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
 			strFmtDate, err = getStrFmtDateInput()
+			if err != nil {
+				log.Fatal("Cannot get date input", err)
+			}
 			shipment.RequestedPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -608,6 +621,9 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
 			strFmtDate, err = getStrFmtDateInput()
+			if err != nil {
+				log.Fatal("Cannot get date input", err)
+			}
 			shipment.ScheduledPickupDate = strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
@@ -618,6 +634,9 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
 			var weight int
 			weight, err = getIntInput()
+			if err != nil {
+				log.Fatal("Cannot get int input", err)
+			}
 			shipment.PrimeEstimatedWeight = int64(weight)
 			fieldValue := updateInfo{
 				value:    strconv.Itoa(weight),
@@ -628,6 +647,9 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
 			var weight int
 			weight, err = getIntInput()
+			if err != nil {
+				log.Fatal("Cannot get int input", err)
+			}
 			shipment.PrimeActualWeight = int64(weight)
 			fieldValue := updateInfo{
 				value:    strconv.Itoa(weight),
@@ -686,7 +708,11 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			} else {
 				fmt.Printf("\nShipment update was successfully sent for processing (see reesponse for update success/fail)...\n")
 
-				pr.fetchMTOUpdates()
+				err = pr.fetchMTOUpdates()
+				if err != nil {
+					fmt.Print("Could not fetch MTO updates")
+					return exitApp, MTOMenu, nil
+				}
 
 				// re-display update shipment menu and the current shipment that was updated
 
@@ -931,7 +957,11 @@ func (pr *paymentRequestsData) displayCreatePaymentRequestMenu() (bool, menuType
 			} else {
 				fmt.Printf("\nCreate payment request was successfully sent for processing (see reesponse for update success/fail)...\n")
 
-				pr.fetchMTOUpdates()
+				err = pr.fetchMTOUpdates()
+				if err != nil {
+					fmt.Print("Could not fetch MTO updates")
+					return exitApp, MTOMenu, nil
+				}
 
 				// re-display updated MTO
 
@@ -1049,7 +1079,10 @@ func (pr *paymentRequestsData) displayMTOMenu() (bool, menuType, error) {
 	case UpdateShipment:
 		return exitApp, display[selection].nextMenu, nil
 	case CreatePaymentRequest:
-		pr.displayCreatePaymentRequestMenu()
+		_, _, err := pr.displayCreatePaymentRequestMenu()
+		if err != nil {
+			fmt.Printf("Error with creating payment <%s>", err.Error())
+		}
 		return exitApp, display[selection].nextMenu, nil
 	case PreviousMenu:
 		return exitApp, display[selection].nextMenu, nil
@@ -1128,6 +1161,9 @@ func (pr *paymentRequestsData) displayMainMenu() (bool, menuType, error) {
 	switch selection {
 	case FetchDisplay:
 		err = pr.fetchMTOs()
+		if err != nil {
+			fmt.Printf("Error fetching MTO <%s>, try again", err.Error())
+		}
 		pr.displayMTOS()
 		return exitApp, display[selection].nextMenu, nil
 	case Display:

@@ -22,7 +22,6 @@ type WeightTicketUpdater struct {
 
 // Update updates the weight ticket documents
 func (wtu WeightTicketUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
-	returnVerrs := validate.NewErrors()
 	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
 	var emptyWeight, fullWeight *unit.Pound
 	updatedMoveDoc, returnVerrs, err := wtu.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
@@ -100,7 +99,7 @@ func (wtu WeightTicketUpdater) Update(moveDocumentPayload *internalmessages.Move
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "weightticketupdater.update: error updating weight ticket")
 	}
-	return moveDoc, returnVerrs, nil
+	return updatedMoveDoc, returnVerrs, nil
 }
 
 func (wtu WeightTicketUpdater) updatePPMNetWeight(moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {

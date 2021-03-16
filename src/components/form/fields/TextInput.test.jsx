@@ -49,7 +49,6 @@ describe('TextInputMinimal', () => {
       expect(mockOnChange).toHaveBeenCalledWith({ value: 'sample' });
     });
   });
-
   describe('with id prop', () => {
     const wrapper = shallow(<TextInputMinimal className="sample-class" id="lastName" type="text" name="lastName" />);
 

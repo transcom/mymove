@@ -1,3 +1,12 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+//RA: in a unit test, then there is no risk
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
 package adminapi
 
 import (
@@ -17,8 +26,10 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	userservice "github.com/transcom/mymove/pkg/services/user"
@@ -248,6 +259,9 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	sessionManagers := setupSessionManagers()
 	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handlerContext.SetSessionManagers(sessionManagers)
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
+	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
 	suite.T().Run("Successful userSessionRevocation", func(t *testing.T) {
 		// Under test: UsereSessionRevocation, userUpdater
@@ -262,7 +276,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 			newQueryFilter,
 		}
 
@@ -315,7 +329,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 			newQueryFilter,
 		}
 
@@ -366,7 +380,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 			newQueryFilter,
 		}
 
@@ -422,7 +436,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userservice.NewUserSessionRevocation(queryBuilder),
-			userservice.NewUserUpdater(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 			newQueryFilter,
 		}
 
@@ -483,7 +497,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userRevocation,
-			userservice.NewUserUpdater(queryBuilder),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
 			newQueryFilter,
 		}
 

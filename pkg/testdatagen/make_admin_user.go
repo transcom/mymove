@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gobuffalo/pop/v5"
 
@@ -67,4 +68,20 @@ func MakeAdminUserWithNoUser(db *pop.Connection, assertions Assertions) models.A
 // MakeDefaultAdminUser makes an AdminUser with default values
 func MakeDefaultAdminUser(db *pop.Connection) models.AdminUser {
 	return MakeAdminUser(db, Assertions{})
+}
+
+// MakeActiveAdminUser makes an AdminUser that is active
+func MakeActiveAdminUser(db *pop.Connection) models.AdminUser {
+	adminUser := MakeDefaultAdminUser(db)
+
+	adminUser.Active = true
+
+	err := db.Update(&adminUser)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return adminUser
+
 }

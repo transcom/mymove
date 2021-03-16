@@ -1,3 +1,12 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+//RA: in a unit test, then there is no risk
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
 package models_test
 
 import (
@@ -101,13 +110,13 @@ func (suite *ModelSuite) TestFetchMove() {
 	suite.DB().Save(move) // teardown/reset back to draft
 
 	// Bad Move
-	fetchedMove, err = FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
+	_, err = FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
 	suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
 
 	// Bad User
 	session.UserID = order2.ServiceMember.UserID
 	session.ServiceMemberID = order2.ServiceMemberID
-	fetchedMove, err = FetchMove(suite.DB(), session, move.ID)
+	_, err = FetchMove(suite.DB(), session, move.ID)
 	suite.Equal(ErrFetchForbidden, err, "Expected to get a Forbidden back.")
 
 	suite.T().Run("Hidden move is not returned", func(t *testing.T) {

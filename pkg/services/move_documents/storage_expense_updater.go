@@ -23,7 +23,6 @@ type StorageExpenseUpdater struct {
 
 // Update updates the storage expense documents
 func (seu StorageExpenseUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
-	returnVerrs := validate.NewErrors()
 	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
 	updatedMoveDoc, returnVerrs, err := seu.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
@@ -96,7 +95,6 @@ func (seu StorageExpenseUpdater) updatePPMSIT(moveDoc *models.MoveDocument, sess
 }
 
 func (seu StorageExpenseUpdater) updateMovingExpense(moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
-	returnVerrs := validate.NewErrors()
 	var saveWeightTicketAction models.MoveWeightTicketSetDocumentSaveAction
 	if moveDoc.WeightTicketSetDocument != nil {
 		saveWeightTicketAction = models.MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL

@@ -22,33 +22,31 @@ func NewDomesticOriginFirstDaySITPricer(db *pop.Connection) services.DomesticOri
 }
 
 // Price determines the price for domestic origin first day SIT
-func (p domesticOriginFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string) (unit.Cents, error) {
-	return priceDomesticFirstDaySIT(p.db, models.ReServiceCodeDOFSIT, contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea)
+func (p domesticOriginFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingParams, error) {
+	return priceDomesticFirstDaySIT(p.db, models.ReServiceCodeDOFSIT, contractCode, requestedPickupDate, weight, serviceArea)
 }
 
 // PriceUsingParams determines the price for domestic origin first day SIT given PaymentServiceItemParams
-func (p domesticOriginFirstDaySITPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+func (p domesticOriginFirstDaySITPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	serviceAreaOrigin, err := getParamString(params, models.ServiceItemParamNameServiceAreaOrigin)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-
-	return p.Price(contractCode, requestedPickupDate, isPeakPeriod, unit.Pound(weightBilledActual), serviceAreaOrigin)
+	return p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin)
 }

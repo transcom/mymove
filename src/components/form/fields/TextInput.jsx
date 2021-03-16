@@ -10,8 +10,9 @@ export const TextInput = ({ label, labelClassName, id, name, labelHint, ...props
   /* eslint-disable react/jsx-props-no-spreading */
   const [, meta] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
+  const { warning } = props;
   return (
-    <FormGroup error={hasError}>
+    <FormGroup className={!!warning && !hasError && `warning`} error={hasError}>
       <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
         {label}
       </Label>
@@ -27,11 +28,13 @@ TextInput.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
+  warning: PropTypes.string,
 };
 
 TextInput.defaultProps = {
   labelHint: '',
   labelClassName: '',
+  warning: '',
 };
 
 export default TextInput;
@@ -40,10 +43,17 @@ export const TextInputMinimal = ({ id, name, ...props }) => {
   /* eslint-disable react/jsx-props-no-spreading */
   const [field, meta] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
+  const { warning } = props;
+
   return (
     <>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
       <UswdsTextInput id={id} name={name} {...field} {...props} />
+      {!!warning && !hasError && (
+        <p className="usa-hint" data-testid="textInputWarning">
+          {warning}
+        </p>
+      )}
     </>
   );
   /* eslint-enable react/jsx-props-no-spreading */
@@ -52,6 +62,11 @@ export const TextInputMinimal = ({ id, name, ...props }) => {
 TextInputMinimal.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  warning: PropTypes.string,
+};
+
+TextInputMinimal.defaultProps = {
+  warning: '',
 };
 
 export const TextMaskedInput = ({
@@ -70,8 +85,9 @@ export const TextMaskedInput = ({
   const [field, meta, helpers] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
   const { value } = field;
+  const { warning } = props;
   return (
-    <FormGroup error={hasError}>
+    <FormGroup className={!!warning && !hasError && `warning`} error={hasError}>
       <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
         {label}
       </Label>
@@ -91,6 +107,11 @@ export const TextMaskedInput = ({
         }}
         {...props}
       />
+      {!!warning && !hasError && (
+        <p className="usa-hint" data-testid="textInputWarning">
+          {warning}
+        </p>
+      )}
     </FormGroup>
   );
 };
@@ -105,6 +126,7 @@ TextMaskedInput.propTypes = {
   mask: PropTypes.string,
   blocks: PropTypes.oneOfType([PropTypes.object]),
   lazy: PropTypes.bool,
+  warning: PropTypes.string,
 };
 
 TextMaskedInput.defaultProps = {
@@ -114,4 +136,5 @@ TextMaskedInput.defaultProps = {
   mask: '',
   blocks: {},
   lazy: true, // make placeholder not visible
+  warning: '',
 };

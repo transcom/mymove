@@ -139,8 +139,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "X"},
 			IfMatch:       params.IfMatch,
 		}
-		response := handler.Handle(invalidInputParams)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusUnprocessableEntity{}, response)
+		// This input error would be caught by Swagger, not the service object:
+		suite.Error(invalidInputParams.Body.Validate(strfmt.Default))
 	})
 
 	// Second to last because many of the above tests fail because of a conflict error with APPROVED/REJECTED shipments
@@ -167,5 +167,37 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 		response := handler.Handle(conflictParams)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusConflict{}, response)
+	})
+
+	// Test Successful Cancellation Request
+	suite.T().Run("Successful patch - Integration Test for CANCELLATION_REQUESTED", func(t *testing.T) {
+		// Under test: updateMTOShipmentHandler function
+		// Mocked:     none
+		// Setup: We create a new mtoShipment, then try to update the status from Approved to Cancellation_Requested
+		// Expected outcome:
+		//             Successfully updated status to CANCELLATION_REQUESTED
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				Status:       models.MTOShipmentStatusApproved,
+				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+			},
+		})
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
+			Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "CANCELLATION_REQUESTED"},
+			IfMatch:       eTag,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusOK)
+		suite.Equal(supportmessages.UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED, okResponse.Payload.Status)
+		suite.NotZero(okResponse.Payload.ETag)
 	})
 }

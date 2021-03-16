@@ -151,82 +151,91 @@ export class OfficeApp extends Component {
     }
 
     return (
-      <div className={siteClasses}>
-        <BypassBlock />
-        <FOUOHeader />
-        {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-        {!hideHeaderPPM && (
-          <>
-            {!userIsLoggedIn || (activeRole !== roleTypes.TOO && activeRole !== roleTypes.TIO) ? (
-              <QueueHeader />
-            ) : (
-              <MilmoveHeader
-                lastName={officeUser.last_name}
-                firstName={officeUser.first_name}
-                handleLogout={() => {
-                  logOut();
-                  LogoutUser();
-                }}
-              >
-                {officeUser.transportation_office && (
-                  <Link to="/">
-                    {officeUser.transportation_office.gbloc} {queueText}
-                  </Link>
+      <>
+        <div id="app-root">
+          <div className={siteClasses}>
+            <BypassBlock />
+            <FOUOHeader />
+            {displayChangeRole && <Link to="/select-application">Change user role</Link>}
+            {!hideHeaderPPM && (
+              <>
+                {!userIsLoggedIn || (activeRole !== roleTypes.TOO && activeRole !== roleTypes.TIO) ? (
+                  <QueueHeader />
+                ) : (
+                  <MilmoveHeader
+                    lastName={officeUser.last_name}
+                    firstName={officeUser.first_name}
+                    handleLogout={() => {
+                      logOut();
+                      LogoutUser();
+                    }}
+                  >
+                    {officeUser.transportation_office && (
+                      <Link to="/">
+                        {officeUser.transportation_office.gbloc} {queueText}
+                      </Link>
+                    )}
+                  </MilmoveHeader>
                 )}
-              </MilmoveHeader>
+              </>
             )}
-          </>
-        )}
-        <main id="main" role="main" className="site__content site-office__content">
-          <ConnectedLogoutOnInactivity />
+            <main id="main" role="main" className="site__content site-office__content">
+              <ConnectedLogoutOnInactivity />
 
-          {hasError && <SomethingWentWrong error={error} info={info} />}
+              {hasError && <SomethingWentWrong error={error} info={info} />}
 
-          <Suspense fallback={<LoadingPlaceholder />}>
-            {!hasError && (
-              <Switch>
-                {/* no auth */}
-                <Route path="/sign-in" component={SignIn} />
+              <Suspense fallback={<LoadingPlaceholder />}>
+                {!hasError && (
+                  <Switch>
+                    {/* no auth */}
+                    <Route path="/sign-in" component={SignIn} />
 
-                {/* PPM */}
-                <PrivateRoute
-                  path="/queues/:queueType/moves/:moveId"
-                  component={MoveInfo}
-                  requiredRoles={[roleTypes.PPM]}
-                />
-                <PrivateRoute path="/queues/:queueType" component={Queues} requiredRoles={[roleTypes.PPM]} />
+                    {/* PPM */}
+                    <PrivateRoute
+                      path="/queues/:queueType/moves/:moveId"
+                      component={MoveInfo}
+                      requiredRoles={[roleTypes.PPM]}
+                    />
+                    <PrivateRoute path="/queues/:queueType" component={Queues} requiredRoles={[roleTypes.PPM]} />
 
-                {/* TXO */}
-                <PrivateRoute path="/moves/queue" exact component={MoveQueue} requiredRoles={[roleTypes.TOO]} />
-                <PrivateRoute path="/invoicing/queue" component={PaymentRequestQueue} requiredRoles={[roleTypes.TIO]} />
+                    {/* TXO */}
+                    <PrivateRoute path="/moves/queue" exact component={MoveQueue} requiredRoles={[roleTypes.TOO]} />
+                    <PrivateRoute
+                      path="/invoicing/queue"
+                      component={PaymentRequestQueue}
+                      requiredRoles={[roleTypes.TIO]}
+                    />
 
-                {/* PPM & TXO conflicting routes - select based on user role */}
-                {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
+                    {/* PPM & TXO conflicting routes - select based on user role */}
+                    {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
 
-                <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
-                {/* ROOT */}
-                <PrivateRoute
-                  exact
-                  path="/"
-                  render={(routeProps) => {
-                    switch (selectedRole) {
-                      case roleTypes.PPM:
-                        return <Queues queueType="new" {...routeProps} />;
-                      case roleTypes.TIO:
-                        return <PaymentRequestQueue {...routeProps} />;
-                      case roleTypes.TOO:
-                        return <MoveQueue {...routeProps} />;
-                      default:
-                        // User has unknown role or shouldn't have access
-                        return <div />;
-                    }
-                  }}
-                />
-              </Switch>
-            )}
-          </Suspense>
-        </main>
-      </div>
+                    <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
+                    {/* ROOT */}
+                    <PrivateRoute
+                      exact
+                      path="/"
+                      render={(routeProps) => {
+                        switch (selectedRole) {
+                          case roleTypes.PPM:
+                            return <Queues queueType="new" {...routeProps} />;
+                          case roleTypes.TIO:
+                            return <PaymentRequestQueue {...routeProps} />;
+                          case roleTypes.TOO:
+                            return <MoveQueue {...routeProps} />;
+                          default:
+                            // User has unknown role or shouldn't have access
+                            return <div />;
+                        }
+                      }}
+                    />
+                  </Switch>
+                )}
+              </Suspense>
+            </main>
+          </div>
+        </div>
+        <div id="modal-root" />
+      </>
     );
   }
 }

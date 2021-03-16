@@ -29,22 +29,22 @@ func NewDomesticShorthaulPricer(db *pop.Connection) services.DomesticShorthaulPr
 }
 
 // Price determines the price for a counseling service
-func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (totalCost unit.Cents, err error) {
+func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (totalCost unit.Cents, params services.PricingParams, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
-		return 0, errors.New("ContractCode is required")
+		return 0, nil, errors.New("ContractCode is required")
 	}
 	if requestedPickupDate.IsZero() {
-		return 0, errors.New("RequestedPickupDate is required")
+		return 0, nil, errors.New("RequestedPickupDate is required")
 	}
 	if weight < minDomesticWeight {
-		return 0, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
 	if distance <= 0 {
-		return 0, errors.New("Distance must be greater than 0")
+		return 0, nil, errors.New("Distance must be greater than 0")
 	}
 	if len(serviceArea) == 0 {
-		return 0, errors.New("ServiceArea is required")
+		return 0, nil, errors.New("ServiceArea is required")
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
@@ -52,12 +52,12 @@ func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate 
 	// look up rate for shorthaul
 	domServiceAreaPrice, err := fetchDomServiceAreaPrice(p.db, contractCode, models.ReServiceCodeDSH, serviceArea, isPeakPeriod)
 	if err != nil {
-		return 0, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
+		return 0, nil, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
 	}
 
 	contractYear, err := fetchContractYear(p.db, domServiceAreaPrice.ContractID, requestedPickupDate)
 	if err != nil {
-		return 0, fmt.Errorf("Could not lookup contract year: %w", err)
+		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
 
 	basePrice := domServiceAreaPrice.PriceCents.Float64() * distance.Float64() * weight.ToCWTFloat64()
@@ -81,35 +81,34 @@ func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate 
 	//zap.Float64("escalatedCost (cents):", escalatedPrice),
 	//zap.Int("totalCost (cents):", totalCost.Int()),
 	//)
-	return totalCost, err
+	return totalCost, nil, nil
 }
 
-func (p domesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+func (p domesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	distanceZip5, err := getParamInt(params, models.ServiceItemParamNameDistanceZip5)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	serviceAreaOrigin, err := getParamString(params, models.ServiceItemParamNameServiceAreaOrigin)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
-	total, err := p.Price(contractCode, requestedPickupDate, unit.Miles(distanceZip5), unit.Pound(weightBilledActual), serviceAreaOrigin)
-	return total, err
+	return p.Price(contractCode, requestedPickupDate, unit.Miles(distanceZip5), unit.Pound(weightBilledActual), serviceAreaOrigin)
 }

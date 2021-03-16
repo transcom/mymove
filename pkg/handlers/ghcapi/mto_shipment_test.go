@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/gofrs/uuid"
 
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
@@ -170,7 +172,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		HTTPRequest:     req,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
-		Body:            &ghcmessages.PatchMTOShipmentStatusPayload{Status: "APPROVED"},
+		Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatusAPPROVED},
 		IfMatch:         eTag,
 	}
 
@@ -382,6 +384,54 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 
 		// Check that webhook notification was stored
 		suite.HasNoWebhookNotification(mtoShipment.ID, handlerContext.GetTraceID())
+
+	})
+
+	suite.T().Run("Successful patch to CANCELLATION_REQUESTED status", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		fetcher := fetch.NewFetcher(queryBuilder)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		planner := &routemocks.Planner{}
+		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
+
+		// Create an APPROVED shipment on a move that is available to prime
+		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		})
+		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
+
+		// Set the traceID so we can use it to find the webhook notification
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := PatchShipmentHandler{
+			handlerContext,
+			fetcher,
+			updater,
+		}
+		cancellationParams := mtoshipmentops.PatchMTOShipmentStatusParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(approvedShipment.MoveTaskOrderID),
+			ShipmentID:      *handlers.FmtUUID(approvedShipment.ID),
+			Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatusCANCELLATIONREQUESTED},
+			IfMatch:         eTag,
+		}
+		suite.NoError(cancellationParams.Body.Validate(strfmt.Default))
+
+		// Call the handler
+		response := handler.Handle(cancellationParams)
+		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
+		suite.Equal(approvedShipment.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(string(okResponse.Payload.Status), string(models.MTOShipmentStatusCancellationRequested))
+		suite.NotNil(okResponse.Payload.ETag)
+
+		// Check that webhook notification was stored
+		suite.HasWebhookNotification(approvedShipment.ID, handlerContext.GetTraceID())
 
 	})
 }

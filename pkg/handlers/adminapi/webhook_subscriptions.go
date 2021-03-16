@@ -10,37 +10,42 @@ import (
 	webhooksubscriptionop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// payloadForWebhookSubscriptionModel converts from model to payload
 func payloadForWebhookSubscriptionModel(subscription models.WebhookSubscription) *adminmessages.WebhookSubscription {
 	severity := int64(subscription.Severity)
 
+	status := adminmessages.WebhookSubscriptionStatus(subscription.Status)
 	return &adminmessages.WebhookSubscription{
 		ID:           *handlers.FmtUUID(subscription.ID),
-		SubscriberID: *handlers.FmtUUID(subscription.SubscriberID),
-		CallbackURL:  subscription.CallbackURL,
+		SubscriberID: handlers.FmtUUID(subscription.SubscriberID),
+		CallbackURL:  &subscription.CallbackURL,
 		Severity:     &severity,
-		EventKey:     subscription.EventKey,
-		Status:       adminmessages.WebhookSubscriptionStatus(subscription.Status),
+		EventKey:     &subscription.EventKey,
+		Status:       &status,
 		CreatedAt:    *handlers.FmtDateTime(subscription.CreatedAt),
 		UpdatedAt:    *handlers.FmtDateTime(subscription.UpdatedAt),
 	}
 }
 
-// Create payload to model function
+// payloadToWebhookSubscriptionModel converts from payload params to model
 func payloadToWebhookSubscriptionModel(params webhooksubscriptionop.CreateWebhookSubscriptionParams) models.WebhookSubscription {
 	subscription := params.WebhookSubscription
 
-	return models.WebhookSubscription{
+	model := models.WebhookSubscription{
 		EventKey:     *subscription.EventKey,
 		CallbackURL:  *subscription.CallbackURL,
 		SubscriberID: uuid.FromStringOrNil(subscription.SubscriberID.String()),
-		Status:       models.WebhookSubscriptionStatus(subscription.Status),
 	}
-
+	if subscription.Status != nil {
+		model.Status = models.WebhookSubscriptionStatus(*subscription.Status)
+	}
+	return model
 }
 
 // IndexWebhookSubscriptionsHandler returns a list of webhook subscriptions via GET /webhook_subscriptions
@@ -146,4 +151,46 @@ func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Cr
 
 	returnPayload := payloadForWebhookSubscriptionModel(*createdWebhookSubscription)
 	return webhooksubscriptionop.NewCreateWebhookSubscriptionCreated().WithPayload(returnPayload)
+}
+
+// UpdateWebhookSubscriptionHandler returns an updated webhook subscription via PATCH
+type UpdateWebhookSubscriptionHandler struct {
+	handlers.HandlerContext
+	services.WebhookSubscriptionUpdater
+	services.NewQueryFilter
+}
+
+// Handle updates a webhook subscription
+func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.UpdateWebhookSubscriptionParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	payload := params.WebhookSubscription
+
+	// Checks that ID in body matches ID in query
+	payloadID := uuid.FromStringOrNil(payload.ID.String())
+	if payloadID != uuid.Nil && params.WebhookSubscriptionID != payload.ID {
+		return webhooksubscriptionop.NewUpdateWebhookSubscriptionUnprocessableEntity()
+	}
+
+	// If no ID in body, use query ID
+	payload.ID = params.WebhookSubscriptionID
+
+	// Convert payload to model
+	webhookSubscription := payloads.WebhookSubscriptionModel(payload)
+
+	// Note we are not checking etag as adminapi does not seem to use this
+	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, payload.Severity)
+
+	// Return error response if not successful
+	if err != nil {
+		if err.Error() == models.RecordNotFoundErrorString {
+			logger.Error("Error finding webhookSubscription to update")
+			return webhooksubscriptionop.NewUpdateWebhookSubscriptionNotFound()
+		}
+		logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
+
+	// Convert model back to a payload and return to caller
+	payload = payloadForWebhookSubscriptionModel(*updatedWebhookSubscription)
+	return webhooksubscriptionop.NewUpdateWebhookSubscriptionOK().WithPayload(payload)
 }

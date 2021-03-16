@@ -231,10 +231,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	// Create the mto payload we will be requesting to create
 	issueDate := swag.Time(time.Now())
 	reportByDate := swag.Time(time.Now().AddDate(0, 0, -1))
-	referenceID, _ := models.GenerateReferenceID(suite.DB())
 
 	mtoPayload := &supportmessages.MoveTaskOrder{
-		ReferenceID:        referenceID,
 		AvailableToPrimeAt: handlers.FmtDateTime(time.Now()),
 		PpmType:            "FULL",
 		ContractorID:       handlers.FmtUUID(contractor.ID),
@@ -291,8 +289,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
 		responsePayload := moveTaskOrdersResponse.Payload
 
-		// Check that the referenceID matches what was sent in
-		suite.Equal(mtoPayload.ReferenceID, responsePayload.ReferenceID)
+		// Check that the referenceID was populated
+		suite.NotEmpty(responsePayload.ReferenceID)
 		// Check that moveTaskOrder was populated, including nested objects
 		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyStation, &originDutyStation)
 		// Check that customer name matches the DB
@@ -311,10 +309,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Expected outcome:
 		//             New MTO and orders are created. Customer data and duty station data are pulled in.
 		//             Status is canceled.
-
-		// Regenerate the ReferenceID because it needs to be unique
-		referenceID, _ := models.GenerateReferenceID(suite.DB())
-		mtoPayload.ReferenceID = referenceID
 
 		// We only provide an existing customerID not the whole object.
 		mtoPayload.MoveOrder.CustomerID = handlers.FmtUUID(dbCustomer.ID)
@@ -335,8 +329,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
 		responsePayload := moveTaskOrdersResponse.Payload
 
-		// Check that the referenceID matches what was sent in
-		suite.Equal(mtoPayload.ReferenceID, responsePayload.ReferenceID)
+		// Check that the referenceID was populated
+		suite.NotEmpty(responsePayload.ReferenceID)
 		// Check that moveTaskOrder was populated, including nested objects
 		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyStation, &originDutyStation)
 		// Check that customer name matches the DB
@@ -365,10 +359,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		mtoPayload.MoveOrder.CustomerID = nil
 
-		// Regenerate the ReferenceID because it needs to be unique
-		referenceID, _ := models.GenerateReferenceID(suite.DB())
-		mtoPayload.ReferenceID = referenceID
-
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
@@ -383,8 +373,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
 		responsePayload := moveTaskOrdersResponse.Payload
 
-		// Check that the referenceID matches what was sent in
-		suite.Equal(mtoPayload.ReferenceID, responsePayload.ReferenceID)
+		// Check that the referenceID was populated
+		suite.NotEmpty(responsePayload.ReferenceID)
 		// Check that moveTaskOrder was populated, including nested objects
 		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyStation, &originDutyStation)
 		// Check that customer name matches the passed in value
@@ -393,18 +383,19 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.Equal((models.MoveStatus)(responsePayload.Status), models.MoveStatusCANCELED)
 
 	})
-	suite.T().Run("Failed createMoveTaskOrder 400 BadRequest due to repeat ReferenceID", func(t *testing.T) {
+	suite.T().Run("Success createMoveTaskOrder discarded readOnly referenceID", func(t *testing.T) {
 
 		// TESTCASE SCENARIO
 		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
 		// Mocked:     None
 		// Set up:     We pass in a new moveTaskOrder, moveOrder, and existing customer.
-		//             We do not generate a new referenceID that has been used already
+		//             We use a nonsense referenceID. ReferenceID is readOnly, this should not be applied.
 		// Expected outcome:
-		//             Failure due to bad referenceID, so unprocessableEntity
+		//             A new referenceID is generated.
 		//             Default status is draft.
 
 		// Running the same request should result in the same reference id
+		mtoPayload.ReferenceID = "some terrible reference id"
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
@@ -415,7 +406,14 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		response := handler.Handle(params)
 
 		// VERIFY RESULTS
-		suite.IsType(&movetaskorderops.CreateMoveTaskOrderBadRequest{}, response)
+		suite.IsType(&movetaskorderops.CreateMoveTaskOrderCreated{}, response)
+		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
+		responsePayload := moveTaskOrdersResponse.Payload
+
+		// Check that the referenceID DOES NOT match what was sent in
+		suite.NotEqual(mtoPayload.ReferenceID, responsePayload.ReferenceID)
+		// Check that moveTaskOrder was populated, including nested objects
+		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyStation, &originDutyStation)
 	})
 
 	suite.T().Run("Failed createMoveTaskOrder 422 UnprocessableEntity due to no customer", func(t *testing.T) {

@@ -14,13 +14,14 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/alexedwards/scs/v2/memstore"
-	"github.com/markbates/goth"
-
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"github.com/markbates/goth"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -96,9 +97,25 @@ func setupScsSession(ctx context.Context, session *auth.Session, sessionManager 
 	expiry := time.Now().Add(30 * time.Minute).UTC()
 	b, _ := sessionManager.Codec.Encode(expiry, values)
 
-	sessionManager.Store.Commit("session_token", b, expiry)
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+	//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+	//RA: in which this would be considered a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
+	sessionManager.Store.Commit("session_token", b, expiry) // nolint:errcheck
 	scsContext, _ := sessionManager.Load(ctx, "session_token")
-	sessionManager.Commit(scsContext)
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+	//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+	//RA: in which this would be considered a risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
+	sessionManager.Commit(scsContext) // nolint:errcheck
 	return scsContext
 }
 
@@ -656,6 +673,12 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Prepare the callback handler
 	callbackPort := 1234
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	authContext.SetFeatureFlag(
+		FeatureFlag{
+			Name:   cli.FeatureFlagAccessCode,
+			Active: *swag.Bool(true),
+		},
+	)
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
@@ -705,9 +728,14 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// that was created
 	suite.Equal(foundUser.ID, serviceMember.UserID)
 
-	// Verify that the service member's RequiresAccessCode field was created.
+	// Verify that the service member's RequiresAccessCode field was created
+	// and that it matches the `FEATURE_FLAG_ACCESS_CODE` env var as simulated
+	// above via `authContext.SetFeatureFlag`. Note that this only tests that
+	// if the feature flag is set in the authContext, that its value is used to
+	// set the `RequiresAccessCode` field. It does not test that the flag is
+	// set in the authContext in serve.go. For that, we need an end to end test.
 	// This is needed by the /users/logged_in endpoint.
-	suite.Equal(false, serviceMember.RequiresAccessCode)
+	suite.Equal(true, serviceMember.RequiresAccessCode)
 
 	// Verify handler redirects to landing URL
 	suite.Equal(http.StatusTemporaryRedirect, rr.Code, "handler did not redirect")

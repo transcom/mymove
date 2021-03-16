@@ -4,15 +4,17 @@
 # script to help with prime demo script
 #
 
+# =====================================
+#     USAGE AND DEFAULTS
+# =====================================
 set -eu -o pipefail
-
+proofs=(./tmp/uploads/proof_of_service.pdf)
 function usage() {
-  echo "Usage: $0 <moveTaskOrderID|moveOrderID|moveCode> [[hostname] path/to/proof.pdf]"
-  echo
-  echo "If omitted, the optional parameters are set as follows:"
-  echo "  hostname = local"
-  echo "  proofs of service = (./tmp/uploads/proof_of_service.pdf)"
-  echo "  # you can specify as many proofs as you want"
+  echo "Usage: prime-api-demo <movecode> [ <hostname> [ <proofs> ... ] ]"
+  echo "  movecode   Either moveCode or moveOrderID or moveOrderID can be provided"
+  echo "  hostname   Target host of api calls, defaults to 'local' which is primelocal:9443"
+  echo "  proofs     Paths to proof of service docs. Defaults to (${proofs[0]})"
+  echo "             You can specify as many proofs as you want"
   echo
   echo "EXAMPLES:"
   echo "$0 --help # prints this help"
@@ -23,31 +25,64 @@ function usage() {
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil path/to/proof.pdf path/to/proof.jpg"
 }
 
-function createPaymentRequest() {
+
+# =====================================
+#     FUNCTIONS
+# =====================================
+# These functions generate different payment requests and store to files
+function generatePRJson() {
   jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH" or .reServiceCode == "DDFSIT") or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request.json
+  echo tmp/pad_create_payment_request.json
+}
+function generatePRJsonEmpty() {
+  jq '{ body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: [] } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request_empty.json
+  echo tmp/pad_create_payment_request_empty.json
+}
+function generatePRJsonFinal() {
+  jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH" or .reServiceCode == "DDFSIT") or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: true, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request_final.json
+  echo tmp/pad_create_payment_request_final.json
+}
 
-  printf "Now we wait for the TOO to approve the service items.\n\n"
+# This function expects a filename for a stored json create-payment-request body
+# It creates the pr and uploads the orders
+function createPaymentRequest() {
 
-  read -p "Ready to continue? Hit enter..." -n 1 -r
+  # Get json file
+  prfile=$1
 
-  printf "The prime can submit a payment request for the following service items: DLH, FSC, DDFSIT, MS, and CS:\n\n"
-  jq . tmp/pad_create_payment_request.json
+  printf "The prime submits a payment request as shown below:\n\n"
+  jq . "$prfile"
 
   echo
 
   printf "\n==========\n\n"
 
-  bin/prime-api-client "${primeapiopts[@]}" create-payment-request --filename ./tmp/pad_create_payment_request.json > tmp/pad_create_payment_request_response.json
+  # Send request to create-payment-request endpoint
+  read -p "Ready to send? Hit enter..." -n 1 -r
+  bin/prime-api-client "${primeapiopts[@]}" create-payment-request --filename "${prfile}" > tmp/pad_create_payment_request_response.json
 
   jq . tmp/pad_create_payment_request_response.json
 
-  printf "\n-----\n\n"
+  printf "\n==========\n\n"
 
-  prID=$(jq .id tmp/pad_create_payment_request_response.json | tr -d '"')
-  prNumber=$(jq .paymentRequestNumber tmp/pad_create_payment_request_response.json)
+  # Collect data from response
+  tempPrID=$(jq .id tmp/pad_create_payment_request_response.json | tr -d '"')
+  tempPrNumber=$(jq .paymentRequestNumber tmp/pad_create_payment_request_response.json)
+  prStatus=$(jq .status tmp/pad_create_payment_request_response.json)
 
-  echo "Payment Request ID: \"${prID}\""
-  echo "Payment Request Number: ${prNumber}"
+  echo "Payment Request ID: \"${tempPrID}\""
+  echo "Payment Request Number: ${tempPrNumber}"
+  echo "Payment Request Status: ${prStatus}"
+  echo
+
+  # If PR was not created exit function
+  if [ "$prStatus" == "\"PENDING\"" ]; then
+    echo "setting prID"
+    prID=$tempPrID
+    prNumber=$tempPrNumber
+  else
+    return 0
+  fi
 
   printf "\n==========\n\n"
 
@@ -74,6 +109,40 @@ function createPaymentRequest() {
 }
 
 
+function addAccessorialServiceItem() {
+  printf "The prime can create a DDFSIT service item to later request payment for:\n\n"
+  read -p "Ready to continue? Hit enter..." -n 1 -r
+  mtoid=$1
+  shipmentID=$2
+
+cat > tmp/pad_create_ddfsit_service_item.json <<- EOM
+{
+  "body": {
+    "moveTaskOrderID": "${mtoid}",
+    "mtoShipmentID": ${shipmentID},
+    "modelType": "MTOServiceItemDestSIT",
+    "reServiceCode": "DDFSIT",
+    "timeMilitary1": "1705Z",
+    "firstAvailableDeliveryDate1": "2021-01-31",
+    "timeMilitary2": "0719Z",
+    "firstAvailableDeliveryDate2": "2021-02-03",
+    "sitEntryDate": "2021-01-12"
+  }
+}
+EOM
+
+  bin/prime-api-client "${primeapiopts[@]}" create-mto-service-item --filename ./tmp/pad_create_ddfsit_service_item.json > tmp/pad_create_ddfsit_response.json
+
+  printf "The prime fetches mto updates to capture the newly created DDFSIT service item:\n\n"
+
+  bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates | jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/pad_demo_mto.json
+
+  printf "Now we wait for the TOO to approve the service items.\n\n"
+}
+
+# =====================================
+#     OPTIONS HANDLING
+# =====================================
 if [ "${#@}" -eq 0 ]; then
   usage
   exit 1
@@ -88,12 +157,18 @@ readonly environment=${2:-local}
 # check to see if proofs are passed in
 if [ "${#@}" -gt 2 ]; then
   shift # to remove mtoid from $@
-  shift # to remove envinronment from $@
+  shift # to remove environment from $@
   proofs=("$@")
-else
-  # if no proofs are passed in set a default
-  proofs=(./tmp/uploads/proof_of_service.pdf)
 fi
+
+for proofOfService in "${proofs[@]}"
+do
+  if [ ! -f "${proofOfService}" ]; then
+    echo "Expected proof of service doc ${proofOfService} is missing."
+    echo "You can either use this default path or supply a path as a parameter"
+    exit 1
+  fi
+done
 
 printf "\nRunning against "
 if [ "$environment" == "local" ]; then
@@ -110,7 +185,13 @@ else
   exit 1
 fi
 
+# =====================================
+#     START WORKFLOW
+# =====================================
 
+
+# -----------------
+# GET MTO
 printf "\n==========\n\n"
 
 echo "The prime is notified of a new move task order ID: ${mtoid}"
@@ -126,12 +207,12 @@ if jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp
 elif jq -e 'map(select(.moveOrderID == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
   # extract the mtoid
   mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
-  echo "Found by Move Order ID. Actual MTO ID is ${mtoid}"
+  echo "Found by Move Order ID."
 # Find MTO by moveCode aka locator
 elif jq -e 'map(select(.moveCode == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
   # extract the mtoid
   mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
-  echo "Found by Move Code. Actual MTO ID is ${mtoid}"
+  echo "Found by Move Code."
 else
   echo "ID not found"
   exit 1
@@ -149,6 +230,14 @@ destStreetAddress1="7 Q St"
 scheduledPickupDate="2021-01-01"
 actualPickupDate="2021-01-01"
 
+firstName=$(jq '.moveOrder.customer.firstName' tmp/pad_demo_mto.json | tr -d '"')
+lastName=$(jq '.moveOrder.customer.lastName' tmp/pad_demo_mto.json | tr -d '"')
+dds=$(jq '.moveOrder.destinationDutyStation.name' tmp/pad_demo_mto.json | tr -d '"')
+
+echo
+echo "Customer Name: ${firstName} ${lastName}"
+echo "Found approved move to: ${dds}"
+echo "MTO ID: ${mtoid}"
 
 cat > tmp/pad_update_mto_shipment.json <<- EOM
 {
@@ -168,6 +257,8 @@ cat > tmp/pad_update_mto_shipment.json <<- EOM
 }
 EOM
 
+# --------------------
+# UPDATE MTO SHIPMENT
 
 printf "\nThe prime updates the mto shipment with destination address as well the scheduled and actual pickup dates\n\n"
 read -p "Ready to continue? Hit enter..." -n 1 -r
@@ -211,37 +302,51 @@ fi
 shipmentEtag=$(jq '.eTag' tmp/pad_update_response_weights.json)
 printf "\n==========\n\n"
 
-printf "The prime can create a DDFSIT service item to later request payment for:\n\n"
+# --------------------
+# ADD SERVICE ITEM
 
-cat > tmp/pad_create_ddfsit_service_item.json <<- EOM
-{
-  "body": {
-    "moveTaskOrderID": "${mtoid}",
-    "mtoShipmentID": ${shipmentID},
-    "modelType": "MTOServiceItemDestSIT",
-    "reServiceCode": "DDFSIT",
-    "timeMilitary1": "1705Z",
-    "firstAvailableDeliveryDate1": "2021-01-31",
-    "timeMilitary2": "0719Z",
-    "firstAvailableDeliveryDate2": "2021-02-03",
-    "sitEntryDate": "2021-01-12"
-  }
-}
-EOM
-
-bin/prime-api-client "${primeapiopts[@]}" create-mto-service-item --filename ./tmp/pad_create_ddfsit_service_item.json > tmp/pad_create_ddfsit_response.json
-
-printf "The prime fetches mto updates to capture the newly created DDFSIT service item:\n\n"
-
-bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates | jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/pad_demo_mto.json
+addAccessorialServiceItem "$mtoid" "$shipmentID"
 
 
-createPaymentRequest
-read -p "Would you like to create another payment request? (y/N) " -r createAnotherPaymentRequest
-while [ "$createAnotherPaymentRequest" == "y" ]; do
-  createPaymentRequest
-read -p "Would you like to create another payment request? (y/N) " -r createAnotherPaymentRequest
+# -----------------------
+# CREATE PAYMENT REQUEST
+
+printf "The prime creates a payment request.\n\n"
+askpr=1
+
+while [ $askpr -eq 1 ]; do
+  echo "Do you want to create a payment request? (enter a number)"
+  select yn in "Empty" "With Service Items" "With Service Items Final" "No"; do
+    case $yn in
+    Empty )
+      prfile=$(generatePRJsonEmpty)
+      createPaymentRequest "$prfile"
+      break
+      ;;
+    "With Service Items" )
+      prfile=$(generatePRJson)
+      createPaymentRequest "$prfile"
+      break
+      ;;
+    "With Service Items Final" )
+      prfile=$(generatePRJsonFinal)
+      createPaymentRequest "$prfile"
+      break
+      ;;
+    No )
+      askpr=0
+      break
+      ;;
+    esac
+  done
 done
+
+if [[ -z ${prID+x} ]]; then
+  exit 1
+fi
+
+# -----------------------
+# SEND TO SYNCADA
 printf "\n==========\n\n"
 
 cat > ./tmp/pad_get_payment_request_edi.json <<-EOM

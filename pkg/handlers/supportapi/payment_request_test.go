@@ -1,3 +1,11 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used set up environment variables
+//RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
+//RA Developer Status: Mitigated
+//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Modified Severity: N/A
+// nolint:errcheck
 package supportapi
 
 import (
@@ -561,7 +569,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada true", func(t *testing.T) {
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
@@ -583,7 +591,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
@@ -611,7 +619,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
@@ -635,7 +643,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		paymentRequestID := reviewedPaymentRequests[0].ID
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
@@ -661,7 +669,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
@@ -692,7 +700,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		}
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 		prID := reviewedPRs[0].ID
 		sendToSyncada := false
 
@@ -727,7 +735,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		}
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 		sendToSyncada := false
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{

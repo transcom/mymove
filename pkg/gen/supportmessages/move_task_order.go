@@ -90,6 +90,7 @@ type MoveTaskOrder struct {
 	// No two MoveTaskOrders may have the same ID.
 	// Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
 	//
+	// Read Only: true
 	ReferenceID string `json:"referenceId,omitempty"`
 
 	// status

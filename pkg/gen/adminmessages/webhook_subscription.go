@@ -18,14 +18,14 @@ import (
 type WebhookSubscription struct {
 
 	// The URL to which the notifications for this subscription will be pushed to.
-	CallbackURL string `json:"callbackUrl,omitempty"`
+	CallbackURL *string `json:"callbackUrl,omitempty"`
 
 	// created at
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.
-	EventKey string `json:"eventKey,omitempty"`
+	EventKey *string `json:"eventKey,omitempty"`
 
 	// id
 	// Read Only: true
@@ -37,11 +37,11 @@ type WebhookSubscription struct {
 	Severity *int64 `json:"severity,omitempty"`
 
 	// status
-	Status WebhookSubscriptionStatus `json:"status,omitempty"`
+	Status *WebhookSubscriptionStatus `json:"status,omitempty"`
 
 	// Unique identifier for the subscriber
 	// Format: uuid
-	SubscriberID strfmt.UUID `json:"subscriberId,omitempty"`
+	SubscriberID *strfmt.UUID `json:"subscriberId,omitempty"`
 
 	// updated at
 	// Format: date-time
@@ -127,11 +127,13 @@ func (m *WebhookSubscription) validateStatus(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.Status.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
+	if m.Status != nil {
+		if err := m.Status.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

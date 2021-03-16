@@ -1,3 +1,13 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+//RA: in which this would be considered a risk
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
+// nolint:golint
 package scenario
 
 import (
@@ -194,6 +204,7 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 	})
 	ppm2.Move.Submit(time.Now())
 	ppm2.Move.Approve()
+
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -334,6 +345,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
 			ServiceMember:   smWithCombo,
 		},
+		UserUploader: userUploader,
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
 			Locator:          "COMBOS",
@@ -604,6 +616,7 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 	})
 	ppm6.Move.Submit(time.Now())
 	ppm6.Move.Approve()
+
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppm6.Move)
@@ -624,10 +637,11 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	})
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Status:           models.MoveStatusSUBMITTED,
-			OrdersID:         orders.ID,
-			Orders:           orders,
-			SelectedMoveType: &hhgMoveType,
+			Status:             models.MoveStatusAPPROVED,
+			OrdersID:           orders.ID,
+			Orders:             orders,
+			SelectedMoveType:   &hhgMoveType,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -752,10 +766,11 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 
 	move8 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:               uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
-			OrdersID:         orders8.ID,
-			Status:           models.MoveStatusAPPROVALSREQUESTED,
-			SelectedMoveType: &hhgMoveType,
+			ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
+			OrdersID:           orders8.ID,
+			Status:             models.MoveStatusAPPROVALSREQUESTED,
+			SelectedMoveType:   &hhgMoveType,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -1060,7 +1075,7 @@ func createHHGMoveWith2PaymentRequests(db *pop.Connection, userUploader *uploade
 			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
 			OrdersID:           orders7.ID,
 			AvailableToPrimeAt: swag.Time(time.Now()),
-			Status:             models.MoveStatusSUBMITTED,
+			Status:             models.MoveStatusAPPROVED,
 			SelectedMoveType:   &hhgMoveType,
 		},
 	})
@@ -2288,8 +2303,11 @@ func createMoveWithServiceItems(db *pop.Connection, userUploader *uploader.UserU
 
 	move9 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:       uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
-			OrdersID: orders9.ID,
+			ID:                 uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
+			OrdersID:           orders9.ID,
+			SelectedMoveType:   &hhgMoveType,
+			Status:             models.MoveStatusSUBMITTED,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -2388,9 +2406,10 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 
 	move10 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:       uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae8"),
-			OrdersID: orders10.ID,
-			Status:   models.MoveStatusAPPROVED,
+			ID:                 uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae8"),
+			OrdersID:           orders10.ID,
+			Status:             models.MoveStatusAPPROVED,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -2464,7 +2483,7 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 		},
 	})
 
-	moveOrder := testdatagen.MakeOrder(db, testdatagen.Assertions{
+	order := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			NewDutyStationID: newDutyStation.ID,
 			NewDutyStation:   newDutyStation,
@@ -2477,7 +2496,7 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 			AvailableToPrimeAt: swag.Time(time.Now()),
 			Status:             models.MoveStatusAPPROVED,
 		},
-		Order: moveOrder,
+		Order: order,
 	})
 }
 

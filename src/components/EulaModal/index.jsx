@@ -2,11 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
+import styles from './EulaModal.module.scss';
+
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const EulaModal = ({ closeModal, acceptTerms }) => (
-  <Modal>
-    <ModalClose handleClick={closeModal} />
+  <Modal className={styles.eulaModal}>
+    <ModalClose className={styles.eulaModalClose} handleClick={closeModal} />
     <ModalTitle>
       <h3>Standard mandatory DoD Notice and consent Banner</h3>
     </ModalTitle>
@@ -37,7 +39,7 @@ export const EulaModal = ({ closeModal, acceptTerms }) => (
       </li>
     </ul>
     <ModalActions>
-      <Button aria-label="Accept EULA Terms" type="button" onClick={acceptTerms}>
+      <Button aria-label="Accept EULA Terms" className={styles.eulaModalAccept} type="button" onClick={acceptTerms}>
         Accept terms
       </Button>
       <Button aria-label="Cancel" secondary type="button" onClick={closeModal}>

@@ -4,37 +4,52 @@ import propTypes from 'prop-types';
 
 import styles from './ShipmentServiceItemsTable.module.scss';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-
-const serviceItems = {
-  domestic_linehaul: 'Domestic linehaul',
-  fuel_surcharge: 'Fuel surcharge',
-  domestic_origin_price: 'Domestic origin price',
-  domestic_destination_price: 'Domestic destination price',
-  domestic_packing: 'Domestic packing',
-  domestic_unpacking: 'Domestic unpacking',
-};
+import { serviceItemCodes } from 'content/serviceItems';
 
 const shipmentTypes = {
-  hhg: [
-    serviceItems.domestic_linehaul,
-    serviceItems.fuel_surcharge,
-    serviceItems.domestic_origin_price,
-    serviceItems.domestic_destination_price,
-    serviceItems.domestic_packing,
-    serviceItems.domestic_unpacking,
+  HHG: [
+    serviceItemCodes.DLH,
+    serviceItemCodes.FSC,
+    serviceItemCodes.DOP,
+    serviceItemCodes.DDP,
+    serviceItemCodes.DPK,
+    serviceItemCodes.DUPK,
   ],
-  ntsr: [
-    serviceItems.domestic_linehaul,
-    serviceItems.fuel_surcharge,
-    serviceItems.domestic_origin_price,
-    serviceItems.domestic_destination_price,
-    serviceItems.domestic_unpacking,
+  HHG_LONGHAUL_DOMESTIC: [
+    serviceItemCodes.DLH,
+    serviceItemCodes.FSC,
+    serviceItemCodes.DOP,
+    serviceItemCodes.DDP,
+    serviceItemCodes.DPK,
+    serviceItemCodes.DUPK,
+  ],
+  HHG_SHORTHAUL_DOMESTIC: [
+    serviceItemCodes.DSH,
+    serviceItemCodes.FSC,
+    serviceItemCodes.DOP,
+    serviceItemCodes.DDP,
+    serviceItemCodes.DPK,
+    serviceItemCodes.DUPK,
+  ],
+  HHG_INTO_NTS_DOMESTIC: [
+    serviceItemCodes.DLH,
+    serviceItemCodes.FSC,
+    serviceItemCodes.DOP,
+    serviceItemCodes.DDP,
+    serviceItemCodes.DPK,
+    serviceItemCodes.DNPKF,
+  ],
+  HHG_OUTOF_NTS_DOMESTIC: [
+    serviceItemCodes.DLH,
+    serviceItemCodes.FSC,
+    serviceItemCodes.DOP,
+    serviceItemCodes.DDP,
+    serviceItemCodes.DUPK,
   ],
 };
 
 const ShipmentServiceItemsTable = ({ shipmentType, className }) => {
-  const shipmentServiceItems = shipmentType === SHIPMENT_OPTIONS.NTSR ? shipmentTypes.ntsr : shipmentTypes.hhg;
+  const shipmentServiceItems = shipmentTypes[`${shipmentType}`] || [];
 
   return (
     <div className={classNames('container', 'container--gray', className)}>
@@ -64,7 +79,7 @@ const ShipmentServiceItemsTable = ({ shipmentType, className }) => {
 };
 
 ShipmentServiceItemsTable.propTypes = {
-  shipmentType: propTypes.oneOf(Object.values(SHIPMENT_OPTIONS)).isRequired,
+  shipmentType: propTypes.oneOf(Object.keys(shipmentTypes)).isRequired,
   className: propTypes.string,
 };
 

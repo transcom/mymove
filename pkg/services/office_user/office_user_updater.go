@@ -22,6 +22,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(id uuid.UUID, payload *adminmessage
 
 	if err != nil {
 		return nil, nil, err
+
 	}
 
 	if payload.FirstName != nil {

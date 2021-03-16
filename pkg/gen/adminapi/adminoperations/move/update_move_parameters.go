@@ -14,6 +14,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
+
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 )
 
 // NewUpdateMoveParams creates a new UpdateMoveParams object
@@ -36,7 +38,7 @@ type UpdateMoveParams struct {
 	  Required: true
 	  In: body
 	*/
-	Move UpdateMoveBody
+	Move *adminmessages.MoveUpdatePayload
 	/*
 	  Required: true
 	  In: path
@@ -55,7 +57,7 @@ func (o *UpdateMoveParams) BindRequest(r *http.Request, route *middleware.Matche
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body UpdateMoveBody
+		var body adminmessages.MoveUpdatePayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("move", "body", ""))
@@ -69,7 +71,7 @@ func (o *UpdateMoveParams) BindRequest(r *http.Request, route *middleware.Matche
 			}
 
 			if len(res) == 0 {
-				o.Move = body
+				o.Move = &body
 			}
 		}
 	} else {

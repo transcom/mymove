@@ -4,6 +4,7 @@ import { bool, shape, string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './SignIn.module.scss';
+import '@trussworks/react-uswds/lib/index.css';
 
 import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
@@ -62,20 +63,15 @@ const SignIn = ({ context, location }) => {
             </div>
           )}
           <div className="align-center">
-            {siteName === 'my.move.mil' ? (
-              <Button
-                aria-label="Sign In"
-                className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
-                onClick={() => setShowEula(!showEula)}
-                type="button"
-              >
-                Sign In
-              </Button>
-            ) : (
-              <a href="/auth/login-gov" className="usa-button usa-button-big">
-                Sign in
-              </a>
-            )}
+            <Button
+              aria-label="Sign In"
+              className={siteName === 'my.move.mil' ? styles.signInButton : 'usa-button'}
+              data-testid="signin"
+              onClick={() => setShowEula(!showEula)}
+              type="button"
+            >
+              Sign in
+            </Button>
           </div>
         </div>
       </div>

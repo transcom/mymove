@@ -2,6 +2,8 @@ import React from 'react';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 const agents = [
   {
     type: 'RELEASING_AGENT',
@@ -76,7 +78,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.404031Z',
     mtoAgents: agents,
@@ -127,7 +129,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+    shipmentType: SHIPMENT_OPTIONS.NTSR,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
     mtoAgents: agents,
@@ -171,6 +173,8 @@ export const shipmentApprovalPreviewModal = () => (
     }}
     mtoShipments={[shipments[0]]}
     allowancesInfo={allowancesInfo}
+    counselingFee
+    shipmentManagementFee
   />
 );
 
@@ -182,6 +186,8 @@ export const approvalPreviewWithShipments = () => (
     }}
     mtoShipments={shipments}
     allowancesInfo={allowancesInfo}
+    counselingFee
+    shipmentManagementFee
   />
 );
 

@@ -14,7 +14,7 @@ services:
   milmove_migrate:
     depends_on:
       - database
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
+    image: 021081706899.dkr.ecr.us-gov-west-1.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
     links:
       - database
     environment:
@@ -38,7 +38,7 @@ services:
     depends_on:
       - database
       - milmove_migrate
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-placeholder_branch_name
+    image: 021081706899.dkr.ecr.us-gov-west-1.amazonaws.com/app:git-branch-placeholder_branch_name
     links:
       - database
     ports:

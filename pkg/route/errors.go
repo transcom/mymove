@@ -92,7 +92,7 @@ func NewAddressLookupError(statusCode int, a *models.Address) Error {
 	return &responseError{
 		baseError{AddressLookupError},
 		statusCode,
-		fmt.Sprintf(a.LineFormat()),
+		fmt.Sprint(a.LineFormat()),
 	}
 }
 
@@ -101,7 +101,7 @@ func NewUnknownAddressLookupError(statusCode int, a *models.Address) Error {
 	return &responseError{
 		baseError{UnknownError},
 		statusCode,
-		fmt.Sprintf(a.LineFormat()),
+		fmt.Sprint(a.LineFormat()),
 	}
 }
 

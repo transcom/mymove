@@ -4,7 +4,7 @@ import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { MTOShipmentShape, OrdersInfoShape } from '../../types/moveOrder';
+import { MTOShipmentShape, OrdersInfoShape } from '../../types/order';
 import { formatAddress } from '../../utils/shipmentDisplay';
 
 import styles from './shipmentApprovalPreview.module.scss';
@@ -14,6 +14,7 @@ import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 
 import { mtoShipmentTypes } from 'constants/shipments';
+import { serviceItemCodes } from 'content/serviceItems';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -133,12 +134,12 @@ const ShipmentApprovalPreview = ({
                   <tbody>
                     {shipmentManagementFee && (
                       <tr>
-                        <td>Shipment management fee</td>
+                        <td>{serviceItemCodes.MS}</td>
                       </tr>
                     )}
                     {counselingFee && (
                       <tr>
-                        <td>Counseling fee</td>
+                        <td>{serviceItemCodes.CS}</td>
                       </tr>
                     )}
                   </tbody>

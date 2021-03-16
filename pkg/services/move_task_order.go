@@ -34,7 +34,7 @@ type MoveTaskOrderCreator interface {
 //go:generate mockery -name MoveTaskOrderFetcher
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *FetchMoveTaskOrderParams) (*models.Move, error)
-	ListMoveTaskOrders(moveOrderID uuid.UUID, searchParams *ListMoveTaskOrderParams) ([]models.Move, error)
+	ListMoveTaskOrders(orderID uuid.UUID, searchParams *ListMoveTaskOrderParams) ([]models.Move, error)
 	ListAllMoveTaskOrders(searchParams *ListMoveTaskOrderParams) (models.Moves, error)
 }
 

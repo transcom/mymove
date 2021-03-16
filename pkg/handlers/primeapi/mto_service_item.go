@@ -71,6 +71,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	var mtoServiceItems *models.MTOServiceItems
 
 	if mtoAvailableToPrime {
+		mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
 		mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
 	} else if err == nil {
 		logger.Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
