@@ -22,7 +22,10 @@ function ShipmentHeading({ shipmentInfo }) {
   // Using hooks to illustrate disabled button state
   // This will be modified once the modal is hooked up, as the button will only
   // be used to trigger the modal.
-  const [shipmentStatus, setShipmentStatus] = useState(shipmentInfo.shipmentStatus);
+  // const [shipmentStatus, setShipmentStatus] = useState(shipmentInfo.shipmentStatus);
+  const handleReviewClick = () => {
+    shipmentInfo.setIsCancelModalVisible(true);
+  };
 
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
@@ -34,11 +37,11 @@ function ShipmentHeading({ shipmentInfo }) {
         </small>
         <Button
           type="button"
-          onClick={() => setShipmentStatus(MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED)}
+          onClick={handleReviewClick}
           unstyled
-          disabled={shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED}
+          disabled={shipmentInfo.shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED}
         >
-          {shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED
+          {shipmentInfo.shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED
             ? 'Cancellation Requested'
             : 'Request Cancellation'}
         </Button>
@@ -56,6 +59,7 @@ ShipmentHeading.propTypes = {
     destinationAddress: AddressShape,
     scheduledPickupDate: PropTypes.string.isRequired,
     shipmentStatus: PropTypes.string.isRequired,
+    setIsCancelModalVisible: PropTypes.func.isRequired,
   }).isRequired,
 };
 
