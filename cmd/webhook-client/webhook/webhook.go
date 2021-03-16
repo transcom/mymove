@@ -102,6 +102,7 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				// Return out of loop if quit signal recieved, otherwise, keep going
 				select {
 				case <-eng.QuitChannel:
+					eng.Logger.Info("Interrupt signal recieved...")
 					eng.DoneChannel <- true
 					return
 				default:
@@ -324,6 +325,7 @@ func (eng *Engine) Start() error {
 	for range t {
 		select {
 		case <-eng.QuitChannel:
+			eng.Logger.Info("Interrupt signal recieved...")
 			eng.DoneChannel <- true
 		default:
 			eng.run()
