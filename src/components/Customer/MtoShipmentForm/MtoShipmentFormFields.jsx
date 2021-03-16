@@ -90,7 +90,6 @@ const MtoShipmentFormFields = ({
                     </Hint>
                   </>
                 )}
-                values={values.pickup.address}
               />
 
               <ContactInfoFields
@@ -155,7 +154,6 @@ const MtoShipmentFormFields = ({
                 {hasDeliveryAddress === 'yes' ? (
                   <AddressFields
                     name="delivery.address"
-                    values={values.delivery.address}
                     render={(fields) => (
                       <>
                         {fields}

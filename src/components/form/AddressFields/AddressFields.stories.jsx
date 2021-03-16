@@ -41,9 +41,9 @@ export const Basic = () => (
       },
     }}
   >
-    {({ values }) => (
+    {() => (
       <Form className={formStyles.form}>
-        <AddressFields legend="Basic address" values={values.address} />
+        <AddressFields legend="Basic address" name="address" />
       </Form>
     )}
   </Formik>
@@ -62,9 +62,9 @@ export const CurrentResidentialAddress = () => (
     }}
     validationSchema={requiredAddressSchema}
   >
-    {({ values }) => (
+    {() => (
       <Form className={formStyles.form}>
-        <AddressFields legend="Current mailing address" values={values.residential_address} />
+        <AddressFields legend="Current mailing address" name="residential_address" />
       </Form>
     )}
   </Formik>
@@ -83,9 +83,9 @@ export const CurrentResidentialAddressWithInitialValues = () => (
     }}
     validationSchema={requiredAddressSchema}
   >
-    {({ values }) => (
+    {() => (
       <Form className={formStyles.form}>
-        <AddressFields legend="Current mailing address" values={values.residential_address} />
+        <AddressFields legend="Current mailing address" name="residential_address" />
       </Form>
     )}
   </Formik>
