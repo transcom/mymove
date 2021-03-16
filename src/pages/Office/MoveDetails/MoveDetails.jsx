@@ -19,6 +19,8 @@ import { useMoveDetailsQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { shipmentStatuses } from 'constants/shipments';
+import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -28,7 +30,7 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-const MoveDetails = ({ setUnapprovedShipmentCount }) => {
+const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount }) => {
   const { moveCode } = useParams();
 
   const [activeSection, setActiveSection] = useState('');
@@ -77,19 +79,32 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
     },
   });
 
-  const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
+  const submittedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.SUBMITTED);
+  const approvedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.APPROVED);
 
   useEffect(() => {
-    const shipmentCount = submittedShipments.length;
+    const shipmentCount = submittedShipments?.length || 0;
     setUnapprovedShipmentCount(shipmentCount);
   }, [mtoShipments, submittedShipments, setUnapprovedShipmentCount]);
+
+  useEffect(() => {
+    let serviceItemCount = 0;
+    mtoServiceItems?.forEach((serviceItem) => {
+      if (
+        serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED &&
+        serviceItem.mtoShipmentID &&
+        approvedShipments?.find((shipment) => shipment.id === serviceItem.mtoShipmentID)
+      ) {
+        serviceItemCount += 1;
+      }
+    });
+    setUnapprovedServiceItemCount(serviceItemCount);
+  }, [approvedShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
-
-  const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
 
   if (submittedShipments.length > 0 && approvedShipments.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];
@@ -144,12 +159,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   };
 
   const defineSectionLink = (section) => {
-    let showErrorTag = false;
-
     // TODO This will likely become a switch statement or be refactored as more values are considered required
-    if (section === 'orders' && hasMissingOrdersInfo()) {
-      showErrorTag = true;
-    }
+    const showErrorTag = section === 'orders' && hasMissingOrdersInfo();
 
     return (
       <a key={`sidenav_${section}`} href={`#${section}`} className={classnames({ active: section === activeSection })}>
@@ -183,7 +194,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
-                shipmentsStatus="SUBMITTED"
+                shipmentsStatus={shipmentStatuses.SUBMITTED}
                 approveMTO={mutateMoveStatus}
                 approveMTOShipment={mutateMTOShipmentStatus}
                 moveTaskOrder={move}
@@ -198,7 +209,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
-                shipmentsStatus="APPROVED"
+                shipmentsStatus={shipmentStatuses.APPROVED}
                 moveTaskOrder={move}
               />
             </div>
@@ -238,6 +249,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
 
 MoveDetails.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
+  setUnapprovedServiceItemCount: func.isRequired,
 };
 
 export default MoveDetails;

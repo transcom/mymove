@@ -55,19 +55,18 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [activeSection, setActiveSection] = useState('');
 
   const { moveCode } = match.params;
-  const { setUnapprovedShipmentCount, setMessage } = props;
+  const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
 
   const { orders = {}, moveTaskOrders, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(
     moveCode,
   );
 
-  const mtoServiceItemsArr = Object.values(mtoServiceItems || {});
   const order = Object.values(orders)?.[0];
   const moveTaskOrder = Object.values(moveTaskOrders || {})?.[0];
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
-    mtoServiceItemsArr?.forEach((item) => {
+    mtoServiceItems?.forEach((item) => {
       // We're not interested in basic service items
       if (!item.mtoShipmentID) {
         return;
@@ -93,17 +92,15 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       }
     });
     return serviceItemsForShipment;
-  }, [mtoServiceItemsArr]);
+  }, [mtoServiceItems]);
 
   const [mutateMTOServiceItemStatus] = useMutation(patchMTOServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];
-      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveTaskOrderId, true], {
-        mtoServiceItems: {
-          ...mtoServiceItems,
-          [`${variables.mtoServiceItemID}`]: newMTOServiceItem,
-        },
-      });
+      mtoServiceItems[
+        mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)
+      ] = newMTOServiceItem;
+      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveTaskOrderId, false], mtoServiceItems);
       queryCache.invalidateQueries(MTO_SERVICE_ITEMS, variables.moveTaskOrderId);
       setIsModalVisible(false);
       setSelectedServiceItem({});
@@ -152,6 +149,19 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       ifMatchEtag: mtoServiceItemForRequest.eTag,
     });
   };
+
+  useEffect(() => {
+    let serviceItemCount = 0;
+    mtoShipments?.forEach((mtoShipment) => {
+      if (mtoShipment.status === shipmentStatuses.APPROVED) {
+        const requestedServiceItemCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
+          (serviceItem) => serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED,
+        )?.length;
+        serviceItemCount += requestedServiceItemCount || 0;
+      }
+    });
+    setUnapprovedServiceItemCount(serviceItemCount);
+  }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount]);
 
   useEffect(() => {
     if (mtoShipments) {
@@ -349,6 +359,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 MoveTaskOrder.propTypes = {
   match: MatchShape.isRequired,
   setUnapprovedShipmentCount: func.isRequired,
+  setUnapprovedServiceItemCount: func.isRequired,
   setMessage: func.isRequired,
 };
 
