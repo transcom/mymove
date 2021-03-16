@@ -1,0 +1,23 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+
+.ServiceMemberContactInfoFields {
+  .contactPhoneFields {
+    width: 100%;
+    @include at-media('tablet') {
+      width: 60%;
+    }
+  }
+
+  :global(.usa-label) {
+    width: 100%;
+    @include at-media('tablet') {
+      width: 61%;
+    }
+  }
+
+  :global(.usa-checkbox) {
+    display: inline-block;
+    margin-right: 40px;
+  }
+}

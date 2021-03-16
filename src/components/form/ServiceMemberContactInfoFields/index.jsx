@@ -1,7 +1,9 @@
 import React from 'react';
 import { func, node, string } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Checkbox, Fieldset } from '@trussworks/react-uswds';
+import { Checkbox, Label, Fieldset } from '@trussworks/react-uswds';
+
+import styles from './ServiceMemberContactInfoFields.module.scss';
 
 import TextField from 'components/form/fields/TextField';
 
@@ -18,8 +20,9 @@ export const ServiceMemberContactInfoFields = ({
   return (
     <Fieldset legend={legend} className={className}>
       {render(
-        <>
+        <div className={styles.ServiceMemberContactInfoFields}>
           <TextField
+            className={styles.contactPhoneFields}
             label="Best contact phone"
             id={`phone_${contactInfoFieldsetUUID}`}
             data-testid="phone"
@@ -28,7 +31,9 @@ export const ServiceMemberContactInfoFields = ({
             maxLength="10"
           />
           <TextField
+            className={styles.contactPhoneFields}
             label="Alt. phone"
+            labelHint="Optional"
             id={`alternatePhone_${contactInfoFieldsetUUID}`}
             data-testid="alternamte-phone"
             name={`${name}.alternatePhone`}
@@ -41,7 +46,7 @@ export const ServiceMemberContactInfoFields = ({
             data-testid="email"
             name={`${name}.email`}
           />
-          <p>Preferred contact method</p>
+          <Label>Preferred contact method</Label>
           <Checkbox
             id={`preferPhone_${contactInfoFieldsetUUID}`}
             label="Phone"
@@ -54,7 +59,7 @@ export const ServiceMemberContactInfoFields = ({
             name={`${name}.prefer_email`}
             onChange={onChangePreferEmail}
           />
-        </>,
+        </div>,
       )}
     </Fieldset>
   );
