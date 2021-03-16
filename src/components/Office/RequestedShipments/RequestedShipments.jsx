@@ -25,6 +25,7 @@ const RequestedShipments = ({
   approveMTO,
   approveMTOShipment,
   handleAfterSuccess,
+  missingRequiredOrdersInfo,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -106,11 +107,13 @@ const RequestedShipments = ({
     setIsModalVisible(true);
   };
 
-  // if showing service items, enable button when shipment and service item are selected
-  // if not showing service items, enable button if a shipment is selected
+  // if showing service items, enable button when shipment and service item are selected and there is no missing required Orders information
+  // if not showing service items, enable button if a shipment is selected and there is no missing required Orders information
   const isButtonEnabled = moveTaskOrder.availableToPrimeAt
-    ? formik.values.shipments.length > 0
-    : formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
+    ? formik.values.shipments.length > 0 && !missingRequiredOrdersInfo
+    : formik.values.shipments.length > 0 &&
+      (formik.values.counselingFee || formik.values.shipmentManagementFee) &&
+      !missingRequiredOrdersInfo;
 
   // eslint-disable-next-line camelcase
   const dutyStationPostal = { postal_code: ordersInfo.newDutyStation?.address?.postal_code };
@@ -278,6 +281,8 @@ RequestedShipments.propTypes = {
   }).isRequired,
   approveMTO: PropTypes.func,
   approveMTOShipment: PropTypes.func,
+  moveTaskOrder: MoveTaskOrderShape,
+  missingRequiredOrdersInfo: PropTypes.bool,
   handleAfterSuccess: PropTypes.func,
 };
 
@@ -286,6 +291,7 @@ RequestedShipments.defaultProps = {
   moveTaskOrder: {},
   approveMTO: () => Promise.resolve(),
   approveMTOShipment: () => Promise.resolve(),
+  missingRequiredOrdersInfo: false,
   handleAfterSuccess: () => {},
 };
 

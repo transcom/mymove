@@ -157,34 +157,23 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     tacMDC: order.tac,
   };
 
-  const hasMissingOrdersInfo = () => {
-    return Object.values(requiredOrdersInfo).some((value) => {
-      return !value || value === '';
-    });
-  };
-
-  const defineSectionLink = (section) => {
-    // TODO This will likely become a switch statement or be refactored as more values are considered required
-    const showErrorTag = section === 'orders' && hasMissingOrdersInfo();
-
-    return (
-      <a key={`sidenav_${section}`} href={`#${section}`} className={classnames({ active: section === activeSection })}>
-        {sectionLabels[`${section}`]}
-        {showErrorTag && (
-          <Tag className="usa-tag usa-tag--alert">
-            <FontAwesomeIcon icon="exclamation" />
-          </Tag>
-        )}
-      </a>
-    );
-  };
+  const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
 
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
         <LeftNav className={styles.sidebar}>
           {sections.map((s) => {
-            return defineSectionLink(s);
+            return (
+              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+                {sectionLabels[`${s}`]}
+                {s === 'orders' && hasMissingOrdersRequiredInfo && (
+                  <Tag className="usa-tag usa-tag--alert">
+                    <FontAwesomeIcon icon="exclamation" />
+                  </Tag>
+                )}
+              </a>
+            );
           })}
         </LeftNav>
 
@@ -203,6 +192,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
                 shipmentsStatus={shipmentStatuses.SUBMITTED}
                 approveMTO={mutateMoveStatus}
                 approveMTOShipment={mutateMTOShipmentStatus}
+                moveTaskOrder={move}
+                missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
                 handleAfterSuccess={history.push}
               />
             </div>
