@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/etag"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -232,6 +234,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 				EventKey:     swag.String("WebhookSubscription.Update"),
 				SubscriberID: &subscriberID,
 			},
+			IfMatch: etag.GenerateEtag(webhookSubscription.UpdatedAt),
 		}
 
 		queryBuilder := query.NewQueryBuilder(suite.DB())
@@ -268,6 +271,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 				CallbackURL: swag.String("somethingelse.com"),
 				EventKey:    swag.String("WebhookSubscription.Delete"),
 			},
+			IfMatch: etag.GenerateEtag(webhookSubscription2.UpdatedAt),
 		}
 
 		queryBuilder := query.NewQueryBuilder(suite.DB())
@@ -311,6 +315,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 				EventKey:     swag.String("WebhookSubscription.Update"),
 				SubscriberID: &subscriberID,
 			},
+			IfMatch: etag.GenerateEtag(webhookSubscription.UpdatedAt),
 		}
 
 		queryBuilder := query.NewQueryBuilder(suite.DB())

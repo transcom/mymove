@@ -146,7 +146,7 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 	webhookSubscription := payloads.WebhookSubscriptionModel(payload)
 
 	// Note we are not checking etag as adminapi does not seem to use this
-	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, payload.Severity)
+	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, payload.Severity, &params.IfMatch)
 
 	// Return error response if not successful
 	if err != nil {
