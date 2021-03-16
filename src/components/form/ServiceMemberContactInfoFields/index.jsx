@@ -25,7 +25,6 @@ export const ServiceMemberContactInfoFields = ({
             className={styles.contactPhoneFields}
             label="Best contact phone"
             id={`phone_${contactInfoFieldsetUUID}`}
-            data-testid="phone"
             name={`${name}.phone`}
             type="tel"
             maxLength="10"
@@ -35,28 +34,22 @@ export const ServiceMemberContactInfoFields = ({
             label="Alt. phone"
             labelHint="Optional"
             id={`alternatePhone_${contactInfoFieldsetUUID}`}
-            data-testid="alternamte-phone"
             name={`${name}.alternatePhone`}
             type="tel"
             maxLength="10"
           />
-          <TextField
-            label="Personal email"
-            id={`email_${contactInfoFieldsetUUID}`}
-            data-testid="email"
-            name={`${name}.email`}
-          />
+          <TextField label="Personal email" id={`email_${contactInfoFieldsetUUID}`} name={`${name}.email`} />
           <Label>Preferred contact method</Label>
           <Checkbox
             id={`preferPhone_${contactInfoFieldsetUUID}`}
             label="Phone"
-            name={`${name}.prefer_phone`}
+            name={`${name}.preferPhone`}
             onChange={onChangePreferPhone}
           />
           <Checkbox
             id={`prefer_email${contactInfoFieldsetUUID}`}
             label="Email"
-            name={`${name}.prefer_email`}
+            name={`${name}.preferEmail`}
             onChange={onChangePreferEmail}
           />
         </div>,
