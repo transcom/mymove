@@ -56,3 +56,16 @@ func WebhookSubscriptionModel(sub *adminmessages.WebhookSubscription) *models.We
 
 	return model
 }
+
+// WebhookSubscriptionModelFromCreate converts a payload for creating a webhook subscription to a model
+func WebhookSubscriptionModelFromCreate(sub *adminmessages.CreateWebhookSubscription) *models.WebhookSubscription {
+	model := &models.WebhookSubscription{
+		EventKey:     *sub.EventKey,
+		CallbackURL:  *sub.CallbackURL,
+		SubscriberID: uuid.FromStringOrNil(sub.SubscriberID.String()),
+	}
+	if sub.Status != nil {
+		model.Status = models.WebhookSubscriptionStatus(*sub.Status)
+	}
+	return model
+}

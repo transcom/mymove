@@ -16,21 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-// payloadToWebhookSubscriptionModel converts from payload params to model
-func payloadToWebhookSubscriptionModel(params webhooksubscriptionop.CreateWebhookSubscriptionParams) models.WebhookSubscription {
-	subscription := params.WebhookSubscription
-
-	model := models.WebhookSubscription{
-		EventKey:     *subscription.EventKey,
-		CallbackURL:  *subscription.CallbackURL,
-		SubscriberID: uuid.FromStringOrNil(subscription.SubscriberID.String()),
-	}
-	if subscription.Status != nil {
-		model.Status = models.WebhookSubscriptionStatus(*subscription.Status)
-	}
-	return model
-}
-
 // IndexWebhookSubscriptionsHandler returns a list of webhook subscriptions via GET /webhook_subscriptions
 type IndexWebhookSubscriptionsHandler struct {
 	handlers.HandlerContext
@@ -104,12 +89,12 @@ type CreateWebhookSubscriptionHandler struct {
 // Handle creates an admin user
 func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.CreateWebhookSubscriptionParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	subscription := payloadToWebhookSubscriptionModel(params)
+	subscription := payloads.WebhookSubscriptionModelFromCreate(params.WebhookSubscription)
 	subscriberIDFilter := []services.QueryFilter{
 		h.NewQueryFilter("id", "=", subscription.SubscriberID),
 	}
 
-	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(&subscription, subscriberIDFilter)
+	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(subscription, subscriberIDFilter)
 
 	if verrs != nil {
 		logger.Error("Error saving webhook subscription", zap.Error(verrs))
