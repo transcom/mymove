@@ -43,7 +43,12 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 		return errors.New("this model does not have deleted_at field")
 	}
 
-	associations := GetForeignKeyAssociations(c, model)
+	associations, err := GetForeignKeyAssociations(c, model)
+
+	if err != nil {
+		return err
+	}
+
 	if len(associations) > 0 {
 		for _, association := range associations {
 			err = SoftDestroy(c, association)
@@ -62,9 +67,14 @@ func IsModel(model interface{}) bool {
 }
 
 // GetForeignKeyAssociations fetches all the foreign key associations the model has
-func GetForeignKeyAssociations(c *pop.Connection, model interface{}) []interface{} {
+func GetForeignKeyAssociations(c *pop.Connection, model interface{}) ([]interface{}, error) {
 	var foreignKeyAssociations []interface{}
-	c.Load(model)
+
+	err := c.Load(model)
+
+	if err != nil {
+		return nil, err
+	}
 
 	modelValue := reflect.ValueOf(model).Elem()
 	modelType := modelValue.Type()
@@ -89,7 +99,7 @@ func GetForeignKeyAssociations(c *pop.Connection, model interface{}) []interface
 			}
 		}
 	}
-	return foreignKeyAssociations
+	return foreignKeyAssociations, nil
 }
 
 // GetHasOneForeignKeyAssociation fetches the "has_one" foreign key association if not an empty model

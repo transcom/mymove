@@ -97,8 +97,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// #nosec G307 TODO needs review
-	defer file.Close()
+
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			log.Fatalf("Failed to close file due to %v", closeErr)
+		}
+	}()
 
 	edi, err := ioutil.ReadAll(file)
 	if err != nil {

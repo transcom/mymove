@@ -170,8 +170,8 @@ func assemblePaymentRequestPayload(db *pop.Connection, updatedObjectID uuid.UUID
 
 }
 
-// assembleMoveOrderPayload assembles the MoveOrder Payload and returns the JSON in bytes
-func assembleMoveOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+// assembleOrderPayload assembles the Order Payload and returns the JSON in bytes
+func assembleOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
 	model := models.Order{}
 	// Important to be specific about which addl associations to load to reduce DB hits
 	err := db.Eager(
@@ -185,7 +185,7 @@ func assembleMoveOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]
 	}
 
 	if err != nil {
-		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MoveOrder")
+		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for Order")
 		notFoundError.Wrap(err)
 		return nil, notFoundError
 	}
@@ -277,7 +277,7 @@ func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error
 	// case models.Order:
 	var payloadArray []byte
 	var err error
-	payloadArray, _ = assembleMoveOrderPayload(db, event.UpdatedObjectID)
+	payloadArray, _ = assembleOrderPayload(db, event.UpdatedObjectID)
 
 	// STORE NOTIFICATION IN DB
 	err = notificationSave(event, &payloadArray)

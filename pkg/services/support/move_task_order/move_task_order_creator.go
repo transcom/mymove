@@ -42,7 +42,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 		}
 
 		// Create move order and entitlement
-		moveOrder, err := createMoveOrder(tx, customer, payload.MoveOrder, logger)
+		order, err := createMoveOrder(tx, customer, payload.MoveOrder, logger)
 		if err != nil {
 			return err
 		}
@@ -63,8 +63,8 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 			moveTaskOrder.Status = models.MoveStatusDRAFT
 		}
 		moveTaskOrder.Show = swag.Bool(true)
-		moveTaskOrder.Orders = *moveOrder
-		moveTaskOrder.OrdersID = moveOrder.ID
+		moveTaskOrder.Orders = *order
+		moveTaskOrder.OrdersID = order.ID
 
 		verrs, err := tx.ValidateAndCreate(moveTaskOrder)
 
@@ -91,60 +91,60 @@ func NewInternalMoveTaskOrderCreator(db *pop.Connection) support.InternalMoveTas
 }
 
 // createMoveOrder creates a basic move order - this is a support function do not use in production
-func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrderPayload *supportmessages.MoveOrder, logger handlers.Logger) (*models.Order, error) {
-	if moveOrderPayload == nil {
+func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayload *supportmessages.MoveOrder, logger handlers.Logger) (*models.Order, error) {
+	if orderPayload == nil {
 		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "MoveOrder definition is required to create MoveTaskOrder")
 		return nil, returnErr
 	}
 
 	// Move order model will also contain the entitlement
-	moveOrder := MoveOrderModel(moveOrderPayload)
+	order := MoveOrderModel(orderPayload)
 
-	// Check that the moveOrder destination duty station exists, then hook up to moveOrder
+	// Check that the order destination duty station exists, then hook up to order
 	// It's required in the payload
 	destinationDutyStation := models.DutyStation{}
-	destinationDutyStationID := uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
+	destinationDutyStationID := uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
 	err := tx.Find(&destinationDutyStation, destinationDutyStationID)
 	if err != nil {
 		logger.Error("supportapi.createMoveOrder error", zap.Error(err))
 		return nil, services.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
 	}
-	moveOrder.NewDutyStation = destinationDutyStation
-	moveOrder.NewDutyStationID = destinationDutyStationID
-	// Check that if provided, the origin duty station exists, then hook up to moveOrder
+	order.NewDutyStation = destinationDutyStation
+	order.NewDutyStationID = destinationDutyStationID
+	// Check that if provided, the origin duty station exists, then hook up to order
 	var originDutyStation *models.DutyStation
-	if moveOrderPayload.OriginDutyStationID != nil {
+	if orderPayload.OriginDutyStationID != nil {
 		originDutyStation = &models.DutyStation{}
-		originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
+		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
 		err = tx.Find(originDutyStation, originDutyStationID)
 		if err != nil {
 			logger.Error("supportapi.createMoveOrder error", zap.Error(err))
 			return nil, services.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
 		}
-		moveOrder.OriginDutyStation = originDutyStation
-		moveOrder.OriginDutyStationID = &originDutyStationID
+		order.OriginDutyStation = originDutyStation
+		order.OriginDutyStationID = &originDutyStationID
 	}
 	// Check that the uploaded orders document exists
 	var uploadedOrders *models.Document
-	if moveOrderPayload.UploadedOrdersID != nil {
+	if orderPayload.UploadedOrdersID != nil {
 		uploadedOrders = &models.Document{}
-		uploadedOrdersID := uuid.FromStringOrNil(moveOrderPayload.UploadedOrdersID.String())
+		uploadedOrdersID := uuid.FromStringOrNil(orderPayload.UploadedOrdersID.String())
 		fmt.Println("\n\nUploaded orders id is ", uploadedOrdersID)
 		err = tx.Find(uploadedOrders, uploadedOrdersID)
 		if err != nil {
 			logger.Error("supportapi.createMoveOrder error", zap.Error(err))
 			return nil, services.NewNotFoundError(uploadedOrdersID, ". The uploadedOrders does not exist.")
 		}
-		moveOrder.UploadedOrders = *uploadedOrders
-		moveOrder.UploadedOrdersID = uploadedOrdersID
+		order.UploadedOrders = *uploadedOrders
+		order.UploadedOrdersID = uploadedOrdersID
 	}
 
 	// Add customer to mO
-	moveOrder.ServiceMember = *customer
-	moveOrder.ServiceMemberID = customer.ID
+	order.ServiceMember = *customer
+	order.ServiceMemberID = customer.ID
 
-	// Creates the moveOrder and the entitlement at the same time
-	verrs, err := tx.Eager().ValidateAndCreate(moveOrder)
+	// Creates the order and the entitlement at the same time
+	verrs, err := tx.Eager().ValidateAndCreate(order)
 	if verrs.Count() > 0 {
 		logger.Error("supportapi.createMoveOrder error", zap.Error(verrs))
 		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
@@ -153,7 +153,7 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrd
 		e := services.NewQueryError("MoveOrder", err, "Unable to create MoveOrder.")
 		return nil, e
 	}
-	return moveOrder, nil
+	return order, nil
 }
 
 // createUser creates a user but this is a fake login.gov user
@@ -253,45 +253,45 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 // duty stations but will preserve the ID if provided.
 // It will create nested customer and entitlement models
 // if those are provided in the payload
-func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
-	if moveOrderPayload == nil {
+func MoveOrderModel(orderPayload *supportmessages.MoveOrder) *models.Order {
+	if orderPayload == nil {
 		return nil
 	}
 	model := &models.Order{
-		ID:           uuid.FromStringOrNil(moveOrderPayload.ID.String()),
-		Grade:        swag.String((string)(moveOrderPayload.Rank)),
-		OrdersNumber: moveOrderPayload.OrderNumber,
-		Entitlement:  EntitlementModel(moveOrderPayload.Entitlement),
-		Status:       (models.OrderStatus)(moveOrderPayload.Status),
-		IssueDate:    (time.Time)(*moveOrderPayload.IssueDate),
-		OrdersType:   (internalmessages.OrdersType)(moveOrderPayload.OrdersType),
-		TAC:          moveOrderPayload.Tac,
+		ID:           uuid.FromStringOrNil(orderPayload.ID.String()),
+		Grade:        swag.String((string)(orderPayload.Rank)),
+		OrdersNumber: orderPayload.OrderNumber,
+		Entitlement:  EntitlementModel(orderPayload.Entitlement),
+		Status:       (models.OrderStatus)(orderPayload.Status),
+		IssueDate:    (time.Time)(*orderPayload.IssueDate),
+		OrdersType:   (internalmessages.OrdersType)(orderPayload.OrdersType),
+		TAC:          orderPayload.Tac,
 	}
 
-	if moveOrderPayload.CustomerID != nil {
-		customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
+	if orderPayload.CustomerID != nil {
+		customerID := uuid.FromStringOrNil(orderPayload.CustomerID.String())
 		model.ServiceMemberID = customerID
 	}
 
-	if moveOrderPayload.DestinationDutyStationID != nil {
-		model.NewDutyStationID = uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
+	if orderPayload.DestinationDutyStationID != nil {
+		model.NewDutyStationID = uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
 	}
 
-	if moveOrderPayload.OriginDutyStationID != nil {
-		originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
+	if orderPayload.OriginDutyStationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
 		model.OriginDutyStationID = &originDutyStationID
 	}
 
-	if moveOrderPayload.Customer != nil {
-		model.ServiceMember = *CustomerModel(moveOrderPayload.Customer)
+	if orderPayload.Customer != nil {
+		model.ServiceMember = *CustomerModel(orderPayload.Customer)
 	}
 
-	if moveOrderPayload.UploadedOrdersID != nil {
-		uploadedOrdersID := uuid.FromStringOrNil(moveOrderPayload.UploadedOrdersID.String())
+	if orderPayload.UploadedOrdersID != nil {
+		uploadedOrdersID := uuid.FromStringOrNil(orderPayload.UploadedOrdersID.String())
 		model.UploadedOrdersID = uploadedOrdersID
 	}
 
-	reportByDate := time.Time(*moveOrderPayload.ReportByDate)
+	reportByDate := time.Time(*orderPayload.ReportByDate)
 	if !reportByDate.IsZero() {
 		model.ReportByDate = reportByDate
 	}
