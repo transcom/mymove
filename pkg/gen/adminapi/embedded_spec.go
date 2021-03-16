@@ -2571,6 +2571,10 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
         "eventKey": {
           "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
           "type": "string",
@@ -5182,6 +5186,10 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
         },
         "eventKey": {
           "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",

@@ -912,6 +912,9 @@ definitions:
       updatedAt:
         type: string
         format: date-time
+      eTag:
+        type: string
+        readOnly: true
   WebhookSubscriptions:
     type: array
     items:
