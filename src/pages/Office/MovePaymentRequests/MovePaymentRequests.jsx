@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { func } from 'prop-types';
 
 import txoStyles from '../TXOMoveInfo/TXOTab.module.scss';
+import { PAYMENT_REQUEST_STATUS } from '../../../shared/constants';
 
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -10,7 +11,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
 
-const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
+const MovePaymentRequests = ({ setUnapprovedShipmentCount, setPendingPaymentRequestCount }) => {
   const { moveCode } = useParams();
 
   const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
@@ -23,6 +24,11 @@ const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
       : 0;
     setUnapprovedShipmentCount(shipmentCount);
   }, [mtoShipments, mtoShipmentsArr, setUnapprovedShipmentCount]);
+
+  useEffect(() => {
+    const pendingCount = paymentRequests.filter((pr) => pr.status === PAYMENT_REQUEST_STATUS.PENDING).length;
+    setPendingPaymentRequestCount(pendingCount);
+  }, [paymentRequests, setPendingPaymentRequestCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -63,6 +69,7 @@ const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
 
 MovePaymentRequests.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
+  setPendingPaymentRequestCount: func.isRequired,
 };
 
 export default MovePaymentRequests;

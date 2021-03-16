@@ -18,6 +18,7 @@ const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/
 
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
+  const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
 
   const { moveCode } = useParams();
   const { pathname } = useLocation();
@@ -62,6 +63,7 @@ const TXOMoveInfo = () => {
                 </NavLink>,
                 <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/payment-requests`} role="tab">
                   <span className="tab-title">Payment requests</span>
+                  {pendingPaymentRequestCount > 0 && <Tag>{pendingPaymentRequestCount}</Tag>}
                 </NavLink>,
                 <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/history`} role="tab">
                   <span className="tab-title">History</span>
@@ -90,7 +92,10 @@ const TXOMoveInfo = () => {
           </Route>
 
           <Route path="/moves/:moveCode/payment-requests" exact>
-            <MovePaymentRequests setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+            <MovePaymentRequests
+              setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+              setPendingPaymentRequestCount={setPendingPaymentRequestCount}
+            />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>
