@@ -1835,6 +1835,13 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/WebhookSubscription'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
         200:
           description: Successfully updated webhook subscription
