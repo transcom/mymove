@@ -29,7 +29,7 @@ func (s *AK3) Parse(elements []string) error {
 	expectedNumMaxElements := 4
 	expectedNumMinElements := 2
 	numElements := len(elements)
-	if numElements < expectedNumMinElements || expectedNumMaxElements > expectedNumMaxElements {
+	if numElements < expectedNumMinElements || numElements > expectedNumMaxElements {
 		return fmt.Errorf("AK3: Wrong number of elements, expected max %d and min %d, got %d", expectedNumMaxElements, expectedNumMinElements, numElements)
 	}
 
