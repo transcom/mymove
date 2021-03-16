@@ -6,7 +6,7 @@ import { FormGroup, Label } from '@trussworks/react-uswds';
 
 import { ErrorMessage } from '../index';
 
-const TextMaskedInput = ({
+const MaskedTextField = ({
   label,
   labelClassName,
   id,
@@ -55,7 +55,7 @@ const TextMaskedInput = ({
   );
 };
 
-TextMaskedInput.propTypes = {
+MaskedTextField.propTypes = {
   labelClassName: PropTypes.string,
   labelHint: PropTypes.string,
   id: PropTypes.string.isRequired,
@@ -68,7 +68,7 @@ TextMaskedInput.propTypes = {
   warning: PropTypes.string,
 };
 
-TextMaskedInput.defaultProps = {
+MaskedTextField.defaultProps = {
   labelHint: '',
   labelClassName: '',
   defaultValue: '',
@@ -78,4 +78,4 @@ TextMaskedInput.defaultProps = {
   warning: '',
 };
 
-export default TextMaskedInput;
+export default MaskedTextField;

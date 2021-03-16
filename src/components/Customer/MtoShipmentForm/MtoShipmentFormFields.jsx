@@ -14,7 +14,7 @@ import { Form } from 'components/form/Form';
 import Hint from 'components/Hint/index';
 import { SimpleAddressShape } from 'types/address';
 import { MtoShipmentFormValuesShape } from 'types/customerShapes';
-import { validateDate } from 'utils/formikValidators';
+import { validateDate } from 'utils/validation';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';

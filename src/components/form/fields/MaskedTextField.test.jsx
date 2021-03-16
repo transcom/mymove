@@ -104,11 +104,11 @@ describe('MaskedTextField', () => {
       shallow(<MaskedTextField className="sample-class" label="Some Name" type="text" />);
 
       expect(spy).toHaveBeenCalledWith(
-        expect.stringMatching(/The prop `id` is marked as required in `TextMaskedInput`, but its value is `undefined`/),
+        expect.stringMatching(/The prop `id` is marked as required in `MaskedTextField`, but its value is `undefined`/),
       );
       expect(spy).toHaveBeenCalledWith(
         expect.stringMatching(
-          /The prop `name` is marked as required in `TextMaskedInput`, but its value is `undefined`/,
+          /The prop `name` is marked as required in `MaskedTextField`, but its value is `undefined`/,
         ),
       );
     });
