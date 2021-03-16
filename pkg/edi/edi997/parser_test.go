@@ -179,6 +179,7 @@ IEA*1*000000022
 		edi997 := EDI{}
 		err := edi997.Parse(sample997EDIString)
 		suite.NoError(err, "Successful parse of 997")
+
 		// Check the ISA segments
 		// ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
 		isa := edi997.InterchangeControlEnvelope.ISA
@@ -295,22 +296,12 @@ AK4*1*2*3*4*MM*bad data goes here 93
 AK5*A
 AK9*A*1*1*1
 SE*6*0001
-GE*1*220001
+GE*1*220002
 IEA*1*000000022
 `
 		edi997 := EDI{}
 		err := edi997.Parse(sample997EDIString)
 		suite.NoError(err, "Successful parse of 997")
-
-		/*
-			scanner := bufio.NewScanner(strings.NewReader(sample997EDIString))
-			ediSegmentsIndex := 0
-			var ediSegments []string
-			for scanner.Scan() {
-				//record := strings.Split(scanner.Text(), "*")
-				ediSegments = append(ediSegments, scanner.Text())
-			}
-		*/
 
 		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
 		isa := edi997.InterchangeControlEnvelope.ISA
@@ -472,7 +463,7 @@ IEA*1*000000022
 
 		// FunctionalGroup 1 END
 		geString := "GE*1*220001"
-		ge := edi997.InterchangeControlEnvelope.FunctionalGroups[0].GE
+		ge := fgInfo.GE
 		suite.validateGE(geString, ge)
 
 		// FunctionalGroup 2
@@ -534,7 +525,7 @@ IEA*1*000000022
 		suite.validateSE(seString, se)
 
 		// FunctionalGroup 2 END
-		geString = "GE*1*220001"
+		geString = "GE*1*220002"
 		//ge = edi997.InterchangeControlEnvelope.FunctionalGroups[1].GE
 		ge = fgInfo.GE
 		suite.validateGE(geString, ge)
@@ -693,7 +684,7 @@ func (suite *EDI997Suite) validateAK9(row string, ak9 edisegment.AK9) {
 func (suite *EDI997Suite) validateSE(row string, se edisegment.SE) {
 	elements := strings.Split(row, "*")
 	intValue, err := strconv.Atoi(elements[1])
-	suite.NoError(err)
+	suite.NoError(err, row)
 	suite.Equal(intValue, se.NumberOfIncludedSegments, row)
 	suite.Equal(strings.TrimSpace(elements[2]), strings.TrimSpace(se.TransactionSetControlNumber), row)
 }

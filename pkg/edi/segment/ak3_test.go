@@ -112,7 +112,7 @@ func (suite *SegmentSuite) TestParseAK3() {
 	})
 
 	suite.T().Run("wrong number of elements", func(t *testing.T) {
-		badArrayAK3 := []string{"11", "12", "bye", "good", ""}
+		badArrayAK3 := []string{"11"}
 		var badAK3 AK3
 		err := badAK3.Parse(badArrayAK3)
 		if suite.Error(err) {
