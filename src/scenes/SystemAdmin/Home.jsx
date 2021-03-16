@@ -34,14 +34,14 @@ import customRoutes from './CustomRoutes';
 import NotificationList from './Notifications/NotificationList';
 
 const httpClient = (url, options = {}) => {
+  if (!options.headers) {
+    options.headers = new Headers({ Accept: 'application/json' });
+  }
   const token = Cookies.get('masked_gorilla_csrf');
   if (!token) {
     console.warn('Unable to retrieve CSRF Token from cookie');
   }
-
-  if (!options.headers) {
-    options.headers = new Headers({ Accept: 'application/json', 'X-CSRF-TOKEN': token });
-  }
+  options.headers.set('X-CSRF-TOKEN', token);
   // send cookies in the request
   options.credentials = 'same-origin';
   return fetchUtils.fetchJson(url, options);
