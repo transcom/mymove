@@ -132,8 +132,9 @@ IEA*1*000000022
 		suite.validateAK5(ak5String, ak5)
 
 		// Check the AK9 segments
-		// AK9*A*1*1*1
-		// ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+		ak9String := "AK9*A*1*1*1"
+		ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+		suite.validateAK9(ak9String, ak9)
 
 		// Checking SE segments
 		// SE*6*0001
@@ -231,8 +232,9 @@ IEA*1*000000022
 		suite.validateAK5(ak5String, ak5)
 
 		// Check the AK9 segments
-		// AK9*A*1*1*1
-		// ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+		ak9String := "AK9*A*1*1*1"
+		ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+		suite.validateAK9(ak9String, ak9)
 
 		// Checking SE segments
 		// SE*6*0001
