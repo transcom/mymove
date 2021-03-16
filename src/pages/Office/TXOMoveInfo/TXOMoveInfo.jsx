@@ -48,7 +48,13 @@ const TXOMoveInfo = () => {
           <div className="grid-container-desktop-lg">
             <TabNav
               items={[
-                <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/details`} role="tab">
+                <NavLink
+                  exact
+                  activeClassName="usa-current"
+                  to={`/moves/${moveCode}/details`}
+                  role="tab"
+                  data-testid="MoveDetails-Tab"
+                >
                   <span className="tab-title">Move details</span>
                   {unapprovedShipmentCount > 0 && <Tag>{unapprovedShipmentCount}</Tag>}
                 </NavLink>,

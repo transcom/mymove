@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import classnames from 'classnames';
 import { GridContainer, Grid, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,7 +18,7 @@ import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
@@ -32,6 +32,7 @@ const sectionLabels = {
 
 const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount }) => {
   const { moveCode } = useParams();
+  const history = useHistory();
 
   const [activeSection, setActiveSection] = useState('');
 
@@ -69,6 +70,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
   const [mutateMoveStatus] = useMutation(updateMoveStatus, {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
+      queryCache.invalidateQueries([MOVES, data.locator]);
+      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, data.id]);
     },
   });
 
@@ -76,6 +79,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
     },
   });
 
@@ -189,6 +194,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
           {submittedShipments.length > 0 && (
             <div className={styles.section} id="requested-shipments">
               <RequestedShipments
+                moveTaskOrder={move}
                 mtoShipments={submittedShipments}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
@@ -197,20 +203,20 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
                 shipmentsStatus={shipmentStatuses.SUBMITTED}
                 approveMTO={mutateMoveStatus}
                 approveMTOShipment={mutateMTOShipmentStatus}
-                moveTaskOrder={move}
+                handleAfterSuccess={history.push}
               />
             </div>
           )}
           {approvedShipments.length > 0 && (
             <div className={styles.section} id="approved-shipments">
               <RequestedShipments
+                moveTaskOrder={move}
                 mtoShipments={approvedShipments}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
                 shipmentsStatus={shipmentStatuses.APPROVED}
-                moveTaskOrder={move}
               />
             </div>
           )}

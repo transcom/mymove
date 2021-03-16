@@ -24,6 +24,7 @@ const RequestedShipments = ({
   moveTaskOrder,
   approveMTO,
   approveMTOShipment,
+  handleAfterSuccess,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -65,8 +66,7 @@ const RequestedShipments = ({
               ),
             )
               .then(() => {
-                // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
-                window.location.reload();
+                handleAfterSuccess('mto', { showMTOpostedMessage: true });
               })
               .catch(() => {
                 // TODO: Decide if we want to display an error notice, log error event, or retry
@@ -91,8 +91,7 @@ const RequestedShipments = ({
           ),
         )
           .then(() => {
-            // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
-            window.location.reload();
+            handleAfterSuccess('mto');
           })
           .catch(() => {
             // TODO: Decide if we want to display an error notice, log error event, or retry
@@ -247,6 +246,7 @@ const RequestedShipments = ({
 };
 
 RequestedShipments.propTypes = {
+  moveTaskOrder: MoveTaskOrderShape,
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
   shipmentsStatus: PropTypes.string.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
@@ -278,7 +278,7 @@ RequestedShipments.propTypes = {
   }).isRequired,
   approveMTO: PropTypes.func,
   approveMTOShipment: PropTypes.func,
-  moveTaskOrder: MoveTaskOrderShape,
+  handleAfterSuccess: PropTypes.func,
 };
 
 RequestedShipments.defaultProps = {
@@ -286,6 +286,7 @@ RequestedShipments.defaultProps = {
   moveTaskOrder: {},
   approveMTO: () => Promise.resolve(),
   approveMTOShipment: () => Promise.resolve(),
+  handleAfterSuccess: () => {},
 };
 
 export default RequestedShipments;
