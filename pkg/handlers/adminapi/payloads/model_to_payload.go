@@ -1,6 +1,9 @@
 package payloads
 
 import (
+	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -18,7 +21,8 @@ func WebhookSubscriptionPayload(sub models.WebhookSubscription) *adminmessages.W
 		Severity:     &severity,
 		EventKey:     &sub.EventKey,
 		Status:       &status,
-		CreatedAt:    *handlers.FmtDateTime(sub.CreatedAt),
-		UpdatedAt:    *handlers.FmtDateTime(sub.UpdatedAt),
+		CreatedAt:    strfmt.DateTime(sub.CreatedAt),
+		UpdatedAt:    strfmt.DateTime(sub.UpdatedAt),
+		ETag:         etag.GenerateEtag(sub.UpdatedAt),
 	}
 }
