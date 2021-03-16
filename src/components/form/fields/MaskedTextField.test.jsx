@@ -5,6 +5,21 @@ import { IMaskInput } from 'react-imask';
 
 import MaskedTextField from './MaskedTextField';
 
+const mockOnChange = jest.fn();
+// mock out formik hook as we are not testing formik
+// needs to be before first describe
+jest.mock('formik', () => {
+  return {
+    ...jest.requireActual('formik'),
+    useField: () => [
+      {
+        onChange: mockOnChange,
+      },
+      { touched: true, error: 'sample error' },
+    ],
+  };
+});
+
 describe('MaskedTextField', () => {
   describe('with name prop', () => {
     const wrapper = shallow(

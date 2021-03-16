@@ -4,6 +4,17 @@ import classnames from 'classnames';
 import { useField } from 'formik';
 import { FormGroup, Label, TextInput, ErrorMessage } from '@trussworks/react-uswds';
 
+/**
+ * This component renders a ReactUSWDS TextInput component inside of a FormGroup,
+ * with a Label and ErrorMessage.
+ *
+ * It relies on the Formik useField hook to work, so it must ALWAYS be rendered
+ * inside of a Formik form context.
+ *
+ * If you want to use these components outside a Formik form, you can use the
+ * ReactUSWDS components directly.
+ */
+
 const TextField = ({ name, id, label, labelClassName, labelHint, validate, type, warning, ...inputProps }) => {
   const [fieldProps, metaProps] = useField({ name, validate, type });
   const showError = metaProps.touched && !!metaProps.error;
