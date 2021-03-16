@@ -154,8 +154,14 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 			logger.Error("Error finding webhookSubscription to update")
 			return webhooksubscriptionop.NewUpdateWebhookSubscriptionNotFound()
 		}
-		logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
-		return handlers.ResponseForError(logger, err)
+		switch err.(type) {
+		case services.PreconditionFailedError:
+			logger.Error("Error updating webhookSubscription due to stale eTag")
+			return webhooksubscriptionop.NewUpdateWebhookSubscriptionPreconditionFailed()
+		default:
+			logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
+			return handlers.ResponseForError(logger, err)
+		}
 	}
 
 	// Convert model back to a payload and return to caller

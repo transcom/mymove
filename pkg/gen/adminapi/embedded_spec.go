@@ -1412,6 +1412,9 @@ func init() {
           "404": {
             "description": "subscription not found"
           },
+          "412": {
+            "description": "Precondition failed"
+          },
           "422": {
             "description": "Validation error",
             "schema": {
@@ -4030,6 +4033,9 @@ func init() {
           },
           "404": {
             "description": "subscription not found"
+          },
+          "412": {
+            "description": "Precondition failed"
           },
           "422": {
             "description": "Validation error",

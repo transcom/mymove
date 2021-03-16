@@ -1855,6 +1855,8 @@ paths:
           description: Not authorized to update this webhook subscription
         404:
           description: subscription not found
+        412:
+          description: Precondition failed
         422:
           description: Validation error
           schema:
