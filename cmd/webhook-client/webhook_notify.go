@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -80,8 +79,8 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 	// Start polling the db for changes
 	go webhookEngine.Start()
 
+	// Interrupt singnal recieved
 	<-webhookEngine.DoneChannel
-	fmt.Println("🧽🧽🧽🧽🧽 After done channel is hit with true")
 	log.Println("Shutdown Server ...")
 	if err = db.Close(); err == nil {
 		logger.Info("Db connection closed")
@@ -92,3 +91,5 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 	log.Println("Listener exiting")
 	return nil
 }
+
+// For tests look at mocking, run engine, send x amount of

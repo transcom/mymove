@@ -50,8 +50,6 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 		for _, sub := range subscriptions {
 			sub := sub
 			if sub.EventKey == notif.EventKey {
-				fmt.Println("🎉🎉🎉🎉🎉🎉🎉🎉🎉 Start of loop right before 60 second timer")
-				time.Sleep(60 * time.Second)
 				foundSub = true
 				stopLoop := false
 				var sev int
@@ -101,10 +99,13 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 					return
 				}
 
-				// Return out of loop if quit signal recieved
-				<-eng.QuitChannel
-				fmt.Println("🤞🏻🤞🏻🤞🏻🤞🏻🤞🏻🤞🏻🤞🏻 End of subscription loop")
-				eng.DoneChannel <- true
+				// Return out of loop if quit signal recieved, otherwise, keep going
+				select {
+				case <-eng.QuitChannel:
+					eng.DoneChannel <- true
+					return
+				default:
+				}
 			}
 		}
 		if foundSub == false {
@@ -305,7 +306,6 @@ func (eng *Engine) run() error {
 
 	// process notifications
 	eng.processNotifications(notifications, subscriptions)
-	fmt.Println("🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠 End of eng.run function")
 	return nil
 }
 
