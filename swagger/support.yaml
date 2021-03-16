@@ -459,7 +459,7 @@ paths:
     post:
       summary: Test endpoint for receiving messages from our own webhook-client
       description: >
-        This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow.
+        This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow
         The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and
         sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
       operationId: receiveWebhookNotification
@@ -1797,11 +1797,27 @@ definitions:
       eventKey:
         type: string
         description: Name of event triggered
-        example: paymentRequest.updated
+        example: 'PaymentRequest.Update'
       createdAt:
         type: string
         format: date-time
         description: Time representing when the event was triggered
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        description: Time representing when the notification was last updated
+        readOnly: true
+      firstAttemptedAt:
+        type: string
+        format: date-time
+        description: Time representing when the system firstAttempted to send this notification
+        readOnly: true
+        x-nullable: true
+      traceID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       moveTaskOrderID:
         type: string
@@ -1817,6 +1833,17 @@ definitions:
         type: string
         format: JSON
         x-nullable: true
+      status:
+        $ref: '#/definitions/WebhookNotificationStatus'
+  WebhookNotificationStatus:
+    description: Statuses available for a Webhook Notification
+    type: string
+    enum:
+      - PENDING
+      - SENT
+      - SKIPPED
+      - FAILING
+      - FAILED
 responses:
   InvalidRequest:
     description: The request payload is invalid.

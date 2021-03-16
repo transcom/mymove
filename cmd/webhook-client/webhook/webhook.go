@@ -223,7 +223,7 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 			}
 			logger.Info("Notification successfully sent:",
 				zap.String("Status", resp.Status),
-				zap.String("EventName", message.EventKey),
+				zap.String("EventKey", message.EventKey),
 				zap.String("NotificationID", message.ID.String()),
 				zap.String("UpdatedObjectID", message.UpdatedObjectID.String()),
 			)

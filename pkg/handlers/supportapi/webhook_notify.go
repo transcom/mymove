@@ -1,11 +1,16 @@
 package supportapi
 
 import (
+	"fmt"
+
+	"github.com/gobuffalo/validate/v3"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	webhookoperations "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
+	webhookops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,7 +25,7 @@ type ReceiveWebhookNotificationHandler struct {
 }
 
 // Handle receipt of message
-func (h ReceiveWebhookNotificationHandler) Handle(params webhookoperations.ReceiveWebhookNotificationParams) middleware.Responder {
+func (h ReceiveWebhookNotificationHandler) Handle(params webhookops.ReceiveWebhookNotificationParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	notif := params.Body
 
@@ -41,7 +46,7 @@ func (h ReceiveWebhookNotificationHandler) Handle(params webhookoperations.Recei
 		zap.String("EventKey", notif.EventKey),
 		zap.String("createdAt", notif.CreatedAt.String()),
 		zap.String("object", objectString))
-	return webhookoperations.NewReceiveWebhookNotificationOK().WithPayload(payload)
+	return webhookops.NewReceiveWebhookNotificationOK().WithPayload(payload)
 }
 
 // CreateWebhookNotificationHandler is the interface to handle the createWebhookNotification
@@ -49,30 +54,81 @@ type CreateWebhookNotificationHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle handles the endpoint request to the createWebhookNotification handler
-func (h CreateWebhookNotificationHandler) Handle(params webhookoperations.CreateWebhookNotificationParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
-	message := "{ \"message\": \"This is a test notification\" }"
-	traceID := h.GetTraceID()
-	notification := models.WebhookNotification{
-		EventKey: string(event.MoveTaskOrderUpdateEventKey),
-		TraceID:  &traceID,
-		Payload:  message,
-		Status:   models.WebhookNotificationPending,
+// WebhookNotificationM2P converts model to payload
+func WebhookNotificationM2P(model *models.WebhookNotification) *supportmessages.WebhookNotification {
+	payload := supportmessages.WebhookNotification{
+		ID:               *handlers.FmtUUID(model.ID),
+		EventKey:         model.EventKey,
+		Object:           swag.String(model.Payload),
+		CreatedAt:        *handlers.FmtDateTime(model.CreatedAt),
+		UpdatedAt:        *handlers.FmtDateTime(model.UpdatedAt),
+		FirstAttemptedAt: handlers.FmtDateTimePtr(model.FirstAttemptedAt),
+		ObjectID:         handlers.FmtUUIDPtr(model.ObjectID),
+		TraceID:          *handlers.FmtUUIDPtr(model.TraceID),
+		MoveTaskOrderID:  handlers.FmtUUIDPtr(model.MoveTaskOrderID),
 	}
-	verrs, err := h.DB().ValidateAndCreate(&notification)
+	return &payload
+}
+
+// WebhookNotificatonP2M converts payload to model
+func WebhookNotificatonP2M(payload *supportmessages.WebhookNotification, traceID uuid.UUID) (*models.WebhookNotification, *validate.Errors) {
+	verrs := validate.NewErrors()
+	var notification *models.WebhookNotification
+	if payload == nil {
+		// create default notification
+		message := "{ \"message\": \"This is a test notification\" }"
+		notification = &models.WebhookNotification{
+			EventKey: string(event.TestCreateEventKey),
+			TraceID:  &traceID,
+			Payload:  message,
+			Status:   models.WebhookNotificationPending,
+		}
+	} else {
+		if !event.ExistsEventKey(payload.EventKey) {
+			verrs.Add("eventKey", "must be a registered event key")
+			return nil, verrs
+		}
+		notification = &models.WebhookNotification{
+			// ID is managed by pop
+			EventKey:        payload.EventKey,
+			TraceID:         &traceID,
+			MoveTaskOrderID: handlers.FmtUUIDPtrToPopPtr(payload.MoveTaskOrderID),
+			ObjectID:        handlers.FmtUUIDPtrToPopPtr(payload.ObjectID),
+			// Payload updated below
+			Status: models.WebhookNotificationPending,
+			// CreatedAt is managed by pop
+			// UpdatedAt is managed by pop
+			// FirstAttemptedAt is never provided by user
+		}
+		if payload.Object != nil {
+			notification.Payload = *payload.Object
+		}
+	}
+	return notification, nil
+}
+
+// Handle handles the endpoint request to the createWebhookNotification handler
+func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhookNotificationParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	payload := params.Body
+
+	var err error
+	notification, verrs := WebhookNotificatonP2M(payload, h.GetTraceID())
+	if verrs == nil {
+		verrs, err = h.DB().ValidateAndCreate(notification)
+	}
 	if verrs != nil && verrs.HasAny() {
-		logger.Error("Could not store ", zap.Error(verrs))
-		return webhookoperations.NewCreateWebhookNotificationInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		logger.Error("Error validating WebhookNotification: ", zap.Error(verrs))
+
+		return webhookops.NewCreateWebhookNotificationUnprocessableEntity().WithPayload(payloads.ValidationError(
+			"The notification definition is invalid.", h.GetTraceID(), verrs))
 	}
 	if err != nil {
-		return webhookoperations.NewCreateWebhookNotificationInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		logger.Error("Error creating WebhookNotification: ", zap.Error(err))
+		return webhookops.NewCreateWebhookNotificationInternalServerError().WithPayload(payloads.InternalServerError(swag.String("that thing happened"), h.GetTraceID()))
 	}
-
-	payload := supportmessages.WebhookNotification{
-		EventKey: notification.EventKey,
-		Object:   swag.String(notification.Payload),
-	}
-	return webhookoperations.NewCreateWebhookNotificationCreated().WithPayload(&payload)
+	fmt.Println("got here 3")
+	payload = WebhookNotificationM2P(notification)
+	fmt.Println("got here 4")
+	return webhookops.NewCreateWebhookNotificationCreated().WithPayload(payload)
 }

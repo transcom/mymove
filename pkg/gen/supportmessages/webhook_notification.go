@@ -25,6 +25,11 @@ type WebhookNotification struct {
 	// Name of event triggered
 	EventKey string `json:"eventKey,omitempty"`
 
+	// Time representing when the system firstAttempted to send this notification
+	// Read Only: true
+	// Format: date-time
+	FirstAttemptedAt *strfmt.DateTime `json:"firstAttemptedAt,omitempty"`
+
 	// id
 	// Read Only: true
 	// Format: uuid
@@ -40,6 +45,19 @@ type WebhookNotification struct {
 	// object ID
 	// Format: uuid
 	ObjectID *strfmt.UUID `json:"objectID,omitempty"`
+
+	// status
+	Status WebhookNotificationStatus `json:"status,omitempty"`
+
+	// trace ID
+	// Read Only: true
+	// Format: uuid
+	TraceID strfmt.UUID `json:"traceID,omitempty"`
+
+	// Time representing when the notification was last updated
+	// Read Only: true
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this webhook notification
@@ -47,6 +65,10 @@ func (m *WebhookNotification) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateFirstAttemptedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -59,6 +81,18 @@ func (m *WebhookNotification) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateObjectID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTraceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -75,6 +109,19 @@ func (m *WebhookNotification) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookNotification) validateFirstAttemptedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.FirstAttemptedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("firstAttemptedAt", "body", "date-time", m.FirstAttemptedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -114,6 +161,48 @@ func (m *WebhookNotification) validateObjectID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("objectID", "body", "uuid", m.ObjectID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookNotification) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookNotification) validateTraceID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.TraceID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("traceID", "body", "uuid", m.TraceID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookNotification) validateUpdatedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

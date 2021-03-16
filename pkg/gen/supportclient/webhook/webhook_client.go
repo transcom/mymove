@@ -74,7 +74,7 @@ func (a *Client) CreateWebhookNotification(params *CreateWebhookNotificationPara
 /*
   ReceiveWebhookNotification tests endpoint for receiving messages from our own webhook client
 
-  This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
+  This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
 
 */
 func (a *Client) ReceiveWebhookNotification(params *ReceiveWebhookNotificationParams) (*ReceiveWebhookNotificationOK, error) {

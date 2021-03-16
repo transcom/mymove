@@ -700,7 +700,7 @@ func init() {
     },
     "/webhook-notify": {
       "post": {
-        "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
+        "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
         "consumes": [
           "application/json"
         ],
@@ -2275,7 +2275,14 @@ func init() {
         "eventKey": {
           "description": "Name of event triggered",
           "type": "string",
-          "example": "paymentRequest.updated"
+          "example": "PaymentRequest.Update"
+        },
+        "firstAttemptedAt": {
+          "description": "Time representing when the system firstAttempted to send this notification",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2299,8 +2306,34 @@ func init() {
           "format": "uuid",
           "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookNotificationStatus"
+        },
+        "traceID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "description": "Time representing when the notification was last updated",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
+    },
+    "WebhookNotificationStatus": {
+      "description": "Statuses available for a Webhook Notification",
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "SENT",
+        "SKIPPED",
+        "FAILING",
+        "FAILED"
+      ]
     }
   },
   "responses": {
@@ -3270,7 +3303,7 @@ func init() {
     },
     "/webhook-notify": {
       "post": {
-        "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
+        "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
         "consumes": [
           "application/json"
         ],
@@ -4848,7 +4881,14 @@ func init() {
         "eventKey": {
           "description": "Name of event triggered",
           "type": "string",
-          "example": "paymentRequest.updated"
+          "example": "PaymentRequest.Update"
+        },
+        "firstAttemptedAt": {
+          "description": "Time representing when the system firstAttempted to send this notification",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -4872,8 +4912,34 @@ func init() {
           "format": "uuid",
           "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookNotificationStatus"
+        },
+        "traceID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "description": "Time representing when the notification was last updated",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
+    },
+    "WebhookNotificationStatus": {
+      "description": "Statuses available for a Webhook Notification",
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "SENT",
+        "SKIPPED",
+        "FAILING",
+        "FAILED"
+      ]
     }
   },
   "responses": {
