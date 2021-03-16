@@ -8,7 +8,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 
 export default {
-  title: 'Components/AddressFields',
+  title: 'Components/Fieldsets/AddressFields',
 };
 
 const requiredAddressSchema = Yup.object().shape({
