@@ -97,5 +97,3 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 	log.Println("Listener exiting")
 	return nil
 }
-
-// For tests look at mocking, run engine, send x amount of
