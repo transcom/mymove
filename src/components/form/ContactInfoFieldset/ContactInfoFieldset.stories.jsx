@@ -8,15 +8,21 @@ export default {
   title: 'Components/ContactInfoFieldset',
 };
 
-const props = {
-  name: 'contactInfoFieldset',
-  onChangePreferEmail: action('clicked'),
-  onChangePreferPhone: action('clicked'),
-};
-
-export const ContactInfoFieldsetStory = () => (
-  <Formik>
-    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-    <ContactInfoFieldset {...props} />
+export const ContactInfoFieldsetBasic = () => (
+  <Formik
+    initialValues={{
+      contact: {
+        phone: '',
+        alternatePhone: '',
+        email: '',
+      },
+    }}
+  >
+    <ContactInfoFieldset
+      name="contact"
+      legend="Your contact info"
+      onChangePreferPhone={action('clicked')}
+      onChangePreferEmail={action('clicked')}
+    />
   </Formik>
 );

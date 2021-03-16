@@ -1,58 +1,42 @@
 import React from 'react';
-import { func, node, shape, string } from 'prop-types';
-import { Field } from 'formik';
+import { func, node, string } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Checkbox, Fieldset } from '@trussworks/react-uswds';
 
-import { TextInput } from 'components/form/fields';
+import TextField from 'components/form/fields/TextField';
 
-export const ContactInfoFieldset = ({
-  legend,
-  className,
-  onChangePreferEmail,
-  onChangePreferPhone,
-  values,
-  name,
-  render,
-}) => {
+export const ContactInfoFieldset = ({ legend, className, onChangePreferEmail, onChangePreferPhone, name, render }) => {
   const contactInfoFieldsetUUID = uuidv4();
 
   return (
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <Field
-            as={TextInput}
+          <TextField
             label="Best contact phone"
             id={`phone_${contactInfoFieldsetUUID}`}
             data-testid="phone"
             name={`${name}.phone`}
             type="tel"
             maxLength="10"
-            value={values.phone}
           />
-          <Field
-            as={TextInput}
+          <TextField
             label="Alt. phone"
-            id={`alternate_phone_${contactInfoFieldsetUUID}`}
+            id={`alternatePhone_${contactInfoFieldsetUUID}`}
             data-testid="alternamte-phone"
-            name={`${name}.alternate_phone`}
+            name={`${name}.alternatePhone`}
             type="tel"
             maxLength="10"
-            value={values.alternatePhone}
           />
-          <Field
-            as={TextInput}
+          <TextField
             label="Personal email"
             id={`email_${contactInfoFieldsetUUID}`}
             data-testid="email"
             name={`${name}.email`}
-            type="text"
-            value={values.email}
           />
           <p>Preferred contact method</p>
           <Checkbox
-            id={`prefer_phone_${contactInfoFieldsetUUID}`}
+            id={`preferPhone_${contactInfoFieldsetUUID}`}
             label="Phone"
             name={`${name}.prefer_phone`}
             onChange={onChangePreferPhone}
@@ -72,11 +56,6 @@ export const ContactInfoFieldset = ({
 ContactInfoFieldset.propTypes = {
   legend: node,
   className: string,
-  values: shape({
-    phone: string,
-    alternatePhone: string,
-    email: string,
-  }),
   name: string.isRequired,
   render: func,
   onChangePreferPhone: func.isRequired,
@@ -86,7 +65,6 @@ ContactInfoFieldset.propTypes = {
 ContactInfoFieldset.defaultProps = {
   legend: '',
   className: '',
-  values: {},
   render: (fields) => fields,
 };
 
