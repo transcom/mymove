@@ -2,13 +2,13 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Formik } from 'formik';
 
-import { ContactInfoFieldset } from './index';
+import { ServiceMemberContactInfoFields } from './index';
 
 export default {
-  title: 'Components/ContactInfoFieldset',
+  title: 'Components/Fieldsets/ServiceMemberContactInfoFields',
 };
 
-export const ContactInfoFieldsetBasic = () => (
+export const Basic = () => (
   <Formik
     initialValues={{
       contact: {
@@ -18,7 +18,7 @@ export const ContactInfoFieldsetBasic = () => (
       },
     }}
   >
-    <ContactInfoFieldset
+    <ServiceMemberContactInfoFields
       name="contact"
       legend="Your contact info"
       onChangePreferPhone={action('clicked')}

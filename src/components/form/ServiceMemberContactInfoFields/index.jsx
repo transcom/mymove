@@ -5,7 +5,14 @@ import { Checkbox, Fieldset } from '@trussworks/react-uswds';
 
 import TextField from 'components/form/fields/TextField';
 
-export const ContactInfoFieldset = ({ legend, className, onChangePreferEmail, onChangePreferPhone, name, render }) => {
+export const ServiceMemberContactInfoFields = ({
+  legend,
+  className,
+  onChangePreferEmail,
+  onChangePreferPhone,
+  name,
+  render,
+}) => {
   const contactInfoFieldsetUUID = uuidv4();
 
   return (
@@ -53,7 +60,7 @@ export const ContactInfoFieldset = ({ legend, className, onChangePreferEmail, on
   );
 };
 
-ContactInfoFieldset.propTypes = {
+ServiceMemberContactInfoFields.propTypes = {
   legend: node,
   className: string,
   name: string.isRequired,
@@ -62,10 +69,10 @@ ContactInfoFieldset.propTypes = {
   onChangePreferEmail: func.isRequired,
 };
 
-ContactInfoFieldset.defaultProps = {
+ServiceMemberContactInfoFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
 };
 
-export default ContactInfoFieldset;
+export default ServiceMemberContactInfoFields;
