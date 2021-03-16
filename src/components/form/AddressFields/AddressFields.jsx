@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Field } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
-import { TextInput } from 'components/form/fields';
+import TextField from 'components/form/fields/TextField';
 
 export const AddressFields = ({ legend, className, values, name, render }) => {
   const addressFieldsUUID = uuidv4();
@@ -13,8 +12,7 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <Field
-            as={TextInput}
+          <TextField
             label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID}`}
             data-testid="mailingAddress1"
@@ -22,8 +20,7 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
             type="text"
             value={values.street_address_1}
           />
-          <Field
-            as={TextInput}
+          <TextField
             label="Address 2"
             labelHint="Optional"
             id={`mailingAddress2_${addressFieldsUUID}`}
@@ -32,8 +29,7 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
             type="text"
             value={values.street_address_2}
           />
-          <Field
-            as={TextInput}
+          <TextField
             label="City"
             id={`city_${addressFieldsUUID}`}
             data-testid="city"
@@ -44,8 +40,7 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
 
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-6">
-              <Field
-                as={TextInput}
+              <TextField
                 label="State"
                 id={`state_${addressFieldsUUID}`}
                 data-testid="state"
@@ -56,8 +51,7 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
               />
             </div>
             <div className="mobile-lg:grid-col-6">
-              <Field
-                as={TextInput}
+              <TextField
                 label="ZIP"
                 id={`zip_${addressFieldsUUID}`}
                 data-testid="zip"

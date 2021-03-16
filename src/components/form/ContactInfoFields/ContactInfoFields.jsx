@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Field } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
-import { TextInput } from 'components/form/fields';
+import TextField from 'components/form/fields/TextField';
 
 export const ContactInfoFields = ({ legend, className, values, name, render }) => {
   const contactInfoFieldsUUID = uuidv4();
@@ -13,8 +12,7 @@ export const ContactInfoFields = ({ legend, className, values, name, render }) =
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <Field
-            as={TextInput}
+          <TextField
             label="First name"
             id={`firstName_${contactInfoFieldsUUID}`}
             data-testid="firstName"
@@ -22,8 +20,7 @@ export const ContactInfoFields = ({ legend, className, values, name, render }) =
             type="text"
             value={values.firstName}
           />
-          <Field
-            as={TextInput}
+          <TextField
             label="Last name"
             id={`lastName_${contactInfoFieldsUUID}`}
             data-testid="lastName"
@@ -32,8 +29,7 @@ export const ContactInfoFields = ({ legend, className, values, name, render }) =
             value={values.lastName}
           />
 
-          <Field
-            as={TextInput}
+          <TextField
             label="Phone"
             id={`phone_${contactInfoFieldsUUID}`}
             data-testid="phone"
@@ -42,8 +38,7 @@ export const ContactInfoFields = ({ legend, className, values, name, render }) =
             maxLength="10"
             value={values.phone}
           />
-          <Field
-            as={TextInput}
+          <TextField
             label="Email"
             id={`email_${contactInfoFieldsUUID}`}
             data-testid="email"
