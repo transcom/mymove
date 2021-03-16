@@ -185,14 +185,14 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch) {
   const update = (ordersId, orders, serviceMemberId, serviceMember) => {
     serviceMember.current_station_id = serviceMember.current_station.id;
-    dispatch(updateServiceMember(serviceMemberId, serviceMember));
+    return dispatch(updateServiceMember(serviceMemberId, serviceMember)).then(() => {
+      if (!orders.has_dependents) {
+        orders.spouse_has_pro_gear = false;
+      }
 
-    if (!orders.has_dependents) {
-      orders.spouse_has_pro_gear = false;
-    }
-
-    orders.new_duty_station_id = orders.new_duty_station.id;
-    dispatch(updateOrders(ordersId, orders));
+      orders.new_duty_station_id = orders.new_duty_station.id;
+      dispatch(updateOrders(ordersId, orders));
+    });
   };
 
   return { update };

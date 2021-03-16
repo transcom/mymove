@@ -1,13 +1,15 @@
 import React from 'react';
 import { string, shape, number, func, bool } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { generatePath } from 'react-router';
 
-import { AddressShape } from '../../../../../types/address';
 import styles from '../ShipmentCard.module.scss';
 import PickupDisplay from '../PickupDisplay';
 
+import { AddressShape } from 'types/address';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import { customerRoutes } from 'constants/routes';
 
 const NTSShipmentCard = ({
   moveId,
@@ -21,7 +23,11 @@ const NTSShipmentCard = ({
   shipmentNumber,
   showEditBtn,
 }) => {
-  const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment`;
+  const editPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+    moveId,
+    mtoShipmentId: shipmentId,
+  });
+
   return (
     <div className={styles.ShipmentCard} data-testid="nts-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>

@@ -56,7 +56,11 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Defer closing the store until after the api call has completed
 	if cacStore != nil {
-		defer cacStore.Close()
+		defer func() {
+			if closeErr := cacStore.Close(); closeErr != nil {
+				logger.Error("CAC connection close failed", zap.Error(closeErr))
+			}
+		}()
 	}
 
 	// Create a webhook engine
@@ -77,7 +81,11 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 	signal.Notify(webhookEngine.QuitChannel, os.Interrupt)
 
 	// Start polling the db for changes
-	go webhookEngine.Start()
+	go func() {
+		if engineStartFailed := webhookEngine.Start(); engineStartFailed != nil {
+			logger.Error("Engine start failed", zap.Error(err))
+		}
+	}()
 
 	// Interrupt singnal recieved
 	<-webhookEngine.DoneChannel

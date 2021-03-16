@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { MTOServiceItemDimensionShape, MTOServiceItemCustomerContactShape } from '../../../types/moveOrder';
+import { MTOServiceItemDimensionShape, MTOServiceItemCustomerContactShape } from '../../../types/order';
 import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
 import styles from './RequestedServiceItemsTable.module.scss';
@@ -54,6 +54,7 @@ RequestedServiceItemsTable.propTypes = {
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
+      mtoShipmentID: PropTypes.string,
       createdAt: PropTypes.string,
       approvedAt: PropTypes.string,
       rejectedAt: PropTypes.string,

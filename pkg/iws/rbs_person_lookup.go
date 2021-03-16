@@ -140,7 +140,12 @@ func (r RBSPersonLookup) sendGetRequest(url string) ([]byte, error) {
 		return data, err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			fmt.Println(fmt.Errorf("Failed to close client due to %w", closeErr).Error())
+		}
+	}()
+
 	return ioutil.ReadAll(resp.Body)
 }
 
