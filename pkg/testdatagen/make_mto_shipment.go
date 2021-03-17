@@ -81,6 +81,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	}
 
 	// mock weights
+	estimatedWeight := unit.Pound(1000)
 	actualWeight := unit.Pound(980)
 
 	// mock dates
@@ -103,6 +104,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		ActualPickupDate:      &actualPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 		CustomerRemarks:       swag.String("Please treat gently"),
+		PrimeEstimatedWeight:  &estimatedWeight,
 		PrimeActualWeight:     &actualWeight,
 		ShipmentType:          shipmentType,
 		Status:                shipmentStatus,
