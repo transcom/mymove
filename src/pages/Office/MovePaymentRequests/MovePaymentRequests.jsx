@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { func } from 'prop-types';
 
 import txoStyles from '../TXOMoveInfo/TXOTab.module.scss';
-import { PAYMENT_REQUEST_STATUS } from '../../../shared/constants';
+import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -26,7 +26,7 @@ const MovePaymentRequests = ({ setUnapprovedShipmentCount, setPendingPaymentRequ
   }, [mtoShipments, mtoShipmentsArr, setUnapprovedShipmentCount]);
 
   useEffect(() => {
-    const pendingCount = paymentRequests.filter((pr) => pr.status === PAYMENT_REQUEST_STATUS.PENDING).length;
+    const pendingCount = paymentRequests.filter((pr) => pr.status === paymentRequestStatus.PENDING).length;
     setPendingPaymentRequestCount(pendingCount);
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
