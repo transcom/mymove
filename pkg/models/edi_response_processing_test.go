@@ -16,27 +16,30 @@ func (suite *ModelSuite) TestBasicEDIResponseProcessingInstantiation() {
 	}{
 		"Successful Create": {
 			ediResponseProcessing: models.EDIResponseProcessing{
-				ID:               uuid.Must(uuid.NewV4()),
-				ProcessStartedAt: time.Now(),
-				ProcessEndedAt:   time.Now(),
-				MessageType:      models.EDI997,
+				ID:                   uuid.Must(uuid.NewV4()),
+				ProcessStartedAt:     time.Now(),
+				ProcessEndedAt:       time.Now(),
+				MessageType:          models.EDI997,
+				NumMessagesProcessed: 6,
 			},
 			expectedErrs: nil,
 		},
 		"Empty Fields": {
 			ediResponseProcessing: models.EDIResponseProcessing{},
 			expectedErrs: map[string][]string{
-				"process_started_at": {"ProcessStartedAt can not be blank."},
-				"process_ended_at":   {"ProcessEndedAt can not be blank."},
-				"message_type":       {"MessageType is not in the list [997, 824, 810]."},
+				"process_started_at":     {"ProcessStartedAt can not be blank."},
+				"process_ended_at":       {"ProcessEndedAt can not be blank."},
+				"num_messages_processed": {"NumMessagesProcessed can not be blank."},
+				"message_type":           {"MessageType is not in the list [997, 824, 810]."},
 			},
 		},
 		"Message Type Invalid": {
 			ediResponseProcessing: models.EDIResponseProcessing{
-				ID:               uuid.Must(uuid.NewV4()),
-				ProcessStartedAt: time.Now(),
-				ProcessEndedAt:   time.Now(),
-				MessageType:      "models.EDI997",
+				ID:                   uuid.Must(uuid.NewV4()),
+				ProcessStartedAt:     time.Now(),
+				ProcessEndedAt:       time.Now(),
+				NumMessagesProcessed: 6,
+				MessageType:          "models.EDI997",
 			},
 			expectedErrs: map[string][]string{
 				"message_type": {"MessageType is not in the list [997, 824, 810]."},

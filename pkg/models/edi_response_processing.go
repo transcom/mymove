@@ -24,10 +24,11 @@ const (
 
 // EDIResponseProcessing represents an email sent to a service member
 type EDIResponseProcessing struct {
-	ID               uuid.UUID               `db:"id"`
-	MessageType      EDIResponseMessageTypes `db:"edi_response_message_type"`
-	ProcessStartedAt time.Time               `db:"process_started_at"`
-	ProcessEndedAt   time.Time               `db:"process_ended_at"`
+	ID                   uuid.UUID               `db:"id"`
+	MessageType          EDIResponseMessageTypes `db:"edi_response_message_type"`
+	ProcessStartedAt     time.Time               `db:"process_started_at"`
+	ProcessEndedAt       time.Time               `db:"process_ended_at"`
+	NumMessagesProcessed int                     `db:"num_messages_processed"`
 }
 
 // EDIResponseProcessings is a slice of notification structs
@@ -43,6 +44,7 @@ func (e *EDIResponseProcessing) Validate(tx *pop.Connection) (*validate.Errors, 
 		}},
 		&validators.TimeIsPresent{Field: e.ProcessStartedAt, Name: "ProcessStartedAt"},
 		&validators.TimeIsPresent{Field: e.ProcessEndedAt, Name: "ProcessEndedAt"},
+		&validators.IntIsPresent{Field: e.NumMessagesProcessed, Name: "NumMessagesProcessed"},
 	), nil
 }
 
