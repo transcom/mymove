@@ -2,6 +2,7 @@ package edi997
 
 import (
 	"bufio"
+	"fmt"
 	"strings"
 )
 
@@ -38,14 +39,14 @@ func (e *EDI) Parse(ediString string) error {
 	for scanner.Scan() {
 		record := strings.Split(scanner.Text(), "*")
 
-		if len(record) == 0 {
+		if len(record) == 0 || len(strings.TrimSpace(record[0])) == 0 {
 			continue
 		}
 		switch record[0] {
 		case "ISA":
 			err = e.InterchangeControlEnvelope.ISA.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 		case "GS":
 			// functional group header
@@ -55,7 +56,7 @@ func (e *EDI) Parse(ediString string) error {
 			fg := functionalGroupEnvelope{}
 			err = fg.GS.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 			e.InterchangeControlEnvelope.FunctionalGroups = append(e.InterchangeControlEnvelope.FunctionalGroups, fg)
 			counter.fgCounter++
@@ -68,7 +69,7 @@ func (e *EDI) Parse(ediString string) error {
 			ts := transactionSet{}
 			err = ts.ST.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 			e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets = append(e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets, ts)
 			counter.fg[fgIndex].tsCounter++
@@ -80,7 +81,7 @@ func (e *EDI) Parse(ediString string) error {
 			tsIndex := counter.fg[fgIndex].tsCounter - 1
 			err = e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.AK1.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 		case "AK2":
 			// bump up counter for tsrCounter
@@ -91,7 +92,7 @@ func (e *EDI) Parse(ediString string) error {
 			tsr := transactionSetResponse{}
 			err = tsr.AK2.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 			e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.TransactionSetResponses = append(e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.TransactionSetResponses, tsr)
 			counter.fg[fgIndex].ts[tsIndex].fgr.tsrCounter++
@@ -107,7 +108,7 @@ func (e *EDI) Parse(ediString string) error {
 			ds := dataSegment{}
 			err = ds.AK3.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 			e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.TransactionSetResponses[tsrIndex].dataSegments = append(e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.TransactionSetResponses[tsrIndex].dataSegments, ds)
 
@@ -121,7 +122,7 @@ func (e *EDI) Parse(ediString string) error {
 
 			err = e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.TransactionSetResponses[tsrIndex].dataSegments[dsIndex].AK4.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 		case "AK5": // trailer to AK2
 			// transaction set response
@@ -132,7 +133,7 @@ func (e *EDI) Parse(ediString string) error {
 
 			err = e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.TransactionSetResponses[tsrIndex].AK5.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 		case "AK9": // trailer to AK1
 			// functional group response trailer
@@ -141,7 +142,7 @@ func (e *EDI) Parse(ediString string) error {
 			tsIndex := counter.fg[fgIndex].tsCounter - 1
 			err = e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].FunctionalGroupResponse.AK9.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 		case "SE": // trailer to ST
 			// transaction set trailer
@@ -150,7 +151,7 @@ func (e *EDI) Parse(ediString string) error {
 			tsIndex := counter.fg[fgIndex].tsCounter - 1
 			err = e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].TransactionSets[tsIndex].SE.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 		case "GE": // trailer to GS
 			// functional group trailer
@@ -158,13 +159,15 @@ func (e *EDI) Parse(ediString string) error {
 			fgIndex := counter.fgCounter - 1
 			err = e.InterchangeControlEnvelope.FunctionalGroups[fgIndex].GE.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
 		case "IEA": // trailer to ISA
 			err = e.InterchangeControlEnvelope.IEA.Parse(record[1:])
 			if err != nil {
-				return err
+				return fmt.Errorf("997 failed to parse %w", err)
 			}
+		default:
+			return fmt.Errorf("unexpected row for EDI 997, do not know how to parse: %s with %d parts", strings.Join(record, " "), len(record))
 		}
 	} // end of scanner loop
 

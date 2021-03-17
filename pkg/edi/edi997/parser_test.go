@@ -535,6 +535,48 @@ IEA*1*000000022
 		suite.validateIEA(ieaString, iea)
 
 	})
+
+	suite.T().Run("fail to parse 997 with unknown segment", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
+ST*997*0001
+AK18*SI*100001251
+AK2*858*0001
+AK3*ab*123
+AK4*1*2*3*4*MM*bad data goes here 89
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000022
+`
+		edi997 := EDI{}
+		err := edi997.Parse(sample997EDIString)
+		suite.Error(err, "fail to parse 997")
+		suite.Contains(err.Error(), "unexpected row for EDI 997")
+	})
+
+	suite.T().Run("fail to parse 997 with bad format", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00
+GS
+ST
+AK1*SI*100001251
+AK2*858*0001
+AK3*ab*123
+AK4*1*2*3*4*MM*bad data goes here 89
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000022
+`
+		edi997 := EDI{}
+		err := edi997.Parse(sample997EDIString)
+		suite.Error(err, "fail to parse 997")
+		suite.Contains(err.Error(), "997 failed to parse")
+	})
 }
 
 func (suite *EDI997Suite) validateISA(row string, isa edisegment.ISA) {
