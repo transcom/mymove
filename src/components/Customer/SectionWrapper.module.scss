@@ -33,10 +33,6 @@
     }
 
     :global {
-      .usa-form-group:first-of-type .usa-label {
-        margin-top: 0;
-      }
-
       .usa-card-group:first-child > .usa-card--header-first:first-child .usa-card__header {
         @include u-padding-top(0);
       }
