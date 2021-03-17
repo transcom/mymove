@@ -60,6 +60,8 @@ func WebhookSubscriptionModel(sub *adminmessages.WebhookSubscription) *models.We
 // WebhookSubscriptionModelFromCreate converts a payload for creating a webhook subscription to a model
 func WebhookSubscriptionModelFromCreate(sub *adminmessages.CreateWebhookSubscription) *models.WebhookSubscription {
 	model := &models.WebhookSubscription{
+		// EventKey and CallbackURL are required fields in the YAML, so we don't have to worry about the potential
+		// nil dereference errors here:
 		EventKey:     *sub.EventKey,
 		CallbackURL:  *sub.CallbackURL,
 		SubscriberID: uuid.FromStringOrNil(sub.SubscriberID.String()),

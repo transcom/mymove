@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// WebhookSubscriptionPayload converts a webhook subscription payload to a model
+// WebhookSubscriptionPayload converts a webhook subscription model to a payload
 func WebhookSubscriptionPayload(sub models.WebhookSubscription) *adminmessages.WebhookSubscription {
 	severity := int64(sub.Severity)
 	status := adminmessages.WebhookSubscriptionStatus(sub.Status)
