@@ -9,20 +9,34 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
+import { shipmentStatuses } from 'constants/shipments';
+import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
-const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
+const MovePaymentRequests = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount }) => {
   const { moveCode } = useParams();
 
   const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
 
-  const mtoShipmentsArr = Object.values(mtoShipments);
-
   useEffect(() => {
     const shipmentCount = mtoShipments
-      ? mtoShipmentsArr.filter((shipment) => shipment.status === 'SUBMITTED').length
+      ? mtoShipments.filter((shipment) => shipment.status === shipmentStatuses.SUBMITTED).length
       : 0;
     setUnapprovedShipmentCount(shipmentCount);
-  }, [mtoShipments, mtoShipmentsArr, setUnapprovedShipmentCount]);
+  }, [mtoShipments, setUnapprovedShipmentCount]);
+
+  useEffect(() => {
+    let serviceItemCount = 0;
+    if (mtoShipments) {
+      mtoShipments.forEach((shipment) => {
+        if (shipment.status === shipmentStatuses.APPROVED) {
+          serviceItemCount += shipment.mtoServiceItems?.filter(
+            (serviceItem) => serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED,
+          ).length;
+        }
+      });
+    }
+    setUnapprovedServiceItemCount(serviceItemCount);
+  }, [mtoShipments, setUnapprovedServiceItemCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -30,7 +44,7 @@ const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
   const shipmentAddresses = [];
 
   if (paymentRequests.length) {
-    mtoShipmentsArr.forEach((shipment) => {
+    mtoShipments.forEach((shipment) => {
       shipmentAddresses.push({
         mtoShipmentID: shipment.id,
         shipmentAddress: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
@@ -63,6 +77,7 @@ const MovePaymentRequests = ({ setUnapprovedShipmentCount }) => {
 
 MovePaymentRequests.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
+  setUnapprovedServiceItemCount: func.isRequired,
 };
 
 export default MovePaymentRequests;

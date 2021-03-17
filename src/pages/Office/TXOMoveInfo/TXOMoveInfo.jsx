@@ -104,7 +104,10 @@ const TXOMoveInfo = () => {
           </Route>
 
           <Route path="/moves/:moveCode/payment-requests" exact>
-            <MovePaymentRequests setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+            <MovePaymentRequests
+              setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+              setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>
