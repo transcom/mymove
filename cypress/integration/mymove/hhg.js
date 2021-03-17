@@ -43,7 +43,6 @@ function customerSetsUpAnHHGMove() {
   // should be empty before using "Use current residence" checkbox
   cy.get(`input[name="pickup.address.street_address_1"]`).should('be.empty');
   cy.get(`input[name="pickup.address.city"]`).should('be.empty');
-  cy.get(`select[name="pickup.address.state"]`).should('be.empty');
   cy.get(`input[name="pickup.address.postal_code"]`).should('be.empty');
 
   // should have expected "Required" error for required fields
