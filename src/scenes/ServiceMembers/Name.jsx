@@ -9,6 +9,9 @@ import { updateServiceMember as updateServiceMemberAction } from 'store/entities
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import { profileStates } from 'constants/customerStates';
+import { PageKeyShape, PageListShape } from 'types/customerShapes';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -89,6 +92,8 @@ Name.propTypes = {
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
+  pages: PageListShape.isRequired,
+  pageKey: PageKeyShape.isRequired,
 };
 
 const mapDispatchToProps = {
@@ -104,4 +109,7 @@ function mapStateToProps(state) {
     currentServiceMember: serviceMember,
   };
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Name);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(requireCustomerState(Name, profileStates.DOD_INFO_COMPLETE));

@@ -14,7 +14,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
-import { PageKeyShape, PageListShape } from '../../types/customerShapes';
+import { PageKeyShape, PageListShape } from 'types/customerShapes';
 
 const subsetOfFields = [
   'telephone',
