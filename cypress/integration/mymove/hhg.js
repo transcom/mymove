@@ -43,7 +43,7 @@ function customerSetsUpAnHHGMove() {
   // should be empty before using "Use current residence" checkbox
   cy.get(`input[name="pickup.address.street_address_1"]`).should('be.empty');
   cy.get(`input[name="pickup.address.city"]`).should('be.empty');
-  cy.get(`input[name="pickup.address.state"]`).should('be.empty');
+  cy.get(`select[name="pickup.address.state"]`).should('be.empty');
   cy.get(`input[name="pickup.address.postal_code"]`).should('be.empty');
 
   // should have expected "Required" error for required fields
@@ -57,9 +57,9 @@ function customerSetsUpAnHHGMove() {
   cy.get(`input[name="pickup.address.city"]`).type('Some city');
   cy.get('[class="usa-error-message"]').should('not.exist');
 
-  cy.get(`input[name="pickup.address.state"]`).focus().blur();
+  cy.get(`select[name="pickup.address.state"]`).focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
-  cy.get(`input[name="pickup.address.state"]`).type('CA');
+  cy.get(`select[name="pickup.address.state"]`).select('CA');
   cy.get('[class="usa-error-message"]').should('not.exist');
 
   cy.get(`input[name="pickup.address.postal_code"]`).focus().blur();
@@ -96,7 +96,7 @@ function customerSetsUpAnHHGMove() {
   cy.get(`input[name="delivery.address.street_address_1"]`).type('412 Avenue M');
   cy.get(`input[name="delivery.address.street_address_2"]`).type('#3E');
   cy.get(`input[name="delivery.address.city"]`).type('Los Angeles');
-  cy.get(`input[name="delivery.address.state"]`).type('CA');
+  cy.get(`select[name="delivery.address.state"]`).select('CA');
   cy.get(`input[name="delivery.address.postal_code"]`).type('91111').blur();
 
   // releasing agent
