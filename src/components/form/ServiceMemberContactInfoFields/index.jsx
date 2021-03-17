@@ -15,7 +15,7 @@ export const ServiceMemberContactInfoFields = ({
   name,
   render,
 }) => {
-  const contactInfoFieldsetUUID = uuidv4();
+  const ServiceMemberContactInfoFieldsUUID = uuidv4();
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -24,7 +24,7 @@ export const ServiceMemberContactInfoFields = ({
           <TextField
             className={styles.contactPhoneFields}
             label="Best contact phone"
-            id={`phone_${contactInfoFieldsetUUID}`}
+            id={`phone_${ServiceMemberContactInfoFieldsUUID}`}
             name={`${name}.phone`}
             type="tel"
             maxLength="10"
@@ -33,21 +33,21 @@ export const ServiceMemberContactInfoFields = ({
             className={styles.contactPhoneFields}
             label="Alt. phone"
             labelHint="Optional"
-            id={`alternatePhone_${contactInfoFieldsetUUID}`}
+            id={`alternatePhone_${ServiceMemberContactInfoFieldsUUID}`}
             name={`${name}.alternatePhone`}
             type="tel"
             maxLength="10"
           />
-          <TextField label="Personal email" id={`email_${contactInfoFieldsetUUID}`} name={`${name}.email`} />
+          <TextField label="Personal email" id={`email_${ServiceMemberContactInfoFieldsUUID}`} name={`${name}.email`} />
           <Label>Preferred contact method</Label>
           <Checkbox
-            id={`preferPhone_${contactInfoFieldsetUUID}`}
+            id={`preferPhone_${ServiceMemberContactInfoFieldsUUID}`}
             label="Phone"
             name={`${name}.preferPhone`}
             onChange={onChangePreferPhone}
           />
           <Checkbox
-            id={`prefer_email${contactInfoFieldsetUUID}`}
+            id={`prefer_email${ServiceMemberContactInfoFieldsUUID}`}
             label="Email"
             name={`${name}.preferEmail`}
             onChange={onChangePreferEmail}
