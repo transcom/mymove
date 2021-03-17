@@ -66,6 +66,7 @@ func WebhookNotificationM2P(model *models.WebhookNotification) *supportmessages.
 		ObjectID:         handlers.FmtUUIDPtr(model.ObjectID),
 		TraceID:          *handlers.FmtUUIDPtr(model.TraceID),
 		MoveTaskOrderID:  handlers.FmtUUIDPtr(model.MoveTaskOrderID),
+		Status:           supportmessages.WebhookNotificationStatus(model.Status),
 	}
 	return &payload
 }
