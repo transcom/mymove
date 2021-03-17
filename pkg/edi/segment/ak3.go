@@ -26,9 +26,11 @@ func (s *AK3) StringArray() []string {
 
 // Parse parses an X12 string that's split into an array into the AK3 struct
 func (s *AK3) Parse(elements []string) error {
-	expectedNumElements := 4
-	if len(elements) != expectedNumElements {
-		return fmt.Errorf("AK3: Wrong number of elements, expected %d, got %d", expectedNumElements, len(elements))
+	expectedNumMaxElements := 4
+	expectedNumMinElements := 2
+	numElements := len(elements)
+	if numElements < expectedNumMinElements || numElements > expectedNumMaxElements {
+		return fmt.Errorf("AK3: Wrong number of elements, expected max %d and min %d, got %d", expectedNumMaxElements, expectedNumMinElements, numElements)
 	}
 
 	var err error
@@ -37,8 +39,13 @@ func (s *AK3) Parse(elements []string) error {
 	if err != nil {
 		return err
 	}
-	s.LoopIdentifierCode = elements[2]
-	s.SegmentSyntaxErrorCode = elements[3]
+
+	if numElements > 2 {
+		s.LoopIdentifierCode = elements[2]
+	}
+	if numElements > 3 {
+		s.SegmentSyntaxErrorCode = elements[3]
+	}
 
 	return nil
 }

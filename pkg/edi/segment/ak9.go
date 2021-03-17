@@ -36,9 +36,11 @@ func (s *AK9) StringArray() []string {
 
 // Parse parses an X12 string that's split into an array into the AK9 struct
 func (s *AK9) Parse(elements []string) error {
-	expectedNumElements := 9
-	if len(elements) != expectedNumElements {
-		return fmt.Errorf("AK9: Wrong number of elements, expected %d, got %d", expectedNumElements, len(elements))
+	expectedNumMinElements := 4
+	expectedNumMaxElements := 9
+	numElements := len(elements)
+	if numElements < expectedNumMinElements || numElements > expectedNumMaxElements {
+		return fmt.Errorf("AK9: Wrong number of elements, expected max %d and min %d, got %d", expectedNumMaxElements, expectedNumMinElements, numElements)
 	}
 
 	s.FunctionalGroupAcknowledgeCode = elements[0]
@@ -59,11 +61,20 @@ func (s *AK9) Parse(elements []string) error {
 		return err
 	}
 
-	s.FunctionalGroupSyntaxErrorCodeAK905 = elements[4]
-	s.FunctionalGroupSyntaxErrorCodeAK906 = elements[5]
-	s.FunctionalGroupSyntaxErrorCodeAK907 = elements[6]
-	s.FunctionalGroupSyntaxErrorCodeAK908 = elements[7]
-	s.FunctionalGroupSyntaxErrorCodeAK909 = elements[8]
-
+	if numElements > 4 {
+		s.FunctionalGroupSyntaxErrorCodeAK905 = elements[4]
+	}
+	if numElements > 5 {
+		s.FunctionalGroupSyntaxErrorCodeAK906 = elements[5]
+	}
+	if numElements > 6 {
+		s.FunctionalGroupSyntaxErrorCodeAK907 = elements[6]
+	}
+	if numElements > 7 {
+		s.FunctionalGroupSyntaxErrorCodeAK908 = elements[7]
+	}
+	if numElements > 8 {
+		s.FunctionalGroupSyntaxErrorCodeAK909 = elements[8]
+	}
 	return nil
 }
