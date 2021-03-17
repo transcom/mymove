@@ -60,3 +60,9 @@ func FmtUUIDPtrToPopPtr(u *strfmt.UUID) *uuid.UUID {
 	fmtUUID := uuid.FromStringOrNil(u.String())
 	return &fmtUUID
 }
+
+// FmtUUIDToPop converts go-swagger uuid type to pop type
+func FmtUUIDToPop(u strfmt.UUID) uuid.UUID {
+	fmtUUID := uuid.FromStringOrNil(u.String())
+	return fmtUUID
+}

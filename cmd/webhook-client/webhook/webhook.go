@@ -1,30 +1,17 @@
 package webhook
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-// Message is the body of our request
-type Message struct {
-	ID              uuid.UUID       `json:"id"`
-	EventKey        string          `json:"eventName"`
-	TriggeredAt     strfmt.DateTime `json:"triggeredAt"`
-	ObjectType      string          `json:"objectType"`
-	UpdatedObjectID uuid.UUID       `json:"updatedObjectID"`
-	Object          string          `json:"object"`
-}
 
 // Engine encapsulates the services used by the webhook notification engine
 type Engine struct {
@@ -178,18 +165,8 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 	logger := eng.Logger
 
 	// Construct notification to send
-	// message := fmt.Sprintf("There was a %s notification, id: %s, moveTaskOrderID: %s",
-	// 	string(notif.EventKey), notif.ID.String(), notif.MoveTaskOrderID.String())
-	message := &Message{
-		ID:          notif.ID,
-		EventKey:    notif.EventKey,
-		TriggeredAt: strfmt.DateTime(notif.UpdatedAt),
-		Object:      notif.Payload,
-	}
-	if notif.ObjectID != nil {
-		message.UpdatedObjectID = *notif.ObjectID
-	}
-	json, err := json.Marshal(message)
+	message := GetWebhookNotificationPayload(notif)
+	json, err := message.MarshalBinary()
 	if err != nil {
 		notif.Status = models.WebhookNotificationFailed
 		updateNotificationErr := eng.updateNotification(notif)
@@ -221,11 +198,15 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 			if updateNotificationErr != nil {
 				eng.Logger.Error("Notification update failed", zap.Error(err))
 			}
+			objectID := "<empty>"
+			if message.ObjectID != nil {
+				objectID = message.ObjectID.String()
+			}
 			logger.Info("Notification successfully sent:",
 				zap.String("Status", resp.Status),
 				zap.String("EventKey", message.EventKey),
 				zap.String("NotificationID", message.ID.String()),
-				zap.String("UpdatedObjectID", message.UpdatedObjectID.String()),
+				zap.String("ObjectID", objectID),
 			)
 			break // send was successful
 		}

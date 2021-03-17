@@ -17,6 +17,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/handlers"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
@@ -346,19 +349,19 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunSuccessful() {
 	bodyBytes := []byte("notification0 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[0].ID
+		return message.ID == *handlers.FmtUUID(notifications[0].ID)
 	}), subscriptions[0].CallbackURL).Return(&response, bodyBytes, nil)
 
 	bodyBytes = []byte("notification1 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[1].ID
+		return message.ID == *handlers.FmtUUID(notifications[1].ID)
 	}), subscriptions[1].CallbackURL).Return(&response, bodyBytes, nil)
 
 	bodyBytes = []byte("notification2 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[2].ID
+		return message.ID == *handlers.FmtUUID(notifications[2].ID)
 	}), subscriptions[0].CallbackURL).Return(&response, bodyBytes, nil)
 
 	// RUN TEST
@@ -426,13 +429,13 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 	bodyBytes := []byte("notification1 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[0].ID
+		return message.ID == *handlers.FmtUUID(notifications[0].ID)
 	}), subscriptions[0].CallbackURL).Return(&response, bodyBytes, nil)
 
 	bodyBytes = []byte("notification3 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[2].ID
+		return message.ID == *handlers.FmtUUID(notifications[2].ID)
 	}), subscriptions[0].CallbackURL).Return(&response, bodyBytes, nil)
 
 	// RUN TEST
@@ -508,13 +511,13 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingSub() {
 	bodyBytes := []byte("notification1 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[0].ID
+		return message.ID == *handlers.FmtUUID(notifications[0].ID)
 	}), subscriptions[0].CallbackURL).Return(&responseSuccess, bodyBytes, nil)
 
 	bodyBytes = []byte("notification2 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[1].ID
+		return message.ID == *handlers.FmtUUID(notifications[1].ID)
 	}), subscriptions[1].CallbackURL).Return(&responseFail, bodyBytes, nil)
 
 	// RUN TEST
@@ -1050,8 +1053,8 @@ func teardownEngineRun(suite *WebhookClientTestingSuite) {
 }
 
 // convertBodyToPayload is a helper function to convert []byte to a webhookMessage payload
-func convertBodyToPayload(body []byte) Message {
-	message := Message{}
+func convertBodyToPayload(body []byte) supportmessages.WebhookNotification {
+	message := supportmessages.WebhookNotification{}
 	json.Unmarshal(body, &message)
 	return message
 }
