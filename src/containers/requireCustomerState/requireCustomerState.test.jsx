@@ -19,9 +19,9 @@ describe('requireCustomerState HOC', () => {
   });
 
   const TestComponent = () => <div>My test component</div>;
-  const TestComponentWithHOC = requireCustomerState(TestComponent, profileStates.BACKUP_CONTACTS_COMPLETE);
+  const TestComponentWithHOC = requireCustomerState(TestComponent, profileStates.ADDRESS_COMPLETE);
 
-  it('dispatches a redirect if the current state does not equal the required state', () => {
+  it('dispatches a redirect if the current state is earlier than the required state', () => {
     const mockState = {
       entities: {
         user: {
@@ -76,6 +76,92 @@ describe('requireCustomerState HOC', () => {
             residential_address: {
               street: '123 Main St',
             },
+          },
+        },
+      },
+    };
+
+    const wrapper = mount(
+      <MockProviders initialState={mockState}>
+        <TestComponentWithHOC />
+      </MockProviders>,
+    );
+
+    expect(wrapper.exists()).toBe(true);
+    expect(mockDispatch).not.toHaveBeenCalled();
+  });
+  it('does not redirect if the current state is after the required state but profile is not complete', () => {
+    const mockState = {
+      entities: {
+        user: {
+          testUserId: {
+            id: 'testUserId',
+            email: 'testuser@example.com',
+            service_member: 'testServiceMemberId',
+          },
+        },
+        serviceMembers: {
+          testServiceMemberId: {
+            id: 'testServiceMemberId',
+            rank: 'test rank',
+            edipi: '1234567890',
+            affiliation: 'ARMY',
+            first_name: 'Tester',
+            last_name: 'Testperson',
+            telephone: '1234567890',
+            personal_email: 'test@example.com',
+            email_is_preferred: true,
+            current_station: {
+              id: 'testDutyStationId',
+            },
+            residential_address: {
+              street: '123 Main St',
+            },
+            backup_mailing_address: {
+              street: '456 Main St',
+            },
+          },
+        },
+      },
+    };
+
+    const wrapper = mount(
+      <MockProviders initialState={mockState}>
+        <TestComponentWithHOC />
+      </MockProviders>,
+    );
+
+    expect(wrapper.exists()).toBe(true);
+    expect(mockDispatch).not.toHaveBeenCalled();
+  });
+
+  it('does redirect if profile is complete and required state is not the completed profile state', () => {
+    const mockState = {
+      entities: {
+        user: {
+          testUserId: {
+            id: 'testUserId',
+            email: 'testuser@example.com',
+            service_member: 'testServiceMemberId',
+          },
+        },
+        serviceMembers: {
+          testServiceMemberId: {
+            id: 'testServiceMemberId',
+            rank: 'test rank',
+            edipi: '1234567890',
+            affiliation: 'ARMY',
+            first_name: 'Tester',
+            last_name: 'Testperson',
+            telephone: '1234567890',
+            personal_email: 'test@example.com',
+            email_is_preferred: true,
+            current_station: {
+              id: 'testDutyStationId',
+            },
+            residential_address: {
+              street: '123 Main St',
+            },
             backup_mailing_address: {
               street: '456 Main St',
             },
@@ -92,6 +178,60 @@ describe('requireCustomerState HOC', () => {
     const wrapper = mount(
       <MockProviders initialState={mockState}>
         <TestComponentWithHOC />
+      </MockProviders>,
+    );
+
+    expect(wrapper.exists()).toBe(true);
+    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
+  });
+
+  it('does not redirect if profile is complete and required state is the completed profile state', () => {
+    const mockState = {
+      entities: {
+        user: {
+          testUserId: {
+            id: 'testUserId',
+            email: 'testuser@example.com',
+            service_member: 'testServiceMemberId',
+          },
+        },
+        serviceMembers: {
+          testServiceMemberId: {
+            id: 'testServiceMemberId',
+            rank: 'test rank',
+            edipi: '1234567890',
+            affiliation: 'ARMY',
+            first_name: 'Tester',
+            last_name: 'Testperson',
+            telephone: '1234567890',
+            personal_email: 'test@example.com',
+            email_is_preferred: true,
+            current_station: {
+              id: 'testDutyStationId',
+            },
+            residential_address: {
+              street: '123 Main St',
+            },
+            backup_mailing_address: {
+              street: '456 Main St',
+            },
+            backup_contacts: [
+              {
+                id: 'testBackupContact',
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    const TestComponentCompletedProfileWithHOC = requireCustomerState(
+      TestComponent,
+      profileStates.BACKUP_CONTACTS_COMPLETE,
+    );
+    const wrapper = mount(
+      <MockProviders initialState={mockState}>
+        <TestComponentCompletedProfileWithHOC />
       </MockProviders>,
     );
 
