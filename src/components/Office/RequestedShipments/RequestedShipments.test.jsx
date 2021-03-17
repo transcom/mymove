@@ -4,7 +4,7 @@ import { mount, shallow } from 'enzyme';
 
 import { ORDERS_TYPE, ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from '../../../constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../constants/departmentIndicators';
-import MOVE_STATUSES from '../../../constants/moves';
+import SERVICE_ITEM_STATUSES from '../../../constants/serviceItems';
 
 import RequestedShipments from './RequestedShipments';
 
@@ -244,10 +244,10 @@ const serviceItems = [
     id: '12345',
     moveTaskOrderID: '6e8c5ca4-774c-4170-934a-59d22259e480',
     mtoShipmentID: null,
-    reServiceCode: serviceItemCodes.MS,
+    reServiceCode: 'MS',
     reServiceID: '6789',
     reServiceName: serviceItemCodes.MS,
-    status: 'APPROVED',
+    status: SERVICE_ITEM_STATUSES.APPROVED,
   },
   {
     approvedAt: '2020-10-02T19:20:08.481139Z',
@@ -255,10 +255,10 @@ const serviceItems = [
     id: '45678',
     moveTaskOrderID: '6e8c5ca4-774c-4170-934a-59d22259e480',
     mtoShipmentID: null,
-    reServiceCode: serviceItemCodes.CS,
+    reServiceCode: 'CS',
     reServiceID: '6790',
     reServiceName: serviceItemCodes.CS,
-    status: MOVE_STATUSES.APPROVED,
+    status: SERVICE_ITEM_STATUSES.APPROVED,
   },
   {
     approvedAt: '2020-10-02T19:20:08.481139Z',
@@ -266,10 +266,10 @@ const serviceItems = [
     id: '9012',
     moveTaskOrderID: '6e8c5ca4-774c-4170-934a-59d22259e480',
     mtoShipmentID: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-    reServiceCode: serviceItemCodes.DLH,
+    reServiceCode: 'DLH',
     reServiceID: '6791',
     reServiceRName: serviceItemCodes.DLH,
-    status: MOVE_STATUSES.SUBMITTED,
+    status: SERVICE_ITEM_STATUSES.SUBMITTED,
   },
 ];
 
