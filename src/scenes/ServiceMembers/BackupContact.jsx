@@ -20,6 +20,9 @@ import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 import scrollToTop from 'shared/scrollToTop';
 import { selectServiceMemberFromLoggedInUser, selectBackupContacts } from 'store/entities/selectors';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import { profileStates } from 'constants/customerStates';
+import { PageKeyShape, PageListShape } from 'types/customerShapes';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -191,6 +194,8 @@ export class BackupContact extends Component {
 
 BackupContact.propTypes = {
   schema: PropTypes.object.isRequired,
+  pages: PageListShape.isRequired,
+  pageKey: PageKeyShape.isRequired,
 };
 
 const mapDispatchToProps = {
@@ -207,4 +212,7 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(BackupContact);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(requireCustomerState(BackupContact, profileStates.BACKUP_ADDRESS_COMPLETE));
