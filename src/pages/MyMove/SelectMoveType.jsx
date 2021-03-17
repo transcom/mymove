@@ -174,7 +174,7 @@ export class SelectMoveType extends Component {
           canMoveNext={canMoveNext}
           error={errorMessage}
         >
-          <h6 data-testid="number-eyebrow" className="sm-heading">
+          <h6 data-testid="number-eyebrow" className="sm-heading margin-top-205 margin-bottom-0">
             Shipment {shipmentNumber}
           </h6>
           <h1 className={`${styles.selectTypeHeader} ${styles.header}`} data-testid="select-move-type-header">
