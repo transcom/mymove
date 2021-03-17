@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
@@ -61,32 +61,41 @@ const statesList = [
 ];
 
 export const AddressFields = ({ legend, className, name, render }) => {
-  const addressFieldsUUID = uuidv4();
+  const addressFieldsUUID = useRef(uuidv4());
 
   return (
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <TextField label="Address 1" id={`mailingAddress1_${addressFieldsUUID}`} name={`${name}.street_address_1`} />
+          <TextField
+            label="Address 1"
+            id={`mailingAddress1_${addressFieldsUUID.current}`}
+            name={`${name}.street_address_1`}
+          />
           <TextField
             label="Address 2"
             labelHint="Optional"
-            id={`mailingAddress2_${addressFieldsUUID}`}
+            id={`mailingAddress2_${addressFieldsUUID.current}`}
             name={`${name}.street_address_2`}
           />
-          <TextField label="City" id={`city_${addressFieldsUUID}`} name={`${name}.city`} />
+          <TextField label="City" id={`city_${addressFieldsUUID.current}`} name={`${name}.city`} />
 
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-6">
               <DropdownInput
                 name={`${name}.state`}
-                id={`state_${addressFieldsUUID}`}
+                id={`state_${addressFieldsUUID.current}`}
                 label="State"
                 options={statesList}
               />
             </div>
             <div className="mobile-lg:grid-col-6">
-              <TextField label="ZIP" id={`zip_${addressFieldsUUID}`} name={`${name}.postal_code`} maxLength={10} />
+              <TextField
+                label="ZIP"
+                id={`zip_${addressFieldsUUID.current}`}
+                name={`${name}.postal_code`}
+                maxLength={10}
+              />
             </div>
           </div>
         </>,

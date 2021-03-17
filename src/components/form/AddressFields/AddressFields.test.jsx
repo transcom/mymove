@@ -15,7 +15,7 @@ describe('AddressFields component', () => {
     expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
     expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
     expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
-    expect(getByLabelText('State')).toBeInstanceOf(HTMLInputElement);
+    expect(getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
     expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
   });
 
