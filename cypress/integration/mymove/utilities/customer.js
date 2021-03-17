@@ -9,12 +9,12 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   // CONUS OR OCONUS
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/conus-status/);
+    expect(loc.pathname).to.match(/^\/service-member\/conus-oconus/);
   });
   cy.get('[data-testid="radio"] label').contains('CONUS').click();
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/create/);
+    expect(loc.pathname).to.match(/^\/service-member\/dod-info/);
   });
 
   // DOD INFO
@@ -25,7 +25,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('select[name="rank"]').select('E-9');
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/name/);
+    expect(loc.pathname).to.match(/^\/service-member\/name/);
   });
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
 
@@ -35,7 +35,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('input[name="last_name"]').type('Doe');
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/contact-info/);
+    expect(loc.pathname).to.match(/^\/service-member\/contact-info/);
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
@@ -45,7 +45,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('[type="checkbox"]').not('[disabled]').check({ force: true }).should('be.checked');
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/duty-station/);
+    expect(loc.pathname).to.match(/^\/service-member\/current-duty/);
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
@@ -55,7 +55,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
 
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/residence-address/);
+    expect(loc.pathname).to.match(/^\/service-member\/current-address/);
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
@@ -71,7 +71,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('#postal_code-error').should('not.exist');
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/backup-mailing-address/);
+    expect(loc.pathname).to.match(/^\/service-member\/backup-address/);
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
@@ -83,7 +83,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('input[name="postal_code"]').type('80913');
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/backup-contacts/);
+    expect(loc.pathname).to.match(/^\/service-member\/backup-contact/);
   });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place

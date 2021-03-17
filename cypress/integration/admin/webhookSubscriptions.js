@@ -21,6 +21,7 @@ describe('Webhook Subscriptions', function () {
 describe('WebhookSubscriptions Details Show Page', function () {
   before(() => {
     cy.prepareAdminApp();
+    cy.clearAllCookies();
   });
 
   it('pulls up details page for a webhook subscription', function () {

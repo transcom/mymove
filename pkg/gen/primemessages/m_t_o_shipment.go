@@ -113,7 +113,7 @@ type MTOShipment struct {
 
 	// status
 	// Read Only: true
-	// Enum: [APPROVED SUBMITTED REJECTED]
+	// Enum: [APPROVED SUBMITTED REJECTED CANCELLATION_REQUESTED]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -746,7 +746,7 @@ var mTOShipmentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED","CANCELLATION_REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -764,6 +764,9 @@ const (
 
 	// MTOShipmentStatusREJECTED captures enum value "REJECTED"
 	MTOShipmentStatusREJECTED string = "REJECTED"
+
+	// MTOShipmentStatusCANCELLATIONREQUESTED captures enum value "CANCELLATION_REQUESTED"
+	MTOShipmentStatusCANCELLATIONREQUESTED string = "CANCELLATION_REQUESTED"
 )
 
 // prop value enum

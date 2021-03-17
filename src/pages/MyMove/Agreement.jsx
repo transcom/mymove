@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import moment from 'moment';
 import { connect } from 'react-redux';
+import { generatePath } from 'react-router';
 import { push as pushAction } from 'connected-react-router';
 
+import { customerRoutes } from 'constants/routes';
 import SubmitMoveForm from 'components/Customer/SubmitMoveForm/SubmitMoveForm';
 import ScrollToTop from 'components/ScrollToTop';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
@@ -13,6 +15,7 @@ import { getPPMsForMove, submitMoveForApproval } from 'services/internalApi';
 import { selectCurrentPPM, selectCurrentMove } from 'store/entities/selectors';
 import { updatePPMs as updatePPMsAction, updateMove as updateMoveAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { formatSwaggerDate } from 'shared/formatters';
 
 export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
@@ -21,7 +24,14 @@ export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlas
     getPPMsForMove(moveId).then((response) => updatePPMs(response));
   });
 
-  const handleBack = () => push(`/moves/${moveId}/review`);
+  const initialValues = {
+    signature: '',
+    date: formatSwaggerDate(new Date()),
+  };
+
+  const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
+
+  const handleBack = () => push(reviewPath);
 
   const handleSubmit = (values) => {
     const submitDate = moment().format();
@@ -52,6 +62,7 @@ export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlas
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <SubmitMoveForm
+            initialValues={initialValues}
             onBack={handleBack}
             onSubmit={handleSubmit}
             certificationText={completeCertificationText}

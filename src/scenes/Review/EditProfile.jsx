@@ -17,7 +17,8 @@ import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, 
 import scrollToTop from 'shared/scrollToTop';
 import {
   selectServiceMemberFromLoggedInUser,
-  selectMoveIsApproved,
+  selectMoveIsInDraft,
+  selectCurrentOrders,
   selectCurrentMove,
   selectHasCurrentPPM,
 } from 'store/entities/selectors';
@@ -25,21 +26,12 @@ import {
 import './Review.css';
 import profileImage from './images/profile.png';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import ServiceInfoTable from 'components/Customer/Review/ServiceInfoTable';
 
 const editProfileFormName = 'edit_profile';
 
 let EditProfileForm = (props) => {
-  const {
-    schema,
-    handleSubmit,
-    submitting,
-    valid,
-    moveIsApproved,
-    initialValues,
-    schemaAffiliation,
-    schemaRank,
-    serviceMember,
-  } = props;
+  const { schema, handleSubmit, submitting, valid, moveIsInDraft, initialValues, serviceMember } = props;
   const currentStation = get(serviceMember, 'current_station');
   const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
@@ -65,30 +57,24 @@ let EditProfileForm = (props) => {
               <SwaggerField fieldName="last_name" swagger={schema} required />
               <SwaggerField fieldName="suffix" swagger={schema} />
               <hr className="spacer" />
-              {!moveIsApproved && (
-                <Fragment>
+              {moveIsInDraft && (
+                <>
                   <SwaggerField fieldName="affiliation" swagger={schema} required />
                   <SwaggerField fieldName="rank" swagger={schema} required />
                   <SwaggerField fieldName="edipi" swagger={schema} required />
                   <Field name="current_station" title="Current duty station" component={DutyStationSearchBox} />
-                </Fragment>
+                </>
               )}
-              {moveIsApproved && (
-                <Fragment>
-                  <div>
-                    To change the fields below, contact your local PPPO office at {get(currentStation, 'name')}{' '}
-                    {stationPhone ? ` at ${stationPhone}` : ''}.
-                  </div>
-                  <label>Branch</label>
-                  <strong>{schemaAffiliation['x-display-value'][initialValues.affiliation]}</strong>
-                  <label>Rank</label>
-                  <strong>{schemaRank['x-display-value'][initialValues.rank]}</strong>
-                  <label>DoD ID #</label>
-                  <strong>{initialValues.edipi}</strong>
-
-                  <label>Current Duty Station</label>
-                  <strong>{get(initialValues, 'current_station.name')}</strong>
-                </Fragment>
+              {!moveIsInDraft && (
+                <ServiceInfoTable
+                  firstName={initialValues.first_name}
+                  lastName={initialValues.last_name}
+                  currentDutyStationName={currentStation.name}
+                  currentDutyStationPhone={stationPhone}
+                  affiliation={initialValues.affiliation}
+                  rank={initialValues.rank}
+                  edipi={initialValues.edipi}
+                />
               )}
             </SectionWrapper>
             <SaveCancelButtons valid={valid} submitting={submitting} />
@@ -151,7 +137,7 @@ class EditProfile extends Component {
   }
 
   render() {
-    const { schema, serviceMember, moveIsApproved, schemaAffiliation, schemaRank } = this.props;
+    const { schema, serviceMember, moveIsInDraft, schemaAffiliation, schemaRank } = this.props;
     const { errorMessage } = this.state;
 
     return (
@@ -169,7 +155,7 @@ class EditProfile extends Component {
             onSubmit={this.updateProfile}
             onCancel={this.returnToReview}
             schema={schema}
-            moveIsApproved={moveIsApproved}
+            moveIsInDraft={moveIsInDraft}
             schemaRank={schemaRank}
             schemaAffiliation={schemaAffiliation}
             serviceMember={serviceMember}
@@ -187,7 +173,8 @@ function mapStateToProps(state) {
     serviceMember,
     move: selectCurrentMove(state) || {},
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
-    moveIsApproved: selectMoveIsApproved(state),
+    // The move still counts as in draft if there are no orders.
+    moveIsInDraft: selectMoveIsInDraft(state) || !selectCurrentOrders(state),
     isPpm: selectHasCurrentPPM(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),

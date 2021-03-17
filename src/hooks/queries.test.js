@@ -151,9 +151,9 @@ jest.mock('services/ghcApi', () => ({
       ordersId: '4321',
       moveCode: 'ABCDEF',
     }),
-  getMoveOrder: (key, id) =>
+  getOrder: (key, id) =>
     Promise.resolve({
-      moveOrders: {
+      orders: {
         [id]: {
           id,
           customerID: '2468',
@@ -306,11 +306,11 @@ describe('usePaymentRequestQueries', () => {
 
 describe('useMoveTaskOrderQueries', () => {
   it('loads data', async () => {
-    const testMoveOrderId = 'a1b2';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(testMoveOrderId));
+    const testOrderId = 'a1b2';
+    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(testOrderId));
 
     expect(result.current).toEqual({
-      moveOrders: undefined,
+      orders: undefined,
       moveTaskOrders: undefined,
       mtoShipments: undefined,
       mtoServiceItems: undefined,
@@ -322,7 +322,7 @@ describe('useMoveTaskOrderQueries', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      moveOrders: {
+      orders: {
         4321: {
           id: '4321',
           customerID: '2468',
@@ -414,7 +414,7 @@ describe('useMoveDetailsQueries', () => {
         ordersId: '4321',
         moveCode: 'ABCDEF',
       },
-      moveOrder: {
+      order: {
         id: '4321',
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
@@ -444,7 +444,7 @@ describe('useMoveDetailsQueries', () => {
         ordersId: '4321',
         moveCode: 'ABCDEF',
       },
-      moveOrder: {
+      order: {
         id: '4321',
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
@@ -527,7 +527,7 @@ describe('useOrdersDocumentQueries', () => {
 
     expect(result.current).toEqual({
       move: { id: '1234', ordersId: '4321', moveCode: testLocatorId },
-      moveOrders: {
+      orders: {
         4321: {
           id: '4321',
           customerID: '2468',
