@@ -154,7 +154,7 @@ export class SelectMoveType extends Component {
     const footerText = (
       <div>
         {!hasShipment && (
-          <div data-testid="helper-footer" className={`${styles.footer} grid-col-12`}>
+          <div data-testid="helper-footer" className={`${styles.footer} grid-col-12 margin-top-0`}>
             It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and can
             help make changes if necessary.
           </div>
@@ -186,7 +186,9 @@ export class SelectMoveType extends Component {
           <p>You can add more later</p>
           {isPpmSelectable ? ppmEnabledCard : ppmDisabledCard}
           {isHhgSelectable ? hhgEnabledCard : hhgDisabledCard}
-          <h3 data-testid="long-term-storage-heading">Long-term storage</h3>
+          <h3 className={styles.longTermStorageHeader} data-testid="long-term-storage-heading">
+            Long-term storage
+          </h3>
           {!isNtsSelectable && !isNtsrSelectable ? (
             <p className={styles.pSmall}>{noLongTermStorageCardsText}</p>
           ) : (
