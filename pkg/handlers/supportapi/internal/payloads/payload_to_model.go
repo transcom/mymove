@@ -3,6 +3,11 @@ package payloads
 import (
 	"time"
 
+	"github.com/gobuffalo/validate/v3"
+
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/services/event"
+
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
@@ -109,4 +114,41 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	}
 
 	return model
+}
+
+// WebhookNotificatonModel converts payload to model
+func WebhookNotificatonModel(payload *supportmessages.WebhookNotification, traceID uuid.UUID) (*models.WebhookNotification, *validate.Errors) {
+	verrs := validate.NewErrors()
+	var notification *models.WebhookNotification
+	if payload == nil {
+		// create default notification
+		message := "{ \"message\": \"This is a test notification\" }"
+		notification = &models.WebhookNotification{
+			EventKey: string(event.TestCreateEventKey),
+			TraceID:  &traceID,
+			Payload:  message,
+			Status:   models.WebhookNotificationPending,
+		}
+	} else {
+		if !event.ExistsEventKey(payload.EventKey) {
+			verrs.Add("eventKey", "must be a registered event key")
+			return nil, verrs
+		}
+		notification = &models.WebhookNotification{
+			// ID is managed by pop
+			EventKey:        payload.EventKey,
+			TraceID:         &traceID,
+			MoveTaskOrderID: handlers.FmtUUIDPtrToPopPtr(payload.MoveTaskOrderID),
+			ObjectID:        handlers.FmtUUIDPtrToPopPtr(payload.ObjectID),
+			// Payload updated below
+			Status: models.WebhookNotificationPending,
+			// CreatedAt is managed by pop
+			// UpdatedAt is managed by pop
+			// FirstAttemptedAt is never provided by user
+		}
+		if payload.Object != nil {
+			notification.Payload = *payload.Object
+		}
+	}
+	return notification, nil
 }
