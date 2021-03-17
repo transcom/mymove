@@ -14,7 +14,6 @@
 h1.selectTypeHeader.header {
   margin-top: 0;
   @include u-padding-top(1);
-  @include u-padding-bottom(4);
   & + * {
     margin-top: 0;
   }
