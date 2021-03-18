@@ -6,23 +6,23 @@ import { Fieldset } from '@trussworks/react-uswds';
 import TextField from 'components/form/fields/TextField';
 
 export const BackupContactInfoFields = ({ legend, className, name, render }) => {
-  const BackupContactInfoFieldsUUID = useRef(uuidv4());
+  const backupContactInfoFieldsUUID = useRef(uuidv4());
 
   return (
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <TextField label="Name" id={`name_${BackupContactInfoFieldsUUID}`} name={`${name}.name`} />
+          <TextField label="Name" id={`name_${backupContactInfoFieldsUUID}`} name={`${name}.name`} />
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-7">
-              <TextField label="Email" id={`email_${BackupContactInfoFieldsUUID}`} name={`${name}.email`} />
+              <TextField label="Email" id={`email_${backupContactInfoFieldsUUID}`} name={`${name}.email`} />
             </div>
           </div>
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-4">
               <TextField
                 label="Phone"
-                id={`phone_${BackupContactInfoFieldsUUID}`}
+                id={`phone_${backupContactInfoFieldsUUID}`}
                 name={`${name}.phone`}
                 type="tel"
                 maxLength="10"
