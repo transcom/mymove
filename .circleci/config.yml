@@ -1378,7 +1378,10 @@ workflows:
           requires:
             - pre_deps_golang
 
-      - anti_virus
+      - anti_virus:
+          filters:
+            branches:
+              only: master
 
       - pre_test:
           requires:
