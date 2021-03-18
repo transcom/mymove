@@ -14,11 +14,11 @@ import (
 // TODO should i just modify the SyncadaSenderSFTPSession to have a more generic name for the directory and reuse it?
 // TODO Is it worth keeping the client in this struct or should i just pass as an arg?
 type SyncadaReaderSFTPSession struct {
-	client *services.SFTPClient
+	client services.SFTPClient
 }
 
 // InitNewSyncadaSFTPReaderSession initialize a NewSyncadaSFTPSession and return services.SyncadaSFTPReader
-func InitNewSyncadaSFTPReaderSession(client *services.SFTPClient) services.SyncadaSFTPReader {
+func InitNewSyncadaSFTPReaderSession(client services.SFTPClient) services.SyncadaSFTPReader {
 	return &SyncadaReaderSFTPSession{
 		client: client,
 	}
@@ -28,7 +28,7 @@ func InitNewSyncadaSFTPReaderSession(client *services.SFTPClient) services.Synca
 // TODO should i be returning the connection? or taking a connection as input?
 // TODO we've also got both a connection and a client and they both want to be closed, should i be passing both?
 func (s *SyncadaReaderSFTPSession) ReadFromSyncadaViaSFTP(syncadaPath string, lastRead time.Time) ([]services.RawSyncadaFile, time.Time, error) {
-	fileList, err := (*s.client).ReadDir(syncadaPath)
+	fileList, err := s.client.ReadDir(syncadaPath)
 
 	if err != nil {
 		return []services.RawSyncadaFile{}, time.Time{}, err
@@ -45,7 +45,7 @@ func (s *SyncadaReaderSFTPSession) ReadFromSyncadaViaSFTP(syncadaPath string, la
 			}
 			syncadaFilePath := sftp.Join(syncadaPath, f.Name())
 
-			syncadaFile, err := (*s.client).Open(syncadaFilePath)
+			syncadaFile, err := s.client.Open(syncadaFilePath)
 			if err != nil {
 				fmt.Printf("Failed to open %s: %s\n", syncadaFilePath, err.Error())
 				continue
@@ -79,7 +79,7 @@ func (s *SyncadaReaderSFTPSession) ReadFromSyncadaViaSFTP(syncadaPath string, la
 func (s *SyncadaReaderSFTPSession) RemoveFromSyncadaViaSFTP(filePaths []string) []error {
 	fileDeleteErrors := make([]error, 0, len(filePaths))
 	for _, f := range filePaths {
-		err := (*s.client).Remove(f)
+		err := s.client.Remove(f)
 		if err != nil {
 			fileDeleteErrors = append(fileDeleteErrors, err)
 		}
