@@ -658,9 +658,9 @@ func init() {
         }
       ]
     },
-    "/webhook-notify": {
+    "/webhook-notifications": {
       "post": {
-        "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
+        "description": "This endpoint creates a webhook notification in the database. If the webhook client is running, it may send the notification soon after creation.\n",
         "consumes": [
           "application/json"
         ],
@@ -670,92 +670,77 @@ func init() {
         "tags": [
           "webhook"
         ],
-        "summary": "Test endpoint for sending messages via webhook",
-        "operationId": "postWebhookNotify",
+        "summary": "Test endpoint for creating webhook notifications",
+        "operationId": "createWebhookNotification",
         "parameters": [
           {
             "description": "The notification sent by webhook-client.",
             "name": "body",
             "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WebhookNotification"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful creation",
+            "schema": {
+              "$ref": "#/definitions/WebhookNotification"
+            }
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/webhook-notify": {
+      "post": {
+        "description": "This endpoint receives a notification that matches the webhook notification model. This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint. In testing, this server accepts notifications at this endpoint and simply responds with success and logs them. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "summary": "Test endpoint for receiving messages from our own webhook-client",
+        "operationId": "receiveWebhookNotification",
+        "parameters": [
+          {
+            "description": "The webhook notification being sent",
+            "name": "body",
+            "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "eventName": {
-                  "description": "Name of event triggered",
-                  "type": "string",
-                  "example": "paymentRequest.updated"
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-                },
-                "object": {
-                  "type": "string",
-                  "format": "object"
-                },
-                "objectType": {
-                  "description": "The type of object that's being updated",
-                  "type": "string",
-                  "example": "paymentRequest"
-                },
-                "triggeredAt": {
-                  "description": "Time representing when the event was triggered",
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
+              "$ref": "#/definitions/WebhookNotification"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Sent",
+            "description": "Received notification",
             "schema": {
-              "type": "object",
-              "properties": {
-                "eventName": {
-                  "description": "Name of event triggered",
-                  "type": "string",
-                  "example": "paymentRequest.updated"
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-                },
-                "object": {
-                  "type": "string",
-                  "format": "object"
-                },
-                "objectType": {
-                  "description": "The type of object that's being updated",
-                  "type": "string",
-                  "example": "paymentRequest"
-                },
-                "triggeredAt": {
-                  "description": "Time representing when the event was triggered",
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
+              "$ref": "#/definitions/WebhookNotification"
             }
           },
           "400": {
-            "description": "Bad request"
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "must be authenticated to use this endpoint"
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "No orders found"
+            "$ref": "#/responses/PermissionDenied"
           },
           "500": {
-            "description": "Server error"
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -2274,6 +2259,78 @@ func init() {
           }
         }
       }
+    },
+    "WebhookNotification": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "description": "Time representing when the event was triggered",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eventKey": {
+          "description": "Name of event triggered",
+          "type": "string",
+          "example": "PaymentRequest.Update"
+        },
+        "firstAttemptedAt": {
+          "description": "Time representing when the system firstAttempted to send this notification",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "object": {
+          "type": "string",
+          "format": "JSON",
+          "x-nullable": true
+        },
+        "objectID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookNotificationStatus"
+        },
+        "traceID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "description": "Time representing when the notification was last updated",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "WebhookNotificationStatus": {
+      "description": "Statuses available for a Webhook Notification",
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "SENT",
+        "SKIPPED",
+        "FAILING",
+        "FAILED"
+      ]
     }
   },
   "responses": {
@@ -3195,9 +3252,9 @@ func init() {
         }
       ]
     },
-    "/webhook-notify": {
+    "/webhook-notifications": {
       "post": {
-        "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
+        "description": "This endpoint creates a webhook notification in the database. If the webhook client is running, it may send the notification soon after creation.\n",
         "consumes": [
           "application/json"
         ],
@@ -3207,92 +3264,95 @@ func init() {
         "tags": [
           "webhook"
         ],
-        "summary": "Test endpoint for sending messages via webhook",
-        "operationId": "postWebhookNotify",
+        "summary": "Test endpoint for creating webhook notifications",
+        "operationId": "createWebhookNotification",
         "parameters": [
           {
             "description": "The notification sent by webhook-client.",
             "name": "body",
             "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WebhookNotification"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful creation",
+            "schema": {
+              "$ref": "#/definitions/WebhookNotification"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/webhook-notify": {
+      "post": {
+        "description": "This endpoint receives a notification that matches the webhook notification model. This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint. In testing, this server accepts notifications at this endpoint and simply responds with success and logs them. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "summary": "Test endpoint for receiving messages from our own webhook-client",
+        "operationId": "receiveWebhookNotification",
+        "parameters": [
+          {
+            "description": "The webhook notification being sent",
+            "name": "body",
+            "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "eventName": {
-                  "description": "Name of event triggered",
-                  "type": "string",
-                  "example": "paymentRequest.updated"
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-                },
-                "object": {
-                  "type": "string",
-                  "format": "object"
-                },
-                "objectType": {
-                  "description": "The type of object that's being updated",
-                  "type": "string",
-                  "example": "paymentRequest"
-                },
-                "triggeredAt": {
-                  "description": "Time representing when the event was triggered",
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
+              "$ref": "#/definitions/WebhookNotification"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Sent",
+            "description": "Received notification",
             "schema": {
-              "type": "object",
-              "properties": {
-                "eventName": {
-                  "description": "Name of event triggered",
-                  "type": "string",
-                  "example": "paymentRequest.updated"
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid",
-                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-                },
-                "object": {
-                  "type": "string",
-                  "format": "object"
-                },
-                "objectType": {
-                  "description": "The type of object that's being updated",
-                  "type": "string",
-                  "example": "paymentRequest"
-                },
-                "triggeredAt": {
-                  "description": "Time representing when the event was triggered",
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
+              "$ref": "#/definitions/WebhookNotification"
             }
           },
           "400": {
-            "description": "Bad request"
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
           },
           "401": {
-            "description": "must be authenticated to use this endpoint"
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
           },
           "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "No orders found"
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
           },
           "500": {
-            "description": "Server error"
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -4814,6 +4874,78 @@ func init() {
     },
     "ValidationErrorAllOf1": {
       "type": "object"
+    },
+    "WebhookNotification": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "description": "Time representing when the event was triggered",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eventKey": {
+          "description": "Name of event triggered",
+          "type": "string",
+          "example": "PaymentRequest.Update"
+        },
+        "firstAttemptedAt": {
+          "description": "Time representing when the system firstAttempted to send this notification",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "object": {
+          "type": "string",
+          "format": "JSON",
+          "x-nullable": true
+        },
+        "objectID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/WebhookNotificationStatus"
+        },
+        "traceID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "description": "Time representing when the notification was last updated",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "WebhookNotificationStatus": {
+      "description": "Statuses available for a Webhook Notification",
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "SENT",
+        "SKIPPED",
+        "FAILING",
+        "FAILED"
+      ]
     }
   },
   "responses": {
