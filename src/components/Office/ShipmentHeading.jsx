@@ -18,7 +18,7 @@ function formatDestinationAddress(address) {
   return `${address.postal_code}`;
 }
 
-function ShipmentHeading({ shipmentInfo, setIsCancelModalVisible }) {
+function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
       <h3 data-testid="office-shipment-heading-h3">{shipmentInfo.shipmentType}</h3>
@@ -29,7 +29,7 @@ function ShipmentHeading({ shipmentInfo, setIsCancelModalVisible }) {
         </small>
         <Button
           type="button"
-          onClick={() => setIsCancelModalVisible(true)}
+          onClick={() => handleShowCancellationModal(shipmentInfo)}
           unstyled
           disabled={shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED}
         >
@@ -43,7 +43,6 @@ function ShipmentHeading({ shipmentInfo, setIsCancelModalVisible }) {
 }
 
 ShipmentHeading.propTypes = {
-  // handleUpdateMTOShipmentStatus: PropTypes.func.isRequired,
   shipmentInfo: PropTypes.shape({
     shipmentID: PropTypes.string.isRequired,
     shipmentType: PropTypes.string.isRequired,
@@ -53,8 +52,10 @@ ShipmentHeading.propTypes = {
     destinationAddress: AddressShape,
     scheduledPickupDate: PropTypes.string.isRequired,
     shipmentStatus: PropTypes.string.isRequired,
+    ifMatchEtag: PropTypes.string.isRequired,
+    moveTaskOrderID: PropTypes.string.isRequired,
   }).isRequired,
-  setIsCancelModalVisible: PropTypes.func.isRequired,
+  handleShowCancellationModal: PropTypes.func.isRequired,
 };
 
 export default ShipmentHeading;

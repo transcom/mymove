@@ -48,6 +48,7 @@ function approvedFilter(shipment) {
 export const MoveTaskOrder = ({ match, ...props }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
@@ -236,6 +237,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     setIsModalVisible(true);
   };
 
+  const handleShowCancellationModal = (mtoShipment) => {
+    setSelectedShipment(mtoShipment);
+    setIsCancelModalVisible(true);
+  };
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -275,6 +281,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               onClose={setIsModalVisible}
             />
           )}
+          {isCancelModalVisible && (
+            <RequestShipmentCancellationModal
+              shipmentInfo={selectedShipment}
+              onClose={setIsCancelModalVisible}
+              onSubmit={handleUpdateMTOShipmentStatus}
+            />
+          )}
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
@@ -312,17 +325,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                 shipmentType={mtoShipment.shipmentType}
                 className={styles.shipmentCard}
               >
-                {isCancelModalVisible && (
-                  <RequestShipmentCancellationModal
-                    shipmentInfo={{
-                      shipmentID: mtoShipment.id,
-                      ifMatchEtag: mtoShipment.eTag,
-                      moveTaskOrderID: mtoShipment.moveTaskOrderID,
-                    }}
-                    onClose={setIsCancelModalVisible}
-                    onSubmit={handleUpdateMTOShipmentStatus}
-                  />
-                )}
                 <ShipmentHeading
                   shipmentInfo={{
                     shipmentID: mtoShipment.id,
@@ -333,8 +335,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                     destinationAddress: destinationAddress || dutyStationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
                     shipmentStatus: mtoShipment.status,
+                    ifMatchEtag: mtoShipment.eTag,
+                    moveTaskOrderID: mtoShipment.moveTaskOrderID,
                   }}
-                  setIsCancelModalVisible={setIsCancelModalVisible}
+                  handleShowCancellationModal={handleShowCancellationModal}
                 />
                 <ImportantShipmentDates
                   requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
