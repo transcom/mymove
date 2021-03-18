@@ -8,7 +8,7 @@ import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
-import { MTO_SERVICE_ITEMS } from 'constants/queryKeys';
+import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
@@ -20,7 +20,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import { MOVE_STATUSES } from 'shared/constants';
-import { patchMTOServiceItemStatus } from 'services/ghcApi';
+import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 import dimensionTypes from 'constants/dimensionTypes';
 import customerContactTypes from 'constants/customerContactTypes';
@@ -30,6 +30,7 @@ import { shipmentSectionLabels } from 'content/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { setFlashMessage } from 'store/flash/actions';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
+import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
 
 function formatShipmentDate(shipmentDateString) {
   const dateObj = new Date(shipmentDateString);
@@ -45,11 +46,8 @@ function approvedFilter(shipment) {
 }
 
 export const MoveTaskOrder = ({ match, ...props }) => {
-  // Using hooks to illustrate disabled button state for shipment cancellation
-  // This will be modified once the modal is hooked up, as the button will only
-  // be used to trigger the modal.
-  const [mockShipmentStatus, setMockShipmentStatus] = useState(undefined);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
@@ -124,21 +122,49 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const handleUpdateMTOShipmentStatus = (mtoShipmentID, status) => {
-    // This state change is for mocking the status without calling the endpoint,
-    // it will be removed later:
-    setMockShipmentStatus({
-      id: mtoShipmentID,
-      status,
+  const [mutateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
+    onSuccess: (data, variables) => {
+      const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
+      // Update mtoShipments with our updated status and set query data to match
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.mtoShipmentID, false], mtoShipments);
+      // InvalidateQuery tells other components using this data that they need to re-fetch
+      // This allows the requestCancellation button to update immediately
+      queryCache.invalidateQueries(MTO_SHIPMENTS, variables.mtoShipmentID);
+
+      setIsCancelModalVisible(false);
+      // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
+      setMessage(
+        `MSG_CANCEL_SUCCESS_${variables.shipmentID}`,
+        'success',
+        'The request to cancel that shipment has been sent to the movers.',
+        '',
+        true,
+      );
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      // TODO: Handle error some how
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message from unsuccessful mutation.
+      // RA: TODO: As indicated, this error needs to be handled and needs further investigation.
+      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // RA Modified Severity: CAT II
+      // eslint-disable-next-line no-console
+      console.log(errorMsg);
+    },
+  });
+
+  const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
+    mutateMTOShipmentStatus({
+      moveTaskOrderID,
+      shipmentID: mtoShipmentID,
+      shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED,
+      ifMatchETag: eTag,
     });
-    setMessage(
-      `MSG_CANCEL_SUCCESS_${mtoShipmentID}`,
-      'success',
-      'The request to cancel that shipment has been sent to the movers.',
-      '',
-      true,
-    );
-    // TODO mutateMTOShipmentStatus(); to implement updateMTOShipmentStatus endpoint
   };
 
   const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, mtoShipmentID, status, rejectionReason) => {
@@ -152,13 +178,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       ifMatchEtag: mtoServiceItemForRequest.eTag,
     });
   };
-
-  // const [mutateMTOShipmentStatus] = useMutation(updateMTOShipmentStatus, {
-  //   onSuccess: (updatedMTOShipment) => {
-  //     mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-  //     queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-  //   },
-  // });
 
   useEffect(() => {
     if (mtoShipments) {
@@ -267,11 +286,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             ) {
               return false;
             }
-            // This code mocks a "CANCELLATION_REQUESTED" status change on a shipment so we can test that behavior
-            const mockStatus =
-              mockShipmentStatus && mockShipmentStatus.id === mtoShipment.id
-                ? mockShipmentStatus.status
-                : mtoShipment.status;
+
             const serviceItemsForShipment = shipmentServiceItems[`${mtoShipment.id}`];
             const requestedServiceItems = serviceItemsForShipment?.filter(
               (item) => item.status === SERVICE_ITEM_STATUSES.SUBMITTED,
@@ -286,6 +301,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             const dutyStationPostal = { postal_code: order.destinationDutyStation.address.postal_code };
             const { pickupAddress, destinationAddress } = mtoShipment;
             const formattedScheduledPickup = formatShipmentDate(mtoShipment.scheduledPickupDate);
+
             return (
               <ShipmentContainer
                 id={`shipment-${mtoShipment.id}`}
@@ -293,6 +309,17 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                 shipmentType={mtoShipment.shipmentType}
                 className={styles.shipmentCard}
               >
+                {isCancelModalVisible && (
+                  <RequestShipmentCancellationModal
+                    shipmentInfo={{
+                      shipmentID: mtoShipment.id,
+                      ifMatchEtag: mtoShipment.eTag,
+                      moveTaskOrderID: mtoShipment.moveTaskOrderID,
+                    }}
+                    onClose={setIsCancelModalVisible}
+                    onSubmit={handleUpdateMTOShipmentStatus}
+                  />
+                )}
                 <ShipmentHeading
                   shipmentInfo={{
                     shipmentID: mtoShipment.id,
@@ -302,9 +329,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                     originPostalCode: pickupAddress?.postal_code,
                     destinationAddress: destinationAddress || dutyStationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
-                    shipmentStatus: mockStatus,
+                    shipmentStatus: mtoShipment.status,
                   }}
-                  handleUpdateMTOShipmentStatus={handleUpdateMTOShipmentStatus}
+                  setIsCancelModalVisible={setIsCancelModalVisible}
                 />
                 <ImportantShipmentDates
                   requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
