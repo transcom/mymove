@@ -102,13 +102,8 @@ function doesLineHaveProhibitedOverride(disablingString) {
   // disablingStringParts format: ['eslint-disable-next-line', 'no-jsx', 'no-default']
 
   if (disablingStringParts.length === 1) {
-    if (disablingStringParts[0] === 'eslint-disable') {
-      prohibitedOverrideMsg =
-        'Found `eslint-disable`. This disables the whole file, which is bad practice because it can allow security issues to slip in unnoticed. Please specify exact rules on a line by line basis, eg `eslint-disable-next-line no-underscore-dangle`.';
-    } else {
-      // fail because rule should be specified
-      prohibitedOverrideMsg = 'Must specify the rule you are disabling';
-    }
+    // fail because rule should be specified
+    prohibitedOverrideMsg = 'Must specify the rule you are disabling';
     return prohibitedOverrideMsg;
   }
 
