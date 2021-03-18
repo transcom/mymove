@@ -557,7 +557,7 @@ jobs:
   anti_virus:
     executor: av_medium
     steps:
-      - run: apt-get update && apt-get install -y curl git openssh
+      - run: apt-get update && apt-get install -y curl git ssh
       - checkout
       - run: clamscan --version
       - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
