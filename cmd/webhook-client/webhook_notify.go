@@ -87,7 +87,7 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Done channel was set to true and code becomes unblocked
 	<-webhookEngine.DoneChannel
-	logger.Info("Starting DB shutdown")
+	logger.Info("Starting Db shutdown")
 	if err = db.Close(); err == nil {
 		logger.Info("Db connection closed")
 	} else {
