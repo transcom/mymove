@@ -100,7 +100,8 @@
     "build-storybook": "build-storybook",
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions",
-    "spellcheck": "mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions"
+    "spellcheck": "mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions",
+    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts"
   },
   "version": "0.1.0",
   "devDependencies": {

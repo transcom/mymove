@@ -98,7 +98,8 @@ function doesLineHaveProhibitedOverride(disablingString) {
   const disablingStringParts = disablingString
     .trim()
     .split(/[\s,]+/)
-    .map((item) => item.trim());
+    .map((item) => item.trim())
+    .filter((str) => !str.includes('*/')); // edgecase where string has a dangling */ or */}
   // disablingStringParts format: ['eslint-disable-next-line', 'no-jsx', 'no-default']
 
   if (disablingStringParts.length === 1) {
