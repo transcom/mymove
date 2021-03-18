@@ -151,7 +151,7 @@ func main() {
 	}
 	//t := time.Now().Add(-1 * time.Hour)
 	logger.Info("lastRead", zap.String("a", t.String()))
-	syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(&client)
+	syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(client, logger)
 	data, _, err := syncadaSFTPSession.ReadFromSyncadaViaSFTP(v.GetString("directory"), t)
 	if err != nil {
 		log.Fatal(err)

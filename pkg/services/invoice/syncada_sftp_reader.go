@@ -2,8 +2,9 @@ package invoice
 
 import (
 	"bytes"
-	"fmt"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/pkg/sftp"
 
@@ -11,24 +12,46 @@ import (
 )
 
 // SyncadaReaderSFTPSession contains information to create a new Syncada SFTP session
-// TODO should i just modify the SyncadaSenderSFTPSession to have a more generic name for the directory and reuse it?
-// TODO Is it worth keeping the client in this struct or should i just pass as an arg?
 type SyncadaReaderSFTPSession struct {
-	client *services.SFTPClient
+	client services.SFTPClient
+	logger Logger
 }
 
 // InitNewSyncadaSFTPReaderSession initialize a NewSyncadaSFTPSession and return services.SyncadaSFTPReader
-func InitNewSyncadaSFTPReaderSession(client *services.SFTPClient) services.SyncadaSFTPReader {
+func InitNewSyncadaSFTPReaderSession(client services.SFTPClient, logger Logger) services.SyncadaSFTPReader {
 	return &SyncadaReaderSFTPSession{
-		client: client,
+		client,
+		logger,
 	}
 }
 
+// FetchAndProcessSyncadaFiles downloads Syncada files with SFTP, processes them using the provided processor, and deletes them from the SFTP server if they were successfully processed
+func (s *SyncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor services.SyncadaFileProcessor) error {
+	files, _, err := s.ReadFromSyncadaViaSFTP(syncadaPath, lastRead)
+	if err != nil {
+		return err
+	}
+
+	pathsToDelete := make([]string, 0, len(files))
+
+	for _, file := range files {
+		err := processor.ProcessFile(file.Path, file.Text)
+		if err != nil {
+			s.logger.Error("Error while processing Syncada file", zap.String("path", file.Path), zap.String("file contents", file.Text), zap.Error(err))
+		} else {
+			pathsToDelete = append(pathsToDelete, file.Path)
+		}
+	}
+
+	s.RemoveFromSyncadaViaSFTP(pathsToDelete)
+
+	// TODO What would be useful for us to return here? Error information? Number of files processed?
+	return nil
+}
+
 // ReadFromSyncadaViaSFTP fetches contents of files on SFTP server modified after lastRead
-// TODO should i be returning the connection? or taking a connection as input?
-// TODO we've also got both a connection and a client and they both want to be closed, should i be passing both?
 func (s *SyncadaReaderSFTPSession) ReadFromSyncadaViaSFTP(syncadaPath string, lastRead time.Time) ([]services.RawSyncadaFile, time.Time, error) {
-	fileList, err := (*s.client).ReadDir(syncadaPath)
+	fileList, err := s.client.ReadDir(syncadaPath)
 
 	if err != nil {
 		return []services.RawSyncadaFile{}, time.Time{}, err
@@ -45,20 +68,20 @@ func (s *SyncadaReaderSFTPSession) ReadFromSyncadaViaSFTP(syncadaPath string, la
 			}
 			syncadaFilePath := sftp.Join(syncadaPath, f.Name())
 
-			syncadaFile, err := (*s.client).Open(syncadaFilePath)
+			syncadaFile, err := s.client.Open(syncadaFilePath)
 			if err != nil {
-				fmt.Printf("Failed to open %s: %s\n", syncadaFilePath, err.Error())
+				// TODO this will happen all the time and is not a big deal
+				s.logger.Warn("Failed to open Syncada file over SFTP", zap.String("path", syncadaFilePath), zap.Error(err))
 				continue
 			}
 
 			buf := new(bytes.Buffer)
 			_, err = syncadaFile.WriteTo(buf)
 			if err != nil {
-				fmt.Printf("Failed to read %s: %s\n", syncadaFilePath, err.Error())
+				s.logger.Error("Failed to read Syncada file over SFTP", zap.String("path", syncadaFilePath), zap.Error(err))
 				syncadaFile.Close()
 				continue
 			}
-			// TODO should this be done with defer? Not sure since we're in a loop
 			syncadaFile.Close()
 
 			fd := services.RawSyncadaFile{Path: syncadaFilePath, Text: buf.String()}
@@ -79,8 +102,9 @@ func (s *SyncadaReaderSFTPSession) ReadFromSyncadaViaSFTP(syncadaPath string, la
 func (s *SyncadaReaderSFTPSession) RemoveFromSyncadaViaSFTP(filePaths []string) []error {
 	fileDeleteErrors := make([]error, 0, len(filePaths))
 	for _, f := range filePaths {
-		err := (*s.client).Remove(f)
+		err := s.client.Remove(f)
 		if err != nil {
+			s.logger.Error("Error while deleting Syncada file", zap.String("path", f))
 			fileDeleteErrors = append(fileDeleteErrors, err)
 		}
 	}

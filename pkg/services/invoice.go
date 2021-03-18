@@ -58,3 +58,9 @@ type SyncadaSFTPReader interface {
 	ReadFromSyncadaViaSFTP(syncadaPath string, lastRead time.Time) ([]RawSyncadaFile, time.Time, error)
 	RemoveFromSyncadaViaSFTP(filePaths []string) []error // TODO will probably change the return type
 }
+
+// SyncadaFileProcessor is the exported interface for processing EDI files from Syncada
+//go:generate mockery -name SyncadaFileProcessor
+type SyncadaFileProcessor interface {
+	ProcessFile(syncadaPath string, text string) error
+}
