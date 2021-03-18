@@ -557,7 +557,7 @@ jobs:
   anti_virus:
     executor: av_medium
     steps:
-      - run: apk update && apk add --no-cache git openssh
+      - run: sudo apt-get update && sudo apt-get install -y git openssh
       - checkout
       - run: clamscan --version
       - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
