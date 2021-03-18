@@ -272,7 +272,6 @@ describe('TOO user', () => {
     cy.url().should('include', `/moves/${moveLocator}/details`);
   });
 
-  // #TODO Update this test
   it('is able to request cancellation for a shipment', () => {
     const moveLocator = 'TEST12';
 
