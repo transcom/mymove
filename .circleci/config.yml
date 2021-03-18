@@ -560,6 +560,7 @@ jobs:
       - run: apt-get update && apt-get install -y clamav curl git ssh
       - checkout
       - run: clamscan --version
+      - run: mkdir -p /store
       - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
       - run:
           name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
