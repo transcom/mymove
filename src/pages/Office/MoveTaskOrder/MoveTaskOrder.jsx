@@ -191,7 +191,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   useEffect(() => {
     const shipmentSections = [];
     mtoShipments?.forEach((shipment) => {
-      if (shipment.status === shipmentStatuses.APPROVED) {
+      if (
+        shipment.status === shipmentStatuses.APPROVED ||
+        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED
+      ) {
         shipmentSections.push({
           id: shipment.id,
           label: shipmentSectionLabels[`${shipment.shipmentType}`] || shipment.shipmentType,
