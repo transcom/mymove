@@ -350,7 +350,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("ABC1"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("0a2580ef-180a-44b2-a40b-291fa9cc13cc"),
@@ -401,7 +401,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &moveTypeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("4EVR"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("d6b8980d-6f88-41be-9ae2-1abcbd2574bc"),
@@ -469,7 +469,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &moveTypeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("4EVR"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("687e3ee4-62ff-44b3-a5cb-73338c9fdf95"),
@@ -929,7 +929,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("62149"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("4EVR"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("f9f10492-587e-43b3-af2a-9f67d2ac8757"),
@@ -974,7 +974,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("62149"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("4EVR"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("0581253d-0539-4a93-b1b6-ea4ad384f0c5"),
@@ -1019,7 +1019,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("62341"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("4EVR"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("946a5d40-0636-418f-b457-474915fb0149"),
@@ -1067,7 +1067,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &typeDetails,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("4EVR"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("bd3d46b3-cb76-40d5-a622-6ada239e5504"),

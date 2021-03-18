@@ -79,6 +79,8 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
 		&OptionalUUIDIsPresent{Field: o.OriginDutyStationID, Name: "OriginDutyStationID"},
+		&StringIsPresentAfterSubmission{Name: "TransportationAccountingCode", Field: o.TAC, Order: *o, DB: tx, Message: "TAC cannot be empty."},
+		&OptionalRegexMatch{Name: "TransportationAccountingCode", Field: o.TAC, Expr: `\A([A-Za-z0-9]){4}\z`, Message: "TAC must be exactly 4 alphanumeric characters."},
 	), nil
 }
 
@@ -92,6 +94,28 @@ func (o *Order) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // This method is not required and may be deleted.
 func (o *Order) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// StringIsPresentAfterSubmission checks presence of fields after an order has been submitted
+type StringIsPresentAfterSubmission struct {
+	Name    string
+	Field   *string
+	Order   Order
+	DB      *pop.Connection
+	Message string
+}
+
+// IsValid adds an error if the field is blank
+func (v *StringIsPresentAfterSubmission) IsValid(errors *validate.Errors) {
+	order := v.Order
+	v.DB.EagerPreload("Moves").All(&order)
+	if len(order.Moves) <= 0 || order.Moves[0].Status == MoveStatusDRAFT {
+		return
+	}
+
+	if v.Field == nil || *v.Field == "" {
+		errors.Add(validators.GenerateKey(v.Name), v.Message)
+	}
 }
 
 // SaveOrder saves an order

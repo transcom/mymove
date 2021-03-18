@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -73,7 +74,7 @@ func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParam
 	return orderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
 }
 
-// UpdateOrderHandler updates an order via PATCH /move-orders/{orderId}
+// UpdateOrderHandler updates an order via PATCH /orders/{orderId}
 type UpdateOrderHandler struct {
 	handlers.HandlerContext
 	orderUpdater services.OrderUpdater
@@ -104,7 +105,8 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 		case services.NotFoundError:
 			return orderop.NewUpdateOrderNotFound()
 		case services.InvalidInputError:
-			return orderop.NewUpdateOrderBadRequest()
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:

@@ -251,7 +251,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			OrdersType:       "PERMANENT_CHANGE_OF_STATION",
 			UploadedOrdersID: handlers.FmtUUID(document.ID),
 			Status:           (supportmessages.OrdersStatus)(models.OrderStatusDRAFT),
-			Tac:              swag.String("47475"),
+			Tac:              swag.String("ABC1"),
 		},
 	}
 

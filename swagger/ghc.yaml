@@ -104,7 +104,7 @@ paths:
       description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
-  '/move-orders/{orderID}':
+  '/orders/{orderID}':
     parameters:
       - description: ID of order to use
         in: path
@@ -157,6 +157,10 @@ paths:
           description: Precondition failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
     get:
@@ -193,7 +197,7 @@ paths:
       description: Gets an order
       operationId: getOrder
       summary: Gets an order by ID
-  '/move-orders/{orderID}/move-task-orders':
+  '/orders/{orderID}/move-task-orders':
     parameters:
       - description: ID of order to use
         in: path

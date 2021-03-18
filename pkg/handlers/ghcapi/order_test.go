@@ -21,9 +21,9 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
-	order := moveTaskOrder.Orders
-	request := httptest.NewRequest("GET", "/move-orders/{orderID}", nil)
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
+	request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
 	params := orderop.GetOrderParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 
 	suite.Assertions.IsType(&orderop.GetOrderOK{}, response)
 	suite.Equal(order.ID.String(), ordersPayload.ID.String())
-	suite.Equal(moveTaskOrder.Locator, ordersPayload.MoveCode)
+	suite.Equal(move.Locator, ordersPayload.MoveCode)
 	suite.Equal(order.ServiceMemberID.String(), ordersPayload.Customer.ID.String())
 	suite.Equal(order.NewDutyStationID.String(), ordersPayload.DestinationDutyStation.ID.String())
 	suite.NotNil(order.NewDutyStation)
@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 				DependentsAuthorized: swag.Bool(false),
 			},
 		})
-		request := httptest.NewRequest("GET", "/move-orders/{orderID}", nil)
+		request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
 		params := orderop.GetOrderParams{
 			HTTPRequest: request,
 			OrderID:     strfmt.UUID(order.ID.String()),
@@ -105,7 +105,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 			},
 		})
 
-		request := httptest.NewRequest("GET", "/move-orders/{orderID}", nil)
+		request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
 		params := orderop.GetOrderParams{
 			HTTPRequest: request,
 			OrderID:     strfmt.UUID(order.ID.String()),
@@ -136,11 +136,11 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
-	order := moveTaskOrder.Orders
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	request := httptest.NewRequest("PATCH", "/move-orders/{orderID}", nil)
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 		OrdersNumber:         handlers.FmtString("ORDER100"),
 		NewDutyStationID:     handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID:  handlers.FmtUUID(originDutyStation.ID),
-		Tac:                  handlers.FmtString("012345678"),
+		Tac:                  handlers.FmtString("ABC1"),
 		Sac:                  handlers.FmtString("987654321"),
 	}
 
@@ -203,14 +203,14 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 	suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 }
 
-// Test that a move order notification got stored Successfully
+// Test that an order notification got stored Successfully
 func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
-	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
-	order := moveTaskOrder.Orders
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
-	request := httptest.NewRequest("PATCH", "/move-orders/{orderID}", nil)
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -226,7 +226,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("012345678"),
+		Tac:                 handlers.FmtString("ABC1"),
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
@@ -259,7 +259,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
-	request := httptest.NewRequest("PATCH", "/move-orders/{orderID}", nil)
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -279,7 +279,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
 			OrdersNumber:        handlers.FmtString("ORDER100"),
 			NewDutyStationID:    handlers.FmtUUID(uuid.Nil),
 			OriginDutyStationID: handlers.FmtUUID(uuid.Nil),
-			Tac:                 handlers.FmtString("012345678"),
+			Tac:                 handlers.FmtString("ABC1"),
 			Sac:                 handlers.FmtString("987654321"),
 		},
 	}
@@ -296,12 +296,12 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
-	order := moveTaskOrder.Orders
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
-	request := httptest.NewRequest("PATCH", "/move-orders/{orderID}", nil)
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -317,7 +317,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("012345678"),
+		Tac:                 handlers.FmtString("ABC1"),
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
@@ -339,12 +339,17 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
 	suite.Assertions.IsType(&orderop.UpdateOrderPreconditionFailed{}, response)
 }
 
-func (suite *HandlerSuite) TestUpdateOrderHandlerBadRequest() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
-	order := moveTaskOrder.Orders
+func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	err := move.Submit(time.Now())
+	if err != nil {
+		suite.T().Fatal("Should transition.")
+	}
+	suite.MustSave(&move)
 
-	request := httptest.NewRequest("PATCH", "/move-orders/{orderID}", nil)
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -360,14 +365,13 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerBadRequest() {
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(uuid.Nil), // An unknown duty station will result in a invalid input error
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("012345678"),
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
 	params := orderop.UpdateOrderParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
-		IfMatch:     etag.GenerateEtag(order.UpdatedAt.Add(time.Second * 30)),
+		IfMatch:     etag.GenerateEtag(order.UpdatedAt),
 		Body:        body,
 	}
 
@@ -379,5 +383,134 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerBadRequest() {
 
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&orderop.UpdateOrderPreconditionFailed{}, response)
+	suite.Assertions.IsType(&orderop.UpdateOrderUnprocessableEntity{}, response)
+	invalidResponse := response.(*orderop.UpdateOrderUnprocessableEntity).Payload
+	errorDetail := invalidResponse.Detail
+
+	updatedOrder, _ := models.FetchOrder(suite.DB(), order.ID)
+
+	suite.Equal("unable to find destination duty station", *errorDetail)
+	suite.NotNil(updatedOrder.TAC)
+}
+
+func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
+	order.TAC = nil
+	suite.MustSave(&order)
+
+	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	newDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
+	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+
+	body := &ghcmessages.UpdateOrderPayload{
+		IssueDate:           handlers.FmtDatePtr(&issueDate),
+		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
+		OrdersType:          "RETIREMENT",
+		OrdersTypeDetail:    &ordersTypeDetail,
+		DepartmentIndicator: &deptIndicator,
+		OrdersNumber:        handlers.FmtString("ORDER100"),
+		NewDutyStationID:    handlers.FmtUUID(newDutyStation.ID),
+		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
+		Sac:                 handlers.FmtString("987654321"),
+	}
+
+	request := httptest.NewRequest("PATCH", "/updatedOrder.OrdersNumber/{orderID}", nil)
+
+	suite.Run("When Move is still in draft status, TAC can be nil", func() {
+		params := orderop.UpdateOrderParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := UpdateOrderHandler{
+			context,
+			orderservice.NewOrderUpdater(suite.DB()),
+		}
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+		payload := response.(*orderop.UpdateOrderOK).Payload
+
+		updatedOrder, _ := models.FetchOrder(suite.DB(), order.ID)
+
+		suite.EqualValues(body.OrdersNumber, updatedOrder.OrdersNumber)
+		suite.Nil(updatedOrder.TAC)
+		suite.Equal(move.Locator, payload.MoveCode)
+	})
+
+	suite.Run("When Move is no longer in draft status, TAC must be present", func() {
+		// Submit the move to change its status
+		err := move.Submit(time.Now())
+		if err != nil {
+			suite.T().Fatal("Should transition.")
+		}
+		suite.MustSave(&move)
+		updatedMove, _ := models.FetchMoveByMoveID(suite.DB(), move.ID)
+		updatedOrder, _ := models.FetchOrder(suite.DB(), order.ID)
+
+		suite.EqualValues(models.MoveStatusSUBMITTED, updatedMove.Status)
+
+		params := orderop.UpdateOrderParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(updatedOrder.UpdatedAt),
+			Body:        body,
+		}
+
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := UpdateOrderHandler{
+			context,
+			orderservice.NewOrderUpdater(suite.DB()),
+		}
+		response := handler.Handle(params)
+
+		suite.Assertions.IsType(&orderop.UpdateOrderUnprocessableEntity{}, response)
+		invalidResponse := response.(*orderop.UpdateOrderUnprocessableEntity).Payload
+		errorDetail := invalidResponse.Detail
+
+		suite.Contains(*errorDetail, "TAC cannot be empty.")
+	})
+
+	suite.Run("TAC can only contain 4 alphanumeric characters", func() {
+		existingOrder, _ := models.FetchOrder(suite.DB(), order.ID)
+
+		invalidCases := []struct {
+			desc string
+			tac  string
+		}{
+			{"TestOneCharacter", "A"},
+			{"TestTwoCharacters", "AB"},
+			{"TestThreeCharacters", "ABC"},
+			{"TestGreaterThanFourChars", "ABCD1"},
+			{"TestNonAlphaNumChars", "AB-C"},
+		}
+		for _, invalidCase := range invalidCases {
+			body.Tac = &invalidCase.tac
+			params := orderop.UpdateOrderParams{
+				HTTPRequest: request,
+				OrderID:     strfmt.UUID(order.ID.String()),
+				IfMatch:     etag.GenerateEtag(existingOrder.UpdatedAt),
+				Body:        body,
+			}
+			context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+			handler := UpdateOrderHandler{
+				context,
+				orderservice.NewOrderUpdater(suite.DB()),
+			}
+			response := handler.Handle(params)
+
+			suite.Assertions.IsType(&orderop.UpdateOrderUnprocessableEntity{}, response)
+			invalidResponse := response.(*orderop.UpdateOrderUnprocessableEntity).Payload
+			errorDetail := invalidResponse.Detail
+
+			suite.Contains(*errorDetail, "TAC must be exactly 4 alphanumeric characters.")
+		}
+	})
 }
