@@ -1,4 +1,4 @@
-FROM milmove/circleci-docker:milmove-cypress-58bb84d191f981213a6e5f26da6ebd95a352e92d
+FROM milmove/circleci-docker:milmove-cypress-c44f49437d3d4b166df090012b3e400b033ecdc3
 
 COPY . ./cypress
 COPY cypress.json ./cypress.json

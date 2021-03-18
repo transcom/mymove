@@ -15,6 +15,7 @@ import { getPPMsForMove, submitMoveForApproval } from 'services/internalApi';
 import { selectCurrentPPM, selectCurrentMove } from 'store/entities/selectors';
 import { updatePPMs as updatePPMsAction, updateMove as updateMoveAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { formatSwaggerDate } from 'shared/formatters';
 
 export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
@@ -22,6 +23,11 @@ export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlas
   useEffect(() => {
     getPPMsForMove(moveId).then((response) => updatePPMs(response));
   });
+
+  const initialValues = {
+    signature: '',
+    date: formatSwaggerDate(new Date()),
+  };
 
   const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
@@ -56,6 +62,7 @@ export const Agreement = ({ moveId, ppmId, updatePPMs, updateMove, push, setFlas
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <SubmitMoveForm
+            initialValues={initialValues}
             onBack={handleBack}
             onSubmit={handleSubmit}
             certificationText={completeCertificationText}

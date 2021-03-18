@@ -71,7 +71,12 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 		PeriodInSeconds:     v.GetInt(PeriodFlag),
 		MaxImmediateRetries: v.GetInt(MaxRetriesFlag),
 		SeverityThresholds:  []int{60},
+		QuitChannel:         make(chan os.Signal, 1),
+		DoneChannel:         make(chan bool, 1),
 	}
+
+	// Wait for interrupt signal to gracefully shutdown the client
+	signal.Notify(webhookEngine.QuitChannel, os.Interrupt)
 
 	// Start polling the db for changes
 	go func() {
@@ -80,12 +85,9 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 5 seconds.
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	log.Println("Shutdown Server ...")
+	// Done channel was set to true and code becomes unblocked
+	<-webhookEngine.DoneChannel
+	logger.Info("Starting Db shutdown")
 	if err = db.Close(); err == nil {
 		logger.Info("Db connection closed")
 	} else {
