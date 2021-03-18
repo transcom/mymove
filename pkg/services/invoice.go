@@ -3,6 +3,10 @@ package services
 import (
 	"io"
 	"net/http"
+	"os"
+	"time"
+
+	"github.com/pkg/sftp"
 
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
@@ -23,4 +27,34 @@ type GHCPaymentRequestInvoiceGenerator interface {
 //go:generate mockery -name SyncadaSFTPSender
 type SyncadaSFTPSender interface {
 	SendToSyncadaViaSFTP(localDataReader io.Reader, syncadaFileName string) (int64, error)
+}
+
+// SFTPFile is the exported interface for a file retrieved from Syncada via SFTP
+//go:generate mockery --name SFTPFile --outpkg ghcmocks --output ./ghcmocks
+type SFTPFile interface {
+	WriteTo(w io.Writer) (written int64, err error)
+	Close() error
+}
+
+// SFTPClient is the exported interface for an SFTP client created for reading from Syncada
+//go:generate mockery --name SFTPClient --outpkg ghcmocks --output ./ghcmocks
+type SFTPClient interface {
+	ReadDir(p string) ([]os.FileInfo, error)
+	Open(path string) (*sftp.File, error)
+	Remove(path string) error
+	Close() error
+}
+
+// RawSyncadaFile connects file paths and their contents from Syncada
+// TODO I'm pretty sure this should go somewhere else, but I'm not sure where that is
+type RawSyncadaFile struct { // TODO i dont love this name
+	Path string
+	Text string
+}
+
+// SyncadaSFTPReader is the exported interface for reading files from Syncada
+//go:generate mockery -name SyncadaSFTPReader
+type SyncadaSFTPReader interface {
+	ReadFromSyncadaViaSFTP(syncadaPath string, lastRead time.Time) ([]RawSyncadaFile, time.Time, error)
+	RemoveFromSyncadaViaSFTP(filePaths []string) []error // TODO will probably change the return type
 }
