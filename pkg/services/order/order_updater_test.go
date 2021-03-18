@@ -72,6 +72,69 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 		suite.Equal(updatedOrder.Grade, actualOrder.Grade)
 	})
 
+	suite.T().Run("Service member affiliation updated if order affiliation updated", func(t *testing.T) {
+		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		serviceMember := defaultOrder.ServiceMember
+
+		newAffiliation := models.AffiliationNAVY
+
+		suite.NotEqual(serviceMember.Affiliation, newAffiliation)
+
+		var serviceMemberPatch models.ServiceMember
+
+		serviceMemberPatch.Affiliation = &newAffiliation
+
+		updatedOrder := models.Order{
+			ID:                  defaultOrder.ID,
+			OriginDutyStationID: defaultOrder.OriginDutyStationID,
+			NewDutyStationID:    defaultOrder.NewDutyStationID,
+			IssueDate:           defaultOrder.IssueDate,
+			ReportByDate:        defaultOrder.ReportByDate,
+			OrdersType:          defaultOrder.OrdersType,
+			ServiceMember:       serviceMemberPatch,
+		}
+
+		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
+		_, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+
+		suite.NoError(err)
+
+		fetchedSM := models.ServiceMember{}
+		_ = suite.DB().Find(&fetchedSM, serviceMember.ID)
+
+		suite.EqualValues(newAffiliation, *fetchedSM.Affiliation)
+	})
+
+	suite.T().Run("Service member rank updated if order grade updated", func(t *testing.T) {
+		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		serviceMember := defaultOrder.ServiceMember
+
+		newRank := models.ServiceMemberRankE2
+
+		suite.NotEqual(serviceMember.Rank, newRank)
+
+		updatedOrder := models.Order{
+			ID:                  defaultOrder.ID,
+			OriginDutyStationID: defaultOrder.OriginDutyStationID,
+			NewDutyStationID:    defaultOrder.NewDutyStationID,
+			IssueDate:           defaultOrder.IssueDate,
+			ReportByDate:        defaultOrder.ReportByDate,
+			OrdersType:          defaultOrder.OrdersType,
+			Grade:               (*string)(&newRank),
+		}
+
+		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
+		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+
+		suite.NoError(err)
+		suite.Equal(newRank, models.ServiceMemberRank(*actualOrder.Grade))
+
+		fetchedSM := models.ServiceMember{}
+		_ = suite.DB().Find(&fetchedSM, serviceMember.ID)
+
+		suite.EqualValues(newRank, *fetchedSM.Rank)
+	})
+
 	suite.T().Run("Service member current duty station updated if order origin duty station updated", func(t *testing.T) {
 		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
 		serviceMember := defaultOrder.ServiceMember
