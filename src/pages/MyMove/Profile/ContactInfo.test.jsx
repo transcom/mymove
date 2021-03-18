@@ -1,12 +1,13 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 
 import { MockProviders } from 'testUtils';
-import BackupMailingAddress from './BackupMailingAddress';
+import ConnectedContactInfo from 'scenes/ServiceMembers/ContactInfo';
 
-describe('requireCustomerState BackupMailingAddress', () => {
+describe('requireCustomerState ContactInfo', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
   const mockDispatch = jest.fn();
 
@@ -24,7 +25,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
     updateServiceMember: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "ADDRESS COMPLETE" state', () => {
+  it('dispatches a redirect if the current state is earlier than the "NAME COMPLETE" state', () => {
     const mockState = {
       entities: {
         user: {
@@ -40,14 +41,6 @@ describe('requireCustomerState BackupMailingAddress', () => {
             rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
-            first_name: 'Tester',
-            last_name: 'Testperson',
-            telephone: '1234567890',
-            personal_email: 'test@example.com',
-            email_is_preferred: true,
-            current_station: {
-              id: 'testDutyStationId',
-            },
           },
         },
       },
@@ -55,15 +48,15 @@ describe('requireCustomerState BackupMailingAddress', () => {
 
     const wrapper = mount(
       <MockProviders initialState={mockState}>
-        <BackupMailingAddress {...props} />
+        <ConnectedContactInfo {...props} />
       </MockProviders>,
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/current-address'));
+    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/name'));
   });
 
-  it('does not redirect if the current state equals the "ADDRESS COMPLETE" state', () => {
+  it('does not redirect if the current state equals the "NAME COMPLETE" state', () => {
     const mockState = {
       entities: {
         user: {
@@ -81,15 +74,6 @@ describe('requireCustomerState BackupMailingAddress', () => {
             affiliation: 'ARMY',
             first_name: 'Tester',
             last_name: 'Testperson',
-            telephone: '1234567890',
-            personal_email: 'test@example.com',
-            email_is_preferred: true,
-            current_station: {
-              id: 'testDutyStationId',
-            },
-            residential_address: {
-              street: '123 Main St',
-            },
           },
         },
       },
@@ -97,14 +81,14 @@ describe('requireCustomerState BackupMailingAddress', () => {
 
     const wrapper = mount(
       <MockProviders initialState={mockState}>
-        <BackupMailingAddress {...props} />
+        <ConnectedContactInfo {...props} />
       </MockProviders>,
     );
 
     expect(wrapper.exists()).toBe(true);
     expect(mockDispatch).not.toHaveBeenCalled();
   });
-  it('does not redirect if the current state is after the "ADDRESS COMPLETE" state and profile is not complete', () => {
+  it('does not redirect if the current state is after the "NAME COMPLETE" state and profile is not complete', () => {
     const mockState = {
       entities: {
         user: {
@@ -141,7 +125,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
 
     const wrapper = mount(
       <MockProviders initialState={mockState}>
-        <BackupMailingAddress {...props} />
+        <ConnectedContactInfo {...props} />
       </MockProviders>,
     );
 
@@ -191,7 +175,7 @@ describe('requireCustomerState BackupMailingAddress', () => {
 
     const wrapper = mount(
       <MockProviders initialState={mockState}>
-        <BackupMailingAddress {...props} />
+        <ConnectedContactInfo {...props} />
       </MockProviders>,
     );
 

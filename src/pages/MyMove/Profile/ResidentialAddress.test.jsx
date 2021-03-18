@@ -1,12 +1,13 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 
 import { MockProviders } from 'testUtils';
-import ContactInfo from './ContactInfo';
+import ConnectedResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
 
-describe('requireCustomerState ContactInfo', () => {
+describe('requireCustomerState ResidentialAddress', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
   const mockDispatch = jest.fn();
 
@@ -24,38 +25,7 @@ describe('requireCustomerState ContactInfo', () => {
     updateServiceMember: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "NAME COMPLETE" state', () => {
-    const mockState = {
-      entities: {
-        user: {
-          testUserId: {
-            id: 'testUserId',
-            email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
-          },
-        },
-        serviceMembers: {
-          testServiceMemberId: {
-            id: 'testServiceMemberId',
-            rank: 'test rank',
-            edipi: '1234567890',
-            affiliation: 'ARMY',
-          },
-        },
-      },
-    };
-
-    const wrapper = mount(
-      <MockProviders initialState={mockState}>
-        <ContactInfo {...props} />
-      </MockProviders>,
-    );
-
-    expect(wrapper.exists()).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/name'));
-  });
-
-  it('does not redirect if the current state equals the "NAME COMPLETE" state', () => {
+  it('dispatches a redirect if the current state is earlier than the "DUTY STATION COMPLETE" state', () => {
     const mockState = {
       entities: {
         user: {
@@ -73,6 +43,9 @@ describe('requireCustomerState ContactInfo', () => {
             affiliation: 'ARMY',
             first_name: 'Tester',
             last_name: 'Testperson',
+            telephone: '1234567890',
+            personal_email: 'test@example.com',
+            email_is_preferred: true,
           },
         },
       },
@@ -80,14 +53,53 @@ describe('requireCustomerState ContactInfo', () => {
 
     const wrapper = mount(
       <MockProviders initialState={mockState}>
-        <ContactInfo {...props} />
+        <ConnectedResidentialAddress {...props} />
+      </MockProviders>,
+    );
+
+    expect(wrapper.exists()).toBe(true);
+    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/current-duty'));
+  });
+
+  it('does not redirect if the current state equals the "DUTY STATION COMPLETE" state', () => {
+    const mockState = {
+      entities: {
+        user: {
+          testUserId: {
+            id: 'testUserId',
+            email: 'testuser@example.com',
+            service_member: 'testServiceMemberId',
+          },
+        },
+        serviceMembers: {
+          testServiceMemberId: {
+            id: 'testServiceMemberId',
+            rank: 'test rank',
+            edipi: '1234567890',
+            affiliation: 'ARMY',
+            first_name: 'Tester',
+            last_name: 'Testperson',
+            telephone: '1234567890',
+            personal_email: 'test@example.com',
+            email_is_preferred: true,
+            current_station: {
+              id: 'testDutyStationId',
+            },
+          },
+        },
+      },
+    };
+
+    const wrapper = mount(
+      <MockProviders initialState={mockState}>
+        <ConnectedResidentialAddress {...props} />
       </MockProviders>,
     );
 
     expect(wrapper.exists()).toBe(true);
     expect(mockDispatch).not.toHaveBeenCalled();
   });
-  it('does not redirect if the current state is after the "NAME COMPLETE" state and profile is not complete', () => {
+  it('does not redirect if the current state is after the "DUTY STATION COMPLETE" state and profile is not complete', () => {
     const mockState = {
       entities: {
         user: {
@@ -124,7 +136,7 @@ describe('requireCustomerState ContactInfo', () => {
 
     const wrapper = mount(
       <MockProviders initialState={mockState}>
-        <ContactInfo {...props} />
+        <ConnectedResidentialAddress {...props} />
       </MockProviders>,
     );
 
@@ -174,7 +186,7 @@ describe('requireCustomerState ContactInfo', () => {
 
     const wrapper = mount(
       <MockProviders initialState={mockState}>
-        <ContactInfo {...props} />
+        <ConnectedResidentialAddress {...props} />
       </MockProviders>,
     );
 
