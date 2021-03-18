@@ -14,7 +14,7 @@ set -eu -o pipefail
 #
 # - AV_IGNORE_DIR: The full path to the directory where new ignore files will be created (no default)
 # - AV_DATABASE_DIR: The directory inside the container to store AV database files (default: /tmp/store)
-# - AV_DOCKER_IMAGE: The docker image used which runs ClamAV (default: mk0x/docker-clamav:alpine)
+# - AV_DOCKER_IMAGE: The docker image used which runs ClamAV (default: mk0x/docker-clamav:latest)
 # - AV_MOUNT_DIR: The directory in the container used to mount files for scanning (default: /project)
 #
 
@@ -29,7 +29,7 @@ fi
 
 DATABASE_DIR=${AV_DATABASE_DIR:-/tmp/store}
 readonly DATABASE_DIR
-DOCKER_IMAGE=${AV_DOCKER_IMAGE:-mk0x/docker-clamav:alpine}
+DOCKER_IMAGE=${AV_DOCKER_IMAGE:-mk0x/docker-clamav:latest}
 readonly DOCKER_IMAGE
 MOUNT_DIR=${AV_MOUNT_DIR:-/root/project}
 readonly MOUNT_DIR
