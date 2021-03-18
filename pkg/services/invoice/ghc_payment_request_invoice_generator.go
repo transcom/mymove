@@ -123,7 +123,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		ApplicationReceiversCode: "8004171844",
 		Date:                     currentTime.Format(dateFormat),
 		Time:                     currentTime.Format(timeFormat),
-		GroupControlNumber:       100001251,
+		GroupControlNumber:       interchangeControlNumber,
 		ResponsibleAgencyCode:    "X",
 		Version:                  "004010",
 	}
@@ -233,7 +233,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.GE = edisegment.GE{
 		NumberOfTransactionSetsIncluded: 1,
-		GroupControlNumber:              100001251,
+		GroupControlNumber:              interchangeControlNumber,
 	}
 
 	edi858.IEA = edisegment.IEA{
