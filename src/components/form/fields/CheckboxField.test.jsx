@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { Formik } from 'formik'; // package will be auto mocked
+import { Formik } from 'formik';
 
 import CheckboxField from './CheckboxField';
 
