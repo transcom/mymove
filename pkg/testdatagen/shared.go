@@ -52,6 +52,7 @@ type Assertions struct {
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
+	OrdersNumber                             string
 	Organization                             models.Organization
 	OriginDutyStation                        models.DutyStation
 	PaymentRequest                           models.PaymentRequest
