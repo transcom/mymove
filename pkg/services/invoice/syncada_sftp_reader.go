@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"bytes"
+	"fmt"
 	"time"
 
 	"go.uber.org/zap"
@@ -27,86 +28,57 @@ func InitNewSyncadaSFTPReaderSession(client services.SFTPClient, logger Logger) 
 
 // FetchAndProcessSyncadaFiles downloads Syncada files with SFTP, processes them using the provided processor, and deletes them from the SFTP server if they were successfully processed
 func (s *SyncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor services.SyncadaFileProcessor) error {
-	files, _, err := s.ReadFromSyncadaViaSFTP(syncadaPath, lastRead)
+	fileList, err := s.client.ReadDir(syncadaPath)
 	if err != nil {
+		s.logger.Error("Error reading SFTP directory", zap.String("directory", syncadaPath))
 		return err
 	}
 
-	pathsToDelete := make([]string, 0, len(files))
+	mostRecentFileModTime := lastRead
 
-	for _, file := range files {
-		err := processor.ProcessFile(file.Path, file.Text)
-		if err != nil {
-			s.logger.Error("Error while processing Syncada file", zap.String("path", file.Path), zap.String("file contents", file.Text), zap.Error(err))
-		} else {
-			pathsToDelete = append(pathsToDelete, file.Path)
+	for _, fileInfo := range fileList {
+		if fileInfo.ModTime().After(lastRead) {
+			if fileInfo.ModTime().After(mostRecentFileModTime) {
+				mostRecentFileModTime = fileInfo.ModTime()
+			}
+			filePath := sftp.Join(syncadaPath, fileInfo.Name())
+
+			fileText, err := s.downloadFile(filePath)
+			if err != nil {
+				s.logger.Info("Error while downloading Syncada file", zap.String("path", filePath), zap.Error(err))
+				continue
+			}
+
+			err = processor.ProcessFile(filePath, fileText)
+			if err != nil {
+				s.logger.Error("Error while processing Syncada file", zap.String("path", filePath), zap.String("file contents", fileText), zap.Error(err))
+				continue
+			}
+
+			err = s.client.Remove(filePath)
+			if err != nil {
+				s.logger.Error("Error while deleting Syncada file", zap.String("path", filePath))
+			}
 		}
 	}
 
-	s.RemoveFromSyncadaViaSFTP(pathsToDelete)
-
-	// TODO What would be useful for us to return here? Error information? Number of files processed?
 	return nil
 }
 
-// ReadFromSyncadaViaSFTP fetches contents of files on SFTP server modified after lastRead
-func (s *SyncadaReaderSFTPSession) ReadFromSyncadaViaSFTP(syncadaPath string, lastRead time.Time) ([]services.RawSyncadaFile, time.Time, error) {
-	fileList, err := s.client.ReadDir(syncadaPath)
-
+func (s *SyncadaReaderSFTPSession) downloadFile(path string) (string, error) {
+	file, err := s.client.Open(path)
 	if err != nil {
-		return []services.RawSyncadaFile{}, time.Time{}, err
+		// TODO this will happen all the time and is not a big deal, worth logging?
+		return "", fmt.Errorf("failed to open file over SFTP: %w", err)
 	}
 
-	readFiles := make([]services.RawSyncadaFile, 0, len(fileList))
+	defer file.Close()
 
-	mostRecentFileModTime := lastRead
-
-	for _, f := range fileList {
-		if f.ModTime().After(lastRead) {
-			if f.ModTime().After(mostRecentFileModTime) {
-				mostRecentFileModTime = f.ModTime()
-			}
-			syncadaFilePath := sftp.Join(syncadaPath, f.Name())
-
-			syncadaFile, err := s.client.Open(syncadaFilePath)
-			if err != nil {
-				// TODO this will happen all the time and is not a big deal
-				s.logger.Warn("Failed to open Syncada file over SFTP", zap.String("path", syncadaFilePath), zap.Error(err))
-				continue
-			}
-
-			buf := new(bytes.Buffer)
-			_, err = syncadaFile.WriteTo(buf)
-			if err != nil {
-				s.logger.Error("Failed to read Syncada file over SFTP", zap.String("path", syncadaFilePath), zap.Error(err))
-				syncadaFile.Close()
-				continue
-			}
-			syncadaFile.Close()
-
-			fd := services.RawSyncadaFile{Path: syncadaFilePath, Text: buf.String()}
-			readFiles = append(readFiles, fd)
-		}
+	buf := new(bytes.Buffer)
+	_, err = file.WriteTo(buf)
+	if err != nil {
+		return "", fmt.Errorf("failed to read file over SFTP: %w", err)
 	}
 
-	return readFiles, mostRecentFileModTime, nil
-}
-
-// TODO what should we do with errors from this function?
-// TODO I think i'd want to unify them into one error for ease of checking
-// TODO I think it makes sense for this to try each file even if some of them fail.
-// TODO seems like the most likely causes for errors would be if the files were already deleted or if the connection was dropped
-// TODO Also, this function could be somewhere else but it's so small
-
-// RemoveFromSyncadaViaSFTP attempts to remove every file path passed to it from an SFTP server
-func (s *SyncadaReaderSFTPSession) RemoveFromSyncadaViaSFTP(filePaths []string) []error {
-	fileDeleteErrors := make([]error, 0, len(filePaths))
-	for _, f := range filePaths {
-		err := s.client.Remove(f)
-		if err != nil {
-			s.logger.Error("Error while deleting Syncada file", zap.String("path", f))
-			fileDeleteErrors = append(fileDeleteErrors, err)
-		}
-	}
-	return fileDeleteErrors
+	return buf.String(), nil
 }

@@ -45,18 +45,10 @@ type SFTPClient interface {
 	Close() error
 }
 
-// RawSyncadaFile connects file paths and their contents from Syncada
-// TODO I'm pretty sure this should go somewhere else, but I'm not sure where that is
-type RawSyncadaFile struct { // TODO i dont love this name
-	Path string
-	Text string
-}
-
 // SyncadaSFTPReader is the exported interface for reading files from Syncada
 //go:generate mockery -name SyncadaSFTPReader
 type SyncadaSFTPReader interface {
-	ReadFromSyncadaViaSFTP(syncadaPath string, lastRead time.Time) ([]RawSyncadaFile, time.Time, error)
-	RemoveFromSyncadaViaSFTP(filePaths []string) []error // TODO will probably change the return type
+	FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor SyncadaFileProcessor) error
 }
 
 // SyncadaFileProcessor is the exported interface for processing EDI files from Syncada

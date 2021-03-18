@@ -18,7 +18,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
 // Call this from command line with go run ./cmd/fetch-from-syncada-via-sftp/ --local-file-path <localFilePath> --syncada-file-name <syncadaFileName>
@@ -151,11 +150,11 @@ func main() {
 	}
 	//t := time.Now().Add(-1 * time.Hour)
 	logger.Info("lastRead", zap.String("a", t.String()))
-	syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(client, logger)
-	data, _, err := syncadaSFTPSession.ReadFromSyncadaViaSFTP(v.GetString("directory"), t)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Print(data)
+	//syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(client, logger)
+	//data, _, err := syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString("directory"), t, )
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//fmt.Print(data)
 }
