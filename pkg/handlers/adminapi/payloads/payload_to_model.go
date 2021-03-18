@@ -30,7 +30,6 @@ func UserModel(user *adminmessages.UserUpdatePayload, id uuid.UUID) (*models.Use
 
 // WebhookSubscriptionModel converts a webhook subscription payload to a model
 func WebhookSubscriptionModel(sub *adminmessages.WebhookSubscription) *models.WebhookSubscription {
-
 	model := &models.WebhookSubscription{
 		ID: uuid.FromStringOrNil(sub.ID.String()),
 	}
@@ -55,5 +54,20 @@ func WebhookSubscriptionModel(sub *adminmessages.WebhookSubscription) *models.We
 		model.SubscriberID = uuid.FromStringOrNil(sub.SubscriberID.String())
 	}
 
+	return model
+}
+
+// WebhookSubscriptionModelFromCreate converts a payload for creating a webhook subscription to a model
+func WebhookSubscriptionModelFromCreate(sub *adminmessages.CreateWebhookSubscription) *models.WebhookSubscription {
+	model := &models.WebhookSubscription{
+		// EventKey and CallbackURL are required fields in the YAML, so we don't have to worry about the potential
+		// nil dereference errors here:
+		EventKey:     *sub.EventKey,
+		CallbackURL:  *sub.CallbackURL,
+		SubscriberID: uuid.FromStringOrNil(sub.SubscriberID.String()),
+	}
+	if sub.Status != nil {
+		model.Status = models.WebhookSubscriptionStatus(*sub.Status)
+	}
 	return model
 }

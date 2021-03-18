@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 
 import MovePaymentRequests from './MovePaymentRequests';
 
@@ -16,6 +16,7 @@ jest.mock('hooks/queries', () => ({
 const testProps = {
   setUnapprovedShipmentCount: jest.fn(),
   setUnapprovedServiceItemCount: jest.fn(),
+  setPendingPaymentRequestCount: jest.fn(),
 };
 
 const move = {
@@ -225,17 +226,23 @@ describe('MovePaymentRequests', () => {
     });
 
     it('renders without errors', () => {
-      const { getByText } = renderMovePaymentRequests(testProps);
-      expect(getByText('Payment requests')).toBeInTheDocument();
+      renderMovePaymentRequests(testProps);
+      expect(screen.getByText('Payment requests')).toBeInTheDocument();
     });
 
     it('renders multiple payment requests', async () => {
-      const { getByText } = renderMovePaymentRequests(testProps);
-
+      renderMovePaymentRequests(testProps);
       await waitFor(() => {
         multiplePaymentRequests.paymentRequests.forEach((pr) => {
-          expect(getByText(`Payment Request ${pr.paymentRequestNumber}`)).toBeInTheDocument();
+          expect(screen.getByText(`Payment Request ${pr.paymentRequestNumber}`)).toBeInTheDocument();
         });
+      });
+    });
+
+    it('updates the pending payment request count callback', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(testProps.setPendingPaymentRequestCount).toHaveBeenCalledWith(1);
       });
     });
 
@@ -249,7 +256,6 @@ describe('MovePaymentRequests', () => {
     it('updates the unapproved service items tag callback', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
-        // Should only look at service items belonging to approved shipments
         expect(testProps.setUnapprovedServiceItemCount).toHaveBeenCalledWith(2);
       });
     });
@@ -260,14 +266,21 @@ describe('MovePaymentRequests', () => {
       useMovePaymentRequestsQueries.mockImplementation(() => singleReviewedPaymentRequest);
     });
 
-    it('updates the unapproved shipments tag callback', async () => {
+    it('updates the pending payment request count callback', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(testProps.setPendingPaymentRequestCount).toHaveBeenCalledWith(0);
+      });
+    });
+
+    it('updates the unapproved shipment count callback', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
         expect(testProps.setUnapprovedShipmentCount).toHaveBeenCalledWith(0);
       });
     });
 
-    it('updates the unapproved service items tag callback', async () => {
+    it('updates the unapproved service item count callback', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
         expect(testProps.setUnapprovedServiceItemCount).toHaveBeenCalledWith(0);
@@ -281,20 +294,27 @@ describe('MovePaymentRequests', () => {
     });
 
     it('renders with empty message when no payment requests exist', async () => {
-      const { getByText } = renderMovePaymentRequests(testProps);
+      renderMovePaymentRequests(testProps);
       await waitFor(() => {
-        expect(getByText('No payment requests have been submitted for this move yet.')).toBeInTheDocument();
+        expect(screen.getByText('No payment requests have been submitted for this move yet.')).toBeInTheDocument();
       });
     });
 
-    it('updates the unapproved shipments tag callback', async () => {
+    it('updates the pending payment request count callback', async () => {
+      renderMovePaymentRequests(testProps);
+      await waitFor(() => {
+        expect(testProps.setPendingPaymentRequestCount).toHaveBeenCalledWith(0);
+      });
+    });
+
+    it('updates the unapproved shipment count callback', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
         expect(testProps.setUnapprovedShipmentCount).toHaveBeenCalledWith(0);
       });
     });
 
-    it('updates the unapproved service items tag callback', async () => {
+    it('updates the unapproved service item count callback', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
         expect(testProps.setUnapprovedServiceItemCount).toHaveBeenCalledWith(0);

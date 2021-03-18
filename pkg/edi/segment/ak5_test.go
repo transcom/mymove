@@ -133,7 +133,7 @@ func (suite *SegmentSuite) TestParseAK5() {
 	})
 
 	suite.T().Run("wrong number of fields", func(t *testing.T) {
-		badArrayAK5 := []string{"A", "abc"}
+		badArrayAK5 := []string{"A", "abc", "def", "ghi", "jkl", "mno", "zzz"}
 		var badAK5 AK5
 		err := badAK5.Parse(badArrayAK5)
 		if suite.Error(err) {

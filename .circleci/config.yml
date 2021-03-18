@@ -1631,6 +1631,7 @@ workflows:
             - deploy_stg_tasks
             - deploy_stg_app
             - deploy_stg_app_client_tls
+            - deploy_stg_webhook_client
 
       - deploy_storybook_dp3:
           requires:

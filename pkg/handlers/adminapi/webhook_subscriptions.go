@@ -16,38 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-// payloadForWebhookSubscriptionModel converts from model to payload
-func payloadForWebhookSubscriptionModel(subscription models.WebhookSubscription) *adminmessages.WebhookSubscription {
-	severity := int64(subscription.Severity)
-
-	status := adminmessages.WebhookSubscriptionStatus(subscription.Status)
-	return &adminmessages.WebhookSubscription{
-		ID:           *handlers.FmtUUID(subscription.ID),
-		SubscriberID: handlers.FmtUUID(subscription.SubscriberID),
-		CallbackURL:  &subscription.CallbackURL,
-		Severity:     &severity,
-		EventKey:     &subscription.EventKey,
-		Status:       &status,
-		CreatedAt:    *handlers.FmtDateTime(subscription.CreatedAt),
-		UpdatedAt:    *handlers.FmtDateTime(subscription.UpdatedAt),
-	}
-}
-
-// payloadToWebhookSubscriptionModel converts from payload params to model
-func payloadToWebhookSubscriptionModel(params webhooksubscriptionop.CreateWebhookSubscriptionParams) models.WebhookSubscription {
-	subscription := params.WebhookSubscription
-
-	model := models.WebhookSubscription{
-		EventKey:     *subscription.EventKey,
-		CallbackURL:  *subscription.CallbackURL,
-		SubscriberID: uuid.FromStringOrNil(subscription.SubscriberID.String()),
-	}
-	if subscription.Status != nil {
-		model.Status = models.WebhookSubscriptionStatus(*subscription.Status)
-	}
-	return model
-}
-
 // IndexWebhookSubscriptionsHandler returns a list of webhook subscriptions via GET /webhook_subscriptions
 type IndexWebhookSubscriptionsHandler struct {
 	handlers.HandlerContext
@@ -82,7 +50,7 @@ func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.In
 	payload := make(adminmessages.WebhookSubscriptions, queriedWebhookSubscriptionsCount)
 
 	for i, s := range webhookSubscriptions {
-		payload[i] = payloadForWebhookSubscriptionModel(s)
+		payload[i] = payloads.WebhookSubscriptionPayload(s)
 	}
 
 	return webhooksubscriptionop.NewIndexWebhookSubscriptionsOK().WithContentRange(fmt.Sprintf("webhookSubscriptions %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedWebhookSubscriptionsCount, totalWebhookSubscriptionsCount)).WithPayload(payload)
@@ -107,7 +75,7 @@ func (h GetWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.GetWe
 		return handlers.ResponseForError(logger, err)
 	}
 
-	payload := payloadForWebhookSubscriptionModel(webhookSubscription)
+	payload := payloads.WebhookSubscriptionPayload(webhookSubscription)
 	return webhooksubscriptionop.NewGetWebhookSubscriptionOK().WithPayload(payload)
 }
 
@@ -121,12 +89,12 @@ type CreateWebhookSubscriptionHandler struct {
 // Handle creates an admin user
 func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.CreateWebhookSubscriptionParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	subscription := payloadToWebhookSubscriptionModel(params)
+	subscription := payloads.WebhookSubscriptionModelFromCreate(params.WebhookSubscription)
 	subscriberIDFilter := []services.QueryFilter{
 		h.NewQueryFilter("id", "=", subscription.SubscriberID),
 	}
 
-	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(&subscription, subscriberIDFilter)
+	createdWebhookSubscription, verrs, err := h.WebhookSubscriptionCreator.CreateWebhookSubscription(subscription, subscriberIDFilter)
 
 	if verrs != nil {
 		logger.Error("Error saving webhook subscription", zap.Error(verrs))
@@ -149,7 +117,7 @@ func (h CreateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Cr
 		}
 	}
 
-	returnPayload := payloadForWebhookSubscriptionModel(*createdWebhookSubscription)
+	returnPayload := payloads.WebhookSubscriptionPayload(*createdWebhookSubscription)
 	return webhooksubscriptionop.NewCreateWebhookSubscriptionCreated().WithPayload(returnPayload)
 }
 
@@ -178,7 +146,7 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 	webhookSubscription := payloads.WebhookSubscriptionModel(payload)
 
 	// Note we are not checking etag as adminapi does not seem to use this
-	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, payload.Severity)
+	updatedWebhookSubscription, err := h.WebhookSubscriptionUpdater.UpdateWebhookSubscription(webhookSubscription, payload.Severity, &params.IfMatch)
 
 	// Return error response if not successful
 	if err != nil {
@@ -186,11 +154,17 @@ func (h UpdateWebhookSubscriptionHandler) Handle(params webhooksubscriptionop.Up
 			logger.Error("Error finding webhookSubscription to update")
 			return webhooksubscriptionop.NewUpdateWebhookSubscriptionNotFound()
 		}
-		logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
-		return handlers.ResponseForError(logger, err)
+		switch err.(type) {
+		case services.PreconditionFailedError:
+			logger.Error("Error updating webhookSubscription due to stale eTag")
+			return webhooksubscriptionop.NewUpdateWebhookSubscriptionPreconditionFailed()
+		default:
+			logger.Error(fmt.Sprintf("Error updating webhookSubscription %s", params.WebhookSubscriptionID.String()), zap.Error(err))
+			return handlers.ResponseForError(logger, err)
+		}
 	}
 
 	// Convert model back to a payload and return to caller
-	payload = payloadForWebhookSubscriptionModel(*updatedWebhookSubscription)
+	payload = payloads.WebhookSubscriptionPayload(*updatedWebhookSubscription)
 	return webhooksubscriptionop.NewUpdateWebhookSubscriptionOK().WithPayload(payload)
 }
