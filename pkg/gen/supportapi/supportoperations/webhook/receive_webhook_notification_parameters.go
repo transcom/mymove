@@ -32,7 +32,7 @@ type ReceiveWebhookNotificationParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*The notification sent by webhook-client.
+	/*The webhook notification being sent
 	  Required: true
 	  In: body
 	*/

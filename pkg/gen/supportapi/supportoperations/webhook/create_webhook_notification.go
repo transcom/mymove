@@ -31,7 +31,7 @@ func NewCreateWebhookNotification(ctx *middleware.Context, handler CreateWebhook
 
 /*CreateWebhookNotification swagger:route POST /webhook-notifications webhook createWebhookNotification
 
-Test endpoint for creatings webhook notifications
+Test endpoint for creating webhook notifications
 
 This endpoint creates a webhook notification in the database. If the webhook client is running, it may send the notification soon after creation.
 

@@ -429,7 +429,7 @@ paths:
           $ref: '#/responses/ServerError'
   '/webhook-notifications':
     post:
-      summary: Test endpoint for creatings webhook notifications
+      summary: Test endpoint for creating webhook notifications
       description: >
         This endpoint creates a webhook notification in the database.
         If the webhook client is running, it may send the notification soon after creation.
@@ -459,7 +459,9 @@ paths:
     post:
       summary: Test endpoint for receiving messages from our own webhook-client
       description: >
-        This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow
+        This endpoint receives a notification that matches the webhook notification model.
+        This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint.
+        In testing, this server accepts notifications at this endpoint and simply responds with success and logs them.
         The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and
         sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
       operationId: receiveWebhookNotification
@@ -473,24 +475,22 @@ paths:
         - in: body
           required: true
           name: body
-          description: The notification sent by webhook-client.
+          description: The webhook notification being sent
           schema:
             $ref: '#/definitions/WebhookNotification'
       responses:
         '200':
-          description: Successful creation
+          description: Received notification
           schema:
             $ref: '#/definitions/WebhookNotification'
         '400':
-          description: Bad request
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: must be authenticated to use this endpoint
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: Forbidden
-        '404':
-          description: No orders found
+          $ref: '#/responses/PermissionDenied'
         '500':
-          description: Server error
+          $ref: '#/responses/ServerError'
   '/payment-requests/{paymentRequestID}/edi':
     parameters:
       - description: UUID of the payment request for which EDI should be generated.

@@ -5,6 +5,9 @@ import (
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/services/event"
+
 	webhookops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
@@ -50,7 +53,18 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhook
 	payload := params.Body
 
 	var err error
-	notification, verrs := payloads.WebhookNotificatonModel(payload, h.GetTraceID())
+	if payload == nil {
+		// create a default notification payload
+		message := "{ \"message\": \"This is a test notification\" }"
+		payload = &supportmessages.WebhookNotification{
+			EventKey: string(event.TestCreateEventKey),
+			TraceID:  *handlers.FmtUUID(h.GetTraceID()),
+			Object:   swag.String(message),
+			Status:   supportmessages.WebhookNotificationStatusPENDING,
+		}
+	}
+	// Convert to model and create in DB
+	notification, verrs := payloads.WebhookNotificationModel(payload, h.GetTraceID())
 	if verrs == nil {
 		verrs, err = h.DB().ValidateAndCreate(notification)
 	}

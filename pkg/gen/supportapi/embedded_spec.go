@@ -670,7 +670,7 @@ func init() {
         "tags": [
           "webhook"
         ],
-        "summary": "Test endpoint for creatings webhook notifications",
+        "summary": "Test endpoint for creating webhook notifications",
         "operationId": "createWebhookNotification",
         "parameters": [
           {
@@ -700,7 +700,7 @@ func init() {
     },
     "/webhook-notify": {
       "post": {
-        "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
+        "description": "This endpoint receives a notification that matches the webhook notification model. This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint. In testing, this server accepts notifications at this endpoint and simply responds with success and logs them. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
         "consumes": [
           "application/json"
         ],
@@ -714,7 +714,7 @@ func init() {
         "operationId": "receiveWebhookNotification",
         "parameters": [
           {
-            "description": "The notification sent by webhook-client.",
+            "description": "The webhook notification being sent",
             "name": "body",
             "in": "body",
             "required": true,
@@ -725,25 +725,22 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successful creation",
+            "description": "Received notification",
             "schema": {
               "$ref": "#/definitions/WebhookNotification"
             }
           },
           "400": {
-            "description": "Bad request"
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "must be authenticated to use this endpoint"
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "No orders found"
+            "$ref": "#/responses/PermissionDenied"
           },
           "500": {
-            "description": "Server error"
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -3267,7 +3264,7 @@ func init() {
         "tags": [
           "webhook"
         ],
-        "summary": "Test endpoint for creatings webhook notifications",
+        "summary": "Test endpoint for creating webhook notifications",
         "operationId": "createWebhookNotification",
         "parameters": [
           {
@@ -3303,7 +3300,7 @@ func init() {
     },
     "/webhook-notify": {
       "post": {
-        "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
+        "description": "This endpoint receives a notification that matches the webhook notification model. This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint. In testing, this server accepts notifications at this endpoint and simply responds with success and logs them. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
         "consumes": [
           "application/json"
         ],
@@ -3317,7 +3314,7 @@ func init() {
         "operationId": "receiveWebhookNotification",
         "parameters": [
           {
-            "description": "The notification sent by webhook-client.",
+            "description": "The webhook notification being sent",
             "name": "body",
             "in": "body",
             "required": true,
@@ -3328,25 +3325,34 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successful creation",
+            "description": "Received notification",
             "schema": {
               "$ref": "#/definitions/WebhookNotification"
             }
           },
           "400": {
-            "description": "Bad request"
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
           },
           "401": {
-            "description": "must be authenticated to use this endpoint"
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
           },
           "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "No orders found"
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
           },
           "500": {
-            "description": "Server error"
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }

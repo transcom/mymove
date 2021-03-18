@@ -47,12 +47,6 @@ func (o *ReceiveWebhookNotificationReader) ReadResponse(response runtime.ClientR
 			return nil, err
 		}
 		return nil, result
-	case 404:
-		result := NewReceiveWebhookNotificationNotFound()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
 	case 500:
 		result := NewReceiveWebhookNotificationInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -72,7 +66,7 @@ func NewReceiveWebhookNotificationOK() *ReceiveWebhookNotificationOK {
 
 /*ReceiveWebhookNotificationOK handles this case with default header values.
 
-Successful creation
+Received notification
 */
 type ReceiveWebhookNotificationOK struct {
 	Payload *supportmessages.WebhookNotification
@@ -105,16 +99,28 @@ func NewReceiveWebhookNotificationBadRequest() *ReceiveWebhookNotificationBadReq
 
 /*ReceiveWebhookNotificationBadRequest handles this case with default header values.
 
-Bad request
+The request payload is invalid.
 */
 type ReceiveWebhookNotificationBadRequest struct {
+	Payload *supportmessages.ClientError
 }
 
 func (o *ReceiveWebhookNotificationBadRequest) Error() string {
-	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationBadRequest ", 400)
+	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationBadRequest  %+v", 400, o.Payload)
+}
+
+func (o *ReceiveWebhookNotificationBadRequest) GetPayload() *supportmessages.ClientError {
+	return o.Payload
 }
 
 func (o *ReceiveWebhookNotificationBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(supportmessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }
@@ -126,16 +132,28 @@ func NewReceiveWebhookNotificationUnauthorized() *ReceiveWebhookNotificationUnau
 
 /*ReceiveWebhookNotificationUnauthorized handles this case with default header values.
 
-must be authenticated to use this endpoint
+The request was denied.
 */
 type ReceiveWebhookNotificationUnauthorized struct {
+	Payload *supportmessages.ClientError
 }
 
 func (o *ReceiveWebhookNotificationUnauthorized) Error() string {
-	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationUnauthorized ", 401)
+	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationUnauthorized  %+v", 401, o.Payload)
+}
+
+func (o *ReceiveWebhookNotificationUnauthorized) GetPayload() *supportmessages.ClientError {
+	return o.Payload
 }
 
 func (o *ReceiveWebhookNotificationUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(supportmessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }
@@ -147,37 +165,28 @@ func NewReceiveWebhookNotificationForbidden() *ReceiveWebhookNotificationForbidd
 
 /*ReceiveWebhookNotificationForbidden handles this case with default header values.
 
-Forbidden
+The request was denied.
 */
 type ReceiveWebhookNotificationForbidden struct {
+	Payload *supportmessages.ClientError
 }
 
 func (o *ReceiveWebhookNotificationForbidden) Error() string {
-	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationForbidden ", 403)
+	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationForbidden  %+v", 403, o.Payload)
+}
+
+func (o *ReceiveWebhookNotificationForbidden) GetPayload() *supportmessages.ClientError {
+	return o.Payload
 }
 
 func (o *ReceiveWebhookNotificationForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	return nil
-}
+	o.Payload = new(supportmessages.ClientError)
 
-// NewReceiveWebhookNotificationNotFound creates a ReceiveWebhookNotificationNotFound with default headers values
-func NewReceiveWebhookNotificationNotFound() *ReceiveWebhookNotificationNotFound {
-	return &ReceiveWebhookNotificationNotFound{}
-}
-
-/*ReceiveWebhookNotificationNotFound handles this case with default header values.
-
-No orders found
-*/
-type ReceiveWebhookNotificationNotFound struct {
-}
-
-func (o *ReceiveWebhookNotificationNotFound) Error() string {
-	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationNotFound ", 404)
-}
-
-func (o *ReceiveWebhookNotificationNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }
@@ -189,16 +198,28 @@ func NewReceiveWebhookNotificationInternalServerError() *ReceiveWebhookNotificat
 
 /*ReceiveWebhookNotificationInternalServerError handles this case with default header values.
 
-Server error
+A server error occurred.
 */
 type ReceiveWebhookNotificationInternalServerError struct {
+	Payload *supportmessages.Error
 }
 
 func (o *ReceiveWebhookNotificationInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationInternalServerError ", 500)
+	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationInternalServerError  %+v", 500, o.Payload)
+}
+
+func (o *ReceiveWebhookNotificationInternalServerError) GetPayload() *supportmessages.Error {
+	return o.Payload
 }
 
 func (o *ReceiveWebhookNotificationInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(supportmessages.Error)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }

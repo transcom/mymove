@@ -63,7 +63,7 @@ for the receive webhook notification operation typically these are written to a 
 type ReceiveWebhookNotificationParams struct {
 
 	/*Body
-	  The notification sent by webhook-client.
+	  The webhook notification being sent
 
 	*/
 	Body *supportmessages.WebhookNotification
