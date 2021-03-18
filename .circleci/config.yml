@@ -563,8 +563,8 @@ jobs:
       - run: mkdir -p /store
       - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
       - run:
-          name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
-          command: for i in $(seq 1 5); do freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store && s=0 && break || s=$? && sleep 5; done; (exit $s)
+          name: sudo freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
+          command: for i in $(seq 1 5); do sudo freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store && s=0 && break || s=$? && sleep 5; done; (exit $s)
       - run: >
           clamscan \
             --recursive \
