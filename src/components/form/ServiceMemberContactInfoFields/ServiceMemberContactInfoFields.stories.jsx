@@ -1,5 +1,4 @@
 import React from 'react';
-import { action } from '@storybook/addon-actions';
 import { Formik } from 'formik';
 
 import { ServiceMemberContactInfoFields } from './index';
@@ -23,12 +22,7 @@ export const Basic = () => (
   >
     {() => (
       <Form className={formStyles.form}>
-        <ServiceMemberContactInfoFields
-          name="contact"
-          legend="Your contact info"
-          onChangePreferPhone={action('clicked')}
-          onChangePreferEmail={action('clicked')}
-        />
+        <ServiceMemberContactInfoFields name="contact" legend="Your contact info" />
       </Form>
     )}
   </Formik>
