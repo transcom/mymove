@@ -288,7 +288,7 @@ describe('TOO user', () => {
     shipments.should('have.length', 1);
 
     // Click requestCancellation button and display modal
-    cy.get('.shipment-heading').find('button').click();
+    cy.get('.shipment-heading').find('button').should('contain', 'Request Cancellation').click();
 
     cy.get('[data-testid="modal"]').within(($modal) => {
       expect($modal).to.be.visible;
@@ -299,8 +299,10 @@ describe('TOO user', () => {
     cy.wait(['@patchMTOShipmentStatus']);
     // After updating, the button is disabeld and an alert is shown
     cy.get('[data-testid="request-cancellation-modal"]').should('not.exist');
-    cy.get('.shipment-heading').find('button').should('be.disabled');
-    cy.get('[data-testid="alert"]').should('exist');
+    cy.get('.shipment-heading').find('button').should('be.disabled').and('contain', 'Cancellation Requested');
+    cy.get('[data-testid="alert"]')
+      .should('exist')
+      .and('contain', 'The request to cancel that shipment has been sent to the movers.');
 
     // Alert should disappear if focus changes
     cy.get('[data-testid="rejectTextButton"]').first().click();
