@@ -22,7 +22,7 @@ executors:
     resource_class: medium
     working_directory: /root/project
     docker:
-      - image: mk0x/docker-clamav:alpine
+      - image: mk0x/docker-clamav:latest
         # Authenticate with Docker Hub to avoid rate limit problems beginning on Nov 1st, 2020.
         # See https://www.docker.com/blog/scaling-docker-to-serve-millions-more-developers-network-egress/ for details
         # We'll need this until CircleCI and Docker Hub work out a deal to prevent rate limiting errors from CircleCI
@@ -557,9 +557,10 @@ jobs:
   anti_virus:
     executor: av_medium
     steps:
-      - run: apk update && apk add --no-cache git openssh
+      - run: apt-get update && apt-get install -y clamav curl git ssh
       - checkout
       - run: clamscan --version
+      - run: mkdir -p /store && chown clamav /store
       - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
       - run:
           name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
@@ -1631,6 +1632,7 @@ workflows:
             - deploy_stg_tasks
             - deploy_stg_app
             - deploy_stg_app_client_tls
+            - deploy_stg_webhook_client
 
       - deploy_storybook_dp3:
           requires:

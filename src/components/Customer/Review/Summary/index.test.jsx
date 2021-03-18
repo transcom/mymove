@@ -31,6 +31,12 @@ const defaultProps = {
     has_dependents: false,
     issue_date: '2020-08-11',
     moves: ['123'],
+    origin_duty_station: {
+      name: 'Test Duty Station',
+      address: {
+        postal_code: '123456',
+      },
+    },
     new_duty_station: {
       name: 'New Test Duty Station',
       address: {

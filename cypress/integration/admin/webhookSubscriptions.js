@@ -44,6 +44,43 @@ describe('WebhookSubscriptions Details Show Page', function () {
   });
 });
 
+describe('WebhookSubscriptions Details Edit Page', function () {
+  before(() => {
+    cy.prepareAdminApp();
+  });
+
+  it('pulls up edit page for a webhook subscription', function () {
+    cy.signInAsNewAdminUser();
+    cy.get('a[href*="system/webhook_subscriptions"]').click();
+    cy.url().should('eq', adminBaseURL + '/system/webhook_subscriptions');
+    cy.get('tr[resource="webhook_subscriptions"]').first().click();
+
+    // check that the page pulls up the right webhook subscription
+    cy.get('.ra-field-id > div > label')
+      .first()
+      .next()
+      .then(($id) => {
+        cy.get('a').contains('Edit').click();
+        cy.url().should('eq', adminBaseURL + '/system/webhook_subscriptions/' + $id.text());
+      });
+
+    // check labels on edit page
+    const labels = ['Id', 'Subscriber', 'Status', 'Event key', 'Callback url', 'Created at', 'Updated at', 'Severity'];
+    labels.forEach((label) => {
+      cy.get('label').contains(label);
+    });
+
+    // Change webhook subscription status
+    cy.get('div[id="status"]').click();
+    cy.get('#menu-status ul > li[data-value=DISABLED').click();
+    cy.get('button').contains('Save').click();
+
+    // Check that the webhook subscription status was changed for the first webhook subscription in the list
+    cy.url().should('eq', adminBaseURL + '/system/webhook_subscriptions');
+    cy.get('td.column-status > span').first().should('contain', 'DISABLED');
+  });
+});
+
 describe('Webhook Subscription Create Page', function () {
   before(() => {
     cy.prepareAdminApp();
@@ -64,16 +101,16 @@ describe('Webhook Subscription Create Page', function () {
     cy.get('button').contains('Save').click();
 
     // redirected to details page
-    cy.get('.ra-field-id span.MuiTypography-root')
+    cy.get('input[id="id"]')
       .invoke('text')
       .then((subID) => {
-        cy.get('#react-admin-title').contains('Webhook Subscription ID: ' + subID);
+        cy.get('#react-admin-title').contains('Webhook subscription #' + subID);
       });
 
-    cy.get('.ra-field-subscriberId').contains('5db13bb4-6d29-4bdb-bc81-262f4513ecf6');
-    cy.get('.ra-field-eventKey').contains('PaymentRequest.Update');
-    cy.get('.ra-field-callbackUrl').contains('https://test1.com');
-    cy.get('.ra-field-status').contains('ACTIVE');
-    cy.get('.ra-field-severity').contains('0');
+    cy.get('input[id="subscriberId"]').type('5db13bb4-6d29-4bdb-bc81-262f4513ecf6');
+    cy.get('input[id="eventKey"]').type('PaymentRequest.Update');
+    cy.get('input[id="callbackUrl"]').type('https://test1.com');
+    cy.get('div[id="status"]').should('contain', 'Active');
+    cy.get('div[id="severity"]').should('contain', '0');
   });
 });

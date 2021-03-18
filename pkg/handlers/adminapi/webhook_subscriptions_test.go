@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -232,6 +235,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 				EventKey:     swag.String("WebhookSubscription.Update"),
 				SubscriberID: &subscriberID,
 			},
+			IfMatch: etag.GenerateEtag(webhookSubscription.UpdatedAt),
 		}
 
 		queryBuilder := query.NewQueryBuilder(suite.DB())
@@ -268,6 +272,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 				CallbackURL: swag.String("somethingelse.com"),
 				EventKey:    swag.String("WebhookSubscription.Delete"),
 			},
+			IfMatch: etag.GenerateEtag(webhookSubscription2.UpdatedAt),
 		}
 
 		queryBuilder := query.NewQueryBuilder(suite.DB())
@@ -311,6 +316,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 				EventKey:     swag.String("WebhookSubscription.Update"),
 				SubscriberID: &subscriberID,
 			},
+			IfMatch: etag.GenerateEtag(webhookSubscription.UpdatedAt),
 		}
 
 		queryBuilder := query.NewQueryBuilder(suite.DB())
@@ -325,4 +331,29 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 		suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionNotFound{}, response)
 	})
 
+	suite.T().Run("412 - Precondition Failed", func(t *testing.T) {
+		// Testing:           UpdateWebhookSubscriptionHandler, WebhookSubscriptionUpdater
+		// Set up:            Provide a valid request with a stale ETag
+		//                    to the updateWebhookSubscription endpoint
+		// Expected Outcome:  We receive a 412 Precondition Failed error.
+		params := webhooksubscriptionop.UpdateWebhookSubscriptionParams{
+			HTTPRequest:           req,
+			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
+			WebhookSubscription: &adminmessages.WebhookSubscription{
+				CallbackURL: swag.String("stale.etag.com"),
+			},
+			IfMatch: etag.GenerateEtag(time.Now()),
+		}
+
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		handler := UpdateWebhookSubscriptionHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
+			query.NewQueryFilter,
+		}
+
+		suite.NoError(params.WebhookSubscription.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&webhooksubscriptionop.UpdateWebhookSubscriptionPreconditionFailed{}, response)
+	})
 }

@@ -103,9 +103,9 @@ describe('MtoShipmentForm component', () => {
       expect(wrapper.find('DatePickerInput').length).toBe(2);
       expect(wrapper.find('AddressFields').length).toBe(2);
       expect(wrapper.find('ContactInfoFields').length).toBe(2);
-      expect(wrapper.find('Field[name="customerRemarks"]').length).toBe(1);
-      expect(wrapper.find('Field[name="customerRemarks"]').prop('value')).toEqual(mockMtoShipment.customerRemarks);
-      expect(wrapper.find('Field[name="delivery.address.street_address_1"]').prop('value')).toContain(
+      expect(wrapper.find('textarea[name="customerRemarks"]').length).toBe(1);
+      expect(wrapper.find('textarea[name="customerRemarks"]').prop('value')).toEqual(mockMtoShipment.customerRemarks);
+      expect(wrapper.find('input[name="delivery.address.street_address_1"]').prop('value')).toContain(
         mockMtoShipment.destinationAddress.street_address_1,
       );
     });
@@ -135,7 +135,7 @@ describe('MtoShipmentForm component', () => {
       expect(createNtsrWrapper.find('DatePickerInput').length).toBe(1);
       expect(createNtsrWrapper.find('AddressFields').length).toBe(0);
       expect(createNtsrWrapper.find('ContactInfoFields').length).toBe(1);
-      expect(createNtsrWrapper.find('Field[name="customerRemarks"]').length).toBe(1);
+      expect(createNtsrWrapper.find('textarea[name="customerRemarks"]').length).toBe(1);
     });
 
     it('does not render special NTS What to expect section', () => {

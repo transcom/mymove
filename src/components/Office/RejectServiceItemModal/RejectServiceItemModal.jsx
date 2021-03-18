@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './RejectServiceItemModal.module.scss';
 
 import { Form } from 'components/form';
-import { TextInput } from 'components/form/fields';
+import TextField from 'components/form/fields/TextField';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { formatDateFromIso } from 'shared/formatters';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
@@ -74,7 +74,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                         </tbody>
                       </table>
                     </div>
-                    <TextInput
+                    <TextField
                       id="rejectionReason"
                       name="rejectionReason"
                       label="Reason for rejection"
