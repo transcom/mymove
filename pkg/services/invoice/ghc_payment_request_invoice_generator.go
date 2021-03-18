@@ -137,7 +137,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		TransactionSetPurposeCode:    "00",
 		TransactionMethodTypeCode:    "J",
 		ShipmentMethodOfPayment:      "PP",
-		ShipmentIdentificationNumber: *moveTaskOrder.ReferenceID,
+		ShipmentIdentificationNumber: paymentRequest.PaymentRequestNumber,
 		StandardCarrierAlphaCode:     "TRUS",
 		ShipmentQualifier:            "4",
 	}
