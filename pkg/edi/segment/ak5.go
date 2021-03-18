@@ -31,17 +31,29 @@ func (s *AK5) StringArray() []string {
 
 // Parse parses an X12 string that's split into an array into the AK5 struct
 func (s *AK5) Parse(elements []string) error {
-	expectedNumElements := 6
-	if len(elements) != expectedNumElements {
-		return fmt.Errorf("AK5: Wrong number of fields, expected %d, got %d", expectedNumElements, len(elements))
+	expectedMinNumElements := 1
+	expectedMaxNumElements := 6
+	numElements := len(elements)
+	if numElements < expectedMinNumElements || numElements > expectedMaxNumElements {
+		return fmt.Errorf("AK5: Wrong number of fields, expected min %d and max %d, got %d", expectedMinNumElements, expectedMaxNumElements, len(elements))
 	}
 
 	s.TransactionSetAcknowledgmentCode = elements[0]
-	s.TransactionSetSyntaxErrorCodeAK502 = elements[1]
-	s.TransactionSetSyntaxErrorCodeAK503 = elements[2]
-	s.TransactionSetSyntaxErrorCodeAK504 = elements[3]
-	s.TransactionSetSyntaxErrorCodeAK505 = elements[4]
-	s.TransactionSetSyntaxErrorCodeAK506 = elements[5]
+	if numElements > 1 {
+		s.TransactionSetSyntaxErrorCodeAK502 = elements[1]
+	}
+	if numElements > 2 {
+		s.TransactionSetSyntaxErrorCodeAK503 = elements[2]
+	}
+	if numElements > 3 {
+		s.TransactionSetSyntaxErrorCodeAK504 = elements[3]
+	}
+	if numElements > 4 {
+		s.TransactionSetSyntaxErrorCodeAK505 = elements[4]
+	}
+	if numElements > 5 {
+		s.TransactionSetSyntaxErrorCodeAK506 = elements[5]
+	}
 
 	return nil
 }

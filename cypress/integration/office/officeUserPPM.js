@@ -6,6 +6,7 @@ describe('office user finds the move', function () {
   });
 
   beforeEach(() => {
+    cy.clearAllCookies();
     cy.signInAsNewPPMOfficeUser();
   });
 
