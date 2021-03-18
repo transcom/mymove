@@ -7,6 +7,7 @@ import { AddressFields } from './AddressFields';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { requiredAddressSchema } from 'utils/validation';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 export default {
   title: 'Components/Fieldsets/AddressFields',
@@ -102,6 +103,29 @@ export const WithAdditionalText = () => (
             </>
           )}
         />
+      </Form>
+    )}
+  </Formik>
+);
+
+export const InsideSectionWrapper = () => (
+  <Formik
+    initialValues={{
+      residential_address: {
+        street_address_1: '',
+        street_address_2: '',
+        city: '',
+        state: '',
+        postal_code: '',
+      },
+    }}
+    validationSchema={Yup.object().shape({ residential_address: requiredAddressSchema.required() })}
+  >
+    {() => (
+      <Form className={formStyles.form}>
+        <SectionWrapper className={formStyles.formSection}>
+          <AddressFields legend="Current mailing address" name="residential_address" />
+        </SectionWrapper>
       </Form>
     )}
   </Formik>

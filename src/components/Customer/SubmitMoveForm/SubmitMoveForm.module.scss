@@ -17,6 +17,14 @@
   h3 {
     text-transform: uppercase;
   }
+
+  p {
+    margin-bottom: 0;
+  }
+
+  :global(.usa-form-group--error) {
+    @include u-margin-left(0);
+  }
 }
 
 @media print {
