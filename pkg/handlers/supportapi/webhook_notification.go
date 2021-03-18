@@ -6,7 +6,6 @@ import (
 	"go.uber.org/zap"
 
 	webhookops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 )
@@ -21,24 +20,23 @@ func (h ReceiveWebhookNotificationHandler) Handle(params webhookops.ReceiveWebho
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	notif := params.Body
 
-	// This is a test endpoint, it receives a notification, logs it and simply responds with a 200
-	payload := &supportmessages.WebhookNotification{
-		ID:        params.Body.ID,
-		EventKey:  params.Body.EventKey,
-		CreatedAt: params.Body.CreatedAt,
-		Object:    params.Body.Object,
+	objectID := "<empty>"
+	if notif.ObjectID != nil {
+		objectID = notif.ObjectID.String()
 	}
-	objectString := "<empty>"
-	if notif.Object != nil {
-		objectString = *notif.Object
+	mtoID := "<empty>"
+	if notif.MoveTaskOrderID != nil {
+		mtoID = notif.MoveTaskOrderID.String()
 	}
 
 	logger.Info("Received Webhook Notification: ",
-		zap.String("ID", notif.ID.String()),
-		zap.String("EventKey", notif.EventKey),
+		zap.String("id", notif.ID.String()),
+		zap.String("eventKey", notif.EventKey),
 		zap.String("createdAt", notif.CreatedAt.String()),
-		zap.String("object", objectString))
-	return webhookops.NewReceiveWebhookNotificationOK().WithPayload(payload)
+		zap.String("traceID", notif.TraceID.String()),
+		zap.String("moveID", mtoID),
+		zap.String("objectID", objectID))
+	return webhookops.NewReceiveWebhookNotificationOK().WithPayload(notif)
 }
 
 // CreateWebhookNotificationHandler is the interface to handle the createWebhookNotification

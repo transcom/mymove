@@ -202,11 +202,16 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 			if message.ObjectID != nil {
 				objectID = message.ObjectID.String()
 			}
+			mtoID := "<empty>"
+			if message.MoveTaskOrderID != nil {
+				mtoID = message.MoveTaskOrderID.String()
+			}
 			logger.Info("Notification successfully sent:",
-				zap.String("Status", resp.Status),
-				zap.String("EventKey", message.EventKey),
-				zap.String("NotificationID", message.ID.String()),
-				zap.String("ObjectID", objectID),
+				zap.String("id", message.ID.String()),
+				zap.String("status", resp.Status),
+				zap.String("eventKey", message.EventKey),
+				zap.String("moveID", mtoID),
+				zap.String("objectID", objectID),
 			)
 			break // send was successful
 		}
