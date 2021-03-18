@@ -8,12 +8,7 @@ describe('ContactInfoFields component', () => {
   it('renders a legend and all service member contact info inputs', () => {
     const { getByText, getByLabelText } = render(
       <Formik>
-        <ServiceMemberContactInfoFields
-          legend="Your contact info"
-          name="contact"
-          onChangePreferPhone={jest.fn()}
-          onChangePreferEmail={jest.fn()}
-        />
+        <ServiceMemberContactInfoFields legend="Your contact info" name="contact" />
       </Formik>,
     );
     expect(getByText('Your contact info')).toBeInstanceOf(HTMLLegendElement);
@@ -31,22 +26,21 @@ describe('ContactInfoFields component', () => {
           phone: '555-123-4567',
           alternatePhone: '555-890-1234',
           email: 'test@example.com',
+          preferPhone: true,
+          preferEmail: true,
         },
       };
 
       const { getByLabelText } = render(
         <Formik initialValues={initialValues}>
-          <ServiceMemberContactInfoFields
-            legend="Your contact info"
-            name="contact"
-            onChangePreferPhone={jest.fn()}
-            onChangePreferEmail={jest.fn()}
-          />
+          <ServiceMemberContactInfoFields legend="Your contact info" name="contact" />
         </Formik>,
       );
       expect(getByLabelText('Best contact phone')).toHaveValue(initialValues.contact.phone);
       expect(getByLabelText(/Alt. phone/)).toHaveValue(initialValues.contact.alternatePhone);
       expect(getByLabelText('Personal email')).toHaveValue(initialValues.contact.email);
+      expect(getByLabelText('Phone')).toBeChecked();
+      expect(getByLabelText('Email')).toBeChecked();
     });
   });
 });
