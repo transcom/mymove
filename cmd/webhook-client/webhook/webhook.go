@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -35,6 +36,8 @@ type Engine struct {
 	PeriodInSeconds     int
 	MaxImmediateRetries int
 	SeverityThresholds  []int
+	QuitChannel         chan os.Signal
+	DoneChannel         chan bool
 }
 
 // processNotifications reads all the notifications and all the subscriptions and processes them one by one
@@ -91,8 +94,18 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				if errDB != nil {
 					eng.Logger.Error("Webhook Subscription update failed", zap.Error(err))
 				}
+
 				if stopLoop {
 					return
+				}
+
+				// Return out of loop if quit signal recieved, otherwise, keep going
+				select {
+				case <-eng.QuitChannel:
+					eng.Logger.Info("Interrupt signal recieved...")
+					eng.DoneChannel <- true
+					return
+				default:
 				}
 			}
 		}
@@ -105,7 +118,6 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				eng.Logger.Error("Notification update failed", zap.Error(err))
 			}
 		}
-
 	}
 }
 
@@ -271,7 +283,6 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 // If a new notification or subscription were to be adding during the course of one run
 // by the Milmove server, it would only be processed on the next call of run().
 func (eng *Engine) run() error {
-
 	logger := eng.Logger
 
 	// Read all notifications
@@ -327,11 +338,18 @@ func (eng *Engine) Start() error {
 	if err != nil {
 		return err
 	}
+
 	// Run on each timer tick
 	for range t {
-		err = eng.run()
-		if err != nil {
-			return err
+		select {
+		case <-eng.QuitChannel:
+			eng.Logger.Info("Interrupt signal recieved...")
+			eng.DoneChannel <- true
+		default:
+			eng.run()
+			if err != nil {
+				return err
+			}
 		}
 	}
 
