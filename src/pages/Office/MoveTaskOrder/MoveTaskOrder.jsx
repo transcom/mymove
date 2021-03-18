@@ -128,10 +128,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       // Update mtoShipments with our updated status and set query data to match
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.mtoShipmentID, false], mtoShipments);
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
-      queryCache.invalidateQueries(MTO_SHIPMENTS, variables.mtoShipmentID);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
 
       setIsCancelModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
