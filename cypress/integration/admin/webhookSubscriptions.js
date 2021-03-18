@@ -3,7 +3,6 @@ import { adminBaseURL } from '../../support/constants';
 describe('Webhook Subscriptions', function () {
   before(() => {
     cy.prepareAdminApp();
-    cy.clearAllCookies();
   });
 
   it('successfully navigates to the webhook subscriptions list page', function () {
@@ -22,7 +21,6 @@ describe('Webhook Subscriptions', function () {
 describe('WebhookSubscriptions Details Show Page', function () {
   before(() => {
     cy.prepareAdminApp();
-    cy.clearAllCookies();
   });
 
   it('pulls up details page for a webhook subscription', function () {
@@ -48,7 +46,6 @@ describe('WebhookSubscriptions Details Show Page', function () {
 describe('WebhookSubscriptions Details Edit Page', function () {
   before(() => {
     cy.prepareAdminApp();
-    cy.clearAllCookies();
   });
 
   it('pulls up edit page for a webhook subscription', function () {
@@ -86,7 +83,6 @@ describe('WebhookSubscriptions Details Edit Page', function () {
 describe('Webhook Subscription Create Page', function () {
   before(() => {
     cy.prepareAdminApp();
-    cy.clearAllCookies();
   });
 
   it('pulls up create page for a webhook subscription', function () {
@@ -110,13 +106,10 @@ describe('Webhook Subscription Create Page', function () {
         cy.get('#react-admin-title').contains('Webhook subscription #' + subID);
       });
 
-    // cy.get('.ra-field-subscriberId').contains('5db13bb4-6d29-4bdb-bc81-262f4513ecf6');
-    // cy.get('input[id="subscriberId"]').invoke("text").then((subID) => {cy.get('#subscriberId-helper-text').contains('5db13bb4-6d29-4bdb-bc81-262f4513ecf6');});
-    // cy.get('#subscriberId.MuiInputBase-input').contains('5db13bb4-6d29-4bdb-bc81-262f4513ecf6');
-    cy.get('#subscriberId.MuiInputBase-input').contains('5db13bb4-6d29-4bdb-bc81-262f4513ecf6');
-    cy.get('.ra-field-eventKey').contains('PaymentRequest.Update');
-    cy.get('.ra-field-callbackUrl').contains('https://test1.com');
-    cy.get('.ra-field-status').contains('ACTIVE');
-    cy.get('.ra-field-severity').contains('0');
+    cy.get('input[id="subscriberId"]').type('5db13bb4-6d29-4bdb-bc81-262f4513ecf6');
+    cy.get('input[id="eventKey"]').type('PaymentRequest.Update');
+    cy.get('input[id="callbackUrl"]').type('https://test1.com');
+    cy.get('div[id="status"]').should('contain', 'Active');
+    cy.get('div[id="severity"]').should('contain', '0');
   });
 });
