@@ -27,6 +27,7 @@ import UserEdit from 'pages/Admin/Users/UserEdit';
 import WebhookSubscriptionList from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionsList';
 import WebhookSubscriptionShow from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionShow';
 import WebhookSubscriptionCreate from 'pages/Admin/WebhookSubscriptions/WebhookSubscriptionCreate';
+import WebhookSubscriptionEdit from '../../pages/Admin/WebhookSubscriptions/WebhookSubscriptionEdit';
 
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
@@ -103,6 +104,7 @@ const Home = () => (
         show={WebhookSubscriptionShow}
         create={WebhookSubscriptionCreate}
         list={WebhookSubscriptionList}
+        edit={WebhookSubscriptionEdit}
       />
     </Admin>
   </div>
