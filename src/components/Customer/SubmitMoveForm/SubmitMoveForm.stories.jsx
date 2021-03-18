@@ -15,6 +15,7 @@ export default {
 
 export const DefaultState = (argTypes) => (
   <SubmitMoveForm
+    initialValues={{ signature: '', date: '2021-01-20' }}
     onSubmit={argTypes.onSubmit}
     certificationText={completeCertificationText}
     onPrint={argTypes.onPrint}
@@ -23,6 +24,7 @@ export const DefaultState = (argTypes) => (
 
 export const WithServerError = (argTypes) => (
   <SubmitMoveForm
+    initialValues={{ signature: '', date: '2021-01-20' }}
     onSubmit={argTypes.onSubmit}
     onPrint={argTypes.onPrint}
     certificationText={completeCertificationText}
@@ -31,5 +33,9 @@ export const WithServerError = (argTypes) => (
 );
 
 export const LoadingCertificationText = (argTypes) => (
-  <SubmitMoveForm onSubmit={argTypes.onSubmit} onPrint={argTypes.onPrint} />
+  <SubmitMoveForm
+    initialValues={{ signature: '', date: '2021-01-20' }}
+    onSubmit={argTypes.onSubmit}
+    onPrint={argTypes.onPrint}
+  />
 );

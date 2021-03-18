@@ -33,7 +33,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
 
   const [activeSection, setActiveSection] = useState('');
 
-  const { move, moveOrder, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
   let sections = ['orders', 'allowances', 'customer-info'];
 
@@ -87,7 +87,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { customer, entitlement: allowances } = moveOrder;
+  const { customer, entitlement: allowances } = order;
 
   const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
 
@@ -100,20 +100,20 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   }
 
   const ordersInfo = {
-    newDutyStation: moveOrder.destinationDutyStation,
-    currentDutyStation: moveOrder.originDutyStation,
-    issuedDate: moveOrder.date_issued,
-    reportByDate: moveOrder.report_by_date,
-    departmentIndicator: moveOrder.department_indicator,
-    ordersNumber: moveOrder.order_number,
-    ordersType: moveOrder.order_type,
-    ordersTypeDetail: moveOrder.order_type_detail,
-    tacMDC: moveOrder.tac,
-    sacSDN: moveOrder.sac,
+    newDutyStation: order.destinationDutyStation,
+    currentDutyStation: order.originDutyStation,
+    issuedDate: order.date_issued,
+    reportByDate: order.report_by_date,
+    departmentIndicator: order.department_indicator,
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
+    sacSDN: order.sac,
   };
   const allowancesInfo = {
     branch: customer.agency,
-    rank: moveOrder.grade,
+    rank: order.grade,
     weightAllowance: allowances.totalWeight,
     authorizedWeight: allowances.authorizedWeight,
     progear: allowances.proGearWeight,
@@ -131,10 +131,10 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   };
 
   const requiredOrdersInfo = {
-    ordersNumber: moveOrder.order_number,
-    ordersType: moveOrder.order_type,
-    ordersTypeDetail: moveOrder.order_type_detail,
-    tacMDC: moveOrder.tac,
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
   };
 
   const hasMissingOrdersInfo = () => {

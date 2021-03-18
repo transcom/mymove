@@ -5,9 +5,11 @@ import { withRouter } from 'react-router-dom';
 import { arrayOf, func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
 import { Button } from '@trussworks/react-uswds';
+import { generatePath } from 'react-router';
 
 import styles from './Summary.module.scss';
 
+import { customerRoutes } from 'constants/routes';
 import { checkEntitlement } from 'scenes/Review/ducks';
 import ConnectedPPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
@@ -175,8 +177,7 @@ export class Summary extends Component {
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
-    const rootAddressWithMoveId = `/moves/${moveId}`;
-    const rootReviewAddressWithMoveId = `${rootAddressWithMoveId}/review`;
+    const rootReviewAddressWithMoveId = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
     // isReviewPage being false is the same thing as being in the /edit route
     const isReviewPage = rootReviewAddressWithMoveId === match.url;
@@ -191,7 +192,8 @@ export class Summary extends Component {
     const canAddAnotherShipment = isReviewPage && !!(currentMove.status === MOVE_STATUSES.DRAFT || !hasPPM);
 
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
-    const shipmentSelectionPath = `/moves/${currentMove.id}/select-type`;
+    const shipmentSelectionPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: currentMove.id });
+
     return (
       <>
         {get(reviewState.error, 'statusCode', false) === 409 && (
@@ -211,14 +213,14 @@ export class Summary extends Component {
           <ProfileTable
             affiliation={serviceMember.affiliation}
             city={serviceMember.residential_address.city}
-            currentDutyStationName={serviceMember.current_station.name}
+            currentDutyStationName={currentOrders.origin_duty_station.name}
             edipi={serviceMember.edipi}
             email={serviceMember.personal_email}
             firstName={serviceMember.first_name}
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postal_code}
-            rank={serviceMember.rank}
+            rank={currentOrders.grade}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.street_address_1}
             streetAddress2={serviceMember.residential_address.street_address_2}

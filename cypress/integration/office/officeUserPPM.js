@@ -6,6 +6,7 @@ describe('office user finds the move', function () {
   });
 
   beforeEach(() => {
+    cy.clearAllCookies();
     cy.signInAsNewPPMOfficeUser();
   });
 
@@ -150,10 +151,6 @@ function officeUserVerifiesOrders(moveLocator) {
   // Click on edit orders
   cy.get('.editable-panel-header').contains('Orders').siblings().click();
 
-  // Enter details in form and save orders
-  cy.get('input[name="orders.orders_number"]').type('666666');
-  cy.get('select[name="orders.orders_type_detail"]').select('DELAYED_APPROVAL');
-
   cy.get('button').contains('Save').should('be.enabled');
 
   cy.get('button').contains('Save').click();
@@ -170,9 +167,6 @@ function officeUserVerifiesOrders(moveLocator) {
 
   // Refresh browser and make sure changes persist
   cy.patientReload();
-
-  cy.get('span').contains('666666');
-  cy.get('span').contains('Delayed Approval 20 Weeks or More');
 
   // Enter SAC
   cy.get('.combo-button button').should('be.disabled');
@@ -193,8 +187,7 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.get('.combo-button .dropdown').contains('Approve PPM').should('have.class', 'disabled');
   cy.get('.combo-button').click();
 
-  cy.get('span').contains('666666');
-  cy.get('span').contains('Delayed Approval 20 Weeks or More');
+  cy.patientReload();
 }
 
 function officeUserVerifiesAccounting() {

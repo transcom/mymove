@@ -2483,7 +2483,7 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 		},
 	})
 
-	moveOrder := testdatagen.MakeOrder(db, testdatagen.Assertions{
+	order := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			NewDutyStationID: newDutyStation.ID,
 			NewDutyStation:   newDutyStation,
@@ -2496,7 +2496,7 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 			AvailableToPrimeAt: swag.Time(time.Now()),
 			Status:             models.MoveStatusAPPROVED,
 		},
-		Order: moveOrder,
+		Order: order,
 	})
 }
 

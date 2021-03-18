@@ -7,7 +7,7 @@ import styles from './ShipmentContainer.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 
-const ShipmentContainer = ({ className, children, shipmentType }) => {
+const ShipmentContainer = ({ id, className, children, shipmentType }) => {
   const containerClasses = classNames(
     styles.shipmentContainer,
     {
@@ -24,13 +24,14 @@ const ShipmentContainer = ({ className, children, shipmentType }) => {
   );
 
   return (
-    <div data-testid="ShipmentContainer" className={`${containerClasses}`}>
+    <div data-testid="ShipmentContainer" className={`${containerClasses}`} id={id}>
       {children}
     </div>
   );
 };
 
 ShipmentContainer.propTypes = {
+  id: PropTypes.string,
   className: PropTypes.string,
   children: PropTypes.node.isRequired,
   /** Describes the type of shipment container. */
@@ -40,6 +41,7 @@ ShipmentContainer.propTypes = {
 ShipmentContainer.defaultProps = {
   shipmentType: null,
   className: '',
+  id: '',
 };
 
 export default ShipmentContainer;

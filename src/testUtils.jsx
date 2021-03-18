@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { node, shape, arrayOf, func, string } from 'prop-types';
 import { Provider } from 'react-redux';
 import { createMemoryHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
 
 import { configureStore } from 'shared/store';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 export const createMockHistory = (initialEntries) => {
   return createMemoryHistory({ initialEntries });
@@ -16,7 +17,9 @@ export const MockProviders = ({ children, initialState, initialEntries, history 
 
   return (
     <Provider store={mockStore.store}>
-      <ConnectedRouter history={mockHistory}>{children}</ConnectedRouter>
+      <ConnectedRouter history={mockHistory}>
+        <Suspense fallback={<LoadingPlaceholder />}>{children}</Suspense>
+      </ConnectedRouter>
     </Provider>
   );
 };

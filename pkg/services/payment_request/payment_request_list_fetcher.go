@@ -35,7 +35,7 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 	return &paymentRequestListFetcher{db}
 }
 
-// QueryOption defines the type for the functional arguments passed to ListMoveOrders
+// QueryOption defines the type for the functional arguments passed to ListOrders
 type QueryOption func(*pop.Query)
 
 // FetchPaymentRequestList returns a list of payment requests

@@ -18,7 +18,7 @@ func NewMoveFetcher(db *pop.Connection) services.MoveFetcher {
 	return &moveFetcher{db}
 }
 
-//FetchMoveOrder retrieves a Move if it is visible for a given locator
+//FetchOrder retrieves a Move if it is visible for a given locator
 func (f moveFetcher) FetchMove(locator string, searchParams *services.MoveFetcherParams) (*models.Move, error) {
 	move := &models.Move{}
 	query := f.db.Where("locator = $1", locator)

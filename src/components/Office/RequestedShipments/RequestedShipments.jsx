@@ -10,7 +10,7 @@ import styles from './RequestedShipments.module.scss';
 
 import { shipmentTypeLabels } from 'content/shipments';
 import { serviceItemCodes } from 'content/serviceItems';
-import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/moveOrder';
+import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
 

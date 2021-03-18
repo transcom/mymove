@@ -422,14 +422,6 @@ server_test_coverage_generate_standalone: ## Run server unit tests with coverage
 server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
 
-.PHONY: server_test_docker
-server_test_docker:
-	docker-compose -f docker-compose.circle.yml --compatibility up --remove-orphans --abort-on-container-exit
-
-.PHONY: server_test_docker_down
-server_test_docker_down:
-	docker-compose -f docker-compose.circle.yml --compatibility down
-
 #
 # ----- END SERVER TARGETS -----
 #
