@@ -342,10 +342,8 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 	// SelectedMoveType could be either HHG or PPM depending on creation order of combo
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
-			OrdersNumber:    models.StringPointer("ORDER3"),
 			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
 			ServiceMember:   smWithCombo,
-			TAC:             models.StringPointer("F8E1"),
 		},
 		UserUploader: userUploader,
 		Move: models.Move{
@@ -523,10 +521,8 @@ func createUnsubmittedHHGMove(db *pop.Connection) {
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
-			OrdersNumber:    models.StringPointer("ORDER3"),
 			ServiceMemberID: uuid.FromStringOrNil(smWithHHGID),
 			ServiceMember:   smWithHHG,
-			TAC:             models.StringPointer("F8E1"),
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
@@ -583,10 +579,8 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 	selectedMoveType := models.SelectedMoveTypeNTS
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
-			OrdersNumber:    models.StringPointer("ORDER3"),
 			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
 			ServiceMember:   smWithNTS,
-			TAC:             models.StringPointer("F8E1"),
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("f4503551-b636-41ee-b4bb-b05d55d0e856"),
@@ -718,10 +712,8 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	})
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
-			OrdersNumber:    models.StringPointer("ORDER3"),
 			ServiceMemberID: customer.ID,
 			ServiceMember:   customer,
-			TAC:             models.StringPointer("F8E1"),
 		},
 		UserUploader: userUploader,
 	})
@@ -848,10 +840,8 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 	orders8 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("1d49bb07-d9dd-4308-934d-baad94f2de9b"),
-			OrdersNumber:    models.StringPointer("ORDER3"),
 			ServiceMemberID: customer8.ID,
 			ServiceMember:   customer8,
-			TAC:             models.StringPointer("F8E1"),
 		},
 		UserUploader: userUploader,
 	})
@@ -1156,10 +1146,8 @@ func createHHGMoveWith2PaymentRequests(db *pop.Connection, userUploader *uploade
 	orders7 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a"),
-			OrdersNumber:    models.StringPointer("ORDER3"),
 			ServiceMemberID: customer7.ID,
 			ServiceMember:   customer7,
-			TAC:             models.StringPointer("F8E1"),
 		},
 		UserUploader: userUploader,
 	})
@@ -1344,10 +1332,8 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.Must(uuid.NewV4()),
-			OrdersNumber:    models.StringPointer("ORDER3"),
 			ServiceMemberID: customer.ID,
 			ServiceMember:   customer,
-			TAC:             models.StringPointer("F8E1"),
 		},
 		UserUploader: userUploader,
 	})
@@ -2259,10 +2245,8 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db *pop.Co
 	orders7 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-ffffffffffff"),
-			OrdersNumber:    models.StringPointer("ORDER3"),
 			ServiceMemberID: customer7.ID,
 			ServiceMember:   customer7,
-			TAC:             models.StringPointer("F8E1"),
 		},
 		UserUploader: userUploader,
 	})
@@ -2836,10 +2820,8 @@ func createMoveWithServiceItems(db *pop.Connection, userUploader *uploader.UserU
 	orders9 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("796a0acd-1ccb-4a2f-a9b3-e44906ced698"),
-			OrdersNumber:    models.StringPointer("ORDER3"),
 			ServiceMemberID: customer.ID,
 			ServiceMember:   customer,
-			TAC:             models.StringPointer("F8E1"),
 		},
 		UserUploader: userUploader,
 	})
@@ -2940,10 +2922,8 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 	orders10 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.FromStringOrNil("796a0acd-1ccb-4a2f-a9b3-e44906ced699"),
-			OrdersNumber:    models.StringPointer("ORDER3"),
 			ServiceMemberID: customer.ID,
 			ServiceMember:   customer,
-			TAC:             models.StringPointer("F8E1"),
 		},
 		UserUploader: userUploader,
 	})
