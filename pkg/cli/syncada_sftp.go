@@ -28,7 +28,7 @@ const (
 func InitSyncadaSFTPFlags(flag *pflag.FlagSet) {
 	flag.Int(SyncadaSFTPPortFlag, 22, "Syncada SFTP Port")
 	flag.String(SyncadaSFTPUserIDFlag, "", "Syncada SFTP User ID")
-	flag.String(SyncadaSFTPIPAddressFlag, "", "Syncada SFTP IP Address")
+	flag.String(SyncadaSFTPIPAddressFlag, "localhost", "Syncada SFTP IP Address")
 	flag.String(SyncadaSFTPPasswordFlag, "", "Syncada SFTP Password")
 	flag.String(SyncadaSFTPHostKeyFlag, "", "Syncada SFTP Host Key")
 }
