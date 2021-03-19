@@ -30,7 +30,7 @@ func (suite *ModelSuite) TestBasicEDIProcessingInstantiation() {
 				"process_started_at":     {"ProcessStartedAt can not be blank."},
 				"process_ended_at":       {"ProcessEndedAt can not be blank."},
 				"num_messages_processed": {"NumMessagesProcessed can not be blank."},
-				"edi_type":               {"EDIType is not in the list [810, 824, 858, 997]."},
+				"editype":                {"EDIType is not in the list [810, 824, 858, 997]."},
 			},
 		},
 		"Message Type Invalid": {
@@ -42,7 +42,7 @@ func (suite *ModelSuite) TestBasicEDIProcessingInstantiation() {
 				EDIType:              "models.EDI997",
 			},
 			expectedErrs: map[string][]string{
-				"edi_type": {"EDIType is not in the list [810, 824, 858, 997]."},
+				"editype": {"EDIType is not in the list [810, 824, 858, 997]."},
 			},
 		},
 	}

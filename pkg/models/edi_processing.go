@@ -41,15 +41,15 @@ type EDIProcessings []EDIProcessing
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (e *EDIProcessing) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		&validators.TimeIsPresent{Field: e.ProcessStartedAt, Name: "ProcessStartedAt"},
+		&validators.TimeIsPresent{Field: e.ProcessEndedAt, Name: "ProcessEndedAt"},
+		&validators.IntIsPresent{Field: e.NumMessagesProcessed, Name: "NumMessagesProcessed"},
 		&validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: []string{
 			string(EDI810),
 			string(EDI824),
 			string(EDI858),
 			string(EDI997),
 		}},
-		&validators.TimeIsPresent{Field: e.ProcessStartedAt, Name: "ProcessStartedAt"},
-		&validators.TimeIsPresent{Field: e.ProcessEndedAt, Name: "ProcessEndedAt"},
-		&validators.IntIsPresent{Field: e.NumMessagesProcessed, Name: "NumMessagesProcessed"},
 	), nil
 }
 
