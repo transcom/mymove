@@ -26,6 +26,10 @@ type AdminUser struct {
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
+	// e tag
+	// Read Only: true
+	ETag string `json:"eTag,omitempty"`
+
 	// email
 	// Required: true
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$

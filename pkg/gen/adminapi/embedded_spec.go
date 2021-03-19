@@ -263,6 +263,13 @@ func init() {
             "schema": {
               "$ref": "#/definitions/AdminUserUpdatePayload"
             }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -1637,6 +1644,10 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2885,6 +2896,13 @@ func init() {
             "schema": {
               "$ref": "#/definitions/AdminUserUpdatePayload"
             }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -4259,6 +4277,10 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
