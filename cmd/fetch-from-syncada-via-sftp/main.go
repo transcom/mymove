@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -13,7 +11,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
 // Call this from command line with go run ./cmd/fetch-from-syncada-via-sftp/ --local-file-path <localFilePath> --syncada-file-name <syncadaFileName>
@@ -121,20 +118,20 @@ func main() {
 	}()
 
 	// Sample expected format: 2021-03-16T18:25:36Z
-	lastReadTime := v.GetString(LastReadTimeFlag)
-	var t time.Time
-	if lastReadTime != "" {
-		t, err = time.Parse(time.RFC3339, lastReadTime)
-		if err != nil {
-			logger.Error("couldn't parse time", zap.Error(err))
-		}
-	}
-	logger.Info("lastRead", zap.String("t", t.String()))
-	syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(sftpClient)
-	data, _, err := syncadaSFTPSession.ReadFromSyncadaViaSFTP(v.GetString(DirectoryFlag), t)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Print(data)
+	//lastReadTime := v.GetString(LastReadTimeFlag)
+	//var t time.Time
+	//if lastReadTime != "" {
+	//	t, err = time.Parse(time.RFC3339, lastReadTime)
+	//	if err != nil {
+	//		logger.Error("couldn't parse time", zap.Error(err))
+	//	}
+	//}
+	//logger.Info("lastRead", zap.String("t", t.String()))
+	//syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(sftpClient, logger)
+	//data, _, err := syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, )
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//fmt.Print(data)
 }
