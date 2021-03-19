@@ -44,8 +44,25 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		document.UserUploads = append(document.UserUploads, u)
 	}
 
+	// orderNumber := "ORDER3"
+	// ordersNumber := assertions.Order.OrdersNumber
+	// if ordersNumber != nil || ordersNumber != ""{
+	// 	 orderNumber = *ordersNumber
+	// }
+	// ordersNumber := orderNumber
+
+	defaultOrderNumber := "ORDER3"
 	ordersNumber := assertions.Order.OrdersNumber
+	if ordersNumber == nil {
+		ordersNumber = &defaultOrderNumber
+	}
+
+	defaultTACNumber := "F8E1"
 	TAC := assertions.Order.TAC
+	if TAC == nil {
+		TAC = &defaultTACNumber
+	}
+
 	defaultDepartmentIndicator := "AIR_FORCE"
 	departmentIndicator := assertions.Order.DepartmentIndicator
 	if departmentIndicator == nil {
