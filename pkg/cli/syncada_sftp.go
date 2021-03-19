@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/pkg/sftp"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -40,20 +39,8 @@ func CheckSyncadaSFTP(v *viper.Viper) error {
 		return err
 	}
 
-	if len(v.GetString(SyncadaSFTPUserIDFlag)) == 0 {
-		return errors.Errorf("%s is missing", SyncadaSFTPUserIDFlag)
-	}
-
 	if err := ValidateHost(v, SyncadaSFTPIPAddressFlag); err != nil {
 		return err
-	}
-
-	if len(v.GetString(SyncadaSFTPPasswordFlag)) == 0 {
-		return errors.Errorf("%s is missing", SyncadaSFTPPasswordFlag)
-	}
-
-	if len(v.GetString(SyncadaSFTPHostKeyFlag)) == 0 {
-		return errors.Errorf("%s is missing", SyncadaSFTPHostKeyFlag)
 	}
 
 	return nil
