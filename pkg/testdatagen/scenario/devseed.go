@@ -427,28 +427,24 @@ func createMoveWithHHGMissingOrdersInfo(db *pop.Connection, userUploader *upload
 		},
 	})
 
-	smIDCombo := "f6bd793f-7042-4523-aa30-34946e7339c0"
-	smWithCombo := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil(smIDCombo),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Submitted"),
-			LastName:      models.StringPointer("Hhgmisinginfo"),
-			Edipi:         models.StringPointer("6833908166"),
-			PersonalEmail: models.StringPointer(email),
-		},
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		UserUploader: userUploader,
 	})
-	// SelectedMoveType could be either HHG or PPM depending on creation order of combo
+
+	orders.TAC = nil
+
+	saveErr := db.Save(&orders)
+	if saveErr != nil {
+		log.Panic("error saving orders TAC")
+	}
+
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
-			ServiceMember:   smWithCombo,
-		},
+		Order:        orders,
 		UserUploader: userUploader,
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c91"),
 			Locator:          "REQINF",
-			SelectedMoveType: &ppmMoveType,
+			SelectedMoveType: &hhgMoveType,
 		},
 	})
 
@@ -492,17 +488,6 @@ func createMoveWithHHGMissingOrdersInfo(db *pop.Connection, userUploader *upload
 		},
 	})
 
-	ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
-		ServiceMember: move.Orders.ServiceMember,
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &nextValidMoveDate,
-			Move:             move,
-			MoveID:           move.ID,
-		},
-		UserUploader: userUploader,
-	})
-
-	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
 	move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &move)
 }
