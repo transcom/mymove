@@ -17,7 +17,7 @@ export const getIsAllowedProfileState = (requiredState, currentProfileState) => 
   return requiredStatePosition <= currentStatePosition;
 };
 
-export const requireCustomerState = (Component, requiredState) => {
+const requireCustomerState = (Component, requiredState) => {
   const RequireCustomerState = (props) => {
     const dispatch = useDispatch();
     const currentProfileState = useSelector(selectServiceMemberProfileState);

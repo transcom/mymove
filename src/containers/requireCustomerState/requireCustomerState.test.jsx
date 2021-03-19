@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { getIsAllowedProfileState, requireCustomerState } from './requireCustomerState';
+import requireCustomerStateHOC, { getIsAllowedProfileState } from './requireCustomerState';
 
 import { MockProviders } from 'testUtils';
 import { profileStates } from 'constants/customerStates';
@@ -53,7 +53,7 @@ describe('requireCustomerState HOC', () => {
   });
 
   const TestComponent = () => <div>My test component</div>;
-  const TestComponentWithHOC = requireCustomerState(TestComponent, profileStates.ADDRESS_COMPLETE);
+  const TestComponentWithHOC = requireCustomerStateHOC(TestComponent, profileStates.ADDRESS_COMPLETE);
 
   it('dispatches a redirect if the current state is earlier than the required state', () => {
     const mockState = {
@@ -259,7 +259,7 @@ describe('requireCustomerState HOC', () => {
       },
     };
 
-    const TestComponentCompletedProfileWithHOC = requireCustomerState(
+    const TestComponentCompletedProfileWithHOC = requireCustomerStateHOC(
       TestComponent,
       profileStates.BACKUP_CONTACTS_COMPLETE,
     );
