@@ -2,7 +2,17 @@ import React, { Component } from 'react';
 import { bool, string, func, shape, number } from 'prop-types';
 import { Formik, Field } from 'formik';
 import { generatePath } from 'react-router';
-import { Fieldset, Radio, Checkbox, Alert, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
+import {
+  Fieldset,
+  Radio,
+  Checkbox,
+  Alert,
+  FormGroup,
+  Label,
+  Textarea,
+  GridContainer,
+  Grid,
+} from '@trussworks/react-uswds';
 
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';
@@ -114,12 +124,12 @@ class MtoShipmentForm extends Component {
     return (
       <Formik
         initialValues={initialValues}
-        enableReinitialize
+        validateOnMount
         validateOnBlur
-        validateOnChange
         validationSchema={schema}
+        onSubmit={this.submitMTOShipment}
       >
-        {({ values, dirty, isValid, isSubmitting, setValues }) => {
+        {({ values, isValid, isSubmitting, setValues, handleSubmit }) => {
           const { hasDeliveryAddress } = values;
 
           const handleUseCurrentResidenceChange = (e) => {
@@ -162,15 +172,13 @@ class MtoShipmentForm extends Component {
           };
 
           return (
-            <div className="grid-container usa-prose">
-              <div className="grid-row">
-                <div className="grid-col">
+            <GridContainer>
+              <Grid row>
+                <Grid col desktop={{ col: 8, offset: 2 }}>
                   {errorMessage && (
-                    <div className="usa-width-one-whole error-message">
-                      <Alert type="error" heading="An error occurred">
-                        {errorMessage}
-                      </Alert>
-                    </div>
+                    <Alert type="error" heading="An error occurred">
+                      {errorMessage}
+                    </Alert>
                   )}
 
                   <div className={styles.MTOShipmentForm}>
@@ -384,20 +392,18 @@ class MtoShipmentForm extends Component {
 
                       <div className={styles.formActions}>
                         <WizardNavigation
-                          disableNext={isSubmitting || (!isValid && !dirty) || (isValid && !dirty)}
+                          disableNext={isSubmitting || !isValid}
                           editMode={!isCreatePage}
-                          onNextClick={() => {
-                            this.submitMTOShipment(values);
-                          }}
+                          onNextClick={handleSubmit}
                           onBackClick={history.goBack}
                           onCancelClick={history.goBack}
                         />
                       </div>
                     </Form>
                   </div>
-                </div>
-              </div>
-            </div>
+                </Grid>
+              </Grid>
+            </GridContainer>
           );
         }}
       </Formik>

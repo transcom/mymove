@@ -16,6 +16,9 @@ function getMockMatchProp(path = '') {
 }
 
 const defaultProps = {
+  location: {
+    search: '',
+  },
   match: {
     path: '',
     isExact: false,
@@ -58,6 +61,7 @@ const mockMtoShipment = {
     state: 'WA',
     postal_code: '98421',
   },
+  shipmentType: 'HHG',
 };
 
 const mountCreateOrEditMtoShipment = (props) => mount(<CreateOrEditMtoShipment {...defaultProps} {...props} />);
@@ -73,8 +77,10 @@ describe('CreateOrEditMtoShipment component', () => {
   describe('when creating a new shipment', () => {
     it('renders the MtoShipmentForm component right away', () => {
       const createWrapper = mountCreateOrEditMtoShipment({
-        selectedMoveType: SHIPMENT_OPTIONS.HHG,
         isCreate: true,
+        location: {
+          search: `?type=${SHIPMENT_OPTIONS.HHG}`,
+        },
       });
       expect(createWrapper.find('MtoShipmentForm').length).toBe(1);
       expect(createWrapper.find('LoadingPlaceholder').exists()).toBe(false);
@@ -83,7 +89,6 @@ describe('CreateOrEditMtoShipment component', () => {
 
   describe('when editing an existing shipment', () => {
     const editWrapper = mountCreateOrEditMtoShipment({
-      selectedMoveType: SHIPMENT_OPTIONS.NTS,
       match: getMockMatchProp('/moves/:moveId/shipments/:mtoShipmentId/edit'),
     });
 

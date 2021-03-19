@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bool, string, func, shape, number } from 'prop-types';
+import { func, shape, number } from 'prop-types';
+import { withRouter } from 'react-router-dom';
+import qs from 'query-string';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/actions';
@@ -13,6 +15,7 @@ import {
   selectMTOShipmentById,
 } from 'store/entities/selectors';
 import { AddressShape, SimpleAddressShape } from 'types/address';
+import { LocationShape } from 'types/index';
 
 export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
@@ -22,21 +25,22 @@ export class CreateOrEditMtoShipment extends Component {
 
   render() {
     const {
+      location,
       match,
       history,
       pageList,
       pageKey,
       mtoShipment,
-      selectedMoveType,
       currentResidence,
       newDutyStationAddress,
       updateMTOShipment,
       serviceMember,
-      isCreate,
     } = this.props;
 
+    const { type } = qs.parse(location.search);
+
     // wait until MTO shipment has loaded to render form
-    if (isCreate || mtoShipment?.id) {
+    if (type || mtoShipment?.id) {
       return (
         <MtoShipmentForm
           match={match}
@@ -44,8 +48,8 @@ export class CreateOrEditMtoShipment extends Component {
           pageList={pageList}
           pageKey={pageKey}
           mtoShipment={mtoShipment}
-          selectedMoveType={selectedMoveType}
-          isCreatePage={isCreate}
+          selectedMoveType={type}
+          isCreatePage={!!type}
           currentResidence={currentResidence}
           newDutyStationAddress={newDutyStationAddress}
           updateMTOShipment={updateMTOShipment}
@@ -59,12 +63,12 @@ export class CreateOrEditMtoShipment extends Component {
 }
 
 CreateOrEditMtoShipment.propTypes = {
+  location: LocationShape.isRequired,
   match: MatchShape,
   history: HistoryShape,
   pageList: PageListShape,
   pageKey: PageKeyShape,
   fetchCustomerData: func.isRequired,
-  selectedMoveType: string.isRequired,
   // technically this should be a [Generic]MtoShipmentShape
   // using hhg because it has all the props
   mtoShipment: HhgShipmentShape,
@@ -76,7 +80,6 @@ CreateOrEditMtoShipment.propTypes = {
       total_weight_self: number,
     }),
   }).isRequired,
-  isCreate: bool,
 };
 
 CreateOrEditMtoShipment.defaultProps = {
@@ -100,7 +103,6 @@ CreateOrEditMtoShipment.defaultProps = {
     state: '',
     postal_code: '',
   },
-  isCreate: false,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -121,4 +123,4 @@ const mapDispatchToProps = {
   updateMTOShipment: updateMTOShipmentAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateOrEditMtoShipment);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(CreateOrEditMtoShipment));

@@ -141,6 +141,10 @@ export class CustomerApp extends Component {
                   <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <CustomerPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
                   <CustomerPrivateRoute
+                    path={customerRoutes.SHIPMENT_CREATE_PATH}
+                    component={ConnectedCreateOrEditMtoShipment}
+                  />
+                  <CustomerPrivateRoute
                     exact
                     path={customerRoutes.SHIPMENT_EDIT_PATH}
                     component={ConnectedCreateOrEditMtoShipment}
