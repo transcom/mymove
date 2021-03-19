@@ -1,21 +1,6 @@
-import React from 'react';
+import { makeCalculations } from './helpers';
 
-import ServiceItemCalculations from './ServiceItemCalculations';
-
-export default {
-  title: 'Office Components/ServiceItemCalculations',
-  decorators: [
-    (Story) => {
-      return (
-        <div style={{ padding: '20px' }}>
-          <Story />
-        </div>
-      );
-    },
-  ],
-};
-
-const paramData = [
+const params = [
   {
     eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNTYzOVo=',
     id: '0ccef02a-59da-44d7-8258-f0e24c6c9b97',
@@ -135,10 +120,35 @@ const paramData = [
   },
 ];
 
-export const LargeTable = () => (
-  <ServiceItemCalculations serviceItemParams={paramData} totalAmountRequested={642} itemCode="DLH" />
-);
-
-export const SmallTable = () => (
-  <ServiceItemCalculations serviceItemParams={paramData} totalAmountRequested={642} itemCode="DLH" tableSize="small" />
-);
+describe('makeCalculations', () => {
+  it('returns correct data for DLH', () => {
+    const result = makeCalculations('DLH', 99999, params);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: ['Zip 210 to Zip 910'],
+      },
+      {
+        value: '1.033',
+        label: 'Baseline linehaul price',
+        details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [''],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
+  });
+});

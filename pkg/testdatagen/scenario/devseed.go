@@ -704,92 +704,156 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 	models.SaveMoveDependencies(db, &ppm6.Move)
 }
 
-func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation) {
+func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation) {
+	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, affiliation, testdatagen.Assertions{})
+}
+
+func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
+	serviceMember := models.ServiceMember{
+		Affiliation: &affiliation,
+	}
+	testdatagen.MergeModels(&serviceMember, assertions.ServiceMember)
 	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			Affiliation: &affiliation,
-		},
+		ServiceMember: serviceMember,
 	})
+
+	order := models.Order{
+		ServiceMemberID: customer.ID,
+		ServiceMember:   customer,
+	}
+	testdatagen.MergeModels(&order, assertions.Order)
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-		},
+		Order:        order,
 		UserUploader: userUploader,
 	})
+
+	move := models.Move{
+		Status:             models.MoveStatusAPPROVED,
+		OrdersID:           orders.ID,
+		Orders:             orders,
+		SelectedMoveType:   &hhgMoveType,
+		AvailableToPrimeAt: swag.Time(time.Now()),
+	}
+	testdatagen.MergeModels(&move, assertions.Move)
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVED,
-			OrdersID:           orders.ID,
-			Orders:             orders,
-			SelectedMoveType:   &hhgMoveType,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
+		Move: move,
 	})
 
+	shipment := models.MTOShipment{
+		PrimeEstimatedWeight: &estimatedWeight,
+		PrimeActualWeight:    &actualWeight,
+		ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+		ApprovedDate:         swag.Time(time.Now()),
+		Status:               models.MTOShipmentStatusSubmitted,
+	}
+	testdatagen.MergeModels(&shipment, assertions.MTOShipment)
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedWeight,
-			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-		},
-		Move: mto,
+		MTOShipment: shipment,
+		Move:        mto,
 	})
 
+	agent := models.MTOAgent{
+		MTOShipment:   MTOShipment,
+		MTOShipmentID: MTOShipment.ID,
+		FirstName:     swag.String("Test"),
+		LastName:      swag.String("Agent"),
+		Email:         swag.String("test@test.email.com"),
+		MTOAgentType:  models.MTOAgentReleasing,
+	}
+	testdatagen.MergeModels(&agent, assertions.MTOAgent)
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
-		},
+		MTOAgent: agent,
 	})
 
+	pr := models.PaymentRequest{
+		MoveTaskOrder: mto,
+		IsFinal:       false,
+		Status:        models.PaymentRequestStatusPending,
+	}
+	testdatagen.MergeModels(&pr, assertions.PaymentRequest)
 	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			MoveTaskOrder: mto,
-			IsFinal:       false,
-			Status:        models.PaymentRequestStatusPending,
-		},
-		Move: mto,
+		PaymentRequest: pr,
+		Move:           mto,
 	})
 
-	dcrtCost := unit.Cents(99999)
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	// setup service item
+	serviceItemCost := unit.Cents(99999)
+	reService := models.ReService{
+		ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating, Default
+	}
+	testdatagen.MergeModels(&reService, assertions.ReService)
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		Move:        mto,
 		MTOShipment: MTOShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating
-		},
+		ReService:   reService,
 	})
 
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dcrtCost,
+	// make service item param associated by the payment request and payment service item
+	createParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:   "CanStandAlone",
+			Value: "TRUE",
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDCRT,
-	})
-
-	ducrtCost := unit.Cents(99999)
-	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		Move:        mto,
-		MTOShipment: MTOShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+		{
+			Key:   "ContractCode",
+			Value: "123",
 		},
-	})
-
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &ducrtCost,
+		{
+			Key:   "ContractYearName",
+			Value: "Contract Year Name",
 		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDUCRT,
+		{
+			Key:   "CubicFeetBilled",
+			Value: "2",
+		},
+		{
+			Key:   "CubicFeetCrating",
+			Value: "2",
+		},
+		{
+			Key:   "EscalationCompounded",
+			Value: "1.2",
+		},
+		{
+			Key:   "PriceRateOrFactor",
+			Value: "0.2",
+		},
+		{
+			Key:   "RequestedPickupDate",
+			Value: "2020-03-15",
+		},
+		{
+			Key:   "ServiceAreaOrigin",
+			Value: "312",
+		},
+		{
+			Key:   "ServicesScheduleOrigin",
+			Value: "1",
+		},
+		{
+			Key:   "ZipPickupAddress",
+			Value: "90210",
+		},
+	}
+	// overwrite createParams, if any params passed in
+	incomingParams := make([]testdatagen.CreatePaymentServiceItemParams, 0)
+	for _, param := range assertions.PaymentServiceItemParams {
+		incomingParams = append(incomingParams, testdatagen.CreatePaymentServiceItemParams{
+			Key:   models.ServiceItemParamName(param.IncomingKey),
+			Value: param.Value,
+		})
+	}
+	if len(incomingParams) > 0 {
+		createParams = incomingParams
+	}
+	psi := models.PaymentServiceItem{
+		PriceCents: &serviceItemCost,
+	}
+	testdatagen.MergeModels(&psi, assertions.PaymentServiceItem)
+	testdatagen.MakePaymentServiceItemWithParams(db, reService.Code, createParams, testdatagen.Assertions{
+		PaymentServiceItem: psi,
+		PaymentRequest:     paymentRequest,
+		MTOServiceItem:     mtoServiceItem,
 	})
 
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
@@ -3052,9 +3116,84 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// This allows testing the pagination feature in the TXO queues.
 	// Feel free to comment out the loop if you don't need this many moves.
 	for i := 1; i < 12; i++ {
-		createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE)
+		createDefaultHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE)
 	}
-	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationMARINES)
+	createDefaultHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationMARINES)
+	// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
+	time := time.Now()
+	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{
+		Move: models.Move{
+			Locator: "SidDLH",
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusRejected,
+		},
+		ReService: models.ReService{
+			// DLH - Domestic line haul
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"),
+		},
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status:   models.PaymentServiceItemStatusDenied,
+			DeniedAt: &time,
+		},
+		PaymentRequest: models.PaymentRequest{
+			Status: models.PaymentRequestStatusReviewedAllRejected,
+		},
+		PaymentServiceItemParams: models.PaymentServiceItemParams{
+			models.PaymentServiceItemParam{
+				IncomingKey: "ContractCode",
+				Value:       "1",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "ContractYearName",
+				Value:       "Contract Year Name",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "DistanceZip3",
+				Value:       "210",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "EscalationCompounded",
+				Value:       "1.033",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "IsPeak",
+				Value:       "FALSE",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "PriceRateOrFactor",
+				Value:       "1.033",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "RequestedPickupDate",
+				Value:       "2020-03-11",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "ServiceAreaOrigin",
+				Value:       "176",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "WeightActual",
+				Value:       "8500",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "WeightBilledActual",
+				Value:       "8500",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "WeightEstimated",
+				Value:       "8000",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "ZipDestAddress",
+				Value:       "91910",
+			},
+			models.PaymentServiceItemParam{
+				IncomingKey: "ZipPickupAddress",
+				Value:       "32210",
+			},
+		},
+	})
 
 	createMoveWithPPMAndHHG(db, userUploader)
 
