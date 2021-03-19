@@ -41,22 +41,25 @@ const MtoShipmentFormFields = ({
   const { hasDeliveryAddress } = values;
 
   const optionalLabel = <span className={styles.optional}>Optional</span>;
+
   return (
     <div className={styles.MTOShipmentForm}>
       <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
+
       <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
+
       <Alert type="info" noIcon>
         Remember: You can move {serviceMember.weight_allotment.total_weight_self} lbs total. You’ll be billed for any
         excess weight you move.
       </Alert>
+
       <Form className={styles.form}>
         {showPickupFields && (
           <>
             <SectionWrapper className={styles.formSection}>
               {showDeliveryFields && <h2>Pickup information</h2>}
               <Fieldset legend="Pickup date">
-                <Field
-                  as={DatePickerInput}
+                <DatePickerInput
                   name="pickup.requestedDate"
                   label="Requested pickup date"
                   id="requestedPickupDate"
@@ -111,8 +114,7 @@ const MtoShipmentFormFields = ({
             <SectionWrapper className={styles.formSection}>
               {showPickupFields && <h2>Delivery information</h2>}
               <Fieldset legend="Delivery date">
-                <Field
-                  as={DatePickerInput}
+                <DatePickerInput
                   name="delivery.requestedDate"
                   label="Requested delivery date"
                   id="requestedDeliveryDate"
@@ -211,7 +213,7 @@ const MtoShipmentFormFields = ({
 
         <SectionWrapper className={styles.formSection}>
           <Fieldset legend={<div className={styles.legendContent}>Remarks {optionalLabel}</div>}>
-            <Label for="customerRemarks">
+            <Label htmlFor="customerRemarks">
               Is there anything special about this shipment that the movers should know?
             </Label>
 
