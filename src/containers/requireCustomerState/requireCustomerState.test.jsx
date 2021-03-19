@@ -3,10 +3,44 @@ import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 
-import requireCustomerState from './requireCustomerState';
+import { getIsAllowedProfileState, requireCustomerState } from './requireCustomerState';
 
 import { MockProviders } from 'testUtils';
 import { profileStates } from 'constants/customerStates';
+
+describe('getIsAllowedProfileState', () => {
+  it('returns true for a required state that is before the current state', () => {
+    const requiredState = profileStates.DOD_INFO_COMPLETE;
+    const currentState = profileStates.ADDRESS_COMPLETE;
+    const result = getIsAllowedProfileState(requiredState, currentState);
+    expect(result).toBe(true);
+  });
+
+  it('returns false if the required state is after the current state', () => {
+    const requiredState = profileStates.ADDRESS_COMPLETE;
+    const currentState = profileStates.DOD_INFO_COMPLETE;
+    const result = getIsAllowedProfileState(requiredState, currentState);
+    expect(result).toBe(false);
+  });
+  it('returns true if the required state and current state are the same and profile is not complete', () => {
+    const requiredState = profileStates.ADDRESS_COMPLETE;
+    const currentState = profileStates.ADDRESS_COMPLETE;
+    const result = getIsAllowedProfileState(requiredState, currentState);
+    expect(result).toBe(true);
+  });
+  it('returns false if the current state is a completed profile', () => {
+    const requiredState = profileStates.ADDRESS_COMPLETE;
+    const currentState = profileStates.BACKUP_CONTACTS_COMPLETE;
+    const result = getIsAllowedProfileState(requiredState, currentState);
+    expect(result).toBe(false);
+  });
+  it('returns true if the required state is a completed profile', () => {
+    const requiredState = profileStates.BACKUP_CONTACTS_COMPLETEp;
+    const currentState = profileStates.BACKUP_CONTACTS_COMPLETE;
+    const result = getIsAllowedProfileState(requiredState, currentState);
+    expect(result).toBe(false);
+  });
+});
 
 describe('requireCustomerState HOC', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
