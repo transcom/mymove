@@ -27,11 +27,11 @@ func InitNewSyncadaSFTPReaderSession(client services.SFTPClient, logger Logger) 
 }
 
 // FetchAndProcessSyncadaFiles downloads Syncada files with SFTP, processes them using the provided processor, and deletes them from the SFTP server if they were successfully processed
-func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor services.SyncadaFileProcessor) error {
+func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
 	fileList, err := s.client.ReadDir(syncadaPath)
 	if err != nil {
 		s.logger.Error("Error reading SFTP directory", zap.String("directory", syncadaPath))
-		return err
+		return time.Time{}, err
 	}
 
 	mostRecentFileModTime := lastRead
@@ -63,7 +63,7 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath strin
 		}
 	}
 
-	return nil
+	return mostRecentFileModTime, nil
 }
 
 func (s *syncadaReaderSFTPSession) downloadFile(path string) (string, error) {

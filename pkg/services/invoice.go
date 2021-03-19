@@ -48,7 +48,7 @@ type SFTPClient interface {
 // SyncadaSFTPReader is the exported interface for reading files from Syncada
 //go:generate mockery -name SyncadaSFTPReader
 type SyncadaSFTPReader interface {
-	FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor SyncadaFileProcessor) error
+	FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor SyncadaFileProcessor) (time.Time, error)
 }
 
 // SyncadaFileProcessor is the exported interface for processing EDI files from Syncada

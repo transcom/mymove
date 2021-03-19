@@ -133,7 +133,7 @@ func main() {
 	syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(sftpClient, logger)
 
 	// Just use a processor that prints the files to stdout for now.
-	err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, &stdoutProcessor{})
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, &stdoutProcessor{})
 	if err != nil {
 		log.Fatal(err)
 	}
