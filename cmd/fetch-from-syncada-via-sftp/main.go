@@ -16,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
-// Call this from command line with go run ./cmd/fetch-from-syncada-via-sftp/ --local-file-path <localFilePath> --syncada-file-name <syncadaFileName>
+// Call this from command line with go run ./cmd/fetch-from-syncada-via-sftp/ --directory <syncada directory to download from> --last-read-time <time of last run>
 
 const (
 	// LastReadTimeFlag is the ENV var for the last read time
