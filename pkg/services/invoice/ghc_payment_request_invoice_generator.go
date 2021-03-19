@@ -16,6 +16,12 @@ import (
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 )
 
+/*
+	NOTE: The GCN from GS06 and GE02 will match the ICN in ISA13 and IEA02,
+	which restricts the 858 to only ever have 1 functional group.
+	If multiple functional groups are needed, this will have to change.
+*/
+
 type ghcPaymentRequestInvoiceGenerator struct {
 	db           *pop.Connection
 	icnSequencer sequence.Sequencer

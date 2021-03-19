@@ -244,6 +244,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	result, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
 
+	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
+	suite.T().Run("the GCN is equal to the ICN", func(t *testing.T) {
+		suite.EqualValues(result.ISA.InterchangeControlNumber, result.IEA.InterchangeControlNumber, result.GS.GroupControlNumber, result.GE.GroupControlNumber)
+	})
+
 	// Test Invoice Start and End Segments
 	suite.T().Run("adds isa start segment", func(t *testing.T) {
 		suite.Equal("00", result.ISA.AuthorizationInformationQualifier)
