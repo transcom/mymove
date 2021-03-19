@@ -958,6 +958,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		badUUID := uuid.Must(uuid.NewV4())
 		badReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", badUUID), nil)
 		params.HTTPRequest = badReq
+		params.MtoServiceItemID = badUUID.String()
 		reqPayload.SetID(strfmt.UUID(badUUID.String()))
 
 		// CALL FUNCTION UNDER TEST
@@ -1084,6 +1085,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		badUUID := uuid.Must(uuid.NewV4())
 		badReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", badUUID), nil)
 		params.HTTPRequest = badReq
+		params.MtoServiceItemID = badUUID.String()
 		reqPayload.SetID(strfmt.UUID(badUUID.String()))
 
 		// CALL FUNCTION UNDER TEST
