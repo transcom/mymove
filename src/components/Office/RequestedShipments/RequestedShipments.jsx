@@ -249,7 +249,6 @@ const RequestedShipments = ({
 };
 
 RequestedShipments.propTypes = {
-  moveTaskOrder: MoveTaskOrderShape,
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
   shipmentsStatus: PropTypes.string.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),

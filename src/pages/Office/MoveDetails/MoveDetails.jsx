@@ -183,7 +183,6 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
           {submittedShipments.length > 0 && (
             <div className={styles.section} id="requested-shipments">
               <RequestedShipments
-                moveTaskOrder={move}
                 mtoShipments={submittedShipments}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
