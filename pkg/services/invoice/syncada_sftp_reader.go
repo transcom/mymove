@@ -55,11 +55,12 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath strin
 				continue
 			}
 
-			// TODO Commenting this out until I figure out how to send a new EDI
-			//err = s.client.Remove(filePath)
-			//if err != nil {
-			//	s.logger.Error("Error while deleting Syncada file", zap.String("path", filePath))
-			//}
+			err = s.client.Remove(filePath)
+			if err != nil {
+				s.logger.Error("Error while deleting Syncada file", zap.String("path", filePath))
+			} else {
+				s.logger.Info("Deleted Syncada file", zap.String("path", filePath))
+			}
 		}
 	}
 
