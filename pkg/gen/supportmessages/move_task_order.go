@@ -62,18 +62,18 @@ type MoveTaskOrder struct {
 	// Read Only: true
 	MoveCode string `json:"moveCode,omitempty"`
 
-	// move order
-	// Required: true
-	MoveOrder *MoveOrder `json:"moveOrder"`
-
-	// ID of the MoveOrder object
-	// Format: uuid
-	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
-
 	mtoServiceItemsField []MTOServiceItem
 
 	// mto shipments
 	MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
+
+	// order
+	// Required: true
+	Order *Order `json:"order"`
+
+	// ID of the Order object
+	// Format: uuid
+	OrderID strfmt.UUID `json:"orderID,omitempty"`
 
 	// payment requests
 	PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
@@ -85,7 +85,7 @@ type MoveTaskOrder struct {
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
 
-	// Unique ID associated with this MoveOrder.
+	// Unique ID associated with this Order.
 	//
 	// No two MoveTaskOrders may have the same ID.
 	// Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
@@ -129,13 +129,13 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		MoveCode string `json:"moveCode,omitempty"`
 
-		MoveOrder *MoveOrder `json:"moveOrder"`
-
-		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
-
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
 		MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
+
+		Order *Order `json:"order"`
+
+		OrderID strfmt.UUID `json:"orderID,omitempty"`
 
 		PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
 
@@ -189,17 +189,17 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// moveCode
 	result.MoveCode = data.MoveCode
 
-	// moveOrder
-	result.MoveOrder = data.MoveOrder
-
-	// moveOrderID
-	result.MoveOrderID = data.MoveOrderID
-
 	// mtoServiceItems
 	result.mtoServiceItemsField = propMtoServiceItems
 
 	// mtoShipments
 	result.MtoShipments = data.MtoShipments
+
+	// order
+	result.Order = data.Order
+
+	// orderID
+	result.OrderID = data.OrderID
 
 	// paymentRequests
 	result.PaymentRequests = data.PaymentRequests
@@ -243,11 +243,11 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		MoveCode string `json:"moveCode,omitempty"`
 
-		MoveOrder *MoveOrder `json:"moveOrder"`
-
-		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
-
 		MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
+
+		Order *Order `json:"order"`
+
+		OrderID strfmt.UUID `json:"orderID,omitempty"`
 
 		PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
 
@@ -276,11 +276,11 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		MoveCode: m.MoveCode,
 
-		MoveOrder: m.MoveOrder,
-
-		MoveOrderID: m.MoveOrderID,
-
 		MtoShipments: m.MtoShipments,
+
+		Order: m.Order,
+
+		OrderID: m.OrderID,
 
 		PaymentRequests: m.PaymentRequests,
 
@@ -330,19 +330,19 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateMoveOrder(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateMoveOrderID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateMtoServiceItems(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateMtoShipments(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrder(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -420,37 +420,6 @@ func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateMoveOrder(formats strfmt.Registry) error {
-
-	if err := validate.Required("moveOrder", "body", m.MoveOrder); err != nil {
-		return err
-	}
-
-	if m.MoveOrder != nil {
-		if err := m.MoveOrder.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("moveOrder")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.MoveOrderID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("moveOrderID", "body", "uuid", m.MoveOrderID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MtoServiceItems()) { // not required
@@ -481,6 +450,37 @@ func (m *MoveTaskOrder) validateMtoShipments(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("mtoShipments")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateOrder(formats strfmt.Registry) error {
+
+	if err := validate.Required("order", "body", m.Order); err != nil {
+		return err
+	}
+
+	if m.Order != nil {
+		if err := m.Order.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("order")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateOrderID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OrderID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("orderID", "body", "uuid", m.OrderID.String(), formats); err != nil {
 		return err
 	}
 

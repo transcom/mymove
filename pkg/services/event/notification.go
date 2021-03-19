@@ -189,7 +189,7 @@ func assembleOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte
 		return nil, notFoundError
 	}
 
-	payload := payloads.MoveOrder(&model)
+	payload := payloads.Order(&model)
 	payloadArray, err := json.Marshal(payload)
 	if err != nil {
 		unknownErr := services.NewEventError("Unknown error creating payload", err)

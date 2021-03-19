@@ -31,9 +31,9 @@ func NewDeleteMoveTaskOrder(ctx *middleware.Context, handler DeleteMoveTaskOrder
 
 /*DeleteMoveTaskOrder swagger:route DELETE /move-task-orders/{moveTaskOrderID} moveTaskOrder deleteMoveTaskOrder
 
-Deletes a move order by ID
+Deletes a move by ID
 
-Deletes a move order by ID
+Deletes a move by ID
 
 */
 type DeleteMoveTaskOrder struct {

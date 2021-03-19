@@ -7,7 +7,7 @@ import { AddressShape } from '../../types/address';
 
 import styles from './shipmentHeading.module.scss';
 
-import { MTO_SHIPMENT_STATUSES } from 'shared/constants';
+import { shipmentStatuses } from 'constants/shipments';
 
 function formatDestinationAddress(address) {
   if (address.city) {
@@ -18,7 +18,7 @@ function formatDestinationAddress(address) {
   return `${address.postal_code}`;
 }
 
-function ShipmentHeading({ shipmentInfo, handleUpdateMTOShipmentStatus }) {
+function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
       <h3 data-testid="office-shipment-heading-h3">{shipmentInfo.shipmentType}</h3>
@@ -29,13 +29,11 @@ function ShipmentHeading({ shipmentInfo, handleUpdateMTOShipmentStatus }) {
         </small>
         <Button
           type="button"
-          onClick={() =>
-            handleUpdateMTOShipmentStatus(shipmentInfo.shipmentID, MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED)
-          }
+          onClick={() => handleShowCancellationModal(shipmentInfo)}
           unstyled
-          disabled={shipmentInfo.shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED}
+          disabled={shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED}
         >
-          {shipmentInfo.shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED
+          {shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED
             ? 'Cancellation Requested'
             : 'Request Cancellation'}
         </Button>
@@ -45,7 +43,6 @@ function ShipmentHeading({ shipmentInfo, handleUpdateMTOShipmentStatus }) {
 }
 
 ShipmentHeading.propTypes = {
-  handleUpdateMTOShipmentStatus: PropTypes.func.isRequired,
   shipmentInfo: PropTypes.shape({
     shipmentID: PropTypes.string.isRequired,
     shipmentType: PropTypes.string.isRequired,
@@ -55,7 +52,10 @@ ShipmentHeading.propTypes = {
     destinationAddress: AddressShape,
     scheduledPickupDate: PropTypes.string.isRequired,
     shipmentStatus: PropTypes.string.isRequired,
+    ifMatchEtag: PropTypes.string.isRequired,
+    moveTaskOrderID: PropTypes.string.isRequired,
   }).isRequired,
+  handleShowCancellationModal: PropTypes.func.isRequired,
 };
 
 export default ShipmentHeading;

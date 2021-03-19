@@ -408,6 +408,88 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 	models.SaveMoveDependencies(db, &move)
 }
 
+func createMoveWithHHGMissingOrdersInfo(db *pop.Connection, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with orders that are missing required information and a submitted move with a hhg
+	 */
+	email := "missinginfo@hhg.hhg"
+	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c97"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		UserUploader: userUploader,
+	})
+
+	orders.TAC = nil
+
+	saveErr := db.Save(&orders)
+	if saveErr != nil {
+		log.Panic("error saving orders TAC")
+	}
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order:        orders,
+		UserUploader: userUploader,
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c91"),
+			Locator:          "REQINF",
+			SelectedMoveType: &hhgMoveType,
+		},
+	})
+
+	estimatedHHGWeight := unit.Pound(1400)
+	actualHHGWeight := unit.Pound(2000)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-8cf96ede2601"),
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-333333333331"),
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusRejected,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &move)
+}
+
 func createUnsubmittedHHGMove(db *pop.Connection) {
 	/*
 	 * A service member with an hhg only, unsubmitted move
@@ -2993,6 +3075,8 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 		Order: models.Order{
 			NewDutyStationID: newDutyStation.ID,
 			NewDutyStation:   newDutyStation,
+			OrdersNumber:     models.StringPointer("ORDER3"),
+			TAC:              models.StringPointer("F8E1"),
 		},
 	})
 
@@ -3112,6 +3196,10 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	})
 
 	createMoveWithPPMAndHHG(db, userUploader)
+
+	// A service member with orders that are missing required information and a submitted move with a hhg
+	createMoveWithHHGMissingOrdersInfo(db, userUploader)
+
 	createHHGMoveWith10ServiceItems(db, userUploader)
 	createHHGMoveWith2PaymentRequests(db, userUploader)
 	createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db, userUploader)

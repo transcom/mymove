@@ -12,15 +12,15 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MoveOrder move order
+// Order order
 //
-// swagger:model MoveOrder
-type MoveOrder struct {
+// swagger:model Order
+type Order struct {
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
 
-	// ID of the Customer this MoveOrder belongs to.
+	// ID of the Customer this Order belongs to.
 	//
 	// If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
 	//
@@ -38,10 +38,10 @@ type MoveOrder struct {
 	// Format: uuid
 	DestinationDutyStationID *strfmt.UUID `json:"destinationDutyStationID"`
 
-	// Uniquely identifies the state of the MoveOrder object (but not the nested objects)
+	// Uniquely identifies the state of the Order object (but not the nested objects)
 	//
 	// It will change everytime the object is updated. Client should store the value.
-	// Updates to this MoveOrder will require that this eTag be passed in with the If-Match header.
+	// Updates to this Order will require that this eTag be passed in with the If-Match header.
 	//
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
@@ -49,7 +49,7 @@ type MoveOrder struct {
 	// entitlement
 	Entitlement *Entitlement `json:"entitlement,omitempty"`
 
-	// ID of the MoveOrder object.
+	// ID of the Order object.
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
@@ -103,8 +103,8 @@ type MoveOrder struct {
 	UploadedOrdersID *strfmt.UUID `json:"uploadedOrdersID"`
 }
 
-// Validate validates this move order
-func (m *MoveOrder) Validate(formats strfmt.Registry) error {
+// Validate validates this order
+func (m *Order) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCustomer(formats); err != nil {
@@ -181,7 +181,7 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateCustomer(formats strfmt.Registry) error {
+func (m *Order) validateCustomer(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Customer) { // not required
 		return nil
@@ -199,7 +199,7 @@ func (m *MoveOrder) validateCustomer(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateCustomerID(formats strfmt.Registry) error {
+func (m *Order) validateCustomerID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.CustomerID) { // not required
 		return nil
@@ -212,7 +212,7 @@ func (m *MoveOrder) validateCustomerID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateDestinationDutyStation(formats strfmt.Registry) error {
+func (m *Order) validateDestinationDutyStation(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DestinationDutyStation) { // not required
 		return nil
@@ -230,7 +230,7 @@ func (m *MoveOrder) validateDestinationDutyStation(formats strfmt.Registry) erro
 	return nil
 }
 
-func (m *MoveOrder) validateDestinationDutyStationID(formats strfmt.Registry) error {
+func (m *Order) validateDestinationDutyStationID(formats strfmt.Registry) error {
 
 	if err := validate.Required("destinationDutyStationID", "body", m.DestinationDutyStationID); err != nil {
 		return err
@@ -243,7 +243,7 @@ func (m *MoveOrder) validateDestinationDutyStationID(formats strfmt.Registry) er
 	return nil
 }
 
-func (m *MoveOrder) validateEntitlement(formats strfmt.Registry) error {
+func (m *Order) validateEntitlement(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Entitlement) { // not required
 		return nil
@@ -261,7 +261,7 @@ func (m *MoveOrder) validateEntitlement(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateID(formats strfmt.Registry) error {
+func (m *Order) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -274,7 +274,7 @@ func (m *MoveOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateIssueDate(formats strfmt.Registry) error {
+func (m *Order) validateIssueDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("issueDate", "body", m.IssueDate); err != nil {
 		return err
@@ -287,7 +287,7 @@ func (m *MoveOrder) validateIssueDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateOrderNumber(formats strfmt.Registry) error {
+func (m *Order) validateOrderNumber(formats strfmt.Registry) error {
 
 	if err := validate.Required("orderNumber", "body", m.OrderNumber); err != nil {
 		return err
@@ -296,7 +296,7 @@ func (m *MoveOrder) validateOrderNumber(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateOrdersType(formats strfmt.Registry) error {
+func (m *Order) validateOrdersType(formats strfmt.Registry) error {
 
 	if err := m.OrdersType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -308,7 +308,7 @@ func (m *MoveOrder) validateOrdersType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
+func (m *Order) validateOriginDutyStation(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OriginDutyStation) { // not required
 		return nil
@@ -326,7 +326,7 @@ func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateOriginDutyStationID(formats strfmt.Registry) error {
+func (m *Order) validateOriginDutyStationID(formats strfmt.Registry) error {
 
 	if err := validate.Required("originDutyStationID", "body", m.OriginDutyStationID); err != nil {
 		return err
@@ -339,7 +339,7 @@ func (m *MoveOrder) validateOriginDutyStationID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateRank(formats strfmt.Registry) error {
+func (m *Order) validateRank(formats strfmt.Registry) error {
 
 	if err := m.Rank.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -351,7 +351,7 @@ func (m *MoveOrder) validateRank(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateReportByDate(formats strfmt.Registry) error {
+func (m *Order) validateReportByDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("reportByDate", "body", m.ReportByDate); err != nil {
 		return err
@@ -364,7 +364,7 @@ func (m *MoveOrder) validateReportByDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateStatus(formats strfmt.Registry) error {
+func (m *Order) validateStatus(formats strfmt.Registry) error {
 
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -376,7 +376,7 @@ func (m *MoveOrder) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateTac(formats strfmt.Registry) error {
+func (m *Order) validateTac(formats strfmt.Registry) error {
 
 	if err := validate.Required("tac", "body", m.Tac); err != nil {
 		return err
@@ -385,7 +385,7 @@ func (m *MoveOrder) validateTac(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateUploadedOrders(formats strfmt.Registry) error {
+func (m *Order) validateUploadedOrders(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.UploadedOrders) { // not required
 		return nil
@@ -403,7 +403,7 @@ func (m *MoveOrder) validateUploadedOrders(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateUploadedOrdersID(formats strfmt.Registry) error {
+func (m *Order) validateUploadedOrdersID(formats strfmt.Registry) error {
 
 	if err := validate.Required("uploadedOrdersID", "body", m.UploadedOrdersID); err != nil {
 		return err
@@ -417,7 +417,7 @@ func (m *MoveOrder) validateUploadedOrdersID(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *MoveOrder) MarshalBinary() ([]byte, error) {
+func (m *Order) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -425,8 +425,8 @@ func (m *MoveOrder) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *MoveOrder) UnmarshalBinary(b []byte) error {
-	var res MoveOrder
+func (m *Order) UnmarshalBinary(b []byte) error {
+	var res Order
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
