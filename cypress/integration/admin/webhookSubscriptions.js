@@ -2,6 +2,7 @@ import { adminBaseURL } from '../../support/constants';
 
 describe('Webhook Subscriptions', function () {
   before(() => {
+    cy.clearAllCookies();
     cy.prepareAdminApp();
   });
 
@@ -20,8 +21,8 @@ describe('Webhook Subscriptions', function () {
 
 describe('WebhookSubscriptions Details Show Page', function () {
   before(() => {
-    cy.prepareAdminApp();
     cy.clearAllCookies();
+    cy.prepareAdminApp();
   });
 
   it('pulls up details page for a webhook subscription', function () {
@@ -46,6 +47,7 @@ describe('WebhookSubscriptions Details Show Page', function () {
 
 describe('WebhookSubscriptions Details Edit Page', function () {
   before(() => {
+    cy.clearAllCookies();
     cy.prepareAdminApp();
   });
 
@@ -83,6 +85,7 @@ describe('WebhookSubscriptions Details Edit Page', function () {
 
 describe('Webhook Subscription Create Page', function () {
   before(() => {
+    cy.clearAllCookies();
     cy.prepareAdminApp();
   });
 
