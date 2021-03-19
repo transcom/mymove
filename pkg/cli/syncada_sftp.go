@@ -3,9 +3,11 @@ package cli
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/pkg/sftp"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -38,25 +40,40 @@ func CheckSyncadaSFTP(v *viper.Viper) error {
 		return err
 	}
 
+	if len(v.GetString(SyncadaSFTPUserIDFlag)) == 0 {
+		return errors.Errorf("%s is missing", SyncadaSFTPUserIDFlag)
+	}
+
 	if err := ValidateHost(v, SyncadaSFTPIPAddressFlag); err != nil {
 		return err
+	}
+
+	if len(v.GetString(SyncadaSFTPPasswordFlag)) == 0 {
+		return errors.Errorf("%s is missing", SyncadaSFTPPasswordFlag)
+	}
+
+	if len(v.GetString(SyncadaSFTPHostKeyFlag)) == 0 {
+		return errors.Errorf("%s is missing", SyncadaSFTPHostKeyFlag)
 	}
 
 	return nil
 }
 
-// InitSyncadaSFTP initializes a Syncada SFTP client from command line flags.
-func InitSyncadaSFTP(v *viper.Viper, logger Logger) (*sftp.Client, error) {
+// InitSyncadaSSH initializes a Syncada SSH client from command line flags.
+func InitSyncadaSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 	userID := v.GetString(SyncadaSFTPUserIDFlag)
 	password := v.GetString(SyncadaSFTPPasswordFlag)
 	hostKeyString := v.GetString(SyncadaSFTPHostKeyFlag)
 	remote := v.GetString(SyncadaSFTPIPAddressFlag)
 	port := v.GetString(SyncadaSFTPPortFlag)
 
+	logger.Info("Parsing Syncada SFTP host key...")
 	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
 	if err != nil {
+		logger.Error("Failed to parse Syncada SFTP host key", zap.Error(err))
 		return nil, fmt.Errorf("failed to parse host key %w", err)
 	}
+	logger.Info("...Parsing Syncada SFTP host key successful")
 
 	config := &ssh.ClientConfig{
 		User: userID,
@@ -66,17 +83,29 @@ func InitSyncadaSFTP(v *viper.Viper, logger Logger) (*sftp.Client, error) {
 		HostKeyCallback: ssh.FixedHostKey(hostKey),
 	}
 
-	// connect
-	connection, err := ssh.Dial("tcp", remote+":"+port, config)
+	// Connect to SSH client
+	address := remote + ":" + port
+	logger.Info("Connecting to Syncada SSH...", zap.String("address", address))
+	sshClient, err := ssh.Dial("tcp", address, config)
 	if err != nil {
+		logger.Error("Failed to connect to Syncada SSH", zap.Error(err))
 		return nil, err
 	}
+	logger.Info("...Syncada SSH connection successful")
 
-	// create new SFTP client
-	client, err := sftp.NewClient(connection)
+	return sshClient, nil
+}
+
+// InitSyncadaSFTP initializes a Syncada SFTP client from command line flags.
+func InitSyncadaSFTP(sshClient *ssh.Client, logger Logger) (*sftp.Client, error) {
+	// Create new SFTP client
+	logger.Info("Connecting to Syncada SFTP...")
+	client, err := sftp.NewClient(sshClient)
 	if err != nil {
+		logger.Error("Failed to connect to Syncada SFTP", zap.Error(err))
 		return nil, err
 	}
+	logger.Info("...Syncada SFTP connection successful")
 
 	return client, nil
 }

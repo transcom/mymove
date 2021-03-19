@@ -18,6 +18,13 @@ import (
 
 // Call this from command line with go run ./cmd/fetch-from-syncada-via-sftp/ --local-file-path <localFilePath> --syncada-file-name <syncadaFileName>
 
+const (
+	// LastReadTimeFlag is the ENV var for the last read time
+	LastReadTimeFlag string = "last-read-time"
+	// DirectoryFlag is the ENV var for the directory
+	DirectoryFlag string = "directory"
+)
+
 func checkConfig(v *viper.Viper, logger logger) error {
 	logger.Debug("checking config")
 
@@ -49,8 +56,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// Syncada SFTP Config
 	cli.InitSyncadaSFTPFlags(flag)
 
-	flag.String("last-read-time", "", "Files older than this time will not be fetched.")
-	flag.String("directory", "", "syncada path")
+	flag.String(LastReadTimeFlag, "", "Files older than this time will not be fetched.")
+	flag.String(DirectoryFlag, "", "syncada path")
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -93,10 +100,19 @@ func main() {
 		}
 	}()
 
-	// TODO: Do we need to get connection back so we can close it too?
-	sftpClient, err := cli.InitSyncadaSFTP(v, logger)
+	sshClient, err := cli.InitSyncadaSSH(v, logger)
 	if err != nil {
-		logger.Fatal("couldn't initialize sftp session", zap.Error(err))
+		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
+	}
+	defer func() {
+		if closeErr := sshClient.Close(); closeErr != nil {
+			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		}
+	}()
+
+	sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+	if err != nil {
+		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
 	}
 	defer func() {
 		if closeErr := sftpClient.Close(); closeErr != nil {
@@ -104,15 +120,18 @@ func main() {
 		}
 	}()
 
-	//2021-03-16T18:25:36Z
-	t, err := time.Parse(time.RFC3339, v.GetString("last-read-time"))
-	if err != nil {
-		logger.Error("couldn't parse time", zap.Error(err))
+	// Sample expected format: 2021-03-16T18:25:36Z
+	lastReadTime := v.GetString(LastReadTimeFlag)
+	var t time.Time
+	if lastReadTime != "" {
+		t, err = time.Parse(time.RFC3339, lastReadTime)
+		if err != nil {
+			logger.Error("couldn't parse time", zap.Error(err))
+		}
 	}
-	//t := time.Now().Add(-1 * time.Hour)
-	logger.Info("lastRead", zap.String("a", t.String()))
+	logger.Info("lastRead", zap.String("t", t.String()))
 	syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(sftpClient)
-	data, _, err := syncadaSFTPSession.ReadFromSyncadaViaSFTP(v.GetString("directory"), t)
+	data, _, err := syncadaSFTPSession.ReadFromSyncadaViaSFTP(v.GetString(DirectoryFlag), t)
 	if err != nil {
 		log.Fatal(err)
 	}
