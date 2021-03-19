@@ -35,7 +35,7 @@ describe('getIsAllowedProfileState', () => {
     expect(result).toBe(false);
   });
   it('returns true if the required state is a completed profile', () => {
-    const requiredState = profileStates.BACKUP_CONTACTS_COMPLETEp;
+    const requiredState = profileStates.BACKUP_CONTACTS_COMPLETE;
     const currentState = profileStates.BACKUP_CONTACTS_COMPLETE;
     const result = getIsAllowedProfileState(requiredState, currentState);
     expect(result).toBe(false);
