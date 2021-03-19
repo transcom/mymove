@@ -135,6 +135,10 @@ const paramData = [
   },
 ];
 
-export const LargeTable = () => <ServiceItemCalculations calculations={paramData} />;
+export const LargeTable = () => (
+  <ServiceItemCalculations serviceItemParams={paramData} totalAmountRequested={642} itemCode="DLH" />
+);
 
-export const SmallTable = () => <ServiceItemCalculations calculations={paramData} tableSize="small" />;
+export const SmallTable = () => (
+  <ServiceItemCalculations serviceItemParams={paramData} totalAmountRequested={642} itemCode="DLH" tableSize="small" />
+);
