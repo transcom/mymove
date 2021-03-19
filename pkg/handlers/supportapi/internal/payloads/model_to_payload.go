@@ -3,6 +3,8 @@ package payloads
 import (
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -461,6 +463,23 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *supportmessages.P
 	for i, pr := range *paymentRequests {
 		copyOfPr := pr // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = PaymentRequest(&copyOfPr)
+	}
+	return &payload
+}
+
+// WebhookNotification converts a WebhookNotification model to a payload
+func WebhookNotification(model *models.WebhookNotification) *supportmessages.WebhookNotification {
+	payload := supportmessages.WebhookNotification{
+		ID:               *handlers.FmtUUID(model.ID),
+		EventKey:         model.EventKey,
+		Object:           swag.String(model.Payload),
+		CreatedAt:        *handlers.FmtDateTime(model.CreatedAt),
+		UpdatedAt:        *handlers.FmtDateTime(model.UpdatedAt),
+		FirstAttemptedAt: handlers.FmtDateTimePtr(model.FirstAttemptedAt),
+		ObjectID:         handlers.FmtUUIDPtr(model.ObjectID),
+		TraceID:          *handlers.FmtUUIDPtr(model.TraceID),
+		MoveTaskOrderID:  handlers.FmtUUIDPtr(model.MoveTaskOrderID),
+		Status:           supportmessages.WebhookNotificationStatus(model.Status),
 	}
 	return &payload
 }

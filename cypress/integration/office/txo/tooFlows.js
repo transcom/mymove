@@ -65,16 +65,23 @@ describe('TOO user', () => {
       // Click approve
       cy.contains('Approve and send').click();
       cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
-
-      // Page refresh
-      cy.url().should('include', `/moves/${moveLocator}/details`);
-      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
-      cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
-      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
-      cy.get('#approved-shipments');
-      cy.get('#requested-shipments').should('not.exist');
-      cy.contains('Approve selected shipments').should('not.exist');
     });
+
+    // Redirected to Move Task Order page
+    cy.url().should('include', `/moves/${moveLocator}/mto`);
+    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.get('[data-testid="ShipmentContainer"]');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] h4').contains('Approved service items (6 items)');
+
+    // Navigate back to Move Details
+    cy.get('[data-testid="MoveDetails-Tab"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
+    cy.get('#approved-shipments');
+    cy.get('#requested-shipments').should('not.exist');
+    cy.contains('Approve selected shipments').should('not.exist');
   });
 
   it('is able to request cancellation for a shipment', () => {

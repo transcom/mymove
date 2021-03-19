@@ -138,9 +138,11 @@ jest.mock('services/ghcApi', () => ({
     }
     return Promise.resolve([
       {
+        id: 'a',
         reServiceName: 'Counseling',
       },
       {
+        id: 'b',
         reServiceName: 'Move management',
       },
     ]);
@@ -388,14 +390,16 @@ describe('useMoveTaskOrderQueries', () => {
           ],
         },
       ],
-      mtoServiceItems: {
-        a: {
+      mtoServiceItems: [
+        {
+          id: 'a',
           reServiceName: serviceItemCodes.CS,
         },
-        b: {
+        {
+          id: 'b',
           reServiceName: serviceItemCodes.MS,
         },
-      },
+      ],
       isLoading: false,
       isError: false,
       isSuccess: true,
@@ -429,8 +433,8 @@ describe('useMoveDetailsQueries', () => {
         },
         report_by_date: '2018-08-01',
       },
-      mtoShipments: [],
-      mtoServiceItems: [],
+      mtoShipments: undefined,
+      mtoServiceItems: undefined,
       isLoading: true,
       isError: false,
       isSuccess: false,
@@ -505,9 +509,11 @@ describe('useMoveDetailsQueries', () => {
       ],
       mtoServiceItems: [
         {
+          id: 'a',
           reServiceName: serviceItemCodes.CS,
         },
         {
+          id: 'b',
           reServiceName: serviceItemCodes.MS,
         },
       ],
