@@ -38,6 +38,13 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
     'chevron-right': !isExpanded,
   });
 
+  const canClickToExpandContent = (canShowExpandableContent, item) => {
+    if (canShowExpandableContent && item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED) {
+      return true;
+    }
+    return false;
+  };
+
   return (
     serviceItems.length > 0 && (
       <div className={styles.PaymentRequestDetails}>
@@ -81,14 +88,14 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
 
               return (
                 <React.Fragment key={item.id}>
-                  <tr data-groupid={index} className={tableRowClasses}>
+                  <tr
+                    data-groupid={index}
+                    className={tableRowClasses}
+                    onClick={canClickToExpandContent(canShowExpandableContent, item) ? toggleExpandableRow : undefined}
+                  >
                     <td data-testid="serviceItemName">
                       {canShowExpandableContent && item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
-                        <FontAwesomeIcon
-                          className={styles.icon}
-                          icon={expandableIconClasses}
-                          onClick={toggleExpandableRow}
-                        />
+                        <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} />
                       )}
                       {item.mtoServiceItemName}
                     </td>
