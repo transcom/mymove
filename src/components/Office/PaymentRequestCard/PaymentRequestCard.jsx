@@ -164,17 +164,16 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
           {sortedShipments.map((serviceItems) => {
             let shipmentAddress = '';
 
-            if (serviceItems[0].mtoShipmentID !== undefined || serviceItems[0].mtoShipmentID !== null) {
-              serviceItems.forEach((serviceItem) => {
-                shipmentAddress = shipmentAddresses.find(
-                  (address) => address.mtoShipmentID === serviceItem.mtoShipmentID,
-                )?.shipmentAddress;
-              });
+            // The service items are grouped by shipment so we only need to check the first value
+            const serviceItemShipmentID = serviceItems[0]?.mtoShipmentID;
+            if (serviceItemShipmentID) {
+              shipmentAddress = shipmentAddresses.find((address) => address.mtoShipmentID === serviceItemShipmentID)
+                ?.shipmentAddress;
             }
 
             return (
               <PaymentRequestDetails
-                key={serviceItems?.[0]?.mtoShipmentID || 'basicServiceItems'}
+                key={serviceItemShipmentID || 'basicServiceItems'}
                 className={styles.paymentRequestDetails}
                 serviceItems={serviceItems}
                 shipmentAddress={shipmentAddress}
