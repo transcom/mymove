@@ -28,7 +28,7 @@ func notificationCreate(db *pop.Connection, logger utils.Logger) (*models.Webhoo
 	var notification = models.WebhookNotification{
 		ID:       notID,
 		EventKey: "MoveTaskOrder.Create",
-		Payload:  &message,
+		Payload:  message,
 		Status:   models.WebhookNotificationPending,
 	}
 

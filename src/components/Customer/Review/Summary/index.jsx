@@ -213,14 +213,14 @@ export class Summary extends Component {
           <ProfileTable
             affiliation={serviceMember.affiliation}
             city={serviceMember.residential_address.city}
-            currentDutyStationName={serviceMember.current_station.name}
+            currentDutyStationName={currentOrders.origin_duty_station.name}
             edipi={serviceMember.edipi}
             email={serviceMember.personal_email}
             firstName={serviceMember.first_name}
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postal_code}
-            rank={serviceMember.rank}
+            rank={currentOrders.grade}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.street_address_1}
             streetAddress2={serviceMember.residential_address.street_address_2}

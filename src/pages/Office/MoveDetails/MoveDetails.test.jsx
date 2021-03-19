@@ -16,6 +16,7 @@ jest.mock('hooks/queries', () => ({
 }));
 
 const setUnapprovedShipmentCount = jest.fn();
+const setUnapprovedServiceItemCount = jest.fn();
 
 const requestedMoveDetailsQuery = {
   move: {
@@ -345,7 +346,10 @@ describe('MoveDetails page', () => {
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-        <MoveDetails setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+        <MoveDetails
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+        />
       </MockProviders>,
     );
 
@@ -388,7 +392,10 @@ describe('MoveDetails page', () => {
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-        <MoveDetails setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+        <MoveDetails
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+        />
       </MockProviders>,
     );
 
@@ -406,7 +413,10 @@ describe('MoveDetails page', () => {
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-        <MoveDetails setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+        <MoveDetails
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+        />
       </MockProviders>,
     );
 
@@ -423,7 +433,10 @@ describe('MoveDetails page', () => {
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
-        <MoveDetails setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+        <MoveDetails
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+        />
       </MockProviders>,
     );
 

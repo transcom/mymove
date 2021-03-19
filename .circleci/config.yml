@@ -22,7 +22,7 @@ executors:
     resource_class: medium
     working_directory: /root/project
     docker:
-      - image: mk0x/docker-clamav:alpine
+      - image: mk0x/docker-clamav:latest
         # Authenticate with Docker Hub to avoid rate limit problems beginning on Nov 1st, 2020.
         # See https://www.docker.com/blog/scaling-docker-to-serve-millions-more-developers-network-egress/ for details
         # We'll need this until CircleCI and Docker Hub work out a deal to prevent rate limiting errors from CircleCI
@@ -557,9 +557,10 @@ jobs:
   anti_virus:
     executor: av_medium
     steps:
-      - run: apk update && apk add --no-cache git openssh
+      - run: apt-get update && apt-get install -y clamav curl git ssh
       - checkout
       - run: clamscan --version
+      - run: mkdir -p /store && chown clamav /store
       - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
       - run:
           name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
@@ -1184,6 +1185,20 @@ jobs:
           repo: app-webhook-client
       - announce_failure
 
+  # `push_webhook_client_stg` pushes the webhook client container to the stg container repository
+  push_webhook_client_stg:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_stg
+      - push_image:
+          ecr_env: stg
+          image_name: webhook_client
+          tag: dev
+          repo: app-webhook-client
+      - announce_failure
+
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
     executor: mymove_small
@@ -1227,6 +1242,7 @@ jobs:
           health_check_hosts: gex.exp.move.mil,orders.exp.move.mil
           ecr_env: exp
 
+  # `deploy_exp_webhook_client` deploys the webhook client to exp
   deploy_exp_webhook_client:
     executor: mymove_small
     environment:
@@ -1286,6 +1302,16 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
+          ecr_env: stg
+
+  # `deploy_stg_webhook_client` deploys the webhook client to stg
+  deploy_stg_webhook_client:
+    executor: mymove_small
+    environment:
+      APP_ENVIRONMENT: 'stg'
+    steps:
+      - aws_vars_stg
+      - deploy_webhook_client_steps:
           ecr_env: stg
 
   deploy_storybook_dp3:
@@ -1541,6 +1567,13 @@ workflows:
             branches:
               only: master
 
+      - push_webhook_client_stg:
+          requires:
+            - build_webhook_client
+          filters:
+            branches:
+              only: master
+
       - check_circle_against_stg_sha:
           requires:
             - pre_deps_golang
@@ -1551,6 +1584,7 @@ workflows:
             - build_tools
             - push_migrations_stg
             - push_tasks_stg
+            - push_webhook_client_stg
             - integration_tests
             - integration_tests_mtls
           filters:
@@ -1585,12 +1619,20 @@ workflows:
             branches:
               only: master
 
+      - deploy_stg_webhook_client:
+          requires:
+            - deploy_stg_migrations
+          filters:
+            branches:
+              only: master
+
       - approve_prd_deploy:
           type: approval
           requires:
             - deploy_stg_tasks
             - deploy_stg_app
             - deploy_stg_app_client_tls
+            - deploy_stg_webhook_client
 
       - deploy_storybook_dp3:
           requires:

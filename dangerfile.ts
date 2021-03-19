@@ -98,13 +98,9 @@ function doesLineHaveProhibitedOverride(disablingString) {
   const disablingStringParts = disablingString
     .trim()
     .split(/[\s,]+/)
-    .map((item) => item.trim());
+    .map((item) => item.trim())
+    .filter((str) => !str.includes('*/')); // edgecase where string has a dangling */ or */}
   // disablingStringParts format: ['eslint-disable-next-line', 'no-jsx', 'no-default']
-  if (disablingStringParts[0] === 'eslint-disable') {
-    // fail because don't disable whole file please!
-    prohibitedOverrideMsg =
-      'Found `eslint-disable`. This disables the whole file, which is bad practice because it can allow security issues to slip in unnoticed. Please specify exact rules on a line by line basis, eg `eslint-disable-next-line no-underscore-dangle`.';
-  }
 
   if (disablingStringParts.length === 1) {
     // fail because rule should be specified

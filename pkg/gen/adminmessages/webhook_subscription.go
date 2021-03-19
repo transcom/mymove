@@ -24,6 +24,10 @@ type WebhookSubscription struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
+	// e tag
+	// Read Only: true
+	ETag string `json:"eTag,omitempty"`
+
 	// A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.
 	EventKey *string `json:"eventKey,omitempty"`
 
