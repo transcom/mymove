@@ -81,7 +81,7 @@ func init() {
         }
       },
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrently this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrently this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* Order\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -332,7 +332,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}/status": {
       "patch": {
-        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Updates the status of a service item for a move to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1678,7 +1678,129 @@ func init() {
         "$ref": "#/definitions/MTOShipment"
       }
     },
-    "MoveOrder": {
+    "MoveStatus": {
+      "description": "Current status of this MoveTaskOrder",
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
+      }
+    },
+    "MoveTaskOrder": {
+      "type": "object",
+      "required": [
+        "order",
+        "contractorID"
+      ],
+      "properties": {
+        "availableToPrimeAt": {
+          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is set will be available to the API.\n",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "contractorID": {
+          "description": "ID associated with the contractor, in this case Prime\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
+        },
+        "createdAt": {
+          "description": "Date the MoveTaskOrder was created on.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "description": "ID of the MoveTaskOrder object.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isCanceled": {
+          "description": "Indicated this MoveTaskOrder has been canceled.",
+          "type": "boolean",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "moveCode": {
+          "description": "Unique 6-character code the customer can use to refer to their move",
+          "type": "string",
+          "readOnly": true,
+          "example": "ABC123"
+        },
+        "mtoServiceItems": {
+          "description": "Array of MTOServiceItems associated with this MoveTaskOrder.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "order": {
+          "$ref": "#/definitions/Order"
+        },
+        "orderID": {
+          "description": "ID of the Order object",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "description": "If the move is a PPM, this is the estimated weight in lbs.",
+          "type": "integer"
+        },
+        "ppmType": {
+          "description": "If the move is a PPM, indicates whether it is full or partial.",
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "description": "Unique ID associated with this Order.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
+          "type": "string",
+          "readOnly": true,
+          "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "updatedAt": {
+          "description": "Date on which this MoveTaskOrder was last updated.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MoveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "Order": {
       "type": "object",
       "required": [
         "orderNumber",
@@ -1697,7 +1819,7 @@ func init() {
           "$ref": "#/definitions/Customer"
         },
         "customerID": {
-          "description": "ID of the Customer this MoveOrder belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
+          "description": "ID of the Customer this Order belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -1713,7 +1835,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "description": "Uniquely identifies the state of the MoveOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveOrder will require that this eTag be passed in with the If-Match header.\n",
+          "description": "Uniquely identifies the state of the Order object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this Order will require that this eTag be passed in with the If-Match header.\n",
           "type": "string",
           "readOnly": true
         },
@@ -1721,7 +1843,7 @@ func init() {
           "$ref": "#/definitions/Entitlement"
         },
         "id": {
-          "description": "ID of the MoveOrder object.",
+          "description": "ID of the Order object.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -1774,128 +1896,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
-      }
-    },
-    "MoveStatus": {
-      "description": "Current status of this MoveTaskOrder",
-      "type": "string",
-      "enum": [
-        "DRAFT",
-        "SUBMITTED",
-        "APPROVED",
-        "CANCELED"
-      ],
-      "x-display-value": {
-        "APPROVED": "Approved",
-        "CANCELED": "Canceled",
-        "DRAFT": "Draft",
-        "SUBMITTED": "Submitted"
-      }
-    },
-    "MoveTaskOrder": {
-      "type": "object",
-      "required": [
-        "moveOrder",
-        "contractorID"
-      ],
-      "properties": {
-        "availableToPrimeAt": {
-          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is set will be available to the API.\n",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "contractorID": {
-          "description": "ID associated with the contractor, in this case Prime\n",
-          "type": "string",
-          "format": "uuid",
-          "example": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
-        },
-        "createdAt": {
-          "description": "Date the MoveTaskOrder was created on.",
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "description": "ID of the MoveTaskOrder object.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "description": "Indicated this MoveTaskOrder has been canceled.",
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "moveCode": {
-          "description": "Unique 6-character code the customer can use to refer to their move",
-          "type": "string",
-          "readOnly": true,
-          "example": "ABC123"
-        },
-        "moveOrder": {
-          "$ref": "#/definitions/MoveOrder"
-        },
-        "moveOrderID": {
-          "description": "ID of the MoveOrder object",
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "mtoServiceItems": {
-          "description": "Array of MTOServiceItems associated with this MoveTaskOrder.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
-        },
-        "mtoShipments": {
-          "$ref": "#/definitions/MTOShipments"
-        },
-        "paymentRequests": {
-          "$ref": "#/definitions/PaymentRequests"
-        },
-        "ppmEstimatedWeight": {
-          "description": "If the move is a PPM, this is the estimated weight in lbs.",
-          "type": "integer"
-        },
-        "ppmType": {
-          "description": "If the move is a PPM, indicates whether it is full or partial.",
-          "type": "string",
-          "enum": [
-            "FULL",
-            "PARTIAL"
-          ]
-        },
-        "referenceId": {
-          "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
-          "type": "string",
-          "readOnly": true,
-          "example": "1001-3456"
-        },
-        "status": {
-          "$ref": "#/definitions/MoveStatus"
-        },
-        "updatedAt": {
-          "description": "Date on which this MoveTaskOrder was last updated.",
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "MoveTaskOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
       }
     },
     "OrdersStatus": {
@@ -2474,7 +2474,7 @@ func init() {
         }
       },
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrently this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrently this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* Order\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -2815,7 +2815,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}/status": {
       "patch": {
-        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Updates the status of a service item for a move to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -4290,7 +4290,129 @@ func init() {
         "$ref": "#/definitions/MTOShipment"
       }
     },
-    "MoveOrder": {
+    "MoveStatus": {
+      "description": "Current status of this MoveTaskOrder",
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
+      }
+    },
+    "MoveTaskOrder": {
+      "type": "object",
+      "required": [
+        "order",
+        "contractorID"
+      ],
+      "properties": {
+        "availableToPrimeAt": {
+          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is set will be available to the API.\n",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "contractorID": {
+          "description": "ID associated with the contractor, in this case Prime\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
+        },
+        "createdAt": {
+          "description": "Date the MoveTaskOrder was created on.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "description": "ID of the MoveTaskOrder object.",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isCanceled": {
+          "description": "Indicated this MoveTaskOrder has been canceled.",
+          "type": "boolean",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "moveCode": {
+          "description": "Unique 6-character code the customer can use to refer to their move",
+          "type": "string",
+          "readOnly": true,
+          "example": "ABC123"
+        },
+        "mtoServiceItems": {
+          "description": "Array of MTOServiceItems associated with this MoveTaskOrder.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "order": {
+          "$ref": "#/definitions/Order"
+        },
+        "orderID": {
+          "description": "ID of the Order object",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "description": "If the move is a PPM, this is the estimated weight in lbs.",
+          "type": "integer"
+        },
+        "ppmType": {
+          "description": "If the move is a PPM, indicates whether it is full or partial.",
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "description": "Unique ID associated with this Order.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
+          "type": "string",
+          "readOnly": true,
+          "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "updatedAt": {
+          "description": "Date on which this MoveTaskOrder was last updated.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MoveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "Order": {
       "type": "object",
       "required": [
         "orderNumber",
@@ -4309,7 +4431,7 @@ func init() {
           "$ref": "#/definitions/Customer"
         },
         "customerID": {
-          "description": "ID of the Customer this MoveOrder belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
+          "description": "ID of the Customer this Order belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -4325,7 +4447,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "description": "Uniquely identifies the state of the MoveOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveOrder will require that this eTag be passed in with the If-Match header.\n",
+          "description": "Uniquely identifies the state of the Order object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this Order will require that this eTag be passed in with the If-Match header.\n",
           "type": "string",
           "readOnly": true
         },
@@ -4333,7 +4455,7 @@ func init() {
           "$ref": "#/definitions/Entitlement"
         },
         "id": {
-          "description": "ID of the MoveOrder object.",
+          "description": "ID of the Order object.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -4386,128 +4508,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
-      }
-    },
-    "MoveStatus": {
-      "description": "Current status of this MoveTaskOrder",
-      "type": "string",
-      "enum": [
-        "DRAFT",
-        "SUBMITTED",
-        "APPROVED",
-        "CANCELED"
-      ],
-      "x-display-value": {
-        "APPROVED": "Approved",
-        "CANCELED": "Canceled",
-        "DRAFT": "Draft",
-        "SUBMITTED": "Submitted"
-      }
-    },
-    "MoveTaskOrder": {
-      "type": "object",
-      "required": [
-        "moveOrder",
-        "contractorID"
-      ],
-      "properties": {
-        "availableToPrimeAt": {
-          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is set will be available to the API.\n",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "contractorID": {
-          "description": "ID associated with the contractor, in this case Prime\n",
-          "type": "string",
-          "format": "uuid",
-          "example": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
-        },
-        "createdAt": {
-          "description": "Date the MoveTaskOrder was created on.",
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "description": "ID of the MoveTaskOrder object.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "description": "Indicated this MoveTaskOrder has been canceled.",
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "moveCode": {
-          "description": "Unique 6-character code the customer can use to refer to their move",
-          "type": "string",
-          "readOnly": true,
-          "example": "ABC123"
-        },
-        "moveOrder": {
-          "$ref": "#/definitions/MoveOrder"
-        },
-        "moveOrderID": {
-          "description": "ID of the MoveOrder object",
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "mtoServiceItems": {
-          "description": "Array of MTOServiceItems associated with this MoveTaskOrder.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
-        },
-        "mtoShipments": {
-          "$ref": "#/definitions/MTOShipments"
-        },
-        "paymentRequests": {
-          "$ref": "#/definitions/PaymentRequests"
-        },
-        "ppmEstimatedWeight": {
-          "description": "If the move is a PPM, this is the estimated weight in lbs.",
-          "type": "integer"
-        },
-        "ppmType": {
-          "description": "If the move is a PPM, indicates whether it is full or partial.",
-          "type": "string",
-          "enum": [
-            "FULL",
-            "PARTIAL"
-          ]
-        },
-        "referenceId": {
-          "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
-          "type": "string",
-          "readOnly": true,
-          "example": "1001-3456"
-        },
-        "status": {
-          "$ref": "#/definitions/MoveStatus"
-        },
-        "updatedAt": {
-          "description": "Date on which this MoveTaskOrder was last updated.",
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "MoveTaskOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
       }
     },
     "OrdersStatus": {

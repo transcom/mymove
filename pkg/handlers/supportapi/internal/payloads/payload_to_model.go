@@ -32,33 +32,33 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 	}
 }
 
-// MoveOrderModel converts payload to model - it does not convert nested
+// OrderModel converts payload to model - it does not convert nested
 // duty stations but will preserve the ID if provided.
 // It will create nested customer and entitlement models
 // if those are provided in the payload
-func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
-	if moveOrderPayload == nil {
+func OrderModel(orderPayload *supportmessages.Order) *models.Order {
+	if orderPayload == nil {
 		return nil
 	}
 	model := &models.Order{
-		ID:            uuid.FromStringOrNil(moveOrderPayload.ID.String()),
-		Grade:         swag.String((string)(moveOrderPayload.Rank)),
-		OrdersNumber:  moveOrderPayload.OrderNumber,
-		ServiceMember: *CustomerModel(moveOrderPayload.Customer),
-		Entitlement:   EntitlementModel(moveOrderPayload.Entitlement),
-		TAC:           moveOrderPayload.Tac,
+		ID:            uuid.FromStringOrNil(orderPayload.ID.String()),
+		Grade:         swag.String((string)(orderPayload.Rank)),
+		OrdersNumber:  orderPayload.OrderNumber,
+		ServiceMember: *CustomerModel(orderPayload.Customer),
+		Entitlement:   EntitlementModel(orderPayload.Entitlement),
+		TAC:           orderPayload.Tac,
 	}
 
-	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
+	customerID := uuid.FromStringOrNil(orderPayload.CustomerID.String())
 	model.ServiceMemberID = customerID
 
-	destinationDutyStationID := uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
+	destinationDutyStationID := uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
 	model.NewDutyStationID = destinationDutyStationID
 
-	originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
+	originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
 	model.OriginDutyStationID = &originDutyStationID
 
-	reportByDate := time.Time(*moveOrderPayload.ReportByDate)
+	reportByDate := time.Time(*orderPayload.ReportByDate)
 	if !reportByDate.IsZero() {
 		model.ReportByDate = reportByDate
 	}

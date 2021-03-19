@@ -31,7 +31,7 @@ func NewGetEntitlements(ctx *middleware.Context, handler GetEntitlementsHandler)
 
 /*GetEntitlements swagger:route GET /move-task-orders/{moveTaskOrderID}/entitlements moveTaskOrder getEntitlements
 
-Gets entitlements for a move order by ID
+Gets entitlements for a move by ID
 
 Gets entitlements
 
