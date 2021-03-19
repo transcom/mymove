@@ -7,7 +7,7 @@ describe('office user finds the move', function () {
 
   beforeEach(() => {
     cy.clearAllCookies();
-    cy.intercept('PUT', '**/internal/orders/**').as('updateOrder');
+    cy.intercept('**/internal/orders/**').as('updateOrder');
     cy.signInAsNewPPMOfficeUser();
   });
 
@@ -212,7 +212,7 @@ function officeUserVerifiesAccounting() {
   cy.get('button').contains('Save').should('be.enabled');
 
   cy.get('button').contains('Save').click();
-  cy.wait(['@updateOrder']);
+  cy.wait('@updateOrder');
 
   cy.get('.tac > span').contains('ABC1');
   cy.get('span').contains('N002214CSW32Y9');
