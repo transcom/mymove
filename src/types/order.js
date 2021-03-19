@@ -132,15 +132,22 @@ export const MTOServiceItemShape = PropTypes.shape({
   status: PropTypes.string,
 });
 
+export const PaymentServiceItemParam = PropTypes.shape({
+  key: PropTypes.string,
+  value: PropTypes.string,
+});
+
 export const PaymentServiceItemShape = PropTypes.shape({
   id: PropTypes.string,
   createdAt: PropTypes.string,
   mtoServiceItemID: PropTypes.string,
+  mtoServiceItemCode: PropTypes.string,
   mtoServiceItemName: PropTypes.string,
   mtoShipmentType: ShipmentOptionsOneOf,
   priceCents: PropTypes.number,
   status: PropTypes.string,
   rejectionReason: PropTypes.string,
+  paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
 });
 
 export const PaymentRequestShape = PropTypes.shape({
