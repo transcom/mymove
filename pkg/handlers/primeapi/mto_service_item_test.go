@@ -908,9 +908,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", dddsit.ID), nil)
 	eTag := etag.GenerateEtag(dddsit.UpdatedAt)
 	params := mtoserviceitemops.UpdateMTOServiceItemParams{
-		HTTPRequest: req,
-		Body:        reqPayload,
-		IfMatch:     eTag,
+		HTTPRequest:      req,
+		Body:             reqPayload,
+		MtoServiceItemID: dddsit.ID.String(),
+		IfMatch:          eTag,
 	}
 
 	suite.T().Run("Successful PATCH - Updated SITDepartureDate on DOPSIT", func(t *testing.T) {
