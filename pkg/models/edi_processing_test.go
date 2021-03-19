@@ -16,30 +16,30 @@ func (suite *ModelSuite) TestBasicEDIProcessingInstantiation() {
 	}{
 		"Successful Create": {
 			ediProcessing: models.EDIProcessing{
-				ID:                   uuid.Must(uuid.NewV4()),
-				ProcessStartedAt:     time.Now(),
-				ProcessEndedAt:       time.Now(),
-				EDIType:              models.EDI997,
-				NumMessagesProcessed: 6,
+				ID:               uuid.Must(uuid.NewV4()),
+				ProcessStartedAt: time.Now(),
+				ProcessEndedAt:   time.Now(),
+				EDIType:          models.EDI997,
+				NumEDIsProcessed: 6,
 			},
 			expectedErrs: nil,
 		},
 		"Empty Fields": {
 			ediProcessing: models.EDIProcessing{},
 			expectedErrs: map[string][]string{
-				"process_started_at":     {"ProcessStartedAt can not be blank."},
-				"process_ended_at":       {"ProcessEndedAt can not be blank."},
-				"num_messages_processed": {"NumMessagesProcessed can not be blank."},
-				"editype":                {"EDIType is not in the list [810, 824, 858, 997]."},
+				"process_started_at": {"ProcessStartedAt can not be blank."},
+				"process_ended_at":   {"ProcessEndedAt can not be blank."},
+				"num_edis_processed": {"NumEDIsProcessed can not be blank."},
+				"editype":            {"EDIType is not in the list [810, 824, 858, 997]."},
 			},
 		},
 		"Message Type Invalid": {
 			ediProcessing: models.EDIProcessing{
-				ID:                   uuid.Must(uuid.NewV4()),
-				ProcessStartedAt:     time.Now(),
-				ProcessEndedAt:       time.Now(),
-				NumMessagesProcessed: 6,
-				EDIType:              "models.EDI997",
+				ID:               uuid.Must(uuid.NewV4()),
+				ProcessStartedAt: time.Now(),
+				ProcessEndedAt:   time.Now(),
+				NumEDIsProcessed: 6,
+				EDIType:          "models.EDI997",
 			},
 			expectedErrs: map[string][]string{
 				"editype": {"EDIType is not in the list [810, 824, 858, 997]."},

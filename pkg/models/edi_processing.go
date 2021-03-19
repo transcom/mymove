@@ -26,13 +26,13 @@ const (
 
 // EDIProcessing represents an email sent to a service member
 type EDIProcessing struct {
-	ID                   uuid.UUID `db:"id"`
-	EDIType              EDIType   `db:"edi_type"`
-	ProcessStartedAt     time.Time `db:"process_started_at"`
-	ProcessEndedAt       time.Time `db:"process_ended_at"`
-	CreatedAt            time.Time `db:"created_at"`
-	UpdatedAt            time.Time `db:"updated_at"`
-	NumMessagesProcessed int       `db:"num_messages_processed"`
+	ID               uuid.UUID `db:"id"`
+	EDIType          EDIType   `db:"edi_type"`
+	ProcessStartedAt time.Time `db:"process_started_at"`
+	ProcessEndedAt   time.Time `db:"process_ended_at"`
+	CreatedAt        time.Time `db:"created_at"`
+	UpdatedAt        time.Time `db:"updated_at"`
+	NumEDIsProcessed int       `db:"num_edis_processed"`
 }
 
 // EDIProcessings is a slice of notification structs
@@ -43,7 +43,7 @@ func (e *EDIProcessing) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.TimeIsPresent{Field: e.ProcessStartedAt, Name: "ProcessStartedAt"},
 		&validators.TimeIsPresent{Field: e.ProcessEndedAt, Name: "ProcessEndedAt"},
-		&validators.IntIsPresent{Field: e.NumMessagesProcessed, Name: "NumMessagesProcessed"},
+		&validators.IntIsPresent{Field: e.NumEDIsProcessed, Name: "NumEDIsProcessed"},
 		&validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: []string{
 			string(EDI810),
 			string(EDI824),

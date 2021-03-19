@@ -10,7 +10,7 @@ CREATE TABLE edi_processing
 	id uuid
 	    constraint edi_processing_pkey primary key,
 	edi_type edi_type NOT NULL,
-    num_messages_processed INT NOT NULL,
+    num_edis_processed INT NOT NULL,
 	process_started_at timestamp NOT NULL,
 	process_ended_at timestamp NOT NULL,
 	created_at timestamp not null,
