@@ -7,85 +7,38 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/sftp"
-	"golang.org/x/crypto/ssh"
-
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
 // Call this from command line with go run ./cmd/fetch-from-syncada-via-sftp/ --local-file-path <localFilePath> --syncada-file-name <syncadaFileName>
 
-// TODO I'm not really sure where to put this. I think it should be usable for any SFTP connections.
-// TODO And probably should be parameterized and not take everything from env vars
-func createSyncadaSFTPClient() (services.SFTPClient, error) {
-	port := os.Getenv("SYNCADA_SFTP_PORT")
-	if port == "" {
-		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_PORT")
-	}
-
-	userID := os.Getenv("SYNCADA_SFTP_USER_ID")
-	if userID == "" {
-		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_USER_ID")
-	}
-
-	remote := os.Getenv("SYNCADA_SFTP_IP_ADDRESS")
-	if remote == "" {
-		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_IP_ADDRESS")
-	}
-
-	password := os.Getenv("SYNCADA_SFTP_PASSWORD")
-	if password == "" {
-		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_PASSWORD")
-	}
-
-	hostKeyString := os.Getenv("SYNCADA_SFTP_HOST_KEY")
-	if hostKeyString == "" {
-		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_HOST_KEY")
-	}
-	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
-	if err != nil {
-		return nil, fmt.Errorf("Failed to parse host key %w", err)
-	}
-
-	config := &ssh.ClientConfig{
-		User: userID,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(password),
-		},
-		HostKeyCallback: ssh.FixedHostKey(hostKey),
-	}
-
-	// connect
-	connection, err := ssh.Dial("tcp", remote+":"+port, config)
-	if err != nil {
-		return nil, err
-	}
-	//defer connection.Close()
-
-	// create new SFTP client
-	client, err := sftp.NewClient(connection)
-	if err != nil {
-		return nil, err
-	}
-	//defer client.Close()
-
-	// TODO dont forget about the ssh client, it seems like probablty the sftp client has a connection to this that  aybe kt can close automatically
-
-	return client, nil
-}
+const (
+	// LastReadTimeFlag is the ENV var for the last read time
+	LastReadTimeFlag string = "last-read-time"
+	// DirectoryFlag is the ENV var for the directory
+	DirectoryFlag string = "directory"
+)
 
 func checkConfig(v *viper.Viper, logger logger) error {
-
 	logger.Debug("checking config")
 
 	err := cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckLogging(v)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckSyncadaSFTP(v)
 	if err != nil {
 		return err
 	}
@@ -94,15 +47,17 @@ func checkConfig(v *viper.Viper, logger logger) error {
 }
 
 func initFlags(flag *pflag.FlagSet) {
-
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
 	// Logging Levels
 	cli.InitLoggingFlags(flag)
 
-	flag.String("last-read-time", "", "Files older than this time will not be fetched.")
-	flag.String("directory", "", "syncada path")
+	// Syncada SFTP Config
+	cli.InitSyncadaSFTPFlags(flag)
+
+	flag.String(LastReadTimeFlag, "", "Files older than this time will not be fetched.")
+	flag.String(DirectoryFlag, "", "syncada path")
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -124,9 +79,7 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	dbEnv := v.GetString(cli.DbEnvFlag)
-
-	logger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	logger, err := logging.Config(logging.WithEnvironment(v.GetString(cli.DbEnvFlag)), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		log.Fatalf("failed to initialize Zap logging due to %v", err)
 	}
@@ -137,24 +90,60 @@ func main() {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
-	client, err := createSyncadaSFTPClient()
-	defer client.Close()
+	db, err := cli.InitDatabase(v, nil, logger)
 	if err != nil {
-		logger.Fatal("couldn't initialize sftp session", zap.Error(err))
+		logger.Fatal("connecting to DB", zap.Error(err))
 	}
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			logger.Fatal("could not close database", zap.Error(closeErr))
+		}
+	}()
 
-	//2021-03-16T18:25:36Z
-	t, err := time.Parse(time.RFC3339, v.GetString("last-read-time"))
+	sshClient, err := cli.InitSyncadaSSH(v, logger)
 	if err != nil {
-		logger.Error("couldnt parse time", zap.Error(err))
+		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 	}
-	//t := time.Now().Add(-1 * time.Hour)
-	logger.Info("lastRead", zap.String("a", t.String()))
-	//syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(client, logger)
-	//data, _, err := syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString("directory"), t, )
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//fmt.Print(data)
+	defer func() {
+		if closeErr := sshClient.Close(); closeErr != nil {
+			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		}
+	}()
+
+	sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+	if err != nil {
+		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
+	}
+	defer func() {
+		if closeErr := sftpClient.Close(); closeErr != nil {
+			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		}
+	}()
+
+	// Sample expected format: 2021-03-16T18:25:36Z
+	lastReadTime := v.GetString(LastReadTimeFlag)
+	var t time.Time
+	if lastReadTime != "" {
+		t, err = time.Parse(time.RFC3339, lastReadTime)
+		if err != nil {
+			logger.Error("couldn't parse time", zap.Error(err))
+		}
+	}
+	logger.Info("lastRead", zap.String("t", t.String()))
+	syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(sftpClient, logger)
+
+	// Just use a processor that prints the files to stdout for now.
+	err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, &stdoutProcessor{})
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+type stdoutProcessor struct {
+}
+
+func (p stdoutProcessor) ProcessFile(syncadaPath string, text string) error {
+	fmt.Println("file: ", syncadaPath)
+	fmt.Print(text)
+	return nil
 }
