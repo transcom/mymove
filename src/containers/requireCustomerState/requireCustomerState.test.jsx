@@ -38,7 +38,7 @@ describe('getIsAllowedProfileState', () => {
     const requiredState = profileStates.BACKUP_CONTACTS_COMPLETE;
     const currentState = profileStates.BACKUP_CONTACTS_COMPLETE;
     const result = getIsAllowedProfileState(requiredState, currentState);
-    expect(result).toBe(false);
+    expect(result).toBe(true);
   });
 });
 
