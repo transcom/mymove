@@ -29,13 +29,6 @@ type SyncadaSFTPSender interface {
 	SendToSyncadaViaSFTP(localDataReader io.Reader, syncadaFileName string) (int64, error)
 }
 
-// SFTPFile is the exported interface for a file retrieved from Syncada via SFTP
-//go:generate mockery --name SFTPFile
-type SFTPFile interface {
-	WriteTo(w io.Writer) (written int64, err error)
-	Close() error
-}
-
 // SFTPClient is the exported interface for an SFTP client created for reading from Syncada
 //go:generate mockery --name SFTPClient
 type SFTPClient interface {
