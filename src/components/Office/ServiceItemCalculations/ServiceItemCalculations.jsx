@@ -86,6 +86,7 @@ const ServiceItemCalculations = ({ itemCode, totalAmountRequested, serviceItemPa
 
 ServiceItemCalculations.propTypes = {
   itemCode: PropTypes.string.isRequired,
+  // in cents
   totalAmountRequested: PropTypes.number.isRequired,
   serviceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
   // apply small or large styling
