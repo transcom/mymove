@@ -75,6 +75,30 @@
       }
     }
   }
+
+  .expandable {
+    .icon {
+      @include u-margin-left(-1);
+      @include u-margin-right(2);
+      color: $primary;
+    }
+
+    &.expandedRow, &.expandedDetail {
+      border: 1px solid $base-lighter;
+    }
+
+    &.expandedRow td{
+      background-color: $link-light;
+    }
+
+    &.expandedDetail td {
+      @include u-padding(3);
+    }
+
+    .collapsed {
+
+    }
+  }
 }
 
 .shipmentType {

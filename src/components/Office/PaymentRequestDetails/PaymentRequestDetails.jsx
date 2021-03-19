@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PropTypes } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import classnames from 'classnames';
 
 import styles from './PaymentRequestDetails.module.scss';
 
 import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
+import { allowedServiceItemCalculations } from 'constants/serviceItems';
 import { formatCents, toDollarString } from 'shared/formatters';
 import { PaymentServiceItemShape } from 'types';
+import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 
 const shipmentHeadingAndStyle = (mtoShipmentType) => {
   switch (mtoShipmentType) {
@@ -27,8 +30,13 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
 };
 
 const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
+  const expandableIconClasses = classnames({
+    'chevron-down': isExpanded,
+    'chevron-right': !isExpanded,
+  });
 
   return (
     serviceItems.length > 0 && (
@@ -56,32 +64,68 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
             </tr>
           </thead>
           <tbody>
-            {serviceItems.map((item) => {
+            {serviceItems.map((item, index) => {
+              // TODO - temporary, will remove once all service item calculations are implemented
+              const canShowExpandableContent = allowedServiceItemCalculations.includes(item.mtoServiceItemCode);
+
+              const toggleExpandableRow = () => {
+                setIsExpanded((prev) => !prev);
+              };
+
+              const tableRowClasses = classnames(styles.expandable, {
+                [styles.expandedRow]: isExpanded,
+              });
+              const tableDetailClasses = classnames(styles.expandable, {
+                [styles.expandedDetail]: isExpanded,
+              });
+
               return (
-                <tr key={item.id}>
-                  <td data-testid="serviceItemName">{item.mtoServiceItemName}</td>
-                  <td data-testid="serviceItemAmount">{toDollarString(formatCents(item.priceCents))}</td>
-                  <td data-testid="serviceItemStatus">
-                    {item.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
-                      <div className={styles.needsReview}>
-                        <FontAwesomeIcon icon="exclamation-circle" />
-                        <span>Needs review</span>
-                      </div>
-                    )}
-                    {item.status === PAYMENT_SERVICE_ITEM_STATUS.APPROVED && (
-                      <div className={styles.accepted}>
-                        <FontAwesomeIcon icon="check" />
-                        <span>Accepted</span>
-                      </div>
-                    )}
-                    {item.status === PAYMENT_SERVICE_ITEM_STATUS.DENIED && (
-                      <div className={styles.rejected}>
-                        <FontAwesomeIcon icon="times" />
-                        <span>Rejected</span>
-                      </div>
-                    )}
-                  </td>
-                </tr>
+                <React.Fragment key={item.id}>
+                  <tr data-groupid={index} className={tableRowClasses}>
+                    <td data-testid="serviceItemName">
+                      {canShowExpandableContent && item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
+                        <FontAwesomeIcon
+                          className={styles.icon}
+                          icon={expandableIconClasses}
+                          onClick={toggleExpandableRow}
+                        />
+                      )}
+                      {item.mtoServiceItemName}
+                    </td>
+                    <td data-testid="serviceItemAmount">{toDollarString(formatCents(item.priceCents))}</td>
+                    <td data-testid="serviceItemStatus">
+                      {item.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
+                        <div className={styles.needsReview}>
+                          <FontAwesomeIcon icon="exclamation-circle" />
+                          <span>Needs review</span>
+                        </div>
+                      )}
+                      {item.status === PAYMENT_SERVICE_ITEM_STATUS.APPROVED && (
+                        <div className={styles.accepted}>
+                          <FontAwesomeIcon icon="check" />
+                          <span>Accepted</span>
+                        </div>
+                      )}
+                      {item.status === PAYMENT_SERVICE_ITEM_STATUS.DENIED && (
+                        <div className={styles.rejected}>
+                          <FontAwesomeIcon icon="times" />
+                          <span>Rejected</span>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                  {canShowExpandableContent && isExpanded && (
+                    <tr data-testid="serviceItemCaclulations" data-groupdid={index} className={tableDetailClasses}>
+                      <td colSpan={3}>
+                        <ServiceItemCalculations
+                          itemCode={item.mtoServiceItemCode}
+                          totalAmountRequested={item.priceCents}
+                          serviceItemParams={item.paymentServiceItemParams}
+                        />
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               );
             })}
           </tbody>
