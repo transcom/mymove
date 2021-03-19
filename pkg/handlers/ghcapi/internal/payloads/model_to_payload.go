@@ -398,6 +398,7 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 	return &ghcmessages.PaymentServiceItem{
 		ID:                       *handlers.FmtUUID(ps.ID),
 		MtoServiceItemID:         *handlers.FmtUUID(ps.MTOServiceItemID),
+		MtoServiceItemCode:       string(ps.MTOServiceItem.ReService.Code),
 		MtoServiceItemName:       ps.MTOServiceItem.ReService.Name,
 		MtoShipmentType:          ghcmessages.MTOShipmentType(ps.MTOServiceItem.MTOShipment.ShipmentType),
 		MtoShipmentID:            handlers.FmtUUIDPtr(ps.MTOServiceItem.MTOShipmentID),
