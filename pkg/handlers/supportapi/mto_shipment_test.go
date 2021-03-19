@@ -77,6 +77,20 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(500, nil)
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(1000, nil)
+
+	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+		MaxDaysTransitTime: 12,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     10000,
+		DistanceMilesLower: 0,
+		DistanceMilesUpper: 10000,
+	}
+	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
 	updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
 	handler := UpdateMTOShipmentStatusHandlerFunc{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
