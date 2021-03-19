@@ -6,7 +6,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -37,7 +36,7 @@ func notificationSave(event *Event, payload *[]byte) error {
 		EventKey:        string(event.EventKey),
 		MoveTaskOrderID: &event.MtoID,
 		ObjectID:        &event.UpdatedObjectID,
-		Payload:         swag.String(payloadString),
+		Payload:         payloadString,
 		Status:          models.WebhookNotificationPending,
 	}
 

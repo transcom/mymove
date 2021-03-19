@@ -38,7 +38,7 @@ type WebhookNotification struct {
 	MoveTaskOrderID  *uuid.UUID                `db:"move_id"`
 	MoveTaskOrder    Move                      `belongs_to:"moves"`
 	ObjectID         *uuid.UUID                `db:"object_id"`
-	Payload          *string                   `db:"payload"`
+	Payload          string                    `db:"payload"`
 	Status           WebhookNotificationStatus `db:"status"`
 	CreatedAt        time.Time                 `db:"created_at"`
 	UpdatedAt        time.Time                 `db:"updated_at"`
@@ -65,7 +65,7 @@ func (w *WebhookNotification) Validate(tx *pop.Connection) (*validate.Errors, er
 	return validate.Validate(
 		&OptionalRegexMatch{Field: &w.EventKey, Name: "EventKey", Expr: `\w+\.\w+`, Message: "Eventkey should be in Subject.Action format."},
 		&OptionalUUIDIsPresent{Field: w.TraceID, Name: "TraceID"},
-		&validators.StringIsPresent{Field: *w.Payload, Name: "Payload"},
+		&validators.StringIsPresent{Field: w.Payload, Name: "Payload"},
 		&validators.StringInclusion{Field: string(w.Status), Name: "Status", List: []string{
 			string(WebhookNotificationPending),
 			string(WebhookNotificationSent),

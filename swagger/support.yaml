@@ -427,14 +427,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/webhook-notifications':
+    post:
+      summary: Test endpoint for creating webhook notifications
+      description: >
+        This endpoint creates a webhook notification in the database.
+        If the webhook client is running, it may send the notification soon after creation.
+      operationId: createWebhookNotification
+      tags:
+        - webhook
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The notification sent by webhook-client.
+          schema:
+            $ref: '#/definitions/WebhookNotification'
+      responses:
+        '201':
+          description: Successful creation
+          schema:
+            $ref: '#/definitions/WebhookNotification'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/webhook-notify':
     post:
-      summary: Test endpoint for sending messages via webhook
+      summary: Test endpoint for receiving messages from our own webhook-client
       description: >
-        This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow.
+        This endpoint receives a notification that matches the webhook notification model.
+        This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint.
+        In testing, this server accepts notifications at this endpoint and simply responds with success and logs them.
         The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and
         sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
-      operationId: postWebhookNotify
+      operationId: receiveWebhookNotification
       tags:
         - webhook
       produces:
@@ -445,64 +475,22 @@ paths:
         - in: body
           required: true
           name: body
-          description: The notification sent by webhook-client.
+          description: The webhook notification being sent
           schema:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-                example: c56a4180-65aa-42ec-a945-5fd21dec0538
-              eventName:
-                type: string
-                description: Name of event triggered
-                example: paymentRequest.updated
-              triggeredAt:
-                type: string
-                format: date-time
-                description: Time representing when the event was triggered
-              objectType:
-                type: string
-                description: The type of object that's being updated
-                example: paymentRequest
-              object:
-                type: string
-                format: object
+            $ref: '#/definitions/WebhookNotification'
       responses:
         '200':
-          description: Sent
+          description: Received notification
           schema:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-                example: c56a4180-65aa-42ec-a945-5fd21dec0538
-              eventName:
-                type: string
-                description: Name of event triggered
-                example: paymentRequest.updated
-              triggeredAt:
-                type: string
-                format: date-time
-                description: Time representing when the event was triggered
-              objectType:
-                type: string
-                description: The type of object that's being updated
-                example: paymentRequest
-              object:
-                type: string
-                format: object
+            $ref: '#/definitions/WebhookNotification'
         '400':
-          description: Bad request
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: must be authenticated to use this endpoint
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: Forbidden
-        '404':
-          description: No orders found
+          $ref: '#/responses/PermissionDenied'
         '500':
-          description: Server error
+          $ref: '#/responses/ServerError'
   '/payment-requests/{paymentRequestID}/edi':
     parameters:
       - description: UUID of the payment request for which EDI should be generated.
@@ -1798,6 +1786,64 @@ definitions:
             type: string
     required:
       - invalidFields
+  WebhookNotification:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      eventKey:
+        type: string
+        description: Name of event triggered
+        example: 'PaymentRequest.Update'
+      createdAt:
+        type: string
+        format: date-time
+        description: Time representing when the event was triggered
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        description: Time representing when the notification was last updated
+        readOnly: true
+      firstAttemptedAt:
+        type: string
+        format: date-time
+        description: Time representing when the system firstAttempted to send this notification
+        readOnly: true
+        x-nullable: true
+      traceID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      moveTaskOrderID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      objectID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      object:
+        type: string
+        format: JSON
+        x-nullable: true
+      status:
+        $ref: '#/definitions/WebhookNotificationStatus'
+  WebhookNotificationStatus:
+    description: Statuses available for a Webhook Notification
+    type: string
+    enum:
+      - PENDING
+      - SENT
+      - SKIPPED
+      - FAILING
+      - FAILED
 responses:
   InvalidRequest:
     description: The request payload is invalid.
