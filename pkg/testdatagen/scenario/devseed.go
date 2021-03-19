@@ -764,12 +764,14 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	if len(incomingParams) > 0 {
 		createParams = incomingParams
 	}
+	psi := models.PaymentServiceItem{
+		PriceCents: &serviceItemCost,
+	}
+	testdatagen.MergeModels(&psi, assertions.PaymentServiceItem)
 	testdatagen.MakePaymentServiceItemWithParams(db, reService.Code, createParams, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &serviceItemCost,
-		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItem,
+		PaymentServiceItem: psi,
+		PaymentRequest:     paymentRequest,
+		MTOServiceItem:     mtoServiceItem,
 	})
 
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
@@ -2592,13 +2594,24 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	}
 	createDefaultHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationMARINES)
 	// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
+	time := time.Now()
 	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{
 		Move: models.Move{
 			Locator: "SidDLH",
 		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusRejected,
+		},
 		ReService: models.ReService{
 			// DLH - Domestic line haul
 			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"),
+		},
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status:   models.PaymentServiceItemStatusDenied,
+			DeniedAt: &time,
+		},
+		PaymentRequest: models.PaymentRequest{
+			Status: models.PaymentRequestStatusReviewedAllRejected,
 		},
 		PaymentServiceItemParams: models.PaymentServiceItemParams{
 			models.PaymentServiceItemParam{
