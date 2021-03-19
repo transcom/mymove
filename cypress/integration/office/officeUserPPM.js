@@ -213,6 +213,7 @@ function officeUserVerifiesAccounting() {
 
   cy.get('button').contains('Save').click();
   cy.wait('@updateOrder');
+  cy.patientReload();
 
   cy.get('.tac > span').contains('ABC1');
   cy.get('span').contains('N002214CSW32Y9');
