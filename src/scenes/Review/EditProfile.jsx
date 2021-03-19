@@ -137,9 +137,13 @@ class EditProfile extends Component {
   }
 
   render() {
-    const { schema, serviceMember, moveIsInDraft, schemaAffiliation, schemaRank } = this.props;
+    const { schema, serviceMember, moveIsInDraft, schemaAffiliation, schemaRank, currentOrders } = this.props;
     const { errorMessage } = this.state;
-
+    const initialValues = {
+      ...serviceMember,
+      rank: currentOrders ? currentOrders.grade : serviceMember.rank,
+      current_station: currentOrders ? currentOrders.origin_duty_station : serviceMember.current_station,
+    };
     return (
       <div className="usa-grid">
         {errorMessage && (
@@ -151,7 +155,7 @@ class EditProfile extends Component {
         )}
         <div className="usa-width-one-whole">
           <EditProfileForm
-            initialValues={serviceMember}
+            initialValues={initialValues}
             onSubmit={this.updateProfile}
             onCancel={this.returnToReview}
             schema={schema}
@@ -173,6 +177,7 @@ function mapStateToProps(state) {
     serviceMember,
     move: selectCurrentMove(state) || {},
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
+    currentOrders: selectCurrentOrders(state),
     // The move still counts as in draft if there are no orders.
     moveIsInDraft: selectMoveIsInDraft(state) || !selectCurrentOrders(state),
     isPpm: selectHasCurrentPPM(state),
