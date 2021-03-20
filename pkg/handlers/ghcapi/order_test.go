@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 		OrdersNumber:         handlers.FmtString("ORDER100"),
 		NewDutyStationID:     handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID:  handlers.FmtUUID(originDutyStation.ID),
-		Tac:                  handlers.FmtString("ABC1"),
+		Tac:                  handlers.FmtString("E19A"),
 		Sac:                  handlers.FmtString("987654321"),
 	}
 
@@ -226,7 +226,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("ABC1"),
+		Tac:                 handlers.FmtString("E19A"),
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
@@ -279,7 +279,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
 			OrdersNumber:        handlers.FmtString("ORDER100"),
 			NewDutyStationID:    handlers.FmtUUID(uuid.Nil),
 			OriginDutyStationID: handlers.FmtUUID(uuid.Nil),
-			Tac:                 handlers.FmtString("ABC1"),
+			Tac:                 handlers.FmtString("E19A"),
 			Sac:                 handlers.FmtString("987654321"),
 		},
 	}
@@ -317,7 +317,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
-		Tac:                 handlers.FmtString("ABC1"),
+		Tac:                 handlers.FmtString("E19A"),
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
@@ -418,7 +418,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
-	request := httptest.NewRequest("PATCH", "/updatedOrder.OrdersNumber/{orderID}", nil)
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
 	suite.Run("When Move is still in draft status, TAC can be nil", func() {
 		params := orderop.UpdateOrderParams{
@@ -475,7 +475,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 		invalidResponse := response.(*orderop.UpdateOrderUnprocessableEntity).Payload
 		errorDetail := invalidResponse.Detail
 
-		suite.Contains(*errorDetail, "TAC cannot be empty.")
+		suite.Contains(*errorDetail, "TransportationAccountingCode cannot be blank.")
 	})
 
 	suite.Run("TAC can only contain 4 alphanumeric characters", func() {

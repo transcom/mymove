@@ -205,17 +205,16 @@ function officeUserVerifiesAccounting() {
   // Enter details in form and save
   cy.get('.editable-panel-header').contains('Accounting').siblings().click();
 
-  cy.get('input[name="tac"]').type('ABC1');
+  cy.get('input[name="tac"]').first().clear().type('7777');
   cy.get('select[name="department_indicator"]').select('AIR_FORCE');
-  cy.get('input[name="sac"]').type('N002214CSW32Y9');
+  cy.get('input[name="sac"]').first().clear().type('N002214CSW32Y9');
 
   cy.get('button').contains('Save').should('be.enabled');
 
   cy.get('button').contains('Save').click();
   cy.wait('@updateOrder');
-  cy.patientReload();
 
-  cy.get('.tac > span').contains('ABC1');
+  cy.get('.tac > span').contains('7777');
   cy.get('span').contains('N002214CSW32Y9');
 
   // Refresh browser and make sure changes persist
@@ -224,7 +223,7 @@ function officeUserVerifiesAccounting() {
   cy.get('.combo-button .dropdown').contains('Approve PPM').should('have.class', 'disabled');
   cy.get('.combo-button').click();
 
-  cy.get('span').contains('ABC1');
+  cy.get('span').contains('7777');
   cy.get('span').contains('57 Air Force');
   cy.get('span').contains('N002214CSW32Y9');
 }

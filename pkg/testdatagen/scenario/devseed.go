@@ -41,6 +41,16 @@ var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 
+func mustSave(db *pop.Connection, model interface{}) {
+	verrs, err := db.ValidateAndSave(model)
+	if err != nil {
+		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
+	}
+	if verrs.HasAny() {
+		log.Panic(fmt.Errorf("Validation errors encountered saving %#v: %v", model, verrs))
+	}
+}
+
 func createPPMOfficeUser(db *pop.Connection) {
 	/*
 	 * Basic user with office access
@@ -120,7 +130,10 @@ func createPPMWithAdvance(db *pop.Connection, userUploader *uploader.UserUploade
 		},
 	})
 	ppm0.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppm0.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploader) {
@@ -157,7 +170,10 @@ func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploa
 		UserUploader: userUploader,
 	})
 	ppmNoAdvance.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader) {
@@ -191,7 +207,7 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("ABC1"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("0a2580ef-180a-44b2-a40b-291fa9cc13cc"),
@@ -209,7 +225,10 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(db, &ppm2.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm2.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader) {
@@ -246,9 +265,15 @@ func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader) 
 		UserUploader: userUploader,
 	})
 	ppmCanceled.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 	ppmCanceled.Move.Cancel("reasons")
-	models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createServiceMemberWithOrdersButNoMoveType(db *pop.Connection) {
@@ -405,89 +430,28 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
 	move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &move)
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createMoveWithHHGMissingOrdersInfo(db *pop.Connection, userUploader *uploader.UserUploader) {
-	/*
-	 * A service member with orders that are missing required information and a submitted move with a hhg
-	 */
-	email := "missinginfo@hhg.hhg"
-	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c97"
-	loginGovUUID := uuid.Must(uuid.NewV4())
-
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovUUID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		UserUploader: userUploader,
-	})
-
-	orders.TAC = nil
-
-	saveErr := db.Save(&orders)
-	if saveErr != nil {
-		log.Panic("error saving orders TAC")
-	}
-
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Order:        orders,
-		UserUploader: userUploader,
+	move := testdatagen.MakeHHGMoveWithShipment(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c91"),
-			Locator:          "REQINF",
-			SelectedMoveType: &hhgMoveType,
+			Locator: "REQINF",
+			Status:  models.MoveStatusDRAFT,
 		},
 	})
-
-	estimatedHHGWeight := unit.Pound(1400)
-	actualHHGWeight := unit.Pound(2000)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-8cf96ede2601"),
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
-		},
-	})
-
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-333333333331"),
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
-		},
-	})
-
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			PrimeEstimatedWeight: &estimatedHHGWeight,
-			PrimeActualWeight:    &actualHHGWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusRejected,
-			MoveTaskOrder:        move,
-			MoveTaskOrderID:      move.ID,
-		},
-	})
+	order := move.Orders
+	order.TAC = nil
+	order.OrdersNumber = nil
+	order.DepartmentIndicator = nil
+	order.OrdersTypeDetail = nil
+	mustSave(db, &order)
 
 	move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &move)
+	mustSave(db, &move)
 }
 
 func createUnsubmittedHHGMove(db *pop.Connection) {
@@ -685,7 +649,7 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 			OrdersNumber:        models.StringPointer("62149"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("ABC1"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("f9f10492-587e-43b3-af2a-9f67d2ac8757"),
@@ -701,7 +665,10 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	models.SaveMoveDependencies(db, &ppm6.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm6.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation) {
@@ -3058,7 +3025,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 
 	createMoveWithPPMAndHHG(db, userUploader)
 
-	// A service member with orders that are missing required information and a submitted move with a hhg
+	// A move with missing required order fields
 	createMoveWithHHGMissingOrdersInfo(db, userUploader)
 
 	createHHGMoveWith10ServiceItems(db, userUploader)

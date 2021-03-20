@@ -202,12 +202,12 @@ printf "\n==========\n\n"
 
 # Find MTO By MTO ID
 if jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
-  echo "Found by Move Task Order ID"
+  echo "Found by Move ID"
 # Find MTO By orderID
 elif jq -e 'map(select(.orderID == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
   # extract the mtoid
   mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
-  echo "Found by Move ID."
+  echo "Found by Order ID."
 # Find MTO by moveCode aka locator
 elif jq -e 'map(select(.moveCode == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
   # extract the mtoid

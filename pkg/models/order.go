@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -79,7 +80,10 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
 		&OptionalUUIDIsPresent{Field: o.OriginDutyStationID, Name: "OriginDutyStationID"},
-		&StringIsPresentAfterSubmission{Name: "TransportationAccountingCode", Field: o.TAC, Order: *o, DB: tx, Message: "TAC cannot be empty."},
+		&StringIsPresentAfterSubmission{Name: "TransportationAccountingCode", Field: o.TAC, Order: *o, DB: tx},
+		&StringIsPresentAfterSubmission{Name: "DepartmentIndicator", Field: o.DepartmentIndicator, Order: *o, DB: tx},
+		&StringIsPresentAfterSubmission{Name: "OrdersNumber", Field: o.OrdersNumber, Order: *o, DB: tx},
+		&OrdersTypeDetailIsPresentAfterSubmission{Name: "OrdersTypeDetail", Field: o.OrdersTypeDetail, Order: *o, DB: tx},
 		&OptionalRegexMatch{Name: "TransportationAccountingCode", Field: o.TAC, Expr: `\A([A-Za-z0-9]){4}\z`, Message: "TAC must be exactly 4 alphanumeric characters."},
 	), nil
 }
@@ -98,23 +102,43 @@ func (o *Order) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 
 // StringIsPresentAfterSubmission checks presence of fields after an order has been submitted
 type StringIsPresentAfterSubmission struct {
-	Name    string
-	Field   *string
-	Order   Order
-	DB      *pop.Connection
-	Message string
+	Name  string
+	Field *string
+	Order Order
+	DB    *pop.Connection
 }
 
 // IsValid adds an error if the field is blank
 func (v *StringIsPresentAfterSubmission) IsValid(errors *validate.Errors) {
 	order := v.Order
-	v.DB.EagerPreload("Moves").All(&order)
+
 	if len(order.Moves) <= 0 || order.Moves[0].Status == MoveStatusDRAFT {
 		return
 	}
 
 	if v.Field == nil || *v.Field == "" {
-		errors.Add(validators.GenerateKey(v.Name), v.Message)
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s cannot be blank.", v.Name))
+	}
+}
+
+// OrdersTypeDetailIsPresentAfterSubmission validates that orders type field is present
+type OrdersTypeDetailIsPresentAfterSubmission struct {
+	Name  string
+	Field *internalmessages.OrdersTypeDetail
+	Order Order
+	DB    *pop.Connection
+}
+
+// IsValid adds an error if the string value is blank.
+func (v *OrdersTypeDetailIsPresentAfterSubmission) IsValid(errors *validate.Errors) {
+	order := v.Order
+
+	if len(order.Moves) <= 0 || order.Moves[0].Status == MoveStatusDRAFT {
+		return
+	}
+
+	if v.Field == nil || string(*v.Field) == "" {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s cannot be blank.", v.Name))
 	}
 }
 
