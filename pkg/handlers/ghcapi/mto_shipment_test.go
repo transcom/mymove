@@ -176,11 +176,26 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		IfMatch:         eTag,
 	}
 
+	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+		MaxDaysTransitTime: 12,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     10000,
+		DistanceMilesLower: 0,
+		DistanceMilesUpper: 10000,
+	}
+	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+	planner := &routemocks.Planner{}
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(1000, nil)
+
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-		planner := &routemocks.Planner{}
+
 		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
 		handler := PatchShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -391,7 +406,6 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-		planner := &routemocks.Planner{}
 		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
 
 		// Create an APPROVED shipment on a move that is available to prime

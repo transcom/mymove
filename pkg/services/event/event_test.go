@@ -374,7 +374,7 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 
 		// Reinflate the json from the notification payload
 		suite.NotEmpty(notification.Payload)
-		var orderPayload primemessages.MoveOrder
+		var orderPayload primemessages.Order
 		err = json.Unmarshal([]byte(notification.Payload), &orderPayload)
 		suite.FatalNoError(err)
 

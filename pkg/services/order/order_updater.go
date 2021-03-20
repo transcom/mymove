@@ -87,6 +87,14 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 
 		if order.Grade != nil {
 			existingOrder.Grade = order.Grade
+
+			existingOrder.ServiceMember.Rank = (*models.ServiceMemberRank)(order.Grade)
+
+			err = tx.Save(&existingOrder.ServiceMember)
+
+			if err != nil {
+				return err
+			}
 		}
 
 		if order.OrdersTypeDetail != nil {

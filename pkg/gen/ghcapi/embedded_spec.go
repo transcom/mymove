@@ -362,14 +362,14 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
-        "description": "Gets a move order",
+        "description": "Gets a move",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a move order by ID",
+        "summary": "Gets a move by ID",
         "operationId": "getMoveTaskOrder",
         "responses": {
           "200": {
@@ -411,14 +411,14 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a move order by ID",
+        "description": "Deletes a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Deletes a move order by ID",
+        "summary": "Deletes a move by ID",
         "operationId": "deleteMoveTaskOrder",
         "responses": {
           "200": {
@@ -460,7 +460,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a move order by ID",
+        "description": "Updates a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -470,7 +470,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates a move order by ID",
+        "summary": "Updates a move by ID",
         "operationId": "updateMoveTaskOrder",
         "parameters": [
           {
@@ -536,7 +536,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -552,7 +552,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets entitlements for a move order by ID",
+        "summary": "Gets entitlements for a move by ID",
         "operationId": "getEntitlements",
         "responses": {
           "200": {
@@ -596,7 +596,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -605,7 +605,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
       "patch": {
-        "description": "Changes the status of a line item for a move order by ID",
+        "description": "Changes the status of a line item for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -615,7 +615,7 @@ func init() {
         "tags": [
           "paymentServiceItem"
         ],
-        "summary": "Change the status of a payment service item for a move order by ID",
+        "summary": "Change the status of a payment service item for a move by ID",
         "operationId": "updatePaymentServiceItemStatus",
         "parameters": [
           {
@@ -681,7 +681,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -697,14 +697,14 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
-        "description": "Gets a line item by ID for a move order by ID",
+        "description": "Gets a line item by ID for a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Gets a line item by ID for a move order by ID",
+        "summary": "Gets a line item by ID for a move by ID",
         "operationId": "getMTOServiceItem",
         "responses": {
           "200": {
@@ -746,14 +746,14 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a line item by ID for a move order by ID",
+        "description": "Deletes a line item by ID for a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Deletes a line item by ID for a move order by ID",
+        "summary": "Deletes a line item by ID for a move by ID",
         "operationId": "deleteMTOServiceItem",
         "responses": {
           "200": {
@@ -795,7 +795,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a service item by ID for a move order by ID",
+        "description": "Updates a service item by ID for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -805,7 +805,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Updates a service item by ID for a move order by ID",
+        "summary": "Updates a service item by ID for a move by ID",
         "operationId": "updateMTOServiceItem",
         "parameters": [
           {
@@ -871,7 +871,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -887,7 +887,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status": {
       "patch": {
-        "description": "Changes the status of a line item for a move order by ID",
+        "description": "Changes the status of a line item for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -897,7 +897,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Change the status of a line item for a move order by ID",
+        "summary": "Change the status of a line item for a move by ID",
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
@@ -969,7 +969,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -1000,7 +1000,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "ID of move order to use",
+            "description": "ID of move to use",
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
@@ -1131,14 +1131,14 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
       "get": {
-        "description": "Gets all line items for a move orders",
+        "description": "Gets all line items for a move",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Gets all line items for a move order",
+        "summary": "Gets all line items for a move",
         "operationId": "listMTOServiceItems",
         "responses": {
           "200": {
@@ -1171,7 +1171,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of move order for mto service item to use",
+          "description": "ID of move for mto service item to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -3212,6 +3212,10 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemCode": {
+          "type": "string",
+          "example": "DLH"
         },
         "mtoServiceItemID": {
           "type": "string",
@@ -4207,14 +4211,14 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
-        "description": "Gets a move order",
+        "description": "Gets a move",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a move order by ID",
+        "summary": "Gets a move by ID",
         "operationId": "getMoveTaskOrder",
         "responses": {
           "200": {
@@ -4271,14 +4275,14 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a move order by ID",
+        "description": "Deletes a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Deletes a move order by ID",
+        "summary": "Deletes a move by ID",
         "operationId": "deleteMoveTaskOrder",
         "responses": {
           "200": {
@@ -4335,7 +4339,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a move order by ID",
+        "description": "Updates a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -4345,7 +4349,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates a move order by ID",
+        "summary": "Updates a move by ID",
         "operationId": "updateMoveTaskOrder",
         "parameters": [
           {
@@ -4429,7 +4433,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -4445,7 +4449,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets entitlements for a move order by ID",
+        "summary": "Gets entitlements for a move by ID",
         "operationId": "getEntitlements",
         "responses": {
           "200": {
@@ -4504,7 +4508,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -4513,7 +4517,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
       "patch": {
-        "description": "Changes the status of a line item for a move order by ID",
+        "description": "Changes the status of a line item for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -4523,7 +4527,7 @@ func init() {
         "tags": [
           "paymentServiceItem"
         ],
-        "summary": "Change the status of a payment service item for a move order by ID",
+        "summary": "Change the status of a payment service item for a move by ID",
         "operationId": "updatePaymentServiceItemStatus",
         "parameters": [
           {
@@ -4607,7 +4611,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -4623,14 +4627,14 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
-        "description": "Gets a line item by ID for a move order by ID",
+        "description": "Gets a line item by ID for a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Gets a line item by ID for a move order by ID",
+        "summary": "Gets a line item by ID for a move by ID",
         "operationId": "getMTOServiceItem",
         "responses": {
           "200": {
@@ -4687,14 +4691,14 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a line item by ID for a move order by ID",
+        "description": "Deletes a line item by ID for a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Deletes a line item by ID for a move order by ID",
+        "summary": "Deletes a line item by ID for a move by ID",
         "operationId": "deleteMTOServiceItem",
         "responses": {
           "200": {
@@ -4751,7 +4755,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a service item by ID for a move order by ID",
+        "description": "Updates a service item by ID for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -4761,7 +4765,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Updates a service item by ID for a move order by ID",
+        "summary": "Updates a service item by ID for a move by ID",
         "operationId": "updateMTOServiceItem",
         "parameters": [
           {
@@ -4845,7 +4849,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -4861,7 +4865,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status": {
       "patch": {
-        "description": "Changes the status of a line item for a move order by ID",
+        "description": "Changes the status of a line item for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -4871,7 +4875,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Change the status of a line item for a move order by ID",
+        "summary": "Change the status of a line item for a move by ID",
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
@@ -4961,7 +4965,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -4992,7 +4996,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "ID of move order to use",
+            "description": "ID of move to use",
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
@@ -5156,14 +5160,14 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
       "get": {
-        "description": "Gets all line items for a move orders",
+        "description": "Gets all line items for a move",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Gets all line items for a move order",
+        "summary": "Gets all line items for a move",
         "operationId": "listMTOServiceItems",
         "responses": {
           "200": {
@@ -5202,7 +5206,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of move order for mto service item to use",
+          "description": "ID of move for mto service item to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -7336,6 +7340,10 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemCode": {
+          "type": "string",
+          "example": "DLH"
         },
         "mtoServiceItemID": {
           "type": "string",
