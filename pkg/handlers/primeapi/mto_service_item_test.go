@@ -866,7 +866,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 	// Under test: updateMTOServiceItemHandler.Handle function
 	//             MTOServiceItemUpdater.Update service object function
 	// SETUP
-	// Create the service item in the db for dofsit and dddsit
+	// Create the service item in the db for dddsit
 	timeNow := time.Now()
 	dddsit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -917,7 +917,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 	suite.T().Run("Successful PATCH - Updated SITDepartureDate on DDDSIT", func(t *testing.T) {
 		// Under test: updateMTOServiceItemHandler.Handle function
 		//             MTOServiceItemUpdater.Update service object function
-		// Set up:     We create an mto service item using DOFSIT (which was created above)
+		// Set up:     We create an mto service item using DDDSIT (which was created above)
 		//             And send an update to the sit entry date
 		// Expected outcome:
 		//             Receive a success response with the SitDepartureDate updated
