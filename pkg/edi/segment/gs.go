@@ -26,7 +26,7 @@ func (s *GS) StringArray() []string {
 		s.ApplicationReceiversCode,
 		s.Date,
 		s.Time,
-		fmt.Sprintf("%09d", s.GroupControlNumber),
+		strconv.FormatInt(s.GroupControlNumber, 10),
 		s.ResponsibleAgencyCode,
 		s.Version,
 	}

@@ -16,7 +16,7 @@ func (s *GE) StringArray() []string {
 	return []string{
 		"GE",
 		strconv.Itoa(s.NumberOfTransactionSetsIncluded),
-		fmt.Sprintf("%09d", s.GroupControlNumber),
+		strconv.FormatInt(s.GroupControlNumber, 10),
 	}
 }
 
