@@ -13,7 +13,18 @@ package scenario
 import (
 	"fmt"
 	"log"
+	"net/http/httptest"
 	"time"
+
+	"github.com/stretchr/testify/mock"
+
+	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/primeapi"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
@@ -744,7 +755,7 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	})
 
 	// setup service item
-	serviceItemCost := unit.Cents(99999)
+	//serviceItemCost := unit.Cents(99999)
 	reService := models.ReService{
 		ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating, Default
 	}
@@ -755,73 +766,121 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 		ReService:   reService,
 	})
 
-	// make service item param associated by the payment request and payment service item
-	createParams := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:   "CanStandAlone",
-			Value: "TRUE",
-		},
-		{
-			Key:   "ContractCode",
-			Value: "123",
-		},
-		{
-			Key:   "ContractYearName",
-			Value: "Contract Year Name",
-		},
-		{
-			Key:   "CubicFeetBilled",
-			Value: "2",
-		},
-		{
-			Key:   "CubicFeetCrating",
-			Value: "2",
-		},
-		{
-			Key:   "EscalationCompounded",
-			Value: "1.2",
-		},
-		{
-			Key:   "PriceRateOrFactor",
-			Value: "0.2",
-		},
-		{
-			Key:   "RequestedPickupDate",
-			Value: "2020-03-15",
-		},
-		{
-			Key:   "ServiceAreaOrigin",
-			Value: "312",
-		},
-		{
-			Key:   "ServicesScheduleOrigin",
-			Value: "1",
-		},
-		{
-			Key:   "ZipPickupAddress",
-			Value: "90210",
+	//// make service item param associated by the payment request and payment service item
+	//createParams := []testdatagen.CreatePaymentServiceItemParams{
+	//	{
+	//		Key:   "CanStandAlone",
+	//		Value: "TRUE",
+	//	},
+	//	{
+	//		Key:   "ContractCode",
+	//		Value: "123",
+	//	},
+	//	{
+	//		Key:   "ContractYearName",
+	//		Value: "Contract Year Name",
+	//	},
+	//	{
+	//		Key:   "CubicFeetBilled",
+	//		Value: "2",
+	//	},
+	//	{
+	//		Key:   "CubicFeetCrating",
+	//		Value: "2",
+	//	},
+	//	{
+	//		Key:   "EscalationCompounded",
+	//		Value: "1.2",
+	//	},
+	//	{
+	//		Key:   "PriceRateOrFactor",
+	//		Value: "0.2",
+	//	},
+	//	{
+	//		Key:   "RequestedPickupDate",
+	//		Value: "2020-03-15",
+	//	},
+	//	{
+	//		Key:   "ServiceAreaOrigin",
+	//		Value: "312",
+	//	},
+	//	{
+	//		Key:   "ServicesScheduleOrigin",
+	//		Value: "1",
+	//	},
+	//	{
+	//		Key:   "ZipPickupAddress",
+	//		Value: "90210",
+	//	},
+	//}
+	//// overwrite createParams, if any params passed in
+	//incomingParams := make([]testdatagen.CreatePaymentServiceItemParams, 0)
+	//for _, param := range assertions.PaymentServiceItemParams {
+	//	incomingParams = append(incomingParams, testdatagen.CreatePaymentServiceItemParams{
+	//		Key:   models.ServiceItemParamName(param.IncomingKey),
+	//		Value: param.Value,
+	//	})
+	//}
+	//if len(incomingParams) > 0 {
+	//	createParams = incomingParams
+	//}
+	//psi := models.PaymentServiceItem{
+	//	PriceCents: &serviceItemCost,
+	//}
+	//testdatagen.MergeModels(&psi, assertions.PaymentServiceItem)
+	//testdatagen.MakePaymentServiceItemWithParams(db, reService.Code, createParams, testdatagen.Assertions{
+	//	PaymentServiceItem: psi,
+	//	PaymentRequest:     paymentRequest,
+	//	MTOServiceItem:     mtoServiceItem,
+	//})
+
+	/* Testing handler here */
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(90210, nil)
+	planner.On("Zip3TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(910, nil)
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(90210, nil)
+
+	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+		db,
+		planner,
+		ghcrateengine.NewServiceItemPricer(db),
+	)
+
+	handler := primeapi.CreatePaymentRequestHandler{
+		HandlerContext:        handlers.NewHandlerContext(db, logger),
+		PaymentRequestCreator: paymentRequestCreator,
+	}
+
+	params := paymentrequestop.CreatePaymentRequestParams{
+		HTTPRequest: req,
+		Body: &primemessages.CreatePaymentRequest{
+			IsFinal:         swag.Bool(false),
+			MoveTaskOrderID: handlers.FmtUUID(mto.ID),
+			ServiceItems: []*primemessages.ServiceItem{
+				{
+					ID: *handlers.FmtUUID(mtoServiceItem.ID),
+				},
+			},
+			PointOfContact: "user@prime.com",
 		},
 	}
-	// overwrite createParams, if any params passed in
-	incomingParams := make([]testdatagen.CreatePaymentServiceItemParams, 0)
-	for _, param := range assertions.PaymentServiceItemParams {
-		incomingParams = append(incomingParams, testdatagen.CreatePaymentServiceItemParams{
-			Key:   models.ServiceItemParamName(param.IncomingKey),
-			Value: param.Value,
-		})
-	}
-	if len(incomingParams) > 0 {
-		createParams = incomingParams
-	}
-	psi := models.PaymentServiceItem{
-		PriceCents: &serviceItemCost,
-	}
-	testdatagen.MergeModels(&psi, assertions.PaymentServiceItem)
-	testdatagen.MakePaymentServiceItemWithParams(db, reService.Code, createParams, testdatagen.Assertions{
-		PaymentServiceItem: psi,
-		PaymentRequest:     paymentRequest,
-		MTOServiceItem:     mtoServiceItem,
-	})
+
+	response := handler.Handle(params)
+	logger.Debug("Response of create payment request handler: ", zap.Any("", response))
+
+	/* Testing handler here */
 
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
 		PaymentRequest: paymentRequest,
