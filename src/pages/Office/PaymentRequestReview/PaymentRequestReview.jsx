@@ -102,11 +102,13 @@ export const PaymentRequestReview = ({ history, match }) => {
       id: item.id,
       mtoShipmentID: item.mtoShipmentID,
       mtoShipmentType: item.mtoShipmentType,
+      mtoServiceItemCode: item.mtoServiceItemCode,
       mtoServiceItemName: item.mtoServiceItemName,
       amount: item.priceCents ? item.priceCents / 100 : 0,
       createdAt: item.createdAt,
       status: item.status,
       rejectionReason: item.rejectionReason,
+      paymentServiceItemParams: item.paymentServiceItemParams,
     };
   });
 

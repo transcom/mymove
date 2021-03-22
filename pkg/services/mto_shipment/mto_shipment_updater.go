@@ -191,6 +191,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, 
 	var oldShipment models.MTOShipment
 
 	err := f.FetchRecord(&oldShipment, queryFilters)
+
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoShipment.ID, "while looking for mtoShipment")
 	}

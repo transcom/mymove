@@ -2,16 +2,16 @@ import { stringify } from 'query-string';
 import { diff } from 'deep-object-diff';
 import { snakeCase } from 'lodash';
 import {
-  fetchUtils,
-  GET_LIST,
-  GET_ONE,
-  GET_MANY,
-  GET_MANY_REFERENCE,
   CREATE,
-  UPDATE,
-  UPDATE_MANY,
   DELETE,
   DELETE_MANY,
+  fetchUtils,
+  GET_LIST,
+  GET_MANY,
+  GET_MANY_REFERENCE,
+  GET_ONE,
+  UPDATE,
+  UPDATE_MANY,
 } from 'react-admin';
 
 /**
@@ -37,6 +37,7 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
   const convertDataRequestToHTTP = (type, resource, params) => {
     let url = '';
     const options = {};
+    options.headers = new Headers({ Accept: 'application/json' }); // required
     switch (type) {
       case GET_LIST: {
         const { page, perPage } = params.pagination;
@@ -93,6 +94,7 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
       case UPDATE:
         url = `${apiUrl}/${resource}/${params.id}`;
         options.method = 'PATCH';
+        options.headers.set('If-Match', params.data?.eTag); // for optimistic locking / concurrency control
         const paramsDiff = diff(params.previousData, params.data);
         if (paramsDiff.roles) {
           paramsDiff.roles = params.data.roles;

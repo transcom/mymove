@@ -11,15 +11,15 @@ import (
 	golangswaggerpaths "path"
 )
 
-// PostWebhookNotifyURL generates an URL for the post webhook notify operation
-type PostWebhookNotifyURL struct {
+// ReceiveWebhookNotificationURL generates an URL for the receive webhook notification operation
+type ReceiveWebhookNotificationURL struct {
 	_basePath string
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *PostWebhookNotifyURL) WithBasePath(bp string) *PostWebhookNotifyURL {
+func (o *ReceiveWebhookNotificationURL) WithBasePath(bp string) *ReceiveWebhookNotificationURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -27,12 +27,12 @@ func (o *PostWebhookNotifyURL) WithBasePath(bp string) *PostWebhookNotifyURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *PostWebhookNotifyURL) SetBasePath(bp string) {
+func (o *ReceiveWebhookNotificationURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *PostWebhookNotifyURL) Build() (*url.URL, error) {
+func (o *ReceiveWebhookNotificationURL) Build() (*url.URL, error) {
 	var _result url.URL
 
 	var _path = "/webhook-notify"
@@ -47,7 +47,7 @@ func (o *PostWebhookNotifyURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *PostWebhookNotifyURL) Must(u *url.URL, err error) *url.URL {
+func (o *ReceiveWebhookNotificationURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -58,17 +58,17 @@ func (o *PostWebhookNotifyURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *PostWebhookNotifyURL) String() string {
+func (o *ReceiveWebhookNotificationURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *PostWebhookNotifyURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *ReceiveWebhookNotificationURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on PostWebhookNotifyURL")
+		return nil, errors.New("scheme is required for a full url on ReceiveWebhookNotificationURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on PostWebhookNotifyURL")
+		return nil, errors.New("host is required for a full url on ReceiveWebhookNotificationURL")
 	}
 
 	base, err := o.Build()
@@ -82,6 +82,6 @@ func (o *PostWebhookNotifyURL) BuildFull(scheme, host string) (*url.URL, error) 
 }
 
 // StringFull returns the string representation of a complete url
-func (o *PostWebhookNotifyURL) StringFull(scheme, host string) string {
+func (o *ReceiveWebhookNotificationURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

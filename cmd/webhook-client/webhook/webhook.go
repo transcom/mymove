@@ -1,30 +1,18 @@
 package webhook
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-// Message is the body of our request
-type Message struct {
-	ID              uuid.UUID       `json:"id"`
-	EventName       string          `json:"eventName"`
-	TriggeredAt     strfmt.DateTime `json:"triggeredAt"`
-	ObjectType      string          `json:"objectType"`
-	UpdatedObjectID uuid.UUID       `json:"updatedObjectID"`
-	Object          string          `json:"object"`
-}
 
 // Engine encapsulates the services used by the webhook notification engine
 type Engine struct {
@@ -35,6 +23,8 @@ type Engine struct {
 	PeriodInSeconds     int
 	MaxImmediateRetries int
 	SeverityThresholds  []int
+	QuitChannel         chan os.Signal
+	DoneChannel         chan bool
 }
 
 // processNotifications reads all the notifications and all the subscriptions and processes them one by one
@@ -91,8 +81,18 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				if errDB != nil {
 					eng.Logger.Error("Webhook Subscription update failed", zap.Error(err))
 				}
+
 				if stopLoop {
 					return
+				}
+
+				// Return out of loop if quit signal recieved, otherwise, keep going
+				select {
+				case <-eng.QuitChannel:
+					eng.Logger.Info("Interrupt signal recieved...")
+					eng.DoneChannel <- true
+					return
+				default:
 				}
 			}
 		}
@@ -105,7 +105,6 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				eng.Logger.Error("Notification update failed", zap.Error(err))
 			}
 		}
-
 	}
 }
 
@@ -178,20 +177,8 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 	logger := eng.Logger
 
 	// Construct notification to send
-	// message := fmt.Sprintf("There was a %s notification, id: %s, moveTaskOrderID: %s",
-	// 	string(notif.EventKey), notif.ID.String(), notif.MoveTaskOrderID.String())
-	message := &Message{
-		ID:          notif.ID,
-		EventName:   notif.EventKey,
-		TriggeredAt: strfmt.DateTime(notif.UpdatedAt),
-	}
-	if notif.Payload != nil {
-		message.Object = *notif.Payload
-	}
-	if notif.ObjectID != nil {
-		message.UpdatedObjectID = *notif.ObjectID
-	}
-	json, err := json.Marshal(message)
+	message := GetWebhookNotificationPayload(notif)
+	json, err := message.MarshalBinary()
 	if err != nil {
 		notif.Status = models.WebhookNotificationFailed
 		updateNotificationErr := eng.updateNotification(notif)
@@ -223,11 +210,20 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 			if updateNotificationErr != nil {
 				eng.Logger.Error("Notification update failed", zap.Error(err))
 			}
+			objectID := "<empty>"
+			if message.ObjectID != nil {
+				objectID = message.ObjectID.String()
+			}
+			mtoID := "<empty>"
+			if message.MoveTaskOrderID != nil {
+				mtoID = message.MoveTaskOrderID.String()
+			}
 			logger.Info("Notification successfully sent:",
-				zap.String("Status", resp.Status),
-				zap.String("EventName", message.EventName),
-				zap.String("NotificationID", message.ID.String()),
-				zap.String("UpdatedObjectID", message.UpdatedObjectID.String()),
+				zap.String("id", message.ID.String()),
+				zap.String("status", resp.Status),
+				zap.String("eventKey", message.EventKey),
+				zap.String("moveID", mtoID),
+				zap.String("objectID", objectID),
 			)
 			break // send was successful
 		}
@@ -271,7 +267,6 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 // If a new notification or subscription were to be adding during the course of one run
 // by the Milmove server, it would only be processed on the next call of run().
 func (eng *Engine) run() error {
-
 	logger := eng.Logger
 
 	// Read all notifications
@@ -327,11 +322,18 @@ func (eng *Engine) Start() error {
 	if err != nil {
 		return err
 	}
+
 	// Run on each timer tick
 	for range t {
-		err = eng.run()
-		if err != nil {
-			return err
+		select {
+		case <-eng.QuitChannel:
+			eng.Logger.Info("Interrupt signal recieved...")
+			eng.DoneChannel <- true
+		default:
+			eng.run()
+			if err != nil {
+				return err
+			}
 		}
 	}
 

@@ -956,42 +956,6 @@ definitions:
       - title
       - detail
     type: object
-  MoveOrder:
-    required:
-      - orderNumber
-      - rank
-      - linesOfAccounting
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      customer:
-        $ref: '#/definitions/Customer'
-      customerID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      entitlement:
-        $ref: '#/definitions/Entitlements'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
-      rank:
-        type: string
-        example: 'E_5'
-      reportByDate:
-        type: string
-        format: date
-      orderNumber:
-        type: string
-      linesOfAccounting:
-        type: string
-      eTag:
-        type: string
-        readOnly: true
-    type: object
   MoveTaskOrder:
     type: object
     required:
@@ -1011,12 +975,12 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      moveOrderID:
+      orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      moveOrder:
-        $ref: '#/definitions/MoveOrder'
+      order:
+        $ref: '#/definitions/Order'
       referenceId:
         example: 1001-3456
         type: string
@@ -1458,6 +1422,42 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+  Order:
+    required:
+      - orderNumber
+      - rank
+      - linesOfAccounting
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      customer:
+        $ref: '#/definitions/Customer'
+      customerID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      entitlement:
+        $ref: '#/definitions/Entitlements'
+      destinationDutyStation:
+        $ref: '#/definitions/DutyStation'
+      originDutyStation:
+        $ref: '#/definitions/DutyStation'
+      rank:
+        type: string
+        example: 'E_5'
+      reportByDate:
+        type: string
+        format: date
+      orderNumber:
+        type: string
+      linesOfAccounting:
+        type: string
+      eTag:
+        type: string
+        readOnly: true
+    type: object
   PaymentRequest:
     properties:
       id:

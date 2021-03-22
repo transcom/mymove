@@ -47,7 +47,7 @@ type ClientService interface {
 Currently this will also create a number of nested objects but not all.
 It will currently create
 * MoveTaskOrder
-* MoveOrder
+* Order
 * Customer
 * User
 * Entitlement

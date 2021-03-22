@@ -47,12 +47,12 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
   const orderId = move?.ordersId;
 
-  // get move orders
+  // get orders
   const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
 
-  // TODO - Need to refactor if we pass include customer in move order payload
+  // TODO - Need to refactor if we pass include customer in order payload
   // get customer
   const order = orders && Object.values(orders)[0];
   const customerId = order?.customerID;
@@ -96,7 +96,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
   const orderId = move?.ordersId;
 
-  // get move orders
+  // get orders
   const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
     enabled: !!orderId,
   });
@@ -117,8 +117,8 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   });
 
   // get MTO service items
-  const { data: { mtoServiceItems } = {}, ...mtoServiceItemQuery } = useQuery(
-    [MTO_SERVICE_ITEMS, mtoID, true],
+  const { data: mtoServiceItems, ...mtoServiceItemQuery } = useQuery(
+    [MTO_SERVICE_ITEMS, mtoID, false],
     getMTOServiceItems,
     { enabled: !!mtoID },
   );
@@ -226,7 +226,7 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
 
   const mtoID = data[0]?.moveTaskOrderID || move?.id;
 
-  const { data: mtoShipments = [], ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
     enabled: !!mtoID,
   });
 
@@ -254,12 +254,12 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
-  const { data: mtoShipments = [], ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
     enabled: !!moveId,
   });
 
   // Must account for basic service items here not tied to a shipment
-  const { data: mtoServiceItems = [], ...mtoServiceItemQuery } = useQuery(
+  const { data: mtoServiceItems, ...mtoServiceItemQuery } = useQuery(
     [MTO_SERVICE_ITEMS, moveId, false],
     getMTOServiceItems,
     { enabled: !!moveId },

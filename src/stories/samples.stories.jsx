@@ -8,7 +8,8 @@ import classNames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
 import { Form, EditButton } from '../components/form';
-import { TextInput, TextInputMinimal } from '../components/form/fields';
+
+import TextField from 'components/form/fields/TextField';
 
 const InlineForm = ({ name, label, initialValues, validationSchema, onSubmit, onReset, ...props }) => {
   const [show, setShow] = useState(false);
@@ -35,7 +36,7 @@ const InlineForm = ({ name, label, initialValues, validationSchema, onSubmit, on
       validationSchema={validationSchema}
     >
       <Form errorCallback={errorCallback}>
-        <TextInputMinimal name={name} {...props} />
+        <TextField name={name} {...props} />
         <div className="display-flex">
           <Button type="submit">Submit</Button>
           <Button type="reset" secondary>
@@ -102,9 +103,9 @@ export const personalInfo = () => (
         onReset={action('Form Canceled')}
       >
         <Form>
-          <TextInput name="firstName" label="First Name" type="text" />
-          <TextInput name="lastName" label="Last Name" type="text" />
-          <TextInput name="email" label="Email Address" type="email" />
+          <TextField name="firstName" label="First Name" type="text" />
+          <TextField name="lastName" label="Last Name" type="text" />
+          <TextField name="email" label="Email Address" type="email" />
           <div className="display-flex">
             <Button type="submit">Submit</Button>
             <Button type="reset" secondary>
