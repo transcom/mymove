@@ -107,9 +107,7 @@ describe('when getting the routes for the current workflow', () => {
             '/',
             '/orders/info',
             '/orders/upload',
-            '/moves/:moveId/moving-info',
             '/moves/:moveId/shipment-type',
-
             '/moves/:moveId/review',
             '/moves/:moveId/agreement',
           ]);

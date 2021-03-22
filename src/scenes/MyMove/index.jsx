@@ -58,6 +58,7 @@ import Home from 'pages/MyMove/Home';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const AccessCode = lazy(() => import('shared/User/AccessCode'));
+const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -138,6 +139,7 @@ export class CustomerApp extends Component {
                   <CustomerPrivateRoute path={generalRoutes.HOME_PATH} exact component={Home} />
 
                   {getWorkflowRoutes(props)}
+                  <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} component={MovingInfo} />
                   <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <CustomerPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
                   <CustomerPrivateRoute

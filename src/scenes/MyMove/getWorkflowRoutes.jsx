@@ -22,7 +22,6 @@ import Home from 'pages/MyMove/Home';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
-import MovingInfo from 'pages/MyMove/MovingInfo';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
@@ -171,17 +170,6 @@ const pages = {
       <UploadOrders pages={pages} pageKey={key} additionalParams={{ moveId: props.moveId }} match={match} />
     ),
     description: 'Upload your orders',
-  },
-  [customerRoutes.SHIPMENT_MOVING_INFO_PATH]: {
-    isInFlow: (props) => inGhcFlow(props),
-    isComplete: always,
-    render: (key, pages) => () => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} hideBackBtn showFinishLaterBtn>
-          <MovingInfo />
-        </WizardPage>
-      );
-    },
   },
   [customerRoutes.SHIPMENT_SELECT_TYPE_PATH]: {
     isInFlow: always,
