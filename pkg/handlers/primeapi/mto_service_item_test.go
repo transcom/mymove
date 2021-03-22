@@ -28,7 +28,6 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
@@ -973,32 +972,56 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		reqPayload.SetID(strfmt.UUID(dddsit.ID.String()))
 	})
 
-	suite.T().Run("Failed PATCH - Payment request created", func(t *testing.T) {
+	// suite.T().Run("Failed PATCH - Payment request created", func(t *testing.T) {
+	// 	// Under test: updateMTOServiceItemHandler.Handle function
+	// 	//             MTOServiceItemUpdater.Update service object function
+	// 	// Set up:     We use a DDDSIT that already has a payment request associated
+	// 	//             Then try to update the SitDepartureDate on that
+	// 	// Expected outcome:
+	// 	//             Receive a ConflictError response
+
+	// 	// SETUP
+	// 	// Make a payment request and link to the dddsit service item
+	// 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	// 	cost := unit.Cents(20000)
+	// 	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+	// 		PaymentServiceItem: models.PaymentServiceItem{
+	// 			PriceCents: &cost,
+	// 		},
+	// 		PaymentRequest: paymentRequest,
+	// 		MTOServiceItem: dddsit,
+	// 	})
+
+	// 	// CALL FUNCTION UNDER TEST
+	// 	suite.NoError(params.Body.Validate(strfmt.Default))
+	// 	response := handler.Handle(params)
+
+	// 	// CHECK RESULTS
+	// 	suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
+	// })
+
+	suite.T().Run("Failure 422 - Unprocessable Entity", func(t *testing.T) {
 		// Under test: updateMTOServiceItemHandler.Handle function
 		//             MTOServiceItemUpdater.Update service object function
-		// Set up:     We use a DDDSIT that already has a payment request associated
-		//             Then try to update the SitDepartureDate on that
+		// Set up:     We use a non existent DDDSIT item ID in the param body
+		//             And send an update to DDDSIT to the SitDepartureDate
 		// Expected outcome:
-		//             Receive a ConflictError response
+		//             Receive an unprocessable entity error response
 
 		// SETUP
-		// Make a payment request and link to the dddsit service item
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		cost := unit.Cents(20000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: dddsit,
-		})
+		// Replace the payload ID with one that does not match request param
+		badUUID := uuid.Must(uuid.NewV4())
+		reqPayload.SetID(strfmt.UUID(badUUID.String()))
 
 		// CALL FUNCTION UNDER TEST
 		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		// CHECK RESULTS
-		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotFound{}, response)
+
+		// return to good state for next test
+		reqPayload.SetID(strfmt.UUID(dddsit.ID.String()))
 	})
 
 }
@@ -1100,32 +1123,56 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		reqPayload.SetID(strfmt.UUID(dopsit.ID.String()))
 	})
 
-	suite.T().Run("Failed PATCH - Payment request created", func(t *testing.T) {
+	// suite.T().Run("Failed PATCH - Payment request created", func(t *testing.T) {
+	// 	// Under test: updateMTOServiceItemHandler.Handle function
+	// 	//             MTOServiceItemUpdater.Update service object function
+	// 	// Set up:     We use a DOPSIT that already has a payment request associated
+	// 	//             Then try to update the SitDepartureDate on that
+	// 	// Expected outcome:
+	// 	//             Receive a ConflictError response
+
+	// 	// SETUP
+	// 	// Make a payment request and link to the DOPSIT service item
+	// 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	// 	cost := unit.Cents(20000)
+	// 	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+	// 		PaymentServiceItem: models.PaymentServiceItem{
+	// 			PriceCents: &cost,
+	// 		},
+	// 		PaymentRequest: paymentRequest,
+	// 		MTOServiceItem: dopsit,
+	// 	})
+
+	// 	// CALL FUNCTION UNDER TEST
+	// 	suite.NoError(params.Body.Validate(strfmt.Default))
+	// 	response := handler.Handle(params)
+
+	// 	// CHECK RESULTS
+	// 	suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
+	// })
+
+	suite.T().Run("Failure 422 - Unprocessable Entity", func(t *testing.T) {
 		// Under test: updateMTOServiceItemHandler.Handle function
 		//             MTOServiceItemUpdater.Update service object function
-		// Set up:     We use a DOPSIT that already has a payment request associated
-		//             Then try to update the SitDepartureDate on that
+		// Set up:     We use a non existent DOPSIT item ID in the param body
+		//             And send an update to DOPSIT to the SitDepartureDate
 		// Expected outcome:
-		//             Receive a ConflictError response
+		//             Receive an unprocessable entity error response
 
 		// SETUP
-		// Make a payment request and link to the DOPSIT service item
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		cost := unit.Cents(20000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &cost,
-			},
-			PaymentRequest: paymentRequest,
-			MTOServiceItem: dopsit,
-		})
+		// Replace the payload ID with one that does not match request param
+		badUUID := uuid.Must(uuid.NewV4())
+		reqPayload.SetID(strfmt.UUID(badUUID.String()))
 
 		// CALL FUNCTION UNDER TEST
 		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 
 		// CHECK RESULTS
-		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotFound{}, response)
+
+		// return to good state for next test
+		reqPayload.SetID(strfmt.UUID(dopsit.ID.String()))
 	})
 
 }
