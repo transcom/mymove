@@ -120,8 +120,10 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	mtoServiceItem, verrs := payloads.MTOServiceItemModelFromUpdate(params.MtoServiceItemID, params.Body)
+	fmt.Println(verrs)
 	if verrs != nil && verrs.HasAny() {
-		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+		fmt.Println("🧞‍♀️🧞‍♀️🧞‍♀️🧞‍♀️🧞‍♀️")
+		return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 			verrs.Error(), h.GetTraceID(), verrs))
 	}
 

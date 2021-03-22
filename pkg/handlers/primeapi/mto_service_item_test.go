@@ -28,6 +28,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
@@ -913,7 +914,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		IfMatch:          eTag,
 	}
 
-	suite.T().Run("Successful PATCH - Updated SITDepartureDate on DOPSIT", func(t *testing.T) {
+	suite.T().Run("Successful PATCH - Updated SITDepartureDate on DDDSIT", func(t *testing.T) {
 		// Under test: updateMTOServiceItemHandler.Handle function
 		//             MTOServiceItemUpdater.Update service object function
 		// Set up:     We create an mto service item using DOFSIT (which was created above)
@@ -969,36 +970,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 
 		// return to good state for next test
 		params.HTTPRequest = req
+		params.MtoServiceItemID = dddsit.ID.String()
 		reqPayload.SetID(strfmt.UUID(dddsit.ID.String()))
 	})
-
-	// suite.T().Run("Failed PATCH - Payment request created", func(t *testing.T) {
-	// 	// Under test: updateMTOServiceItemHandler.Handle function
-	// 	//             MTOServiceItemUpdater.Update service object function
-	// 	// Set up:     We use a DDDSIT that already has a payment request associated
-	// 	//             Then try to update the SitDepartureDate on that
-	// 	// Expected outcome:
-	// 	//             Receive a ConflictError response
-
-	// 	// SETUP
-	// 	// Make a payment request and link to the dddsit service item
-	// 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	// 	cost := unit.Cents(20000)
-	// 	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-	// 		PaymentServiceItem: models.PaymentServiceItem{
-	// 			PriceCents: &cost,
-	// 		},
-	// 		PaymentRequest: paymentRequest,
-	// 		MTOServiceItem: dddsit,
-	// 	})
-
-	// 	// CALL FUNCTION UNDER TEST
-	// 	suite.NoError(params.Body.Validate(strfmt.Default))
-	// 	response := handler.Handle(params)
-
-	// 	// CHECK RESULTS
-	// 	suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
-	// })
 
 	suite.T().Run("Failure 422 - Unprocessable Entity", func(t *testing.T) {
 		// Under test: updateMTOServiceItemHandler.Handle function
@@ -1018,10 +992,38 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		response := handler.Handle(params)
 
 		// CHECK RESULTS
-		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotFound{}, response)
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemUnprocessableEntity{}, response)
 
 		// return to good state for next test
 		reqPayload.SetID(strfmt.UUID(dddsit.ID.String()))
+	})
+
+	suite.T().Run("Failed PATCH - Payment request created", func(t *testing.T) {
+		// Under test: updateMTOServiceItemHandler.Handle function
+		//             MTOServiceItemUpdater.Update service object function
+		// Set up:     We use a DDDSIT that already has a payment request associated
+		//             Then try to update the SitDepartureDate on that
+		// Expected outcome:
+		//             Receive a ConflictError response
+
+		// SETUP
+		// Make a payment request and link to the dddsit service item
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		cost := unit.Cents(20000)
+		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &cost,
+			},
+			PaymentRequest: paymentRequest,
+			MTOServiceItem: dddsit,
+		})
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
 	})
 
 }
@@ -1120,36 +1122,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 
 		// return to good state for next test
 		params.HTTPRequest = req
+		params.MtoServiceItemID = dopsit.ID.String()
 		reqPayload.SetID(strfmt.UUID(dopsit.ID.String()))
 	})
-
-	// suite.T().Run("Failed PATCH - Payment request created", func(t *testing.T) {
-	// 	// Under test: updateMTOServiceItemHandler.Handle function
-	// 	//             MTOServiceItemUpdater.Update service object function
-	// 	// Set up:     We use a DOPSIT that already has a payment request associated
-	// 	//             Then try to update the SitDepartureDate on that
-	// 	// Expected outcome:
-	// 	//             Receive a ConflictError response
-
-	// 	// SETUP
-	// 	// Make a payment request and link to the DOPSIT service item
-	// 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	// 	cost := unit.Cents(20000)
-	// 	testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-	// 		PaymentServiceItem: models.PaymentServiceItem{
-	// 			PriceCents: &cost,
-	// 		},
-	// 		PaymentRequest: paymentRequest,
-	// 		MTOServiceItem: dopsit,
-	// 	})
-
-	// 	// CALL FUNCTION UNDER TEST
-	// 	suite.NoError(params.Body.Validate(strfmt.Default))
-	// 	response := handler.Handle(params)
-
-	// 	// CHECK RESULTS
-	// 	suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
-	// })
 
 	suite.T().Run("Failure 422 - Unprocessable Entity", func(t *testing.T) {
 		// Under test: updateMTOServiceItemHandler.Handle function
@@ -1169,10 +1144,38 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		response := handler.Handle(params)
 
 		// CHECK RESULTS
-		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotFound{}, response)
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemUnprocessableEntity{}, response)
 
 		// return to good state for next test
 		reqPayload.SetID(strfmt.UUID(dopsit.ID.String()))
+	})
+
+	suite.T().Run("Failed PATCH - Payment request created", func(t *testing.T) {
+		// Under test: updateMTOServiceItemHandler.Handle function
+		//             MTOServiceItemUpdater.Update service object function
+		// Set up:     We use a DOPSIT that already has a payment request associated
+		//             Then try to update the SitDepartureDate on that
+		// Expected outcome:
+		//             Receive a ConflictError response
+
+		// SETUP
+		// Make a payment request and link to the DOPSIT service item
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		cost := unit.Cents(20000)
+		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				PriceCents: &cost,
+			},
+			PaymentRequest: paymentRequest,
+			MTOServiceItem: dopsit,
+		})
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemConflict{}, response)
 	})
 
 }

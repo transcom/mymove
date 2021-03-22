@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -322,6 +323,7 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 	nilUUID := strfmt.UUID(uuid.Nil.String())
 
 	if mtoServiceItem.ID().String() != "" && mtoServiceItem.ID() != nilUUID && mtoServiceItem.ID().String() != mtoServiceItemID {
+		fmt.Println("🎉🎉🎉🎉🎉")
 		verrs.Add("id", "value does not agree with mtoServiceItemID in path - omit from body or correct")
 	}
 
@@ -341,7 +343,7 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
-		return model, nil
+		return model, verrs
 	}
 
 	verrs.Add("mtoServiceItem", "The model type of the service item is not allowed")
