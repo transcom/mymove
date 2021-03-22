@@ -9,22 +9,16 @@ import styles from './SubmitMoveForm.module.scss';
 import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
-import { formatSwaggerDate } from 'shared/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import CertificationText from 'scenes/Legalese/CertificationText';
 
 const SubmitMoveForm = (props) => {
-  const { onPrint, onSubmit, onBack, certificationText, error } = props;
+  const { initialValues, onPrint, onSubmit, onBack, certificationText, error } = props;
 
   const validationSchema = Yup.object().shape({
     signature: Yup.string().required('Required'),
     date: Yup.date().required(),
   });
-
-  const initialValues = {
-    signature: '',
-    date: formatSwaggerDate(new Date()),
-  };
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} validateOnBlur onSubmit={onSubmit}>
@@ -107,6 +101,10 @@ SubmitMoveForm.propTypes = {
   onBack: PropTypes.func.isRequired,
   onPrint: PropTypes.func,
   error: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
+  initialValues: PropTypes.shape({
+    signature: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 SubmitMoveForm.defaultProps = {

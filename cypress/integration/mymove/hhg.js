@@ -41,32 +41,31 @@ function customerSetsUpAnHHGMove() {
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
   // should be empty before using "Use current residence" checkbox
-  cy.get(`[data-testid="mailingAddress1"]`).first().should('be.empty');
-  cy.get(`[data-testid="city"]`).first().should('be.empty');
-  cy.get(`[data-testid="state"]`).first().should('be.empty');
-  cy.get(`[data-testid="zip"]`).first().should('be.empty');
+  cy.get(`input[name="pickup.address.street_address_1"]`).should('be.empty');
+  cy.get(`input[name="pickup.address.city"]`).should('be.empty');
+  cy.get(`input[name="pickup.address.postal_code"]`).should('be.empty');
 
   // should have expected "Required" error for required fields
-  cy.get(`[data-testid="mailingAddress1"]`).first().focus().blur();
+  cy.get(`input[name="pickup.address.street_address_1"]`).focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
-  cy.get(`[data-testid="mailingAddress1"]`).first().type('Some address');
+  cy.get(`input[name="pickup.address.street_address_1"]`).type('Some address');
   cy.get('[class="usa-error-message"]').should('not.exist');
 
-  cy.get(`[data-testid="city"]`).first().focus().blur();
+  cy.get(`input[name="pickup.address.city"]`).focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
-  cy.get(`[data-testid="city"]`).first().type('Some city');
+  cy.get(`input[name="pickup.address.city"]`).type('Some city');
   cy.get('[class="usa-error-message"]').should('not.exist');
 
-  cy.get(`[data-testid="state"]`).first().focus().blur();
+  cy.get(`select[name="pickup.address.state"]`).focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
-  cy.get(`[data-testid="state"]`).first().type('CA');
+  cy.get(`select[name="pickup.address.state"]`).select('CA');
   cy.get('[class="usa-error-message"]').should('not.exist');
 
-  cy.get(`[data-testid="zip"]`).first().focus().blur();
+  cy.get(`input[name="pickup.address.postal_code"]`).focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
-  cy.get(`[data-testid="zip"]`).first().type('9').blur();
+  cy.get(`input[name="pickup.address.postal_code"]`).type('9').blur();
   cy.get('[class="usa-error-message"]').contains('Must be valid zip code');
-  cy.get(`[data-testid="zip"]`).first().type('1111').blur();
+  cy.get(`input[name="pickup.address.postal_code"]`).type('1111').blur();
   cy.get('[class="usa-error-message"]').should('not.exist');
 
   // Next button disabled
@@ -76,12 +75,12 @@ function customerSetsUpAnHHGMove() {
   cy.get(`input[name="useCurrentResidence"]`).check({ force: true });
 
   // releasing agent
-  cy.get(`[data-testid="firstName"]`).first().type('John');
-  cy.get(`[data-testid="lastName"]`).first().type('Lee');
-  cy.get(`[data-testid="phone"]`).first().type('9999999999');
-  cy.get(`[data-testid="email"]`).first().type('ron').blur();
+  cy.get(`input[name="pickup.agent.firstName"]`).type('John');
+  cy.get(`input[name="pickup.agent.lastName"]`).type('Lee');
+  cy.get(`input[name="pickup.agent.phone"]`).type('9999999999');
+  cy.get(`input[name="pickup.agent.email"]`).type('ron').blur();
   cy.get('[class="usa-error-message"]').contains('Must be valid email');
-  cy.get(`[data-testid="email"]`).first().type('@example.com');
+  cy.get(`input[name="pickup.agent.email"]`).type('@example.com');
   cy.get('[class="usa-error-message"]').should('not.exist');
 
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
@@ -93,19 +92,19 @@ function customerSetsUpAnHHGMove() {
   cy.get('input[type="radio"]').first().check({ force: true });
 
   // delivery location
-  cy.get(`[data-testid="mailingAddress1"]`).last().type('412 Avenue M');
-  cy.get(`[data-testid="mailingAddress2"]`).last().type('#3E');
-  cy.get(`[data-testid="city"]`).last().type('Los Angeles');
-  cy.get(`[data-testid="state"]`).last().type('CA');
-  cy.get(`[data-testid="zip"]`).last().type('91111').blur();
+  cy.get(`input[name="delivery.address.street_address_1"]`).type('412 Avenue M');
+  cy.get(`input[name="delivery.address.street_address_2"]`).type('#3E');
+  cy.get(`input[name="delivery.address.city"]`).type('Los Angeles');
+  cy.get(`select[name="delivery.address.state"]`).select('CA');
+  cy.get(`input[name="delivery.address.postal_code"]`).type('91111').blur();
 
   // releasing agent
-  cy.get(`[data-testid="firstName"]`).last().type('John');
-  cy.get(`[data-testid="lastName"]`).last().type('Lee');
-  cy.get(`[data-testid="phone"]`).last().type('9999999999');
-  cy.get(`[data-testid="email"]`).last().type('ron').blur();
+  cy.get(`input[name="delivery.agent.firstName"]`).type('John');
+  cy.get(`input[name="delivery.agent.lastName"]`).type('Lee');
+  cy.get(`input[name="delivery.agent.phone"]`).type('9999999999');
+  cy.get(`input[name="delivery.agent.email"]`).type('ron').blur();
   cy.get('[class="usa-error-message"]').contains('Must be valid email');
-  cy.get(`[data-testid="email"]`).last().type('@example.com');
+  cy.get(`input[name="delivery.agent.email"]`).type('@example.com');
   cy.get('[class="usa-error-message"]').should('not.exist');
 
   // customer remarks
@@ -121,17 +120,17 @@ function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('[data-testid="edit-shipment-btn"]').contains('Edit').click();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/mto-shipments\/[^/]+\/edit-shipment/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
   });
 
-  cy.get(`[data-testid="firstName"]`).last().type('Johnson').blur();
+  cy.get(`input[name="delivery.agent.firstName"]`).type('Johnson').blur();
 
   // Ensure remarks is displayed in form
   cy.get(`[data-testid="remarks"]`).should('have.value', 'some customer remark');
 
   // Edit remarks and agent info
   cy.get(`[data-testid="remarks"]`).clear().type('some edited customer remark');
-  cy.get(`[data-testid="email"]`).last().clear().type('John@example.com').blur();
+  cy.get(`input[name="delivery.agent.email"]`).clear().type('John@example.com').blur();
   cy.get('button').contains('Save').click();
 
   cy.wait('@patchShipment');

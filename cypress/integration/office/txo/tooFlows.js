@@ -7,9 +7,9 @@ describe('TOO user', () => {
 
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedMoveOrders');
+    cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedOrders');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
-    cy.intercept('**/ghc/v1/move-orders/**').as('getMoveOrders');
+    cy.intercept('**/ghc/v1/move-orders/**').as('getOrders');
     cy.intercept('**/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
@@ -26,12 +26,12 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
     // Move Details page
-    cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('#approved-shipments').should('not.exist');
     cy.get('#requested-shipments');
     cy.contains('Approve selected shipments').should('be.disabled');
@@ -65,42 +65,30 @@ describe('TOO user', () => {
       // Click approve
       cy.contains('Approve and send').click();
       cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
-
-      // Page refresh
-      cy.url().should('include', `/moves/${moveLocator}/details`);
-      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
-      cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
-      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
-      cy.get('#approved-shipments');
-      cy.get('#requested-shipments').should('not.exist');
-      cy.contains('Approve selected shipments').should('not.exist');
     });
-  });
 
-  it('is able to request cancellation for a shipment', () => {
-    const moveLocator = 'TEST12';
-
-    // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
-    cy.contains(moveLocator).click();
-    cy.url().should('include', `/moves/${moveLocator}/details`);
-    cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    // Redirected to Move Task Order page
     cy.url().should('include', `/moves/${moveLocator}/mto`);
+    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.get('[data-testid="ShipmentContainer"]');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] h4').contains('Approved service items (6 items)');
 
-    // Move Task Order page
-    const shipments = cy.get('[data-testid="ShipmentContainer"]');
-    shipments.should('have.length', 1);
-
-    // Request Cancellation
-    cy.get('.shipment-heading').find('button').click();
+    // Navigate back to Move Details
+    cy.get('[data-testid="MoveDetails-Tab"]').click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
+    cy.get('#approved-shipments');
+    cy.get('#requested-shipments').should('not.exist');
+    cy.contains('Approve selected shipments').should('not.exist');
   });
 
   it('is able to approve and reject mto service items', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
@@ -174,12 +162,12 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
     // Move Details page
-    cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // Navigate to Edit orders page
     cy.get('[data-testid="edit-orders"]').contains('Edit orders').click();
@@ -247,12 +235,12 @@ describe('TOO user', () => {
     const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.wait(['@getSortedMoveOrders']);
+    cy.wait(['@getSortedOrders']);
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
 
     // Move Details page
-    cy.wait(['@getMoves', '@getMoveOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // Navigate to Edit allowances page
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
@@ -289,5 +277,43 @@ describe('TOO user', () => {
     cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
     cy.get('button').contains('Cancel').click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
+  });
+
+  it('is able to request cancellation for a shipment', () => {
+    const moveLocator = 'TEST12';
+
+    // TOO Moves queue
+    cy.wait(['@getSortedOrders']);
+    cy.contains(moveLocator).click();
+    cy.url().should('include', `/moves/${moveLocator}/details`);
+    cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
+    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.url().should('include', `/moves/${moveLocator}/mto`);
+
+    // Move Task Order page
+    const shipments = cy.get('[data-testid="ShipmentContainer"]');
+    shipments.should('have.length', 1);
+
+    // Click requestCancellation button and display modal
+    cy.get('.shipment-heading').find('button').should('contain', 'Request Cancellation').click();
+
+    cy.get('[data-testid="modal"]').within(($modal) => {
+      expect($modal).to.be.visible;
+      cy.get('button[type="submit"]').should('exist');
+      cy.get('button[type="submit"]').click();
+    });
+
+    cy.wait(['@patchMTOShipmentStatus']);
+    // After updating, the button is disabeld and an alert is shown
+    cy.get('[data-testid="request-cancellation-modal"]').should('not.exist');
+    cy.get('.shipment-heading').find('button').should('be.disabled').and('contain', 'Cancellation Requested');
+    cy.get('[data-testid="alert"]')
+      .should('exist')
+      .and('contain', 'The request to cancel that shipment has been sent to the movers.');
+
+    // Alert should disappear if focus changes
+    cy.get('[data-testid="rejectTextButton"]').first().click();
+    cy.get('[data-testid="closeRejectServiceItem"]').click();
+    cy.get('[data-testid="alert"]').should('not.exist');
   });
 });

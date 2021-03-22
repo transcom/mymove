@@ -39,8 +39,8 @@ type Event struct {
 	logger          handlers.Logger         // The logger
 }
 
-// MoveOrderUpdateEventKey is a key containing MoveOrder.Update
-const MoveOrderUpdateEventKey KeyType = "MoveOrder.Update"
+// OrderUpdateEventKey is a key containing Order.Update
+const OrderUpdateEventKey KeyType = "Order.Update"
 
 // MoveTaskOrderCreateEventKey is a key containing MoveTaskOrder.Create
 const MoveTaskOrderCreateEventKey KeyType = "MoveTaskOrder.Create"
@@ -66,8 +66,17 @@ const PaymentRequestCreateEventKey KeyType = "PaymentRequest.Create"
 // PaymentRequestUpdateEventKey is a key containing PaymentRequest.Update
 const PaymentRequestUpdateEventKey KeyType = "PaymentRequest.Update"
 
-var eventModels map[KeyType]eventModel = map[KeyType]eventModel{
-	MoveOrderUpdateEventKey:      {MoveOrderUpdateEventKey, models.Order{}},
+// TestCreateEventKey is a key containing Test.Create
+const TestCreateEventKey KeyType = "Test.Create"
+
+// TestUpdateEventKey is a key containing Test.Update
+const TestUpdateEventKey KeyType = "Test.Update"
+
+// TestDeleteEventKey is a key containing Test.Delete
+const TestDeleteEventKey KeyType = "Test.Delete"
+
+var eventModels = map[KeyType]eventModel{
+	OrderUpdateEventKey:          {OrderUpdateEventKey, models.Order{}},
 	MoveTaskOrderCreateEventKey:  {MoveTaskOrderCreateEventKey, models.Move{}},
 	MoveTaskOrderUpdateEventKey:  {MoveTaskOrderUpdateEventKey, models.Move{}},
 	MTOShipmentCreateEventKey:    {MTOShipmentCreateEventKey, models.MTOShipment{}},
@@ -76,7 +85,9 @@ var eventModels map[KeyType]eventModel = map[KeyType]eventModel{
 	MTOServiceItemUpdateEventKey: {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
 	PaymentRequestCreateEventKey: {PaymentRequestCreateEventKey, models.PaymentRequest{}},
 	PaymentRequestUpdateEventKey: {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
-}
+	TestCreateEventKey:           {TestCreateEventKey, nil},
+	TestUpdateEventKey:           {TestUpdateEventKey, nil},
+	TestDeleteEventKey:           {TestDeleteEventKey, nil}}
 
 // IsCreateEvent returns true if this event is a create event
 func IsCreateEvent(e KeyType) (bool, error) {
@@ -100,6 +111,12 @@ func GetModelFromEvent(e KeyType) (interface{}, error) {
 		return nil, err
 	}
 	return eventModel.ModelInstance, nil
+}
+
+// ExistsEventKey returns true if the event key exists
+func ExistsEventKey(e string) bool {
+	_, ok := eventModels[KeyType(e)]
+	return ok
 }
 
 // RegisteredEventHandlerFunc is a type of func that can be registered as an event handler

@@ -186,7 +186,11 @@ func cleanup() {
 func (pr *paymentRequestsData) cleanup() {
 	// Defer closing the store until after the API call has completed
 	if pr.store != nil {
-		pr.store.Close()
+		defer func() {
+			if closeErr := pr.store.Close(); closeErr != nil {
+				pr.logger.Fatal(closeErr)
+			}
+		}()
 	}
 }
 
@@ -196,9 +200,9 @@ func (pr *paymentRequestsData) printMTO(mto *primemessages.MoveTaskOrder) bool {
 		return false
 	}
 
-	if mto.AvailableToPrimeAt != nil && mto.MoveOrder != nil && mto.MoveOrder.DestinationDutyStation != nil &&
-		mto.MoveOrder.DestinationDutyStation.Address != nil && mto.MoveOrder.DestinationDutyStation.Address.City != nil &&
-		mto.MoveOrder.Customer != nil {
+	if mto.AvailableToPrimeAt != nil && mto.Order != nil && mto.Order.DestinationDutyStation != nil &&
+		mto.Order.DestinationDutyStation.Address != nil && mto.Order.DestinationDutyStation.Address.City != nil &&
+		mto.Order.Customer != nil {
 		return true
 	}
 
@@ -221,10 +225,10 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 		fmt.Printf("Is Canceled: %s\n", strconv.FormatBool(*mto.IsCanceled))
 	}
 
-	fmt.Printf("%s, %s\n", mto.MoveOrder.Customer.LastName, mto.MoveOrder.Customer.FirstName)
+	fmt.Printf("%s, %s\n", mto.Order.Customer.LastName, mto.Order.Customer.FirstName)
 
-	fmt.Printf("Dest. Duty Station: %s, %s, %s\n", *mto.MoveOrder.DestinationDutyStation.Address.City,
-		*mto.MoveOrder.DestinationDutyStation.Address.State, *mto.MoveOrder.DestinationDutyStation.Address.PostalCode)
+	fmt.Printf("Dest. Duty Station: %s, %s, %s\n", *mto.Order.DestinationDutyStation.Address.City,
+		*mto.Order.DestinationDutyStation.Address.State, *mto.Order.DestinationDutyStation.Address.PostalCode)
 
 	// Build shipment display descriptions
 	for _, s := range mto.MtoShipments {
@@ -344,8 +348,8 @@ func (pr *paymentRequestsData) displayMTOS() {
 		if pr.printMTO(mto) == true {
 
 			description := fmt.Sprintf("%s|\t%s|\t%s,%s\n", mto.AvailableToPrimeAt.String(),
-				*mto.MoveOrder.DestinationDutyStation.Address.City,
-				mto.MoveOrder.Customer.LastName, mto.MoveOrder.Customer.FirstName)
+				*mto.Order.DestinationDutyStation.Address.City,
+				mto.Order.Customer.LastName, mto.Order.Customer.FirstName)
 			info := mtoDisplay{
 				mtoID:       mto.ID.String(),
 				description: description,
@@ -704,7 +708,11 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			} else {
 				fmt.Printf("\nShipment update was successfully sent for processing (see reesponse for update success/fail)...\n")
 
-				pr.fetchMTOUpdates()
+				err = pr.fetchMTOUpdates()
+				if err != nil {
+					fmt.Print("Could not fetch MTO updates")
+					return exitApp, MTOMenu, nil
+				}
 
 				// re-display update shipment menu and the current shipment that was updated
 
@@ -949,7 +957,11 @@ func (pr *paymentRequestsData) displayCreatePaymentRequestMenu() (bool, menuType
 			} else {
 				fmt.Printf("\nCreate payment request was successfully sent for processing (see reesponse for update success/fail)...\n")
 
-				pr.fetchMTOUpdates()
+				err = pr.fetchMTOUpdates()
+				if err != nil {
+					fmt.Print("Could not fetch MTO updates")
+					return exitApp, MTOMenu, nil
+				}
 
 				// re-display updated MTO
 
@@ -1067,7 +1079,10 @@ func (pr *paymentRequestsData) displayMTOMenu() (bool, menuType, error) {
 	case UpdateShipment:
 		return exitApp, display[selection].nextMenu, nil
 	case CreatePaymentRequest:
-		pr.displayCreatePaymentRequestMenu()
+		_, _, err := pr.displayCreatePaymentRequestMenu()
+		if err != nil {
+			fmt.Printf("Error with creating payment <%s>", err.Error())
+		}
 		return exitApp, display[selection].nextMenu, nil
 	case PreviousMenu:
 		return exitApp, display[selection].nextMenu, nil

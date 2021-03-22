@@ -1619,7 +1619,8 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -1651,7 +1652,92 @@ func init() {
         "$ref": "#/definitions/MTOShipment"
       }
     },
-    "MoveOrder": {
+    "MoveTaskOrder": {
+      "type": "object",
+      "required": [
+        "mtoShipments",
+        "mtoServiceItems",
+        "paymentRequests"
+      ],
+      "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isCanceled": {
+          "type": "boolean",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "order": {
+          "$ref": "#/definitions/Order"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MoveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "Order": {
       "type": "object",
       "required": [
         "orderNumber",
@@ -1699,91 +1785,6 @@ func init() {
           "type": "string",
           "format": "date"
         }
-      }
-    },
-    "MoveTaskOrder": {
-      "type": "object",
-      "required": [
-        "mtoShipments",
-        "mtoServiceItems",
-        "paymentRequests"
-      ],
-      "properties": {
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "moveCode": {
-          "type": "string",
-          "readOnly": true,
-          "example": "HYXFJF"
-        },
-        "moveOrder": {
-          "$ref": "#/definitions/MoveOrder"
-        },
-        "moveOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "mtoServiceItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
-        },
-        "mtoShipments": {
-          "$ref": "#/definitions/MTOShipments"
-        },
-        "paymentRequests": {
-          "$ref": "#/definitions/PaymentRequests"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
-        "ppmType": {
-          "type": "string",
-          "enum": [
-            "FULL",
-            "PARTIAL"
-          ]
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "MoveTaskOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
       }
     },
     "PaymentRequest": {
@@ -4103,7 +4104,8 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -4135,7 +4137,92 @@ func init() {
         "$ref": "#/definitions/MTOShipment"
       }
     },
-    "MoveOrder": {
+    "MoveTaskOrder": {
+      "type": "object",
+      "required": [
+        "mtoShipments",
+        "mtoServiceItems",
+        "paymentRequests"
+      ],
+      "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isCanceled": {
+          "type": "boolean",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "order": {
+          "$ref": "#/definitions/Order"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MoveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "Order": {
       "type": "object",
       "required": [
         "orderNumber",
@@ -4183,91 +4270,6 @@ func init() {
           "type": "string",
           "format": "date"
         }
-      }
-    },
-    "MoveTaskOrder": {
-      "type": "object",
-      "required": [
-        "mtoShipments",
-        "mtoServiceItems",
-        "paymentRequests"
-      ],
-      "properties": {
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "moveCode": {
-          "type": "string",
-          "readOnly": true,
-          "example": "HYXFJF"
-        },
-        "moveOrder": {
-          "$ref": "#/definitions/MoveOrder"
-        },
-        "moveOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "mtoServiceItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
-        },
-        "mtoShipments": {
-          "$ref": "#/definitions/MTOShipments"
-        },
-        "paymentRequests": {
-          "$ref": "#/definitions/PaymentRequests"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
-        "ppmType": {
-          "type": "string",
-          "enum": [
-            "FULL",
-            "PARTIAL"
-          ]
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "MoveTaskOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
       }
     },
     "PaymentRequest": {

@@ -18,7 +18,7 @@ set -eu -o pipefail
 # Environment Variables that modify behavior:
 #
 # - AV_DIR: The full path to the directory that will mounted (required, no default)
-# - AV_DOCKER_IMAGE: The docker image used which runs ClamAV (default: mk0x/docker-clamav:alpine)
+# - AV_DOCKER_IMAGE: The docker image used which runs ClamAV (default: mk0x/docker-clamav:latest)
 # - AV_IGNORE_DIR: The full path to the directory where new ignore files will be created (required, no default)
 # - AV_IGNORE_FILES: Specific files to ignore when scanning in a space-separated list
 # - AV_IGNORE_SIGS: Specific signatures to ignore when scanning in a space-separated list
@@ -60,7 +60,7 @@ else
 fi
 
 
-DOCKER_IMAGE=${AV_DOCKER_IMAGE:-mk0x/docker-clamav:alpine}
+DOCKER_IMAGE=${AV_DOCKER_IMAGE:-mk0x/docker-clamav:latest}
 readonly DOCKER_IMAGE
 MOUNT_DIR=${AV_MOUNT_DIR:-/root/project}
 readonly MOUNT_DIR

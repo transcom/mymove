@@ -113,7 +113,7 @@ export class OfficeApp extends Component {
 
     const ppmRoutes = [
       <PrivateRoute
-        key="ppmMoveOrdersRoute"
+        key="ppmOrdersRoute"
         path="/moves/:moveId/orders"
         component={OrdersInfo}
         requiredRoles={[roleTypes.PPM]}

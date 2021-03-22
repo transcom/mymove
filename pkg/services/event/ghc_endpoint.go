@@ -16,8 +16,8 @@ const GhcGetMoveEndpointKey = "Ghc.GetMove"
 // GhcGetMovesQueueEndpointKey is the key for the getMovesQueue endpoint in ghc
 const GhcGetMovesQueueEndpointKey = "Ghc.GetMovesQueue"
 
-// GhcGetMoveOrderEndpointKey is the key for the getMoveOrder endpoint in ghc
-const GhcGetMoveOrderEndpointKey = "Ghc.GetMoveOrder"
+// GhcGetOrderEndpointKey is the key for the getOrder endpoint in ghc
+const GhcGetOrderEndpointKey = "Ghc.GetOrder"
 
 // GhcListMoveTaskOrdersEndpointKey is the key for the listMoveTaskOrders endpoint in ghc
 const GhcListMoveTaskOrdersEndpointKey = "Ghc.ListMoveTaskOrders"
@@ -70,8 +70,8 @@ const GhcGetPaymentRequestEndpointKey = "Ghc.GetPaymentRequest"
 // GhcUpdatePaymentRequestStatusEndpointKey is the key for the updatePaymentRequestStatus endpoint in ghc
 const GhcUpdatePaymentRequestStatusEndpointKey = "Ghc.UpdatePaymentRequestStatus"
 
-// GhcUpdateMoveOrderEndpointKey is the key for the updateMoveOrder endpoint in ghc
-const GhcUpdateMoveOrderEndpointKey = "Ghc.UpdateMoveOrder"
+// GhcUpdateOrderEndpointKey is the key for the updateOrder endpoint in ghc
+const GhcUpdateOrderEndpointKey = "Ghc.UpdateOrder"
 
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var ghcEndpoints = EndpointMapType{
@@ -87,9 +87,9 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "getMovesQueue",
 	},
-	GhcGetMoveOrderEndpointKey: {
+	GhcGetOrderEndpointKey: {
 		APIName:     GhcAPIName,
-		OperationID: "getMoveOrder",
+		OperationID: "getOrder",
 	},
 	GhcListMoveTaskOrdersEndpointKey: {
 		APIName:     GhcAPIName,
@@ -159,8 +159,8 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "updatePaymentRequestStatus",
 	},
-	GhcUpdateMoveOrderEndpointKey: {
+	GhcUpdateOrderEndpointKey: {
 		APIName:     GhcAPIName,
-		OperationID: "updateMoveOrder",
+		OperationID: "updateOrder",
 	},
 }

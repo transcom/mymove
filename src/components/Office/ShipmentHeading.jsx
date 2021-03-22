@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { PropTypes } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
@@ -7,7 +7,7 @@ import { AddressShape } from '../../types/address';
 
 import styles from './shipmentHeading.module.scss';
 
-import { MTO_SHIPMENT_STATUSES } from 'shared/constants';
+import { shipmentStatuses } from 'constants/shipments';
 
 function formatDestinationAddress(address) {
   if (address.city) {
@@ -18,12 +18,7 @@ function formatDestinationAddress(address) {
   return `${address.postal_code}`;
 }
 
-function ShipmentHeading({ shipmentInfo }) {
-  // Using hooks to illustrate disabled button state
-  // This will be modified once the modal is hooked up, as the button will only
-  // be used to trigger the modal.
-  const [shipmentStatus, setShipmentStatus] = useState(shipmentInfo.shipmentStatus);
-
+function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
       <h3 data-testid="office-shipment-heading-h3">{shipmentInfo.shipmentType}</h3>
@@ -34,11 +29,11 @@ function ShipmentHeading({ shipmentInfo }) {
         </small>
         <Button
           type="button"
-          onClick={() => setShipmentStatus(MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED)}
+          onClick={() => handleShowCancellationModal(shipmentInfo)}
           unstyled
-          disabled={shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED}
+          disabled={shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED}
         >
-          {shipmentStatus === MTO_SHIPMENT_STATUSES.CANCELLATION_REQUESTED
+          {shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED
             ? 'Cancellation Requested'
             : 'Request Cancellation'}
         </Button>
@@ -49,6 +44,7 @@ function ShipmentHeading({ shipmentInfo }) {
 
 ShipmentHeading.propTypes = {
   shipmentInfo: PropTypes.shape({
+    shipmentID: PropTypes.string.isRequired,
     shipmentType: PropTypes.string.isRequired,
     originCity: PropTypes.string.isRequired,
     originState: PropTypes.string.isRequired,
@@ -56,7 +52,10 @@ ShipmentHeading.propTypes = {
     destinationAddress: AddressShape,
     scheduledPickupDate: PropTypes.string.isRequired,
     shipmentStatus: PropTypes.string.isRequired,
+    ifMatchEtag: PropTypes.string.isRequired,
+    moveTaskOrderID: PropTypes.string.isRequired,
   }).isRequired,
+  handleShowCancellationModal: PropTypes.func.isRequired,
 };
 
 export default ShipmentHeading;
