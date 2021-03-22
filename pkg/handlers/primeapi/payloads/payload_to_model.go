@@ -341,7 +341,12 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
-		return model, verrs
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+
+		return model, nil
 	}
 
 	verrs.Add("mtoServiceItem", "The model type of the service item is not allowed")
