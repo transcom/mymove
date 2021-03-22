@@ -132,7 +132,7 @@ func main() {
 	logger.Info("lastRead", zap.String("t", t.String()))
 
 	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-	syncadaSFTPSession := invoice.InitNewSyncadaSFTPReaderSession(wrappedSFTPClient, logger)
+	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger)
 
 	// Just use a processor that prints the files to stdout for now.
 	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, &stdoutProcessor{})

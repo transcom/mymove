@@ -84,7 +84,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("ProcessFile", mock.Anything).Return(nil)
 
-		session := InitNewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger)
 		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 		client.AssertCalled(t, "ReadDir", pickupDir)
@@ -101,7 +101,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("ProcessFile", mock.Anything).Return(nil)
 
-		session := InitNewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger)
 		session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
@@ -119,7 +119,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("ProcessFile", mock.Anything, mock.Anything).Return(nil)
 
-		session := InitNewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger)
 		time, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 		suite.Equal(singleFileInfo[0].ModTime(), time)

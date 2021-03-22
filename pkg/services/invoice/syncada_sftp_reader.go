@@ -18,8 +18,8 @@ type syncadaReaderSFTPSession struct {
 	logger Logger
 }
 
-// InitNewSyncadaSFTPReaderSession initialize a NewSyncadaSFTPSession and return services.SyncadaSFTPReader
-func InitNewSyncadaSFTPReaderSession(client services.SFTPClient, logger Logger) services.SyncadaSFTPReader {
+// NewSyncadaSFTPReaderSession initialize a NewSyncadaSFTPSession and return services.SyncadaSFTPReader
+func NewSyncadaSFTPReaderSession(client services.SFTPClient, logger Logger) services.SyncadaSFTPReader {
 	return &syncadaReaderSFTPSession{
 		client,
 		logger,
