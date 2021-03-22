@@ -6,8 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/pkg/sftp"
-
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -29,13 +27,20 @@ type SyncadaSFTPSender interface {
 	SendToSyncadaViaSFTP(localDataReader io.Reader, syncadaFileName string) (int64, error)
 }
 
+// SFTPFiler is the exported interface for an SFTP client file
+//go:generate mockery --name SFTPFiler
+type SFTPFiler interface {
+	Close() error
+	WriteTo(w io.Writer) (int64, error)
+}
+
 // SFTPClient is the exported interface for an SFTP client created for reading from Syncada
 //go:generate mockery --name SFTPClient
 type SFTPClient interface {
 	ReadDir(p string) ([]os.FileInfo, error)
-	Open(path string) (*sftp.File, error)
+	Open(path string) (SFTPFiler, error)
 	Remove(path string) error
-	Close() error
+	//Close() error
 }
 
 // SyncadaSFTPReader is the exported interface for reading files from Syncada

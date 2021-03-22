@@ -1,11 +1,11 @@
 package invoice
 
 import (
+	"errors"
+	"io"
 	"os"
 	"testing"
 	"time"
-
-	"errors"
 
 	"github.com/stretchr/testify/mock"
 
@@ -57,12 +57,25 @@ func (f FakeFileInfo) Sys() interface{} {
 	return nil
 }
 
+type FakeFile struct {
+	contents string
+}
+
+func (f FakeFile) Close() error {
+	return nil
+}
+
+func (f FakeFile) WriteTo(w io.Writer) (int64, error) {
+	w.Write([]byte(f.contents))
+	return int64(len(f.contents)), nil
+}
+
 func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 	ediFileInfo := FakeFileInfo{"edifile", time.Now()}
 	singleFileInfo := make([]os.FileInfo, 1)
 	singleFileInfo[0] = ediFileInfo
 	pickupDir := "/foo"
-	//ediFilePath := "/foo/edifile"
+	ediFilePath := "/foo/edifile"
 
 	suite.T().Run("Nothing should be processed or read from an empty directory", func(t *testing.T) {
 		client := &mocks.SFTPClient{}
@@ -94,22 +107,27 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
 		client.AssertNotCalled(t, "Remove", mock.Anything)
 	})
-	//suite.T().Run("File read successfully should be processed and deleted", func(t *testing.T) {
-	//	client := &mocks.SFTPClient{}
-	//	client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
-	//
-	//	// TODO I've tried a few ways to mock this and have not been successful
-	//	client.On("Open", mock.AnythingOfType("string")).Return(bytes.NewBufferString("datadatadata"))
-	//
-	//	processor := &mocks.SyncadaFileProcessor{}
-	//	processor.On("ProcessFile", mock.Anything).Return(nil)
-	//
-	//	session := InitNewSyncadaSFTPReaderSession(client, suite.logger)
-	//	session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
-	//	client.AssertCalled(t, "ReadDir", pickupDir)
-	//	processor.AssertCalled(t, "ProcessFile", ediFilePath, "datadatadata")
-	//	client.AssertCalled(t, "Remove", ediFilePath)
-	//})
+	suite.T().Run("File read successfully should be processed and deleted", func(t *testing.T) {
+		fileContents := "datadatadata"
+		fakeFile := FakeFile{fileContents}
+
+		client := &mocks.SFTPClient{}
+		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
+		client.On("Open", mock.AnythingOfType("string")).Return(fakeFile, nil)
+		client.On("Remove", mock.Anything).Return(nil)
+
+		processor := &mocks.SyncadaFileProcessor{}
+		processor.On("ProcessFile", mock.Anything, mock.Anything).Return(nil)
+
+		session := InitNewSyncadaSFTPReaderSession(client, suite.logger)
+		time, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		suite.NoError(err)
+		suite.Equal(singleFileInfo[0].ModTime(), time)
+
+		client.AssertCalled(t, "ReadDir", pickupDir)
+		processor.AssertCalled(t, "ProcessFile", ediFilePath, fileContents)
+		client.AssertCalled(t, "Remove", ediFilePath)
+	})
 
 	// test that we request files from the right directory?
 	// test that we don't crash when reading files we dont have permission to read?
