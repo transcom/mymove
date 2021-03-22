@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -323,7 +322,6 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 	nilUUID := strfmt.UUID(uuid.Nil.String())
 
 	if mtoServiceItem.ID().String() != "" && mtoServiceItem.ID() != nilUUID && mtoServiceItem.ID().String() != mtoServiceItemID {
-		fmt.Println("🎉🎉🎉🎉🎉")
 		verrs.Add("id", "value does not agree with mtoServiceItemID in path - omit from body or correct")
 	}
 
