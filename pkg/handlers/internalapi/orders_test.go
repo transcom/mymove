@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		NewDutyStationID:    handlers.FmtUUID(station.ID),
 		ServiceMemberID:     handlers.FmtUUID(sm.ID),
 		OrdersNumber:        handlers.FmtString("123456"),
-		Tac:                 handlers.FmtString("TacNumber"),
+		Tac:                 handlers.FmtString("E19A"),
 		Sac:                 handlers.FmtString("SacNumber"),
 		DepartmentIndicator: &deptIndicator,
 	}
@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Len(okResponse.Payload.Moves, 1)
 	suite.Assertions.Equal(ordersType, okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrdersNumber)
-	suite.Assertions.Equal(handlers.FmtString("TacNumber"), okResponse.Payload.Tac)
+	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
 	suite.Equal(sm.DutyStationID, createdOrder.OriginDutyStationID)

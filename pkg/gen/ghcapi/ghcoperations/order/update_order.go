@@ -29,7 +29,7 @@ func NewUpdateOrder(ctx *middleware.Context, handler UpdateOrderHandler) *Update
 	return &UpdateOrder{Context: ctx, Handler: handler}
 }
 
-/*UpdateOrder swagger:route PATCH /move-orders/{orderID} order updateOrder
+/*UpdateOrder swagger:route PATCH /orders/{orderID} order updateOrder
 
 Updates an order
 
