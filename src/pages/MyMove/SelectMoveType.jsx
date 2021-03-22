@@ -7,6 +7,7 @@ import { generatePath } from 'react-router';
 
 import styles from './SelectMoveType.module.scss';
 
+import formStyles from 'styles/form.module.scss';
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
@@ -230,7 +231,9 @@ export class SelectMoveType extends Component {
                 </p>
               )}
 
-              <WizardNavigation disableNext={!canMoveNext} onBackClick={handleBack} onNextClick={this.handleSubmit} />
+              <div className={formStyles.formActions}>
+                <WizardNavigation disableNext={!canMoveNext} onBackClick={handleBack} onNextClick={this.handleSubmit} />
+              </div>
             </Grid>
           </Grid>
         </GridContainer>

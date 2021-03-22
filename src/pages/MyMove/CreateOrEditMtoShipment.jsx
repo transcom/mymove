@@ -7,7 +7,7 @@ import qs from 'query-string';
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/actions';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
-import { HhgShipmentShape, HistoryShape, MatchShape, PageKeyShape, PageListShape } from 'types/customerShapes';
+import { HhgShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -28,8 +28,6 @@ export class CreateOrEditMtoShipment extends Component {
       location,
       match,
       history,
-      pageList,
-      pageKey,
       mtoShipment,
       currentResidence,
       newDutyStationAddress,
@@ -39,14 +37,14 @@ export class CreateOrEditMtoShipment extends Component {
 
     const { type } = qs.parse(location.search);
 
+    // TODO - redirect to /ppm-start if type is PPM
+
     // wait until MTO shipment has loaded to render form
     if (type || mtoShipment?.id) {
       return (
         <MtoShipmentForm
           match={match}
           history={history}
-          pageList={pageList}
-          pageKey={pageKey}
           mtoShipment={mtoShipment}
           selectedMoveType={type}
           isCreatePage={!!type}
@@ -66,8 +64,6 @@ CreateOrEditMtoShipment.propTypes = {
   location: LocationShape.isRequired,
   match: MatchShape,
   history: HistoryShape,
-  pageList: PageListShape,
-  pageKey: PageKeyShape,
   fetchCustomerData: func.isRequired,
   // technically this should be a [Generic]MtoShipmentShape
   // using hhg because it has all the props
@@ -83,8 +79,6 @@ CreateOrEditMtoShipment.propTypes = {
 };
 
 CreateOrEditMtoShipment.defaultProps = {
-  pageList: [],
-  pageKey: '',
   match: { isExact: false, params: { moveID: '' } },
   history: { goBack: () => {}, push: () => {} },
   mtoShipment: {
