@@ -142,7 +142,6 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		client := &mocks.SFTPClient{}
 		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
 
-		// TODO maybe i should mock SFTPClient.downloadFile instead?
 		client.On("Open", mock.Anything).Return(nil, errors.New("ERROR"))
 
 		processor := &mocks.SyncadaFileProcessor{}
@@ -264,5 +263,26 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		}
 	})
 
-	// test skipping older files
+	suite.T().Run("Files before cutoff time should be skipped", func(t *testing.T) {
+		// set up mocks
+		client := &mocks.SFTPClient{}
+		processor := &mocks.SyncadaFileProcessor{}
+		client.On("ReadDir", mock.Anything).Return(infoForMultipleFiles, nil)
+		client.On("Open", multipleFileTestData[2].path).Return(multipleFileTestData[2].file, nil)
+		processor.On("ProcessFile", multipleFileTestData[2].path, multipleFileTestData[2].file.contents).Return(nil)
+		client.On("Remove", multipleFileTestData[2].path).Return(nil)
+
+		session := NewSyncadaSFTPReaderSession(client, suite.logger)
+		time, err := session.FetchAndProcessSyncadaFiles(pickupDir, multipleFileTestData[1].fileInfo.modTime, processor)
+
+		suite.NoError(err)
+		suite.Equal(multipleFileTestData[2].fileInfo.ModTime(), time)
+
+		// Files at or before the cutoff time should be skipped
+		for _, data := range multipleFileTestData[:2] {
+			client.AssertNotCalled(t, "Open", data.path)
+		}
+		// Last file should be opened
+		client.AssertCalled(t, "Open", multipleFileTestData[2].path)
+	})
 }
