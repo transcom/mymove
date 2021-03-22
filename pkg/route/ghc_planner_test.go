@@ -4,7 +4,7 @@
 //RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
 //RA: in a unit test, then there is no risk
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Validator Status: Mitigated
 //RA Modified Severity: N/A
 // nolint:errcheck
 package route

@@ -3,7 +3,7 @@
 //RA: Functions with unchecked return values in the file are used set up environment variables
 //RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Validator Status: Mitigated
 //RA Modified Severity: N/A
 // nolint:errcheck
 package main
