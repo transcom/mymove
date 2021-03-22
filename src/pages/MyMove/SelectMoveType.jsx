@@ -245,8 +245,6 @@ export class SelectMoveType extends Component {
 }
 
 SelectMoveType.propTypes = {
-  pageKey: string.isRequired,
-  pageList: arrayOf(string).isRequired,
   match: shape({
     isExact: bool.isRequired,
     params: shape({
