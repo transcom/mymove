@@ -70,6 +70,24 @@ const priceEscalationFactor = (params) => {
   return calculation(value, label, detail);
 };
 
+const fuelSurchargePrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
+  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice,
+    params,
+  )}`;
+  const detail2 = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
+  const detail3 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+
+  return calculation(value, label, detail1, detail2, detail3);
+};
+
 // totalAmountRequested is not a service item param
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
@@ -91,6 +109,9 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
+      break;
+    case SERVICE_ITEM_CODES.FSC:
+      result = [billableWeight(params), mileage(params), fuelSurchargePrice(params), totalAmountRequested(totalAmount)];
       break;
     default:
       break;
