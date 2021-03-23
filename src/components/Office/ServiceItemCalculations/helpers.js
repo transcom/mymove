@@ -12,7 +12,7 @@ const calculation = (value, label, ...details) => {
 };
 
 const getParamValue = (key, params) => {
-  return params.find((param) => param.key === key).value;
+  return params?.find((param) => param?.key === key)?.value;
 };
 
 // billable weight calculation
@@ -48,7 +48,7 @@ const baselineLinehaulPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.BaselineLinehaulPrice;
   const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
-    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params).toLowerCase() === 'true' ? 'peak' : 'non-peak'
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
   }`;
   const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]}: ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin,
