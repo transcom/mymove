@@ -7,13 +7,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/invoice"
+
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
 // Call this from command line with go run ./cmd/fetch-from-syncada-via-sftp/ --directory <syncada directory to download from> --last-read-time <time of last run>
@@ -23,6 +24,8 @@ const (
 	LastReadTimeFlag string = "last-read-time"
 	// DirectoryFlag is the ENV var for the directory
 	DirectoryFlag string = "directory"
+	// DeleteFilesFlag is the ENV var for deleting SFTP files after they've been processed
+	DeleteFilesFlag string = "delete-files-after-processing"
 )
 
 func checkConfig(v *viper.Viper, logger logger) error {
@@ -58,6 +61,7 @@ func initFlags(flag *pflag.FlagSet) {
 
 	flag.String(LastReadTimeFlag, "", "Files older than this time will not be fetched.")
 	flag.String(DirectoryFlag, "", "syncada path")
+	flag.Bool(DeleteFilesFlag, false, "If present, delete files on SFTP server that have been processed successfully")
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -132,7 +136,7 @@ func main() {
 	logger.Info("lastRead", zap.String("t", t.String()))
 
 	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger)
+	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger, v.GetBool(DeleteFilesFlag))
 
 	// Just use a processor that prints the files to stdout for now.
 	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, &stdoutProcessor{})

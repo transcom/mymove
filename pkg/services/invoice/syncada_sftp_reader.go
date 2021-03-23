@@ -14,15 +14,17 @@ import (
 
 // syncadaReaderSFTPSession contains information to create a new Syncada SFTP session
 type syncadaReaderSFTPSession struct {
-	client services.SFTPClient
-	logger Logger
+	client                     services.SFTPClient
+	logger                     Logger
+	deleteFilesAfterProcessing bool
 }
 
 // NewSyncadaSFTPReaderSession initialize a NewSyncadaSFTPSession and return services.SyncadaSFTPReader
-func NewSyncadaSFTPReaderSession(client services.SFTPClient, logger Logger) services.SyncadaSFTPReader {
+func NewSyncadaSFTPReaderSession(client services.SFTPClient, logger Logger, deleteFilesAfterProcessing bool) services.SyncadaSFTPReader {
 	return &syncadaReaderSFTPSession{
 		client,
 		logger,
+		deleteFilesAfterProcessing,
 	}
 }
 
@@ -55,11 +57,13 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath strin
 				continue
 			}
 
-			err = s.client.Remove(filePath)
-			if err != nil {
-				s.logger.Error("Error while deleting Syncada file", zap.String("path", filePath))
-			} else {
-				s.logger.Info("Deleted Syncada file", zap.String("path", filePath))
+			if s.deleteFilesAfterProcessing {
+				err = s.client.Remove(filePath)
+				if err != nil {
+					s.logger.Error("Error while deleting Syncada file", zap.String("path", filePath))
+				} else {
+					s.logger.Info("Deleted Syncada file", zap.String("path", filePath))
+				}
 			}
 		}
 	}

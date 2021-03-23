@@ -110,7 +110,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("ProcessFile", mock.Anything).Return(nil)
 
-		session := NewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
 		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 		client.AssertCalled(t, "ReadDir", pickupDir)
@@ -122,7 +122,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		client := &mocks.SFTPClient{}
 		client.On("ReadDir", mock.Anything).Return(nil, errors.New("ERROR"))
 		processor := &mocks.SyncadaFileProcessor{}
-		session := NewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
 		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 		suite.Error(err)
 	})
@@ -136,7 +136,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("ProcessFile", mock.Anything).Return(nil)
 
-		session := NewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
 		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
@@ -158,7 +158,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("ProcessFile", mock.Anything).Return(nil)
 
-		session := NewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
 		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
@@ -180,7 +180,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor.On("ProcessFile", multipleFileTestData[1].path, multipleFileTestData[1].file.contents).Return(errors.New("ERROR"))
 		processor.On("ProcessFile", mock.Anything, mock.Anything).Return(nil)
 
-		session := NewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
 		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
@@ -206,7 +206,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 			client.On("Remove", data.path).Return(nil)
 		}
 
-		session := NewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
 		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
@@ -221,6 +221,32 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		}
 	})
 
+	suite.T().Run("Files should not be deleted when deletion flag is not set", func(t *testing.T) {
+		// set up mocks
+		client := &mocks.SFTPClient{}
+		processor := &mocks.SyncadaFileProcessor{}
+		client.On("ReadDir", mock.Anything).Return(infoForMultipleFiles, nil)
+		for _, data := range multipleFileTestData {
+			client.On("Open", data.path).Return(data.file, nil)
+			processor.On("ProcessFile", data.path, data.file.contents).Return(nil)
+			client.On("Remove", data.path).Return(nil)
+		}
+
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, false)
+		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+
+		suite.NoError(err)
+		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
+
+		// Make sure we open and process all files, and do not delete any of them
+		client.AssertCalled(t, "ReadDir", pickupDir)
+		for _, data := range multipleFileTestData {
+			client.AssertCalled(t, "Open", data.path)
+			processor.AssertCalled(t, "ProcessFile", data.path, data.file.contents)
+		}
+		client.AssertNotCalled(t, "Remove", mock.Anything)
+	})
+
 	suite.T().Run("SFTP Remove errors don't cause an error", func(t *testing.T) {
 		// set up mocks
 		client := &mocks.SFTPClient{}
@@ -232,7 +258,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 			processor.On("ProcessFile", data.path, data.file.contents).Return(nil)
 		}
 
-		session := NewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
 		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
@@ -253,7 +279,7 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor.On("ProcessFile", multipleFileTestData[2].path, multipleFileTestData[2].file.contents).Return(nil)
 		client.On("Remove", multipleFileTestData[2].path).Return(nil)
 
-		session := NewSyncadaSFTPReaderSession(client, suite.logger)
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
 		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, multipleFileTestData[1].fileInfo.modTime, processor)
 
 		suite.NoError(err)
