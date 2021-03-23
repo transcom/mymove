@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/route"
@@ -185,7 +187,19 @@ func main() {
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate prime uploader", zap.Error(err))
 		}
-		routePlanner := route.InitRoutePlanner(v, logger)
+
+		certificates, rootCAs, certErr := certs.InitDoDCertificates(v, logger)
+		if certificates == nil || rootCAs == nil || certErr != nil {
+			logger.Fatal("Failed to initialize DOD certificates", zap.Error(certErr))
+		}
+
+		// Create a secondary planner specifically for GHC.
+		routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+		routePlanner, plannerErr := route.InitGHCRoutePlanner(v, logger, dbConnection, routeTLSConfig)
+
+		if plannerErr != nil {
+			logger.Fatal("Failed to initialize GHC route planner")
+		}
 
 		if namedScenario == tdgs.E2eBasicScenario.Name {
 			tdgs.E2eBasicScenario.Run(dbConnection, userUploader, primeUploader, logger)

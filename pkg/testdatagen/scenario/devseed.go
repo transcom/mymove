@@ -722,7 +722,22 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 		logger.Fatal("Error approving move")
 	}
 
-	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(db, queryBuilder, serviceItemCreator, routePlanner)
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(90210, nil)
+	planner.On("Zip3TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(910, nil)
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(90210, nil)
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(100, nil)
+
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(db, queryBuilder, serviceItemCreator, planner)
 	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
 
 	if updateErr != nil {
@@ -731,7 +746,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 		db,
-		routePlanner,
+		planner,
 		ghcrateengine.NewServiceItemPricer(db),
 	)
 
