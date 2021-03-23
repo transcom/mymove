@@ -14,15 +14,15 @@ import { ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 
 const DodInfoForm = ({ initialValues, onBack, onSubmit }) => {
-  // TODO - EDIPI should only accept numeric input
-
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const rankOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
   const validationSchema = Yup.object().shape({
-    affiliation: Yup.string().required('Required'),
-    edipi: Yup.string().required('Required'),
-    rank: Yup.string().required('Required'),
+    affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
+    edipi: Yup.string()
+      .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
+      .required('Required'),
+    rank: Yup.mixed().oneOf(Object.keys(ORDERS_RANK_OPTIONS)).required('Required'),
   });
 
   return (
@@ -41,7 +41,7 @@ const DodInfoForm = ({ initialValues, onBack, onSubmit }) => {
                 options={branchOptions}
               />
               <TextField
-                label="DoD ID number"
+                label="DOD ID number"
                 name="edipi"
                 id="edipi"
                 required
