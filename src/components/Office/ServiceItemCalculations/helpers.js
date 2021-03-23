@@ -29,6 +29,16 @@ const billableWeight = (params) => {
   return calculation(value, label, detail1, detail2);
 };
 
+const billableWeightFSC = (params) => {
+  const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilledActual, params));
+  const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]}: ${formatWeight(
+    parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilledActual, params), 10),
+  )}`;
+
+  return calculation(value, label, detail);
+};
+
 // mileage calculation
 const mileage = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params);
@@ -36,10 +46,10 @@ const mileage = (params) => {
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress, // take the zip 3
     params,
-  ).slice(2)} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+  )?.slice(2)} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
     params,
-  ).slice(2)}`;
+  )?.slice(2)}`;
 
   return calculation(value, label, detail);
 };
@@ -80,8 +90,8 @@ const fuelSurchargePrice = (params) => {
   const detail2 = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
-  const detail3 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]}: ${formatDate(
-    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+  const detail3 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.ActualPickupDate, params),
     'DD MMM YYYY',
   )}`;
 
@@ -111,7 +121,12 @@ const makeCalculations = (itemCode, totalAmount, params) => {
       ];
       break;
     case SERVICE_ITEM_CODES.FSC:
-      result = [billableWeight(params), mileage(params), fuelSurchargePrice(params), totalAmountRequested(totalAmount)];
+      result = [
+        billableWeightFSC(params),
+        mileage(params),
+        fuelSurchargePrice(params),
+        totalAmountRequested(totalAmount),
+      ];
       break;
     default:
       break;
