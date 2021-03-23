@@ -13,16 +13,14 @@ export default {
 export const Basic = () => (
   <Formik
     initialValues={{
-      contact: {
-        phone: '',
-        alternatePhone: '',
-        email: '',
-      },
+      telephone: '',
+      secondary_telephone: '',
+      personal_email: '',
     }}
   >
     {() => (
       <Form className={formStyles.form}>
-        <CustomerContactInfoFields name="contact" legend="Your contact info" />
+        <CustomerContactInfoFields legend="Your contact info" />
       </Form>
     )}
   </Formik>

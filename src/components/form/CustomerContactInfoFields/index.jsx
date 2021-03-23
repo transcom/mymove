@@ -7,7 +7,7 @@ import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField';
 import CheckboxField from 'components/form/fields/CheckboxField';
 
-export const CustomerContactInfoFields = ({ legend, className, name, render }) => {
+export const CustomerContactInfoFields = ({ legend, className, render }) => {
   const CustomerContactInfoFieldsUUID = useRef(uuidv4());
 
   return (
@@ -18,10 +18,11 @@ export const CustomerContactInfoFields = ({ legend, className, name, render }) =
             <div className="mobile-lg:grid-col-7">
               <TextField
                 label="Best contact phone"
-                id={`phone_${CustomerContactInfoFieldsUUID}`}
-                name={`${name}.phone`}
+                id={`telephone_${CustomerContactInfoFieldsUUID}`}
+                name="telephone"
                 type="tel"
                 maxLength="10"
+                required
               />
             </div>
           </div>
@@ -30,25 +31,30 @@ export const CustomerContactInfoFields = ({ legend, className, name, render }) =
               <TextField
                 label="Alt. phone"
                 labelHint="Optional"
-                id={`alternatePhone_${CustomerContactInfoFieldsUUID}`}
-                name={`${name}.alternatePhone`}
+                id={`secondaryTelephone_${CustomerContactInfoFieldsUUID}`}
+                name="secondary_telephone"
                 type="tel"
                 maxLength="10"
               />
             </div>
           </div>
-          <TextField label="Personal email" id={`email_${CustomerContactInfoFieldsUUID}`} name={`${name}.email`} />
+          <TextField
+            label="Personal email"
+            id={`personalEmail_${CustomerContactInfoFieldsUUID}`}
+            name="personal_email"
+            required
+          />
           <Label>Preferred contact method</Label>
           <div className={formStyles.radioGroup}>
             <CheckboxField
-              id={`preferPhone_${CustomerContactInfoFieldsUUID}`}
+              id={`phoneIsPreferred_${CustomerContactInfoFieldsUUID}`}
               label="Phone"
-              name={`${name}.preferPhone`}
+              name="phone_is_preferred"
             />
             <CheckboxField
-              id={`preferEmail_ ${CustomerContactInfoFieldsUUID}`}
+              id={`emailIsPreferred_ ${CustomerContactInfoFieldsUUID}`}
               label="Email"
-              name={`${name}.preferEmail`}
+              name="email_is_preferred"
             />
           </div>
         </>,
@@ -60,7 +66,6 @@ export const CustomerContactInfoFields = ({ legend, className, name, render }) =
 CustomerContactInfoFields.propTypes = {
   legend: node,
   className: string,
-  name: string.isRequired,
   render: func,
 };
 

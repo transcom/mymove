@@ -6,4 +6,5 @@ export default {
   title: 'Customer Components / Forms/ Contact Info Form',
 };
 
-export const DefaultState = () => <ContactInfoForm>Inside Contact Info</ContactInfoForm>;
+const initialValues = {};
+export const DefaultState = () => <ContactInfoForm initialValues={initialValues} />;
