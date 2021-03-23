@@ -69,17 +69,6 @@ func (f FakeFile) WriteTo(w io.Writer) (int64, error) {
 	return int64(written), err
 }
 
-type FakeFileWithErrOnWriteTo struct {
-}
-
-func (f FakeFileWithErrOnWriteTo) Close() error {
-	return nil
-}
-
-func (f FakeFileWithErrOnWriteTo) WriteTo(_ io.Writer) (int64, error) {
-	return 0, errors.New("ERROR")
-}
-
 type FileTestData struct {
 	fileInfo FakeFileInfo
 	file     FakeFile
@@ -160,7 +149,11 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		client := &mocks.SFTPClient{}
 		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
 
-		client.On("Open", mock.Anything).Return(FakeFileWithErrOnWriteTo{}, nil)
+		fileThatWillReturnErrOnWrite := &mocks.SFTPFiler{}
+		fileThatWillReturnErrOnWrite.On("WriteTo", mock.Anything).Return(int64(0), errors.New("ERROR"))
+		fileThatWillReturnErrOnWrite.On("Close", mock.Anything).Return(nil)
+
+		client.On("Open", mock.Anything).Return(fileThatWillReturnErrOnWrite, nil)
 
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("ProcessFile", mock.Anything).Return(nil)
