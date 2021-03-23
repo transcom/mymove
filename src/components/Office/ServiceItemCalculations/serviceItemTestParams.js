@@ -25,6 +25,15 @@ const PriceRateOrFactor = {
   type: 'DECIMAL',
   value: '1.033',
 };
+const ActualPickupDate = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4zMDY2Nzha',
+  id: '0e908b35-e61b-47c5-b4bc-f1649aa1cdc2',
+  key: 'ActualPickupDate',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'DATE',
+  value: '2020-03-11',
+};
 const RequestedPickupDate = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4zMDY2Nzha',
   id: '0e908b35-e61b-47c5-b4bc-f1649aa1cdc2',
@@ -195,7 +204,16 @@ const EIAFuelPrice = {
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'DECIMAL',
-  value: '',
+  value: '2.60',
+};
+const FSCWeightBasedDistanceMultiplier = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
+  id: 'adeb57e5-6b1c-4c0f-b5c9-9e57e600303f',
+  key: 'FSCWeightBasedDistanceMultiplier',
+  origin: 'SYSTEM',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'DECIMAL',
+  value: '0.000417',
 };
 const ServiceAreaDest = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
@@ -531,7 +549,15 @@ const testParams = {
     RateAreaNonStdOrigin,
     RateAreaNonStdDest,
   ],
-  FuelSurchage: [PSILinehaulDom, PSILinehaulDomPrice, PSILinehaulShort, PSILinehaulShortPrice, EIAFuelPrice],
+  FuelSurchage: [
+    ActualPickupDate,
+    DistanceZip3,
+    EIAFuelPrice,
+    FSCWeightBasedDistanceMultiplier,
+    WeightBilledActual,
+    ZipDestAddress,
+    ZipPickupAddress,
+  ],
   DomesticMobileHomeFactor: [
     PSILinehaulDom,
     PSILinehaulDomPrice,
