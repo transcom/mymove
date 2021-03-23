@@ -40,7 +40,6 @@ type SFTPClient interface {
 	ReadDir(p string) ([]os.FileInfo, error)
 	Open(path string) (SFTPFiler, error)
 	Remove(path string) error
-	//Close() error
 }
 
 // SyncadaSFTPReader is the exported interface for reading files from Syncada

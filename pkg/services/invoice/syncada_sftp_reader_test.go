@@ -167,6 +167,52 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		client.AssertNotCalled(t, "Remove", mock.Anything)
 	})
 
+	suite.T().Run("File WriteTo error also with a failing Close should prevent processing and deletion", func(t *testing.T) {
+		client := &mocks.SFTPClient{}
+		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
+
+		fileThatWillReturnErrOnWriteAndClose := &mocks.SFTPFiler{}
+		fileThatWillReturnErrOnWriteAndClose.On("WriteTo", mock.Anything).Return(int64(0), errors.New("ERROR"))
+		fileThatWillReturnErrOnWriteAndClose.On("Close", mock.Anything).Return(errors.New("ERROR"))
+
+		client.On("Open", mock.Anything).Return(fileThatWillReturnErrOnWriteAndClose, nil)
+
+		processor := &mocks.SyncadaFileProcessor{}
+		processor.On("ProcessFile", mock.Anything).Return(nil)
+
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
+		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		suite.NoError(err)
+
+		client.AssertCalled(t, "ReadDir", pickupDir)
+		client.AssertCalled(t, "Open", mock.Anything)
+		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
+		client.AssertNotCalled(t, "Remove", mock.Anything)
+	})
+
+	suite.T().Run("File close error should prevent processing and deletion", func(t *testing.T) {
+		client := &mocks.SFTPClient{}
+		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
+
+		fileThatWillFailToClose := &mocks.SFTPFiler{}
+		fileThatWillFailToClose.On("WriteTo", mock.Anything).Return(int64(0), nil)
+		fileThatWillFailToClose.On("Close", mock.Anything).Return(errors.New("ERROR"))
+
+		client.On("Open", mock.Anything).Return(fileThatWillFailToClose, nil)
+
+		processor := &mocks.SyncadaFileProcessor{}
+		processor.On("ProcessFile", mock.Anything).Return(nil)
+
+		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
+		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		suite.NoError(err)
+
+		client.AssertCalled(t, "ReadDir", pickupDir)
+		client.AssertCalled(t, "Open", mock.Anything)
+		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
+		client.AssertNotCalled(t, "Remove", mock.Anything)
+	})
+
 	suite.T().Run("If ProcessFile returns error, we should not remove the file", func(t *testing.T) {
 		// set up mocks
 		client := &mocks.SFTPClient{}
