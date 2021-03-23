@@ -29,7 +29,13 @@ import (
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/route"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -684,6 +690,110 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 
 func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation) {
 	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, affiliation, testdatagen.Assertions{})
+}
+
+func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
+	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+		},
+	})
+	move := shipment.MoveTaskOrder
+
+	submissionErr := move.Submit(time.Now())
+	if submissionErr != nil {
+		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
+	}
+
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		logger.Fatal(fmt.Sprintf("Failed to save move and dependencies: %s", err))
+	}
+
+	queryBuilder := query.NewQueryBuilder(db)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(db, queryBuilder, serviceItemCreator)
+	_, approveErr := mtoUpdater.MakeAvailableToPrime(move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	logger.Info(fmt.Sprint("approved mto available to prime: ", move.ID))
+
+	if approveErr != nil {
+		logger.Fatal("Error approving move")
+	}
+
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(db, queryBuilder, serviceItemCreator, routePlanner)
+	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+
+	if updateErr != nil {
+		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
+	}
+
+	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+		db,
+		routePlanner,
+		ghcrateengine.NewServiceItemPricer(db),
+	)
+
+	paymentRequest := models.PaymentRequest{
+		MoveTaskOrderID: move.ID,
+	}
+
+	var serviceItems []models.MTOServiceItem
+	db.Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
+
+	paymentServiceItems := []models.PaymentServiceItem{}
+	for _, serviceItem := range serviceItems {
+		paymentItem := models.PaymentServiceItem{
+			MTOServiceItemID: serviceItem.ID,
+			MTOServiceItem:   serviceItem,
+		}
+		paymentServiceItems = append(paymentServiceItems, paymentItem)
+	}
+
+	paymentRequest.PaymentServiceItems = paymentServiceItems
+	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequest(&paymentRequest)
+
+	if createErr != nil {
+		logger.Fatal("Error creating payment request", zap.Error(createErr))
+	}
+
+	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: *newPaymentRequest,
+	})
+
+	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
+		PrimeUpload: models.PrimeUpload{
+			ProofOfServiceDoc:   proofOfService,
+			ProofOfServiceDocID: proofOfService.ID,
+			Contractor: models.Contractor{
+				ID: primeContractor,
+			},
+			ContractorID: primeContractor,
+		},
+		PrimeUploader: primeUploader,
+	})
+
+	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: *newPaymentRequest,
+	})
+
+	// Creates custom test.jpg prime upload
+	file := testdatagen.Fixture("test.jpg")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
+
+	// Creates custom test.png prime upload
+	file = testdatagen.Fixture("test.png")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
+	}
+
+	logger.Info(fmt.Sprintf("New payment request with service item params created with locator %s", move.Locator))
 }
 
 func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
@@ -3117,7 +3227,7 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 }
 
 // Run does that data load thing
-func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
+func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
 	// PPM Office Queue
 	createPPMOfficeUser(db)
 	createPPMWithAdvance(db, userUploader)
@@ -3220,6 +3330,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 			},
 		},
 	})
+	createHHGWithPaymentServiceItems(db, userUploader, primeUploader, routePlanner, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{})
 
 	createMoveWithPPMAndHHG(db, userUploader)
 

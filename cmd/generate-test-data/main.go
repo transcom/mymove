@@ -15,6 +15,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 	tdgs "github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -184,10 +185,12 @@ func main() {
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate prime uploader", zap.Error(err))
 		}
+		routePlanner := route.InitRoutePlanner(v, logger)
+
 		if namedScenario == tdgs.E2eBasicScenario.Name {
 			tdgs.E2eBasicScenario.Run(dbConnection, userUploader, primeUploader, logger)
 		} else if namedScenario == tdgs.DevSeedScenario.Name {
-			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, logger)
+			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, routePlanner, logger)
 		} else if namedScenario == tdgs.BandwidthScenario.Name {
 			tdgs.BandwidthScenario.Run(dbConnection, userUploader, primeUploader)
 		}
