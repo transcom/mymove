@@ -2,13 +2,13 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { Formik } from 'formik';
 
-import { ServiceMemberContactInfoFields } from './index';
+import { CustomerContactInfoFields } from './index';
 
 describe('ContactInfoFields component', () => {
   it('renders a legend and all service member contact info inputs', () => {
     const { getByText, getByLabelText } = render(
       <Formik>
-        <ServiceMemberContactInfoFields legend="Your contact info" name="contact" />
+        <CustomerContactInfoFields legend="Your contact info" name="contact" />
       </Formik>,
     );
     expect(getByText('Your contact info')).toBeInstanceOf(HTMLLegendElement);
@@ -33,7 +33,7 @@ describe('ContactInfoFields component', () => {
 
       const { getByLabelText } = render(
         <Formik initialValues={initialValues}>
-          <ServiceMemberContactInfoFields legend="Your contact info" name="contact" />
+          <CustomerContactInfoFields legend="Your contact info" name="contact" />
         </Formik>,
       );
       expect(getByLabelText('Best contact phone')).toHaveValue(initialValues.contact.phone);

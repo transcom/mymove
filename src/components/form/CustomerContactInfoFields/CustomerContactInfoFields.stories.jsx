@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 
-import { ServiceMemberContactInfoFields } from './index';
+import { CustomerContactInfoFields } from './index';
 
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
@@ -22,7 +22,7 @@ export const Basic = () => (
   >
     {() => (
       <Form className={formStyles.form}>
-        <ServiceMemberContactInfoFields name="contact" legend="Your contact info" />
+        <CustomerContactInfoFields name="contact" legend="Your contact info" />
       </Form>
     )}
   </Formik>
