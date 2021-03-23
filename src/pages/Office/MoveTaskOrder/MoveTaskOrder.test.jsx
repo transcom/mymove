@@ -474,9 +474,11 @@ describe('MoveTaskOrder', () => {
 
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
+      expect(navLinks.at(0).contains('1'));
       expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
 
       expect(navLinks.at(1).contains('NTS shipment')).toBe(true);
+      expect(navLinks.at(1).contains('1'));
       expect(navLinks.at(1).prop('href')).toBe('#shipment-4');
 
       expect(navLinks.at(2).contains('NTS-R shipment')).toBe(true);

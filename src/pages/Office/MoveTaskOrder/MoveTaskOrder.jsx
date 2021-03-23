@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { withRouter } from 'react-router-dom';
-import { GridContainer } from '@trussworks/react-uswds';
+import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
@@ -52,6 +52,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
+  const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState(new Map());
 
   const { moveCode } = match.params;
   const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
@@ -179,15 +180,18 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   useEffect(() => {
     let serviceItemCount = 0;
+    const serviceItemsCountForShipment = new Map();
     mtoShipments?.forEach((mtoShipment) => {
       if (mtoShipment.status === shipmentStatuses.APPROVED) {
         const requestedServiceItemCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
           (serviceItem) => serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED,
         )?.length;
         serviceItemCount += requestedServiceItemCount || 0;
+        serviceItemsCountForShipment.set(mtoShipment.id, requestedServiceItemCount);
       }
     });
     setUnapprovedServiceItemCount(serviceItemCount);
+    setUnapprovedServiceItemsForShipment(serviceItemsCountForShipment);
   }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount]);
 
   useEffect(() => {
@@ -278,7 +282,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             const classes = classnames({ active: s.id === activeSection });
             return (
               <a key={`sidenav_${s.id}`} href={`#shipment-${s.id}`} className={classes}>
-                {s.label}
+                {s.label}{' '}
+                {unapprovedServiceItemsForShipment.get(s.id) > 0 && (
+                  <Tag>{unapprovedServiceItemsForShipment.get(s.id)}</Tag>
+                )}
               </a>
             );
           })}
