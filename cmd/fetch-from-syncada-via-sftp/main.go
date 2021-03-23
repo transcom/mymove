@@ -141,11 +141,14 @@ func main() {
 	}
 }
 
+// Temporarily, we process each file by just printing out its name and contents.
 type stdoutProcessor struct {
 }
 
 func (p stdoutProcessor) ProcessFile(syncadaPath string, text string) error {
-	fmt.Println("file: ", syncadaPath)
+	fmt.Println(strings.Repeat("=", len(syncadaPath)))
+	fmt.Println(syncadaPath)
+	fmt.Println(strings.Repeat("=", len(syncadaPath)))
 	fmt.Print(text)
 	return nil
 }
