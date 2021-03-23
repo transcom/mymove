@@ -233,7 +233,7 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
-		json.Unmarshal([]byte(*notification.Payload), &mtoInPayload) // nolint:errcheck
+		json.Unmarshal([]byte(notification.Payload), &mtoInPayload) // nolint:errcheck
 		// Check some params
 		suite.Equal(mto.PPMType, &mtoInPayload.PpmType)
 		suite.Equal(handlers.FmtDateTimePtr(mto.AvailableToPrimeAt).String(), mtoInPayload.AvailableToPrimeAt.String())
@@ -293,7 +293,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
-		json.Unmarshal([]byte(*notification.Payload), &mtoShipmentInPayload) // nolint:errcheck
+		json.Unmarshal([]byte(notification.Payload), &mtoShipmentInPayload) // nolint:errcheck
 		// Check some params
 		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
 		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())
@@ -374,8 +374,8 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 
 		// Reinflate the json from the notification payload
 		suite.NotEmpty(notification.Payload)
-		var orderPayload primemessages.MoveOrder
-		err = json.Unmarshal([]byte(*notification.Payload), &orderPayload)
+		var orderPayload primemessages.Order
+		err = json.Unmarshal([]byte(notification.Payload), &orderPayload)
 		suite.FatalNoError(err)
 
 		// Check some params

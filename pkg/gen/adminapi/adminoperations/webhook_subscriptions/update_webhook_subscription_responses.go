@@ -153,6 +153,30 @@ func (o *UpdateWebhookSubscriptionNotFound) WriteResponse(rw http.ResponseWriter
 	rw.WriteHeader(404)
 }
 
+// UpdateWebhookSubscriptionPreconditionFailedCode is the HTTP code returned for type UpdateWebhookSubscriptionPreconditionFailed
+const UpdateWebhookSubscriptionPreconditionFailedCode int = 412
+
+/*UpdateWebhookSubscriptionPreconditionFailed Precondition failed
+
+swagger:response updateWebhookSubscriptionPreconditionFailed
+*/
+type UpdateWebhookSubscriptionPreconditionFailed struct {
+}
+
+// NewUpdateWebhookSubscriptionPreconditionFailed creates UpdateWebhookSubscriptionPreconditionFailed with default headers values
+func NewUpdateWebhookSubscriptionPreconditionFailed() *UpdateWebhookSubscriptionPreconditionFailed {
+
+	return &UpdateWebhookSubscriptionPreconditionFailed{}
+}
+
+// WriteResponse to the client
+func (o *UpdateWebhookSubscriptionPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(412)
+}
+
 // UpdateWebhookSubscriptionUnprocessableEntityCode is the HTTP code returned for type UpdateWebhookSubscriptionUnprocessableEntity
 const UpdateWebhookSubscriptionUnprocessableEntityCode int = 422
 

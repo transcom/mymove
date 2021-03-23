@@ -39,7 +39,7 @@ type UpdateMoveTaskOrderStatusParams struct {
 	  In: header
 	*/
 	IfMatch string
-	/*ID of move order to use
+	/*ID of move to use
 	  Required: true
 	  In: path
 	*/

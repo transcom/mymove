@@ -14,7 +14,7 @@ import { Form } from 'components/form/Form';
 import Hint from 'components/Hint/index';
 import { SimpleAddressShape } from 'types/address';
 import { MtoShipmentFormValuesShape } from 'types/customerShapes';
-import { validateDate } from 'utils/formikValidators';
+import { validateDate } from 'utils/validation';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -90,13 +90,11 @@ const MtoShipmentFormFields = ({
                     </Hint>
                   </>
                 )}
-                values={values.pickup.address}
               />
 
               <ContactInfoFields
                 name="pickup.agent"
                 legend={<div className={styles.legendContent}>Releasing agent {optionalLabel}</div>}
-                values={values.pickup.agent}
                 render={(fields) => (
                   <>
                     <p>Who can let the movers pick up your things if you’re not there?</p>
@@ -155,7 +153,6 @@ const MtoShipmentFormFields = ({
                 {hasDeliveryAddress === 'yes' ? (
                   <AddressFields
                     name="delivery.address"
-                    values={values.delivery.address}
                     render={(fields) => (
                       <>
                         {fields}
@@ -184,7 +181,6 @@ const MtoShipmentFormFields = ({
               <ContactInfoFields
                 name="delivery.agent"
                 legend={<div className={styles.legendContent}>Receiving agent {optionalLabel}</div>}
-                values={values.delivery.agent}
                 render={(fields) => (
                   <>
                     <p>Who can take delivery for you if the movers arrive and you’re not there?</p>
@@ -236,7 +232,6 @@ const MtoShipmentFormFields = ({
               placeholder="You don’t need to list all your belongings here. Your mover will get those details later."
               id="customerRemarks"
               maxLength={250}
-              value={values.customerRemarks}
             />
             <Hint>
               <p>250 characters</p>

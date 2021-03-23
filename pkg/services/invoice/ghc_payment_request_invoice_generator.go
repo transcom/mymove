@@ -16,6 +16,12 @@ import (
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 )
 
+/*
+	NOTE: The GCN from GS06 and GE02 will match the ICN in ISA13 and IEA02,
+	which restricts the 858 to only ever have 1 functional group.
+	If multiple functional groups are needed, this will have to change.
+*/
+
 type ghcPaymentRequestInvoiceGenerator struct {
 	db           *pop.Connection
 	icnSequencer sequence.Sequencer
@@ -123,7 +129,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		ApplicationReceiversCode: "8004171844",
 		Date:                     currentTime.Format(dateFormat),
 		Time:                     currentTime.Format(timeFormat),
-		GroupControlNumber:       100001251,
+		GroupControlNumber:       interchangeControlNumber,
 		ResponsibleAgencyCode:    "X",
 		Version:                  "004010",
 	}
@@ -233,7 +239,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.GE = edisegment.GE{
 		NumberOfTransactionSetsIncluded: 1,
-		GroupControlNumber:              100001251,
+		GroupControlNumber:              interchangeControlNumber,
 	}
 
 	edi858.IEA = edisegment.IEA{

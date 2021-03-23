@@ -35,3 +35,8 @@ export const formatYesNoAPIValue = (value) => {
   if (value === 'no') return false;
   return undefined;
 };
+
+// Translate weights from lbs to CWT
+export const formatWeightCWTFromLbs = (value) => {
+  return `${parseInt(value, 10) / 100} cwt`;
+};

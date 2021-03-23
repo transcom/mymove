@@ -3,7 +3,7 @@ import { Field } from 'formik';
 
 import styles from './AllowancesDetailForm.module.scss';
 
-import { TextMaskedInput } from 'components/form/fields/TextInput';
+import MaskedTextField from 'components/form/fields/MaskedTextField';
 import { DropdownInput } from 'components/form/fields';
 import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/order';
@@ -14,7 +14,7 @@ const AllowancesDetailForm = ({ entitlements, rankOptions, branchOptions }) => {
     <div className={styles.AllowancesDetailForm}>
       <DropdownInput name="agency" label="Branch" options={branchOptions} showDropdownPlaceholderText={false} />
       <DropdownInput name="grade" label="Rank" options={rankOptions} showDropdownPlaceholderText={false} />
-      <TextMaskedInput
+      <MaskedTextField
         defaultValue="0"
         name="authorizedWeight"
         label="Authorized weight"

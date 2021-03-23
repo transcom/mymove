@@ -50,4 +50,10 @@ describe('formatters', () => {
       expect(formatters.formatYesNoAPIValue(null)).toBe(undefined);
     });
   });
+
+  describe('formatWeightCWTFromLbs', () => {
+    it('returns expected value', () => {
+      expect(formatters.formatWeightCWTFromLbs('8000')).toBe('80 cwt');
+    });
+  });
 });

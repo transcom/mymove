@@ -3,6 +3,8 @@ package payloads
 import (
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -40,7 +42,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         moveTaskOrder.IsCanceled(),
-		MoveOrder:          MoveOrder(&moveTaskOrder.Orders),
+		Order:              Order(&moveTaskOrder.Orders),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
 		ContractorID:       handlers.FmtUUIDPtr(moveTaskOrder.ContractorID),
 		MtoShipments:       *mtoShipments,
@@ -86,44 +88,44 @@ func Customer(customer *models.ServiceMember) *supportmessages.Customer {
 	return &payload
 }
 
-// MoveOrder payload
-func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
-	if moveOrder == nil {
+// Order payload
+func Order(order *models.Order) *supportmessages.Order {
+	if order == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
-	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
-	uploadedOrders := Document(&moveOrder.UploadedOrders)
-	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
-		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
+	destinationDutyStation := DutyStation(&order.NewDutyStation)
+	originDutyStation := DutyStation(order.OriginDutyStation)
+	uploadedOrders := Document(&order.UploadedOrders)
+	if order.Grade != nil && order.Entitlement != nil {
+		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
 
-	reportByDate := strfmt.Date(moveOrder.ReportByDate)
-	issueDate := strfmt.Date(moveOrder.IssueDate)
+	reportByDate := strfmt.Date(order.ReportByDate)
+	issueDate := strfmt.Date(order.IssueDate)
 
-	payload := supportmessages.MoveOrder{
+	payload := supportmessages.Order{
 		DestinationDutyStation:   destinationDutyStation,
-		DestinationDutyStationID: handlers.FmtUUID(moveOrder.NewDutyStationID),
-		Entitlement:              Entitlement(moveOrder.Entitlement),
-		Customer:                 Customer(&moveOrder.ServiceMember),
-		OrderNumber:              moveOrder.OrdersNumber,
-		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
-		ID:                       strfmt.UUID(moveOrder.ID.String()),
+		DestinationDutyStationID: handlers.FmtUUID(order.NewDutyStationID),
+		Entitlement:              Entitlement(order.Entitlement),
+		Customer:                 Customer(&order.ServiceMember),
+		OrderNumber:              order.OrdersNumber,
+		OrdersType:               supportmessages.OrdersType(order.OrdersType),
+		ID:                       strfmt.UUID(order.ID.String()),
 		OriginDutyStation:        originDutyStation,
-		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
-		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
+		ETag:                     etag.GenerateEtag(order.UpdatedAt),
+		Status:                   supportmessages.OrdersStatus(order.Status),
 		UploadedOrders:           uploadedOrders,
-		UploadedOrdersID:         handlers.FmtUUID(moveOrder.UploadedOrdersID),
+		UploadedOrdersID:         handlers.FmtUUID(order.UploadedOrdersID),
 		ReportByDate:             &reportByDate,
 		IssueDate:                &issueDate,
-		Tac:                      moveOrder.TAC,
+		Tac:                      order.TAC,
 	}
 
-	if moveOrder.Grade != nil {
-		payload.Rank = (supportmessages.Rank)(*moveOrder.Grade)
+	if order.Grade != nil {
+		payload.Rank = (supportmessages.Rank)(*order.Grade)
 	}
-	if moveOrder.OriginDutyStationID != nil {
-		payload.OriginDutyStationID = handlers.FmtUUID(*moveOrder.OriginDutyStationID)
+	if order.OriginDutyStationID != nil {
+		payload.OriginDutyStationID = handlers.FmtUUID(*order.OriginDutyStationID)
 	}
 	return &payload
 }
@@ -461,6 +463,23 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *supportmessages.P
 	for i, pr := range *paymentRequests {
 		copyOfPr := pr // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = PaymentRequest(&copyOfPr)
+	}
+	return &payload
+}
+
+// WebhookNotification converts a WebhookNotification model to a payload
+func WebhookNotification(model *models.WebhookNotification) *supportmessages.WebhookNotification {
+	payload := supportmessages.WebhookNotification{
+		ID:               *handlers.FmtUUID(model.ID),
+		EventKey:         model.EventKey,
+		Object:           swag.String(model.Payload),
+		CreatedAt:        *handlers.FmtDateTime(model.CreatedAt),
+		UpdatedAt:        *handlers.FmtDateTime(model.UpdatedAt),
+		FirstAttemptedAt: handlers.FmtDateTimePtr(model.FirstAttemptedAt),
+		ObjectID:         handlers.FmtUUIDPtr(model.ObjectID),
+		TraceID:          *handlers.FmtUUIDPtr(model.TraceID),
+		MoveTaskOrderID:  handlers.FmtUUIDPtr(model.MoveTaskOrderID),
+		Status:           supportmessages.WebhookNotificationStatus(model.Status),
 	}
 	return &payload
 }

@@ -27,45 +27,84 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	PostWebhookNotify(params *PostWebhookNotifyParams) (*PostWebhookNotifyOK, error)
+	CreateWebhookNotification(params *CreateWebhookNotificationParams) (*CreateWebhookNotificationCreated, error)
+
+	ReceiveWebhookNotification(params *ReceiveWebhookNotificationParams) (*ReceiveWebhookNotificationOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  PostWebhookNotify tests endpoint for sending messages via webhook
+  CreateWebhookNotification tests endpoint for creating webhook notifications
 
-  This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
+  This endpoint creates a webhook notification in the database. If the webhook client is running, it may send the notification soon after creation.
 
 */
-func (a *Client) PostWebhookNotify(params *PostWebhookNotifyParams) (*PostWebhookNotifyOK, error) {
+func (a *Client) CreateWebhookNotification(params *CreateWebhookNotificationParams) (*CreateWebhookNotificationCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPostWebhookNotifyParams()
+		params = NewCreateWebhookNotificationParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "postWebhookNotify",
+		ID:                 "createWebhookNotification",
 		Method:             "POST",
-		PathPattern:        "/webhook-notify",
+		PathPattern:        "/webhook-notifications",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &PostWebhookNotifyReader{formats: a.formats},
+		Reader:             &CreateWebhookNotificationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*PostWebhookNotifyOK)
+	success, ok := result.(*CreateWebhookNotificationCreated)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for postWebhookNotify: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for createWebhookNotification: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  ReceiveWebhookNotification tests endpoint for receiving messages from our own webhook client
+
+  This endpoint receives a notification that matches the webhook notification model. This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint. In testing, this server accepts notifications at this endpoint and simply responds with success and logs them. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
+
+*/
+func (a *Client) ReceiveWebhookNotification(params *ReceiveWebhookNotificationParams) (*ReceiveWebhookNotificationOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewReceiveWebhookNotificationParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "receiveWebhookNotification",
+		Method:             "POST",
+		PathPattern:        "/webhook-notify",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &ReceiveWebhookNotificationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ReceiveWebhookNotificationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for receiveWebhookNotification: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
