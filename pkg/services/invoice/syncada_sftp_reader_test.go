@@ -65,8 +65,8 @@ func (f FakeFile) Close() error {
 }
 
 func (f FakeFile) WriteTo(w io.Writer) (int64, error) {
-	w.Write([]byte(f.contents))
-	return int64(len(f.contents)), nil
+	written, err := w.Write([]byte(f.contents))
+	return int64(written), err
 }
 
 type FakeFileWithErrOnWriteTo struct {
@@ -76,7 +76,7 @@ func (f FakeFileWithErrOnWriteTo) Close() error {
 	return nil
 }
 
-func (f FakeFileWithErrOnWriteTo) WriteTo(w io.Writer) (int64, error) {
+func (f FakeFileWithErrOnWriteTo) WriteTo(_ io.Writer) (int64, error) {
 	return 0, errors.New("ERROR")
 }
 
@@ -138,39 +138,25 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		suite.Error(err)
 	})
 
+	suite.T().Run("File open error should prevent processing and deletion", func(t *testing.T) {
+		client := &mocks.SFTPClient{}
+		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
+
+		client.On("Open", mock.Anything).Return(nil, errors.New("ERROR"))
+
+		processor := &mocks.SyncadaFileProcessor{}
+		processor.On("ProcessFile", mock.Anything).Return(nil)
+
+		session := NewSyncadaSFTPReaderSession(client, suite.logger)
+		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		suite.NoError(err)
+
+		client.AssertCalled(t, "ReadDir", pickupDir)
+		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
+		client.AssertNotCalled(t, "Remove", mock.Anything)
+	})
+
 	suite.T().Run("File WriteTo error should prevent processing and deletion", func(t *testing.T) {
-		client := &mocks.SFTPClient{}
-		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
-
-		client.On("Open", mock.Anything).Return(nil, errors.New("ERROR"))
-
-		processor := &mocks.SyncadaFileProcessor{}
-		processor.On("ProcessFile", mock.Anything).Return(nil)
-
-		session := NewSyncadaSFTPReaderSession(client, suite.logger)
-		session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
-		client.AssertCalled(t, "ReadDir", pickupDir)
-		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
-		client.AssertNotCalled(t, "Remove", mock.Anything)
-	})
-
-	suite.T().Run("File open error should prevent processing and deletion", func(t *testing.T) {
-		client := &mocks.SFTPClient{}
-		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
-
-		client.On("Open", mock.Anything).Return(nil, errors.New("ERROR"))
-
-		processor := &mocks.SyncadaFileProcessor{}
-		processor.On("ProcessFile", mock.Anything).Return(nil)
-
-		session := NewSyncadaSFTPReaderSession(client, suite.logger)
-		session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
-		client.AssertCalled(t, "ReadDir", pickupDir)
-		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
-		client.AssertNotCalled(t, "Remove", mock.Anything)
-	})
-
-	suite.T().Run("File open error should prevent processing and deletion", func(t *testing.T) {
 		client := &mocks.SFTPClient{}
 		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
 
@@ -180,7 +166,9 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor.On("ProcessFile", mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, suite.logger)
-		session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		suite.NoError(err)
+
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		client.AssertCalled(t, "Open", mock.Anything)
 		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
@@ -200,10 +188,10 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor.On("ProcessFile", mock.Anything, mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, suite.logger)
-		time, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
-		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), time)
+		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
 
 		// Make sure we called external methods with the right args for every file
 		client.AssertCalled(t, "ReadDir", pickupDir)
@@ -226,10 +214,10 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		}
 
 		session := NewSyncadaSFTPReaderSession(client, suite.logger)
-		time, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
-		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), time)
+		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
 
 		// Make sure we called external methods with the right args for every file
 		client.AssertCalled(t, "ReadDir", pickupDir)
@@ -252,10 +240,10 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		}
 
 		session := NewSyncadaSFTPReaderSession(client, suite.logger)
-		time, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
-		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), time)
+		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
 
 		// Make sure we called external methods with the right args for every file
 		for _, data := range multipleFileTestData {
@@ -273,10 +261,10 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		client.On("Remove", multipleFileTestData[2].path).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, suite.logger)
-		time, err := session.FetchAndProcessSyncadaFiles(pickupDir, multipleFileTestData[1].fileInfo.modTime, processor)
+		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, multipleFileTestData[1].fileInfo.modTime, processor)
 
 		suite.NoError(err)
-		suite.Equal(multipleFileTestData[2].fileInfo.ModTime(), time)
+		suite.Equal(multipleFileTestData[2].fileInfo.ModTime(), modTime)
 
 		// Files at or before the cutoff time should be skipped
 		for _, data := range multipleFileTestData[:2] {

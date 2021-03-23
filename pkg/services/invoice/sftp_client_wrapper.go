@@ -25,6 +25,8 @@ func (s sftpClientWrapper) ReadDir(p string) ([]os.FileInfo, error) {
 }
 
 func (s sftpClientWrapper) Open(path string) (services.SFTPFiler, error) {
+	// Note that this method returns a generic SFTPFiler interface as opposed to an explicit sftp.File
+	// so we can inject a mock version of the file for testing.
 	return s.client.Open(path)
 }
 

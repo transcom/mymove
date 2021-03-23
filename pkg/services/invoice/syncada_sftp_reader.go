@@ -74,7 +74,11 @@ func (s *syncadaReaderSFTPSession) downloadFile(path string) (string, error) {
 		return "", fmt.Errorf("failed to open file over SFTP: %w", err)
 	}
 
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			s.logger.Error("could not close file", zap.Error(closeErr))
+		}
+	}()
 
 	buf := new(bytes.Buffer)
 	_, err = file.WriteTo(buf)
