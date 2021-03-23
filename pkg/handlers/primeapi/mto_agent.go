@@ -15,6 +15,18 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 )
 
+// CreateMTOAgentHandler is the handler to create an agent
+type CreateMTOAgentHandler struct {
+	handlers.HandlerContext
+	// MTOAgentCreator services.MTOAgentCreator
+}
+
+func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	logger.Debug("Inside CreateMTOHandler")
+	return mtoshipmentops.NewCreateMTOAgentBadRequest()
+}
+
 // UpdateMTOAgentHandler is the handler to update an agent
 type UpdateMTOAgentHandler struct {
 	handlers.HandlerContext

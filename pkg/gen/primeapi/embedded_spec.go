@@ -496,6 +496,66 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentID}/agents": {
+      "post": {
+        "description": "### Functionality\nThis endpoint is used to **create** and add agents for an existing MTO Shipment. Only the fields being modified need to be sent in the request body.\n\n### Errors\nThe agent must always have a name and at least one method of contact (either ` + "`" + `email` + "`" + ` or ` + "`" + `phone` + "`" + `).\n\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Pime.\nIf the caller requests a new agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOAgent",
+        "operationId": "createMTOAgent",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully added the agent.",
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/mto-shipments/{mtoShipmentID}/agents/{agentID}": {
       "put": {
         "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.\n\n### Errors:\nThe agent must always have a name and at least one method of contact (either ` + "`" + `email` + "`" + ` or ` + "`" + `phone` + "`" + `).\n\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
@@ -2908,6 +2968,84 @@ func init() {
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/agents": {
+      "post": {
+        "description": "### Functionality\nThis endpoint is used to **create** and add agents for an existing MTO Shipment. Only the fields being modified need to be sent in the request body.\n\n### Errors\nThe agent must always have a name and at least one method of contact (either ` + "`" + `email` + "`" + ` or ` + "`" + `phone` + "`" + `).\n\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Pime.\nIf the caller requests a new agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOAgent",
+        "operationId": "createMTOAgent",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully added the agent.",
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
