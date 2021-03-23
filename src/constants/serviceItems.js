@@ -4,7 +4,9 @@ const SERVICE_ITEM_STATUSES = {
   REJECTED: 'REJECTED',
 };
 
+// TODO - refactor to order keys in alphabet order
 const SERVICE_ITEM_PARAM_KEYS = {
+  WeightBilledActual: 'WeightBilledActual',
   WeightActual: 'WeightActual',
   WeightEstimated: 'WeightEstimated',
   DistanceZip3: 'DistanceZip3',
@@ -14,6 +16,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   IsPeak: 'IsPeak',
   ServiceAreaOrigin: 'ServiceAreaOrigin',
   RequestedPickupDate: 'RequestedPickupDate',
+  ActualPickupDate: 'ActualPickupDate',
   EscalationCompounded: 'EscalationCompounded',
   EIAFuelPrice: 'EIAFuelPrice',
   FSCWeightBasedDistanceMultiplier: 'FSCWeightBasedDistanceMultiplier',
@@ -26,6 +29,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   PriceEscalationFactor: 'Price escalation factor',
   TotalAmountRequested: 'Total amount requested',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
+  [SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightEstimated]: 'Estimated',
   [SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]: 'Zip',
@@ -34,6 +38,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',
   [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Pickup date',
+  [SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]: 'Pickup date',
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
 };
