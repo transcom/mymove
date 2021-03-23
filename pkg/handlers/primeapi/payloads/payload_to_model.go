@@ -3,6 +3,7 @@ package payloads
 import (
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 
@@ -311,16 +312,22 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 // MTOServiceItemModelFromUpdate converts the payload from UpdateMTOServiceItem to a normal MTOServiceItem model.
 // The payload for this is different than the one for create.
-func MTOServiceItemModelFromUpdate(mtoServiceItem primemessages.UpdateMTOServiceItem) (*models.MTOServiceItem, *validate.Errors) {
+func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem primemessages.UpdateMTOServiceItem) (*models.MTOServiceItem, *validate.Errors) {
 	verrs := validate.NewErrors()
 	if mtoServiceItem == nil {
 		verrs.Add("mtoServiceItem", "was nil")
 		return nil, verrs
 	}
 
+	nilUUID := strfmt.UUID(uuid.Nil.String())
+
+	if mtoServiceItem.ID().String() != "" && mtoServiceItem.ID() != nilUUID && mtoServiceItem.ID().String() != mtoServiceItemID {
+		verrs.Add("id", "value does not agree with mtoServiceItemID in path - omit from body or correct")
+	}
+
 	// Create the service item model
 	model := &models.MTOServiceItem{
-		ID: uuid.FromStringOrNil(mtoServiceItem.ID().String()),
+		ID: uuid.FromStringOrNil(mtoServiceItemID),
 	}
 
 	// Here we initialize more fields below for the specific model types.
@@ -334,6 +341,11 @@ func MTOServiceItemModelFromUpdate(mtoServiceItem primemessages.UpdateMTOService
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+
 		return model, nil
 	}
 
