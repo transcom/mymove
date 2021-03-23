@@ -693,12 +693,14 @@ func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *up
 }
 
 func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
+	actualPickupDate := time.Now().Add(-24 * time.Hour)
 	longhaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ActualPickupDate:     &actualPickupDate,
 		},
 		Move: models.Move{
 			Locator: "PARAMS",
@@ -757,6 +759,32 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 		if updateErr != nil {
 			logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 		}
+	}
+
+	entryDate := time.Now().Add(-48 * time.Hour)
+
+	originSITAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+	sitDepartureDate := time.Now()
+	originSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOFSIT,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Reason:                      models.StringPointer("Holiday break"),
+			SITEntryDate:                &entryDate,
+			SITPostalCode:               models.StringPointer("90210"),
+			SITOriginHHGActualAddress:   &originSITAddress,
+			SITOriginHHGActualAddressID: &originSITAddress.ID,
+			SITDepartureDate:            &sitDepartureDate,
+		},
+		Stub: true,
+	})
+
+	_, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(&originSIT)
+	if validErrs.HasAny() || createErr != nil {
+		logger.Error(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
