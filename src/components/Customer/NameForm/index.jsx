@@ -1,0 +1,64 @@
+/* eslint-disable react/jsx-props-no-spreading */
+import React from 'react';
+import { func, shape, string } from 'prop-types';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+
+import { Form } from 'components/form/Form';
+import TextField from 'components/form/fields/TextField';
+import SectionWrapper from 'components/Customer/SectionWrapper';
+import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import formStyles from 'styles/form.module.scss';
+
+const NameForm = ({ initialValues, onBack, onSubmit }) => {
+  const validationSchema = Yup.object().shape({
+    first_name: Yup.string().required('Required'),
+    middle_name: Yup.string(),
+    last_name: Yup.string().required('Required'),
+    suffix: Yup.string(),
+  });
+
+  return (
+    <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
+      {({ isValid, handleSubmit, isSubmitting }) => {
+        return (
+          <Form className={formStyles.form}>
+            <h1>Name</h1>
+            <SectionWrapper className={formStyles.formSection}>
+              <TextField label="First name" name="first_name" id="firstName" required inputMode="text" />
+              <TextField
+                label="Middle name"
+                name="middle_name"
+                id="middleName"
+                inputMode="text"
+                labelHint="(optional)"
+              />
+              <TextField label="Last name" name="last_name" id="lastName" required inputMode="text" />
+              <TextField label="Suffix" name="suffix" id="suffix" inputMode="text" labelHint="(optional)" />
+            </SectionWrapper>
+            <div className={formStyles.formActions}>
+              <WizardNavigation
+                onBackClick={onBack}
+                disableNext={!isValid || isSubmitting}
+                onNextClick={handleSubmit}
+              />
+            </div>
+          </Form>
+        );
+      }}
+    </Formik>
+  );
+};
+
+NameForm.propTypes = {
+  initialValues: shape({
+    firstName: string,
+    middleName: string,
+    lastName: string,
+    suffix: string,
+  }).isRequired,
+  onBack: func.isRequired,
+  onSubmit: func.isRequired,
+};
+
+export default NameForm;
