@@ -108,7 +108,6 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		client.On("ReadDir", mock.Anything).Return(make([]os.FileInfo, 0), nil)
 
 		processor := &mocks.SyncadaFileProcessor{}
-		processor.On("ProcessFile", mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
 		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
@@ -177,7 +176,10 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 			client.On("Remove", data.path).Return(nil)
 		}
 		processor := &mocks.SyncadaFileProcessor{}
+
+		// Mock processing error for one of the files
 		processor.On("ProcessFile", multipleFileTestData[1].path, multipleFileTestData[1].file.contents).Return(errors.New("ERROR"))
+		// No error for the rest of the files
 		processor.On("ProcessFile", mock.Anything, mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
@@ -275,11 +277,16 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		client := &mocks.SFTPClient{}
 		processor := &mocks.SyncadaFileProcessor{}
 		client.On("ReadDir", mock.Anything).Return(infoForMultipleFiles, nil)
+
+		// only need to mock calls for the one file that will be processed
 		client.On("Open", multipleFileTestData[2].path).Return(multipleFileTestData[2].file, nil)
 		processor.On("ProcessFile", multipleFileTestData[2].path, multipleFileTestData[2].file.contents).Return(nil)
 		client.On("Remove", multipleFileTestData[2].path).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, suite.logger, true)
+
+		// We're using the modified time for the second file as the last read time.
+		// The files are sorted by modTime, so we should skip the first two files and only process the third
 		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, multipleFileTestData[1].fileInfo.modTime, processor)
 
 		suite.NoError(err)
