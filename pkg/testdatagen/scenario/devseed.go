@@ -693,14 +693,29 @@ func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *up
 }
 
 func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
-	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+	longhaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+		},
+		Move: models.Move{
+			Locator: "PARAMS",
 		},
 	})
-	move := shipment.MoveTaskOrder
+
+	move := longhaulShipment.MoveTaskOrder
+
+	shorthaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+		},
+		Move: move,
+	})
 
 	submissionErr := move.Submit(time.Now())
 	if submissionErr != nil {
@@ -716,7 +731,6 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(db, queryBuilder, serviceItemCreator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
-	logger.Info(fmt.Sprint("approved mto available to prime: ", move.ID))
 
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
@@ -737,11 +751,12 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 	).Return(90210, nil)
 	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(100, nil)
 
-	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(db, queryBuilder, serviceItemCreator, planner)
-	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
-
-	if updateErr != nil {
-		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
+	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment} {
+		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(db, queryBuilder, serviceItemCreator, planner)
+		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error updating shipment status", zap.Error(updateErr))
+		}
 	}
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
