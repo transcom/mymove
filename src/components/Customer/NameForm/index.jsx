@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { func, shape, string } from 'prop-types';
 import { Formik } from 'formik';
@@ -52,9 +51,9 @@ const NameForm = ({ initialValues, onBack, onSubmit }) => {
 
 NameForm.propTypes = {
   initialValues: shape({
-    firstName: string,
-    middleName: string,
-    lastName: string,
+    first_name: string,
+    middle_name: string,
+    last_name: string,
     suffix: string,
   }).isRequired,
   onBack: func.isRequired,
