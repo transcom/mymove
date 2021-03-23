@@ -135,7 +135,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		UserUploader: userUploader,
 	})
 	ppm0.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppm0.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * Service member with uploaded orders, a new ppm and no advance
@@ -170,7 +173,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		UserUploader: userUploader,
 	})
 	ppmNoAdvance.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * office user finds the move: office user completes storage panel
@@ -208,7 +214,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(db, &ppmStorage.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppmStorage.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * office user finds the move: office user cancels storage panel
@@ -246,7 +255,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(db, &ppmNoStorage.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppmNoStorage.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * A move, that will be canceled by the E2E test
@@ -281,7 +293,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		UserUploader: userUploader,
 	})
 	ppmToCancel.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppmToCancel.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppmToCancel.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * Service member with a ppm in progress
@@ -318,7 +333,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 	ppm1.Move.Submit(time.Now())
 	ppm1.Move.Approve()
-	models.SaveMoveDependencies(db, &ppm1.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppm1.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * Service member with a ppm move with payment requested
@@ -350,7 +368,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("0a2580ef-180a-44b2-a40b-291fa9cc13cc"),
@@ -367,7 +385,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(db, &ppm2.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppm2.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * Service member with a ppm move that has requested payment
@@ -401,7 +422,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &moveTypeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("d6b8980d-6f88-41be-9ae2-1abcbd2574bc"),
@@ -434,7 +455,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm3.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm3.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(db, &ppm3.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppm3.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * Service member with a ppm move that has requested payment
@@ -469,7 +493,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &moveTypeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("687e3ee4-62ff-44b3-a5cb-73338c9fdf95"),
@@ -490,7 +514,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(db, &ppmExcludedCalculations.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppmExcludedCalculations.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	testdatagen.MakeMoveDocument(db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
@@ -546,9 +573,15 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		UserUploader: userUploader,
 	})
 	ppmCanceled.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 	ppmCanceled.Move.Cancel("reasons")
-	models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * Service member with orders and a move
@@ -708,7 +741,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
 	move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &move)
+	verrs, err = models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * A service member with an hhg only, unsubmitted move
@@ -929,7 +965,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("62149"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("f9f10492-587e-43b3-af2a-9f67d2ac8757"),
@@ -944,7 +980,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	ppm6.Move.Approve()
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	models.SaveMoveDependencies(db, &ppm6.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppm6.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * Service member with a ppm ready to request payment
@@ -974,7 +1013,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("62149"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("0581253d-0539-4a93-b1b6-ea4ad384f0c5"),
@@ -989,7 +1028,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	ppm7.Move.Approve()
 	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	models.SaveMoveDependencies(db, &ppm7.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppm7.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * Service member with a ppm ready to request payment
@@ -1019,7 +1061,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("62341"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("946a5d40-0636-418f-b457-474915fb0149"),
@@ -1035,7 +1077,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
 	ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	models.SaveMoveDependencies(db, &ppm5.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppm5.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * Service member with a ppm move approved, but not in progress
@@ -1067,7 +1112,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &typeDetails,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("bd3d46b3-cb76-40d5-a622-6ada239e5504"),
@@ -1083,7 +1128,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	models.SaveMoveDependencies(db, &ppmApproved.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppmApproved.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 
 	/*
 	 * Another service member with orders and a move
@@ -1402,7 +1450,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}

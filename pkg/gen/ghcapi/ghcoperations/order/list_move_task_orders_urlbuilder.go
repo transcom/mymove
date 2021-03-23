@@ -42,7 +42,7 @@ func (o *ListMoveTaskOrdersURL) SetBasePath(bp string) {
 func (o *ListMoveTaskOrdersURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-orders/{orderID}/move-task-orders"
+	var _path = "/orders/{orderID}/move-task-orders"
 
 	orderID := o.OrderID.String()
 	if orderID != "" {

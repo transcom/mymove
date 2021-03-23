@@ -60,7 +60,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 		ediString, err := invoice.EDIString(suite.logger)
 		suite.NoError(err)
 		suite.Equal(`ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*000009999*0*T*|
-GS*SI*MILMOVE*8004171844*20190903*1617*1*X*004010
+GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
 ST*858*ABCDE
 BX*00*J*PP*3351-1123b*BLKW**4
 N9*CN*3351-1123-1b**
@@ -84,7 +84,7 @@ FA1*DF
 FA2*TA*1234
 L3*300.000*B***100
 SE*12345*ABCDE
-GE*1*1234567
+GE*1*9999
 IEA*1*000009999
 `, ediString)
 	})
@@ -233,7 +233,7 @@ func MakeValidEdi() Invoice858C {
 			ApplicationReceiversCode: "8004171844",
 			Date:                     "20190903",
 			Time:                     "1617",
-			GroupControlNumber:       1,
+			GroupControlNumber:       9999,
 			ResponsibleAgencyCode:    "X",
 			Version:                  "004010",
 		},
@@ -250,7 +250,7 @@ func MakeValidEdi() Invoice858C {
 		},
 		GE: edisegment.GE{
 			NumberOfTransactionSetsIncluded: 1,
-			GroupControlNumber:              1234567,
+			GroupControlNumber:              9999,
 		},
 		IEA: edisegment.IEA{
 			NumberOfIncludedFunctionalGroups: 1,
