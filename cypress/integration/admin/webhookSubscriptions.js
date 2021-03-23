@@ -1,8 +1,16 @@
 import { adminBaseURL } from '../../support/constants';
 
+const checkLabels = (itemToGet, labels) => {
+  labels.forEach((label) => {
+    cy.get(itemToGet).contains(label);
+  });
+};
+
 describe('Webhook Subscriptions', function () {
   before(() => {
+    cy.clearAllCookies();
     cy.prepareAdminApp();
+    cy.clearAllCookies();
   });
 
   it('successfully navigates to the webhook subscriptions list page', function () {
@@ -12,16 +20,14 @@ describe('Webhook Subscriptions', function () {
     cy.get('header').contains('Webhook subscriptions');
 
     const columnLabels = ['Id', 'Event key', 'Severity', 'Callback url', 'Status', 'Updated at'];
-    columnLabels.forEach((label) => {
-      cy.get('table').contains(label);
-    });
+    checkLabels('table', columnLabels);
   });
 });
 
 describe('WebhookSubscriptions Details Show Page', function () {
   before(() => {
-    cy.prepareAdminApp();
     cy.clearAllCookies();
+    cy.prepareAdminApp();
   });
 
   it('pulls up details page for a webhook subscription', function () {
@@ -38,15 +44,15 @@ describe('WebhookSubscriptions Details Show Page', function () {
       });
 
     const labels = ['Id', 'Subscriber', 'Status', 'Event key', 'Callback url', 'Created at', 'Updated at', 'Severity'];
-    labels.forEach((label) => {
-      cy.get('.MuiCardContent-root label').contains(label);
-    });
+    checkLabels('.MuiCardContent-root label', labels);
   });
 });
 
 describe('WebhookSubscriptions Details Edit Page', function () {
   before(() => {
+    cy.clearAllCookies();
     cy.prepareAdminApp();
+    cy.clearAllCookies();
   });
 
   it('pulls up edit page for a webhook subscription', function () {
@@ -66,9 +72,7 @@ describe('WebhookSubscriptions Details Edit Page', function () {
 
     // check labels on edit page
     const labels = ['Id', 'Subscriber', 'Status', 'Event key', 'Callback url', 'Created at', 'Updated at', 'Severity'];
-    labels.forEach((label) => {
-      cy.get('label').contains(label);
-    });
+    checkLabels('label', labels);
 
     // Change webhook subscription status
     cy.get('div[id="status"]').click();
@@ -83,7 +87,9 @@ describe('WebhookSubscriptions Details Edit Page', function () {
 
 describe('Webhook Subscription Create Page', function () {
   before(() => {
+    cy.clearAllCookies();
     cy.prepareAdminApp();
+    cy.clearAllCookies();
   });
 
   it('pulls up create page for a webhook subscription', function () {

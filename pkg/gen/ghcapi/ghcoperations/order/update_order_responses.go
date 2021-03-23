@@ -267,6 +267,50 @@ func (o *UpdateOrderPreconditionFailed) WriteResponse(rw http.ResponseWriter, pr
 	}
 }
 
+// UpdateOrderUnprocessableEntityCode is the HTTP code returned for type UpdateOrderUnprocessableEntity
+const UpdateOrderUnprocessableEntityCode int = 422
+
+/*UpdateOrderUnprocessableEntity Validation error
+
+swagger:response updateOrderUnprocessableEntity
+*/
+type UpdateOrderUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdateOrderUnprocessableEntity creates UpdateOrderUnprocessableEntity with default headers values
+func NewUpdateOrderUnprocessableEntity() *UpdateOrderUnprocessableEntity {
+
+	return &UpdateOrderUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update order unprocessable entity response
+func (o *UpdateOrderUnprocessableEntity) WithPayload(payload *ghcmessages.ValidationError) *UpdateOrderUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update order unprocessable entity response
+func (o *UpdateOrderUnprocessableEntity) SetPayload(payload *ghcmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateOrderUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateOrderInternalServerErrorCode is the HTTP code returned for type UpdateOrderInternalServerError
 const UpdateOrderInternalServerErrorCode int = 500
 

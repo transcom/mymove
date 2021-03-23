@@ -118,6 +118,12 @@ export const WizardPageShape = shape({
   history: HistoryShape.isRequired,
 });
 
+export const BackupContactShape = shape({
+  name: string.isRequired,
+  telephone: string.isRequired,
+  email: string.isRequired,
+});
+
 export default {
   MatchShape,
   HistoryShape,
