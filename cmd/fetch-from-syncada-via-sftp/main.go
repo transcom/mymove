@@ -59,7 +59,7 @@ func initFlags(flag *pflag.FlagSet) {
 	// Syncada SFTP Config
 	cli.InitSyncadaSFTPFlags(flag)
 
-	flag.String(LastReadTimeFlag, "", "Files older than this time will not be fetched.")
+	flag.String(LastReadTimeFlag, "", "Files older than this RFC3339 time will not be fetched.")
 	flag.String(DirectoryFlag, "", "syncada path")
 	flag.Bool(DeleteFilesFlag, false, "If present, delete files on SFTP server that have been processed successfully")
 
