@@ -1,6 +1,6 @@
 name: auto approve
 on:
-  pull_request:
+  pull_request_target:
     paths-ignore:
       - '.github/workflows/go-auto-approve.yml'
       - 'go.mod'
