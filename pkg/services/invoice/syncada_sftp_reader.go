@@ -74,7 +74,9 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath strin
 func (s *syncadaReaderSFTPSession) downloadFile(path string) (string, error) {
 	file, err := s.client.Open(path)
 	if err != nil {
-		// TODO this will happen all the time and is not a big deal, worth logging?
+		// This is expected (at least in the US Bank testing environment) because they
+		// upload some files that we don't have permission to read, and we don't know
+		// how to tell the different files apart yet.
 		return "", fmt.Errorf("failed to open file over SFTP: %w", err)
 	}
 
