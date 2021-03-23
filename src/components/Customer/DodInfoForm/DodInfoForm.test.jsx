@@ -30,6 +30,7 @@ describe('DodInfoForm component', () => {
     userEvent.tab();
 
     await waitFor(() => {
+      expect(getByLabelText('DOD ID number')).not.toBeValid();
       expect(getByText('Enter a 10-digit DOD ID number')).toBeInTheDocument();
     });
   });
