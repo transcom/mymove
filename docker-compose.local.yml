@@ -84,7 +84,6 @@ services:
       - HTTP_OFFICE_SERVER_NAME=officelocal
       - HTTP_ORDERS_SERVER_NAME=orderslocal
       - HTTP_PRIME_SERVER_NAME=primelocal
-      - AWS_CF_DOMAIN=assets.devlocal.move.mil
       - IWS_RBS_ENABLED=1
       - IWS_RBS_HOST
       - LOCAL_STORAGE_ROOT=/tmp

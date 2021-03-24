@@ -94,7 +94,7 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 	localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
 
 	var storer FileStorer
-	if storageBackend == "s3" || storageBackend == "cdn" {
+	if storageBackend == "s3" {
 		awsS3Bucket := v.GetString(cli.AWSS3BucketNameFlag)
 		awsS3Region := v.GetString(cli.AWSS3RegionFlag)
 		awsS3KeyNamespace := v.GetString(cli.AWSS3KeyNamespaceFlag)
@@ -108,20 +108,6 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 		cdnEnabled := false
 		var cfPrivateKey, cfPrivateKeyID *string
 		assetsFQDN := url.URL{Scheme: "https"}
-
-		if storageBackend == "cdn" {
-			cdnEnabled = true
-			privateKey := v.GetString(cli.CFPrivateKeyFlag)
-			privateKeyID := v.GetString(cli.CFKeyIDFlag)
-			cfPrivateKey = &privateKey
-			cfPrivateKeyID = &privateKeyID
-			assetsDomain := v.GetString(cli.AWSCfDomain)
-			assetsFQDN.Host = assetsDomain
-
-			logger.Info("Using cloudfront as CDN for distribution",
-				zap.String("assets domain", assetsDomain),
-				zap.String("key", privateKeyID))
-		}
 
 		if len(awsS3Bucket) == 0 {
 			logger.Fatal("must provide aws-s3-bucket-name parameter, exiting")

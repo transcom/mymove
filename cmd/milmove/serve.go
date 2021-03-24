@@ -461,7 +461,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	var session *awssession.Session
-	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") || (v.GetString(cli.StorageBackendFlag) == "cdn") {
+	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") {
 		c := &aws.Config{
 			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
 		}
