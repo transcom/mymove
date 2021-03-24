@@ -8913,10 +8913,10 @@ filelist@^1.0.1:
   dependencies:
     minimatch "^3.0.4"
 
-filepond-plugin-file-validate-size@^2.2.2:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-size/-/filepond-plugin-file-validate-size-2.2.2.tgz#a62974f7bcc6b3d2caa0ef6394b6e31ec19f4cae"
-  integrity sha512-35OH99f0poTBdldMcPOomZeXXiJC4ae5qrqZheP2wS1QDOcJa5RUgcIAwS43rixPrHNbEj9NpFei+7X15MUm9w==
+filepond-plugin-file-validate-size@^2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-size/-/filepond-plugin-file-validate-size-2.2.4.tgz#745165d51674fa23a34e385f598c84a2ba5bb867"
+  integrity sha512-7eYoQ6aqndcV7OHLVg8pHQsNGLfgw4TgYbFOPYYHpTY5hJNDmq9Ti4nrBOFSgprEzK8I1LbjIyXXPAezjlFNeg==
 
 filepond-plugin-file-validate-type@^1.2.6:
   version "1.2.6"
