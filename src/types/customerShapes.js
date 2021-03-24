@@ -145,5 +145,4 @@ export default {
   NtsShipmentShape,
   NtsrShipmentShape,
   AdditionalParamsShape,
-  ServiceMemberShape,
 };

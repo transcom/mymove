@@ -1,12 +1,11 @@
 import React from 'react';
-import { act } from 'react-dom/test-utils';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import NameForm from './index';
 
 describe('NameForm component', () => {
-  it('renders the form inputs', () => {
+  it('renders the form inputs', async () => {
     const { getByLabelText } = render(
       <NameForm
         onSubmit={jest.fn()}
@@ -14,15 +13,17 @@ describe('NameForm component', () => {
         initialValues={{ first_name: '', middle_name: '', last_name: '', suffix: '' }}
       />,
     );
-    expect(getByLabelText('First name')).toBeInstanceOf(HTMLInputElement);
-    expect(getByLabelText('First name')).toBeRequired();
+    await waitFor(() => {
+      expect(getByLabelText('First name')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('First name')).toBeRequired();
 
-    expect(getByLabelText(/Middle name/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Middle name/)).toBeInstanceOf(HTMLInputElement);
 
-    expect(getByLabelText('Last name')).toBeInstanceOf(HTMLInputElement);
-    expect(getByLabelText('Last name')).toBeRequired();
+      expect(getByLabelText('Last name')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('Last name')).toBeRequired();
 
-    expect(getByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
+    });
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
@@ -31,14 +32,12 @@ describe('NameForm component', () => {
       <NameForm
         onSubmit={onSubmit}
         onBack={jest.fn()}
-        initialValues={{ first_name: '', middle_name: '', last_name: '', suffix: '' }}
+        initialValues={{ first_name: '', middle_name: '', last_name: '', suffix: 'Mrs.' }}
       />,
     );
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    act(() => {
-      userEvent.click(submitBtn);
-    });
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(getAllByText('Required').length).toBe(2);
@@ -60,9 +59,7 @@ describe('NameForm component', () => {
     userEvent.type(getByLabelText('First name'), 'Leo');
     userEvent.type(getByLabelText('Last name'), 'Spaceman');
 
-    act(() => {
-      userEvent.click(submitBtn);
-    });
+    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalled();
