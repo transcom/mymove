@@ -203,8 +203,8 @@ const EIAFuelPrice = {
   key: 'EIAFuelPrice',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'DECIMAL',
-  value: '2.60',
+  type: 'INT',
+  value: '273300',
 };
 const FSCWeightBasedDistanceMultiplier = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
