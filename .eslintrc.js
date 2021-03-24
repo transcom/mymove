@@ -1,5 +1,5 @@
 module.exports = {
-  plugins: ['prettier', 'security', 'no-only-tests', 'you-dont-need-lodash-underscore'],
+  plugins: ['prettier', 'security', 'no-only-tests', 'you-dont-need-lodash-underscore', 'test'],
   extends: [
     'react-app',
     'airbnb',
@@ -12,6 +12,7 @@ module.exports = {
   rules: {
     'prettier/prettier': 'error',
     'no-only-tests/no-only-tests': 'error',
+    'test/no-template-literals': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     'no-debugger': 'warn',
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     'jsx-a11y/anchor-is-valid': ['warn', { aspects: ['noHref', 'preferButton'] }],
