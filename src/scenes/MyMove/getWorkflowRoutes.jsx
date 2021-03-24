@@ -10,7 +10,8 @@ import { no_op } from 'shared/utils';
 import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
-import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
+// import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
+import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
 import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
@@ -107,7 +108,7 @@ const pages = {
     isComplete: ({ sm }) =>
       sm.is_profile_complete ||
       (every([sm.telephone, sm.personal_email]) && some([sm.phone_is_preferred, sm.email_is_preferred])),
-    render: (key, pages) => ({ match }) => <ContactInfo pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <ContactInfo push={history.push} />,
   },
   [customerRoutes.CURRENT_DUTY_STATION_PATH]: {
     isInFlow: myFirstRodeo,
