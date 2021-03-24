@@ -88,7 +88,7 @@ const ExpandableServiceItemRow = ({ serviceItem, index }) => {
 };
 
 ExpandableServiceItemRow.propTypes = {
-  serviceItem: PropTypes.objectOf(PaymentServiceItemShape).isRequired,
+  serviceItem: PaymentServiceItemShape.isRequired,
   index: PropTypes.number.isRequired,
 };
 
