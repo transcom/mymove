@@ -1130,20 +1130,24 @@ definitions:
             type: string
             example: 1400Z
             description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+            x-nullable: true
             pattern: '\d{4}Z'
           firstAvailableDeliveryDate1:
             format: date
             type: string
             description: First available date that Prime can deliver SIT service item.
+            x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
             description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+            x-nullable: true
             pattern: '\d{4}Z'
           firstAvailableDeliveryDate2:
             format: date
             type: string
             description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
           sitEntryDate:
             format: date
             type: string
