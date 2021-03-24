@@ -84,7 +84,7 @@ repos:
     hooks:
       - id: eslint
         name: eslint
-        entry: node_modules/.bin/eslint --ext .js,.jsx --max-warnings=0
+        entry: node_modules/.bin/eslint --ext .js,.jsx
         language: node
         files: \.(js|jsx)$
         exclude: >

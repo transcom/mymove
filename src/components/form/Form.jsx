@@ -8,6 +8,7 @@ export const Form = ({ errorCallback, ...props }) => {
   React.useEffect(() => {
     if (errorCallback) {
       errorCallback(errors, touched);
+      console.log('test');
     }
   });
   // eslint-disable-next-line react/jsx-props-no-spreading
