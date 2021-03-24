@@ -22,20 +22,20 @@ const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-      {({ isValid, handleSubmit, isSubmitting }) => {
+      {({ isValid, isSubmitting, values }) => {
         return (
-          <Form>
+          <Form className={formStyles.form}>
             <h1>Your contact info</h1>
-            <SectionWrapper>
+            <SectionWrapper className={formStyles.formSection}>
               <div className="tablet:margin-top-neg-3">
                 <CustomerContactInfoFields />
               </div>
             </SectionWrapper>
             <div className={formStyles.formActions}>
               <WizardNavigation
-                onBackClick={onBack}
+                onBackClick={() => onBack(values)}
                 disableNext={!isValid || isSubmitting}
-                onNextClick={handleSubmit}
+                onNextClick={() => onSubmit(values)}
               />
             </div>
           </Form>

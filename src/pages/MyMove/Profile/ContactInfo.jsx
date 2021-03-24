@@ -22,34 +22,38 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
     email_is_preferred: serviceMember?.email_is_preferred,
   };
   const [serverError, setServerError] = useState(null);
-  const handleSubmit = (values) => {
+  const handleSubmit = (values, route) => {
     if (values) {
       const payload = {
         id: serviceMember.id,
-        ...values,
+        telephone: values?.telephone,
+        secondary_phone: values?.secondary_phone,
+        personal_email: values?.personal_email,
+        phone_is_preferred: values?.phone_is_preferred,
+        email_is_preferred: values?.email_is_preferred,
       };
-
       return patchServiceMember(payload)
         .then((response) => {
           updateServiceMember(response);
-          push(customerRoutes.CURRENT_DUTY_STATION_PATH);
+          push(route);
         })
         .catch((e) => {
           // TODO - error handling - below is rudimentary error handling to approximate existing UX
           // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
           const { response } = e;
           const errorMessage = getResponseError(response, 'failed to update service member due to server error');
-          setServerError({
-            errorMessage,
-          });
+          setServerError(errorMessage);
         });
     }
 
     return Promise.resolve();
   };
 
-  const handleBack = () => {
-    console.log('do another thing'); // eslint-disable-line no-console
+  const handleNext = (values) => {
+    return handleSubmit(values, customerRoutes.CURRENT_DUTY_STATION_PATH);
+  };
+  const handleBack = (values) => {
+    return handleSubmit(values, customerRoutes.NAME_PATH);
   };
 
   return (
@@ -68,7 +72,7 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <ContactInfoForm initialValues={initialValues} onBack={handleBack} onSubmit={handleSubmit} />
+          <ContactInfoForm initialValues={initialValues} onBack={handleBack} onSubmit={handleNext} />
         </Grid>
       </Grid>
     </GridContainer>
