@@ -98,6 +98,22 @@ const fuelSurchargePrice = (params) => {
   return calculation(value, label, detail1, detail2, detail3);
 };
 
+const packPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.PackPrice;
+  const originServiceSchedule = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin, params)}`;
+  const requestedPickup = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
+  }: ${formatDate(getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params), 'DD MMM YYYY')}`;
+  const domesticNonPeak = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+
+  return calculation(value, label, originServiceSchedule, requestedPickup, domesticNonPeak);
+};
+
 // totalAmountRequested is not a service item param
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
@@ -125,6 +141,14 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         billableWeightFSC(params),
         mileage(params),
         fuelSurchargePrice(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    case SERVICE_ITEM_CODES.DPK:
+      result = [
+        billableWeight(params),
+        packPrice(params),
+        priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
       break;
