@@ -2,7 +2,7 @@ name: Lint
 
 on:
   push:
-    branches: [master]
+    branches: [roc-eslint-testing]
 
 jobs:
   run-linters:
