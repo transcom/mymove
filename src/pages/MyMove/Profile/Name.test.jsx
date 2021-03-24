@@ -3,9 +3,107 @@ import React from 'react';
 import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
+import { render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+import ConnectedName, { Name } from './Name';
 
 import { MockProviders } from 'testUtils';
-import ConnectedName from 'scenes/ServiceMembers/Name';
+import { patchServiceMember } from 'services/internalApi';
+
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  patchServiceMember: jest.fn(),
+}));
+
+describe('Name page', () => {
+  const testProps = {
+    updateServiceMember: jest.fn(),
+    push: jest.fn(),
+    serviceMember: {
+      id: 'testServiceMemberId',
+    },
+  };
+
+  it('renders the NameForm', () => {
+    const wrapper = mount(<Name {...testProps} />);
+    expect(wrapper.find('NameForm').exists()).toBe(true);
+  });
+
+  it('back button goes to the DoD Info step', () => {
+    const { queryByText } = render(<Name {...testProps} />);
+    const backButton = queryByText('Back');
+    expect(backButton).toBeInTheDocument();
+    userEvent.click(backButton);
+    expect(testProps.push).toHaveBeenCalledWith('/service-member/dod-info');
+  });
+
+  it('next button submits the form and goes to the Name step', async () => {
+    const testServiceMemberValues = {
+      id: 'testServiceMemberId',
+      first_name: 'Leo',
+      middle_name: 'Star',
+      last_name: 'Spaceman',
+      suffix: 'Mr.',
+    };
+
+    patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
+
+    // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
+    const { queryByText } = render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
+
+    const submitButton = queryByText('Next');
+    expect(submitButton).toBeInTheDocument();
+    userEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(patchServiceMember).toHaveBeenCalled();
+    });
+
+    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
+    expect(testProps.push).toHaveBeenCalledWith('/service-member/contact-info');
+  });
+
+  it('shows an error if the API returns an error', async () => {
+    const testServiceMemberValues = {
+      id: 'testServiceMemberId',
+      first_name: 'Leo',
+      middle_name: 'Star',
+      last_name: 'Spaceman',
+      suffix: 'Mr.',
+    };
+
+    patchServiceMember.mockImplementation(() =>
+      // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
+      // eslint-disable-next-line prefer-promise-reject-errors
+      Promise.reject({
+        message: 'A server error occurred saving the service member',
+        response: {
+          body: {
+            detail: 'A server error occurred saving the service member',
+          },
+        },
+      }),
+    );
+
+    // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
+    const { queryByText } = render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
+
+    const submitButton = queryByText('Next');
+    expect(submitButton).toBeInTheDocument();
+    userEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(patchServiceMember).toHaveBeenCalled();
+    });
+
+    expect(queryByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(testProps.updateServiceMember).not.toHaveBeenCalled();
+    expect(testProps.push).not.toHaveBeenCalled();
+  });
+
+  afterEach(jest.resetAllMocks);
+});
 
 describe('requireCustomerState Name', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
@@ -18,11 +116,8 @@ describe('requireCustomerState Name', () => {
   });
 
   const props = {
-    pages: ['first'],
-    pageKey: '1',
-    userEmail: 'my@email.com',
-    schema: { my: 'schema' },
     updateServiceMember: jest.fn(),
+    push: jest.fn(),
   };
 
   it('dispatches a redirect if the current state is earlier than the "DOD INFO COMPLETE" state', () => {
