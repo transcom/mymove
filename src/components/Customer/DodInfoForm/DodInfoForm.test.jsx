@@ -11,16 +11,19 @@ describe('DodInfoForm component', () => {
     initialValues: { affiliation: '', edipi: '', rank: '' },
   };
 
-  it('renders the form inputs', () => {
+  it('renders the form inputs', async () => {
     const { getByLabelText } = render(<DodInfoForm {...testProps} />);
-    expect(getByLabelText('Branch of service')).toBeInstanceOf(HTMLSelectElement);
-    expect(getByLabelText('Branch of service')).toBeRequired();
 
-    expect(getByLabelText('DOD ID number')).toBeInstanceOf(HTMLInputElement);
-    expect(getByLabelText('DOD ID number')).toBeRequired();
+    await waitFor(() => {
+      expect(getByLabelText('Branch of service')).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText('Branch of service')).toBeRequired();
 
-    expect(getByLabelText('Rank')).toBeInstanceOf(HTMLSelectElement);
-    expect(getByLabelText('Rank')).toBeRequired();
+      expect(getByLabelText('DOD ID number')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('DOD ID number')).toBeRequired();
+
+      expect(getByLabelText('Rank')).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText('Rank')).toBeRequired();
+    });
   });
 
   it('validates the DOD ID number on blur', async () => {
