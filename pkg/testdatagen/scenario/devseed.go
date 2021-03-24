@@ -934,76 +934,7 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 		ReService:   reService,
 	})
 
-	//// make service item param associated by the payment request and payment service item
-	//createParams := []testdatagen.CreatePaymentServiceItemParams{
-	//	{
-	//		Key:   "CanStandAlone",
-	//		Value: "TRUE",
-	//	},
-	//	{
-	//		Key:   "ContractCode",
-	//		Value: "123",
-	//	},
-	//	{
-	//		Key:   "ContractYearName",
-	//		Value: "Contract Year Name",
-	//	},
-	//	{
-	//		Key:   "CubicFeetBilled",
-	//		Value: "2",
-	//	},
-	//	{
-	//		Key:   "CubicFeetCrating",
-	//		Value: "2",
-	//	},
-	//	{
-	//		Key:   "EscalationCompounded",
-	//		Value: "1.2",
-	//	},
-	//	{
-	//		Key:   "PriceRateOrFactor",
-	//		Value: "0.2",
-	//	},
-	//	{
-	//		Key:   "RequestedPickupDate",
-	//		Value: "2020-03-15",
-	//	},
-	//	{
-	//		Key:   "ServiceAreaOrigin",
-	//		Value: "312",
-	//	},
-	//	{
-	//		Key:   "ServicesScheduleOrigin",
-	//		Value: "1",
-	//	},
-	//	{
-	//		Key:   "ZipPickupAddress",
-	//		Value: "90210",
-	//	},
-	//}
-	//// overwrite createParams, if any params passed in
-	//incomingParams := make([]testdatagen.CreatePaymentServiceItemParams, 0)
-	//for _, param := range assertions.PaymentServiceItemParams {
-	//	incomingParams = append(incomingParams, testdatagen.CreatePaymentServiceItemParams{
-	//		Key:   models.ServiceItemParamName(param.IncomingKey),
-	//		Value: param.Value,
-	//	})
-	//}
-	//if len(incomingParams) > 0 {
-	//	createParams = incomingParams
-	//}
-	//psi := models.PaymentServiceItem{
-	//	PriceCents: &serviceItemCost,
-	//}
-	//testdatagen.MergeModels(&psi, assertions.PaymentServiceItem)
-	//testdatagen.MakePaymentServiceItemWithParams(db, reService.Code, createParams, testdatagen.Assertions{
-	//	PaymentServiceItem: psi,
-	//	PaymentRequest:     paymentRequest,
-	//	MTOServiceItem:     mtoServiceItem,
-	//})
-
-	/* Testing handler here */
-
+	// using handler to create service item params
 	req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
 
 	planner := &routemocks.Planner{}
@@ -1047,8 +978,6 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 
 	response := handler.Handle(params)
 	logger.Debug("Response of create payment request handler: ", zap.Any("", response))
-
-	/* Testing handler here */
 
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
 		PaymentRequest: paymentRequest,
