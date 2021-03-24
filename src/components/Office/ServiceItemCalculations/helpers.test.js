@@ -150,8 +150,29 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for FuelSurchage', () => {
-    const result = makeCalculations('?', 99999, testParams.FuelSurchage);
-    expect(result).toEqual([]);
+    const result = makeCalculations('FSC', 99999, testParams.FuelSurchage);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs'],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: ['Zip 210 to Zip 910'],
+      },
+      {
+        value: '0.09',
+        label: 'Fuel surcharge price (per mi)',
+        details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for DomesticMobileHomeFactor', () => {
