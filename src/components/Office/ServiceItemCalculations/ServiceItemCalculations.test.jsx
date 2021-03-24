@@ -117,7 +117,6 @@ describe('ServiceItemCalculations', () => {
   ];
   testServiceItemCalculation(SERVICE_ITEM_CODES.DLH, testParams.DomesticLongHaul, expectedOutput);
 
-  // TODO - Need to verify that the Fuel surcharge price is correct
   expectedOutput = [
     {
       value: '85 cwt',
@@ -130,9 +129,9 @@ describe('ServiceItemCalculations', () => {
       details: ['Zip 210 to Zip 910'],
     },
     {
-      value: '2.60',
+      value: '0.09',
       label: 'Fuel surcharge price (per mi)',
-      details: ['EIA diesel: 2.60', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
+      details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
     },
     {
       value: '$10.00',
