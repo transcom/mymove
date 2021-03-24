@@ -2,7 +2,7 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import NameForm from './index';
+import NameForm from './NameForm';
 
 describe('NameForm component', () => {
   it('renders the form inputs', async () => {

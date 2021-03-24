@@ -4,7 +4,7 @@ import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 
 import ScrollToTop from 'components/ScrollToTop';
-import NameForm from 'components/Customer/NameForm/index';
+import NameForm from 'components/Customer/NameForm/NameForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';

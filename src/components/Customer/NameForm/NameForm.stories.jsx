@@ -1,6 +1,6 @@
 import React from 'react';
 
-import NameForm from './index';
+import NameForm from './NameForm';
 
 export default {
   title: 'Customer Components / Forms / Name Form',
