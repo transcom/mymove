@@ -6,15 +6,18 @@ import PropTypes from 'prop-types';
 import { CustomerContactInfoFields } from 'components/form/CustomerContactInfoFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
+import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import formStyles from 'styles/form.module.scss';
 
-const ContactInfoForm = (initialValues, onSubmit) => {
+const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
-    telephone: Yup.string(),
+    telephone: Yup.string().required('Required'),
     secondary_phone: Yup.string(),
-    personal_email: Yup.string(),
+    personal_email: Yup.string().required('Required'),
     phone_is_preferred: Yup.bool(),
     email_is_preferred: Yup.bool(),
   });
+
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
       {() => {
@@ -22,8 +25,17 @@ const ContactInfoForm = (initialValues, onSubmit) => {
           <Form>
             <h1>Your contact info</h1>
             <SectionWrapper>
-              <CustomerContactInfoFields />
+              <div className="tablet:margin-top-neg-3">
+                <CustomerContactInfoFields />
+              </div>
             </SectionWrapper>
+            <div className={formStyles.formActions}>
+              <WizardNavigation
+                onBackClick={onBack}
+                // disableNext={!isValid || isSubmitting}
+                onNextClick={onSubmit}
+              />
+            </div>
           </Form>
         );
       }}
@@ -39,6 +51,8 @@ ContactInfoForm.propTypes = {
     phone_is_preferred: PropTypes.bool,
     email_is_preferred: PropTypes.bool,
   }).isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onBack: PropTypes.func.isRequired,
 };
 
 export default ContactInfoForm;
