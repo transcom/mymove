@@ -58,7 +58,7 @@ const mileageZip5 = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip5, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress, // take the zip 3
+    SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
     params,
   )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
