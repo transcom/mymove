@@ -11,16 +11,18 @@ import formStyles from 'styles/form.module.scss';
 
 const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
-    telephone: Yup.string().required('Required'),
-    secondary_phone: Yup.string(),
-    personal_email: Yup.string().required('Required'),
+    telephone: Yup.string().min(10, 'Number must have 10 digits and a valid area code').required('Required'),
+    secondary_phone: Yup.string().min(10, 'Number must have 10 digits and a valid area code'),
+    personal_email: Yup.string()
+      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
+      .required('Required'),
     phone_is_preferred: Yup.bool(),
     email_is_preferred: Yup.bool(),
   });
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-      {() => {
+      {({ isValid, handleSubmit, isSubmitting }) => {
         return (
           <Form>
             <h1>Your contact info</h1>
@@ -32,8 +34,8 @@ const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
             <div className={formStyles.formActions}>
               <WizardNavigation
                 onBackClick={onBack}
-                // disableNext={!isValid || isSubmitting}
-                onNextClick={onSubmit}
+                disableNext={!isValid || isSubmitting}
+                onNextClick={handleSubmit}
               />
             </div>
           </Form>

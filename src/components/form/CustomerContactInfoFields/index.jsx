@@ -5,6 +5,7 @@ import { Label, Fieldset } from '@trussworks/react-uswds';
 
 import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField';
 import CheckboxField from 'components/form/fields/CheckboxField';
 
 export const CustomerContactInfoFields = ({ legend, className, render }) => {
@@ -16,25 +17,27 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
         <>
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-7">
-              <TextField
+              <MaskedTextField
                 label="Best contact phone"
                 id={`telephone_${CustomerContactInfoFieldsUUID}`}
                 name="telephone"
                 type="tel"
-                maxLength="10"
+                minimum="12"
+                mask="000-000-0000"
                 required
               />
             </div>
           </div>
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-7">
-              <TextField
+              <MaskedTextField
                 label="Alt. phone"
                 labelHint="Optional"
                 id={`secondaryTelephone_${CustomerContactInfoFieldsUUID}`}
                 name="secondary_telephone"
                 type="tel"
-                maxLength="10"
+                minimum="12"
+                mask="000-000-0000"
               />
             </div>
           </div>
