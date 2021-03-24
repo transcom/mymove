@@ -1315,12 +1315,14 @@ func init() {
             "firstAvailableDeliveryDate1": {
               "description": "First available date that Prime can deliver SIT service item.",
               "type": "string",
-              "format": "date"
+              "format": "date",
+              "x-nullable": true
             },
             "firstAvailableDeliveryDate2": {
               "description": "Second available date that Prime can deliver SIT service item.",
               "type": "string",
-              "format": "date"
+              "format": "date",
+              "x-nullable": true
             },
             "reServiceCode": {
               "description": "Service code allowed for this model type.",
@@ -1345,12 +1347,14 @@ func init() {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
+              "x-nullable": true,
               "example": "1400Z"
             },
             "timeMilitary2": {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
+              "x-nullable": true,
               "example": "1400Z"
             }
           }
@@ -3927,12 +3931,14 @@ func init() {
             "firstAvailableDeliveryDate1": {
               "description": "First available date that Prime can deliver SIT service item.",
               "type": "string",
-              "format": "date"
+              "format": "date",
+              "x-nullable": true
             },
             "firstAvailableDeliveryDate2": {
               "description": "Second available date that Prime can deliver SIT service item.",
               "type": "string",
-              "format": "date"
+              "format": "date",
+              "x-nullable": true
             },
             "reServiceCode": {
               "description": "Service code allowed for this model type.",
@@ -3957,12 +3963,14 @@ func init() {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
+              "x-nullable": true,
               "example": "1400Z"
             },
             "timeMilitary2": {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `, in military format.",
               "type": "string",
               "pattern": "\\d{4}Z",
+              "x-nullable": true,
               "example": "1400Z"
             }
           }
