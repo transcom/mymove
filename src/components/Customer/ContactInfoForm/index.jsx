@@ -11,12 +11,12 @@ import formStyles from 'styles/form.module.scss';
 
 const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
-    telephone: Yup.string().min(10, 'Number must have 10 digits and a valid area code').required('Required'),
-    secondary_phone: Yup.string().min(10, 'Number must have 10 digits and a valid area code'),
+    telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
+    secondary_phone: Yup.string().min(12, 'Number must have 10 digits and a valid area code'), // min 12 includes hyphens
     personal_email: Yup.string()
       .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
       .required('Required'),
-    phone_is_preferred: Yup.bool(),
+    phone_is_preferred: Yup.bool(), // TODO: make one of the two of these required
     email_is_preferred: Yup.bool(),
   });
 

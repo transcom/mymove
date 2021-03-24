@@ -22,13 +22,11 @@ describe('ContactInfoFields component', () => {
   describe('with pre-filled values', () => {
     it('renders a legend and all service member contact info inputs', () => {
       const initialValues = {
-        contact: {
-          phone: '555-123-4567',
-          alternatePhone: '555-890-1234',
-          email: 'test@example.com',
-          preferPhone: true,
-          preferEmail: true,
-        },
+        telephone: '555-123-4567',
+        secondary_telephone: '555-890-1234',
+        personal_email: 'test@example.com',
+        phone_is_preferred: true,
+        email_is_preferred: true,
       };
 
       const { getByLabelText } = render(
@@ -36,9 +34,9 @@ describe('ContactInfoFields component', () => {
           <CustomerContactInfoFields legend="Your contact info" name="contact" />
         </Formik>,
       );
-      expect(getByLabelText('Best contact phone')).toHaveValue(initialValues.contact.phone);
-      expect(getByLabelText(/Alt. phone/)).toHaveValue(initialValues.contact.alternatePhone);
-      expect(getByLabelText('Personal email')).toHaveValue(initialValues.contact.email);
+      expect(getByLabelText('Best contact phone')).toHaveValue(initialValues.telephone);
+      expect(getByLabelText(/Alt. phone/)).toHaveValue(initialValues.secondary_telephone);
+      expect(getByLabelText('Personal email')).toHaveValue(initialValues.personal_email);
       expect(getByLabelText('Phone')).toBeChecked();
       expect(getByLabelText('Email')).toBeChecked();
     });
