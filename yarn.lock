@@ -3326,10 +3326,10 @@
     "@babel/runtime" "^7.12.5"
     "@testing-library/dom" "^7.28.1"
 
-"@testing-library/user-event@^13.0.0":
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-13.0.0.tgz#c39451b9c11ec2ef7ae0743dfda96decba1f3c56"
-  integrity sha512-At8SFGsb6kLgXU6NYU/IJGiKWULTklu8FlqTtaxvR9emnGDYlVhQ1xxjchpOifh1Ao6SjKu5vgDc7ioiUfw5oQ==
+"@testing-library/user-event@^13.0.12":
+  version "13.0.12"
+  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-13.0.12.tgz#1725a2233923fe0473c47a012b0fc1e1737898e5"
+  integrity sha512-sXSlqYIkOOwhkJEtYProKyoXHDZZkKIofWh3dVKWiLVp4wVzmzP+dJqT9OOUCoPG9dpfVqSgIylkd4TSBD4Tbw==
   dependencies:
     "@babel/runtime" "^7.12.5"
 
@@ -8928,10 +8928,10 @@ filepond-plugin-image-exif-orientation@^1.0.11:
   resolved "https://registry.yarnpkg.com/filepond-plugin-image-exif-orientation/-/filepond-plugin-image-exif-orientation-1.0.11.tgz#c46b522e8873e2ad5b9c7e2bbbe71176c9df58b2"
   integrity sha512-hLBc12Fk6Zkj3L8mSAn+elugHOqT5rLUbgVXQQIQjMe0FsGjtpoxqeVR6jt4IWHGat2L9sFAgU2TGmd1mqosCg==
 
-filepond-plugin-image-preview@^4.6.5:
-  version "4.6.5"
-  resolved "https://registry.yarnpkg.com/filepond-plugin-image-preview/-/filepond-plugin-image-preview-4.6.5.tgz#18ecf011522d3d8c72438e9961eab39ad6beeec6"
-  integrity sha512-NssyAoy7zo/bGnwPpDrKHU6g64gjavf4fvxja1wIFu2zq57Sneevg0r15e1WHkAHL4hs0SwbX1YUpEEgJZ4gSg==
+filepond-plugin-image-preview@^4.6.6:
+  version "4.6.6"
+  resolved "https://registry.yarnpkg.com/filepond-plugin-image-preview/-/filepond-plugin-image-preview-4.6.6.tgz#beca9d89fb9719fb91eba52c0f2b9d4eccf81dc6"
+  integrity sha512-zWbbpjNdvaVJ8tVsI2AYtjzVPMIqdsMhcSs3XlBKQXBMPmofGm3Xm2MT2QrZjhxBss03HeAp9Uf4Xab8lDgTlw==
 
 filepond-polyfill@^1.0.2:
   version "1.0.4"
