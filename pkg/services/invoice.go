@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 
+	edi997 "github.com/transcom/mymove/pkg/edi/edi997"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -17,6 +18,12 @@ type GexSender interface {
 //go:generate mockery -name GHCPaymentRequestInvoiceGenerator
 type GHCPaymentRequestInvoiceGenerator interface {
 	Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error)
+}
+
+// EDI997Processor is the exported interface for generating an invoice
+//go:generate mockery -name EDI997Processor
+type EDI997Processor interface {
+	ProcessEDI997(ediString string) (edi997.EDI, error)
 }
 
 // SyncadaSFTPSender is the exported interface for sending an EDI to Syncada
