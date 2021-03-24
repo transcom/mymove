@@ -3,6 +3,14 @@ import { arrayOf, bool, func, string, shape, object, number } from 'prop-types';
 import { AddressShape } from 'types/address';
 import { DutyStationShape } from 'types/dutyStation';
 
+export const ServiceMemberShape = shape({
+  id: string.isRequired,
+  first_name: string.isRequired,
+  middle_name: string,
+  last_name: string.isRequired,
+  suffix: string,
+});
+
 export const MoveShape = shape({
   id: string,
   locator: string,
@@ -137,4 +145,5 @@ export default {
   NtsShipmentShape,
   NtsrShipmentShape,
   AdditionalParamsShape,
+  ServiceMemberShape,
 };

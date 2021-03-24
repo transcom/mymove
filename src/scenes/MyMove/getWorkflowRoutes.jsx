@@ -9,7 +9,6 @@ import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
 import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
-import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
 import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
 import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
@@ -20,6 +19,7 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import Home from 'pages/MyMove/Home';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
+import SMName from 'pages/MyMove/Profile/Name';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import MovingInfo from 'pages/MyMove/MovingInfo';
@@ -100,7 +100,7 @@ const pages = {
   [customerRoutes.NAME_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.first_name, sm.last_name]),
-    render: (key, pages) => ({ match }) => <SMName pages={pages} pageKey={key} match={match} />,
+    render: (key, pages) => ({ history }) => <SMName push={history.push} />,
   },
   [customerRoutes.CONTACT_INFO_PATH]: {
     isInFlow: myFirstRodeo,
