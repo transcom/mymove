@@ -9,7 +9,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
 
-const NameForm = ({ initialValues, onBack, onSubmit }) => {
+const NameForm = ({ initialValues, onSubmit }) => {
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required('Required'),
     middle_name: Yup.string(),
@@ -19,7 +19,17 @@ const NameForm = ({ initialValues, onBack, onSubmit }) => {
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, handleSubmit, isSubmitting }) => {
+      {({ isValid, isSubmitting, setFieldValue, handleSubmit }) => {
+        const handleBack = (e) => {
+          setFieldValue('nextPage', 'back');
+          handleSubmit(e);
+        };
+
+        const handleNext = (e) => {
+          setFieldValue('nextPage', 'next');
+          handleSubmit(e);
+        };
+
         return (
           <Form className={formStyles.form}>
             <h1>Name</h1>
@@ -37,9 +47,9 @@ const NameForm = ({ initialValues, onBack, onSubmit }) => {
             </SectionWrapper>
             <div className={formStyles.formActions}>
               <WizardNavigation
-                onBackClick={onBack}
+                onBackClick={handleBack}
                 disableNext={!isValid || isSubmitting}
-                onNextClick={handleSubmit}
+                onNextClick={handleNext}
               />
             </div>
           </Form>
@@ -56,7 +66,6 @@ NameForm.propTypes = {
     last_name: string,
     suffix: string,
   }).isRequired,
-  onBack: func.isRequired,
   onSubmit: func.isRequired,
 };
 

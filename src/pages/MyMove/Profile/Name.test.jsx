@@ -34,14 +34,27 @@ describe('Name page', () => {
     });
   });
 
-  it('back button goes to the DoD Info step', async () => {
+  it('back button submits the form and goes to the DoD Info step', async () => {
+    const testServiceMemberValues = {
+      id: 'testServiceMemberId',
+      first_name: 'Leo',
+      middle_name: 'Star',
+      last_name: 'Spaceman',
+      suffix: 'Mr.',
+    };
+
+    const { queryByText } = render(<Name {...testProps} />);
+
+    const backButton = queryByText('Back');
+    expect(backButton).toBeInTheDocument();
+    userEvent.click(backButton);
+
     await waitFor(() => {
-      const { queryByText } = render(<Name {...testProps} />);
-      const backButton = queryByText('Back');
-      expect(backButton).toBeInTheDocument();
-      userEvent.click(backButton);
-      expect(testProps.push).toHaveBeenCalledWith('/service-member/dod-info');
+      patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
     });
+
+    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
+    expect(testProps.push).toHaveBeenCalledWith('/service-member/dod-info');
   });
 
   it('next button submits the form and goes to the Name step', async () => {
@@ -58,16 +71,16 @@ describe('Name page', () => {
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     const { queryByText } = render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
 
+    const submitButton = queryByText('Next');
+    expect(submitButton).toBeInTheDocument();
+    userEvent.click(submitButton);
+
     await waitFor(() => {
-      const submitButton = queryByText('Next');
-      expect(submitButton).toBeInTheDocument();
-      userEvent.click(submitButton);
-
       expect(patchServiceMember).toHaveBeenCalled();
-
-      expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
-      expect(testProps.push).toHaveBeenCalledWith('/service-member/contact-info');
     });
+
+    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
+    expect(testProps.push).toHaveBeenCalledWith('/service-member/contact-info');
   });
 
   it('shows an error if the API returns an error', async () => {
@@ -126,7 +139,7 @@ describe('requireCustomerState Name', () => {
     push: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "DOD INFO COMPLETE" state', async () => {
+  it('dispatches a redirect if the current state is earlier than the "DOD INFO COMPLETE" state', () => {
     const mockState = {
       entities: {
         user: {
@@ -152,13 +165,11 @@ describe('requireCustomerState Name', () => {
       </MockProviders>,
     );
 
-    await waitFor(() => {
-      expect(wrapper.exists()).toBe(true);
-      expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/conus-oconus'));
-    });
+    expect(wrapper.exists()).toBe(true);
+    expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/conus-oconus'));
   });
 
-  it('does not redirect if the current state equals the "DOD INFO COMPLETE" state', async () => {
+  it('does not redirect if the current state equals the "DOD INFO COMPLETE" state', () => {
     const mockState = {
       entities: {
         user: {
@@ -187,12 +198,10 @@ describe('requireCustomerState Name', () => {
       </MockProviders>,
     );
 
-    await waitFor(() => {
-      expect(wrapper.exists()).toBe(true);
-      expect(mockDispatch).not.toHaveBeenCalled();
-    });
+    expect(wrapper.exists()).toBe(true);
+    expect(mockDispatch).not.toHaveBeenCalled();
   });
-  it('does not redirect if the current state is after the "DOD INFO COMPLETE" state and profile is not complete', async () => {
+  it('does not redirect if the current state is after the "DOD INFO COMPLETE" state and profile is not complete', () => {
     const mockState = {
       entities: {
         user: {
@@ -227,13 +236,11 @@ describe('requireCustomerState Name', () => {
       </MockProviders>,
     );
 
-    await waitFor(() => {
-      expect(wrapper.exists()).toBe(true);
-      expect(mockDispatch).not.toHaveBeenCalled();
-    });
+    expect(wrapper.exists()).toBe(true);
+    expect(mockDispatch).not.toHaveBeenCalled();
   });
 
-  it('does redirect if the profile is complete', async () => {
+  it('does redirect if the profile is complete', () => {
     const mockState = {
       entities: {
         user: {
@@ -279,9 +286,7 @@ describe('requireCustomerState Name', () => {
       </MockProviders>,
     );
 
-    await waitFor(() => {
-      expect(wrapper.exists()).toBe(true);
-      expect(mockDispatch).toHaveBeenCalledWith(push('/'));
-    });
+    expect(wrapper.exists()).toBe(true);
+    expect(mockDispatch).toHaveBeenCalledWith(push('/'));
   });
 });

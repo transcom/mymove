@@ -17,10 +17,14 @@ export const Name = ({ serviceMember, push, updateServiceMember }) => {
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
-    first_name: serviceMember?.first_name,
-    middle_name: serviceMember?.middle_name,
-    last_name: serviceMember?.last_name,
-    suffix: serviceMember?.suffix,
+    first_name: serviceMember?.first_name || '',
+    middle_name: serviceMember?.middle_name || '',
+    last_name: serviceMember?.last_name || '',
+    suffix: serviceMember?.suffix || '',
+  };
+
+  const handleNext = () => {
+    push(customerRoutes.CONTACT_INFO_PATH);
   };
 
   const handleBack = () => {
@@ -28,6 +32,8 @@ export const Name = ({ serviceMember, push, updateServiceMember }) => {
   };
 
   const handleSubmit = (values) => {
+    const { nextPage } = values;
+
     const payload = {
       id: serviceMember.id,
       first_name: values.first_name,
@@ -37,9 +43,13 @@ export const Name = ({ serviceMember, push, updateServiceMember }) => {
     };
 
     return patchServiceMember(payload)
-      .then((response) => {
-        updateServiceMember(response);
-        push(customerRoutes.CONTACT_INFO_PATH);
+      .then(updateServiceMember)
+      .then(() => {
+        if (nextPage === 'back') {
+          handleBack();
+        } else {
+          handleNext();
+        }
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -66,7 +76,7 @@ export const Name = ({ serviceMember, push, updateServiceMember }) => {
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <NameForm onSubmit={handleSubmit} onBack={handleBack} initialValues={initialValues} />
+          <NameForm onSubmit={handleSubmit} initialValues={initialValues} />
         </Grid>
       </Grid>
     </GridContainer>
