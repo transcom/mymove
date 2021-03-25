@@ -64,7 +64,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	)
 
 	if err != nil {
-		logger.Error("error fetching list of move orders for office user", zap.Error(err))
+		logger.Error("error fetching list of moves for office user", zap.Error(err))
 		return queues.NewGetMovesQueueInternalServerError()
 	}
 

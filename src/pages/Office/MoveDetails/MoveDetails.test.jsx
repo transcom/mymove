@@ -428,7 +428,7 @@ describe('MoveDetails page', () => {
     });
   });
 
-  describe('Left Nav shows error on requested shipment with missing TAC', () => {
+  describe('When required Orders information (like TAC) is missing', () => {
     useMoveDetailsQueries.mockImplementation(() => requestedMoveDetailsMissingInfoQuery);
 
     const wrapper = mount(
@@ -440,7 +440,7 @@ describe('MoveDetails page', () => {
       </MockProviders>,
     );
 
-    it('renders side navigation for each section', () => {
+    it('renders an error indicator in the sidebar', () => {
       expect(wrapper.find('a[href="#orders"] span[data-testid="tag"]').exists()).toBe(true);
     });
   });

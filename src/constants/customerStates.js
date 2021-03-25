@@ -10,3 +10,14 @@ export const profileStates = {
   BACKUP_ADDRESS_COMPLETE: 'BACKUP_ADDRESS_COMPLETE',
   BACKUP_CONTACTS_COMPLETE: 'BACKUP_CONTACTS_COMPLETE',
 };
+
+export const orderedProfileStates = [
+  profileStates.EMPTY_PROFILE,
+  profileStates.DOD_INFO_COMPLETE,
+  profileStates.NAME_COMPLETE,
+  profileStates.CONTACT_INFO_COMPLETE,
+  profileStates.DUTY_STATION_COMPLETE,
+  profileStates.ADDRESS_COMPLETE,
+  profileStates.BACKUP_ADDRESS_COMPLETE,
+  profileStates.BACKUP_CONTACTS_COMPLETE,
+];

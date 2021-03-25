@@ -65,7 +65,7 @@ paths:
         Currently this will also create a number of nested objects but not all.
         It will currently create
         * MoveTaskOrder
-        * MoveOrder
+        * Order
         * Customer
         * User
         * Entitlement
@@ -326,7 +326,7 @@ paths:
     patch:
       summary: updateMTOServiceItemStatus
       description: |
-        Updates the status of a service item for a move order to APPROVED or REJECTED. <br />
+        Updates the status of a service item for a move to APPROVED or REJECTED. <br />
         <br />
         This is a support endpoint and will not be available in production.
       operationId: updateMTOServiceItemStatus
@@ -877,96 +877,6 @@ definitions:
       - title
       - detail
     type: object
-  MoveOrder:
-    properties:
-      id:
-        description: ID of the MoveOrder object.
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      customer:
-        $ref: '#/definitions/Customer'
-      customerID:
-        description: |
-          ID of the Customer this MoveOrder belongs to.
-
-          If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        x-nullable: true
-      entitlement:
-        $ref: '#/definitions/Entitlement'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
-      destinationDutyStationID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        description: |
-          ID of the destination duty station.
-
-          If creating a MoveTaskOrder, this should match an existing duty station.
-      ordersType:
-        $ref: '#/definitions/OrdersType'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
-      originDutyStationID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        description: |
-          ID of the origin duty station.
-
-          If creating a MoveTaskOrder, this should match an existing duty station.
-      rank:
-        $ref: '#/definitions/Rank'
-      reportByDate:
-        description: Date that the service member must report to the new DutyStation by.
-        type: string
-        format: date
-      status:
-        $ref: '#/definitions/OrdersStatus'
-      tac:
-        type: string
-        title: TAC
-        example: 'F8J1'
-      uploadedOrders:
-        $ref: '#/definitions/Document'
-      uploadedOrdersID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        description: ID of the uploaded document.
-      orderNumber:
-        description: ID of the military orders associated with this move.
-        type: string
-        x-nullable: true
-        example: '030-00362'
-      issueDate:
-        description: The date the orders were issued.
-        type: string
-        format: date
-      eTag:
-        description: |
-          Uniquely identifies the state of the MoveOrder object (but not the nested objects)
-
-          It will change everytime the object is updated. Client should store the value.
-          Updates to this MoveOrder will require that this eTag be passed in with the If-Match header.
-        type: string
-        readOnly: true
-    type: object
-    required:
-      - orderNumber
-      - ordersType
-      - rank
-      - reportByDate
-      - issueDate
-      - status
-      - uploadedOrdersID
-      - tac
-      - originDutyStationID
-      - destinationDutyStationID
   MoveStatus:
     type: string
     description: Current status of this MoveTaskOrder
@@ -983,7 +893,7 @@ definitions:
   MoveTaskOrder:
     type: object
     required:
-      - moveOrder
+      - order
       - contractorID
     properties:
       id:
@@ -997,19 +907,19 @@ definitions:
         type: string
         readOnly: true
         description: Date the MoveTaskOrder was created on.
-      moveOrderID:
+      orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-        description: ID of the MoveOrder object
-      moveOrder:
-        $ref: '#/definitions/MoveOrder'
+        description: ID of the Order object
+      order:
+        $ref: '#/definitions/Order'
       referenceId:
         example: 1001-3456
         type: string
         readOnly: true
         description: |
-          Unique ID associated with this MoveOrder.
+          Unique ID associated with this Order.
 
           No two MoveTaskOrders may have the same ID.
           Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
@@ -1496,6 +1406,96 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+  Order:
+    properties:
+      id:
+        description: ID of the Order object.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      customer:
+        $ref: '#/definitions/Customer'
+      customerID:
+        description: |
+          ID of the Customer this Order belongs to.
+
+          If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        x-nullable: true
+      entitlement:
+        $ref: '#/definitions/Entitlement'
+      destinationDutyStation:
+        $ref: '#/definitions/DutyStation'
+      destinationDutyStationID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: |
+          ID of the destination duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty station.
+      ordersType:
+        $ref: '#/definitions/OrdersType'
+      originDutyStation:
+        $ref: '#/definitions/DutyStation'
+      originDutyStationID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: |
+          ID of the origin duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty station.
+      rank:
+        $ref: '#/definitions/Rank'
+      reportByDate:
+        description: Date that the service member must report to the new DutyStation by.
+        type: string
+        format: date
+      status:
+        $ref: '#/definitions/OrdersStatus'
+      tac:
+        type: string
+        title: TAC
+        example: 'F8J1'
+      uploadedOrders:
+        $ref: '#/definitions/Document'
+      uploadedOrdersID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: ID of the uploaded document.
+      orderNumber:
+        description: ID of the military orders associated with this move.
+        type: string
+        x-nullable: true
+        example: '030-00362'
+      issueDate:
+        description: The date the orders were issued.
+        type: string
+        format: date
+      eTag:
+        description: |
+          Uniquely identifies the state of the Order object (but not the nested objects)
+
+          It will change everytime the object is updated. Client should store the value.
+          Updates to this Order will require that this eTag be passed in with the If-Match header.
+        type: string
+        readOnly: true
+    type: object
+    required:
+      - orderNumber
+      - ordersType
+      - rank
+      - reportByDate
+      - issueDate
+      - status
+      - uploadedOrdersID
+      - tac
+      - originDutyStationID
+      - destinationDutyStationID
   OrdersStatus:
     type: string
     title: Move status

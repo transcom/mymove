@@ -58,6 +58,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	}
 
 	randomEdipi := randomEdipi()
+	rank := models.ServiceMemberRankE1
 
 	serviceMember := models.ServiceMember{
 		UserID:               user.ID,
@@ -70,6 +71,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		PersonalEmail:        &email,
 		ResidentialAddressID: currentAddressID,
 		ResidentialAddress:   currentAddress,
+		Rank:                 &rank,
 	}
 
 	// Overwrite values with those from assertions

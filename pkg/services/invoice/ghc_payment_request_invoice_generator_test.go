@@ -244,6 +244,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	result, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
 
+	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
+	suite.T().Run("the GCN is equal to the ICN", func(t *testing.T) {
+		suite.EqualValues(result.ISA.InterchangeControlNumber, result.IEA.InterchangeControlNumber, result.GS.GroupControlNumber, result.GE.GroupControlNumber)
+	})
+
 	// Test Invoice Start and End Segments
 	suite.T().Run("adds isa start segment", func(t *testing.T) {
 		suite.Equal("00", result.ISA.AuthorizationInformationQualifier)
@@ -270,7 +275,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("8004171844", result.GS.ApplicationReceiversCode)
 		suite.Equal(currentTime.Format(testDateFormat), result.GS.Date)
 		suite.Equal(currentTime.Format(testTimeFormat), result.GS.Time)
-		suite.Equal(int64(100001251), result.GS.GroupControlNumber)
+		suite.Equal(int64(123), result.GS.GroupControlNumber)
 		suite.Equal("X", result.GS.ResponsibleAgencyCode)
 		suite.Equal("004010", result.GS.Version)
 	})
@@ -288,7 +293,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds ge end segment", func(t *testing.T) {
 		suite.Equal(1, result.GE.NumberOfTransactionSetsIncluded)
-		suite.Equal(int64(100001251), result.GE.GroupControlNumber)
+		suite.Equal(int64(123), result.GE.GroupControlNumber)
 	})
 
 	suite.T().Run("adds iea end segment", func(t *testing.T) {

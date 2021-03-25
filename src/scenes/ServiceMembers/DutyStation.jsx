@@ -12,6 +12,9 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import { profileStates } from 'constants/customerStates';
+import { PageKeyShape, PageListShape } from 'types/customerShapes';
 
 import './DutyStation.css';
 
@@ -105,6 +108,8 @@ export class DutyStation extends Component {
 }
 DutyStation.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
+  pages: PageListShape.isRequired,
+  pageKey: PageKeyShape.isRequired,
 };
 
 const mapDispatchToProps = {
@@ -125,4 +130,7 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DutyStation);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(requireCustomerState(DutyStation, profileStates.CONTACT_INFO_COMPLETE));

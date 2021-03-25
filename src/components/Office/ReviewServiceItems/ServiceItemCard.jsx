@@ -12,17 +12,21 @@ import { toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { mtoShipmentTypes } from 'constants/shipments';
+import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
+import { PaymentServiceItemParam } from 'types/order';
 
 /** This component represents a Payment Request Service Item */
 const ServiceItemCard = ({
   id,
   mtoShipmentType,
+  mtoServiceItemCode,
   mtoServiceItemName,
   amount,
   status,
   rejectionReason,
   patchPaymentServiceItem,
   requestComplete,
+  paymentServiceItemParams,
 }) => {
   const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
 
@@ -38,6 +42,15 @@ const ServiceItemCard = ({
             <dt>Amount</dt>
             <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
           </dl>
+
+          {paymentServiceItemParams.length > 0 && (
+            <ServiceItemCalculations
+              totalAmountRequested={amount * 100}
+              serviceItemParams={paymentServiceItemParams}
+              itemCode={mtoServiceItemCode}
+              tableSize="small"
+            />
+          )}
 
           <div data-testid="completeSummary" className={styles.completeContainer}>
             {status === APPROVED ? (
@@ -174,6 +187,7 @@ const ServiceItemCard = ({
 
 ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
+  mtoServiceItemCode: PropTypes.string.isRequired,
   mtoShipmentType: ShipmentOptionsOneOf,
   mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number.isRequired,
@@ -181,6 +195,7 @@ ServiceItemCard.propTypes = {
   rejectionReason: PropTypes.string,
   patchPaymentServiceItem: PropTypes.func.isRequired,
   requestComplete: PropTypes.bool,
+  paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
 };
 
 ServiceItemCard.defaultProps = {
@@ -189,6 +204,7 @@ ServiceItemCard.defaultProps = {
   status: undefined,
   rejectionReason: '',
   requestComplete: false,
+  paymentServiceItemParams: [],
 };
 
 export default ServiceItemCard;
