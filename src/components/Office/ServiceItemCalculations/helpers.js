@@ -172,7 +172,6 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
-      // console.log(result);
       break;
     default:
       break;
