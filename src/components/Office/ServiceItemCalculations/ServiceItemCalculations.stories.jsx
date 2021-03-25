@@ -16,15 +16,32 @@ export default {
   ],
 };
 
-export const LargeTable = () => (
+export const LargeTableDLH = () => (
   <ServiceItemCalculations serviceItemParams={testParams.DomesticLongHaul} totalAmountRequested={642} itemCode="DLH" />
 );
 
-export const SmallTable = () => (
+export const SmallTableDLH = () => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticLongHaul}
     totalAmountRequested={642}
     itemCode="DLH"
+    tableSize="small"
+  />
+);
+
+export const LargeTableDOP = () => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginPrice}
+    totalAmountRequested={642}
+    itemCode="DOP"
+  />
+);
+
+export const SmallTableDOP = () => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginPrice}
+    totalAmountRequested={642}
+    itemCode="DOP"
     tableSize="small"
   />
 );
