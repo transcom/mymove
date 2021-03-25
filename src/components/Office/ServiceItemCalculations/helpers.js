@@ -40,7 +40,7 @@ const billableWeightFSC = (params) => {
 };
 
 // mileage calculation
-const mileage = (params) => {
+const mileageZIP3 = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
@@ -53,6 +53,19 @@ const mileage = (params) => {
 
   return calculation(value, label, detail);
 };
+// const mileageZIP5 = (params) => {
+//   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip5, params);
+//   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+//   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+//     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress, // take the zip 5
+//     params,
+//   )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+//     SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
+//     params,
+//   )}`;
+
+//   return calculation(value, label, detail);
+// };
 
 const baselineLinehaulPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
@@ -78,6 +91,32 @@ const priceEscalationFactor = (params) => {
   const detail = '';
 
   return calculation(value, label, detail);
+};
+
+const originPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.OriginPrice, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
+
+  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceSchedule]}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServiceSchedule,
+    params,
+  )}`;
+
+  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin,
+    params,
+  )}`;
+
+  const detail3 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+
+  const detail4 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+
+  return calculation(value, label, detail1, detail2, detail3, detail4);
 };
 
 const fuelSurchargePrice = (params) => {
@@ -120,7 +159,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DLH:
       result = [
         billableWeight(params),
-        mileage(params),
+        mileageZIP3(params),
         baselineLinehaulPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
@@ -129,8 +168,16 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.FSC:
       result = [
         billableWeightFSC(params),
-        mileage(params),
+        mileageZIP3(params),
         fuelSurchargePrice(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    case SERVICE_ITEM_CODES.DOP:
+      result = [
+        billableWeight(params),
+        originPrice(params),
+        priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
       break;
