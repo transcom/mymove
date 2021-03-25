@@ -10,7 +10,6 @@ const create = (context) => ({
     node.comments.forEach((comment) => {
       const value = comment.value.trim();
       const result = disableRegex.exec(value);
-
       if (
         result && // It's a eslint-disable comment
         !result.groups.ruleId // But it did not specify any rules

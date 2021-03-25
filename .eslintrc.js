@@ -13,6 +13,7 @@ module.exports = {
     'prettier/prettier': 'error',
     'no-only-tests/no-only-tests': 'error',
     'test/no-ruleless-eslint-disable': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+    'test/no-unapproved-annotation': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     'no-debugger': 'warn',
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     'jsx-a11y/anchor-is-valid': ['warn', { aspects: ['noHref', 'preferButton'] }],
