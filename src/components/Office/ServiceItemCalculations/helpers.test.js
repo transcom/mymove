@@ -18,12 +18,12 @@ describe('makeCalculations', () => {
       {
         value: '1.033',
         label: 'Baseline linehaul price',
-        details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
+        details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 11 Mar 2020'],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: [''],
+        details: ['Base year: 2'],
       },
       {
         value: '$999.99',
@@ -49,7 +49,7 @@ describe('makeCalculations', () => {
       {
         value: '1.033',
         label: 'Baseline linehaul price',
-        details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
+        details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 11 Mar 2020'],
       },
       {
         value: '1.033',
@@ -105,8 +105,29 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticPacking', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticPacking);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DPK', 99999, testParams.DomesticPacking);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: undefined,
+        label: 'Pack price',
+        details: ['Origin service schedule: 3', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: ['Base year: 2'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for DomesticUnpacking', () => {

@@ -107,7 +107,7 @@ describe('ServiceItemCalculations', () => {
     {
       value: '1.033',
       label: 'Price escalation factor',
-      details: null,
+      details: ['Base year: 2'],
     },
     {
       value: '$10.00',

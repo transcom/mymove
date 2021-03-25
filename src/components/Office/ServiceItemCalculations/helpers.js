@@ -75,7 +75,10 @@ const baselineLinehaulPrice = (params) => {
 const priceEscalationFactor = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.PriceEscalationFactor;
-  const detail = '';
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ContractYearName]}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ContractYearName,
+    params,
+  )}`;
 
   return calculation(value, label, detail);
 };

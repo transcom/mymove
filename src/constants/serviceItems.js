@@ -6,6 +6,7 @@ const SERVICE_ITEM_STATUSES = {
 
 // TODO - refactor to order keys in alphabet order
 const SERVICE_ITEM_PARAM_KEYS = {
+  ContractYearName: 'ContractYearName',
   WeightBilledActual: 'WeightBilledActual',
   WeightActual: 'WeightActual',
   WeightEstimated: 'WeightEstimated',
@@ -31,6 +32,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   TotalAmountRequested: 'Total amount requested',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
   PackPrice: 'Pack price',
+  [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightEstimated]: 'Estimated',
