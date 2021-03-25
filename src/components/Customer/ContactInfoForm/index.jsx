@@ -21,8 +21,12 @@ const ContactInfoForm = ({ initialValues, onSubmit }) => {
     personal_email: Yup.string()
       .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
       .required('Required'),
-    phone_is_preferred: Yup.bool().test(validatePreferredContactMethod),
-    email_is_preferred: Yup.bool().test(validatePreferredContactMethod),
+    phone_is_preferred: Yup.bool().test(
+      'contactMethodRequired',
+      'Please select a preferred method of contact.',
+      validatePreferredContactMethod,
+    ),
+    email_is_preferred: Yup.bool().test('contactMethodRequired', validatePreferredContactMethod),
   });
 
   return (
