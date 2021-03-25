@@ -16,7 +16,7 @@ type webhookSubscriptionUpdater struct {
 // It uses the id in the passed in model to find the subscription.
 // For the severity field, it uses severity from the parameter not the model. If nil, severity will not be updated.
 // For all other fields, it uses the values found in the model.
-func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(requestedUpdate *models.WebhookSubscription, severity *int64) (*models.WebhookSubscription, error) {
+func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(requestedUpdate *models.WebhookSubscription, severity *int64, eTag *string) (*models.WebhookSubscription, error) {
 	webhookSubscriptionID := uuid.FromStringOrNil(requestedUpdate.ID.String())
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscriptionID)}
 
@@ -48,7 +48,7 @@ func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(requestedUpdate *
 		foundSub.CallbackURL = requestedUpdate.CallbackURL
 	}
 
-	verrs, err := o.builder.UpdateOne(&foundSub, nil)
+	verrs, err := o.builder.UpdateOne(&foundSub, eTag)
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(webhookSubscriptionID, err, verrs, "")

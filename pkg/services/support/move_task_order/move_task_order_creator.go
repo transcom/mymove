@@ -30,19 +30,19 @@ type moveTaskOrderCreator struct {
 func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.Move, error) {
 	var moveTaskOrder *models.Move
 	var refID string
-	if payload.MoveOrder == nil {
-		return nil, services.NewQueryError("MoveTaskOrder", nil, "MoveOrder is necessary")
+	if payload.Order == nil {
+		return nil, services.NewQueryError("MoveTaskOrder", nil, "Order is necessary")
 	}
 
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		// Create or get customer
-		customer, err := createOrGetCustomer(tx, customer.NewCustomerFetcher(tx), payload.MoveOrder.CustomerID, payload.MoveOrder.Customer, logger)
+		customer, err := createOrGetCustomer(tx, customer.NewCustomerFetcher(tx), payload.Order.CustomerID, payload.Order.Customer, logger)
 		if err != nil {
 			return err
 		}
 
-		// Create move order and entitlement
-		order, err := createMoveOrder(tx, customer, payload.MoveOrder, logger)
+		// Create order and entitlement
+		order, err := createOrder(tx, customer, payload.Order, logger)
 		if err != nil {
 			return err
 		}
@@ -90,15 +90,15 @@ func NewInternalMoveTaskOrderCreator(db *pop.Connection) support.InternalMoveTas
 	return &moveTaskOrderCreator{db}
 }
 
-// createMoveOrder creates a basic move order - this is a support function do not use in production
-func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayload *supportmessages.MoveOrder, logger handlers.Logger) (*models.Order, error) {
+// createOrder creates a basic order - this is a support function do not use in production
+func createOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayload *supportmessages.Order, logger handlers.Logger) (*models.Order, error) {
 	if orderPayload == nil {
-		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "MoveOrder definition is required to create MoveTaskOrder")
+		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "Order definition is required to create MoveTaskOrder")
 		return nil, returnErr
 	}
 
-	// Move order model will also contain the entitlement
-	order := MoveOrderModel(orderPayload)
+	// Order model will also contain the entitlement
+	order := OrderModel(orderPayload)
 
 	// Check that the order destination duty station exists, then hook up to order
 	// It's required in the payload
@@ -106,7 +106,7 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, orderPa
 	destinationDutyStationID := uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
 	err := tx.Find(&destinationDutyStation, destinationDutyStationID)
 	if err != nil {
-		logger.Error("supportapi.createMoveOrder error", zap.Error(err))
+		logger.Error("supportapi.createOrder error", zap.Error(err))
 		return nil, services.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
 	}
 	order.NewDutyStation = destinationDutyStation
@@ -118,7 +118,7 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, orderPa
 		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
 		err = tx.Find(originDutyStation, originDutyStationID)
 		if err != nil {
-			logger.Error("supportapi.createMoveOrder error", zap.Error(err))
+			logger.Error("supportapi.createOrder error", zap.Error(err))
 			return nil, services.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
 		}
 		order.OriginDutyStation = originDutyStation
@@ -132,7 +132,7 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, orderPa
 		fmt.Println("\n\nUploaded orders id is ", uploadedOrdersID)
 		err = tx.Find(uploadedOrders, uploadedOrdersID)
 		if err != nil {
-			logger.Error("supportapi.createMoveOrder error", zap.Error(err))
+			logger.Error("supportapi.createOrder error", zap.Error(err))
 			return nil, services.NewNotFoundError(uploadedOrdersID, ". The uploadedOrders does not exist.")
 		}
 		order.UploadedOrders = *uploadedOrders
@@ -146,11 +146,11 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, orderPa
 	// Creates the order and the entitlement at the same time
 	verrs, err := tx.Eager().ValidateAndCreate(order)
 	if verrs.Count() > 0 {
-		logger.Error("supportapi.createMoveOrder error", zap.Error(verrs))
+		logger.Error("supportapi.createOrder error", zap.Error(verrs))
 		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	} else if err != nil {
-		logger.Error("supportapi.createMoveOrder error", zap.Error(err))
-		e := services.NewQueryError("MoveOrder", err, "Unable to create MoveOrder.")
+		logger.Error("supportapi.createOrder error", zap.Error(err))
+		e := services.NewQueryError("Order", err, "Unable to create Order.")
 		return nil, e
 	}
 	return order, nil
@@ -249,11 +249,11 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 	}
 }
 
-// MoveOrderModel converts payload to model - it does not convert nested
+// OrderModel converts payload to model - it does not convert nested
 // duty stations but will preserve the ID if provided.
 // It will create nested customer and entitlement models
 // if those are provided in the payload
-func MoveOrderModel(orderPayload *supportmessages.MoveOrder) *models.Order {
+func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	if orderPayload == nil {
 		return nil
 	}

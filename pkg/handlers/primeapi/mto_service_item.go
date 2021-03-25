@@ -119,9 +119,9 @@ type UpdateMTOServiceItemHandler struct {
 func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtoServiceItem, verrs := payloads.MTOServiceItemModelFromUpdate(params.Body)
+	mtoServiceItem, verrs := payloads.MTOServiceItemModelFromUpdate(params.MtoServiceItemID, params.Body)
 	if verrs != nil && verrs.HasAny() {
-		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+		return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 			verrs.Error(), h.GetTraceID(), verrs))
 	}
 

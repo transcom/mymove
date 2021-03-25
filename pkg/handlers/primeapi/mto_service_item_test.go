@@ -866,7 +866,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 	// Under test: updateMTOServiceItemHandler.Handle function
 	//             MTOServiceItemUpdater.Update service object function
 	// SETUP
-	// Create the service item in the db for dofsit and dddsit
+	// Create the service item in the db for dddsit
 	timeNow := time.Now()
 	dddsit := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -908,15 +908,16 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", dddsit.ID), nil)
 	eTag := etag.GenerateEtag(dddsit.UpdatedAt)
 	params := mtoserviceitemops.UpdateMTOServiceItemParams{
-		HTTPRequest: req,
-		Body:        reqPayload,
-		IfMatch:     eTag,
+		HTTPRequest:      req,
+		Body:             reqPayload,
+		MtoServiceItemID: dddsit.ID.String(),
+		IfMatch:          eTag,
 	}
 
-	suite.T().Run("Successful PATCH - Updated SITDepartureDate on DOPSIT", func(t *testing.T) {
+	suite.T().Run("Successful PATCH - Updated SITDepartureDate on DDDSIT", func(t *testing.T) {
 		// Under test: updateMTOServiceItemHandler.Handle function
 		//             MTOServiceItemUpdater.Update service object function
-		// Set up:     We create an mto service item using DOFSIT (which was created above)
+		// Set up:     We create an mto service item using DDDSIT (which was created above)
 		//             And send an update to the sit entry date
 		// Expected outcome:
 		//             Receive a success response with the SitDepartureDate updated
@@ -957,6 +958,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		badUUID := uuid.Must(uuid.NewV4())
 		badReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", badUUID), nil)
 		params.HTTPRequest = badReq
+		params.MtoServiceItemID = badUUID.String()
 		reqPayload.SetID(strfmt.UUID(badUUID.String()))
 
 		// CALL FUNCTION UNDER TEST
@@ -968,6 +970,31 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 
 		// return to good state for next test
 		params.HTTPRequest = req
+		params.MtoServiceItemID = dddsit.ID.String()
+		reqPayload.SetID(strfmt.UUID(dddsit.ID.String()))
+	})
+
+	suite.T().Run("Failure 422 - Unprocessable Entity", func(t *testing.T) {
+		// Under test: updateMTOServiceItemHandler.Handle function
+		//             MTOServiceItemUpdater.Update service object function
+		// Set up:     We use a non existent DDDSIT item ID in the param body
+		//             And send an update to DDDSIT to the SitDepartureDate
+		// Expected outcome:
+		//             Receive an unprocessable entity error response
+
+		// SETUP
+		// Replace the payload ID with one that does not match request param
+		badUUID := uuid.Must(uuid.NewV4())
+		reqPayload.SetID(strfmt.UUID(badUUID.String()))
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemUnprocessableEntity{}, response)
+
+		// return to good state for next test
 		reqPayload.SetID(strfmt.UUID(dddsit.ID.String()))
 	})
 
@@ -1038,9 +1065,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", dopsit.ID), nil)
 	eTag := etag.GenerateEtag(dopsit.UpdatedAt)
 	params := mtoserviceitemops.UpdateMTOServiceItemParams{
-		HTTPRequest: req,
-		Body:        reqPayload,
-		IfMatch:     eTag,
+		HTTPRequest:      req,
+		Body:             reqPayload,
+		MtoServiceItemID: dopsit.ID.String(),
+		IfMatch:          eTag,
 	}
 
 	suite.T().Run("Successful PATCH - Updated SITDepartureDate on DOPSIT", func(t *testing.T) {
@@ -1082,6 +1110,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		badUUID := uuid.Must(uuid.NewV4())
 		badReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", badUUID), nil)
 		params.HTTPRequest = badReq
+		params.MtoServiceItemID = badUUID.String()
 		reqPayload.SetID(strfmt.UUID(badUUID.String()))
 
 		// CALL FUNCTION UNDER TEST
@@ -1093,6 +1122,31 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 
 		// return to good state for next test
 		params.HTTPRequest = req
+		params.MtoServiceItemID = dopsit.ID.String()
+		reqPayload.SetID(strfmt.UUID(dopsit.ID.String()))
+	})
+
+	suite.T().Run("Failure 422 - Unprocessable Entity", func(t *testing.T) {
+		// Under test: updateMTOServiceItemHandler.Handle function
+		//             MTOServiceItemUpdater.Update service object function
+		// Set up:     We use a non existent DOPSIT item ID in the param body
+		//             And send an update to DOPSIT to the SitDepartureDate
+		// Expected outcome:
+		//             Receive an unprocessable entity error response
+
+		// SETUP
+		// Replace the payload ID with one that does not match request param
+		badUUID := uuid.Must(uuid.NewV4())
+		reqPayload.SetID(strfmt.UUID(badUUID.String()))
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemUnprocessableEntity{}, response)
+
+		// return to good state for next test
 		reqPayload.SetID(strfmt.UUID(dopsit.ID.String()))
 	})
 

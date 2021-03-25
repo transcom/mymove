@@ -44,7 +44,7 @@ type UpdateMTOServiceItemStatusParams struct {
 	  In: body
 	*/
 	Body *ghcmessages.PatchMTOServiceItemStatusPayload
-	/*ID of move order to use
+	/*ID of move to use
 	  Required: true
 	  In: path
 	*/

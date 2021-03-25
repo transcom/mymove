@@ -3,12 +3,20 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
+import { makeCalculations } from './helpers';
 import styles from './ServiceItemCalculations.module.scss';
+
+import { PaymentServiceItemParam } from 'types/order';
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 
 const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
 const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
 
-const ServiceItemCalculations = ({ calculations, tableSize }) => {
+const ServiceItemCalculations = ({ itemCode, totalAmountRequested, serviceItemParams, tableSize }) => {
+  if (itemCode !== SERVICE_ITEM_CODES.DLH || serviceItemParams.length === 0) {
+    return <></>;
+  }
+
   const appendSign = (index, length) => {
     if (tableSize === 'small') {
       return <></>;
@@ -24,6 +32,8 @@ const ServiceItemCalculations = ({ calculations, tableSize }) => {
 
     return <></>;
   };
+
+  const calculations = makeCalculations(itemCode, totalAmountRequested, serviceItemParams);
 
   return (
     <div
@@ -75,20 +85,17 @@ const ServiceItemCalculations = ({ calculations, tableSize }) => {
 };
 
 ServiceItemCalculations.propTypes = {
-  // collection of ordered calculations and last item is the Total amount requested
-  calculations: PropTypes.arrayOf(
-    PropTypes.shape({
-      value: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired,
-      details: PropTypes.arrayOf(PropTypes.string),
-    }),
-  ).isRequired,
+  itemCode: PropTypes.string.isRequired,
+  // in cents
+  totalAmountRequested: PropTypes.number.isRequired,
+  serviceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
   // apply small or large styling
   tableSize: PropTypes.oneOf(['small', 'large']),
 };
 
 ServiceItemCalculations.defaultProps = {
   tableSize: 'large',
+  serviceItemParams: [],
 };
 
 export default ServiceItemCalculations;

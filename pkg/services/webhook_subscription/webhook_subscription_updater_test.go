@@ -2,6 +2,9 @@ package webhooksubscription
 
 import (
 	"testing"
+	"time"
+
+	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/gofrs/uuid"
 
@@ -28,7 +31,8 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 			EventKey:    "Change.The.Event",
 		}
 		sev := int64(newSub.Severity)
-		updatedSub, err := updater.UpdateWebhookSubscription(&newSub, &sev)
+		eTag := etag.GenerateEtag(origSub.UpdatedAt)
+		updatedSub, err := updater.UpdateWebhookSubscription(&newSub, &sev, &eTag)
 
 		suite.NoError(err)
 		suite.Equal(newSub.CallbackURL, updatedSub.CallbackURL)
@@ -48,7 +52,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 			ID:          fakeID,
 			CallbackURL: "/this/is/changed/again"}
 
-		updatedSub, err := updater.UpdateWebhookSubscription(&newSub, nil)
+		updatedSub, err := updater.UpdateWebhookSubscription(&newSub, nil, nil)
 
 		suite.Equal(models.RecordNotFoundErrorString, err.Error())
 		suite.Nil(updatedSub)
@@ -67,7 +71,25 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 			CallbackURL:  "/this/is/changed/again",
 		}
 
-		updatedSub, err := updater.UpdateWebhookSubscription(&newSub, nil)
+		updatedSub, err := updater.UpdateWebhookSubscription(&newSub, nil, nil)
+
+		suite.Error(err)
+		suite.Nil(updatedSub)
+	})
+
+	suite.T().Run("Fails to update - precondition failed", func(t *testing.T) {
+		// Testing:           WebhookSubscriptionUpdater
+		// Set up:            Call the updater with a stale eTag value
+		// Expected Outcome:  We receive an error and no updatedSub
+		newSub := models.WebhookSubscription{
+			ID:          origSub.ID,
+			CallbackURL: "/this/is/changed",
+			Severity:    1,
+			EventKey:    "Change.The.Event",
+		}
+		sev := int64(newSub.Severity)
+		eTag := etag.GenerateEtag(time.Now())
+		updatedSub, err := updater.UpdateWebhookSubscription(&newSub, &sev, &eTag)
 
 		suite.Error(err)
 		suite.Nil(updatedSub)

@@ -492,7 +492,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-orders/{orderID}"] = order.NewGetOrder(o.context, o.OrderGetOrderHandler)
+	o.handlers["GET"]["/orders/{orderID}"] = order.NewGetOrder(o.context, o.OrderGetOrderHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -516,7 +516,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-orders/{orderID}/move-task-orders"] = order.NewListMoveTaskOrders(o.context, o.OrderListMoveTaskOrdersHandler)
+	o.handlers["GET"]["/orders/{orderID}/move-task-orders"] = order.NewListMoveTaskOrders(o.context, o.OrderListMoveTaskOrdersHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -544,7 +544,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/move-orders/{orderID}"] = order.NewUpdateOrder(o.context, o.OrderUpdateOrderHandler)
+	o.handlers["PATCH"]["/orders/{orderID}"] = order.NewUpdateOrder(o.context, o.OrderUpdateOrderHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

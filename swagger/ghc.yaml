@@ -104,7 +104,7 @@ paths:
       description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
-  '/move-orders/{orderID}':
+  '/orders/{orderID}':
     parameters:
       - description: ID of order to use
         in: path
@@ -157,6 +157,10 @@ paths:
           description: Precondition failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
     get:
@@ -193,7 +197,7 @@ paths:
       description: Gets an order
       operationId: getOrder
       summary: Gets an order by ID
-  '/move-orders/{orderID}/move-task-orders':
+  '/orders/{orderID}/move-task-orders':
     parameters:
       - description: ID of order to use
         in: path
@@ -237,7 +241,7 @@ paths:
       summary: Gets move task orders associated with an order
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
-      - description: ID of move order to use
+      - description: ID of move to use
         in: path
         name: moveTaskOrderID
         required: true
@@ -273,9 +277,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Deletes a move order by ID
+      description: Deletes a move by ID
       operationId: deleteMoveTaskOrder
-      summary: Deletes a move order by ID
+      summary: Deletes a move by ID
     get:
       produces:
         - application/json
@@ -307,9 +311,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Gets a move order
+      description: Gets a move
       operationId: getMoveTaskOrder
-      summary: Gets a move order by ID
+      summary: Gets a move by ID
     patch:
       consumes:
         - application/json
@@ -350,18 +354,22 @@ paths:
           description: Precondition failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Updates a move order by ID
+      description: Updates a move by ID
       operationId: updateMoveTaskOrder
-      summary: Updates a move order by ID
+      summary: Updates a move by ID
   '/move_task_orders/{moveTaskOrderID}/mto_service_items':
     parameters:
-      - description: ID of move order for mto service item to use
+      - description: ID of move for mto service item to use
         in: path
         name: moveTaskOrderID
         required: true
@@ -390,9 +398,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
-      description: Gets all line items for a move orders
+      description: Gets all line items for a move
       operationId: listMTOServiceItems
-      summary: Gets all line items for a move order
+      summary: Gets all line items for a move
   '/move_task_orders/{moveTaskOrderID}/mto_shipments':
     parameters:
       - description: ID of move task order for mto shipment to use
@@ -528,7 +536,7 @@ paths:
       summary: Fetch move task order agents.
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
     parameters:
-      - description: ID of move order to use
+      - description: ID of move to use
         in: path
         name: moveTaskOrderID
         required: true
@@ -569,9 +577,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
-      description: Deletes a line item by ID for a move order by ID
+      description: Deletes a line item by ID for a move by ID
       operationId: deleteMTOServiceItem
-      summary: Deletes a line item by ID for a move order by ID
+      summary: Deletes a line item by ID for a move by ID
     get:
       produces:
         - application/json
@@ -603,9 +611,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
-      description: Gets a line item by ID for a move order by ID
+      description: Gets a line item by ID for a move by ID
       operationId: getMTOServiceItem
-      summary: Gets a line item by ID for a move order by ID
+      summary: Gets a line item by ID for a move by ID
     patch:
       consumes:
         - application/json
@@ -652,12 +660,12 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
-      description: Updates a service item by ID for a move order by ID
+      description: Updates a service item by ID for a move by ID
       operationId: updateMTOServiceItem
-      summary: Updates a service item by ID for a move order by ID
+      summary: Updates a service item by ID for a move by ID
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
     parameters:
-      - description: ID of move order to use
+      - description: ID of move to use
         in: path
         name: moveTaskOrderID
         required: true
@@ -719,9 +727,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
-      description: Changes the status of a line item for a move order by ID
+      description: Changes the status of a line item for a move by ID
       operationId: updateMTOServiceItemStatus
-      summary: Change the status of a line item for a move order by ID
+      summary: Change the status of a line item for a move by ID
   '/move-task-orders/{moveTaskOrderID}/status':
     patch:
       consumes:
@@ -729,7 +737,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - description: ID of move order to use
+        - description: ID of move to use
           in: path
           name: moveTaskOrderID
           required: true
@@ -772,6 +780,10 @@ paths:
           description: Precondition Failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
@@ -783,7 +795,7 @@ paths:
       summary: Change the status of a move task order to make it available to prime
   '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
     parameters:
-      - description: ID of move order to use
+      - description: ID of move to use
         in: path
         name: moveTaskOrderID
         required: true
@@ -841,12 +853,12 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - paymentServiceItem
-      description: Changes the status of a line item for a move order by ID
+      description: Changes the status of a line item for a move by ID
       operationId: updatePaymentServiceItemStatus
-      summary: Change the status of a payment service item for a move order by ID
+      summary: Change the status of a payment service item for a move by ID
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
-      - description: ID of move order to use
+      - description: ID of move to use
         in: path
         name: moveTaskOrderID
         required: true
@@ -884,7 +896,7 @@ paths:
             $ref: '#/responses/ServerError'
       description: Gets entitlements
       operationId: getEntitlements
-      summary: Gets entitlements for a move order by ID
+      summary: Gets entitlements for a move by ID
   '/payment-requests/{paymentRequestID}':
     parameters:
       - description: UUID of payment request
@@ -2055,6 +2067,9 @@ definitions:
       mtoServiceItemID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
+        type: string
+      mtoServiceItemCode:
+        example: DLH
         type: string
       mtoServiceItemName:
         example: Move management

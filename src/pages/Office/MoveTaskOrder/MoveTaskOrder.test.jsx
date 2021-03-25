@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 
@@ -112,12 +113,13 @@ const someShipmentsApprovedMTOQuery = {
   moveTaskOrders: {
     2: {
       id: '2',
-      status: MOVE_STATUSES.APPROVED,
+      status: MOVE_STATUSES.APPROVALS_REQUESTED,
     },
   },
   mtoShipments: [
     {
       id: '3',
+      moveTaskOrderID: '2',
       shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
@@ -155,35 +157,35 @@ const someShipmentsApprovedMTOQuery = {
       status: shipmentStatuses.SUBMITTED,
     },
   ],
-  mtoServiceItems: {
-    5: {
+  mtoServiceItems: [
+    {
       id: '5',
       mtoShipmentID: '3',
-      reServiceName: 'Test Service Item',
+      reServiceName: 'Domestic origin 1st day SIT',
       status: SERVICE_ITEM_STATUS.SUBMITTED,
       reServiceCode: 'DOFSIT',
     },
-    6: {
+    {
       id: '6',
       mtoShipmentID: '3',
       reServiceName: 'Domestic Linehaul',
       status: SERVICE_ITEM_STATUS.APPROVED,
       reServiceCode: 'DLH',
     },
-    7: {
+    {
       id: '7',
       mtoShipmentID: '3',
       reServiceName: 'Domestic Unpacking',
       status: SERVICE_ITEM_STATUS.REJECTED,
       reServiceCode: 'DUPK',
     },
-    8: {
+    {
       id: '8',
       reServiceName: 'Move management',
       status: SERVICE_ITEM_STATUS.APPROVED,
       reServiceCode: 'MS',
     },
-  },
+  ],
   isLoading: false,
   isError: false,
   isSuccess: true,
@@ -214,13 +216,14 @@ const allApprovedMTOQuery = {
   moveTaskOrders: {
     2: {
       id: '2',
-      status: 'APPROVED',
+      status: MOVE_STATUSES.APPROVALS_REQUESTED,
       availableToPrimeAt: '2020-03-01T00:00:00.000Z',
     },
   },
   mtoShipments: [
     {
       id: '3',
+      moveTaskOrderID: '2',
       shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
@@ -240,6 +243,7 @@ const allApprovedMTOQuery = {
     },
     {
       id: '4',
+      moveTaskOrderID: '2',
       shipmentType: SHIPMENT_OPTIONS.NTS,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
@@ -259,6 +263,7 @@ const allApprovedMTOQuery = {
     },
     {
       id: '5',
+      mtoShipmentID: '2',
       shipmentType: SHIPMENT_OPTIONS.NTSR,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
@@ -315,21 +320,29 @@ const allApprovedMTOQuery = {
       status: 'APPROVED',
     },
   ],
-  mtoServiceItems: {
-    5: {
-      id: '5',
+  mtoServiceItems: [
+    {
+      id: '8',
       mtoShipmentID: '3',
-      reServiceName: 'Test Service Item',
+      reServiceName: 'Domestic origin 1st day SIT',
       status: SERVICE_ITEM_STATUS.SUBMITTED,
       reServiceCode: 'DOFSIT',
     },
-  },
+    {
+      id: '9',
+      mtoShipmentID: '4',
+      reServiceName: "Domestic origin add'l SIT",
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOASIT',
+    },
+  ],
   isLoading: false,
   isError: false,
   isSuccess: true,
 };
 
 const setUnapprovedShipmentCount = jest.fn();
+const setUnapprovedServiceItemCount = jest.fn();
 
 describe('MoveTaskOrder', () => {
   const moveCode = 'WE31AZ';
@@ -343,8 +356,11 @@ describe('MoveTaskOrder', () => {
     useMoveTaskOrderQueries.mockImplementation(() => unapprovedMTOQuery);
     const wrapper = mount(
       <MockProviders>
-        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-        <MoveTaskOrder {...requiredProps} setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+        <MoveTaskOrder
+          {...requiredProps}
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+        />
       </MockProviders>,
     );
 
@@ -364,14 +380,21 @@ describe('MoveTaskOrder', () => {
     it('updates the unapproved shipments tag state', () => {
       expect(setUnapprovedShipmentCount).toHaveBeenCalledWith(2);
     });
+
+    it('updates the unapproved shipments tag state', () => {
+      expect(setUnapprovedServiceItemCount).toHaveBeenCalledWith(0);
+    });
   });
 
   describe('approved mto with both submitted and approved shipments', () => {
     useMoveTaskOrderQueries.mockImplementation(() => someShipmentsApprovedMTOQuery);
     const wrapper = mount(
       <MockProviders>
-        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-        <MoveTaskOrder {...requiredProps} setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+        <MoveTaskOrder
+          {...requiredProps}
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+        />
       </MockProviders>,
     );
 
@@ -396,6 +419,7 @@ describe('MoveTaskOrder', () => {
     it('should render the ShipmentHeading', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
       expect(wrapper.find('h3').at(0).text()).toEqual('Household goods');
+      expect(wrapper.find('[data-testid="button"]').exists()).toBe(true);
     });
 
     it('should render the ImportantShipmentDates', () => {
@@ -422,14 +446,21 @@ describe('MoveTaskOrder', () => {
     it('updates the unapproved shipments tag state', () => {
       expect(setUnapprovedShipmentCount).toHaveBeenCalledWith(0);
     });
+
+    it('updates the unapproved service items tag state', () => {
+      expect(setUnapprovedServiceItemCount).toHaveBeenCalledWith(1);
+    });
   });
 
   describe('approved mto with approved shipments', () => {
     useMoveTaskOrderQueries.mockImplementation(() => allApprovedMTOQuery);
     const wrapper = mount(
       <MockProviders>
-        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-        <MoveTaskOrder {...requiredProps} setUnapprovedShipmentCount={setUnapprovedShipmentCount} />
+        <MoveTaskOrder
+          {...requiredProps}
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+        />
       </MockProviders>,
     );
 
@@ -483,12 +514,17 @@ describe('MoveTaskOrder', () => {
     it('should render the RequestedServiceItemsTable for SUBMITTED service item', () => {
       const requestedServiceItemsTable = wrapper.find('RequestedServiceItemsTable');
       // There are no approved or rejected service item tables to display
-      expect(requestedServiceItemsTable.length).toBe(1);
-      expect(requestedServiceItemsTable.prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.SUBMITTED);
+      expect(requestedServiceItemsTable.length).toBe(2);
+      expect(requestedServiceItemsTable.at(0).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.SUBMITTED);
+      expect(requestedServiceItemsTable.at(1).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.SUBMITTED);
     });
 
     it('updates the unapproved shipments tag state', () => {
       expect(setUnapprovedShipmentCount).toHaveBeenCalledWith(0);
+    });
+
+    it('updates the unapproved service items tag state', () => {
+      expect(setUnapprovedServiceItemCount).toHaveBeenCalledWith(2);
     });
   });
 });

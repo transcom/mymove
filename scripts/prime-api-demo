@@ -11,7 +11,7 @@ set -eu -o pipefail
 proofs=(./tmp/uploads/proof_of_service.pdf)
 function usage() {
   echo "Usage: prime-api-demo <movecode> [ <hostname> [ <proofs> ... ] ]"
-  echo "  movecode   Either moveCode or moveOrderID or moveOrderID can be provided"
+  echo "  movecode   Either moveCode or orderID or orderID can be provided"
   echo "  hostname   Target host of api calls, defaults to 'local' which is primelocal:9443"
   echo "  proofs     Paths to proof of service docs. Defaults to (${proofs[0]})"
   echo "             You can specify as many proofs as you want"
@@ -202,12 +202,12 @@ printf "\n==========\n\n"
 
 # Find MTO By MTO ID
 if jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
-  echo "Found by Move Task Order ID"
-# Find MTO By moveOrderID
-elif jq -e 'map(select(.moveOrderID == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
+  echo "Found by Move ID"
+# Find MTO By orderID
+elif jq -e 'map(select(.orderID == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
   # extract the mtoid
   mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
-  echo "Found by Move Order ID."
+  echo "Found by Order ID."
 # Find MTO by moveCode aka locator
 elif jq -e 'map(select(.moveCode == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
   # extract the mtoid
@@ -223,16 +223,16 @@ shipmentID=$(jq '.mtoShipments | .[0] | .id' tmp/pad_demo_mto.json)
 shipmentEtag=$(jq '.mtoShipments | .[0] | .eTag' tmp/pad_demo_mto.json)
 
 
-destDutyZip=$(jq '.moveOrder.destinationDutyStation.address.postalCode' tmp/pad_demo_mto.json | tr -d '"')
-destDutyCity=$(jq '.moveOrder.destinationDutyStation.address.city' tmp/pad_demo_mto.json | tr -d '"')
-destDutyState=$(jq '.moveOrder.destinationDutyStation.address.state' tmp/pad_demo_mto.json | tr -d '"')
+destDutyZip=$(jq '.order.destinationDutyStation.address.postalCode' tmp/pad_demo_mto.json | tr -d '"')
+destDutyCity=$(jq '.order.destinationDutyStation.address.city' tmp/pad_demo_mto.json | tr -d '"')
+destDutyState=$(jq '.order.destinationDutyStation.address.state' tmp/pad_demo_mto.json | tr -d '"')
 destStreetAddress1="7 Q St"
 scheduledPickupDate="2021-01-01"
 actualPickupDate="2021-01-01"
 
-firstName=$(jq '.moveOrder.customer.firstName' tmp/pad_demo_mto.json | tr -d '"')
-lastName=$(jq '.moveOrder.customer.lastName' tmp/pad_demo_mto.json | tr -d '"')
-dds=$(jq '.moveOrder.destinationDutyStation.name' tmp/pad_demo_mto.json | tr -d '"')
+firstName=$(jq '.order.customer.firstName' tmp/pad_demo_mto.json | tr -d '"')
+lastName=$(jq '.order.customer.lastName' tmp/pad_demo_mto.json | tr -d '"')
+dds=$(jq '.order.destinationDutyStation.name' tmp/pad_demo_mto.json | tr -d '"')
 
 echo
 echo "Customer Name: ${firstName} ${lastName}"

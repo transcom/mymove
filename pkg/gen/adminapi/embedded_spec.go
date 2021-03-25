@@ -1384,6 +1384,13 @@ func init() {
             "schema": {
               "$ref": "#/definitions/WebhookSubscription"
             }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -1404,6 +1411,9 @@ func init() {
           },
           "404": {
             "description": "subscription not found"
+          },
+          "412": {
+            "description": "Precondition failed"
           },
           "422": {
             "description": "Validation error",
@@ -2570,6 +2580,10 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
         },
         "eventKey": {
           "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",
@@ -3992,6 +4006,13 @@ func init() {
             "schema": {
               "$ref": "#/definitions/WebhookSubscription"
             }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -4012,6 +4033,9 @@ func init() {
           },
           "404": {
             "description": "subscription not found"
+          },
+          "412": {
+            "description": "Precondition failed"
           },
           "422": {
             "description": "Validation error",
@@ -5182,6 +5206,10 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
         },
         "eventKey": {
           "description": "A string used to represent which events this subscriber expects to be notified about. Corresponds to the possible event_key values in webhook_notifications.",

@@ -44,8 +44,18 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		document.UserUploads = append(document.UserUploads, u)
 	}
 
-	ordersNumber := "ORDER3"
-	TAC := "F8E1"
+	defaultOrderNumber := "ORDER3"
+	ordersNumber := assertions.Order.OrdersNumber
+	if ordersNumber == nil {
+		ordersNumber = &defaultOrderNumber
+	}
+
+	defaultTACNumber := "F8E1"
+	TAC := assertions.Order.TAC
+	if TAC == nil {
+		TAC = &defaultTACNumber
+	}
+
 	defaultDepartmentIndicator := "AIR_FORCE"
 	departmentIndicator := assertions.Order.DepartmentIndicator
 	if departmentIndicator == nil {
@@ -82,11 +92,11 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		IssueDate:           time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
 		ReportByDate:        time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
 		OrdersType:          internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:        &ordersNumber,
+		OrdersNumber:        ordersNumber,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
 		Status:              models.OrderStatusDRAFT,
-		TAC:                 &TAC,
+		TAC:                 TAC,
 		DepartmentIndicator: departmentIndicator,
 		Grade:               &grade,
 		Entitlement:         &entitlement,
