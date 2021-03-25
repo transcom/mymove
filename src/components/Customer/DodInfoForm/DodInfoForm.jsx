@@ -13,7 +13,19 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { dropdownInputOptions } from 'shared/formatters';
 import formStyles from 'styles/form.module.scss';
 
-const DodInfoForm = ({ initialValues, onBack, onSubmit }) => {
+const fixedSubmitForm = ({ submitForm, validateForm, values }) => {
+  return new Promise((res, rej) => {
+    submitForm()
+      .then(() => validateForm(values))
+      .then((errors) => {
+        const noErrors = Object.keys(errors).length === 0;
+        if (noErrors) return res();
+        return rej();
+      });
+  });
+};
+
+const DodInfoForm = ({ initialValues, onSubmit, onBack, onNext }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const rankOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -27,7 +39,25 @@ const DodInfoForm = ({ initialValues, onBack, onSubmit }) => {
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, handleSubmit, isSubmitting }) => {
+      {({ validateForm, submitForm, isSubmitting, values }) => {
+        const handleBack = () => {
+          fixedSubmitForm({ submitForm, validateForm, values })
+            .then(onBack)
+            .catch(() => {
+              // TODO log error
+              // console.log('submit failed', e);
+            });
+        };
+
+        const handleNext = () => {
+          fixedSubmitForm({ submitForm, validateForm, values })
+            .then(onNext)
+            .catch(() => {
+              // TODO log error
+              // console.log('submit failed', e);
+            });
+        };
+
         return (
           <Form className={formStyles.form}>
             <h1>Create your profile</h1>
@@ -53,11 +83,7 @@ const DodInfoForm = ({ initialValues, onBack, onSubmit }) => {
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
-              <WizardNavigation
-                onBackClick={onBack}
-                disableNext={!isValid || isSubmitting}
-                onNextClick={handleSubmit}
-              />
+              <WizardNavigation onBackClick={handleBack} disableNext={isSubmitting} onNextClick={handleNext} />
             </div>
           </Form>
         );
@@ -72,8 +98,9 @@ DodInfoForm.propTypes = {
     edipi: PropTypes.string,
     rank: PropTypes.string,
   }).isRequired,
-  onBack: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  onNext: PropTypes.func.isRequired,
+  onBack: PropTypes.func.isRequired,
 };
 
 export default DodInfoForm;

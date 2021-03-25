@@ -6,7 +6,8 @@ import DodInfoForm from './DodInfoForm';
 
 describe('DodInfoForm component', () => {
   const testProps = {
-    onSubmit: jest.fn(),
+    onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+    onNext: jest.fn(),
     onBack: jest.fn(),
     initialValues: { affiliation: '', edipi: '', rank: '' },
   };
@@ -64,4 +65,29 @@ describe('DodInfoForm component', () => {
       expect(testProps.onSubmit).toHaveBeenCalled();
     });
   });
+
+  it('validates and submits the form when the Back button is clicked', async () => {
+    const { getByRole, getByLabelText, getAllByText } = render(<DodInfoForm {...testProps} />);
+    const backBtn = getByRole('button', { name: 'Back' });
+
+    userEvent.click(backBtn);
+
+    await waitFor(() => {
+      expect(getAllByText('Required').length).toBe(3);
+    });
+
+    expect(testProps.onBack).not.toHaveBeenCalled();
+
+    userEvent.selectOptions(getByLabelText('Branch of service'), ['NAVY']);
+    userEvent.type(getByLabelText('DOD ID number'), '1234567890');
+    userEvent.selectOptions(getByLabelText('Rank'), ['E_5']);
+
+    userEvent.click(backBtn);
+
+    await waitFor(() => {
+      expect(testProps.onBack).toHaveBeenCalled();
+    });
+  });
+
+  afterEach(jest.resetAllMocks);
 });

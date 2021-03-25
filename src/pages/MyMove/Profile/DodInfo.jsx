@@ -17,13 +17,17 @@ export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
-    affiliation: serviceMember?.affiliation,
-    edipi: serviceMember?.edipi,
-    rank: serviceMember?.rank,
+    affiliation: serviceMember?.affiliation || '',
+    edipi: serviceMember?.edipi || '',
+    rank: serviceMember?.rank || '',
   };
 
   const handleBack = () => {
     push(customerRoutes.CONUS_OCONUS_PATH);
+  };
+
+  const handleNext = () => {
+    push(customerRoutes.NAME_PATH);
   };
 
   const handleSubmit = (values) => {
@@ -35,10 +39,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
     };
 
     return patchServiceMember(payload)
-      .then((response) => {
-        updateServiceMember(response);
-        push(customerRoutes.NAME_PATH);
-      })
+      .then(updateServiceMember)
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
@@ -64,7 +65,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <DodInfoForm initialValues={initialValues} onBack={handleBack} onSubmit={handleSubmit} />
+          <DodInfoForm initialValues={initialValues} onSubmit={handleSubmit} onNext={handleNext} onBack={handleBack} />
         </Grid>
       </Grid>
     </GridContainer>
