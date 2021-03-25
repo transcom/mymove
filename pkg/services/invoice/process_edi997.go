@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	ediResponse997 "github.com/transcom/mymove/pkg/edi/edi997"
 	edi "github.com/transcom/mymove/pkg/edi/invoice"
@@ -42,15 +43,14 @@ func (e *edi997Processor) ProcessEDI997(stringEDI997 string) (ediResponse997.EDI
 
 	// Find the PaymentRequestID that matches the ICN
 	icn := ediHeader.ISA.InterchangeControlNumber
-	var paymentRequestToInterchangeControlNumber models.PaymentRequestToInterchangeControlNumber
+	var paymentRequest models.PaymentRequest
 	err = e.db.Q().
-		Where("interchange_control_number = ?", int(icn)).
-		First(&paymentRequestToInterchangeControlNumber)
-
-	paymentRequest := paymentRequestToInterchangeControlNumber.PaymentRequest
+		Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
+		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(icn)).
+		First(&paymentRequest)
 
 	// validate header fields
-	err = ValidateEDIHeader(ediHeader, paymentRequest.ID, e.logger)
+	err = ValidateEDIHeader(ediHeader, paymentRequest.ID)
 	if err != nil {
 		errString += err.Error()
 	}
@@ -65,7 +65,6 @@ func (e *edi997Processor) ProcessEDI997(stringEDI997 string) (ediResponse997.EDI
 			functionalIDCode := strings.TrimSpace(ak1.FunctionalIdentifierCode)
 			if functionalIDCode != "SI" {
 				msg := fmt.Sprintf("Invalid FunctionalIdentifierCode in AK1 segment: %s  for PaymentRequestID: %s", functionalIDCode, paymentRequest.ID)
-				e.logger.Error(msg)
 				errString += msg + "\n"
 			}
 			for _, transactionSetResponse := range transactionSetResponses {
@@ -73,7 +72,6 @@ func (e *edi997Processor) ProcessEDI997(stringEDI997 string) (ediResponse997.EDI
 				transactionSetIdentifierCode := strings.TrimSpace(ak2.TransactionSetIdentifierCode)
 				if transactionSetIdentifierCode != "858" {
 					msg := fmt.Sprintf("Invalid TransactionSetIdentifierCode in AK2 segment: %s for PaymentRequestID: %s", transactionSetIdentifierCode, paymentRequest.ID)
-					e.logger.Error(msg)
 					errString += msg + "\n"
 				}
 
@@ -81,59 +79,63 @@ func (e *edi997Processor) ProcessEDI997(stringEDI997 string) (ediResponse997.EDI
 				transactionSetAcknowledgmentCode := strings.TrimSpace(ak5.TransactionSetAcknowledgmentCode)
 				if transactionSetAcknowledgmentCode != "A" {
 					msg := fmt.Sprintf("Invalid TransactionSetAcknowledgmentCode in AK5 segment: %s for PaymentRequestID: %s", transactionSetAcknowledgmentCode, paymentRequest.ID)
-					e.logger.Error(msg)
 					errString += msg + "\n"
 				}
 			}
 		}
 	}
 	if errString != "" {
+		e.logger.Error(errString)
 		return edi997, fmt.Errorf(errString)
 	}
 
-	paymentRequest.Status = models.PaymentRequestStatusSentToGex
-	err = e.db.Update(&paymentRequest)
-	if err != nil {
-		return edi997, fmt.Errorf("failure updating payment request status: %w", err)
+	var transactionError error
+	transactionError = e.db.Transaction(func(tx *pop.Connection) error {
+		paymentRequest.Status = models.PaymentRequestStatusReceivedByGex
+		err = e.db.Update(&paymentRequest)
+		if err != nil {
+			e.logger.Error("failure updating payment request", zap.Error(err))
+			return fmt.Errorf("failure updating payment request status: %w", err)
+		}
+		return nil
+	})
+
+	if transactionError != nil {
+		return edi997, transactionError
 	}
 
 	return edi997, nil
 }
 
 // ValidateEDIHeader validates an EDI header for a 997 or 824
-func ValidateEDIHeader(ediHeader edi.InvoiceResponseHeader, paymentRequestID uuid.UUID, logger Logger) error {
+func ValidateEDIHeader(ediHeader edi.InvoiceResponseHeader, paymentRequestID uuid.UUID) error {
 	returnErr := ""
 	isa := ediHeader.ISA
 	icn := isa.InterchangeControlNumber
 
 	if icn < 1 || icn > 1000000000 {
 		msg := fmt.Sprintf("Invalid InterchangeControlNumber in ISA segment: %d for PaymentRequestID: %s", icn, paymentRequestID)
-		logger.Error(msg)
 		returnErr += msg + "\n"
 	}
 	ackRequested := isa.AcknowledgementRequested
 	if ackRequested != 0 && ackRequested != 1 {
 		msg := fmt.Sprintf("Invalid AcknowledgementRequested in ISA segment: %d for PaymentRequestID: %s", ackRequested, paymentRequestID)
-		logger.Error(msg)
 		returnErr += msg + "\n"
 	}
 	usageIndicator := strings.TrimSpace(isa.UsageIndicator)
 	if usageIndicator != "T" && usageIndicator != "P" {
 		msg := fmt.Sprintf("Invalid UsageIndicator in ISA segment %s for PaymentRequestID: %s", usageIndicator, paymentRequestID)
-		logger.Error(msg)
 		returnErr += msg + "\n"
 	}
 	gs := ediHeader.GS
 	functionalIDCode := strings.TrimSpace(gs.FunctionalIdentifierCode)
 	if functionalIDCode != "SI" {
 		msg := fmt.Sprintf("Invalid FunctionalIdentifierCode in GS segment: %s for PaymentRequestID: %s", functionalIDCode, paymentRequestID)
-		logger.Error(msg)
 		returnErr += msg + "\n"
 	}
 	gcn := gs.GroupControlNumber
 	if gcn < 1 || gcn > 1000000000 {
 		msg := fmt.Sprintf("Invalid GroupControlNumber in GS segment: %d  for PaymentRequestID: %s", gcn, paymentRequestID)
-		logger.Error(msg)
 		returnErr += msg + "\n"
 	}
 	if returnErr != "" {

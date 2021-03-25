@@ -6,12 +6,14 @@ import (
 	"testing"
 
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/testingsuite"
-
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type ProcessEDI997Suite struct {
@@ -72,14 +74,52 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 `
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+				PaymentRequestID:         paymentRequest.ID,
+				InterchangeControlNumber: 22,
+				PaymentRequest:           paymentRequest,
+			},
+		})
 		_, err := edi997Processor.ProcessEDI997(sample997EDIString)
-		// paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		// validPR2ICN := testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-		// 	PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-		// 		PaymentRequestID:         paymentRequest.ID,
-		// 		InterchangeControlNumber: 22,
-		// 	}})
 		suite.NoError(err)
+
+		var updatedPR models.PaymentRequest
+		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
+		suite.NoError(err)
+		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
+	})
+
+	suite.T().Run("doesn't update a payment request status after processing an invalid EDI997", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*WRONG*:
+GS*BAD*8004171844*MILMOVE*20210217*152945*220001*X*004010
+ST*997*0001
+AK1*SI*100001251
+AK2*858*0001
+
+
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000022
+`
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+				PaymentRequestID:         paymentRequest.ID,
+				InterchangeControlNumber: 22,
+				PaymentRequest:           paymentRequest,
+			},
+		})
+		edi997Processor.ProcessEDI997(sample997EDIString)
+
+		var updatedPR models.PaymentRequest
+		err := suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
+		suite.NoError(err)
+		suite.Equal(models.PaymentRequestStatusPending, updatedPR.Status)
 	})
 
 	suite.T().Run("successfully create a valid segments", func(t *testing.T) {
