@@ -27,7 +27,7 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isSubmitting, setFieldValue, handleSubmit }) => {
+      {({ isValid, isSubmitting, setFieldValue, handleSubmit }) => {
         const handleBack = (e) => {
           setFieldValue('nextPage', 'back');
           handleSubmit(e);
@@ -63,7 +63,11 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
-              <WizardNavigation onBackClick={handleBack} disableNext={isSubmitting} onNextClick={handleNext} />
+              <WizardNavigation
+                onBackClick={handleBack}
+                disableNext={!isValid || isSubmitting}
+                onNextClick={handleNext}
+              />
             </div>
           </Form>
         );
