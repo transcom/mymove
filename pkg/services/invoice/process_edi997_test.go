@@ -55,13 +55,21 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 `
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+				PaymentRequestID:         paymentRequest.ID,
+				InterchangeControlNumber: 22,
+				PaymentRequest:           paymentRequest,
+			},
+		})
 		_, err := edi997Processor.ProcessEDI997(sample997EDIString)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("successfully update a payment request status after processing a valid EDI997", func(t *testing.T) {
+	suite.T().Run("successfully updates a payment request status after processing a valid EDI997", func(t *testing.T) {
 		sample997EDIString := `
-ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000024*0*T*:
 GS*SI*8004171844*MILMOVE*20210217*152945*220001*X*004010
 ST*997*0001
 AK1*SI*100001251
@@ -72,13 +80,13 @@ AK5*A
 AK9*A*1*1*1
 SE*6*0001
 GE*1*220001
-IEA*1*000000022
+IEA*1*000000024
 `
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 22,
+				InterchangeControlNumber: 24,
 				PaymentRequest:           paymentRequest,
 			},
 		})
@@ -122,7 +130,27 @@ IEA*1*000000022
 		suite.Equal(models.PaymentRequestStatusPending, updatedPR.Status)
 	})
 
-	suite.T().Run("successfully create a valid segments", func(t *testing.T) {
+	suite.T().Run("Return an error if payment request is found with ICN", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000045*0*T*:
+GS*SI*8004171844*MILMOVE*20210217*152945*220001*X*004010
+ST*997*0001
+AK1*SI*100001251
+AK2*858*0001
+
+
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000022
+`
+		_, err := edi997Processor.ProcessEDI997(sample997EDIString)
+		suite.Error(err, "fail to process 997")
+		suite.Contains(err.Error(), "unable to find payment request")
+	})
+
+	suite.T().Run("successfully create valid segments", func(t *testing.T) {
 		sample997EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
 GS*SI*8004171844*MILMOVE*20210217*152945*220001*X*004010
@@ -153,6 +181,10 @@ IEA*1*000000022
 		suite.IsType(edisegment.AK2{}, transactionSetResponses.AK2)
 		suite.IsType(edisegment.AK5{}, transactionSetResponses.AK5)
 	})
+}
+
+func (suite *ProcessEDI997Suite) TestValidatingEDI997() {
+	edi997Processor := NewEDI997Processor(suite.DB(), suite.logger)
 
 	suite.T().Run("fails when there are validation errors on EDI fields", func(t *testing.T) {
 		sample997EDIString := `
@@ -188,6 +220,16 @@ SE*6*0001
 GE*1*220002
 IEA*1*000000022
 `
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+				PaymentRequestID:         paymentRequest.ID,
+				InterchangeControlNumber: 22,
+				PaymentRequest:           paymentRequest,
+			},
+		})
+
 		_, err := edi997Processor.ProcessEDI997(sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		errString := err.Error()
@@ -196,6 +238,7 @@ IEA*1*000000022
 			TestName         string
 			ExpectedErrorMsg string
 		}{
+			{TestName: "Invalid ICN causes missing PR", ExpectedErrorMsg: "unable to find payment request"},
 			{TestName: "Invalid ICN", ExpectedErrorMsg: "Invalid InterchangeControlNumber in ISA"},
 			{TestName: "Invalid AcknowledgementRequested", ExpectedErrorMsg: "Invalid AcknowledgementRequested in ISA"},
 			{TestName: "Invalid UsageIndicator", ExpectedErrorMsg: "Invalid UsageIndicator in ISA"},

@@ -48,6 +48,9 @@ func (e *edi997Processor) ProcessEDI997(stringEDI997 string) (ediResponse997.EDI
 		Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
 		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(icn)).
 		First(&paymentRequest)
+	if err != nil {
+		errString += fmt.Sprintf("unable to find payment request with ID: %s", paymentRequest.ID) + "\n"
+	}
 
 	// validate header fields
 	err = ValidateEDIHeader(ediHeader, paymentRequest.ID)
