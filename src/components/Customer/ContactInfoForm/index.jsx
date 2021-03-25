@@ -9,7 +9,7 @@ import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
 
-const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
+const ContactInfoForm = ({ initialValues, onSubmit }) => {
   // Note: This method cannot use an arrow function due this particular use of 'this' (see Yup mixed.test documentation)
   function validatePreferredContactMethod() {
     return !!(this.parent.phone_is_preferred || this.parent.email_is_preferred); // eslint-disable-line react/no-this-in-sfc
@@ -27,7 +27,17 @@ const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-      {({ isValid, isSubmitting, values }) => {
+      {({ isValid, isSubmitting, setFieldValue, handleSubmit }) => {
+        const handleBack = (e) => {
+          setFieldValue('nextPage', 'back');
+          handleSubmit(e);
+        };
+
+        const handleNext = (e) => {
+          setFieldValue('nextPage', 'next');
+          handleSubmit(e);
+        };
+
         return (
           <Form className={formStyles.form}>
             <h1>Your contact info</h1>
@@ -38,9 +48,9 @@ const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
             </SectionWrapper>
             <div className={formStyles.formActions}>
               <WizardNavigation
-                onBackClick={() => onBack(values)}
+                onBackClick={handleBack}
                 disableNext={!isValid || isSubmitting}
-                onNextClick={() => onSubmit(values)}
+                onNextClick={handleNext}
               />
             </div>
           </Form>
@@ -59,7 +69,6 @@ ContactInfoForm.propTypes = {
     email_is_preferred: PropTypes.bool,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
-  onBack: PropTypes.func.isRequired,
 };
 
 export default ContactInfoForm;
