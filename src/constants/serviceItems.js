@@ -20,6 +20,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   EscalationCompounded: 'EscalationCompounded',
   EIAFuelPrice: 'EIAFuelPrice',
   FSCWeightBasedDistanceMultiplier: 'FSCWeightBasedDistanceMultiplier',
+  NumberDaysSIT: 'NumberDaysSIT',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
@@ -29,6 +30,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   PriceEscalationFactor: 'Price escalation factor',
   TotalAmountRequested: 'Total amount requested',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
+  AdditionalDaySITPrice: 'Additional day SIT price',
+  DaysInSIT: 'Days in SIT',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightEstimated]: 'Estimated',
