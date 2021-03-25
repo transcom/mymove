@@ -8,6 +8,7 @@ export const Form = ({ errorCallback, ...props }) => {
   React.useEffect(() => {
     if (errorCallback) {
       errorCallback(errors, touched);
+      // eslint-disable-next-line
       console.log(`test`);
     }
   });
