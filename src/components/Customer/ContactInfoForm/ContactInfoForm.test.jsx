@@ -7,19 +7,17 @@ import ContactInfoForm from './index';
 
 describe('ContactInfoForm Component', () => {
   const initialValues = {
-    telephone: '555-555-5555',
-    secondary_phone: '555-444-5555',
-    personal_email: 'test@sample.com',
+    telephone: '',
+    secondary_phone: '',
+    personal_email: '',
     phone_is_preferred: false,
-    email_is_preferred: true,
+    email_is_preferred: false,
   };
   const testProps = {
     initialValues,
-    onSubmit: jest.fn,
-    onBack: jest.fn,
+    onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
   };
 
-  //  renders the input fields
   it('renders the form inputs', async () => {
     const { getByLabelText } = render(<ContactInfoForm {...testProps} />);
 
@@ -34,7 +32,7 @@ describe('ContactInfoForm Component', () => {
       expect(getByLabelText('Email')).toBeInstanceOf(HTMLInputElement);
     });
   });
-  //  validates the phone fields
+
   it('validates the contact phone field', async () => {
     const { getByText, getByLabelText } = render(<ContactInfoForm {...testProps} />);
     userEvent.type(getByLabelText('Best contact phone'), '12345');
@@ -45,9 +43,9 @@ describe('ContactInfoForm Component', () => {
       expect(getByText('Number must have 10 digits and a valid area code')).toBeInTheDocument();
     });
   });
+
   it('validates the alt phone field', async () => {
     const { getByText, getByLabelText } = render(<ContactInfoForm {...testProps} />);
-    userEvent.clear(getByLabelText('Alt. phone'));
     userEvent.type(getByLabelText('Alt. phone'), '543');
     userEvent.tab();
 
@@ -56,10 +54,9 @@ describe('ContactInfoForm Component', () => {
       expect(getByText('Number must have 10 digits and a valid area code')).toBeInTheDocument();
     });
   });
-  //  validates the email field
+
   it('validates the email field', async () => {
     const { getByText, getByLabelText } = render(<ContactInfoForm {...testProps} />);
-    userEvent.clear(getByLabelText('Personal email'));
     userEvent.type(getByLabelText('Personal email'), 'sample@');
     userEvent.tab();
 
@@ -68,7 +65,7 @@ describe('ContactInfoForm Component', () => {
       expect(getByText('Must be a valid email address')).toBeInTheDocument();
     });
   });
-  //  shows an error message when trying to submit an invalid form
+
   it('shows an error message when trying to submit an invalid form', async () => {
     const { getAllByText, getByRole } = render(<ContactInfoForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
@@ -76,7 +73,7 @@ describe('ContactInfoForm Component', () => {
     userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(3);
+      expect(getAllByText('Required').length).toBe(2);
     });
 
     expect(testProps.onSubmit).not.toHaveBeenCalled();
@@ -97,7 +94,6 @@ describe('ContactInfoForm Component', () => {
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
 
-  //  submits a form when it is valid
   it('submits a form when it is valid', async () => {
     const { getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
@@ -107,6 +103,30 @@ describe('ContactInfoForm Component', () => {
     userEvent.click(getByLabelText('Email'));
     userEvent.click(submitBtn);
 
-    expect(testProps.onSubmit).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(testProps.onSubmit).toHaveBeenCalledWith(expect.objectContaining({ nextPage: 'next' }), expect.anything());
+    });
   });
+
+  it('validates and submits the form when the Back button is clicked', async () => {
+    const { getByRole, getByLabelText, getAllByText } = render(<ContactInfoForm {...testProps} />);
+    const backBtn = getByRole('button', { name: 'Back' });
+
+    userEvent.click(backBtn);
+
+    await waitFor(() => {
+      expect(getAllByText('Required').length).toBe(2);
+    });
+
+    userEvent.type(getByLabelText('Best contact phone'), '555-555-5555');
+    userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
+    userEvent.click(getByLabelText('Phone'));
+
+    userEvent.click(backBtn);
+
+    await waitFor(() => {
+      expect(testProps.onSubmit).toHaveBeenCalledWith(expect.objectContaining({ nextPage: 'back' }), expect.anything());
+    });
+  });
+  afterEach(jest.resetAllMocks);
 });
