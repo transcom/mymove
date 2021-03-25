@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import ScrollToTop from 'components/ScrollToTop';
 import ContactInfoForm from 'components/Customer/ContactInfoForm';
-import ServiceMemberShape from 'types/customerShapes';
+import { ServiceMemberShape } from 'types/customerShapes';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
@@ -13,11 +13,11 @@ import requireCustomerState from 'containers/requireCustomerState/requireCustome
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 
-export const ContactInfo = ({ updateServiceMember, serviceMember, push }) => {
+export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
   const initialValues = {
-    telephone: serviceMember?.telephone,
-    secondary_phone: serviceMember?.secondary_phone,
-    personal_email: serviceMember?.personal_email,
+    telephone: serviceMember?.telephone || '',
+    secondary_phone: serviceMember?.secondary_phone || '',
+    personal_email: serviceMember?.personal_email || '',
     phone_is_preferred: serviceMember?.phone_is_preferred,
     email_is_preferred: serviceMember?.email_is_preferred,
   };
