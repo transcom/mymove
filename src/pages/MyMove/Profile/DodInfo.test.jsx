@@ -24,9 +24,12 @@ describe('DodInfo page', () => {
     },
   };
 
-  it('renders the DodInfoForm', () => {
-    const wrapper = mount(<DodInfo {...testProps} />);
-    expect(wrapper.find('DodInfoForm').exists()).toBe(true);
+  it('renders the DodInfoForm', async () => {
+    const { queryByRole } = render(<DodInfo {...testProps} />);
+
+    await waitFor(() => {
+      expect(queryByRole('heading', { name: 'Create your profile', level: 1 })).toBeInTheDocument();
+    });
   });
 
   it('back button submits the form and goes to the CONUS/OCONUS step', async () => {
