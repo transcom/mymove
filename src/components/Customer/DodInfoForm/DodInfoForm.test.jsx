@@ -62,7 +62,7 @@ describe('DodInfoForm component', () => {
     userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(testProps.onSubmit).toHaveBeenCalled();
+      expect(testProps.onSubmit).toHaveBeenCalledWith(expect.objectContaining({ nextPage: 'next' }), expect.anything());
     });
   });
 
@@ -85,7 +85,7 @@ describe('DodInfoForm component', () => {
     userEvent.click(backBtn);
 
     await waitFor(() => {
-      expect(testProps.onBack).toHaveBeenCalled();
+      expect(testProps.onSubmit).toHaveBeenCalledWith(expect.objectContaining({ nextPage: 'back' }), expect.anything());
     });
   });
 

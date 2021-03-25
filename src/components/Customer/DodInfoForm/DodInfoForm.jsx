@@ -13,19 +13,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { dropdownInputOptions } from 'shared/formatters';
 import formStyles from 'styles/form.module.scss';
 
-const fixedSubmitForm = ({ submitForm, validateForm, values }) => {
-  return new Promise((res, rej) => {
-    submitForm()
-      .then(() => validateForm(values))
-      .then((errors) => {
-        const noErrors = Object.keys(errors).length === 0;
-        if (noErrors) return res();
-        return rej();
-      });
-  });
-};
-
-const DodInfoForm = ({ initialValues, onSubmit, onBack, onNext }) => {
+const DodInfoForm = ({ initialValues, onSubmit }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const rankOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -39,23 +27,15 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack, onNext }) => {
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ validateForm, submitForm, isSubmitting, values }) => {
-        const handleBack = () => {
-          fixedSubmitForm({ submitForm, validateForm, values })
-            .then(onBack)
-            .catch(() => {
-              // TODO log error
-              // console.log('submit failed', e);
-            });
+      {({ isSubmitting, setFieldValue, handleSubmit }) => {
+        const handleBack = (e) => {
+          setFieldValue('nextPage', 'back');
+          handleSubmit(e);
         };
 
-        const handleNext = () => {
-          fixedSubmitForm({ submitForm, validateForm, values })
-            .then(onNext)
-            .catch(() => {
-              // TODO log error
-              // console.log('submit failed', e);
-            });
+        const handleNext = (e) => {
+          setFieldValue('nextPage', 'next');
+          handleSubmit(e);
         };
 
         return (
@@ -99,8 +79,6 @@ DodInfoForm.propTypes = {
     rank: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
-  onNext: PropTypes.func.isRequired,
-  onBack: PropTypes.func.isRequired,
 };
 
 export default DodInfoForm;
