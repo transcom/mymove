@@ -74,7 +74,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <DodInfoForm initialValues={initialValues} onSubmit={handleSubmit} onNext={handleNext} onBack={handleBack} />
+          <DodInfoForm initialValues={initialValues} onSubmit={handleSubmit} />
         </Grid>
       </Grid>
     </GridContainer>

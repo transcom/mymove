@@ -7,8 +7,6 @@ import DodInfoForm from './DodInfoForm';
 describe('DodInfoForm component', () => {
   const testProps = {
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
-    onNext: jest.fn(),
-    onBack: jest.fn(),
     initialValues: { affiliation: '', edipi: '', rank: '' },
   };
 
