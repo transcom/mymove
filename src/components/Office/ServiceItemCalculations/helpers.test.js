@@ -16,7 +16,7 @@ describe('makeCalculations', () => {
         details: ['Zip 210 to Zip 910'],
       },
       {
-        value: '1.033',
+        value: '1.71',
         label: 'Baseline linehaul price',
         details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
       },
@@ -65,7 +65,7 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticOrignPrice', () => {
-    const result = makeCalculations('DOP', 99999, testParams.DomesticOrignPrice);
+    const result = makeCalculations('DOP', 99999, testParams.DomesticOriginPrice);
     expect(result).toEqual([]);
   });
 
@@ -100,7 +100,7 @@ describe('makeCalculations', () => {
       {
         details: ['Origin service area: 176', 'Pickup date: 11 Mar 2020', 'Domestic non-peak'],
         label: 'Additional day SIT price',
-        value: '1.033',
+        value: '1.71',
       },
       {
         details: [''],

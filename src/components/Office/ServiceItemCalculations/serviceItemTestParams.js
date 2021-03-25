@@ -23,7 +23,7 @@ const PriceRateOrFactor = {
   origin: 'PRICER',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'DECIMAL',
-  value: '1.033',
+  value: '1.71',
 };
 const ActualPickupDate = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4zMDY2Nzha',
