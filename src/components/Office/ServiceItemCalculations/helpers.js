@@ -36,7 +36,11 @@ const billableWeightFSC = (params) => {
     parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilledActual, params), 10),
   )}`;
 
-  return calculation(value, label, detail);
+  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightEstimated]}: ${formatWeight(
+    parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params), 10),
+  )}`;
+
+  return calculation(value, label, detail, detail2);
 };
 
 // mileage calculation
@@ -72,10 +76,35 @@ const baselineLinehaulPrice = (params) => {
   return calculation(value, label, detail1, detail2, detail3);
 };
 
+// There is no param representing the orgin price as available in the re_domestic_service_area_prices table
+// A param to return the service schedule is also not being created
+const originPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
+
+  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin,
+    params,
+  )}`;
+
+  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+
+  const detail3 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+
+  return calculation(value, label, detail1, detail2, detail3);
+};
+
 const priceEscalationFactor = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.PriceEscalationFactor;
-  const detail = '';
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ContractYearName]}: ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.ContractYearName, params) || ''
+  }`;
 
   return calculation(value, label, detail);
 };
@@ -131,6 +160,15 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         billableWeightFSC(params),
         mileage(params),
         fuelSurchargePrice(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    case SERVICE_ITEM_CODES.DOFSIT:
+      result = [
+        // This has both weight billed acutal (system) and weight actual (prime)
+        billableWeightFSC(params),
+        originPrice(params),
+        priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
       break;
