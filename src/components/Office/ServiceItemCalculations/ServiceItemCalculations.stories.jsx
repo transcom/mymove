@@ -28,3 +28,20 @@ export const SmallTable = () => (
     tableSize="small"
   />
 );
+
+export const LargeDOASIT = () => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginAdditionalSIT}
+    totalAmountRequested={642}
+    itemCode="DOASIT"
+  />
+);
+
+export const SmallDOASIT = () => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginAdditionalSIT}
+    totalAmountRequested={642}
+    itemCode="DOASIT"
+    tableSize="small"
+  />
+);
