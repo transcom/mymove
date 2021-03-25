@@ -33,7 +33,7 @@ const ExpandableServiceItemRow = ({ serviceItem, index }) => {
     [styles.expandedRow]: isExpanded,
     [styles.isExpandable]: canShowExpandableContent,
   });
-  const tableDetailClasses = classnames(styles.expandable, {
+  const tableDetailClasses = classnames(styles.ExpandableServiceItemRow, {
     [styles.expandedDetail]: isExpanded,
   });
 
