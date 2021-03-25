@@ -2,36 +2,36 @@ import { makeCalculations } from './helpers';
 import testParams from './serviceItemTestParams';
 
 describe('makeCalculations', () => {
-  // it('returns correct data for DomesticLongHaul', () => {
-  //   const result = makeCalculations('DLH', 99999, testParams.DomesticLongHaul);
-  //   expect(result).toEqual([
-  //     {
-  //       value: '85 cwt',
-  //       label: 'Billable weight (cwt)',
-  //       details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
-  //     },
-  //     {
-  //       value: '210',
-  //       label: 'Mileage',
-  //       details: ['Zip 210 to Zip 910'],
-  //     },
-  //     {
-  //       value: '1.033',
-  //       label: 'Baseline linehaul price',
-  //       details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
-  //     },
-  //     {
-  //       value: '1.033',
-  //       label: 'Price escalation factor',
-  //       details: [''],
-  //     },
-  //     {
-  //       value: '$999.99',
-  //       label: 'Total amount requested',
-  //       details: [''],
-  //     },
-  //   ]);
-  // });
+  it('returns correct data for DomesticLongHaul', () => {
+    const result = makeCalculations('DLH', 99999, testParams.DomesticLongHaul);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: ['Zip 210 to Zip 910'],
+      },
+      {
+        value: '1.033',
+        label: 'Baseline linehaul price',
+        details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [''],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
+  });
 
   // it('returns correct data for DomesticShortHaul', () => {
   //   const result = makeCalculations('DSH', 99999, testParams.DomesticShortHaul);
@@ -75,7 +75,7 @@ describe('makeCalculations', () => {
       {
         value: '',
         label: 'Origin price',
-        details: ['Service schedule: ', 'Service area: 176', 'Pickup date: 11 Mar 2020', 'Domestic non-peak'],
+        details: ['Service area: 176', 'Pickup date: 11 Mar 2020', 'Domestic non-peak'],
       },
       {
         value: '',
@@ -170,31 +170,31 @@ describe('makeCalculations', () => {
   //   expect(result).toEqual([]);
   // });
 
-  // it('returns correct data for FuelSurchage', () => {
-  //   const resultFSC = makeCalculations('FSC', 99999, testParams.FuelSurchage);
-  //   expect(resultFSC).toEqual([
-  //     {
-  //       value: '85 cwt',
-  //       label: 'Billable weight (cwt)',
-  //       details: ['Shipment weight: 8,500 lbs', 'Estimated: '],
-  //     },
-  //     {
-  //       value: '210',
-  //       label: 'Mileage',
-  //       details: ['Zip 210 to Zip 910'],
-  //     },
-  //     {
-  //       value: '0.09',
-  //       label: 'Fuel surcharge price (per mi)',
-  //       details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
-  //     },
-  //     {
-  //       value: '$999.99',
-  //       label: 'Total amount requested',
-  //       details: [''],
-  //     },
-  //   ]);
-  // });
+  it('returns correct data for FuelSurchage', () => {
+    const resultFSC = makeCalculations('FSC', 99999, testParams.FuelSurchage);
+    expect(resultFSC).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: '],
+      },
+      {
+        value: '210',
+        label: 'Mileage',
+        details: ['Zip 210 to Zip 910'],
+      },
+      {
+        value: '0.09',
+        label: 'Fuel surcharge price (per mi)',
+        details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
+  });
 
   // it('returns correct data for DomesticMobileHomeFactor', () => {
   //   const result = makeCalculations('?', 99999, testParams.DomesticMobileHomeFactor);
