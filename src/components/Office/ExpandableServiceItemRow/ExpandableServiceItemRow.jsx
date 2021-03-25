@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
-import styles from '../PaymentRequestDetails/PaymentRequestDetails.module.scss';
+import styles from './ExpandableServiceItemRow.module.scss';
 
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
@@ -29,7 +29,7 @@ const ExpandableServiceItemRow = ({ serviceItem, index }) => {
     'chevron-right': !isExpanded,
   });
 
-  const tableRowClasses = classnames(styles.expandable, {
+  const tableRowClasses = classnames(styles.ExpandableServiceItemRow, styles.expandable, {
     [styles.expandedRow]: isExpanded,
     [styles.isExpandable]: canShowExpandableContent,
   });
