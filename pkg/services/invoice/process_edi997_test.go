@@ -57,6 +57,31 @@ IEA*1*000000022
 		suite.NoError(err)
 	})
 
+	suite.T().Run("successfully update a payment request status after processing a valid EDI997", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+GS*SI*8004171844*MILMOVE*20210217*152945*220001*X*004010
+ST*997*0001
+AK1*SI*100001251
+AK2*858*0001
+
+
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000022
+`
+		_, err := edi997Processor.ProcessEDI997(sample997EDIString)
+		// paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		// validPR2ICN := testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+		// 	PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+		// 		PaymentRequestID:         paymentRequest.ID,
+		// 		InterchangeControlNumber: 22,
+		// 	}})
+		suite.NoError(err)
+	})
+
 	suite.T().Run("successfully create a valid segments", func(t *testing.T) {
 		sample997EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
