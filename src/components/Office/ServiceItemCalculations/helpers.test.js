@@ -85,8 +85,34 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticOriginAdditionalSIT', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticOriginAdditionalSIT);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DOASIT', 99999, testParams.DomesticOriginAdditionalSIT);
+    expect(result).toEqual([
+      {
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        label: 'Billable weight (cwt)',
+        value: '85 cwt',
+      },
+      {
+        details: [],
+        label: 'Days in SIT',
+        value: '2',
+      },
+      {
+        details: ['Origin service area: 176', 'Pickup date: 11 Mar 2020', 'Domestic non-peak'],
+        label: 'Additional day SIT price',
+        value: '1.033',
+      },
+      {
+        details: [''],
+        label: 'Price escalation factor',
+        value: '1.033',
+      },
+      {
+        details: [''],
+        label: 'Total amount requested',
+        value: '$999.99',
+      },
+    ]);
   });
 
   it('returns correct data for DomesticDestinationAdditionalSIT', () => {
