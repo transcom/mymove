@@ -53,6 +53,12 @@ func (o *CreateMTOAgentReader) ReadResponse(response runtime.ClientResponse, con
 			return nil, err
 		}
 		return nil, result
+	case 409:
+		result := NewCreateMTOAgentConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 422:
 		result := NewCreateMTOAgentUnprocessableEntity()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -225,6 +231,39 @@ func (o *CreateMTOAgentNotFound) GetPayload() *primemessages.ClientError {
 }
 
 func (o *CreateMTOAgentNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreateMTOAgentConflict creates a CreateMTOAgentConflict with default headers values
+func NewCreateMTOAgentConflict() *CreateMTOAgentConflict {
+	return &CreateMTOAgentConflict{}
+}
+
+/*CreateMTOAgentConflict handles this case with default header values.
+
+The request could not be processed because of conflict in the current state of the resource.
+*/
+type CreateMTOAgentConflict struct {
+	Payload *primemessages.ClientError
+}
+
+func (o *CreateMTOAgentConflict) Error() string {
+	return fmt.Sprintf("[POST /mto-shipments/{mtoShipmentID}/agents][%d] createMTOAgentConflict  %+v", 409, o.Payload)
+}
+
+func (o *CreateMTOAgentConflict) GetPayload() *primemessages.ClientError {
+	return o.Payload
+}
+
+func (o *CreateMTOAgentConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
 

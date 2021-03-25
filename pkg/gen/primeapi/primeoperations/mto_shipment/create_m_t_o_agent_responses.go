@@ -233,6 +233,50 @@ func (o *CreateMTOAgentNotFound) WriteResponse(rw http.ResponseWriter, producer 
 	}
 }
 
+// CreateMTOAgentConflictCode is the HTTP code returned for type CreateMTOAgentConflict
+const CreateMTOAgentConflictCode int = 409
+
+/*CreateMTOAgentConflict The request could not be processed because of conflict in the current state of the resource.
+
+swagger:response createMTOAgentConflict
+*/
+type CreateMTOAgentConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ClientError `json:"body,omitempty"`
+}
+
+// NewCreateMTOAgentConflict creates CreateMTOAgentConflict with default headers values
+func NewCreateMTOAgentConflict() *CreateMTOAgentConflict {
+
+	return &CreateMTOAgentConflict{}
+}
+
+// WithPayload adds the payload to the create m t o agent conflict response
+func (o *CreateMTOAgentConflict) WithPayload(payload *primemessages.ClientError) *CreateMTOAgentConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create m t o agent conflict response
+func (o *CreateMTOAgentConflict) SetPayload(payload *primemessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateMTOAgentConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateMTOAgentUnprocessableEntityCode is the HTTP code returned for type CreateMTOAgentUnprocessableEntity
 const CreateMTOAgentUnprocessableEntityCode int = 422
 

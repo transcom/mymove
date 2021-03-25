@@ -37,11 +37,38 @@ func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams
 	logger.Debug("mtoAgent " + *mtoAgent.Email)
 
 	// Call the service object
+	// For now, only the Prime endpoint will use this handler
 	createdAgent, err := h.MTOAgentCreator.CreateMTOAgentPrime(mtoAgent)
 
+	// Convert the errors into error responses to return to caller
 	if err != nil {
-		// #TODO Fix error switch cases
-		return mtoshipmentops.NewCreateMTOAgentBadRequest()
+		logger.Error("primeapi.CreateMTOAgentHandler", zap.Error(err))
+
+		switch e := err.(type) {
+		// NotFoundError -> Not Found Response
+		case services.NotFoundError:
+			return mtoshipmentops.NewCreateMTOAgentNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		case services.ConflictError:
+			return mtoshipmentops.NewCreateMTOAgentConflict().WithPayload(
+				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+			// InvalidInputError -> Unprocessable Entity Response
+		case services.InvalidInputError:
+			return mtoshipmentops.NewCreateMTOAgentUnprocessableEntity().WithPayload(
+				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+		// QueryError -> Internal Server Error
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				logger.Error("primeapi.CreateMTOAgentHandler error", zap.Error(e.Unwrap()))
+			}
+			return mtoshipmentops.NewCreateMTOAgentInternalServerError().WithPayload(
+				payloads.InternalServerError(nil, h.GetTraceID()))
+		// Unknown -> Internal Server Error
+		default:
+			return mtoshipmentops.NewCreateMTOAgentInternalServerError().
+				WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		}
+
 	}
 	payload = payloads.MTOAgent(createdAgent)
 	return mtoshipmentops.NewCreateMTOAgentOK().WithPayload(payload)
