@@ -13,7 +13,7 @@ import requireCustomerState from 'containers/requireCustomerState/requireCustome
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 
-export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
+export const ContactInfo = ({ updateServiceMember, serviceMember, push }) => {
   const initialValues = {
     telephone: serviceMember?.telephone,
     secondary_phone: serviceMember?.secondary_phone,
@@ -22,6 +22,7 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
     email_is_preferred: serviceMember?.email_is_preferred,
   };
   const [serverError, setServerError] = useState(null);
+
   const handleSubmit = (values, route) => {
     if (values) {
       const payload = {
