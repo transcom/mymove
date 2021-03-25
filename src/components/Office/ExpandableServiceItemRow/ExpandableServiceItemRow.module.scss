@@ -77,21 +77,3 @@
     }
   }
 }
-
-.shipmentType {
-  .basicServiceType {
-    width: 34px;
-    height: 6px;
-    background-color: $base-light;
-  }
-  .hhgShipmentType {
-    width: 34px;
-    height: 6px;
-    background-color: $accent-hhg;
-  }
-  .ntsrShipmentType {
-    width: 34px;
-    height: 6px;
-    background-color: $accent-ntsr;
-  }
-}
