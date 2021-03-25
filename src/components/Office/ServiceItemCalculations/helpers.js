@@ -17,26 +17,17 @@ const getParamValue = (key, params) => {
 
 // billable weight calculation
 const billableWeight = (params) => {
-  const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightActual, params));
-  const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
-  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightActual]}: ${formatWeight(
-    parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightActual, params), 10),
-  )}`;
-  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightEstimated]}: ${formatWeight(
-    parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params), 10),
-  )}`;
-
-  return calculation(value, label, detail1, detail2);
-};
-
-const billableWeightFSC = (params) => {
   const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilledActual, params));
   const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
-  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]}: ${formatWeight(
+
+  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]}: ${formatWeight(
     parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilledActual, params), 10),
   )}`;
-
-  return calculation(value, label, detail);
+  const weightEstimated = getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params);
+  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightEstimated]}: ${
+    weightEstimated ? formatWeight(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params), 10)) : ''
+  }`;
+  return calculation(value, label, detail1, detail2);
 };
 
 // mileage calculation
@@ -86,7 +77,9 @@ const baselineLinehaulPrice = (params) => {
 };
 
 const priceEscalationFactor = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params);
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params)
+    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params)
+    : '';
   const label = SERVICE_ITEM_CALCULATION_LABELS.PriceEscalationFactor;
   const detail = '';
 
@@ -94,21 +87,24 @@ const priceEscalationFactor = (params) => {
 };
 
 const originPrice = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.OriginPrice, params);
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.OriginPrice, params)
+    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.OriginPrice, params)
+    : '';
+  const detailval1 = getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceSchedule, params)
+    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceSchedule, params)
+    : '';
+  const detailval2 = getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin, params)
+    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin, params)
+    : '';
+  const detailval3 = getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params)
+    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params)
+    : '';
   const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
 
-  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceSchedule]}: ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.ServiceSchedule,
-    params,
-  )}`;
-
-  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin,
-    params,
-  )}`;
-
+  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceSchedule]}: ${detailval1}`;
+  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${detailval2}`;
   const detail3 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]}: ${formatDate(
-    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    detailval3,
     'DD MMM YYYY',
   )}`;
 
@@ -167,7 +163,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
       break;
     case SERVICE_ITEM_CODES.FSC:
       result = [
-        billableWeightFSC(params),
+        billableWeight(params),
         mileageZIP3(params),
         fuelSurchargePrice(params),
         totalAmountRequested(totalAmount),
@@ -180,6 +176,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
+      // console.log(result);
       break;
     default:
       break;
