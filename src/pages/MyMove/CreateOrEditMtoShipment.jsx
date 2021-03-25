@@ -9,6 +9,7 @@ import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/act
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { HhgShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -37,7 +38,12 @@ export class CreateOrEditMtoShipment extends Component {
 
     const { type } = qs.parse(location.search);
 
-    // TODO - redirect to /ppm-start if type is PPM
+    if (type === SHIPMENT_OPTIONS.PPM) {
+      const { moveId } = match.params;
+
+      history.replace(`/moves/${moveId}/ppm-start`);
+      return <div />;
+    }
 
     // wait until MTO shipment has loaded to render form
     if (type || mtoShipment?.id) {
