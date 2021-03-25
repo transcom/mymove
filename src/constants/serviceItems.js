@@ -45,11 +45,12 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
 
 const SERVICE_ITEM_CODES = {
   DLH: 'DLH',
+  DOASIT: 'DOASIT',
   FSC: 'FSC',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
-const allowedServiceItemCalculations = [SERVICE_ITEM_CODES.DLH, SERVICE_ITEM_CODES.FSC];
+const allowedServiceItemCalculations = [SERVICE_ITEM_CODES.DLH, SERVICE_ITEM_CODES.FSC, SERVICE_ITEM_CODES.DOASIT];
 
 export {
   SERVICE_ITEM_STATUSES as default,
