@@ -114,7 +114,7 @@ const totalAmountRequested = (totalAmount) => {
 };
 
 const makeCalculations = (itemCode, totalAmount, params) => {
-  let result;
+  let result = [];
 
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DLH:
