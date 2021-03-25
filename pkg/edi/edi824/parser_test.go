@@ -31,10 +31,9 @@ func TestEDI997Suite(t *testing.T) {
 }
 
 func (suite *EDI824Suite) TestParse() {
-
 	suite.T().Run("successfully parse simple 824 string", func(t *testing.T) {
 		sample824EDIString := `
-ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
 BGN*11*1126-9404*20210217
@@ -49,7 +48,7 @@ IEA*1*000000001
 		suite.NoError(err, "Successful parse of 824")
 
 		// Check the ISA segments
-		// ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+		// ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
 		isa := edi824.InterchangeControlEnvelope.ISA
 		suite.Equal("00", strings.TrimSpace(isa.AuthorizationInformationQualifier))
 		suite.Equal("", strings.TrimSpace(isa.AuthorizationInformation))
@@ -60,14 +59,14 @@ IEA*1*000000001
 		suite.Equal("ZZ", strings.TrimSpace(isa.InterchangeReceiverIDQualifier))
 		suite.Equal("MILMOVE", strings.TrimSpace(isa.InterchangeReceiverID))
 		suite.Equal("210217", strings.TrimSpace(isa.InterchangeDate))
-		suite.Equal("1530", strings.TrimSpace(isa.InterchangeTime))
+		suite.Equal("1544", strings.TrimSpace(isa.InterchangeTime))
 		suite.Equal("U", strings.TrimSpace(isa.InterchangeControlStandards))
 		suite.Equal("00401", strings.TrimSpace(isa.InterchangeControlVersionNumber))
-		suite.Equal(int64(22), isa.InterchangeControlNumber)
+		suite.Equal(int64(000000001), isa.InterchangeControlNumber)
 		suite.Equal(0, isa.AcknowledgementRequested)
 		suite.Equal("T", strings.TrimSpace(isa.UsageIndicator))
-		suite.Equal(":", strings.TrimSpace(isa.ComponentElementSeparator))
-		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
+		suite.Equal("|", strings.TrimSpace(isa.ComponentElementSeparator))
+		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|"
 		suite.validateISA(isaString, isa)
 
 		// Check the GS segments
@@ -154,7 +153,7 @@ IEA*1*000000001
 
 	suite.T().Run("successfully parse simple 824 string with missing optional TED", func(t *testing.T) {
 		sample824EDIString := `
-ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
 BGN*11*1126-9404*20210217
@@ -171,7 +170,7 @@ IEA*1*000000001
 		// Check the ISA segments
 		// ISA*00*          00          12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T|
 		isa := edi824.InterchangeControlEnvelope.ISA
-		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
+		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|"
 		suite.validateISA(isaString, isa)
 
 		// Check the GS segments
@@ -226,7 +225,7 @@ IEA*1*000000001
 
 	suite.T().Run("successfully parse complex 824 with loops", func(t *testing.T) {
 		sample824EDIString := `
-ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
 BGN*11*1126-9404*20210217
@@ -283,14 +282,10 @@ IEA*1*000000001
 		err := edi824.Parse(sample824EDIString)
 		suite.NoError(err, "Successful parse of 824")
 
-		/*
-			// Check the ISA segments
-			// ISA*00*          00          12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T|
-			isa := edi824.InterchangeControlEnvelope.ISA
-			isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
-			suite.validateISA(isaString, isa)
-
-		*/
+		// Check the ISA segments
+		isa := edi824.InterchangeControlEnvelope.ISA
+		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|"
+		suite.validateISA(isaString, isa)
 
 		// Functional Group 1
 		suite.Equal(2, len(edi824.InterchangeControlEnvelope.FunctionalGroups))
@@ -636,15 +631,15 @@ IEA*1*000000001
 
 	suite.T().Run("fail to parse 824 with unknown segment", func(t *testing.T) {
 		sample824EDIString := `
-	ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
-	GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
-	ST*824*000000001
-	BGN*11*1126-9404*20210217
-	OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
-	TEN*1*2*2
-	SE*5*000000001
-	GE*1*1
-	IEA*1*000000001
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
+GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
+ST*824*000000001
+BGN*11*1126-9404*20210217
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
+TEN*1*2*2
+SE*5*000000001
+GE*1*1
+IEA*1*000000001
 	`
 		edi824 := EDI{}
 		err := edi824.Parse(sample824EDIString)
@@ -654,7 +649,7 @@ IEA*1*000000001
 
 	suite.T().Run("fail to parse 824 with bad format", func(t *testing.T) {
 		sample824EDIString := `
-ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
 BGN*11*1126-9404*20210217
