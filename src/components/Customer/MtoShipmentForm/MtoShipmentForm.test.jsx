@@ -29,6 +29,7 @@ const defaultProps = {
     state: 'GA',
     postal_code: '31905',
     street_address_1: '123 Main',
+    street_address_2: '',
   },
   serviceMember: {
     weight_allotment: {
@@ -59,12 +60,14 @@ const mockMtoShipment = {
 
 describe('MtoShipmentForm component', () => {
   describe('when creating a new HHG shipment', () => {
-    it('renders the HHG shipment form', () => {
+    it('renders the HHG shipment form', async () => {
       const { queryByText, queryByLabelText, queryAllByLabelText } = render(
         <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
       );
 
-      expect(queryByText('HHG')).toHaveClass('usa-tag');
+      await waitFor(() => {
+        expect(queryByText('HHG')).toHaveClass('usa-tag');
+      });
 
       expect(queryByText('Pickup date')).toBeInstanceOf(HTMLLegendElement);
       expect(queryByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
@@ -101,9 +104,12 @@ describe('MtoShipmentForm component', () => {
       ).toBeInstanceOf(HTMLTextAreaElement);
     });
 
-    it('does not render special NTS What to expect section', () => {
+    it('does not render special NTS What to expect section', async () => {
       const { queryByTestId } = render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
-      expect(queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();
+      });
     });
 
     it('uses the current residence address for pickup address when checked', async () => {
@@ -112,7 +118,6 @@ describe('MtoShipmentForm component', () => {
       );
 
       userEvent.click(queryByLabelText('Use my current address'));
-      // TODO look into controlled input warning
 
       await waitFor(() => {
         expect(queryAllByLabelText('Address 1')[0]).toHaveValue(defaultProps.currentResidence.street_address_1);
@@ -150,7 +155,7 @@ describe('MtoShipmentForm component', () => {
   });
 
   describe('editing an already existing HHG shipment', () => {
-    it('renders the HHG shipment form with pre-filled values', () => {
+    it('renders the HHG shipment form with pre-filled values', async () => {
       const { queryByLabelText, queryAllByLabelText } = render(
         <MtoShipmentForm
           {...defaultProps}
@@ -160,7 +165,9 @@ describe('MtoShipmentForm component', () => {
         />,
       );
 
-      expect(queryByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+      await waitFor(() => {
+        expect(queryByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+      });
       expect(queryByLabelText('Use my current address')).not.toBeChecked();
       expect(queryAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(queryAllByLabelText(/Address 2/)[0]).toHaveValue('');
@@ -181,13 +188,14 @@ describe('MtoShipmentForm component', () => {
   });
 
   describe('creating a new NTS shipment', () => {
-    it('renders the NTS shipment form', () => {
+    it('renders the NTS shipment form', async () => {
       const { queryByText, queryByLabelText } = render(
         <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />,
       );
 
-      expect(queryByText('NTS')).toHaveClass('usa-tag');
-
+      await waitFor(() => {
+        expect(queryByText('NTS')).toHaveClass('usa-tag');
+      });
       expect(queryByText('Pickup date')).toBeInstanceOf(HTMLLegendElement);
       expect(queryByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
@@ -214,19 +222,24 @@ describe('MtoShipmentForm component', () => {
       ).toBeInstanceOf(HTMLTextAreaElement);
     });
 
-    it('renders special NTS What to expect section', () => {
+    it('renders special NTS What to expect section', async () => {
       const { queryByTestId } = render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
-      expect(queryByTestId('nts-what-to-expect')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(queryByTestId('nts-what-to-expect')).toBeInTheDocument();
+      });
     });
   });
 
   describe('creating a new NTS-R shipment', () => {
-    it('renders the NTS-R shipment form', () => {
+    it('renders the NTS-R shipment form', async () => {
       const { queryByText, queryByLabelText } = render(
         <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />,
       );
 
-      expect(queryByText('NTS-R')).toHaveClass('usa-tag');
+      await waitFor(() => {
+        expect(queryByText('NTS-R')).toHaveClass('usa-tag');
+      });
 
       expect(queryByText('Pickup date')).not.toBeInTheDocument();
       expect(queryByText('Pickup location')).not.toBeInTheDocument();
@@ -250,9 +263,12 @@ describe('MtoShipmentForm component', () => {
       ).toBeInstanceOf(HTMLTextAreaElement);
     });
 
-    it('does not render special NTS What to expect section', () => {
+    it('does not render special NTS What to expect section', async () => {
       const { queryByTestId } = render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
-      expect(queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();
+      });
     });
   });
 });
