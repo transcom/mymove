@@ -22,7 +22,7 @@ type interchangeControlEnvelope struct {
 	IEA              edisegment.IEA // interchange control trailer
 }
 
-// EDI holds all the segments to parse an EDI 997
+// EDI holds all the segments to parse an EDI 824
 type EDI struct {
 	InterchangeControlEnvelope interchangeControlEnvelope
 }
