@@ -120,10 +120,6 @@ describe('requireCustomerState ContactInfo', () => {
   });
 
   const props = {
-    pages: ['first'],
-    pageKey: '1',
-    userEmail: 'my@email.com',
-    schema: { my: 'schema' },
     updateServiceMember: jest.fn(),
   };
 

@@ -17,7 +17,7 @@ const ContactInfoForm = ({ initialValues, onSubmit }) => {
 
   const validationSchema = Yup.object().shape({
     telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
-    secondary_phone: Yup.string().min(12, 'Number must have 10 digits and a valid area code'), // min 12 includes hyphens
+    secondary_telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code'), // min 12 includes hyphens
     personal_email: Yup.string()
       .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
       .required('Required'),
@@ -67,7 +67,7 @@ const ContactInfoForm = ({ initialValues, onSubmit }) => {
 ContactInfoForm.propTypes = {
   initialValues: PropTypes.shape({
     telephone: PropTypes.string,
-    secondary_phone: PropTypes.string,
+    secondary_telephone: PropTypes.string,
     personal_email: PropTypes.string,
     phone_is_preferred: PropTypes.bool,
     email_is_preferred: PropTypes.bool,

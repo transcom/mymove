@@ -16,7 +16,7 @@ import { customerRoutes } from 'constants/routes';
 export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
   const initialValues = {
     telephone: serviceMember?.telephone || '',
-    secondary_phone: serviceMember?.secondary_phone || '',
+    secondary_telephone: serviceMember?.secondary_telephone || '',
     personal_email: serviceMember?.personal_email || '',
     phone_is_preferred: serviceMember?.phone_is_preferred,
     email_is_preferred: serviceMember?.email_is_preferred,
@@ -38,7 +38,7 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
       const payload = {
         id: serviceMember.id,
         telephone: values?.telephone,
-        secondary_phone: values?.secondary_phone,
+        secondary_telephone: values?.secondary_telephone,
         personal_email: values?.personal_email,
         phone_is_preferred: values?.phone_is_preferred,
         email_is_preferred: values?.email_is_preferred,
