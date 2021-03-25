@@ -18,13 +18,33 @@ import (
 // CreateMTOAgentHandler is the handler to create an agent
 type CreateMTOAgentHandler struct {
 	handlers.HandlerContext
-	// MTOAgentCreator services.MTOAgentCreator
+	MTOAgentCreator services.MTOAgentCreator
 }
 
 func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	logger.Debug("Inside CreateMTOHandler")
-	return mtoshipmentops.NewCreateMTOAgentBadRequest()
+
+	// Get the mtoShipmentID and payload
+	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+	payload := params.Body
+
+	// Get the new agent model
+	mtoAgent := payloads.MTOAgentModel(payload)
+	mtoAgent.MTOShipmentID = mtoShipmentID
+
+	logger.Debug("mtoShipment " + mtoShipmentID.String())
+	logger.Debug("mtoAgent " + *mtoAgent.Email)
+
+	// Call the service object
+	createdAgent, err := h.MTOAgentCreator.CreateMTOAgentPrime(mtoAgent)
+
+	if err != nil {
+		// #TODO Fix error switch cases
+		return mtoshipmentops.NewCreateMTOAgentBadRequest()
+	}
+	payload = payloads.MTOAgent(createdAgent)
+	return mtoshipmentops.NewCreateMTOAgentOK().WithPayload(payload)
 }
 
 // UpdateMTOAgentHandler is the handler to update an agent
