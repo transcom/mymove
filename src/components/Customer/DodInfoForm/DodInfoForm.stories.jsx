@@ -7,7 +7,6 @@ export default {
   component: DodInfoForm,
   argTypes: {
     onSubmit: { action: 'submit form' },
-    onBack: { action: 'go back' },
   },
 };
 

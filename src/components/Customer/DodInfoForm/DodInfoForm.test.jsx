@@ -74,7 +74,7 @@ describe('DodInfoForm component', () => {
       expect(getAllByText('Required').length).toBe(3);
     });
 
-    expect(testProps.onBack).not.toHaveBeenCalled();
+    expect(testProps.onSubmit).not.toHaveBeenCalled();
 
     userEvent.selectOptions(getByLabelText('Branch of service'), ['NAVY']);
     userEvent.type(getByLabelText('DOD ID number'), '1234567890');
