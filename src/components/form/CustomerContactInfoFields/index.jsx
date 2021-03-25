@@ -20,7 +20,6 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
               <MaskedTextField
                 label="Best contact phone"
                 id={`telephone_${CustomerContactInfoFieldsUUID}`}
-                data-testid="contactPhone"
                 name="telephone"
                 type="tel"
                 minimum="12"
@@ -36,7 +35,6 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
                 label="Alt. phone"
                 labelHint="Optional"
                 id={`secondaryTelephone_${CustomerContactInfoFieldsUUID}`}
-                data-testid="secondaryPhone"
                 name="secondary_telephone"
                 type="tel"
                 minimum="12"
@@ -48,7 +46,6 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
           <TextField
             label="Personal email"
             id={`personalEmail_${CustomerContactInfoFieldsUUID}`}
-            data-testid="personalEmail"
             name="personal_email"
             required
           />
@@ -57,13 +54,11 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
             <CheckboxField
               id={`phoneIsPreferred_${CustomerContactInfoFieldsUUID}`}
               label="Phone"
-              data-testid="contactInfoPhonePreferred"
               name="phone_is_preferred"
             />
             <CheckboxField
               id={`emailIsPreferred_ ${CustomerContactInfoFieldsUUID}`}
               label="Email"
-              data-testid="contactInfoEmailPreferred"
               name="email_is_preferred"
             />
           </div>
