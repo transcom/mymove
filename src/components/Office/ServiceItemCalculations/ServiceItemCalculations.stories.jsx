@@ -28,3 +28,16 @@ export const SmallTable = () => (
     tableSize="small"
   />
 );
+
+export const LargeDPK = () => (
+  <ServiceItemCalculations serviceItemParams={testParams.DomesticPacking} totalAmountRequested={642} itemCode="DPK" />
+);
+
+export const SmallDPK = () => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticPacking}
+    totalAmountRequested={642}
+    itemCode="DPK"
+    tableSize="small"
+  />
+);

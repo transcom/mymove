@@ -102,7 +102,7 @@ describe('ServiceItemCalculations', () => {
     {
       value: '1.033',
       label: 'Baseline linehaul price',
-      details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
+      details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 11 Mar 2020'],
     },
     {
       value: '1.033',
@@ -132,7 +132,7 @@ describe('ServiceItemCalculations', () => {
     {
       value: '2.60',
       label: 'Fuel surcharge price (per mi)',
-      details: ['EIA diesel: 2.60', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
+      details: ['EIA diesel: 2.60', 'Weight-based distance multiplier: 0.000417', 'Requested pickup: 11 Mar 2020'],
     },
     {
       value: '$10.00',
