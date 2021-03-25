@@ -50,27 +50,25 @@ IEA*1*000000001
 
 		// Check the ISA segments
 		// ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
-		/*
-			isa := edi824.InterchangeControlEnvelope.ISA
-			suite.Equal("00", strings.TrimSpace(isa.AuthorizationInformationQualifier))
-			suite.Equal("", strings.TrimSpace(isa.AuthorizationInformation))
-			suite.Equal("00", strings.TrimSpace(isa.SecurityInformationQualifier))
-			suite.Equal("", strings.TrimSpace(isa.SecurityInformation))
-			suite.Equal("12", strings.TrimSpace(isa.InterchangeSenderIDQualifier))
-			suite.Equal("8004171844", strings.TrimSpace(isa.InterchangeSenderID))
-			suite.Equal("ZZ", strings.TrimSpace(isa.InterchangeReceiverIDQualifier))
-			suite.Equal("MILMOVE", strings.TrimSpace(isa.InterchangeReceiverID))
-			suite.Equal("210217", strings.TrimSpace(isa.InterchangeDate))
-			suite.Equal("1530", strings.TrimSpace(isa.InterchangeTime))
-			suite.Equal("U", strings.TrimSpace(isa.InterchangeControlStandards))
-			suite.Equal("00401", strings.TrimSpace(isa.InterchangeControlVersionNumber))
-			suite.Equal(int64(22), isa.InterchangeControlNumber)
-			suite.Equal(0, isa.AcknowledgementRequested)
-			suite.Equal("T", strings.TrimSpace(isa.UsageIndicator))
-			suite.Equal(":", strings.TrimSpace(isa.ComponentElementSeparator))
-			isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
-			suite.validateISA(isaString, isa)
-		*/
+		isa := edi824.InterchangeControlEnvelope.ISA
+		suite.Equal("00", strings.TrimSpace(isa.AuthorizationInformationQualifier))
+		suite.Equal("", strings.TrimSpace(isa.AuthorizationInformation))
+		suite.Equal("00", strings.TrimSpace(isa.SecurityInformationQualifier))
+		suite.Equal("", strings.TrimSpace(isa.SecurityInformation))
+		suite.Equal("12", strings.TrimSpace(isa.InterchangeSenderIDQualifier))
+		suite.Equal("8004171844", strings.TrimSpace(isa.InterchangeSenderID))
+		suite.Equal("ZZ", strings.TrimSpace(isa.InterchangeReceiverIDQualifier))
+		suite.Equal("MILMOVE", strings.TrimSpace(isa.InterchangeReceiverID))
+		suite.Equal("210217", strings.TrimSpace(isa.InterchangeDate))
+		suite.Equal("1530", strings.TrimSpace(isa.InterchangeTime))
+		suite.Equal("U", strings.TrimSpace(isa.InterchangeControlStandards))
+		suite.Equal("00401", strings.TrimSpace(isa.InterchangeControlVersionNumber))
+		suite.Equal(int64(22), isa.InterchangeControlNumber)
+		suite.Equal(0, isa.AcknowledgementRequested)
+		suite.Equal("T", strings.TrimSpace(isa.UsageIndicator))
+		suite.Equal(":", strings.TrimSpace(isa.ComponentElementSeparator))
+		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
+		suite.validateISA(isaString, isa)
 
 		// Check the GS segments
 		// GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -170,14 +168,11 @@ IEA*1*000000001
 		err := edi824.Parse(sample824EDIString)
 		suite.NoError(err, "Successful parse of 824")
 
-		/*
-			// Check the ISA segments
-			// ISA*00*          00          12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T|
-			isa := edi824.InterchangeControlEnvelope.ISA
-			isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
-			suite.validateISA(isaString, isa)
-
-		*/
+		// Check the ISA segments
+		// ISA*00*          00          12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T|
+		isa := edi824.InterchangeControlEnvelope.ISA
+		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
+		suite.validateISA(isaString, isa)
 
 		// Check the GS segments
 		// GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
@@ -229,359 +224,451 @@ IEA*1*000000001
 		suite.validateIEA(ieaString, iea)
 	})
 
-	/*
-			suite.T().Run("successfully parse complex 824 with loops", func(t *testing.T) {
-				sample997EDIString := `
-		ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
-		GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
-		ST*824*0001
-		AK1*SI*100001251
-		AK2*858*0001
-		AK3*ab*123
-		AK4*1*2*3*4*MM*bad data goes here 89
-		AK3*ab*124
-		AK4*1*2*3*4*MM*bad data goes here 100
-		AK5*A
-		AK9*A*1*1*1
-		SE*6*0001
-		ST*824*0002
-		AK1*SI*100001251
-		AK2*858*0001
-		AK3*ab*123
-		AK4*1*2*3*4*MM*bad data goes here 90
-		AK5*A
-		AK2*858*0002
-		AK3*ab*123
-		AK4*1*2*3*4*MM*bad data goes here 91
-		AK5*A
-		AK2*858*0003
-		AK3*ab*123
-		AK4*1*2*3*4*MM*bad data goes here 92
-		AK5*A
-		AK9*A*1*1*1
-		SE*6*0002
-		GE*1*220001
-		GS*FA*8004171844*MILMOVE*20210217*152945*220002*X*004010
-		ST*824*0001
-		AK1*SI*100001251
-		AK2*858*0001
-		AK3*ab*123
-		AK4*1*2*3*4*MM*bad data goes here 93
-		AK5*A
-		AK9*A*1*1*1
-		SE*6*0001
-		GE*1*220002
-		IEA*1*000000022
-		`
-				edi824 := EDI{}
-				err := edi824.Parse(sample997EDIString)
-				suite.NoError(err, "Successful parse of 824")
-
-				isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
-				isa := edi824.InterchangeControlEnvelope.ISA
-				suite.validateISA(isaString, isa)
-
-				// FunctionalGroup 1
-				fgIndex := 0
-				fg := edi824.InterchangeControlEnvelope.FunctionalGroups[fgIndex]
-
-				gsString := "GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010"
-				suite.Equal(2, len(edi824.InterchangeControlEnvelope.FunctionalGroups))
-				gs := fg.GS
-				suite.validateGS(gsString, gs)
-
-				// FunctionalGroup 1 > TransactionSet 1
-				tsIndex := 0
-				ts := fg.TransactionSets[tsIndex]
-
-				stString := "ST*824*0001"
-				suite.Equal(2, len(fg.TransactionSets))
-				st := ts.ST
-				suite.validateST(stString, st)
-
-				// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse
-				fgr := ts.FunctionalGroupResponse
-
-				ak1String := "AK1*SI*100001251"
-				ak1 := fgr.AK1
-				suite.validateAK1(ak1String, ak1)
-
-				// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1
-				suite.Equal(1, len(fgr.TransactionSetResponses))
-
-				tsrIndex := 0
-				tsr := fgr.TransactionSetResponses[tsrIndex]
-
-				ak2String := "AK2*858*0001"
-				ak2 := tsr.AK2
-				suite.validateAK2(ak2String, ak2)
-
-				// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 > Data Segment 1
-				suite.Equal(2, len(tsr.dataSegments))
-				dsIndex := 0
-				ds := tsr.dataSegments[dsIndex]
-
-				ak3String := "AK3*ab*123"
-				ak3 := ds.AK3
-				suite.validateAK3(ak3String, ak3)
-
-				ak4String := "AK4*1*2*3*4*MM*bad data goes here 89"
-				ak4 := ds.AK4
-				suite.validateAK4(ak4String, ak4)
-
-				// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 > Data Segment 2
-				dsIndex = 1
-				ds = tsr.dataSegments[dsIndex]
-
-				ak3String = "AK3*ab*124"
-				ak3 = ds.AK3
-				suite.validateAK3(ak3String, ak3)
-
-				// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 > Data Segment 2
-				ak4String = "AK4*1*2*3*4*MM*bad data goes here 100"
-				ak4 = ds.AK4
-				suite.validateAK4(ak4String, ak4)
-
-				// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponses 1 END
-				ak5String := "AK5*A"
-				ak5 := tsr.AK5
-				suite.validateAK5(ak5String, ak5)
-
-				// FunctionalGroup 1 > TransactionSet 1 > FunctionalGroupResponse END
-				ak9String := "AK9*A*1*1*1"
-				ak9 := fgr.AK9
-				suite.validateAK9(ak9String, ak9)
-
-				// FunctionalGroup 1 > TransactionSet 1 END
-				seString := "SE*6*0001"
-				se := ts.SE
-				suite.validateSE(seString, se)
-
-				// FunctionalGroup 1 > TransactionSet 2
-				tsIndex = 1
-				ts = fg.TransactionSets[tsIndex]
-
-				stString = "ST*824*0002"
-				st = ts.ST
-				suite.validateST(stString, st)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse
-				fgr = ts.FunctionalGroupResponse
-
-				ak1String = "AK1*SI*100001251"
-				ak1 = fgr.AK1
-				suite.validateAK1(ak1String, ak1)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1
-				suite.Equal(3, len(fgr.TransactionSetResponses))
-
-				tsrIndex = 0
-				tsr = fgr.TransactionSetResponses[tsrIndex]
-
-				ak2String = "AK2*858*0001"
-				ak2 = tsr.AK2
-				suite.validateAK2(ak2String, ak2)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segment 1
-				dsIndex = 0
-				ds = tsr.dataSegments[dsIndex]
-
-				ak3String = "AK3*ab*123"
-				ak3 = ds.AK3
-				suite.validateAK3(ak3String, ak3)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segment 1
-				ak4String = "AK4*1*2*3*4*MM*bad data goes here 90"
-				ak4 = ds.AK4
-				suite.validateAK4(ak4String, ak4)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 1 END
-				ak5String = "AK5*A"
-				ak5 = tsr.AK5
-				suite.validateAK5(ak5String, ak5)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 2
-				tsrIndex = 1
-				tsr = fgr.TransactionSetResponses[tsrIndex]
-
-				ak2String = "AK2*858*0002"
-				ak2 = tsr.AK2
-				suite.validateAK2(ak2String, ak2)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 2 > Data Segment 1
-				suite.Equal(1, len(tsr.dataSegments))
-
-				dsIndex = 0
-				ds = tsr.dataSegments[dsIndex]
-
-				ak3String = "AK3*ab*123"
-				ak3 = ds.AK3
-				suite.validateAK3(ak3String, ak3)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 2 > Data Segment 1
-				ak4String = "AK4*1*2*3*4*MM*bad data goes here 91"
-				ak4 = ds.AK4
-				suite.validateAK4(ak4String, ak4)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 2 END
-				ak5String = "AK5*A"
-				ak5 = tsr.AK5
-				suite.validateAK5(ak5String, ak5)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 3
-				tsrIndex = 2
-				tsr = fgr.TransactionSetResponses[tsrIndex]
-
-				ak2 = tsr.AK2
-				ak2String = "AK2*858*0003"
-				suite.validateAK2(ak2String, ak2)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 3 > Data Segment 1
-				dsIndex = 0
-				ds = tsr.dataSegments[dsIndex]
-
-				ak3 = ds.AK3
-				ak3String = "AK3*ab*123"
-				suite.validateAK3(ak3String, ak3)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 3 > Data Segment 1
-				ak4String = "AK4*1*2*3*4*MM*bad data goes here 92"
-				ak4 = ds.AK4
-				suite.validateAK4(ak4String, ak4)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse > TransactionSetResponse 3 END
-				ak5 = tsr.AK5
-				ak5String = "AK5*A"
-				suite.validateAK5(ak5String, ak5)
-
-				// FunctionalGroup 1 > TransactionSet 2 > FunctionalGroupResponse END
-				ak9String = "AK9*A*1*1*1"
-				ak9 = fgr.AK9
-				suite.validateAK9(ak9String, ak9)
-
-				// FunctionalGroup 1 > TransactionSet 2 END
-				seString = "SE*6*0002"
-				se = ts.SE
-				suite.validateSE(seString, se)
-
-				// FunctionalGroup 1 END
-				geString := "GE*1*220001"
-				ge := fg.GE
-				suite.validateGE(geString, ge)
-
-				// FunctionalGroup 2
-				fgIndex = 1
-				fg = edi824.InterchangeControlEnvelope.FunctionalGroups[fgIndex]
-
-				gsString = "GS*FA*8004171844*MILMOVE*20210217*152945*220002*X*004010"
-				gs = fg.GS
-				suite.validateGS(gsString, gs)
-
-				// FunctionalGroup 2 > TransactionSet 1
-				tsIndex = 0
-				ts = fg.TransactionSets[tsIndex]
-				st = fg.TransactionSets[tsIndex].ST
-
-				stString = "ST*824*0001"
-				suite.validateST(stString, st)
-
-				// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse
-				fgr = ts.FunctionalGroupResponse
-
-				ak1String = "AK1*SI*100001251"
-				ak1 = fgr.AK1
-				suite.validateAK1(ak1String, ak1)
-
-				// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponse 1
-				tsrIndex = 0
-				tsr = fgr.TransactionSetResponses[tsrIndex]
-
-				ak2String = "AK2*858*0001"
-				ak2 = tsr.AK2
-				suite.validateAK2(ak2String, ak2)
-
-				// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segments
-				dsIndex = 0
-				ds = tsr.dataSegments[dsIndex]
-
-				ak3String = "AK3*ab*123"
-				ak3 = ds.AK3
-				suite.validateAK3(ak3String, ak3)
-
-				// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponse 1 > Data Segments
-				ak4String = "AK4*1*2*3*4*MM*bad data goes here 93"
-				ak4 = ds.AK4
-				suite.validateAK4(ak4String, ak4)
-
-				// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse > TransactionSetResponse 1 END
-				ak5String = "AK5*A"
-				ak5 = tsr.AK5
-				suite.validateAK5(ak5String, ak5)
-
-				// FunctionalGroup 2 > TransactionSet 1 > FunctionalGroupResponse END
-				ak9String = "AK9*A*1*1*1"
-				ak9 = fgr.AK9
-				suite.validateAK9(ak9String, ak9)
-
-				// FunctionalGroup 2 > TransactionSet 1 END
-				seString = "SE*6*0001"
-				se = ts.SE
-				suite.validateSE(seString, se)
-
-				// FunctionalGroup 2 END
-				geString = "GE*1*220002"
-				ge = fg.GE
-				suite.validateGE(geString, ge)
-
-				iea := edi824.InterchangeControlEnvelope.IEA
-				ieaString := "IEA*1*000000022"
-				suite.validateIEA(ieaString, iea)
-
-			})
-
-			suite.T().Run("fail to parse 824 with unknown segment", func(t *testing.T) {
-				sample997EDIString := `
-		ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
-		GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
-		ST*824*0001
-		AK18*SI*100001251
-		AK2*858*0001
-		AK3*ab*123
-		AK4*1*2*3*4*MM*bad data goes here 89
-		AK5*A
-		AK9*A*1*1*1
-		SE*6*0001
-		GE*1*220001
-		IEA*1*000000022
-		`
-				edi824 := EDI{}
-				err := edi824.Parse(sample997EDIString)
-				suite.Error(err, "fail to parse 824")
-				suite.Contains(err.Error(), "unexpected row for EDI 824")
-			})
-
-			suite.T().Run("fail to parse 824 with bad format", func(t *testing.T) {
-				sample997EDIString := `
-		ISA*00
-		GS
-		ST
-		AK1*SI*100001251
-		AK2*858*0001
-		AK3*ab*123
-		AK4*1*2*3*4*MM*bad data goes here 89
-		AK5*A
-		AK9*A*1*1*1
-		SE*6*0001
-		GE*1*220001
-		IEA*1*000000022
-		`
-				edi824 := EDI{}
-				err := edi824.Parse(sample997EDIString)
-				suite.Error(err, "fail to parse 824")
-				suite.Contains(err.Error(), "824 failed to parse")
-			})
-
-	*/
+	suite.T().Run("successfully parse complex 824 with loops", func(t *testing.T) {
+		sample824EDIString := `
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
+ST*824*000000001
+BGN*11*1126-9404*20210217
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0002
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0003
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0004
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0005
+TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+TED*007*Missing Data
+TED*812*Missing Transaction Reference or Trace Number
+TED*PPD*Previously Paid
+TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+SE*5*000000001
+ST*824*000000002
+BGN*11*1126-9404*20210217
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0002
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0003
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0004
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0005
+TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+TED*007*Missing Data
+TED*INC*Incomplete Transaction
+TED*IID*Invalid Identification Code
+TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+SE*5*000000002
+GE*2*1
+GS*AG*8004171844*MILMOVE*20210217*1544*2*X*004010
+ST*824*000000001
+BGN*11*1126-9404*20210217
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0002
+TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+TED*007*Missing Data
+TED*812*Missing Transaction Reference or Trace Number
+TED*PPD*Previously Paid
+TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+SE*5*000000001
+ST*824*000000002
+BGN*11*1126-9404*20210217
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0003
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0004
+TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+TED*007*Missing Data
+TED*INC*Incomplete Transaction
+TED*IID*Invalid Identification Code
+TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+SE*5*000000002
+GE*2*2
+IEA*1*000000001
+`
+		edi824 := EDI{}
+		err := edi824.Parse(sample824EDIString)
+		suite.NoError(err, "Successful parse of 824")
+
+		/*
+			// Check the ISA segments
+			// ISA*00*          00          12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T|
+			isa := edi824.InterchangeControlEnvelope.ISA
+			isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
+			suite.validateISA(isaString, isa)
+
+		*/
+
+		// Functional Group 1
+		suite.Equal(2, len(edi824.InterchangeControlEnvelope.FunctionalGroups))
+		fgIndex := 0
+		fg := edi824.InterchangeControlEnvelope.FunctionalGroups[fgIndex]
+
+		// Check the GS segments
+		gs := fg.GS
+		gsString := "GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010"
+		suite.validateGS(gsString, gs)
+
+		// Functional Group 1 > Transactional Set 1
+		suite.Equal(2, len(fg.TransactionSets))
+		tsIndex := 0
+		ts := fg.TransactionSets[tsIndex]
+
+		// Check the ST segments
+		st := ts.ST
+		stString := "ST*824*000000001"
+		suite.validateST(stString, st)
+
+		// Functional Group 1 > Transactional Set 1 > Beginning Segment
+
+		// Check the BGN segments
+		bgn := ts.BGN
+		bgnString := "BGN*11*1126-9404*20210217"
+		suite.validateBGN(bgnString, bgn)
+
+		// Functional Group 1 > Transactional Set 1 > Beginning Segment > OTI
+
+		// Check the OTI segments
+		suite.Equal(5, len(ts.OTIs))
+		otiIndex := 0
+		oti := ts.OTIs[otiIndex]
+		otiString := "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001"
+		suite.validateOTI(otiString, oti)
+
+		otiIndex = 1
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0002"
+		suite.validateOTI(otiString, oti)
+
+		otiIndex = 2
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0003"
+		suite.validateOTI(otiString, oti)
+
+		otiIndex = 3
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0004"
+		suite.validateOTI(otiString, oti)
+
+		otiIndex = 4
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0005"
+		suite.validateOTI(otiString, oti)
+
+		// Functional Group 1 > Transactional Set 1 > Beginning Segment > TED
+
+		// Check the TED segments
+		// n/a
+		suite.Equal(5, len(ts.TEDs))
+		tedIndex := 0
+		ted := ts.TEDs[tedIndex]
+		tedString := "TED*K*DOCUMENT OWNER CANNOT BE DETERMINED"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 1
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*007*Missing Data"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 2
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*812*Missing Transaction Reference or Trace Number"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 3
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*PPD*Previously Paid"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 4
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*K*DOCUMENT OWNER CANNOT BE DETERMINED"
+		suite.validateTED(tedString, ted)
+
+		// Functional Group 1 > Transactional Set 1
+
+		// Checking SE segments
+		// SE*5*000000001
+		se := ts.SE
+		seString := "SE*5*000000001"
+		suite.validateSE(seString, se)
+
+		// Functional Group 1 > Transactional Set 2
+		tsIndex = 1
+		ts = fg.TransactionSets[tsIndex]
+
+		// Check the ST segments
+		st = ts.ST
+		stString = "ST*824*000000002"
+		suite.validateST(stString, st)
+
+		// Functional Group 1 > Transactional Set 2 > Beginning Segment
+
+		// Check the BGN segments
+		// BGN*11*1126-9404*20210217
+		bgn = ts.BGN
+		bgnString = "BGN*11*1126-9404*20210217"
+		suite.validateBGN(bgnString, bgn)
+
+		// Functional Group 1 > Transactional Set 2 > Beginning Segment > OTI
+
+		// Check the OTI segments
+		suite.Equal(5, len(ts.OTIs))
+		otiIndex = 0
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001"
+		suite.validateOTI(otiString, oti)
+
+		otiIndex = 1
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0002"
+		suite.validateOTI(otiString, oti)
+
+		otiIndex = 2
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0003"
+		suite.validateOTI(otiString, oti)
+
+		otiIndex = 3
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0004"
+		suite.validateOTI(otiString, oti)
+
+		otiIndex = 4
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0005"
+		suite.validateOTI(otiString, oti)
+
+		// Functional Group 1 > Transactional Set 2 > Beginning Segment > TED
+
+		// Check the TED segments
+		suite.Equal(5, len(ts.TEDs))
+		tedIndex = 0
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*K*DOCUMENT OWNER CANNOT BE DETERMINED"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 1
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*007*Missing Data"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 2
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*INC*Incomplete Transaction"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 3
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*IID*Invalid Identification Code"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 4
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*K*DOCUMENT OWNER CANNOT BE DETERMINED"
+		suite.validateTED(tedString, ted)
+
+		// Functional Group 1 > Transactional Set 2
+
+		// Checking SE segments
+		// SE*5*000000001
+		se = ts.SE
+		seString = "SE*5*000000002"
+		suite.validateSE(seString, se)
+
+		// Functional Group 1
+
+		// Checking GE segments
+		ge := fg.GE
+		geString := "GE*2*1"
+		suite.validateGE(geString, ge)
+
+		// Functional Group 2
+		fgIndex = 1
+		fg = edi824.InterchangeControlEnvelope.FunctionalGroups[fgIndex]
+
+		// Check the GS segments
+		gs = fg.GS
+		gsString = "GS*AG*8004171844*MILMOVE*20210217*1544*2*X*004010"
+		suite.validateGS(gsString, gs)
+
+		// Functional Group 2 > Transactional Set 1
+		suite.Equal(2, len(fg.TransactionSets))
+		tsIndex = 0
+		ts = fg.TransactionSets[tsIndex]
+
+		// Check the ST segments
+		st = ts.ST
+		stString = "ST*824*000000001"
+		suite.validateST(stString, st)
+
+		// Functional Group 2 > Transactional Set 1 > Beginning Segment
+
+		// Check the BGN segments
+		// BGN*11*1126-9404*20210217
+		bgn = ts.BGN
+		bgnString = "BGN*11*1126-9404*20210217"
+		suite.validateBGN(bgnString, bgn)
+
+		// Functional Group 2 > Transactional Set 1 > Beginning Segment > OTI
+
+		// Check the OTI segments
+		suite.Equal(2, len(ts.OTIs))
+		otiIndex = 0
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001"
+		suite.validateOTI(otiString, oti)
+
+		otiIndex = 1
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0002"
+		suite.validateOTI(otiString, oti)
+
+		// Functional Group 2 > Transactional Set 1 > Beginning Segment > TED
+
+		// Check the TED segments
+		suite.Equal(5, len(ts.TEDs))
+		tedIndex = 0
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*K*DOCUMENT OWNER CANNOT BE DETERMINED"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 1
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*007*Missing Data"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 2
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*812*Missing Transaction Reference or Trace Number"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 3
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*PPD*Previously Paid"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 4
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*K*DOCUMENT OWNER CANNOT BE DETERMINED"
+		suite.validateTED(tedString, ted)
+
+		// Functional Group 2 > Transactional Set 1
+
+		// Checking SE segments
+		// SE*5*000000001
+		se = ts.SE
+		seString = "SE*5*000000001"
+		suite.validateSE(seString, se)
+
+		// Functional Group 2 > Transactional Set 2
+		tsIndex = 1
+		ts = fg.TransactionSets[tsIndex]
+
+		// Check the ST segments
+		st = ts.ST
+		stString = "ST*824*000000002"
+		suite.validateST(stString, st)
+
+		// Functional Group 2 > Transactional Set 2 > Beginning Segment
+
+		// Check the BGN segments
+		bgn = ts.BGN
+		bgnString = "BGN*11*1126-9404*20210217"
+		suite.validateBGN(bgnString, bgn)
+
+		// Functional Group 2 > Transactional Set 2 > Beginning Segment > OTI
+
+		// Check the OTI segments
+		suite.Equal(2, len(ts.OTIs))
+		otiIndex = 0
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0003"
+		suite.validateOTI(otiString, oti)
+
+		otiIndex = 1
+		oti = ts.OTIs[otiIndex]
+		otiString = "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0004"
+		suite.validateOTI(otiString, oti)
+
+		// Functional Group 2 > Transactional Set 2 > Beginning Segment > TED
+
+		// Check the TED segments
+		// n/a
+		suite.Equal(5, len(ts.TEDs))
+		tedIndex = 0
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*K*DOCUMENT OWNER CANNOT BE DETERMINED"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 1
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*007*Missing Data"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 2
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*INC*Incomplete Transaction"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 3
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*IID*Invalid Identification Code"
+		suite.validateTED(tedString, ted)
+
+		tedIndex = 4
+		ted = ts.TEDs[tedIndex]
+		tedString = "TED*K*DOCUMENT OWNER CANNOT BE DETERMINED"
+		suite.validateTED(tedString, ted)
+
+		// Functional Group 2 > Transactional Set 2
+
+		// Checking SE segments
+		se = ts.SE
+		seString = "SE*5*000000002"
+		suite.validateSE(seString, se)
+
+		// Functional Group 2
+
+		// Checking GE segments
+		ge = fg.GE
+		geString = "GE*2*2"
+		suite.validateGE(geString, ge)
+
+		// Checking the IEA segments
+		iea := edi824.InterchangeControlEnvelope.IEA
+		ieaString := "IEA*1*000000001"
+		suite.validateIEA(ieaString, iea)
+	})
+
+	suite.T().Run("fail to parse 824 with unknown segment", func(t *testing.T) {
+		sample824EDIString := `
+	ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+	GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
+	ST*824*000000001
+	BGN*11*1126-9404*20210217
+	OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
+	TEN*1*2*2
+	SE*5*000000001
+	GE*1*1
+	IEA*1*000000001
+	`
+		edi824 := EDI{}
+		err := edi824.Parse(sample824EDIString)
+		suite.Error(err, "fail to parse 824")
+		suite.Contains(err.Error(), "unexpected row for EDI 824")
+	})
+
+	suite.T().Run("fail to parse 824 with bad format", func(t *testing.T) {
+		sample824EDIString := `
+ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
+ST*824*000000001
+BGN*11*1126-9404*20210217
+OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001*ZZ
+
+SE*5*000000001
+GE*1*1
+IEA*1*000000001
+`
+		edi824 := EDI{}
+		err := edi824.Parse(sample824EDIString)
+		suite.Error(err, "fail to parse 824")
+		suite.Contains(err.Error(), "824 failed to parse")
+	})
 }
 
 func (suite *EDI824Suite) validateISA(row string, isa edisegment.ISA) {
