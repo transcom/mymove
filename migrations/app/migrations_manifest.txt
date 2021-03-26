@@ -616,4 +616,4 @@
 20210224203932_add_transportation_accounting_codes.up.sql
 20210301215522_add_cancellation_requested_shipment_status.up.sql
 20210318162232_create_edi_processing_table.up.sql
-20210326215029_edit-shipment-type-shorthaul.up.sql
+20210326215030_edit-shipment-type-shorthaul.up.sql
