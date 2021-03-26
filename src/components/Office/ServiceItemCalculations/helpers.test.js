@@ -75,10 +75,10 @@ describe('makeCalculations', () => {
       {
         value: '',
         label: 'Origin price',
-        details: ['Service area: 176', 'Pickup date: 11 Mar 2020', 'Domestic non-peak'],
+        details: ['Service area: 176', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
       },
       {
-        value: '',
+        value: '1.033',
         label: 'Price escalation factor',
         details: ['Base year: 2'],
       },
@@ -104,7 +104,7 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: '1.033',
+        value: '',
         label: 'Origin price',
         details: ['Service area: 176', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
       },
@@ -145,45 +145,21 @@ describe('makeCalculations', () => {
         value: '1.71',
       },
       {
-        details: ['Base year: undefined'],
-        label: 'Price escalation factor',
         value: '1.033',
+        label: 'Price escalation factor',
+        details: ['Base year: 2'],
       },
       {
-        details: [''],
-        label: 'Total amount requested',
         value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
       },
     ]);
   });
 
   it('returns correct data for DomesticDestinationAdditionalSIT', () => {
-    const result = makeCalculations('DOASIT', 99999, testParams.DomesticDestinationAdditionalSIT);
-    expect(result).toEqual([
-      {
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
-        label: 'Billable weight (cwt)',
-        value: '85 cwt',
-      },
-      {
-        details: [],
-        label: 'Days in SIT',
-        value: '2',
-      },
-      {
-        details: ['Origin service area: undefined', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
-        label: 'Additional day SIT price',
-      },
-      {
-        details: ['Base year: undefined'],
-        label: 'Price escalation factor',
-      },
-      {
-        details: [''],
-        label: 'Total amount requested',
-        value: '$999.99',
-      },
-    ]);
+    const result = makeCalculations('?', 99999, testParams.DomesticDestinationAdditionalSIT);
+    expect(result).toEqual([]);
   });
 
   it('returns correct data for DomesticOriginSITDelivery', () => {
@@ -210,9 +186,9 @@ describe('makeCalculations', () => {
         details: ['Origin service schedule: 3', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
       },
       {
-        value: undefined,
+        value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: undefined'],
+        details: ['Base year: 2'],
       },
       {
         value: '$999.99',
@@ -268,7 +244,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: '],
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '210',

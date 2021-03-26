@@ -450,6 +450,7 @@ const testParams = {
     IsPeak,
     NumberDaysSIT,
     EscalationCompounded,
+    ContractYearName,
   ],
   DomesticDestinationAdditionalSIT: [
     NumberDaysSIT,
@@ -459,6 +460,7 @@ const testParams = {
     WeightBilledActual,
     WeightEstimated,
     ZipDestAddress,
+    ContractYearName,
   ],
   DomesticOriginSITDelivery: [
     RequestedPickupDate,
