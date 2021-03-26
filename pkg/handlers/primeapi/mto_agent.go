@@ -21,9 +21,9 @@ type CreateMTOAgentHandler struct {
 	MTOAgentCreator services.MTOAgentCreator
 }
 
+// Handle created an MTO Agent for a shipment
 func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	logger.Debug("Inside CreateMTOHandler")
 
 	// Get the mtoShipmentID and payload
 	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
@@ -32,9 +32,6 @@ func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams
 	// Get the new agent model
 	mtoAgent := payloads.MTOAgentModel(payload)
 	mtoAgent.MTOShipmentID = mtoShipmentID
-
-	logger.Debug("mtoShipment " + mtoShipmentID.String())
-	logger.Debug("mtoAgent " + *mtoAgent.Email)
 
 	// Call the service object
 	// For now, only the Prime endpoint will use this handler
@@ -49,10 +46,11 @@ func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams
 		case services.NotFoundError:
 			return mtoshipmentops.NewCreateMTOAgentNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			// ConflictError -> Conflict Response
 		case services.ConflictError:
 			return mtoshipmentops.NewCreateMTOAgentConflict().WithPayload(
 				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
-			// InvalidInputError -> Unprocessable Entity Response
+		// InvalidInputError -> Unprocessable Entity Response
 		case services.InvalidInputError:
 			return mtoshipmentops.NewCreateMTOAgentUnprocessableEntity().WithPayload(
 				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
@@ -70,6 +68,7 @@ func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams
 		}
 
 	}
+	// If no error, create a successful payload to return
 	payload = payloads.MTOAgent(createdAgent)
 	return mtoshipmentops.NewCreateMTOAgentOK().WithPayload(payload)
 }
