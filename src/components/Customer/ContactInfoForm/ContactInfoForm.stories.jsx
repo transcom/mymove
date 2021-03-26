@@ -16,7 +16,7 @@ export const WithInitialValues = () => (
   <ContactInfoForm
     initialValues={{
       telephone: '555-555-5555',
-      secondary_phone: '555-444-5555',
+      secondary_telephone: '555-444-5555',
       personal_email: 'test@sample.com',
       phone_is_preferred: false,
       email_is_preferred: true,

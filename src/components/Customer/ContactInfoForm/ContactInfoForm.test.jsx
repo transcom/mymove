@@ -8,7 +8,7 @@ import ContactInfoForm from './index';
 describe('ContactInfoForm Component', () => {
   const initialValues = {
     telephone: '',
-    secondary_phone: '',
+    secondary_telephone: '',
     personal_email: '',
     phone_is_preferred: false,
     email_is_preferred: false,
