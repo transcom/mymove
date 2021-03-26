@@ -23,6 +23,8 @@ const SERVICE_ITEM_PARAM_KEYS = {
   EscalationCompounded: 'EscalationCompounded',
   EIAFuelPrice: 'EIAFuelPrice',
   FSCWeightBasedDistanceMultiplier: 'FSCWeightBasedDistanceMultiplier',
+  OriginPrice: 'OriginPrice',
+  ServiceSchedule: 'ServiceSchedule',
   NumberDaysSIT: 'NumberDaysSIT',
 };
 
@@ -36,6 +38,9 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
   AdditionalDaySITPrice: 'Additional day SIT price',
   DaysInSIT: 'Days in SIT',
+  ServiceSchedule: 'Service schedule',
+  ServiceArea: 'Service area',
+  RequestedPickup: 'Requested pickup',
   PackPrice: 'Pack price',
   [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]: 'Shipment weight',
@@ -51,14 +56,16 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]: 'Pickup date',
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
+  [SERVICE_ITEM_PARAM_KEYS.OriginPrice]: 'Origin price',
 };
 
 const SERVICE_ITEM_CODES = {
   DLH: 'DLH',
-  DOASIT: 'DOASIT',
   DPK: 'DPK',
   FSC: 'FSC',
   DSH: 'DSH',
+  DOASIT: 'DOASIT',
+  DOFSIT: 'DOFSIT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -68,6 +75,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DPK,
   SERVICE_ITEM_CODES.DSH,
   SERVICE_ITEM_CODES.DOASIT,
+  SERVICE_ITEM_CODES.DOFSIT,
 ];
 
 export {

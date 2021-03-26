@@ -121,7 +121,7 @@ describe('ServiceItemCalculations', () => {
     {
       value: '85 cwt',
       label: 'Billable weight (cwt)',
-      details: ['Shipment weight: 8,500 lbs'],
+      details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
     },
     {
       value: '210',

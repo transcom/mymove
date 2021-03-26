@@ -14,44 +14,50 @@ export default {
       );
     },
   ],
+  argTypes: {
+    tableSize: {
+      defaultValue: 'large',
+      control: {
+        type: 'select',
+        options: ['small', 'large'],
+      },
+    },
+  },
 };
 
-export const LargeTable = () => (
-  <ServiceItemCalculations serviceItemParams={testParams.DomesticLongHaul} totalAmountRequested={642} itemCode="DLH" />
-);
-
-export const SmallTable = () => (
+export const DLH = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticLongHaul}
     totalAmountRequested={642}
     itemCode="DLH"
-    tableSize="small"
+    tableSize={data.tableSize}
   />
 );
 
-export const LargeDPKTable = () => (
-  <ServiceItemCalculations serviceItemParams={testParams.DomesticPacking} totalAmountRequested={642} itemCode="DPK" />
+export const DOFSIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOrigin1stSIT}
+    totalAmountRequested={642}
+    itemCode="DOFSIT"
+    tableSize={data.tableSize}
+  />
 );
 
-export const SmallDPKTable = () => (
+export const DPK = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticPacking}
     totalAmountRequested={642}
     itemCode="DPK"
-    tableSize="small"
+    tableSize={data.tableSize}
   />
 );
 
-export const LargeDSHTable = () => (
-  <ServiceItemCalculations serviceItemParams={testParams.DomesticShortHaul} totalAmountRequested={642} itemCode="DSH" />
-);
-
-export const SmallDSHTable = () => (
+export const DSH = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticShortHaul}
     totalAmountRequested={642}
     itemCode="DSH"
-    tableSize="small"
+    tableSize={data.tableSize}
   />
 );
 

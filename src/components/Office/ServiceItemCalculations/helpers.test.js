@@ -75,8 +75,29 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticOrigin1stSIT', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticOrigin1stSIT);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DOFSIT', 99999, testParams.DomesticOrigin1stSIT);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: '1.033',
+        label: 'Origin price',
+        details: ['Service area: 176', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: ['Base year: 2'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for DomesticDestination1stSIT', () => {
@@ -226,7 +247,7 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs'],
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '210',
