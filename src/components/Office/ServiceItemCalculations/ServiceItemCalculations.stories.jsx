@@ -29,6 +29,32 @@ export const SmallTable = () => (
   />
 );
 
+export const LargeDPKTable = () => (
+  <ServiceItemCalculations serviceItemParams={testParams.DomesticPacking} totalAmountRequested={642} itemCode="DPK" />
+);
+
+export const SmallDPKTable = () => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticPacking}
+    totalAmountRequested={642}
+    itemCode="DPK"
+    tableSize="small"
+  />
+);
+
+export const LargeDSHTable = () => (
+  <ServiceItemCalculations serviceItemParams={testParams.DomesticShortHaul} totalAmountRequested={642} itemCode="DSH" />
+);
+
+export const SmallDSHTable = () => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticShortHaul}
+    totalAmountRequested={642}
+    itemCode="DSH"
+    tableSize="small"
+  />
+);
+
 export const LargeDOASIT = () => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticOriginAdditionalSIT}
