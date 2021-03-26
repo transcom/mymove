@@ -10,7 +10,6 @@ import { no_op } from 'shared/utils';
 import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
-// import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
 import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
 import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';

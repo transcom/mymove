@@ -8,7 +8,7 @@ describe('ContactInfoFields component', () => {
   it('renders a legend and all service member contact info inputs', () => {
     const { getByText, getByLabelText } = render(
       <Formik>
-        <CustomerContactInfoFields legend="Your contact info" name="contact" />
+        <CustomerContactInfoFields legend="Your contact info" />
       </Formik>,
     );
     expect(getByText('Your contact info')).toBeInstanceOf(HTMLLegendElement);

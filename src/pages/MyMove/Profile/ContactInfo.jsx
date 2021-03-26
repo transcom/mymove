@@ -34,34 +34,30 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
   const handleSubmit = (values) => {
     const { nextPage } = values;
 
-    if (values) {
-      const payload = {
-        id: serviceMember.id,
-        telephone: values?.telephone,
-        secondary_telephone: values?.secondary_telephone,
-        personal_email: values?.personal_email,
-        phone_is_preferred: values?.phone_is_preferred,
-        email_is_preferred: values?.email_is_preferred,
-      };
-      return patchServiceMember(payload)
-        .then(updateServiceMember)
-        .then(() => {
-          if (nextPage === 'back') {
-            handleBack();
-          } else {
-            handleNext();
-          }
-        })
-        .catch((e) => {
-          // TODO - error handling - below is rudimentary error handling to approximate existing UX
-          // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
-          const { response } = e;
-          const errorMessage = getResponseError(response, 'failed to update service member due to server error');
-          setServerError(errorMessage);
-        });
-    }
-
-    return Promise.resolve();
+    const payload = {
+      id: serviceMember.id,
+      telephone: values?.telephone,
+      secondary_telephone: values?.secondary_telephone,
+      personal_email: values?.personal_email,
+      phone_is_preferred: values?.phone_is_preferred,
+      email_is_preferred: values?.email_is_preferred,
+    };
+    return patchServiceMember(payload)
+      .then(updateServiceMember)
+      .then(() => {
+        if (nextPage === 'back') {
+          handleBack();
+        } else {
+          handleNext();
+        }
+      })
+      .catch((e) => {
+        // TODO - error handling - below is rudimentary error handling to approximate existing UX
+        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        setServerError(errorMessage);
+      });
   };
 
   return (

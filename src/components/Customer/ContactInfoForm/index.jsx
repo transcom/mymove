@@ -11,9 +11,9 @@ import formStyles from 'styles/form.module.scss';
 
 const ContactInfoForm = ({ initialValues, onSubmit }) => {
   // Note: This method cannot use an arrow function due this particular use of 'this' (see Yup mixed.test documentation)
-  function validatePreferredContactMethod() {
-    return !!(this.parent.phone_is_preferred || this.parent.email_is_preferred); // eslint-disable-line react/no-this-in-sfc
-  }
+  const validatePreferredContactMethod = (value, testContext) => {
+    return !!(testContext.parent.phone_is_preferred || testContext.parent.email_is_preferred);
+  };
 
   const validationSchema = Yup.object().shape({
     telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens

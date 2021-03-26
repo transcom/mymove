@@ -8,9 +8,16 @@ export default {
   component: ContactInfoForm,
 };
 
+const initialValues = {
+  telephone: '',
+  secondary_telephone: '',
+  personal_email: '',
+};
 const onSubmit = () => console.log('submitted on Next');
-const onBack = () => console.log('Saved on Back');
-export const DefaultState = () => <ContactInfoForm initialValues={{}} onSubmit={() => {}} onBack={() => {}} />;
+const onBack = () => console.log('Back to previous page');
+export const DefaultState = () => (
+  <ContactInfoForm initialValues={initialValues} onSubmit={() => {}} onBack={() => {}} />
+);
 
 export const WithInitialValues = () => (
   <ContactInfoForm
