@@ -18,6 +18,15 @@ const (
 	SyncadaSFTPUserIDFlag string = "syncada-sftp-user-id"
 	// SyncadaSFTPIPAddressFlag is the ENV var for the Syncada SFTP IP address
 	SyncadaSFTPIPAddressFlag string = "syncada-sftp-ip-address"
+
+	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	//RA: This line was flagged because of use of the word "password"
+	//RA: This line is used to identify the name of the flag. SyncadaSFTPPasswordFlag is the Syncada SFTP Password Flag.
+	//RA: This value of this variable does not store an application password.
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity: CAT III
 	// SyncadaSFTPPasswordFlag is the ENV var for the Syncada SFTP password
 	SyncadaSFTPPasswordFlag string = "syncada-sftp-password" // #nosec G101
 	// SyncadaSFTPHostKeyFlag is the ENV var for the Syncada SFTP host key
