@@ -1,9 +1,10 @@
 CREATE TABLE payment_request_to_interchange_control_numbers
 (
     id uuid primary key,
-    payment_request_id uuid NOT NULL,
+    payment_request_id uuid NOT NULL
+        constraint payment_request_to_interchange_control_numbers_payment_request_id_fkey references payment_requests,
     interchange_control_number int NOT NULL,
-    constraint payment_request_id_interchange_control_number_unique_key unique (payment_request_id, interchange_control_number)
+    constraint payment_request_id_interchange_control_number_unique_key unique (interchange_control_number, payment_request_id)
 );
 
 COMMENT ON COLUMN payment_request_to_interchange_control_numbers.id IS 'The id of this record';
