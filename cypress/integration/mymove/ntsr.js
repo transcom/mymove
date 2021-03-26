@@ -81,7 +81,7 @@ function customerCreatesAnNTSRShipment() {
   cy.get('input[type="radio"]').eq(3).check({ force: true });
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ntsr-start/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/new-shipment/);
   });
 
   // pickup date
