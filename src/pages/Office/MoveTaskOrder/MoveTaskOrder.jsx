@@ -52,7 +52,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
-  const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState(new Map());
+  const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
 
   const { moveCode } = match.params;
   const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
@@ -180,14 +180,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   useEffect(() => {
     let serviceItemCount = 0;
-    const serviceItemsCountForShipment = new Map();
+    const serviceItemsCountForShipment = {};
     mtoShipments?.forEach((mtoShipment) => {
       if (mtoShipment.status === shipmentStatuses.APPROVED) {
         const requestedServiceItemCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
           (serviceItem) => serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED,
         )?.length;
         serviceItemCount += requestedServiceItemCount || 0;
-        serviceItemsCountForShipment.set(mtoShipment.id, requestedServiceItemCount);
+        serviceItemsCountForShipment[`${mtoShipment.id}`] = requestedServiceItemCount;
       }
     });
     setUnapprovedServiceItemCount(serviceItemCount);
@@ -283,8 +283,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             return (
               <a key={`sidenav_${s.id}`} href={`#shipment-${s.id}`} className={classes}>
                 {s.label}{' '}
-                {unapprovedServiceItemsForShipment.get(s.id) > 0 && (
-                  <Tag>{unapprovedServiceItemsForShipment.get(s.id)}</Tag>
+                {unapprovedServiceItemsForShipment[`${s.id}`] > 0 && (
+                  <Tag>{unapprovedServiceItemsForShipment[`${s.id}`]}</Tag>
                 )}
               </a>
             );
