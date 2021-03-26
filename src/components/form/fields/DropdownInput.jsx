@@ -8,7 +8,7 @@ import { ErrorMessage } from 'components/form/ErrorMessage';
 import { DropdownArrayOf } from 'types/form';
 
 export const DropdownInput = (props) => {
-  const { id, name, label, options, showDropdownPlaceholderText } = props;
+  const { id, name, label, options, showDropdownPlaceholderText, ...inputProps } = props;
   const [field, meta] = useField(props);
   const hasError = meta.touched && !!meta.error;
 
@@ -22,7 +22,7 @@ export const DropdownInput = (props) => {
       </Label>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <Dropdown id={inputId.current} {...field}>
+      <Dropdown id={inputId.current} {...field} {...inputProps}>
         {showDropdownPlaceholderText && <option value="">- Select -</option>}
         {options &&
           options.map(({ key, value }) => (
