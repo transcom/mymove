@@ -19,6 +19,7 @@ describe('ResidentialAddressForm component', () => {
       },
     },
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+    onBack: jest.fn(),
   };
 
   const fakeAddress = {
@@ -93,7 +94,6 @@ describe('ResidentialAddressForm component', () => {
     userEvent.click(submitBtn);
 
     const expectedParams = {
-      nextPage: 'next',
       [formFieldsName]: fakeAddress,
     };
 
@@ -102,36 +102,14 @@ describe('ResidentialAddressForm component', () => {
     });
   });
 
-  it('validates and submits the form when the Back button is clicked', async () => {
-    const { getByRole, getByLabelText, findAllByRole } = render(<ResidentialAddressForm {...testProps} />);
+  it('implements the onBack handler when the Back button is clicked', async () => {
+    const { getByRole } = render(<ResidentialAddressForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
     userEvent.click(backBtn);
 
-    const alerts = await findAllByRole('alert');
-
-    expect(alerts.length).toBe(4);
-
-    alerts.forEach((alert) => {
-      expect(alert).toHaveTextContent('Required');
-    });
-
-    expect(testProps.onSubmit).not.toHaveBeenCalled();
-
-    userEvent.type(getByLabelText('Address 1'), fakeAddress.street_address_1);
-    userEvent.type(getByLabelText('City'), fakeAddress.city);
-    userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    userEvent.type(getByLabelText('ZIP'), fakeAddress.postal_code);
-
-    userEvent.click(backBtn);
-
-    const expectedParams = {
-      nextPage: 'back',
-      [formFieldsName]: fakeAddress,
-    };
-
     await waitFor(() => {
-      expect(testProps.onSubmit).toHaveBeenCalledWith(expectedParams, expect.anything());
+      expect(testProps.onBack).toHaveBeenCalled();
     });
   });
 

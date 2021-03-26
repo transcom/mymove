@@ -72,25 +72,15 @@ describe('ResidentialAddress page', () => {
     });
   });
 
-  it('back button submits the form and goes to the Current duty station step', async () => {
-    const testProps = generateTestProps(fakeAddress);
+  it('back button goes to the Current duty station step', async () => {
+    const testProps = generateTestProps(blankAddress);
 
-    ValidateZipRateData.mockImplementation(() => ({
-      valid: true,
-    }));
-    patchServiceMember.mockImplementation(() => Promise.resolve(testProps.serviceMember));
+    const { findByRole } = render(<ResidentialAddress {...testProps} />);
 
-    const { getByRole } = render(<ResidentialAddress {...testProps} />);
-
-    const backButton = getByRole('button', { name: 'Back' });
+    const backButton = await findByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
     userEvent.click(backButton);
 
-    await waitFor(() => {
-      expect(patchServiceMember).toHaveBeenCalled();
-    });
-
-    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testProps.serviceMember);
     expect(testProps.push).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_STATION_PATH);
   });
 

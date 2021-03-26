@@ -51,22 +51,14 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember, push })
   };
 
   const handleSubmit = (values) => {
-    const { nextPage, ...addressValues } = values;
-
     const payload = {
       id: serviceMember.id,
-      residential_address: addressValues.current_residence,
+      residential_address: values.current_residence,
     };
 
     return patchServiceMember(payload)
       .then(updateServiceMember)
-      .then(() => {
-        if (nextPage === 'back') {
-          handleBack();
-        } else {
-          handleNext();
-        }
-      })
+      .then(handleNext)
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
@@ -96,6 +88,7 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember, push })
           <ResidentialAddressForm
             formFieldsName={formFieldsName}
             initialValues={initialValues}
+            onBack={handleBack}
             onSubmit={handleSubmit}
             validators={{ postalCode: validatePostalCode }}
           />

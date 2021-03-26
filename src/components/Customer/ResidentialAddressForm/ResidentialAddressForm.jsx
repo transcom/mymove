@@ -10,7 +10,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { requiredAddressSchema } from 'utils/validation';
 
-const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, validators }) => {
+const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack, validators }) => {
   const validationSchema = Yup.object().shape({
     [formFieldsName]: requiredAddressSchema.required(),
   });
@@ -23,17 +23,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, valid
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleSubmit, setFieldValue }) => {
-        const handleBack = (e) => {
-          setFieldValue('nextPage', 'back');
-          handleSubmit(e);
-        };
-
-        const handleNext = (e) => {
-          setFieldValue('nextPage', 'next');
-          handleSubmit(e);
-        };
-
+      {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Current residence</h1>
@@ -44,9 +34,9 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, valid
 
             <div className={formStyles.formActions}>
               <WizardNavigation
-                onBackClick={handleBack}
+                onBackClick={onBack}
                 disableNext={!isValid || isSubmitting}
-                onNextClick={handleNext}
+                onNextClick={handleSubmit}
               />
             </div>
           </Form>
@@ -65,6 +55,7 @@ ResidentialAddressForm.propTypes = {
     state: PropTypes.string,
     postal_code: PropTypes.string,
   }).isRequired,
+  onBack: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,

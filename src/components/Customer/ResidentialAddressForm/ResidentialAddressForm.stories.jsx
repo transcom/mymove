@@ -9,6 +9,9 @@ export default {
     onSubmit: {
       action: 'submit form',
     },
+    onBack: {
+      action: 'go back',
+    },
   },
 };
 
@@ -23,6 +26,7 @@ export const DefaultState = (argTypes) => (
         postal_code: '',
       },
     }}
+    onBack={argTypes.onBack}
     onSubmit={argTypes.onSubmit}
   />
 );
@@ -38,6 +42,7 @@ export const WithCustomValidators = (argTypes) => (
         postal_code: '',
       },
     }}
+    onBack={argTypes.onBack}
     onSubmit={argTypes.onSubmit}
     validators={{
       city: (value) => (value === 'Nowhere' ? 'No one lives there' : ''),
