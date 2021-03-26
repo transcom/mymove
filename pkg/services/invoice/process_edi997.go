@@ -51,6 +51,7 @@ func (e *edi997Processor) ProcessEDI997(stringEDI997 string) (ediResponse997.EDI
 	if err != nil {
 		errString += err.Error()
 	}
+
 	if errString != "" {
 		e.logger.Error(errString)
 		return edi997, fmt.Errorf(errString)

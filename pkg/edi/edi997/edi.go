@@ -18,13 +18,13 @@ type dataSegment struct {
 
 type transactionSetResponse struct {
 	AK2          edisegment.AK2 // transaction set response header (bump up counter for "AK2", create new transactionSetResponse)
-	dataSegments []dataSegment  // data segments, loop ID AK3
+	dataSegments []dataSegment  `validate:"dive"` // data segments, loop ID AK3
 	AK5          edisegment.AK5 // transaction set response trailer
 }
 
 type functionalGroupResponse struct {
 	AK1                     edisegment.AK1           // functional group response header (create new functionalGroupResponse)
-	TransactionSetResponses []transactionSetResponse // transaction set responses, loop ID AK2
+	TransactionSetResponses []transactionSetResponse `validate:"dive"` // transaction set responses, loop ID AK2
 	AK9                     edisegment.AK9           // functional group response trailer
 }
 
@@ -35,15 +35,15 @@ type transactionSet struct {
 }
 
 type functionalGroupEnvelope struct {
-	GS              edisegment.GS // functional group header (bump up counter for "GS" and create new functionalGroupEnvelope)
-	TransactionSets []transactionSet
-	GE              edisegment.GE // functional group trailer
+	GS              edisegment.GS    // functional group header (bump up counter for "GS" and create new functionalGroupEnvelope)
+	TransactionSets []transactionSet `validate:"min=1,dive"`
+	GE              edisegment.GE    // functional group trailer
 }
 
 type interchangeControlEnvelope struct {
-	ISA              edisegment.ISA // interchange control header
-	FunctionalGroups []functionalGroupEnvelope
-	IEA              edisegment.IEA // interchange control trailer
+	ISA              edisegment.ISA            // interchange control header
+	FunctionalGroups []functionalGroupEnvelope `validate:"min=1,dive"`
+	IEA              edisegment.IEA            // interchange control trailer
 }
 
 // EDI holds all the segments to parse an EDI 997
@@ -53,24 +53,13 @@ type EDI struct {
 
 var validate *validator.Validate
 
-// Validate will validate the EDI 997 (and nested structs) to make sure they will produce legal EDI.
+func init() {
+	validate = validator.New()
+}
+
+// Validate will validate the EDI997 (and nested structs) to make sure they will produce legal EDI.
 // This returns either an InvalidValidationError or a validator.ValidationErrors that allows all validation
 // errors to be introspected individually.
 func (edi997 EDI) Validate() error {
-	// errString := ""
-	return validate.Struct(edi997)
-	// if err != nil {
-	// 	errString += err.Error()
-	// }
-	// for _, functionalGroup := range edi997.InterchangeControlEnvelope.FunctionalGroups {
-	// 	err := validate.Struct(functionalGroup)
-	// 	if err != nil {
-	// 		errString += err.Error()
-	// 	}
-	// }
-
-	// if errString != "" {
-	// 	return fmt.Errorf(errString)
-	// }
-	// return nil
+	return validate.Struct(edi997.InterchangeControlEnvelope)
 }
