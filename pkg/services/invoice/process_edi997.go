@@ -26,8 +26,9 @@ func NewEDI997Processor(db *pop.Connection,
 	}
 }
 
-//ProcessEDI997 parses an EDI 997 response and updates the payment request status
-func (e *edi997Processor) ProcessEDI997(stringEDI997 string) (ediResponse997.EDI, error) {
+//ProcessFile parses an EDI 997 response and updates the payment request status
+func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
+	fmt.Printf(path)
 	errString := ""
 
 	edi997 := ediResponse997.EDI{}
@@ -54,7 +55,7 @@ func (e *edi997Processor) ProcessEDI997(stringEDI997 string) (ediResponse997.EDI
 
 	if errString != "" {
 		e.logger.Error(errString)
-		return edi997, fmt.Errorf(errString)
+		return fmt.Errorf(errString)
 	}
 
 	var transactionError error
@@ -69,8 +70,8 @@ func (e *edi997Processor) ProcessEDI997(stringEDI997 string) (ediResponse997.EDI
 	})
 
 	if transactionError != nil {
-		return edi997, transactionError
+		return transactionError
 	}
 
-	return edi997, nil
+	return nil
 }

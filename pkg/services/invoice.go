@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	edi997 "github.com/transcom/mymove/pkg/edi/edi997"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -25,7 +24,7 @@ type GHCPaymentRequestInvoiceGenerator interface {
 // EDI997Processor is the exported interface for generating an invoice
 //go:generate mockery -name EDI997Processor
 type EDI997Processor interface {
-	ProcessEDI997(ediString string) (edi997.EDI, error)
+	ProcessFile(path string, ediString string) error
 }
 
 // SyncadaSFTPSender is the exported interface for sending an EDI to Syncada

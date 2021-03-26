@@ -10,7 +10,6 @@ import (
 
 	"go.uber.org/zap"
 
-	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -63,7 +62,7 @@ IEA*1*000000022
 				PaymentRequest:           paymentRequest,
 			},
 		})
-		_, err := edi997Processor.ProcessEDI997(sample997EDIString)
+		err := edi997Processor.ProcessFile("", sample997EDIString)
 		suite.NoError(err)
 	})
 
@@ -89,7 +88,7 @@ IEA*1*000000995
 				PaymentRequest:           paymentRequest,
 			},
 		})
-		_, err := edi997Processor.ProcessEDI997(sample997EDIString)
+		err := edi997Processor.ProcessFile("", sample997EDIString)
 		suite.NoError(err)
 
 		var updatedPR models.PaymentRequest
@@ -120,7 +119,7 @@ IEA*1*000000022
 				PaymentRequest:           paymentRequest,
 			},
 		})
-		edi997Processor.ProcessEDI997(sample997EDIString)
+		edi997Processor.ProcessFile("", sample997EDIString)
 
 		var updatedPR models.PaymentRequest
 		err := suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
@@ -142,40 +141,9 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 	`
-		_, err := edi997Processor.ProcessEDI997(sample997EDIString)
+		err := edi997Processor.ProcessFile("", sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		suite.Contains(err.Error(), "unable to find payment request")
-	})
-
-	suite.T().Run("successfully create valid segments", func(t *testing.T) {
-		sample997EDIString := `
-ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
-GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
-ST*997*0001
-AK1*SI*100001251
-AK2*858*0001
-
-AK5*A
-AK9*A*1*1*1
-SE*6*0001
-GE*1*220001
-IEA*1*000000995
-	`
-		edi, err := edi997Processor.ProcessEDI997(sample997EDIString)
-		suite.NoError(err)
-		functionalGroup := edi.InterchangeControlEnvelope.FunctionalGroups[0]
-		transactionSet := functionalGroup.TransactionSets[0]
-		transactionSetResponses := transactionSet.FunctionalGroupResponse.TransactionSetResponses[0]
-		suite.IsType(edisegment.ISA{}, edi.InterchangeControlEnvelope.ISA)
-		suite.IsType(edisegment.IEA{}, edi.InterchangeControlEnvelope.IEA)
-		suite.IsType(edisegment.GS{}, functionalGroup.GS)
-		suite.IsType(edisegment.GE{}, functionalGroup.GE)
-		suite.IsType(edisegment.ST{}, transactionSet.ST)
-		suite.IsType(edisegment.SE{}, transactionSet.SE)
-		suite.IsType(edisegment.AK1{}, transactionSet.FunctionalGroupResponse.AK1)
-		suite.IsType(edisegment.AK9{}, transactionSet.FunctionalGroupResponse.AK9)
-		suite.IsType(edisegment.AK2{}, transactionSetResponses.AK2)
-		suite.IsType(edisegment.AK5{}, transactionSetResponses.AK5)
 	})
 }
 
@@ -218,7 +186,7 @@ GE*1*220001
 IEA*1*000000995
 `
 
-		_, err := edi997Processor.ProcessEDI997(sample997EDIString)
+		err := edi997Processor.ProcessFile("", sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		errString := err.Error()
 		actualErrors := strings.Split(errString, "\n")
