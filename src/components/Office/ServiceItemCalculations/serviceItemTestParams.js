@@ -132,7 +132,7 @@ const ContractYearName = {
   origin: 'PRICER',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'STRING',
-  value: 'Contract Year Name',
+  value: '2',
 };
 const NumberDaysSIT = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
@@ -249,7 +249,7 @@ const ServicesScheduleOrigin = {
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'STRING',
-  value: '',
+  value: '3',
 };
 const ServicesScheduleDest = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',

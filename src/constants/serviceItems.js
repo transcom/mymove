@@ -6,6 +6,7 @@ const SERVICE_ITEM_STATUSES = {
 
 // TODO - refactor to order keys in alphabet order
 const SERVICE_ITEM_PARAM_KEYS = {
+  ContractYearName: 'ContractYearName',
   WeightBilledActual: 'WeightBilledActual',
   WeightActual: 'WeightActual',
   WeightEstimated: 'WeightEstimated',
@@ -16,6 +17,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   PriceRateOrFactor: 'PriceRateOrFactor',
   IsPeak: 'IsPeak',
   ServiceAreaOrigin: 'ServiceAreaOrigin',
+  ServicesScheduleOrigin: 'ServicesScheduleOrigin',
   RequestedPickupDate: 'RequestedPickupDate',
   ActualPickupDate: 'ActualPickupDate',
   EscalationCompounded: 'EscalationCompounded',
@@ -31,6 +33,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   PriceEscalationFactor: 'Price escalation factor',
   TotalAmountRequested: 'Total amount requested',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
+  PackPrice: 'Pack price',
+  [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightEstimated]: 'Estimated',
@@ -39,7 +43,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   // Domestic non-peak or Domestic peak
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',
-  [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Pickup date',
+  [SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin]: 'Origin service schedule',
+  [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]: 'Pickup date',
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
@@ -47,12 +52,18 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
 
 const SERVICE_ITEM_CODES = {
   DLH: 'DLH',
+  DPK: 'DPK',
   FSC: 'FSC',
   DSH: 'DSH',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
-const allowedServiceItemCalculations = [SERVICE_ITEM_CODES.DLH, SERVICE_ITEM_CODES.FSC, SERVICE_ITEM_CODES.DSH];
+const allowedServiceItemCalculations = [
+  SERVICE_ITEM_CODES.DLH,
+  SERVICE_ITEM_CODES.FSC,
+  SERVICE_ITEM_CODES.DPK,
+  SERVICE_ITEM_CODES.DSH,
+];
 
 export {
   SERVICE_ITEM_STATUSES as default,
