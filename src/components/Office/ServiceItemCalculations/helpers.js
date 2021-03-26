@@ -77,25 +77,24 @@ const originPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.OriginPrice, params)
     ? getParamValue(SERVICE_ITEM_PARAM_KEYS.OriginPrice, params)
     : '';
-  const detailval1 = getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin, params)
+  const serviceAreaVal = getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin, params)
     ? getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin, params)
     : '';
-  const detailval2 = getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params)
+  const requestedPickupDateVal = getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params)
     ? getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params)
     : '';
   const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
 
-  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${detailval1}`;
-  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]}: ${formatDate(
-    detailval2,
-    'DD MMM YYYY',
-  )}`;
+  const serviceArea = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${serviceAreaVal}`;
+  const requestedPickupDate = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
+  }: ${formatDate(requestedPickupDateVal, 'DD MMM YYYY')}`;
 
-  const detail3 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+  const isPeak = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
     getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
   }`;
 
-  return calculation(value, label, detail1, detail2, detail3);
+  return calculation(value, label, serviceArea, requestedPickupDate, isPeak);
 };
 
 const fuelSurchargePrice = (params) => {
