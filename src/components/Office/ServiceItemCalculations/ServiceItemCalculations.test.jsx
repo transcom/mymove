@@ -102,7 +102,7 @@ describe('ServiceItemCalculations', () => {
     {
       value: '1.71',
       label: 'Baseline linehaul price',
-      details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 11 Mar 2020'],
+      details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 09 Mar 2020'],
     },
     {
       value: '1.033',

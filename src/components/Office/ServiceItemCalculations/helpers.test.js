@@ -18,7 +18,7 @@ describe('makeCalculations', () => {
       {
         value: '1.71',
         label: 'Baseline linehaul price',
-        details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 11 Mar 2020'],
+        details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 09 Mar 2020'],
       },
       {
         value: '1.033',
@@ -33,36 +33,36 @@ describe('makeCalculations', () => {
     ]);
   });
 
-  // it('returns correct data for DomesticShortHaul', () => {
-  //   const result = makeCalculations('DSH', 99999, testParams.DomesticShortHaul);
-  //   expect(result).toEqual([
-  //     {
-  //       value: '85 cwt',
-  //       label: 'Billable weight (cwt)',
-  //       details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
-  //     },
-  //     {
-  //       value: '210',
-  //       label: 'Mileage',
-  //       details: ['Zip 32210 to Zip 91910'],
-  //     },
-  //     {
-  //       value: '1.033',
-  //       label: 'Baseline linehaul price',
-  //       details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
-  //     },
-  //     {
-  //       value: '1.033',
-  //       label: 'Price escalation factor',
-  //       details: [''],
-  //     },
-  //     {
-  //       value: '$999.99',
-  //       label: 'Total amount requested',
-  //       details: [''],
-  //     },
-  //   ]);
-  // });
+  it('returns correct data for DomesticShortHaul', () => {
+    const result = makeCalculations('DSH', 99999, testParams.DomesticShortHaul);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: '32210',
+        label: 'Mileage',
+        details: ['Zip 32210 to Zip 91910'],
+      },
+      {
+        value: '1.71',
+        label: 'Baseline shorthaul price',
+        details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 09 Mar 2020'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: ['Base year: 2'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
+  });
 
   it('returns correct data for DomesticOrignPrice', () => {
     const resultDOP = makeCalculations('DOP', 99998, testParams.DomesticOriginPrice);
@@ -75,7 +75,7 @@ describe('makeCalculations', () => {
       {
         value: '',
         label: 'Origin price',
-        details: ['Service area: 176', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
+        details: ['Service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
       {
         value: '1.033',
@@ -106,7 +106,7 @@ describe('makeCalculations', () => {
       {
         value: '',
         label: 'Origin price',
-        details: ['Service area: 176', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
+        details: ['Service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
       {
         value: '1.033',
@@ -140,7 +140,7 @@ describe('makeCalculations', () => {
         value: '2',
       },
       {
-        details: ['Origin service area: 176', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
+        details: ['Origin service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
         label: 'Additional day SIT price',
         value: '1.71',
       },
@@ -183,7 +183,7 @@ describe('makeCalculations', () => {
       {
         value: undefined,
         label: 'Pack price',
-        details: ['Origin service schedule: 3', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
+        details: ['Origin service schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
       {
         value: '1.033',

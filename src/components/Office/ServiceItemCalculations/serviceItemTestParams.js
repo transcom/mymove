@@ -41,7 +41,7 @@ const RequestedPickupDate = {
   origin: 'PRIME',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'DATE',
-  value: '2020-03-11',
+  value: '2020-03-09',
 };
 const ServiceAreaOrigin = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4zMTY5NDha',

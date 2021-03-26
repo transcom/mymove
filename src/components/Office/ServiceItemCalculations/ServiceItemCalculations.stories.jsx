@@ -61,36 +61,20 @@ export const DSH = (data) => (
   />
 );
 
-export const LargeDOASIT = () => (
+export const DOASIT = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticOriginAdditionalSIT}
     totalAmountRequested={642}
     itemCode="DOASIT"
+    tableSize={data.tableSize}
   />
 );
 
-export const SmallDOASIT = () => (
-  <ServiceItemCalculations
-    serviceItemParams={testParams.DomesticOriginAdditionalSIT}
-    totalAmountRequested={642}
-    itemCode="DOASIT"
-    tableSize="small"
-  />
-);
-
-export const LargeTableDOP = () => (
+export const DOP = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticOriginPrice}
     totalAmountRequested={642}
     itemCode="DOP"
-  />
-);
-
-export const SmallTableDOP = () => (
-  <ServiceItemCalculations
-    serviceItemParams={testParams.DomesticOriginPrice}
-    totalAmountRequested={642}
-    itemCode="DOP"
-    tableSize="small"
+    tableSize={data.tableSize}
   />
 );
