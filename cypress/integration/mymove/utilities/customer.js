@@ -61,14 +61,14 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // residential-address
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
-  cy.get('input[name="street_address_1"]').type('123 main');
-  cy.get('input[name="city"]').type('Anytown');
-  cy.get('select[name="state"]').select('CO');
-  cy.get('input[name="postal_code"]').clear().type('00001').blur();
+  cy.get('input[name="current_residence.street_address_1"]').type('123 main');
+  cy.get('input[name="current_residence.city"]').type('Anytown');
+  cy.get('select[name="current_residence.state"]').select('CO');
+  cy.get('input[name="current_residence.postal_code"]').clear().type('00001').blur();
   cy.get('#postal_code-error').should('exist');
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="postal_code"]').clear().type('80913');
-  cy.get('#postal_code-error').should('not.exist');
+  cy.get('span[data-testid="errorMessage"]').should('not.exist');
   cy.nextPage();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/backup-address/);
