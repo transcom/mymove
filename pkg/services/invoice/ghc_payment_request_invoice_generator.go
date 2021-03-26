@@ -96,6 +96,18 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to get next Interchange Control Number: %w", err)
 	}
 
+	// save ICN
+	pr2icn := models.PaymentRequestToInterchangeControlNumber{
+		PaymentRequestID:         paymentRequest.ID,
+		InterchangeControlNumber: int(interchangeControlNumber),
+	}
+	verrs, err := g.db.ValidateAndSave(&pr2icn)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %w", err)
+	} else if verrs != nil && verrs.HasAny() {
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %s", verrs.String())
+	}
+
 	var usageIndicator string
 	if sendProductionInvoice {
 		usageIndicator = "P"
