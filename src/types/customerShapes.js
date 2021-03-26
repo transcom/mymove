@@ -3,6 +3,13 @@ import { arrayOf, bool, func, string, shape, object, number } from 'prop-types';
 import { AddressShape } from 'types/address';
 import { DutyStationShape } from 'types/dutyStation';
 
+export const ServiceMemberShape = shape({
+  id: string.isRequired,
+  affiliation: string,
+  edipi: string,
+  rank: string,
+});
+
 export const MoveShape = shape({
   id: string,
   locator: string,
