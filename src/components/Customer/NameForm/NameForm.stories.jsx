@@ -1,10 +1,10 @@
 import React from 'react';
 
-import DodInfoForm from './DodInfoForm';
+import NameForm from './NameForm';
 
 export default {
-  title: 'Customer Components / Forms / DOD Info Form',
-  component: DodInfoForm,
+  title: 'Customer Components / Forms / Name Form',
+  component: NameForm,
   argTypes: {
     onSubmit: { action: 'submit form' },
     onBack: { action: 'go back' },
@@ -12,15 +12,16 @@ export default {
 };
 
 export const DefaultState = (argTypes) => (
-  <DodInfoForm initialValues={{}} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
+  <NameForm initialValues={{}} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
 );
 
 export const WithInitialValues = (argTypes) => (
-  <DodInfoForm
+  <NameForm
     initialValues={{
-      affiliation: 'ARMY',
-      edipi: '9999999999',
-      rank: 'E_2',
+      first_name: 'Leo',
+      middle_name: 'Star',
+      last_name: 'Spaceman',
+      suffix: 'Mr.',
     }}
     onSubmit={argTypes.onSubmit}
     onBack={argTypes.onBack}
