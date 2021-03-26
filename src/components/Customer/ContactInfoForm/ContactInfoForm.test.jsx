@@ -15,7 +15,8 @@ describe('ContactInfoForm Component', () => {
   };
   const testProps = {
     initialValues,
-    onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+    onSubmit: jest.fn(),
+    onBack: jest.fn(),
   };
 
   it('renders the form inputs', async () => {
@@ -101,29 +102,21 @@ describe('ContactInfoForm Component', () => {
     userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(testProps.onSubmit).toHaveBeenCalledWith(expect.objectContaining({ nextPage: 'next' }), expect.anything());
+      expect(testProps.onSubmit).toHaveBeenCalled();
     });
   });
 
-  it('validates and submits the form when the Back button is clicked', async () => {
-    const { getByRole, getByLabelText, getAllByText } = render(<ContactInfoForm {...testProps} />);
+  it('calls the back handler when back button is clicked', async () => {
+    const { getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
-    userEvent.click(backBtn);
-
-    await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(2);
-    });
-
-    userEvent.type(getByLabelText('Best contact phone'), '555-555-5555');
+    userEvent.type(getByLabelText('Best contact phone'), '555-555-1111');
     userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
-    userEvent.click(getByLabelText('Phone'));
-
+    userEvent.click(getByLabelText('Email'));
     userEvent.click(backBtn);
 
     await waitFor(() => {
-      expect(testProps.onSubmit).toHaveBeenCalledWith(expect.objectContaining({ nextPage: 'back' }), expect.anything());
+      expect(testProps.onBack).toHaveBeenCalled();
     });
   });
-  afterEach(jest.resetAllMocks);
 });

@@ -9,7 +9,7 @@ import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
 
-const ContactInfoForm = ({ initialValues, onSubmit }) => {
+const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   // Note: This method cannot use an arrow function due this particular use of 'this' (see Yup mixed.test documentation)
   const validatePreferredContactMethod = (value, testContext) => {
     return !!(testContext.parent.phone_is_preferred || testContext.parent.email_is_preferred);
@@ -31,17 +31,7 @@ const ContactInfoForm = ({ initialValues, onSubmit }) => {
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-      {({ isValid, isSubmitting, setFieldValue, handleSubmit }) => {
-        const handleBack = (e) => {
-          setFieldValue('nextPage', 'back');
-          handleSubmit(e);
-        };
-
-        const handleNext = (e) => {
-          setFieldValue('nextPage', 'next');
-          handleSubmit(e);
-        };
-
+      {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Your contact info</h1>
@@ -52,9 +42,9 @@ const ContactInfoForm = ({ initialValues, onSubmit }) => {
             </SectionWrapper>
             <div className={formStyles.formActions}>
               <WizardNavigation
-                onBackClick={handleBack}
+                onBackClick={onBack}
                 disableNext={!isValid || isSubmitting}
-                onNextClick={handleNext}
+                onNextClick={handleSubmit}
               />
             </div>
           </Form>
@@ -73,6 +63,7 @@ ContactInfoForm.propTypes = {
     email_is_preferred: PropTypes.bool,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
+  onBack: PropTypes.func.isRequired,
 };
 
 export default ContactInfoForm;

@@ -40,9 +40,7 @@ describe('ContactInfo page', () => {
     });
   });
 
-  it('back button submits the form and goes to the NAME step', async () => {
-    patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
-
+  it('back button goes to the NAME step', async () => {
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     const { queryByText } = render(<ContactInfo {...testProps} serviceMember={testServiceMemberValues} />);
 
@@ -50,11 +48,6 @@ describe('ContactInfo page', () => {
     expect(backButton).toBeInTheDocument();
     userEvent.click(backButton);
 
-    await waitFor(() => {
-      expect(patchServiceMember).toHaveBeenCalled();
-    });
-
-    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
     expect(testProps.push).toHaveBeenCalledWith('/service-member/name');
   });
 
