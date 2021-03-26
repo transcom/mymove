@@ -731,6 +731,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 
 	queryBuilder := query.NewQueryBuilder(db)
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(db, queryBuilder, serviceItemCreator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
@@ -761,10 +762,11 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 		}
 	}
 
-	entryDate := time.Now().Add(-48 * time.Hour)
+	// There is a minimum of 29 days period for a sit service item that doesn't
+	// have a departure date for the payment request param lookup to not encounter an error
+	entryDate := time.Now().Add(-29 * 24 * time.Hour)
 
 	originSITAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
-	sitDepartureDate := time.Now()
 	originSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		Move:        move,
 		MTOShipment: longhaulShipment,
@@ -777,14 +779,22 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 			SITPostalCode:               models.StringPointer("90210"),
 			SITOriginHHGActualAddress:   &originSITAddress,
 			SITOriginHHGActualAddressID: &originSITAddress.ID,
-			SITDepartureDate:            &sitDepartureDate,
 		},
 		Stub: true,
 	})
 
-	_, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(&originSIT)
+	createdServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(&originSIT)
 	if validErrs.HasAny() || createErr != nil {
-		logger.Error(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
+		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
+	}
+
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
+
+	for _, createdServiceItem := range *createdServiceItems {
+		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error approving origin SIT service item", zap.Error(updateErr))
+		}
 	}
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
@@ -934,76 +944,7 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 		ReService:   reService,
 	})
 
-	//// make service item param associated by the payment request and payment service item
-	//createParams := []testdatagen.CreatePaymentServiceItemParams{
-	//	{
-	//		Key:   "CanStandAlone",
-	//		Value: "TRUE",
-	//	},
-	//	{
-	//		Key:   "ContractCode",
-	//		Value: "123",
-	//	},
-	//	{
-	//		Key:   "ContractYearName",
-	//		Value: "Contract Year Name",
-	//	},
-	//	{
-	//		Key:   "CubicFeetBilled",
-	//		Value: "2",
-	//	},
-	//	{
-	//		Key:   "CubicFeetCrating",
-	//		Value: "2",
-	//	},
-	//	{
-	//		Key:   "EscalationCompounded",
-	//		Value: "1.2",
-	//	},
-	//	{
-	//		Key:   "PriceRateOrFactor",
-	//		Value: "0.2",
-	//	},
-	//	{
-	//		Key:   "RequestedPickupDate",
-	//		Value: "2020-03-15",
-	//	},
-	//	{
-	//		Key:   "ServiceAreaOrigin",
-	//		Value: "312",
-	//	},
-	//	{
-	//		Key:   "ServicesScheduleOrigin",
-	//		Value: "1",
-	//	},
-	//	{
-	//		Key:   "ZipPickupAddress",
-	//		Value: "90210",
-	//	},
-	//}
-	//// overwrite createParams, if any params passed in
-	//incomingParams := make([]testdatagen.CreatePaymentServiceItemParams, 0)
-	//for _, param := range assertions.PaymentServiceItemParams {
-	//	incomingParams = append(incomingParams, testdatagen.CreatePaymentServiceItemParams{
-	//		Key:   models.ServiceItemParamName(param.IncomingKey),
-	//		Value: param.Value,
-	//	})
-	//}
-	//if len(incomingParams) > 0 {
-	//	createParams = incomingParams
-	//}
-	//psi := models.PaymentServiceItem{
-	//	PriceCents: &serviceItemCost,
-	//}
-	//testdatagen.MergeModels(&psi, assertions.PaymentServiceItem)
-	//testdatagen.MakePaymentServiceItemWithParams(db, reService.Code, createParams, testdatagen.Assertions{
-	//	PaymentServiceItem: psi,
-	//	PaymentRequest:     paymentRequest,
-	//	MTOServiceItem:     mtoServiceItem,
-	//})
-
-	/* Testing handler here */
-
+	// using handler to create service item params
 	req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
 
 	planner := &routemocks.Planner{}
@@ -1047,8 +988,6 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 
 	response := handler.Handle(params)
 	logger.Debug("Response of create payment request handler: ", zap.Any("", response))
-
-	/* Testing handler here */
 
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
 		PaymentRequest: paymentRequest,
