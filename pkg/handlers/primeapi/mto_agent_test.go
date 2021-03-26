@@ -217,6 +217,7 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 	const agentTypeReceiving = "RECEIVING_AGENT"
 	const agentTypeReleasing = "RELEASING_AGENT"
 
+	// Create valid Receiving Agent for the shipment
 	receivingAgent := &models.MTOAgent{
 
 		FirstName:     swag.String("Riley"),
@@ -227,6 +228,7 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		MTOShipmentID: mtoShipment.ID,
 	}
 
+	// Create valid Releasing Agent for the shipment
 	releasingAgent := &models.MTOAgent{
 
 		FirstName:     swag.String("Jason"),
@@ -245,6 +247,10 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 	req := httptest.NewRequest("POST", fmt.Sprintf("/mto-shipments/%s/agents", mtoShipment.ID), nil)
 
 	suite.T().Run("200 - OK response Receiving Agent", func(t *testing.T) {
+		// Under test: 	CreateMTOAgentHandler, MTOAgentCreator
+		// Set up: 		Pass in valid payload for a receiving agent.
+		// Expected:	Handler returns 200 response with payload of new agent.
+
 		payload := payloads.MTOAgent(receivingAgent)
 		params := mtoshipmentops.CreateMTOAgentParams{
 			HTTPRequest:   req,
@@ -271,6 +277,10 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 	})
 
 	suite.T().Run("200 - OK response Releasing Agent", func(t *testing.T) {
+		// Under test: 	CreateMTOAgentHandler, MTOAgentCreator
+		// Set up: 		Pass in valid payload for a releasing agent.
+		// Expected:	Handler returns 200 response with payload of new agent.
+
 		payload := payloads.MTOAgent(releasingAgent)
 		params := mtoshipmentops.CreateMTOAgentParams{
 			HTTPRequest:   req,
@@ -315,7 +325,11 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 	})
 
 	suite.T().Run("409 - Conflict response", func(t *testing.T) {
-		// Try to add Receiving Agent again, when one already exists
+		// Under test: 	CreateMTOAgentHandler, MTOAgentCreator
+		// Set up: 		Pass in valid payload for a receiving agent, and
+		//				a shipment that already has an existing receiving agent.
+		// Expected:	Handler returns 409 Conflict Error.
+
 		payload := payloads.MTOAgent(receivingAgent)
 		params := mtoshipmentops.CreateMTOAgentParams{
 			HTTPRequest:   req,
@@ -331,8 +345,10 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOAgentConflict{}, response)
 	})
 
-	// Test invalid input
 	suite.T().Run("422 - Unprocessable response for invalid input", func(t *testing.T) {
+		// Under test: 	CreateMTOAgentHandler, MTOAgentCreator
+		// Set up: 		Pass an invalid payload for a releasing agent.
+		// Expected:	Handler returns 422 Unprocessable Entity Error.
 		newMTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
