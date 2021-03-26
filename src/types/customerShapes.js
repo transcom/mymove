@@ -5,9 +5,12 @@ import { DutyStationShape } from 'types/dutyStation';
 
 export const ServiceMemberShape = shape({
   id: string.isRequired,
-  first_name: string.isRequired,
+  affiliation: string,
+  edipi: string,
+  rank: string,
+  first_name: string,
   middle_name: string,
-  last_name: string.isRequired,
+  last_name: string,
   suffix: string,
 });
 

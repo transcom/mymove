@@ -34,26 +34,16 @@ describe('Name page', () => {
     });
   });
 
-  it('back button submits the form and goes to the DoD Info step', async () => {
-    const testServiceMemberValues = {
-      id: 'testServiceMemberId',
-      first_name: 'Leo',
-      middle_name: 'Star',
-      last_name: 'Spaceman',
-      suffix: 'Mr.',
-    };
-
+  it('back button goes to the DoD Info step', async () => {
     const { queryByText } = render(<Name {...testProps} />);
 
     const backButton = queryByText('Back');
-    expect(backButton).toBeInTheDocument();
-    userEvent.click(backButton);
 
     await waitFor(() => {
-      patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
+      expect(backButton).toBeInTheDocument();
     });
 
-    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
+    userEvent.click(backButton);
     expect(testProps.push).toHaveBeenCalledWith('/service-member/dod-info');
   });
 
@@ -152,8 +142,6 @@ describe('requireCustomerState Name', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            first_name: 'Tester',
-            last_name: 'Testperson',
           },
         },
       },
@@ -185,8 +173,6 @@ describe('requireCustomerState Name', () => {
             rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
-            first_name: 'Tester',
-            last_name: 'Testperson',
           },
         },
       },

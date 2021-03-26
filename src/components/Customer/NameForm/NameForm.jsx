@@ -9,7 +9,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
 
-const NameForm = ({ initialValues, onSubmit }) => {
+const NameForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required('Required'),
     middle_name: Yup.string(),
@@ -19,37 +19,21 @@ const NameForm = ({ initialValues, onSubmit }) => {
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, setFieldValue, handleSubmit }) => {
-        const handleBack = (e) => {
-          setFieldValue('nextPage', 'back');
-          handleSubmit(e);
-        };
-
-        const handleNext = (e) => {
-          setFieldValue('nextPage', 'next');
-          handleSubmit(e);
-        };
-
+      {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Name</h1>
             <SectionWrapper className={formStyles.formSection}>
-              <TextField label="First name" name="first_name" id="firstName" required inputMode="text" />
-              <TextField
-                label="Middle name"
-                name="middle_name"
-                id="middleName"
-                inputMode="text"
-                labelHint="(optional)"
-              />
-              <TextField label="Last name" name="last_name" id="lastName" required inputMode="text" />
-              <TextField label="Suffix" name="suffix" id="suffix" inputMode="text" labelHint="(optional)" />
+              <TextField label="First name" name="first_name" id="firstName" required />
+              <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
+              <TextField label="Last name" name="last_name" id="lastName" required />
+              <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
             </SectionWrapper>
             <div className={formStyles.formActions}>
               <WizardNavigation
-                onBackClick={handleBack}
+                onBackClick={onBack}
                 disableNext={!isValid || isSubmitting}
-                onNextClick={handleNext}
+                onNextClick={handleSubmit}
               />
             </div>
           </Form>
@@ -67,6 +51,7 @@ NameForm.propTypes = {
     suffix: string,
   }).isRequired,
   onSubmit: func.isRequired,
+  onBack: func.isRequired,
 };
 
 export default NameForm;
