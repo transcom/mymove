@@ -3,6 +3,8 @@ package services
 import (
 	"io"
 	"net/http"
+	"os"
+	"time"
 
 	edi997 "github.com/transcom/mymove/pkg/edi/edi997"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
@@ -30,4 +32,31 @@ type EDI997Processor interface {
 //go:generate mockery -name SyncadaSFTPSender
 type SyncadaSFTPSender interface {
 	SendToSyncadaViaSFTP(localDataReader io.Reader, syncadaFileName string) (int64, error)
+}
+
+// SFTPFiler is the exported interface for an SFTP client file
+//go:generate mockery --name SFTPFiler
+type SFTPFiler interface {
+	Close() error
+	WriteTo(w io.Writer) (int64, error)
+}
+
+// SFTPClient is the exported interface for an SFTP client created for reading from Syncada
+//go:generate mockery --name SFTPClient
+type SFTPClient interface {
+	ReadDir(p string) ([]os.FileInfo, error)
+	Open(path string) (SFTPFiler, error)
+	Remove(path string) error
+}
+
+// SyncadaSFTPReader is the exported interface for reading files from Syncada
+//go:generate mockery -name SyncadaSFTPReader
+type SyncadaSFTPReader interface {
+	FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor SyncadaFileProcessor) (time.Time, error)
+}
+
+// SyncadaFileProcessor is the exported interface for processing EDI files from Syncada
+//go:generate mockery -name SyncadaFileProcessor
+type SyncadaFileProcessor interface {
+	ProcessFile(syncadaPath string, text string) error
 }

@@ -2,6 +2,7 @@ package edi997
 
 import (
 	"github.com/go-playground/validator/v10"
+
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 )
 
