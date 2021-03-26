@@ -14,10 +14,7 @@ import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/S
 const ExpandableServiceItemRow = ({ serviceItem, index }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const canClickToExpandContent = (canShowExpandableContent, item) => {
-    if (canShowExpandableContent && item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED) {
-      return true;
-    }
-    return false;
+    return canShowExpandableContent && item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED;
   };
   const canShowExpandableContent = allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode);
 
