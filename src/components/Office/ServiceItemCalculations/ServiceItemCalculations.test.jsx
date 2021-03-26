@@ -88,7 +88,7 @@ describe('ServiceItemCalculations', () => {
     });
   });
 
-  let expectedOutput = [
+  const expectedOutput = [
     {
       value: '85 cwt',
       label: 'Billable weight (cwt)',
@@ -100,14 +100,14 @@ describe('ServiceItemCalculations', () => {
       details: ['Zip 210 to Zip 910'],
     },
     {
-      value: '1.033',
+      value: '1.71',
       label: 'Baseline linehaul price',
-      details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
+      details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 11 Mar 2020'],
     },
     {
       value: '1.033',
       label: 'Price escalation factor',
-      details: null,
+      details: ['Base year: 2'],
     },
     {
       value: '$10.00',
@@ -116,28 +116,4 @@ describe('ServiceItemCalculations', () => {
     },
   ];
   testServiceItemCalculation(SERVICE_ITEM_CODES.DLH, testParams.DomesticLongHaul, expectedOutput);
-
-  expectedOutput = [
-    {
-      value: '85 cwt',
-      label: 'Billable weight (cwt)',
-      details: ['Shipment weight: 8,500 lbs', 'Estimated: '],
-    },
-    {
-      value: '210',
-      label: 'Mileage',
-      details: ['Zip 210 to Zip 910'],
-    },
-    {
-      value: '0.09',
-      label: 'Fuel surcharge price (per mi)',
-      details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
-    },
-    {
-      value: '$10.00',
-      label: 'Total amount requested',
-      details: [''],
-    },
-  ];
-  testServiceItemCalculation(SERVICE_ITEM_CODES.FSC, testParams.FuelSurchage, expectedOutput);
 });

@@ -16,14 +16,14 @@ describe('makeCalculations', () => {
         details: ['Zip 210 to Zip 910'],
       },
       {
-        value: '1.033',
+        value: '1.71',
         label: 'Baseline linehaul price',
-        details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
+        details: ['Domestic non-peak', 'Origin service area: 176', 'Requested pickup: 11 Mar 2020'],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: [''],
+        details: ['Base year: 2'],
       },
       {
         value: '$999.99',
@@ -80,7 +80,7 @@ describe('makeCalculations', () => {
       {
         value: '',
         label: 'Price escalation factor',
-        details: [''],
+        details: ['Base year: 2'],
       },
       {
         value: '$999.98',
@@ -90,85 +90,177 @@ describe('makeCalculations', () => {
     ]);
   });
 
-  // it('returns correct data for DomesticDestinationPrice', () => {
-  //   const result = makeCalculations('DDP', 99999, testParams.DomesticDestinationPrice);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticDestinationPrice', () => {
+    const result = makeCalculations('DDP', 99999, testParams.DomesticDestinationPrice);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for DomesticOrigin1stSIT', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticOrigin1stSIT);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticOrigin1stSIT', () => {
+    const result = makeCalculations('DOFSIT', 99999, testParams.DomesticOrigin1stSIT);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: '1.033',
+        label: 'Origin price',
+        details: ['Service area: 176', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: ['Base year: 2'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
+  });
 
-  // it('returns correct data for DomesticDestination1stSIT', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticDestination1stSIT);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticDestination1stSIT', () => {
+    const result = makeCalculations('?', 99999, testParams.DomesticDestination1stSIT);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for DomesticOriginAdditionalSIT', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticOriginAdditionalSIT);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticOriginAdditionalSIT', () => {
+    const result = makeCalculations('DOASIT', 99999, testParams.DomesticOriginAdditionalSIT);
+    expect(result).toEqual([
+      {
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        label: 'Billable weight (cwt)',
+        value: '85 cwt',
+      },
+      {
+        details: [],
+        label: 'Days in SIT',
+        value: '2',
+      },
+      {
+        details: ['Origin service area: 176', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
+        label: 'Additional day SIT price',
+        value: '1.71',
+      },
+      {
+        details: ['Base year: undefined'],
+        label: 'Price escalation factor',
+        value: '1.033',
+      },
+      {
+        details: [''],
+        label: 'Total amount requested',
+        value: '$999.99',
+      },
+    ]);
+  });
 
-  // it('returns correct data for DomesticDestinationAdditionalSIT', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticDestinationAdditionalSIT);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticDestinationAdditionalSIT', () => {
+    const result = makeCalculations('DOASIT', 99999, testParams.DomesticDestinationAdditionalSIT);
+    expect(result).toEqual([
+      {
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        label: 'Billable weight (cwt)',
+        value: '85 cwt',
+      },
+      {
+        details: [],
+        label: 'Days in SIT',
+        value: '2',
+      },
+      {
+        details: ['Origin service area: undefined', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
+        label: 'Additional day SIT price',
+      },
+      {
+        details: ['Base year: undefined'],
+        label: 'Price escalation factor',
+      },
+      {
+        details: [''],
+        label: 'Total amount requested',
+        value: '$999.99',
+      },
+    ]);
+  });
 
-  // it('returns correct data for DomesticOriginSITDelivery', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticOriginSITDelivery);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticOriginSITDelivery', () => {
+    const result = makeCalculations('?', 99999, testParams.DomesticOriginSITDelivery);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for DomesticDestinationSITDelivery', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticDestinationSITDelivery);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticDestinationSITDelivery', () => {
+    const result = makeCalculations('?', 99999, testParams.DomesticDestinationSITDelivery);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for DomesticPacking', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticPacking);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticPacking', () => {
+    const result = makeCalculations('DPK', 99999, testParams.DomesticPacking);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: undefined,
+        label: 'Pack price',
+        details: ['Origin service schedule: 3', 'Requested pickup: 11 Mar 2020', 'Domestic non-peak'],
+      },
+      {
+        value: undefined,
+        label: 'Price escalation factor',
+        details: ['Base year: undefined'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
+  });
 
-  // it('returns correct data for DomesticUnpacking', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticUnpacking);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticUnpacking', () => {
+    const result = makeCalculations('?', 99999, testParams.DomesticUnpacking);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for DomesticCrating', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticCrating);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticCrating', () => {
+    const result = makeCalculations('?', 99999, testParams.DomesticCrating);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for DomesticCratingStandalone', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticCratingStandalone);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticCratingStandalone', () => {
+    const result = makeCalculations('?', 99999, testParams.DomesticCratingStandalone);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for DomesticUncrating', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticUncrating);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticUncrating', () => {
+    const result = makeCalculations('?', 99999, testParams.DomesticUncrating);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for DomesticOriginShuttleService', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticOriginShuttleService);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticOriginShuttleService', () => {
+    const result = makeCalculations('?', 99999, testParams.DomesticOriginShuttleService);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for DomesticDestinationShuttleService', () => {
-  //   const result = makeCalculations('?', 99999, testParams.DomesticDestinationShuttleService);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for DomesticDestinationShuttleService', () => {
+    const result = makeCalculations('?', 99999, testParams.DomesticDestinationShuttleService);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for NonStandardHHG', () => {
-  //   const result = makeCalculations('?', 99999, testParams.NonStandardHHG);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for NonStandardHHG', () => {
+    const result = makeCalculations('?', 99999, testParams.NonStandardHHG);
+    expect(result).toEqual([]);
+  });
 
-  // it('returns correct data for NonStandardUB', () => {
-  //   const result = makeCalculations('?', 99999, testParams.NonStandardUB);
-  //   expect(result).toEqual([]);
-  // });
+  it('returns correct data for NonStandardUB', () => {
+    const result = makeCalculations('?', 99999, testParams.NonStandardUB);
+    expect(result).toEqual([]);
+  });
 
   it('returns correct data for FuelSurchage', () => {
     const resultFSC = makeCalculations('FSC', 99999, testParams.FuelSurchage);
