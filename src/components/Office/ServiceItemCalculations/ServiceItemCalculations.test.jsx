@@ -88,7 +88,7 @@ describe('ServiceItemCalculations', () => {
     });
   });
 
-  let expectedOutput = [
+  const expectedOutput = [
     {
       value: '85 cwt',
       label: 'Billable weight (cwt)',
@@ -116,28 +116,4 @@ describe('ServiceItemCalculations', () => {
     },
   ];
   testServiceItemCalculation(SERVICE_ITEM_CODES.DLH, testParams.DomesticLongHaul, expectedOutput);
-
-  expectedOutput = [
-    {
-      value: '85 cwt',
-      label: 'Billable weight (cwt)',
-      details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
-    },
-    {
-      value: '210',
-      label: 'Mileage',
-      details: ['Zip 210 to Zip 910'],
-    },
-    {
-      value: '0.09',
-      label: 'Fuel surcharge price (per mi)',
-      details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
-    },
-    {
-      value: '$10.00',
-      label: 'Total amount requested',
-      details: [''],
-    },
-  ];
-  testServiceItemCalculation(SERVICE_ITEM_CODES.FSC, testParams.FuelSurchage, expectedOutput);
 });

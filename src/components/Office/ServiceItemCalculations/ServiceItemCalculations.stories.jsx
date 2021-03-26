@@ -77,3 +77,20 @@ export const SmallDOASIT = () => (
     tableSize="small"
   />
 );
+
+export const LargeTableDOP = () => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginPrice}
+    totalAmountRequested={642}
+    itemCode="DOP"
+  />
+);
+
+export const SmallTableDOP = () => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginPrice}
+    totalAmountRequested={642}
+    itemCode="DOP"
+    tableSize="small"
+  />
+);
