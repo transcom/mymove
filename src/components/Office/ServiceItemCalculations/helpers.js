@@ -54,9 +54,41 @@ const mileage = (params) => {
   return calculation(value, label, detail);
 };
 
+const mileageZip5 = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip5, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
+    params,
+  )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
+    params,
+  )}`;
+
+  return calculation(value, label, detail);
+};
+
 const baselineLinehaulPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.BaselineLinehaulPrice;
+  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin,
+    params,
+  )}`;
+  const detail3 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+
+  return calculation(value, label, detail1, detail2, detail3);
+};
+
+const baselineShorthaulPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.BaselineShorthaulPrice;
   const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
     getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
   }`;
@@ -131,6 +163,16 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         billableWeightFSC(params),
         mileage(params),
         fuelSurchargePrice(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic shorthaul
+    case SERVICE_ITEM_CODES.DSH:
+      result = [
+        billableWeight(params),
+        mileageZip5(params),
+        baselineShorthaulPrice(params),
+        priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
       break;

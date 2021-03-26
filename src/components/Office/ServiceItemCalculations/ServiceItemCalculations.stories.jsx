@@ -28,3 +28,16 @@ export const SmallTable = () => (
     tableSize="small"
   />
 );
+
+export const LargeDSHTable = () => (
+  <ServiceItemCalculations serviceItemParams={testParams.DomesticShortHaul} totalAmountRequested={642} itemCode="DSH" />
+);
+
+export const SmallDSHTable = () => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticShortHaul}
+    totalAmountRequested={642}
+    itemCode="DSH"
+    tableSize="small"
+  />
+);

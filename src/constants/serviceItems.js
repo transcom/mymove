@@ -10,6 +10,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   WeightActual: 'WeightActual',
   WeightEstimated: 'WeightEstimated',
   DistanceZip3: 'DistanceZip3',
+  DistanceZip5: 'DistanceZip5',
   ZipDestAddress: 'ZipDestAddress',
   ZipPickupAddress: 'ZipPickupAddress',
   PriceRateOrFactor: 'PriceRateOrFactor',
@@ -26,6 +27,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   BillableWeight: 'Billable weight (cwt)',
   Mileage: 'Mileage',
   BaselineLinehaulPrice: 'Baseline linehaul price',
+  BaselineShorthaulPrice: 'Baseline shorthaul price',
   PriceEscalationFactor: 'Price escalation factor',
   TotalAmountRequested: 'Total amount requested',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
@@ -46,10 +48,11 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
 const SERVICE_ITEM_CODES = {
   DLH: 'DLH',
   FSC: 'FSC',
+  DSH: 'DSH',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
-const allowedServiceItemCalculations = [SERVICE_ITEM_CODES.DLH, SERVICE_ITEM_CODES.FSC];
+const allowedServiceItemCalculations = [SERVICE_ITEM_CODES.DLH, SERVICE_ITEM_CODES.FSC, SERVICE_ITEM_CODES.DSH];
 
 export {
   SERVICE_ITEM_STATUSES as default,
