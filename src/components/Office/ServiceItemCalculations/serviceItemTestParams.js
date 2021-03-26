@@ -330,7 +330,7 @@ const PSIPriceDomOriginPrice = {
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'DECIMAL',
-  value: '',
+  value: '10',
 };
 const PSIPriceDomDest = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
@@ -402,11 +402,14 @@ const testParams = {
   ],
   DomesticOriginPrice: [
     RequestedPickupDate,
-    ServiceAreaOrigin,
     WeightActual,
     WeightBilledActual,
     WeightEstimated,
     ZipPickupAddress,
+    PriceRateOrFactor,
+    ServiceAreaOrigin,
+    EscalationCompounded,
+    ContractYearName,
   ],
   DomesticDestinationPrice: [
     RequestedPickupDate,
@@ -417,12 +420,15 @@ const testParams = {
     ZipDestAddress,
   ],
   DomesticOrigin1stSIT: [
-    RequestedPickupDate,
-    ServiceAreaOrigin,
     WeightActual,
     WeightBilledActual,
     WeightEstimated,
+    PriceRateOrFactor,
+    ServiceAreaOrigin,
+    RequestedPickupDate,
     ZipPickupAddress,
+    EscalationCompounded,
+    ContractYearName,
   ],
   DomesticDestination1stSIT: [
     RequestedPickupDate,
@@ -479,6 +485,8 @@ const testParams = {
     WeightEstimated,
     ServicesScheduleOrigin,
     ZipPickupAddress,
+    ContractYearName,
+    EscalationCompounded,
   ],
   DomesticUnpacking: [
     RequestedPickupDate,
@@ -555,6 +563,7 @@ const testParams = {
     EIAFuelPrice,
     FSCWeightBasedDistanceMultiplier,
     WeightBilledActual,
+    WeightEstimated,
     ZipDestAddress,
     ZipPickupAddress,
   ],

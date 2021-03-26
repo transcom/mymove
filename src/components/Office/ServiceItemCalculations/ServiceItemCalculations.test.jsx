@@ -121,7 +121,7 @@ describe('ServiceItemCalculations', () => {
     {
       value: '85 cwt',
       label: 'Billable weight (cwt)',
-      details: ['Shipment weight: 8,500 lbs'],
+      details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
     },
     {
       value: '210',
@@ -131,7 +131,7 @@ describe('ServiceItemCalculations', () => {
     {
       value: '0.09',
       label: 'Fuel surcharge price (per mi)',
-      details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Requested pickup: 11 Mar 2020'],
+      details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
     },
     {
       value: '$10.00',
