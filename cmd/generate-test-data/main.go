@@ -188,22 +188,24 @@ func main() {
 			logger.Fatal("could not instantiate prime uploader", zap.Error(err))
 		}
 
-		certificates, rootCAs, certErr := certs.InitDoDCertificates(v, logger)
-		if certificates == nil || rootCAs == nil || certErr != nil {
-			logger.Fatal("Failed to initialize DOD certificates", zap.Error(certErr))
-		}
-
-		// Create a secondary planner specifically for GHC.
-		routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
-		routePlanner, plannerErr := route.InitGHCRoutePlanner(v, logger, dbConnection, routeTLSConfig)
-
-		if plannerErr != nil {
-			logger.Fatal("Failed to initialize GHC route planner")
-		}
-
 		if namedScenario == tdgs.E2eBasicScenario.Name {
 			tdgs.E2eBasicScenario.Run(dbConnection, userUploader, primeUploader, logger)
 		} else if namedScenario == tdgs.DevSeedScenario.Name {
+			// Something is different about our cert config in CI so only running this
+			// for the devseed scenario not e2e_basic for Cypress
+			certificates, rootCAs, certErr := certs.InitDoDCertificates(v, logger)
+			if certificates == nil || rootCAs == nil || certErr != nil {
+				logger.Fatal("Failed to initialize DOD certificates", zap.Error(certErr))
+			}
+
+			// Create a secondary planner specifically for GHC.
+			routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+			routePlanner, plannerErr := route.InitGHCRoutePlanner(v, logger, dbConnection, routeTLSConfig)
+
+			if plannerErr != nil {
+				logger.Fatal("Failed to initialize GHC route planner")
+			}
+
 			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, routePlanner, logger)
 		} else if namedScenario == tdgs.BandwidthScenario.Name {
 			tdgs.BandwidthScenario.Run(dbConnection, userUploader, primeUploader)
