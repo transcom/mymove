@@ -23,15 +23,15 @@ func NewMTOAgentCreator(db *pop.Connection, mtoAvailabilityChecker services.Move
 
 // CreateMTOAgentPrime passes the Prime validator key to CreateMTOAgent
 func (f *mtoAgentCreator) CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	return f.CreateMTOAgent(mtoAgent, CreateMTOAgentPrimeValidator) //#TODO Should I leave this to establish pattern in case we need to add more? Or remove since I'm not using all the validating functions
+	return f.CreateMTOAgent(mtoAgent, CreateMTOAgentPrimeValidator)
 
 }
 
 func (f *mtoAgentCreator) CreateMTOAgent(mtoAgent *models.MTOAgent, validatorKey string) (*models.MTOAgent, error) {
 	// Get existing shipment and agents information for validation
 	mtoShipment := &models.MTOShipment{}
-	var err error
-	err = f.db.Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
+
+	err := f.db.Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
 
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
