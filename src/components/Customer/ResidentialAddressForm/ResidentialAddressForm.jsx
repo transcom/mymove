@@ -9,6 +9,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { requiredAddressSchema } from 'utils/validation';
+import { ResidentialAddressShape } from 'types/address';
 
 const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack, validators }) => {
   const validationSchema = Yup.object().shape({
@@ -48,13 +49,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
 
 ResidentialAddressForm.propTypes = {
   formFieldsName: PropTypes.string.isRequired,
-  initialValues: PropTypes.shape({
-    street_address_1: PropTypes.string,
-    street_address_2: PropTypes.string,
-    city: PropTypes.string,
-    state: PropTypes.string,
-    postal_code: PropTypes.string,
-  }).isRequired,
+  initialValues: ResidentialAddressShape.isRequired,
   onBack: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   validators: PropTypes.shape({

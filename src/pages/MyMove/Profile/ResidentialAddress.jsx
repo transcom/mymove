@@ -13,6 +13,7 @@ import requireCustomerState from 'containers/requireCustomerState/requireCustome
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 import ResidentialAddressForm from 'components/Customer/ResidentialAddressForm/ResidentialAddressForm';
+import { ResidentialAddressShape } from 'types/address';
 
 const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
@@ -101,6 +102,7 @@ ResidentialAddress.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   serviceMember: PropTypes.shape({
     id: PropTypes.string.isRequired,
+    residential_address: ResidentialAddressShape,
   }).isRequired,
   push: PropTypes.func.isRequired,
 };
