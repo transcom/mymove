@@ -42,13 +42,13 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: '210',
+        value: '32210',
         label: 'Mileage',
         details: ['Zip 32210 to Zip 91910'],
       },
       {
         value: '1.033',
-        label: 'Baseline linehaul price',
+        label: 'Baseline shorthaul price',
         details: ['Domestic non-peak', 'Origin service area: 176', 'Pickup date: 11 Mar 2020'],
       },
       {
