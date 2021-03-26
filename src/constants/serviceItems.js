@@ -6,15 +6,18 @@ const SERVICE_ITEM_STATUSES = {
 
 // TODO - refactor to order keys in alphabet order
 const SERVICE_ITEM_PARAM_KEYS = {
+  ContractYearName: 'ContractYearName',
   WeightBilledActual: 'WeightBilledActual',
   WeightActual: 'WeightActual',
   WeightEstimated: 'WeightEstimated',
   DistanceZip3: 'DistanceZip3',
+  DistanceZip5: 'DistanceZip5',
   ZipDestAddress: 'ZipDestAddress',
   ZipPickupAddress: 'ZipPickupAddress',
   PriceRateOrFactor: 'PriceRateOrFactor',
   IsPeak: 'IsPeak',
   ServiceAreaOrigin: 'ServiceAreaOrigin',
+  ServicesScheduleOrigin: 'ServicesScheduleOrigin',
   RequestedPickupDate: 'RequestedPickupDate',
   ActualPickupDate: 'ActualPickupDate',
   EscalationCompounded: 'EscalationCompounded',
@@ -22,19 +25,20 @@ const SERVICE_ITEM_PARAM_KEYS = {
   FSCWeightBasedDistanceMultiplier: 'FSCWeightBasedDistanceMultiplier',
   OriginPrice: 'OriginPrice',
   ServiceSchedule: 'ServiceSchedule',
-  ContractYearName: 'ContractYearName',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
   BillableWeight: 'Billable weight (cwt)',
   Mileage: 'Mileage',
   BaselineLinehaulPrice: 'Baseline linehaul price',
+  BaselineShorthaulPrice: 'Baseline shorthaul price',
   PriceEscalationFactor: 'Price escalation factor',
   TotalAmountRequested: 'Total amount requested',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
   ServiceSchedule: 'Service schedule',
   ServiceArea: 'Service area',
   RequestedPickup: 'Requested pickup',
+  PackPrice: 'Pack price',
   [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightActual]: 'Shipment weight',
@@ -44,7 +48,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   // Domestic non-peak or Domestic peak
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',
-  [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Pickup date',
+  [SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin]: 'Origin service schedule',
+  [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]: 'Pickup date',
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
@@ -53,12 +58,20 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
 
 const SERVICE_ITEM_CODES = {
   DLH: 'DLH',
+  DPK: 'DPK',
   FSC: 'FSC',
+  DSH: 'DSH',
   DOFSIT: 'DOFSIT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
-const allowedServiceItemCalculations = [SERVICE_ITEM_CODES.DLH, SERVICE_ITEM_CODES.FSC, SERVICE_ITEM_CODES.DOFSIT];
+const allowedServiceItemCalculations = [
+  SERVICE_ITEM_CODES.DLH,
+  SERVICE_ITEM_CODES.FSC,
+  SERVICE_ITEM_CODES.DPK,
+  SERVICE_ITEM_CODES.DSH,
+  SERVICE_ITEM_CODES.DOFSIT,
+];
 
 export {
   SERVICE_ITEM_STATUSES as default,

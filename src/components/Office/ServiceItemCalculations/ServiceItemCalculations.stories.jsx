@@ -37,8 +37,26 @@ export const DLH = (data) => (
 export const DOFSIT = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticOrigin1stSIT}
-    totalAmountRequested={833}
+    totalAmountRequested={642}
     itemCode="DOFSIT"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DPK = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticPacking}
+    totalAmountRequested={642}
+    itemCode="DPK"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DSH = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticShortHaul}
+    totalAmountRequested={642}
+    itemCode="DSH"
     tableSize={data.tableSize}
   />
 );
