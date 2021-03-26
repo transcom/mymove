@@ -1,6 +1,9 @@
 package edi997
 
-import edisegment "github.com/transcom/mymove/pkg/edi/segment"
+import (
+	"github.com/go-playground/validator/v10"
+	edisegment "github.com/transcom/mymove/pkg/edi/segment"
+)
 
 // EDI 997 is a Functional Acknowledgement message that is sent to the MilMove system to simply acknowledge
 // that the corresponding EDI 858 message was received.
@@ -45,4 +48,28 @@ type interchangeControlEnvelope struct {
 // EDI holds all the segments to parse an EDI 997
 type EDI struct {
 	InterchangeControlEnvelope interchangeControlEnvelope
+}
+
+var validate *validator.Validate
+
+// Validate will validate the EDI 997 (and nested structs) to make sure they will produce legal EDI.
+// This returns either an InvalidValidationError or a validator.ValidationErrors that allows all validation
+// errors to be introspected individually.
+func (edi997 EDI) Validate() error {
+	// errString := ""
+	return validate.Struct(edi997)
+	// if err != nil {
+	// 	errString += err.Error()
+	// }
+	// for _, functionalGroup := range edi997.InterchangeControlEnvelope.FunctionalGroups {
+	// 	err := validate.Struct(functionalGroup)
+	// 	if err != nil {
+	// 		errString += err.Error()
+	// 	}
+	// }
+
+	// if errString != "" {
+	// 	return fmt.Errorf(errString)
+	// }
+	// return nil
 }
