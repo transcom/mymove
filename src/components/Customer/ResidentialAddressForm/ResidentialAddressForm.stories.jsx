@@ -17,6 +17,7 @@ export default {
 
 export const DefaultState = (argTypes) => (
   <ResidentialAddressForm
+    formFieldsName="residential_address"
     initialValues={{
       residential_address: {
         street_address_1: '',
@@ -33,6 +34,7 @@ export const DefaultState = (argTypes) => (
 
 export const WithCustomValidators = (argTypes) => (
   <ResidentialAddressForm
+    formFieldsName="residential_address"
     initialValues={{
       residential_address: {
         street_address_1: '',
