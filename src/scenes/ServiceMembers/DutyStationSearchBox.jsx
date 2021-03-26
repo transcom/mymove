@@ -9,7 +9,7 @@ import Highlighter from 'react-highlight-words';
 import { NULL_UUID } from 'shared/constants';
 import { SearchDutyStations, ShowAddress } from './api.js';
 
-import './DutyStation.css';
+import 'pages/MyMove/Profile/DutyStation.css';
 import styles from './DutyStationSearchBox.module.scss';
 
 const inputDebounceTime = 200;

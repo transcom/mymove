@@ -15,11 +15,10 @@ import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 
-import DutyStation from 'scenes/ServiceMembers/DutyStation';
-
 import Home from 'pages/MyMove/Home';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import SMName from 'pages/MyMove/Profile/Name';
+import DutyStation from 'pages/MyMove/Profile/DutyStation';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import MovingInfo from 'pages/MyMove/MovingInfo';
@@ -115,7 +114,7 @@ const pages = {
     // api for duty station always returns an object, even when duty station is not set
     // if there is no duty station, that object will have a null uuid
     isComplete: ({ sm }) => sm.is_profile_complete || get(sm, 'current_station.id', NULL_UUID) !== NULL_UUID,
-    render: (key, pages) => ({ match }) => <DutyStation pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <DutyStation push={history.push} />,
     description: 'current duty station',
   },
   [customerRoutes.CURRENT_ADDRESS_PATH]: {

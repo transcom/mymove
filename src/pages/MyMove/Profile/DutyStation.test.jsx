@@ -4,8 +4,9 @@ import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 
+import ConnectedDutyStation from './DutyStation';
+
 import { MockProviders } from 'testUtils';
-import ConnectedDutyStation from 'scenes/ServiceMembers/DutyStation';
 
 describe('requireCustomerState DutyStation', () => {
   const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch');
