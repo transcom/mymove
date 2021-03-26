@@ -39,7 +39,6 @@ describe('ContactInfoForm Component', () => {
     userEvent.tab();
 
     await waitFor(() => {
-      expect(getByLabelText('Best contact phone')).toBeInvalid();
       expect(getByText('Number must have 10 digits and a valid area code')).toBeInTheDocument();
     });
   });
@@ -50,7 +49,6 @@ describe('ContactInfoForm Component', () => {
     userEvent.tab();
 
     await waitFor(() => {
-      expect(getByLabelText(/Alt. phone/)).toBeInvalid();
       expect(getByText('Number must have 10 digits and a valid area code')).toBeInTheDocument();
     });
   });
@@ -61,7 +59,6 @@ describe('ContactInfoForm Component', () => {
     userEvent.tab();
 
     await waitFor(() => {
-      expect(getByLabelText('Personal email')).toBeInvalid();
       expect(getByText('Must be a valid email address')).toBeInTheDocument();
     });
   });

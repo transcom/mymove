@@ -19,7 +19,7 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
             <div className="mobile-lg:grid-col-7">
               <MaskedTextField
                 label="Best contact phone"
-                id={`telephone_${CustomerContactInfoFieldsUUID}`}
+                id={`telephone_${CustomerContactInfoFieldsUUID.current}`}
                 name="telephone"
                 type="tel"
                 minimum="12"
@@ -34,7 +34,7 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
               <MaskedTextField
                 label="Alt. phone"
                 labelHint="Optional"
-                id={`secondaryTelephone_${CustomerContactInfoFieldsUUID}`}
+                id={`secondaryTelephone_${CustomerContactInfoFieldsUUID.current}`}
                 name="secondary_telephone"
                 type="tel"
                 minimum="12"
@@ -45,19 +45,19 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
           </div>
           <TextField
             label="Personal email"
-            id={`personalEmail_${CustomerContactInfoFieldsUUID}`}
+            id={`personalEmail_${CustomerContactInfoFieldsUUID.current}`}
             name="personal_email"
             required
           />
           <Label>Preferred contact method</Label>
           <div className={formStyles.radioGroup}>
             <CheckboxField
-              id={`phoneIsPreferred_${CustomerContactInfoFieldsUUID}`}
+              id={`phoneIsPreferred_${CustomerContactInfoFieldsUUID.current}`}
               label="Phone"
               name="phone_is_preferred"
             />
             <CheckboxField
-              id={`emailIsPreferred_ ${CustomerContactInfoFieldsUUID}`}
+              id={`emailIsPreferred_ ${CustomerContactInfoFieldsUUID.current}`}
               label="Email"
               name="email_is_preferred"
             />
