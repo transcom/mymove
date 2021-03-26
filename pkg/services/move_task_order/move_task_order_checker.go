@@ -2,7 +2,6 @@ package movetaskorder
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -22,7 +21,6 @@ func NewMoveTaskOrderChecker(db *pop.Connection) services.MoveTaskOrderChecker {
 
 //MTOAvailableToPrime retrieves a Move for a given UUID and checks if it is visible and available to prime
 func (f moveTaskOrderChecker) MTOAvailableToPrime(moveTaskOrderID uuid.UUID) (bool, error) {
-	fmt.Println("Do I make it to MTOAvailable to PRimea")
 	mto := &models.Move{}
 	err := f.db.RawQuery("SELECT * FROM moves WHERE id = $1 AND show = TRUE", moveTaskOrderID).First(mto)
 

@@ -13,11 +13,7 @@ type MTOAgentUpdater interface {
 }
 
 // MTOAgentCreator is the service object interface for CreateMTOAgent
+// go:generate mockery -name MTOAgentCreator
 type MTOAgentCreator interface {
 	CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*models.MTOAgent, error)
-}
-
-// MTOAgent is the interface for all service objects relating to MTOAgent
-// This allows common validator functions to be shared between objects easily
-type MTOAgent interface {
 }
