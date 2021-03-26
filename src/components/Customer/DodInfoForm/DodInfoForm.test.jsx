@@ -8,6 +8,7 @@ describe('DodInfoForm component', () => {
   const testProps = {
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
     initialValues: { affiliation: '', edipi: '', rank: '' },
+    onBack: jest.fn(),
   };
 
   it('renders the form inputs', async () => {
@@ -60,30 +61,21 @@ describe('DodInfoForm component', () => {
     userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(testProps.onSubmit).toHaveBeenCalledWith(expect.objectContaining({ nextPage: 'next' }), expect.anything());
+      expect(testProps.onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ affiliation: 'NAVY', edipi: '1234567890', rank: 'E_5' }),
+        expect.anything(),
+      );
     });
   });
 
-  it('validates and submits the form when the Back button is clicked', async () => {
-    const { getByRole, getByLabelText, getAllByText } = render(<DodInfoForm {...testProps} />);
+  it('implements the onBack handler when the Back button is clicked', async () => {
+    const { getByRole } = render(<DodInfoForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
     userEvent.click(backBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(3);
-    });
-
-    expect(testProps.onSubmit).not.toHaveBeenCalled();
-
-    userEvent.selectOptions(getByLabelText('Branch of service'), ['NAVY']);
-    userEvent.type(getByLabelText('DOD ID number'), '1234567890');
-    userEvent.selectOptions(getByLabelText('Rank'), ['E_5']);
-
-    userEvent.click(backBtn);
-
-    await waitFor(() => {
-      expect(testProps.onSubmit).toHaveBeenCalledWith(expect.objectContaining({ nextPage: 'back' }), expect.anything());
+      expect(testProps.onBack).toHaveBeenCalled();
     });
   });
 

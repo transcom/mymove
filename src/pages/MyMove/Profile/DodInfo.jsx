@@ -31,8 +31,6 @@ export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
   };
 
   const handleSubmit = (values) => {
-    const { nextPage } = values;
-
     const payload = {
       id: serviceMember.id,
       affiliation: values.affiliation,
@@ -42,13 +40,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
 
     return patchServiceMember(payload)
       .then(updateServiceMember)
-      .then(() => {
-        if (nextPage === 'back') {
-          handleBack();
-        } else {
-          handleNext();
-        }
-      })
+      .then(handleNext)
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
@@ -74,7 +66,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember, push }) => {
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <DodInfoForm initialValues={initialValues} onSubmit={handleSubmit} />
+          <DodInfoForm initialValues={initialValues} onSubmit={handleSubmit} onBack={handleBack} />
         </Grid>
       </Grid>
     </GridContainer>

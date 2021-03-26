@@ -7,10 +7,13 @@ export default {
   component: DodInfoForm,
   argTypes: {
     onSubmit: { action: 'submit form' },
+    onBack: { action: 'go back' },
   },
 };
 
-export const DefaultState = (argTypes) => <DodInfoForm initialValues={{}} onSubmit={argTypes.onSubmit} />;
+export const DefaultState = (argTypes) => (
+  <DodInfoForm initialValues={{}} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
+);
 
 export const WithInitialValues = (argTypes) => (
   <DodInfoForm
@@ -20,5 +23,6 @@ export const WithInitialValues = (argTypes) => (
       rank: 'E_2',
     }}
     onSubmit={argTypes.onSubmit}
+    onBack={argTypes.onBack}
   />
 );
