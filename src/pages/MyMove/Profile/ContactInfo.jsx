@@ -8,12 +8,12 @@ import ContactInfoForm from 'components/Customer/ContactInfoForm';
 import { ServiceMemberShape } from 'types/customerShapes';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectLoggedInUser } from 'store/entities/selectors';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 
-export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
+export const ContactInfo = ({ serviceMember, updateServiceMember, userEmail, push }) => {
   const initialValues = {
     telephone: serviceMember?.telephone || '',
     secondary_telephone: serviceMember?.secondary_telephone || '',
@@ -21,6 +21,10 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
     phone_is_preferred: serviceMember?.phone_is_preferred,
     email_is_preferred: serviceMember?.email_is_preferred,
   };
+  if (initialValues && !initialValues.personal_email) {
+    initialValues.personal_email = userEmail;
+  }
+
   const [serverError, setServerError] = useState(null);
 
   const handleBack = () => {
@@ -36,6 +40,10 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, push }) => {
       phone_is_preferred: values?.phone_is_preferred,
       email_is_preferred: values?.email_is_preferred,
     };
+    if (!payload.secondary_telephone) {
+      delete payload.secondary_telephone;
+    }
+
     return patchServiceMember(payload)
       .then(updateServiceMember)
       .then(() => {
@@ -77,15 +85,20 @@ ContactInfo.propTypes = {
   serviceMember: ServiceMemberShape.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   push: PropTypes.func.isRequired,
+  userEmail: PropTypes.string.isRequired,
 };
 
 const mapDispatchToProps = {
   updateServiceMember: updateServiceMemberAction,
 };
 
-const mapStateToProps = (state) => ({
-  serviceMember: selectServiceMemberFromLoggedInUser(state),
-});
+const mapStateToProps = (state) => {
+  const user = selectLoggedInUser(state);
+  return {
+    userEmail: user.email,
+    serviceMember: selectServiceMemberFromLoggedInUser(state),
+  };
+};
 
 export default connect(
   mapStateToProps,

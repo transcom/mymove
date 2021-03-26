@@ -10,7 +10,6 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import formStyles from 'styles/form.module.scss';
 
 const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
-  // Note: This method cannot use an arrow function due this particular use of 'this' (see Yup mixed.test documentation)
   const validatePreferredContactMethod = (value, testContext) => {
     return !!(testContext.parent.phone_is_preferred || testContext.parent.email_is_preferred);
   };
