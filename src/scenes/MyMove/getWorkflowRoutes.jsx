@@ -10,7 +10,6 @@ import { no_op } from 'shared/utils';
 import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
 import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
-import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
 import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
@@ -27,6 +26,7 @@ import SelectMoveType from 'pages/MyMove/SelectMoveType';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
+import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress';
 import Review from 'pages/MyMove/Review';
 import Agreement from 'pages/MyMove/Agreement';
 
@@ -121,7 +121,7 @@ const pages = {
   [customerRoutes.CURRENT_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.residential_address),
-    render: (key, pages) => ({ match }) => <ResidentialAddress pages={pages} pageKey={key} match={match} />,
+    render: (key, pages) => ({ history }) => <ResidentialAddress push={history.push} />,
   },
   [customerRoutes.BACKUP_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
