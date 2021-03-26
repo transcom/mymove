@@ -44,19 +44,6 @@ const mileageZIP3 = (params) => {
 
   return calculation(value, label, detail);
 };
-// const mileageZIP5 = (params) => {
-//   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip5, params);
-//   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
-//   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
-//     SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress, // take the zip 5
-//     params,
-//   )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
-//     SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
-//     params,
-//   )}`;
-
-//   return calculation(value, label, detail);
-// };
 
 const baselineLinehaulPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
