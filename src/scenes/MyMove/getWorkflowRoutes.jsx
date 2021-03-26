@@ -100,7 +100,7 @@ const pages = {
   [customerRoutes.NAME_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.first_name, sm.last_name]),
-    render: (key, pages) => ({ history }) => <SMName push={history.push} />,
+    render: () => ({ history }) => <SMName push={history.push} />,
   },
   [customerRoutes.CONTACT_INFO_PATH]: {
     isInFlow: myFirstRodeo,
