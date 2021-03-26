@@ -28,7 +28,9 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             />
           )}
           {!isSubmitted && <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />}
-          <h3>{displayInfo.heading}</h3>
+          <h3>
+            <label>{displayInfo.heading}</label>
+          </h3>
           <FontAwesomeIcon icon="chevron-down" />
         </div>
         <dl>
