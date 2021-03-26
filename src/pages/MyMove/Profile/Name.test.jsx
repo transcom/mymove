@@ -152,8 +152,6 @@ describe('requireCustomerState Name', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            first_name: 'Tester',
-            last_name: 'Testperson',
           },
         },
       },
@@ -185,8 +183,6 @@ describe('requireCustomerState Name', () => {
             rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
-            first_name: 'Tester',
-            last_name: 'Testperson',
           },
         },
       },
