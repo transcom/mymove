@@ -214,14 +214,14 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		Move: move,
 	})
 
-	const RECEIVING_AGENT = "RECEIVING_AGENT"
-	const RELEASING_AGENT = "RELEASING_AGENT"
+	const agentTypeReceiving = "RECEIVING_AGENT"
+	const agentTypeReleasing = "RELEASING_AGENT"
 
 	receivingAgent := &models.MTOAgent{
 
 		FirstName:     swag.String("Riley"),
 		LastName:      swag.String("Baker"),
-		MTOAgentType:  RECEIVING_AGENT,
+		MTOAgentType:  agentTypeReceiving,
 		Email:         swag.String("rileybaker@example.com"),
 		Phone:         swag.String("555-555-5555"),
 		MTOShipmentID: mtoShipment.ID,
@@ -231,7 +231,7 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 
 		FirstName:     swag.String("Jason"),
 		LastName:      swag.String("Ash"),
-		MTOAgentType:  RELEASING_AGENT,
+		MTOAgentType:  agentTypeReleasing,
 		Email:         swag.String("jasonash@example.com"),
 		Phone:         swag.String("555-555-5555"),
 		MTOShipmentID: mtoShipment.ID,
@@ -355,12 +355,5 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.CreateMTOAgentUnprocessableEntity{}, response)
-
-		// Check error message for the invalid fields
-		// agentUnprocessable := response.(*mtoshipmentops.CreateMTOAgentUnprocessableEntity)
-		// _, okFirstName := agentUnprocessable.Payload.InvalidFields["firstName"]
-		// // _, okContactInfo := agentUnprocessable.Payload.InvalidFields["contactInfo"]
-		// suite.True(okFirstName)
-		// suite.True(okContactInfo)
 	})
 }

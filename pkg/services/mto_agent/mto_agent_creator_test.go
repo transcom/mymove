@@ -23,14 +23,14 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		Move: move,
 	})
 
-	const RECEIVING_AGENT = "RECEIVING_AGENT"
-	const RELEASING_AGENT = "RELEASING_AGENT"
+	const agentTypeReceiving = "RECEIVING_AGENT"
+	const agentTypeReleasing = "RELEASING_AGENT"
 
 	receivingAgent := &models.MTOAgent{
 
 		FirstName:     swag.String("Riley"),
 		LastName:      swag.String("Baker"),
-		MTOAgentType:  RECEIVING_AGENT,
+		MTOAgentType:  agentTypeReceiving,
 		Email:         swag.String("rileybaker@example.com"),
 		Phone:         swag.String("555-555-5555"),
 		MTOShipmentID: mtoShipment.ID,
@@ -40,7 +40,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 		FirstName:     swag.String("Jason"),
 		LastName:      swag.String("Ash"),
-		MTOAgentType:  RELEASING_AGENT,
+		MTOAgentType:  agentTypeReleasing,
 		Email:         swag.String("jasonash@example.com"),
 		Phone:         swag.String("555-555-5555"),
 		MTOShipmentID: mtoShipment.ID,
