@@ -13,7 +13,7 @@ import (
 )
 
 func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
-	// Set up the creator
+	// Set up NewMTOAgentCreator
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 	mtoAgentCreator := NewMTOAgentCreator(suite.DB(), mtoChecker)
 
@@ -26,6 +26,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 	const agentTypeReceiving = "RECEIVING_AGENT"
 	const agentTypeReleasing = "RELEASING_AGENT"
 
+	// Create valid Receiving Agent for the shipment
 	receivingAgent := &models.MTOAgent{
 
 		FirstName:     swag.String("Riley"),
@@ -36,6 +37,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		MTOShipmentID: mtoShipment.ID,
 	}
 
+	// Create valid Releasing Agent for the shipment
 	releasingAgent := &models.MTOAgent{
 
 		FirstName:     swag.String("Jason"),
@@ -46,9 +48,11 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		MTOShipmentID: mtoShipment.ID,
 	}
 
-	// Successfully create receivingAgent
-
 	suite.T().Run("CreateMTOAgentPrime - Receiving Agent - Success", func(t *testing.T) {
+		// Under test:	CreateMTOAgentPrime
+		// Set up:		Use established valid shipment and valid receiving agent
+		// Expected:	New MTOAgent of type RECEIVING_AGENT is successfully created
+
 		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(receivingAgent)
 
 		suite.Nil(err)
@@ -62,9 +66,10 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 	})
 
-	// Successfully create releasingAgent
-
 	suite.T().Run("CreateMTOAgentPrime - Releasing Agent - Success", func(t *testing.T) {
+		// Under test:	CreateMTOAgentPrime
+		// Set up:		Use established valid shipment and valid releasing agent
+		// Expected:	New MTOAgent of type RELEASING_AGENT is successfully created
 		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(releasingAgent)
 
 		suite.Nil(err)
@@ -77,8 +82,10 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		suite.Equal(releasingAgent.MTOShipmentID, createdAgent.MTOShipmentID)
 	})
 
-	// Shipment not found
 	suite.T().Run("Not Found Error", func(t *testing.T) {
+		// Under test:	CreateMTOAgentPrime
+		// Set up:		Use nonexistent mtoShipmentID and valid releasing agent
+		// Expected:	NotFoundError is returned. Agent cannot be created without a valid shipment.
 		notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 
 		releasingAgent.MTOShipmentID = notFoundUUID
@@ -92,8 +99,10 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 	})
 
-	// Releasing Agent already exists for shipment
 	suite.T().Run("Conflict Error", func(t *testing.T) {
+		// Under test:	CreateMTOAgentPrime
+		// Set up:		Use same valid relesing agent and mtoShipmentID.
+		// Expected:	ConflictError is returned. Only one agent of each type is allowed per shipment.
 		releasingAgent.MTOShipmentID = mtoShipment.ID
 		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(releasingAgent)
 
@@ -102,8 +111,10 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		suite.IsType(services.ConflictError{}, err)
 	})
 
-	// Receiving Agent already exists for shipment
 	suite.T().Run("Conflict Error", func(t *testing.T) {
+		// Under test:	CreateMTOAgentPrime
+		// Set up:		Use same valid receiving agent and mtoShipmentID.
+		// Expected:	ConflictError is returned. Only one agent of each type is allowed per shipment.
 		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(receivingAgent)
 
 		suite.Nil(createdAgent)
@@ -111,8 +122,11 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		suite.IsType(services.ConflictError{}, err)
 	})
 
-	// Cannot add agents to move unavailable to Prime
 	suite.T().Run("Not Found Error, unavailable to Prime", func(t *testing.T) {
+		// Under test:	CreateMTOAgentPrime
+		// Set up:		Create a new move and mtoShipment that is unavailable to Prime.
+		// Expected:	NotFoundError is returned. Shipment must be available to Prime to add an agent.
+
 		// Creates a shipment, which creates a move that is unavailable to Prime
 		unavailableShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{})
 
