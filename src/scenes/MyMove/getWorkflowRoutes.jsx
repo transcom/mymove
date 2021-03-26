@@ -22,9 +22,7 @@ import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import DodInfo from 'pages/MyMove/Profile/DodInfo';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
-import MovingInfo from 'pages/MyMove/MovingInfo';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
-import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import Review from 'pages/MyMove/Review';
@@ -68,7 +66,6 @@ const never = () => false;
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
-const inHhgFlow = (props) => props.context.flags.hhgFlow;
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
@@ -172,23 +169,10 @@ const pages = {
     ),
     description: 'Upload your orders',
   },
-  [customerRoutes.SHIPMENT_MOVING_INFO_PATH]: {
-    isInFlow: (props) => inGhcFlow(props),
-    isComplete: always,
-    render: (key, pages) => () => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} hideBackBtn showFinishLaterBtn>
-          <MovingInfo />
-        </WizardPage>
-      );
-    },
-  },
   [customerRoutes.SHIPMENT_SELECT_TYPE_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
-    render: (key, pages, props) => ({ match, history }) => (
-      <SelectMoveType pageList={pages} pageKey={key} match={match} push={history.push} />
-    ),
+    render: (key, pages, props) => ({ match, history }) => <SelectMoveType match={match} push={history.push} />,
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: (state) => {
@@ -204,68 +188,6 @@ const pages = {
     isComplete: ({ sm, orders, move, ppm }) =>
       get(ppm, 'weight_estimate', null) && get(ppm, 'weight_estimate', 0) !== 0,
     render: (key, pages) => ({ match }) => <PpmWeight pages={pages} pageKey={key} match={match} />,
-  },
-  // convert to query params
-  '/moves/:moveId/hhg-start': {
-    isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
-    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
-      return (
-        mtoShipment &&
-        every([
-          mtoShipment.requestedPickupDate,
-          mtoShipment.requestedDeliveryDate,
-          mtoShipment.pickupAddress,
-          mtoShipment.shipmentType,
-        ])
-      );
-    },
-    render: (key, pages, description, props) => ({ match, history }) => (
-      <ConnectedCreateOrEditMtoShipment
-        match={match}
-        history={history}
-        pageList={pages}
-        pageKey={key}
-        selectedMoveType={props.selectedMoveType}
-        mtoShipment={props.mtoShipment}
-        isCreate={true}
-      />
-    ),
-  },
-  '/moves/:moveId/nts-start': {
-    isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.NTS,
-    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
-      return (
-        mtoShipment && every([mtoShipment.requestedPickupDate, mtoShipment.pickupAddress, mtoShipment.shipmentType])
-      );
-    },
-    render: (key, pages, description, props) => ({ match, history }) => (
-      <ConnectedCreateOrEditMtoShipment
-        match={match}
-        history={history}
-        pageList={pages}
-        pageKey={key}
-        selectedMoveType={props.selectedMoveType}
-        mtoShipment={props.mtoShipment}
-        isCreate={true}
-      />
-    ),
-  },
-  '/moves/:moveId/ntsr-start': {
-    isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.NTSR,
-    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
-      return mtoShipment && every([mtoShipment.requestedDeliveryDate, mtoShipment.shipmentType]);
-    },
-    render: (key, pages, description, props) => ({ match, history }) => (
-      <ConnectedCreateOrEditMtoShipment
-        match={match}
-        history={history}
-        pageList={pages}
-        pageKey={key}
-        selectedMoveType={props.selectedMoveType}
-        mtoShipment={props.mtoShipment}
-        isCreate={true}
-      />
-    ),
   },
   [customerRoutes.MOVE_REVIEW_PATH]: {
     isInFlow: always,
