@@ -2,6 +2,8 @@ package mtoagent
 
 import (
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -30,7 +32,7 @@ func (f *mtoAgentCreator) CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*model
 func (f *mtoAgentCreator) CreateMTOAgent(mtoAgent *models.MTOAgent, validatorKey string) (*models.MTOAgent, error) {
 	// Get existing shipment and agents information for validation
 	mtoShipment := &models.MTOShipment{}
-
+	verrs := validate.NewErrors()
 	err := f.db.Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
 
 	if err != nil {
@@ -54,11 +56,17 @@ func (f *mtoAgentCreator) CreateMTOAgent(mtoAgent *models.MTOAgent, validatorKey
 		}
 	}
 
-	verrs, err := f.db.ValidateAndCreate(mtoAgent)
+	// Confirm either phone or email is present
+	if mtoAgent.Email == nil && mtoAgent.Phone == nil {
+		verrs.Add("contactInfo", "agent must have at least one contact method provided")
+		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "Invalid input found while validating the agent.")
+	}
+
+	verrs, err = f.db.ValidateAndCreate(mtoAgent)
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(mtoAgent.ID, err, verrs, "Invalid input found while updating the agent.")
+		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the agent.")
 	} else if err != nil {
 		// If the error is something else (this is unexpected), we create a QueryError
 		return nil, services.NewQueryError("MTOAgent", err, "")
