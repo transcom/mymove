@@ -23,7 +23,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, valid
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleSubmit, setFieldValue, errors }) => {
+      {({ isValid, isSubmitting, handleSubmit, setFieldValue }) => {
         const handleBack = (e) => {
           setFieldValue('nextPage', 'back');
           handleSubmit(e);
@@ -37,9 +37,6 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, valid
         return (
           <Form className={formStyles.form}>
             <h1>Current residence</h1>
-            <p>
-              Valid: {isValid.toString()} | Submitting: {isSubmitting.toString()} | Errors: {JSON.stringify(errors)}
-            </p>
 
             <SectionWrapper className={formStyles.formSection}>
               <AddressFields name={formFieldsName} validators={validators} />
