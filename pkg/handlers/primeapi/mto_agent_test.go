@@ -11,10 +11,12 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
 
 	"github.com/transcom/mymove/pkg/handlers"
@@ -202,5 +204,163 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 		// Check error message for the unavailable ID
 		agentNotFound := response.(*mtoshipmentops.UpdateMTOAgentNotFound)
 		suite.Contains(*agentNotFound.Payload.Detail, unavailableAgent.ID.String())
+	})
+}
+
+func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
+	// Create new mtoShipment with no agents
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+
+	const RECEIVING_AGENT = "RECEIVING_AGENT"
+	const RELEASING_AGENT = "RELEASING_AGENT"
+
+	receivingAgent := &models.MTOAgent{
+
+		FirstName:     swag.String("Riley"),
+		LastName:      swag.String("Baker"),
+		MTOAgentType:  RECEIVING_AGENT,
+		Email:         swag.String("rileybaker@example.com"),
+		Phone:         swag.String("555-555-5555"),
+		MTOShipmentID: mtoShipment.ID,
+	}
+
+	releasingAgent := &models.MTOAgent{
+
+		FirstName:     swag.String("Jason"),
+		LastName:      swag.String("Ash"),
+		MTOAgentType:  RELEASING_AGENT,
+		Email:         swag.String("jasonash@example.com"),
+		Phone:         swag.String("555-555-5555"),
+		MTOShipmentID: mtoShipment.ID,
+	}
+
+	// Create Handler
+	handler := CreateMTOAgentHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		mtoagent.NewMTOAgentCreator(suite.DB(), movetaskorder.NewMoveTaskOrderChecker(suite.DB())),
+	}
+	req := httptest.NewRequest("POST", fmt.Sprintf("/mto-shipments/%s/agents", mtoShipment.ID), nil)
+
+	suite.T().Run("200 - OK response Receiving Agent", func(t *testing.T) {
+		payload := payloads.MTOAgent(receivingAgent)
+		params := mtoshipmentops.CreateMTOAgentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
+			Body:          payload,
+		}
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOAgentOK{}, response)
+
+		// Check Values
+		agentOK := response.(*mtoshipmentops.CreateMTOAgentOK)
+		suite.Equal(agentOK.Payload.MtoShipmentID.String(), receivingAgent.MTOShipmentID.String())
+		suite.Equal(string(agentOK.Payload.AgentType), string(receivingAgent.MTOAgentType)) // wasn't updated, should be original value
+		suite.Equal(agentOK.Payload.FirstName, receivingAgent.FirstName)
+		suite.Equal(agentOK.Payload.LastName, receivingAgent.LastName)
+		suite.Equal(agentOK.Payload.Email, receivingAgent.Email)
+		suite.Equal(agentOK.Payload.Phone, receivingAgent.Phone)
+
+	})
+
+	suite.T().Run("200 - OK response Releasing Agent", func(t *testing.T) {
+		payload := payloads.MTOAgent(releasingAgent)
+		params := mtoshipmentops.CreateMTOAgentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
+			Body:          payload,
+		}
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOAgentOK{}, response)
+
+		// Check Values
+		agentOK := response.(*mtoshipmentops.CreateMTOAgentOK)
+		suite.Equal(agentOK.Payload.MtoShipmentID.String(), releasingAgent.MTOShipmentID.String())
+		suite.Equal(string(agentOK.Payload.AgentType), string(releasingAgent.MTOAgentType)) // wasn't updated, should be original value
+		suite.Equal(agentOK.Payload.FirstName, releasingAgent.FirstName)
+		suite.Equal(agentOK.Payload.LastName, releasingAgent.LastName)
+		suite.Equal(agentOK.Payload.Email, releasingAgent.Email)
+		suite.Equal(agentOK.Payload.Phone, releasingAgent.Phone)
+
+	})
+
+	suite.T().Run("404 - Not Found response", func(t *testing.T) {
+		releasingAgent.MTOShipmentID = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
+		payload := payloads.MTOAgent(releasingAgent)
+		params := mtoshipmentops.CreateMTOAgentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(releasingAgent.MTOShipmentID),
+			Body:          payload,
+		}
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOAgentNotFound{}, response)
+
+	})
+
+	suite.T().Run("409 - Conflict response", func(t *testing.T) {
+		// Try to add Receiving Agent again, when one already exists
+		payload := payloads.MTOAgent(receivingAgent)
+		params := mtoshipmentops.CreateMTOAgentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
+			Body:          payload,
+		}
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOAgentConflict{}, response)
+	})
+
+	// Test invalid input
+	suite.T().Run("422 - Unprocessable response for invalid input", func(t *testing.T) {
+		newMTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		releasingAgent.MTOShipmentID = newMTOShipment.ID
+		empty := ""
+
+		payload := payloads.MTOAgent(releasingAgent)
+		payload.FirstName = &empty
+		payload.Email = &empty
+		payload.Phone = &empty
+
+		params := mtoshipmentops.CreateMTOAgentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(newMTOShipment.ID),
+			Body:          payload,
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOAgentUnprocessableEntity{}, response)
+
+		// Check error message for the invalid fields
+		// agentUnprocessable := response.(*mtoshipmentops.CreateMTOAgentUnprocessableEntity)
+		// _, okFirstName := agentUnprocessable.Payload.InvalidFields["firstName"]
+		// // _, okContactInfo := agentUnprocessable.Payload.InvalidFields["contactInfo"]
+		// suite.True(okFirstName)
+		// suite.True(okContactInfo)
 	})
 }
