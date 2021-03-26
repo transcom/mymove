@@ -19,6 +19,7 @@ export const customerRoutes = {
   ORDERS_UPLOAD_PATH: '/orders/upload',
   SHIPMENT_MOVING_INFO_PATH: '/moves/:moveId/moving-info',
   SHIPMENT_SELECT_TYPE_PATH: '/moves/:moveId/shipment-type',
+  SHIPMENT_CREATE_PATH: '/moves/:moveId/new-shipment',
   SHIPMENT_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/edit',
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',

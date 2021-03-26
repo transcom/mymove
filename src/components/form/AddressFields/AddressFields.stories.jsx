@@ -75,6 +75,34 @@ export const CurrentResidentialAddressWithInitialValues = () => (
   </Formik>
 );
 
+export const CurrentResidentialAddressWithCustomValidators = () => (
+  <Formik
+    initialValues={{
+      residential_address: {
+        street_address_1: '',
+        street_address_2: '',
+        city: '',
+        state: '',
+        postal_code: '',
+      },
+    }}
+    validationSchema={Yup.object().shape({ residential_address: requiredAddressSchema.required() })}
+  >
+    {() => (
+      <Form className={formStyles.form}>
+        <AddressFields
+          legend="Current mailing address"
+          name="residential_address"
+          validators={{
+            city: (value) => (value === 'Nowhere' ? 'No one lives there' : ''),
+            postalCode: (value) => (value !== '99999' ? 'ZIP code must be 99999' : ''),
+          }}
+        />
+      </Form>
+    )}
+  </Formik>
+);
+
 export const WithAdditionalText = () => (
   <Formik
     initialValues={{

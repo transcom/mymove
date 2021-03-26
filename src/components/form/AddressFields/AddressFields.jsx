@@ -60,7 +60,7 @@ const statesList = [
   { value: 'WY', key: 'WY' },
 ];
 
-export const AddressFields = ({ legend, className, name, render }) => {
+export const AddressFields = ({ legend, className, name, render, validators }) => {
   const addressFieldsUUID = useRef(uuidv4());
 
   return (
@@ -71,14 +71,21 @@ export const AddressFields = ({ legend, className, name, render }) => {
             label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.street_address_1`}
+            validate={validators?.streetAddress1}
           />
           <TextField
             label="Address 2"
             labelHint="Optional"
             id={`mailingAddress2_${addressFieldsUUID.current}`}
             name={`${name}.street_address_2`}
+            validate={validators?.streetAddress2}
           />
-          <TextField label="City" id={`city_${addressFieldsUUID.current}`} name={`${name}.city`} />
+          <TextField
+            label="City"
+            id={`city_${addressFieldsUUID.current}`}
+            name={`${name}.city`}
+            validate={validators?.city}
+          />
 
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-6">
@@ -87,6 +94,7 @@ export const AddressFields = ({ legend, className, name, render }) => {
                 id={`state_${addressFieldsUUID.current}`}
                 label="State"
                 options={statesList}
+                validate={validators?.state}
               />
             </div>
             <div className="mobile-lg:grid-col-6">
@@ -95,6 +103,7 @@ export const AddressFields = ({ legend, className, name, render }) => {
                 id={`zip_${addressFieldsUUID.current}`}
                 name={`${name}.postal_code`}
                 maxLength={10}
+                validate={validators?.postalCode}
               />
             </div>
           </div>
@@ -109,12 +118,20 @@ AddressFields.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
+  validators: PropTypes.shape({
+    streetAddress1: PropTypes.func,
+    streetAddress2: PropTypes.func,
+    city: PropTypes.func,
+    state: PropTypes.func,
+    postalCode: PropTypes.func,
+  }),
 };
 
 AddressFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
+  validators: {},
 };
 
 export default AddressFields;
