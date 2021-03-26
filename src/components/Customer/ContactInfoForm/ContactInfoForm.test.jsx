@@ -24,8 +24,8 @@ describe('ContactInfoForm Component', () => {
     await waitFor(() => {
       expect(getByLabelText('Best contact phone')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('Best contact phone')).toBeRequired();
-      expect(getByLabelText('Alt. phone')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Alt. phone')).not.toBeRequired();
+      expect(getByLabelText(/Alt. phone/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Alt. phone/)).not.toBeRequired();
       expect(getByLabelText('Personal email')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('Personal email')).toBeRequired();
       expect(getByLabelText('Phone')).toBeInstanceOf(HTMLInputElement);
@@ -46,11 +46,11 @@ describe('ContactInfoForm Component', () => {
 
   it('validates the alt phone field', async () => {
     const { getByText, getByLabelText } = render(<ContactInfoForm {...testProps} />);
-    userEvent.type(getByLabelText('Alt. phone'), '543');
+    userEvent.type(getByLabelText(/Alt. phone/), '543');
     userEvent.tab();
 
     await waitFor(() => {
-      expect(getByLabelText('Alt. phone')).toBeInvalid();
+      expect(getByLabelText(/Alt. phone/)).toBeInvalid();
       expect(getByText('Number must have 10 digits and a valid area code')).toBeInTheDocument();
     });
   });
