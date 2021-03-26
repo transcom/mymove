@@ -131,7 +131,7 @@ describe('ServiceItemCalculations', () => {
     {
       value: '0.09',
       label: 'Fuel surcharge price (per mi)',
-      details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Requested pickup: 11 Mar 2020'],
+      details: ['EIA diesel: $2.73', 'Weight-based distance multiplier: 0.000417', 'Pickup date: 11 Mar 2020'],
     },
     {
       value: '$10.00',
