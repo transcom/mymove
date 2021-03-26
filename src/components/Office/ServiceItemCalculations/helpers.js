@@ -181,6 +181,30 @@ const packPrice = (params) => {
   return calculation(value, label, originServiceSchedule, requestedPickup, domesticNonPeak);
 };
 
+const additionalDaySITPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.AdditionalDaySITPrice;
+  const serviceArea = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin,
+    params,
+  )}`;
+  const requestedPickupDate = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
+  }: ${formatDate(getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params), 'DD MMM YYYY')}`;
+  const peak = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+
+  return calculation(value, label, serviceArea, requestedPickupDate, peak);
+};
+
+const daysInSIT = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.NumberDaysSIT, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.DaysInSIT;
+
+  return calculation(value, label);
+};
+
 // totalAmountRequested is not a service item param
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
@@ -191,7 +215,7 @@ const totalAmountRequested = (totalAmount) => {
 };
 
 const makeCalculations = (itemCode, totalAmount, params) => {
-  let result;
+  let result = [];
 
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DLH:
@@ -235,6 +259,15 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         billableWeight(params),
         mileageZip5(params),
         baselineShorthaulPrice(params),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    case SERVICE_ITEM_CODES.DOASIT:
+      result = [
+        billableWeight(params),
+        daysInSIT(params),
+        additionalDaySITPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];

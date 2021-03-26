@@ -25,6 +25,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   FSCWeightBasedDistanceMultiplier: 'FSCWeightBasedDistanceMultiplier',
   OriginPrice: 'OriginPrice',
   ServiceSchedule: 'ServiceSchedule',
+  NumberDaysSIT: 'NumberDaysSIT',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
@@ -35,6 +36,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   PriceEscalationFactor: 'Price escalation factor',
   TotalAmountRequested: 'Total amount requested',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
+  AdditionalDaySITPrice: 'Additional day SIT price',
+  DaysInSIT: 'Days in SIT',
   ServiceSchedule: 'Service schedule',
   ServiceArea: 'Service area',
   RequestedPickup: 'Requested pickup',
@@ -61,6 +64,7 @@ const SERVICE_ITEM_CODES = {
   DPK: 'DPK',
   FSC: 'FSC',
   DSH: 'DSH',
+  DOASIT: 'DOASIT',
   DOFSIT: 'DOFSIT',
 };
 
@@ -70,6 +74,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.FSC,
   SERVICE_ITEM_CODES.DPK,
   SERVICE_ITEM_CODES.DSH,
+  SERVICE_ITEM_CODES.DOASIT,
   SERVICE_ITEM_CODES.DOFSIT,
 ];
 
