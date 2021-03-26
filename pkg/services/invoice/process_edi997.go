@@ -34,6 +34,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	edi997 := ediResponse997.EDI{}
 	err := edi997.Parse(stringEDI997)
 	if err != nil {
+		// TODO: save error to the db
 		errString += err.Error()
 	}
 
@@ -45,11 +46,13 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(icn)).
 		First(&paymentRequest)
 	if err != nil {
+		// TODO: save error to the db
 		errString += fmt.Sprintf("unable to find payment request with ID: %s, %d", err.Error(), int(icn)) + "\n"
 	}
 
 	err = edi997.Validate()
 	if err != nil {
+		// TODO: save error to the db
 		errString += err.Error()
 	}
 
@@ -63,6 +66,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 		paymentRequest.Status = models.PaymentRequestStatusReceivedByGex
 		err = e.db.Update(&paymentRequest)
 		if err != nil {
+			// TODO: save error to the db
 			e.logger.Error("failure updating payment request", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
@@ -70,6 +74,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	})
 
 	if transactionError != nil {
+		// TODO: save error to the db
 		return transactionError
 	}
 
