@@ -14,17 +14,31 @@ export default {
       );
     },
   ],
+  argTypes: {
+    tableSize: {
+      defaultValue: 'large',
+      control: {
+        type: 'select',
+        options: ['small', 'large'],
+      },
+    },
+  },
 };
 
-export const LargeTable = () => (
-  <ServiceItemCalculations serviceItemParams={testParams.DomesticLongHaul} totalAmountRequested={642} itemCode="DLH" />
-);
-
-export const SmallTable = () => (
+export const DLH = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticLongHaul}
     totalAmountRequested={642}
     itemCode="DLH"
-    tableSize="small"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DOFSIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOrigin1stSIT}
+    totalAmountRequested={833}
+    itemCode="DOFSIT"
+    tableSize={data.tableSize}
   />
 );
