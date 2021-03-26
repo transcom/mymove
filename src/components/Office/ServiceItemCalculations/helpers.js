@@ -1,7 +1,7 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
 import { formatWeight, formatCents, toDollarString } from 'shared/formatters';
 import { formatDate } from 'shared/dates';
-import { formatWeightCWTFromLbs } from 'utils/formatters';
+import { formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
 
 const calculation = (value, label, ...details) => {
   return {
@@ -113,12 +113,18 @@ const priceEscalationFactor = (params) => {
 };
 
 const fuelSurchargePrice = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params);
+  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by DistanceZip3
+  // which gets the dollar value
+  const value = parseFloat(
+    String(
+      getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
+        getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params),
+    ),
+  ).toFixed(2);
   const label = SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
-  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]}: ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice,
-    params,
-  )}`;
+  const detail1 = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]
+  }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params))}`;
   const detail2 = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;

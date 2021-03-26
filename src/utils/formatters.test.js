@@ -56,4 +56,10 @@ describe('formatters', () => {
       expect(formatters.formatWeightCWTFromLbs('8000')).toBe('80 cwt');
     });
   });
+
+  describe('formatDollarFromMillicents', () => {
+    it('returns expected value', () => {
+      expect(formatters.formatDollarFromMillicents('80000')).toBe('$0.80');
+    });
+  });
 });
