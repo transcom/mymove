@@ -22,10 +22,6 @@ const (
 	AWSS3RegionFlag string = "aws-s3-region"
 	// AWSS3KeyNamespaceFlag is the AWS S3 Key Namespace Flag
 	AWSS3KeyNamespaceFlag string = "aws-s3-key-namespace"
-	// CFPrivateKeyFlag is cloudfront private key flag
-	CFPrivateKeyFlag string = "cloud-front-private-key"
-	// CFKeyIDFlag is cloudfront key id flag
-	CFKeyIDFlag string = "cloud-front-key-id"
 )
 
 // InitStorageFlags initializes Storage command line flags
@@ -36,8 +32,6 @@ func InitStorageFlags(flag *pflag.FlagSet) {
 	flag.String(AWSS3BucketNameFlag, "", "S3 bucket used for file storage")
 	flag.String(AWSS3RegionFlag, "", "AWS region used for S3 file storage")
 	flag.String(AWSS3KeyNamespaceFlag, "", "Key prefix for all objects written to S3")
-	flag.String(CFPrivateKeyFlag, "", "Cloudfront private key")
-	flag.String(CFKeyIDFlag, "", "Cloudfront private key id")
 }
 
 // CheckStorage validates Storage command line flags

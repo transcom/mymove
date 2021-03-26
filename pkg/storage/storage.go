@@ -14,7 +14,6 @@ import (
 	"encoding/base64"
 	"io"
 	"net/http"
-	"net/url"
 	"path"
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -104,11 +103,6 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 			zap.String("region", awsS3Region),
 			zap.String("key", awsS3KeyNamespace))
 
-		//init cdn related variables
-		cdnEnabled := false
-		var cfPrivateKey, cfPrivateKeyID *string
-		assetsFQDN := url.URL{Scheme: "https"}
-
 		if len(awsS3Bucket) == 0 {
 			logger.Fatal("must provide aws-s3-bucket-name parameter, exiting")
 		}
@@ -119,7 +113,7 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
 		}
 
-		storer = NewS3(awsS3Bucket, awsS3KeyNamespace, assetsFQDN.String(), cfPrivateKey, cfPrivateKeyID, cdnEnabled, logger, sess)
+		storer = NewS3(awsS3Bucket, awsS3KeyNamespace, logger, sess)
 	} else if storageBackend == "memory" {
 		logger.Info("Using memory storage backend",
 			zap.String(cli.LocalStorageRootFlag, path.Join(localStorageRoot, localStorageWebRoot)),
