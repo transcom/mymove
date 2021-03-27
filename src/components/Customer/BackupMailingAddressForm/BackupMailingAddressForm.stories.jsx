@@ -32,6 +32,23 @@ export const DefaultState = (argTypes) => (
   />
 );
 
+export const WithInitialValues = (argTypes) => (
+  <BackupMailingAddressForm
+    formFieldsName="backup_mailing_address"
+    initialValues={{
+      backup_mailing_address: {
+        street_address_1: '235 Prospect Valley Road SE',
+        street_address_2: '',
+        city: 'El Paso',
+        state: 'TX',
+        postal_code: '79912',
+      },
+    }}
+    onBack={argTypes.onBack}
+    onSubmit={argTypes.onSubmit}
+  />
+);
+
 export const WithCustomValidators = (argTypes) => (
   <BackupMailingAddressForm
     formFieldsName="backup_mailing_address"
