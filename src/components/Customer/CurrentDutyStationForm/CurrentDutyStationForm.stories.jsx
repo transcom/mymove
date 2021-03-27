@@ -9,7 +9,7 @@ export default {
     onSubmit: { action: 'submit form' },
     onBack: { action: 'go back' },
     initialValues: {
-      current_station: '',
+      current_station: {},
     },
   },
 };
@@ -17,16 +17,6 @@ export default {
 export const DefaultState = (argTypes) => (
   <CurrentDutyStationForm
     initialValues={argTypes.initialValues}
-    onSubmit={argTypes.onSubmit}
-    onBack={argTypes.onBack}
-  />
-);
-
-export const WithInitialValues = (argTypes) => (
-  <CurrentDutyStationForm
-    initialValues={{
-      current_station: '',
-    }}
     onSubmit={argTypes.onSubmit}
     onBack={argTypes.onBack}
   />

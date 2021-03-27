@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { getFormValues } from 'redux-form';
-import { get } from 'lodash';
 
 import ScrollToTop from 'components/ScrollToTop';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
@@ -15,11 +14,10 @@ import CurrentDutyStationForm from 'components/Customer/CurrentDutyStationForm/C
 import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
 import { DutyStationShape } from 'types/dutyStation';
-import './DutyStation.css';
 
 const dutyStationFormName = 'duty_station';
 
-export const DutyStation = ({ currentServiceMember, existingStation, newDutyStation, updateServiceMember, push }) => {
+export const DutyStation = ({ serviceMember, existingStation, newDutyStation, updateServiceMember, push }) => {
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -32,7 +30,7 @@ export const DutyStation = ({ currentServiceMember, existingStation, newDutyStat
 
   const handleSubmit = (values) => {
     const payload = {
-      id: currentServiceMember.id,
+      id: serviceMember.id,
       current_station_id: values.current_station.id,
     };
 
@@ -77,12 +75,18 @@ export const DutyStation = ({ currentServiceMember, existingStation, newDutyStat
     </GridContainer>
   );
 };
+
 DutyStation.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
-  currentServiceMember: ServiceMemberShape.isRequired,
+  serviceMember: ServiceMemberShape.isRequired,
   push: PropTypes.func.isRequired,
-  existingStation: DutyStationShape.isRequired,
-  newDutyStation: DutyStationShape.isRequired,
+  existingStation: DutyStationShape,
+  newDutyStation: DutyStationShape,
+};
+
+DutyStation.defaultProps = {
+  existingStation: {},
+  newDutyStation: {},
 };
 
 const mapDispatchToProps = {
@@ -90,16 +94,14 @@ const mapDispatchToProps = {
 };
 
 function mapStateToProps(state) {
-  const formValues = getFormValues(dutyStationFormName)(state);
   const orders = selectCurrentOrders(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
     values: getFormValues(dutyStationFormName)(state),
-    existingStation: serviceMember?.current_station || {},
-    currentServiceMember: serviceMember,
-    currentStation: get(formValues, 'current_station', {}),
-    newDutyStation: orders?.new_duty_station || {},
+    existingStation: serviceMember?.current_station,
+    serviceMember,
+    newDutyStation: orders?.new_duty_station,
   };
 }
 

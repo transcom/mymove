@@ -15,7 +15,7 @@ const CurrentDutyStationForm = ({ initialValues, onBack, onSubmit, newDutyStatio
     current_station: Yup.object()
       .required('Required')
       .test(
-        'existing and new duty station do not match',
+        'existing and new duty station should not match',
         'You entered the same duty station for your origin and destination. Please change one of them.',
         (value) => value?.id !== newDutyStation?.id,
       ),
@@ -55,7 +55,11 @@ CurrentDutyStationForm.propTypes = {
   }).isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-  newDutyStation: DutyStationShape.isRequired,
+  newDutyStation: DutyStationShape,
+};
+
+CurrentDutyStationForm.defaultProps = {
+  newDutyStation: {},
 };
 
 export default CurrentDutyStationForm;
