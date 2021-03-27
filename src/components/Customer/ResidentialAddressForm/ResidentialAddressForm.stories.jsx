@@ -46,10 +46,6 @@ export const WithInitialValues = (argTypes) => (
     }}
     onBack={argTypes.onBack}
     onSubmit={argTypes.onSubmit}
-    validators={{
-      city: (value) => (value === 'Nowhere' ? 'No one lives there' : ''),
-      postalCode: (value) => (value !== '99999' ? 'ZIP code must be 99999' : ''),
-    }}
   />
 );
 
