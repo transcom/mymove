@@ -58,6 +58,7 @@ describe('CurrentDutyStationForm component', () => {
     userEvent.click(submitBtn);
 
     await waitFor(() => {
+      expect(submitBtn).toHaveAttribute('disabled');
       expect(
         getAllByText('You entered the same duty station for your origin and destination. Please change one of them.')
           .length,
