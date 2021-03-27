@@ -63,7 +63,6 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   //contact info
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="telephone"]').type('6784567890');
-  cy.get('input[name="personal_email"]').clear().type('test@sample.com');
   cy.get('[type="checkbox"]').not('[disabled]').check({ force: true }).should('be.checked');
   cy.nextPage();
   cy.location().should((loc) => {
