@@ -9,12 +9,13 @@ import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
 
-const BackupContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
+const BackupContactForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
-    telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
-    personal_email: Yup.string()
+    name: Yup.string().required('Required'),
+    email: Yup.string()
       .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
       .required('Required'),
+    telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code'), // min 12 includes hyphens
   });
 
   return (
@@ -22,7 +23,11 @@ const BackupContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
-            <h1>Your contact info</h1>
+            <h1>Backup contact</h1>
+            <p>
+              If we can‘t reach you, who can we contact (such as spouse or parent)? Any person you assign as a backup
+              contact must be 18 years of age or older.
+            </p>
             <SectionWrapper className={formStyles.formSection}>
               <div className="tablet:margin-top-neg-3">
                 <BackupContactInfoFields />
@@ -42,7 +47,7 @@ const BackupContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   );
 };
 
-BackupContactInfoForm.propTypes = {
+BackupContactForm.propTypes = {
   initialValues: PropTypes.shape({
     telephone: PropTypes.string,
     secondary_telephone: PropTypes.string,
@@ -54,4 +59,4 @@ BackupContactInfoForm.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
-export default BackupContactInfoForm;
+export default BackupContactForm;
