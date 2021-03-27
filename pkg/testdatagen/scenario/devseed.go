@@ -13,12 +13,29 @@ package scenario
 import (
 	"fmt"
 	"log"
+	"net/http/httptest"
 	"time"
+
+	"github.com/stretchr/testify/mock"
+
+	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/primeapi"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/route"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -675,6 +692,205 @@ func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *up
 	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, affiliation, testdatagen.Assertions{})
 }
 
+func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
+	actualPickupDate := time.Now().Add(-24 * time.Hour)
+	longhaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ActualPickupDate:     &actualPickupDate,
+		},
+		Move: models.Move{
+			Locator: "PARAMS",
+		},
+	})
+
+	move := longhaulShipment.MoveTaskOrder
+
+	shorthaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+		},
+		Move: move,
+	})
+
+	submissionErr := move.Submit(time.Now())
+	if submissionErr != nil {
+		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
+	}
+
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		logger.Fatal(fmt.Sprintf("Failed to save move and dependencies: %s", err))
+	}
+
+	queryBuilder := query.NewQueryBuilder(db)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(db, queryBuilder, serviceItemCreator)
+	_, approveErr := mtoUpdater.MakeAvailableToPrime(move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+
+	if approveErr != nil {
+		logger.Fatal("Error approving move")
+	}
+
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(90210, nil)
+	planner.On("Zip3TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(910, nil)
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(90210, nil)
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(100, nil)
+
+	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment} {
+		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(db, queryBuilder, serviceItemCreator, planner)
+		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error updating shipment status", zap.Error(updateErr))
+		}
+	}
+
+	// There is a minimum of 29 days period for a sit service item that doesn't
+	// have a departure date for the payment request param lookup to not encounter an error
+	entryDate := time.Now().Add(-29 * 24 * time.Hour)
+
+	originSITAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+	originSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOFSIT,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Reason:                      models.StringPointer("Holiday break"),
+			SITEntryDate:                &entryDate,
+			SITPostalCode:               models.StringPointer("90210"),
+			SITOriginHHGActualAddress:   &originSITAddress,
+			SITOriginHHGActualAddressID: &originSITAddress.ID,
+		},
+		Stub: true,
+	})
+
+	createdServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(&originSIT)
+	if validErrs.HasAny() || createErr != nil {
+		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
+	}
+
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
+
+	for _, createdServiceItem := range *createdServiceItems {
+		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error approving origin SIT service item", zap.Error(updateErr))
+		}
+	}
+
+	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+		db,
+		planner,
+		ghcrateengine.NewServiceItemPricer(db),
+	)
+
+	paymentRequest := models.PaymentRequest{
+		MoveTaskOrderID: move.ID,
+	}
+
+	//dopCost := unit.Cents(3456)
+	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		ReService: models.ReService{
+			ID:   uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+			Code: models.ReServiceCodeDOP,
+		},
+		Stub: true,
+	})
+
+	//testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+	//	PaymentServiceItem: models.PaymentServiceItem{
+	//		PriceCents: &dopCost,
+	//	},
+	//	PaymentRequest: paymentRequest,
+	//	MTOServiceItem: serviceItemDOP,
+	//})
+
+	_, validErrsDOP, createErrDOP := serviceItemCreator.CreateMTOServiceItem(&serviceItemDOP)
+	if validErrsDOP.HasAny() || createErrDOP != nil {
+		logger.Error(fmt.Sprintf("error while creating domestic origin price service item: %v", verrs.Errors), zap.Error(createErrDOP))
+	}
+
+	var serviceItems []models.MTOServiceItem
+	db.Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
+
+	paymentServiceItems := []models.PaymentServiceItem{}
+	for _, serviceItem := range serviceItems {
+		paymentItem := models.PaymentServiceItem{
+			MTOServiceItemID: serviceItem.ID,
+			MTOServiceItem:   serviceItem,
+		}
+		paymentServiceItems = append(paymentServiceItems, paymentItem)
+	}
+
+	paymentRequest.PaymentServiceItems = paymentServiceItems
+	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequest(&paymentRequest)
+
+	if createErr != nil {
+		logger.Fatal("Error creating payment request", zap.Error(createErr))
+	}
+
+	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: *newPaymentRequest,
+	})
+
+	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
+		PrimeUpload: models.PrimeUpload{
+			ProofOfServiceDoc:   proofOfService,
+			ProofOfServiceDocID: proofOfService.ID,
+			Contractor: models.Contractor{
+				ID: primeContractor,
+			},
+			ContractorID: primeContractor,
+		},
+		PrimeUploader: primeUploader,
+	})
+
+	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: *newPaymentRequest,
+	})
+
+	// Creates custom test.jpg prime upload
+	file := testdatagen.Fixture("test.jpg")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
+
+	// Creates custom test.png prime upload
+	file = testdatagen.Fixture("test.png")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
+	}
+
+	logger.Info(fmt.Sprintf("New payment request with service item params created with locator %s", move.Locator))
+}
+
 func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
 	serviceMember := models.ServiceMember{
 		Affiliation: &affiliation,
@@ -732,19 +948,7 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 		MTOAgent: agent,
 	})
 
-	pr := models.PaymentRequest{
-		MoveTaskOrder: mto,
-		IsFinal:       false,
-		Status:        models.PaymentRequestStatusPending,
-	}
-	testdatagen.MergeModels(&pr, assertions.PaymentRequest)
-	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: pr,
-		Move:           mto,
-	})
-
 	// setup service item
-	serviceItemCost := unit.Cents(99999)
 	reService := models.ReService{
 		ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating, Default
 	}
@@ -755,109 +959,55 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 		ReService:   reService,
 	})
 
-	// make service item param associated by the payment request and payment service item
-	createParams := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:   "CanStandAlone",
-			Value: "TRUE",
-		},
-		{
-			Key:   "ContractCode",
-			Value: "123",
-		},
-		{
-			Key:   "ContractYearName",
-			Value: "Contract Year Name",
-		},
-		{
-			Key:   "CubicFeetBilled",
-			Value: "2",
-		},
-		{
-			Key:   "CubicFeetCrating",
-			Value: "2",
-		},
-		{
-			Key:   "EscalationCompounded",
-			Value: "1.2",
-		},
-		{
-			Key:   "PriceRateOrFactor",
-			Value: "0.2",
-		},
-		{
-			Key:   "RequestedPickupDate",
-			Value: "2020-03-15",
-		},
-		{
-			Key:   "ServiceAreaOrigin",
-			Value: "312",
-		},
-		{
-			Key:   "ServicesScheduleOrigin",
-			Value: "1",
-		},
-		{
-			Key:   "ZipPickupAddress",
-			Value: "90210",
-		},
-	}
-	// overwrite createParams, if any params passed in
-	incomingParams := make([]testdatagen.CreatePaymentServiceItemParams, 0)
-	for _, param := range assertions.PaymentServiceItemParams {
-		incomingParams = append(incomingParams, testdatagen.CreatePaymentServiceItemParams{
-			Key:   models.ServiceItemParamName(param.IncomingKey),
-			Value: param.Value,
-		})
-	}
-	if len(incomingParams) > 0 {
-		createParams = incomingParams
-	}
-	psi := models.PaymentServiceItem{
-		PriceCents: &serviceItemCost,
-	}
-	testdatagen.MergeModels(&psi, assertions.PaymentServiceItem)
-	testdatagen.MakePaymentServiceItemWithParams(db, reService.Code, createParams, testdatagen.Assertions{
-		PaymentServiceItem: psi,
-		PaymentRequest:     paymentRequest,
-		MTOServiceItem:     mtoServiceItem,
-	})
+	// using handler to create service item params
+	req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
 
-	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
-	})
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(90210, nil)
+	planner.On("Zip3TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(910, nil)
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(90210, nil)
 
-	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
-	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
-		PrimeUpload: models.PrimeUpload{
-			ProofOfServiceDoc:   proofOfService,
-			ProofOfServiceDocID: proofOfService.ID,
-			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+		db,
+		planner,
+		ghcrateengine.NewServiceItemPricer(db),
+	)
+
+	handler := primeapi.CreatePaymentRequestHandler{
+		HandlerContext:        handlers.NewHandlerContext(db, logger),
+		PaymentRequestCreator: paymentRequestCreator,
+	}
+
+	params := paymentrequestop.CreatePaymentRequestParams{
+		HTTPRequest: req,
+		Body: &primemessages.CreatePaymentRequest{
+			IsFinal:         swag.Bool(false),
+			MoveTaskOrderID: handlers.FmtUUID(mto.ID),
+			ServiceItems: []*primemessages.ServiceItem{
+				{
+					ID: *handlers.FmtUUID(mtoServiceItem.ID),
+				},
 			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
+			PointOfContact: "user@prime.com",
 		},
-		PrimeUploader: primeUploader,
-	})
-
-	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
-	})
-
-	// Creates custom test.jpg prime upload
-	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
-	if verrs.HasAny() || err != nil {
-		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
-	// Creates custom test.png prime upload
-	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
-	if verrs.HasAny() || err != nil {
-		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
-	}
+	response := handler.Handle(params)
 
+	showResponse, ok := response.(*paymentrequestop.CreatePaymentRequestCreated)
+	if !ok {
+		logger.Fatal("error while creating payment request:", zap.Any("", showResponse))
+	}
+	logger.Debug("Response of create payment request handler: ", zap.Any("", showResponse))
 }
 
 func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.UserUploader) {
@@ -995,7 +1145,7 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 	rejectionReason := "Customer no longer required this service"
 	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
+			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d4"),
 			Status:          models.MTOServiceItemStatusRejected,
 			RejectionReason: &rejectionReason,
 		},
@@ -3058,7 +3208,7 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 }
 
 // Run does that data load thing
-func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
+func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
 	// PPM Office Queue
 	createPPMOfficeUser(db)
 	createPPMWithAdvance(db, userUploader)
@@ -3087,80 +3237,19 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	}
 	createDefaultHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationMARINES)
 	// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
-	time := time.Now()
 	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{
 		Move: models.Move{
 			Locator: "SidDLH",
 		},
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusRejected,
+			Status: models.MTOShipmentStatusApproved,
 		},
 		ReService: models.ReService{
 			// DLH - Domestic line haul
 			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"),
 		},
-		PaymentServiceItem: models.PaymentServiceItem{
-			Status:   models.PaymentServiceItemStatusDenied,
-			DeniedAt: &time,
-		},
-		PaymentRequest: models.PaymentRequest{
-			Status: models.PaymentRequestStatusReviewedAllRejected,
-		},
-		PaymentServiceItemParams: models.PaymentServiceItemParams{
-			models.PaymentServiceItemParam{
-				IncomingKey: "ContractCode",
-				Value:       "1",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "ContractYearName",
-				Value:       "Contract Year Name",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "DistanceZip3",
-				Value:       "210",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "EscalationCompounded",
-				Value:       "1.033",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "IsPeak",
-				Value:       "FALSE",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "PriceRateOrFactor",
-				Value:       "1.033",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "RequestedPickupDate",
-				Value:       "2020-03-11",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "ServiceAreaOrigin",
-				Value:       "176",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "WeightActual",
-				Value:       "8500",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "WeightBilledActual",
-				Value:       "8500",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "WeightEstimated",
-				Value:       "8000",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "ZipDestAddress",
-				Value:       "91910",
-			},
-			models.PaymentServiceItemParam{
-				IncomingKey: "ZipPickupAddress",
-				Value:       "32210",
-			},
-		},
 	})
+	createHHGWithPaymentServiceItems(db, userUploader, primeUploader, routePlanner, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{})
 
 	createMoveWithPPMAndHHG(db, userUploader)
 

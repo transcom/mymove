@@ -7,13 +7,13 @@ import { makeCalculations } from './helpers';
 import styles from './ServiceItemCalculations.module.scss';
 
 import { PaymentServiceItemParam } from 'types/order';
-import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
+import { allowedServiceItemCalculations } from 'constants/serviceItems';
 
 const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
 const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
 
 const ServiceItemCalculations = ({ itemCode, totalAmountRequested, serviceItemParams, tableSize }) => {
-  if (itemCode !== SERVICE_ITEM_CODES.DLH || serviceItemParams.length === 0) {
+  if (!allowedServiceItemCalculations.includes(itemCode) || serviceItemParams.length === 0) {
     return <></>;
   }
 
