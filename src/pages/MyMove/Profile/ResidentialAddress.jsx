@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
@@ -38,9 +37,14 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember, push })
 
   const formFieldsName = 'current_residence';
 
-  // initialValues has to be null until there are values from the action since only the first values are taken
   const initialValues = {
-    [formFieldsName]: get(serviceMember, 'residential_address'),
+    [formFieldsName]: {
+      street_address_1: serviceMember.residential_address?.street_address_1 || '',
+      street_address_2: serviceMember.residential_address?.street_address_2 || '',
+      city: serviceMember.residential_address?.city || '',
+      state: serviceMember.residential_address?.state || '',
+      postal_code: serviceMember.residential_address?.postal_code || '',
+    },
   };
 
   const handleBack = () => {

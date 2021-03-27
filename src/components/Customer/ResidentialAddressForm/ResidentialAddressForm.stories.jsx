@@ -17,6 +17,7 @@ export default {
 
 export const DefaultState = (argTypes) => (
   <ResidentialAddressForm
+    formFieldsName="residential_address"
     initialValues={{
       residential_address: {
         street_address_1: '',
@@ -31,8 +32,30 @@ export const DefaultState = (argTypes) => (
   />
 );
 
+export const WithInitialValues = (argTypes) => (
+  <ResidentialAddressForm
+    formFieldsName="residential_address"
+    initialValues={{
+      residential_address: {
+        street_address_1: '235 Prospect Valley Road SE',
+        street_address_2: '',
+        city: 'El Paso',
+        state: 'TX',
+        postal_code: '79912',
+      },
+    }}
+    onBack={argTypes.onBack}
+    onSubmit={argTypes.onSubmit}
+    validators={{
+      city: (value) => (value === 'Nowhere' ? 'No one lives there' : ''),
+      postalCode: (value) => (value !== '99999' ? 'ZIP code must be 99999' : ''),
+    }}
+  />
+);
+
 export const WithCustomValidators = (argTypes) => (
   <ResidentialAddressForm
+    formFieldsName="residential_address"
     initialValues={{
       residential_address: {
         street_address_1: '',
