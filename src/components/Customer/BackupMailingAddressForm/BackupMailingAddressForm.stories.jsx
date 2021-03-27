@@ -17,8 +17,9 @@ export default {
 
 export const DefaultState = (argTypes) => (
   <BackupMailingAddressForm
+    formFieldsName="backup_mailing_address"
     initialValues={{
-      residential_address: {
+      backup_mailing_address: {
         street_address_1: '',
         street_address_2: '',
         city: '',
@@ -33,8 +34,9 @@ export const DefaultState = (argTypes) => (
 
 export const WithCustomValidators = (argTypes) => (
   <BackupMailingAddressForm
+    formFieldsName="backup_mailing_address"
     initialValues={{
-      residential_address: {
+      backup_mailing_address: {
         street_address_1: '',
         street_address_2: '',
         city: '',
