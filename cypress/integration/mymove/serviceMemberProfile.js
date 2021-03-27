@@ -104,7 +104,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="backup_mailing_address.postal_code"]').clear().type('1234').blur();
   cy.get('span[data-testid="errorMessage"]').should('exist');
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
-  cy.get('input[name="backup_mailing_address.postal_code"]').type('80913');
+  cy.get('input[name="backup_mailing_address.postal_code"]').type('80913').blur();
   cy.get('span[data-testid="errorMessage"]').should('not.exist');
   cy.nextPage();
   cy.location().should((loc) => {
