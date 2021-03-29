@@ -22,9 +22,9 @@ const (
 	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	//RA: This line was flagged because of use of the word "password"
 	//RA: This line is used to identify the name of the flag. SyncadaSFTPPasswordFlag is the Syncada SFTP Password Flag.
-	//RA: This value of this variable does not store an application password.
+	//RA: App should implement public-key authentication; issue remains open while interface control is negotiated for this connection.
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator Status: Known Issue
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
 	// SyncadaSFTPPasswordFlag is the ENV var for the Syncada SFTP password
