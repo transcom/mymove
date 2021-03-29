@@ -36,10 +36,10 @@ describe('BackupContact page', () => {
   const testBackupContacts = [testBackupContactValues];
 
   it('renders the BackupContactForm', async () => {
-    const { queryByText } = render(<BackupContact {...testProps} />);
+    const { queryByRole } = render(<BackupContact {...testProps} />);
 
     await waitFor(() => {
-      expect(queryByText('Backup contact')).toBeInTheDocument();
+      expect(queryByRole('heading', { name: 'Backup contact', level: 1 })).toBeInTheDocument();
     });
   });
 
