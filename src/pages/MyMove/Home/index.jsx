@@ -14,6 +14,7 @@ import {
   HelperSubmittedPPM,
 } from './HomeHelpers';
 
+import ScrollToTop from 'components/ScrollToTop';
 import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -252,6 +253,7 @@ export class Home extends Component {
 
     return (
       <>
+        <ScrollToTop />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
             <div className={`usa-prose grid-container ${styles['grid-container']}`}>

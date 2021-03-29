@@ -12,6 +12,11 @@ export const ServiceMemberShape = shape({
   middle_name: string,
   last_name: string,
   suffix: string,
+  telephone: string,
+  secondary_telephone: string,
+  personal_email: string,
+  email_is_preferred: bool,
+  phone_is_preferred: bool,
 });
 
 export const MoveShape = shape({

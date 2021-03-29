@@ -14,6 +14,7 @@ const getDayPickerProps = (disabledDays) => {
 
 export default function SingleDatePicker(props) {
   const {
+    id,
     value = null,
     format = defaultDateFormat,
     onChange,
@@ -39,6 +40,7 @@ export default function SingleDatePicker(props) {
       inputProps={{
         disabled,
         name,
+        id,
         autoComplete: 'off',
         className: inputClassName || 'usa-input',
       }}
