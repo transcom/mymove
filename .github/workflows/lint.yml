@@ -1,0 +1,23 @@
+name: Lint
+
+on:
+  push:
+    branches: [roc-mb-5826-go-lint-poc]
+
+jobs:
+  run-linters:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: setup go
+        uses: actions/setup-go@v1
+        with:
+          go-version: '1.15'
+
+      - name: install lint cmd
+        run: go install ./cmd/custom-linter
+
+      - name: Run custom go linter
+        run: go run ./cmd/custom-linter/main.go -- example.go
