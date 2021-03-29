@@ -98,7 +98,7 @@ function customerCreatesAnNTSShipment() {
   cy.get('input[type="radio"]').eq(2).check({ force: true });
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/nts-start/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/new-shipment/);
   });
 
   // pickup date

@@ -51,7 +51,7 @@ TextField.propTypes = {
   labelClassName: PropTypes.string,
   labelHint: PropTypes.string,
   warning: PropTypes.string,
-  validate: PropTypes.oneOf([PropTypes.string, PropTypes.func]),
+  validate: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   type: PropTypes.string,
 };
 
