@@ -249,6 +249,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.EqualValues(result.ISA.InterchangeControlNumber, result.IEA.InterchangeControlNumber, result.GS.GroupControlNumber, result.GE.GroupControlNumber)
 	})
 
+	// Test that the Interchange Control Number (ICN) is being saved to the db
+	suite.T().Run("the ICN is saved to the database", func(t *testing.T) {
+		var pr2icn models.PaymentRequestToInterchangeControlNumber
+		err := suite.DB().Where("payment_request_id = ?", paymentRequest.ID).First(&pr2icn)
+		suite.NoError(err)
+		suite.Equal(int(result.ISA.InterchangeControlNumber), pr2icn.InterchangeControlNumber)
+	})
+
 	// Test Invoice Start and End Segments
 	suite.T().Run("adds isa start segment", func(t *testing.T) {
 		suite.Equal("00", result.ISA.AuthorizationInformationQualifier)
