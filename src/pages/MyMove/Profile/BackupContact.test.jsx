@@ -24,7 +24,7 @@ describe('BackupContact page', () => {
     serviceMember: {
       id: 'testServiceMemberId',
     },
-    currentBackupContacts: [{ name: '', telephone: '', email: '' }],
+    currentBackupContacts: [],
   };
 
   const testBackupContactValues = {
@@ -123,7 +123,7 @@ describe('requireCustomerState BackupContact', () => {
     serviceMember: {
       id: 'testServiceMemberId',
     },
-    currentBackupContacts: [{ name: '', telephone: '', email: '' }],
+    currentBackupContacts: [],
   };
 
   it('dispatches a redirect if the current state is earlier than the "BACKUP MAILING ADDRESS COMPLETE" state', () => {
