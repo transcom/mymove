@@ -47,6 +47,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		MtoShipmentCreateMTOAgentHandler: mto_shipment.CreateMTOAgentHandlerFunc(func(params mto_shipment.CreateMTOAgentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateMTOAgent has not yet been implemented")
+		}),
 		MtoServiceItemCreateMTOServiceItemHandler: mto_service_item.CreateMTOServiceItemHandlerFunc(func(params mto_service_item.CreateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.CreateMTOServiceItem has not yet been implemented")
 		}),
@@ -116,6 +119,8 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// MtoShipmentCreateMTOAgentHandler sets the operation handler for the create m t o agent operation
+	MtoShipmentCreateMTOAgentHandler mto_shipment.CreateMTOAgentHandler
 	// MtoServiceItemCreateMTOServiceItemHandler sets the operation handler for the create m t o service item operation
 	MtoServiceItemCreateMTOServiceItemHandler mto_service_item.CreateMTOServiceItemHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
@@ -205,6 +210,9 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.MtoShipmentCreateMTOAgentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.CreateMTOAgentHandler")
+	}
 	if o.MtoServiceItemCreateMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.CreateMTOServiceItemHandler")
 	}
@@ -325,6 +333,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/mto-shipments/{mtoShipmentID}/agents"] = mto_shipment.NewCreateMTOAgent(o.context, o.MtoShipmentCreateMTOAgentHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
