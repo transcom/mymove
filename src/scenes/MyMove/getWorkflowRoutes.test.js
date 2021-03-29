@@ -107,9 +107,7 @@ describe('when getting the routes for the current workflow', () => {
             '/',
             '/orders/info',
             '/orders/upload',
-            '/moves/:moveId/moving-info',
             '/moves/:moveId/shipment-type',
-
             '/moves/:moveId/review',
             '/moves/:moveId/agreement',
           ]);
@@ -159,7 +157,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/info',
           '/orders/upload',
           '/moves/:moveId/shipment-type',
-          '/moves/:moveId/hhg-start',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -183,7 +180,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/info',
           '/orders/upload',
           '/moves/:moveId/shipment-type',
-          '/moves/:moveId/nts-start',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -207,7 +203,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/info',
           '/orders/upload',
           '/moves/:moveId/shipment-type',
-          '/moves/:moveId/ntsr-start',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
