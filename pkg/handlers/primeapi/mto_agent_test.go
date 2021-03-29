@@ -15,6 +15,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
@@ -217,26 +218,26 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 	const agentTypeReceiving = "RECEIVING_AGENT"
 	const agentTypeReleasing = "RELEASING_AGENT"
 
-	// Create valid Receiving Agent for the shipment
-	receivingAgent := &models.MTOAgent{
+	// Create valid Receiving Agent payload for the shipment
+	receivingAgent := &primemessages.MTOAgent{
 
 		FirstName:     swag.String("Riley"),
 		LastName:      swag.String("Baker"),
-		MTOAgentType:  agentTypeReceiving,
+		AgentType:     agentTypeReceiving,
 		Email:         swag.String("rileybaker@example.com"),
 		Phone:         swag.String("555-555-5555"),
-		MTOShipmentID: mtoShipment.ID,
+		MtoShipmentID: strfmt.UUID(mtoShipment.ID.String()),
 	}
 
-	// Create valid Releasing Agent for the shipment
-	releasingAgent := &models.MTOAgent{
+	// Create valid Releasing Agent payload for the shipment
+	releasingAgent := &primemessages.MTOAgent{
 
 		FirstName:     swag.String("Jason"),
 		LastName:      swag.String("Ash"),
-		MTOAgentType:  agentTypeReleasing,
+		AgentType:     agentTypeReleasing,
 		Email:         swag.String("jasonash@example.com"),
 		Phone:         swag.String("555-555-5555"),
-		MTOShipmentID: mtoShipment.ID,
+		MtoShipmentID: strfmt.UUID(mtoShipment.ID.String()),
 	}
 
 	// Create Handler
@@ -251,7 +252,7 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		// Set up: 		Pass in valid payload for a receiving agent.
 		// Expected:	Handler returns 200 response with payload of new agent.
 
-		payload := payloads.MTOAgent(receivingAgent)
+		payload := receivingAgent
 		params := mtoshipmentops.CreateMTOAgentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
@@ -267,12 +268,12 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 
 		// Check Values
 		agentOK := response.(*mtoshipmentops.CreateMTOAgentOK)
-		suite.Equal(agentOK.Payload.MtoShipmentID.String(), receivingAgent.MTOShipmentID.String())
-		suite.Equal(string(agentOK.Payload.AgentType), string(receivingAgent.MTOAgentType)) // wasn't updated, should be original value
-		suite.Equal(agentOK.Payload.FirstName, receivingAgent.FirstName)
-		suite.Equal(agentOK.Payload.LastName, receivingAgent.LastName)
-		suite.Equal(agentOK.Payload.Email, receivingAgent.Email)
-		suite.Equal(agentOK.Payload.Phone, receivingAgent.Phone)
+		suite.Equal(receivingAgent.MtoShipmentID.String(), agentOK.Payload.MtoShipmentID.String())
+		suite.Equal(string(receivingAgent.AgentType), string(agentOK.Payload.AgentType)) // wasn't updated, should be original value
+		suite.Equal(receivingAgent.FirstName, agentOK.Payload.FirstName)
+		suite.Equal(receivingAgent.LastName, agentOK.Payload.LastName)
+		suite.Equal(receivingAgent.Email, agentOK.Payload.Email)
+		suite.Equal(receivingAgent.Phone, agentOK.Payload.Phone)
 
 	})
 
@@ -281,7 +282,7 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		// Set up: 		Pass in valid payload for a releasing agent.
 		// Expected:	Handler returns 200 response with payload of new agent.
 
-		payload := payloads.MTOAgent(releasingAgent)
+		payload := releasingAgent
 		params := mtoshipmentops.CreateMTOAgentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
@@ -297,21 +298,21 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 
 		// Check Values
 		agentOK := response.(*mtoshipmentops.CreateMTOAgentOK)
-		suite.Equal(agentOK.Payload.MtoShipmentID.String(), releasingAgent.MTOShipmentID.String())
-		suite.Equal(string(agentOK.Payload.AgentType), string(releasingAgent.MTOAgentType)) // wasn't updated, should be original value
-		suite.Equal(agentOK.Payload.FirstName, releasingAgent.FirstName)
-		suite.Equal(agentOK.Payload.LastName, releasingAgent.LastName)
-		suite.Equal(agentOK.Payload.Email, releasingAgent.Email)
-		suite.Equal(agentOK.Payload.Phone, releasingAgent.Phone)
+		suite.Equal(releasingAgent.MtoShipmentID.String(), agentOK.Payload.MtoShipmentID.String())
+		suite.Equal(string(releasingAgent.AgentType), string(agentOK.Payload.AgentType)) // wasn't updated, should be original value
+		suite.Equal(releasingAgent.FirstName, agentOK.Payload.FirstName)
+		suite.Equal(releasingAgent.LastName, agentOK.Payload.LastName)
+		suite.Equal(releasingAgent.Email, agentOK.Payload.Email)
+		suite.Equal(releasingAgent.Phone, agentOK.Payload.Phone)
 
 	})
 
 	suite.T().Run("404 - Not Found response", func(t *testing.T) {
-		releasingAgent.MTOShipmentID = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
-		payload := payloads.MTOAgent(releasingAgent)
+		releasingAgent.MtoShipmentID = "00000000-0000-0000-0000-000000000001"
+		payload := releasingAgent
 		params := mtoshipmentops.CreateMTOAgentParams{
 			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(releasingAgent.MTOShipmentID),
+			MtoShipmentID: releasingAgent.MtoShipmentID,
 			Body:          payload,
 		}
 
@@ -330,7 +331,7 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		//				a shipment that already has an existing receiving agent.
 		// Expected:	Handler returns 409 Conflict Error.
 
-		payload := payloads.MTOAgent(receivingAgent)
+		payload := receivingAgent
 		params := mtoshipmentops.CreateMTOAgentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
@@ -352,10 +353,10 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 		newMTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 		})
-		releasingAgent.MTOShipmentID = newMTOShipment.ID
+		releasingAgent.MtoShipmentID = strfmt.UUID(newMTOShipment.ID.String())
 		empty := ""
 
-		payload := payloads.MTOAgent(releasingAgent)
+		payload := releasingAgent
 		payload.FirstName = &empty
 		payload.Email = &empty
 		payload.Phone = &empty
