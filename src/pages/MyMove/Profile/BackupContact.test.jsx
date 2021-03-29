@@ -24,7 +24,7 @@ describe('BackupContact page', () => {
     serviceMember: {
       id: 'testServiceMemberId',
     },
-    currentBackupContacts: [{}],
+    currentBackupContacts: [{ name: '', telephone: '', email: '' }],
   };
 
   const testBackupContactValues = {
@@ -33,6 +33,8 @@ describe('BackupContact page', () => {
     email: 'test@example.com',
     permission: 'NONE',
   };
+
+  const testBackupContacts = [testBackupContactValues];
 
   it('renders the BackupContactForm', async () => {
     const { queryByRole } = render(<BackupContact {...testProps} />);
@@ -44,7 +46,7 @@ describe('BackupContact page', () => {
 
   it('back button goes to the BACKUP ADDRESS step', async () => {
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContactValues} />);
+    const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContacts} />);
 
     const backButton = queryByText('Back');
     expect(backButton).toBeInTheDocument();
@@ -57,7 +59,7 @@ describe('BackupContact page', () => {
     createBackupContactForServiceMember.mockImplementation(() => Promise.resolve(testBackupContactValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContactValues} />);
+    const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContacts} />);
 
     const submitButton = queryByText('Next');
     expect(submitButton).toBeInTheDocument();
@@ -86,7 +88,7 @@ describe('BackupContact page', () => {
     );
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContactValues} />);
+    const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContacts} />);
 
     const submitButton = queryByText('Next');
     expect(submitButton).toBeInTheDocument();
@@ -115,11 +117,13 @@ describe('requireCustomerState BackupContact', () => {
   });
 
   const props = {
-    pages: ['first'],
-    pageKey: '1',
-    userEmail: 'my@email.com',
-    schema: { my: 'schema' },
     updateServiceMember: jest.fn(),
+    updateBackupContact: jest.fn(),
+    push: jest.fn(),
+    serviceMember: {
+      id: 'testServiceMemberId',
+    },
+    currentBackupContacts: [{ name: '', telephone: '', email: '' }],
   };
 
   it('dispatches a redirect if the current state is earlier than the "BACKUP MAILING ADDRESS COMPLETE" state', () => {

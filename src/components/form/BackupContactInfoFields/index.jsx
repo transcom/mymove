@@ -13,10 +13,10 @@ export const BackupContactInfoFields = ({ legend, className, render }) => {
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <TextField label="Name" id={`name_${backupContactInfoFieldsUUID}`} name="name" />
+          <TextField label="Name" id={`name_${backupContactInfoFieldsUUID}`} name="name" required />
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-7">
-              <TextField label="Email" id={`email_${backupContactInfoFieldsUUID}`} name="email" />
+              <TextField label="Email" id={`email_${backupContactInfoFieldsUUID}`} name="email" required />
             </div>
           </div>
           <div className="grid-row grid-gap">
@@ -29,6 +29,7 @@ export const BackupContactInfoFields = ({ legend, className, render }) => {
                 minimum="12"
                 mask="000-000-0000"
                 useMaskedValue
+                required
               />
             </div>
           </div>
