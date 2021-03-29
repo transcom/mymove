@@ -9,8 +9,8 @@ import (
 type transactionSet struct {
 	ST   edisegment.ST    // transaction set header (bump up counter for "ST" and create new transactionSet)
 	BGN  edisegment.BGN   // beginning statement
-	OTIs []edisegment.OTI // original transaction identifications
-	TEDs []edisegment.TED // technical error descriptions
+	OTIs []edisegment.OTI `validate:"min=1,dive"` // original transaction identifications
+	TEDs []edisegment.TED `validate:"dive"`       // technical error descriptions
 	SE   edisegment.SE    // transaction set trailer
 }
 
