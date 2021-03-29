@@ -8,8 +8,6 @@ import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
 import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
-import SMName from 'scenes/ServiceMembers/Name';
-import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 
@@ -18,6 +16,8 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 import Home from 'pages/MyMove/Home';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import DodInfo from 'pages/MyMove/Profile/DodInfo';
+import SMName from 'pages/MyMove/Profile/Name';
+import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
@@ -97,14 +97,14 @@ const pages = {
   [customerRoutes.NAME_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.first_name, sm.last_name]),
-    render: (key, pages) => ({ match }) => <SMName pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <SMName push={history.push} />,
   },
   [customerRoutes.CONTACT_INFO_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) =>
       sm.is_profile_complete ||
       (every([sm.telephone, sm.personal_email]) && some([sm.phone_is_preferred, sm.email_is_preferred])),
-    render: (key, pages) => ({ match }) => <ContactInfo pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <ContactInfo push={history.push} />,
   },
   [customerRoutes.CURRENT_DUTY_STATION_PATH]: {
     isInFlow: myFirstRodeo,
