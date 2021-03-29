@@ -120,7 +120,7 @@ BackupContact.propTypes = {
   serviceMember: ServiceMemberShape.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   updateBackupContact: PropTypes.func.isRequired,
-  currentBackupContacts: BackupContactShape.isRequired,
+  currentBackupContacts: PropTypes.arrayOf(BackupContactShape).isRequired,
   push: PropTypes.func.isRequired,
 };
 
