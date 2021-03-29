@@ -30,9 +30,9 @@ export const BackupContact = ({
   push,
 }) => {
   const initialValues = {
-    name: '',
-    telephone: '',
-    email: '',
+    name: currentBackupContacts[0]?.name || '',
+    telephone: currentBackupContacts[0]?.telephone || '',
+    email: currentBackupContacts[0]?.email || '',
   };
 
   const NonePermission = 'NONE';

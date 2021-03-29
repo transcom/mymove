@@ -23,14 +23,20 @@ const BackupContactForm = ({ initialValues, onSubmit, onBack }) => {
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
-            <h1>Backup contact</h1>
-            <p>
-              If we can‘t reach you, who can we contact (such as spouse or parent)? Any person you assign as a backup
-              contact must be 18 years of age or older.
-            </p>
             <SectionWrapper className={formStyles.formSection}>
               <div className="tablet:margin-top-neg-3">
-                <BackupContactInfoFields />
+                <BackupContactInfoFields
+                  legend="Backup contact"
+                  render={(fields) => (
+                    <>
+                      <p>
+                        If we can&apos;t reach you, who can we contact? Any person you assign as a backup contact must
+                        be 18 years of age or older.
+                      </p>
+                      {fields}
+                    </>
+                  )}
+                />
               </div>
             </SectionWrapper>
             <div className={formStyles.formActions}>
@@ -49,9 +55,10 @@ const BackupContactForm = ({ initialValues, onSubmit, onBack }) => {
 
 BackupContactForm.propTypes = {
   initialValues: PropTypes.shape({
+    name: PropTypes.string,
     telephone: PropTypes.string,
     secondary_telephone: PropTypes.string,
-    personal_email: PropTypes.string,
+    email: PropTypes.string,
     phone_is_preferred: PropTypes.bool,
     email_is_preferred: PropTypes.bool,
   }).isRequired,
