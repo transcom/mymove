@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/mymove/custom-linter/pkg/analyzer"
 	"golang.org/x/tools/go/analysis/singlechecker"
+
+	"github.com/transcom/mymove/pkg/analyzer"
 )
 
 func main() {
