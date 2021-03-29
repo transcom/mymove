@@ -57,10 +57,7 @@ BackupContactForm.propTypes = {
   initialValues: PropTypes.shape({
     name: PropTypes.string,
     telephone: PropTypes.string,
-    secondary_telephone: PropTypes.string,
     email: PropTypes.string,
-    phone_is_preferred: PropTypes.bool,
-    email_is_preferred: PropTypes.bool,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
