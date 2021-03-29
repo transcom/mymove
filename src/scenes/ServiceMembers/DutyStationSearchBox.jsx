@@ -152,7 +152,7 @@ export class DutyStationSearchBox extends Component {
             </div>
           )}
           <div className={inputContainerClasses}>
-            <label className={`${styles.title} ${searchBoxHeaderClasses} usa-label`}>
+            <label className={`${styles.title} ${searchBoxHeaderClasses} usa-label`} htmlFor="react-select-2-input">
               {errorMsg ? <strong>{title}</strong> : title}
             </label>
             <AsyncSelect
