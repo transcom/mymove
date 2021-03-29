@@ -2008,7 +2008,8 @@ func init() {
     "ProcessReviewedPaymentRequests": {
       "type": "object",
       "required": [
-        "sendToSyncada"
+        "sendToSyncada",
+        "readFromSyncada"
       ],
       "properties": {
         "paymentRequestID": {
@@ -2016,6 +2017,11 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "readFromSyncada": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
         },
         "sendToSyncada": {
           "type": "boolean",
@@ -4620,7 +4626,8 @@ func init() {
     "ProcessReviewedPaymentRequests": {
       "type": "object",
       "required": [
-        "sendToSyncada"
+        "sendToSyncada",
+        "readFromSyncada"
       ],
       "properties": {
         "paymentRequestID": {
@@ -4628,6 +4635,11 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "readFromSyncada": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
         },
         "sendToSyncada": {
           "type": "boolean",

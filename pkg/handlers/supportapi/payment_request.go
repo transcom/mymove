@@ -2,7 +2,14 @@ package supportapi
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"time"
+
+	"golang.org/x/crypto/ssh"
+
+	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/services/invoice"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -17,6 +24,18 @@ import (
 	"github.com/transcom/mymove/pkg/services/event"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
+
+// TODO Temporarily just printing to stdout, will replace with actual 824 processor when it gets created
+type edi824Processor struct {
+}
+
+func (p edi824Processor) ProcessFile(syncadaPath string, text string) error {
+	fmt.Println(strings.Repeat("=", len(syncadaPath)))
+	fmt.Println(syncadaPath)
+	fmt.Println(strings.Repeat("=", len(syncadaPath)))
+	fmt.Print(text)
+	return nil
+}
 
 // UpdatePaymentRequestStatusHandler updates payment requests status
 type UpdatePaymentRequestStatusHandler struct {
@@ -256,6 +275,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 
 	paymentRequestID := uuid.FromStringOrNil(params.Body.PaymentRequestID.String())
 	sendToSyncada := params.Body.SendToSyncada
+	readFromSyncada := params.Body.ReadFromSyncada
 	paymentRequestStatus := params.Body.Status
 	var paymentRequests models.PaymentRequests
 	var updatedPaymentRequests models.PaymentRequests
@@ -263,6 +283,10 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	if sendToSyncada == nil {
 		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, sendToSyncada flag required", h.GetTraceID()))
 	}
+	if readFromSyncada == nil {
+		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, readFromSyncada flag required", h.GetTraceID()))
+	}
+
 	if *sendToSyncada {
 		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, h.ICNSequencer())
 		if err != nil {
@@ -344,7 +368,96 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			updatedPaymentRequests = append(updatedPaymentRequests, *updatedPaymentRequest)
 		}
 	}
+
+	if *readFromSyncada {
+		sshClient, err := createSyncadaSSHClient()
+		if err != nil {
+			logger.Fatal("couldn't initialize SSH client", zap.Error(err))
+		}
+		defer func() {
+			if closeErr := sshClient.Close(); closeErr != nil {
+				logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			}
+		}()
+
+		sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+		if err != nil {
+			logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
+		}
+		defer func() {
+			if closeErr := sftpClient.Close(); closeErr != nil {
+				logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			}
+		}()
+
+		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
+		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger, false)
+
+		// TODO where should we get path from?
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles("/CSFTP866/Pickup/", time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
+		if err != nil {
+			logger.Error("Error reading 997 responses", zap.Error(err))
+		} else {
+			logger.Info("Successfully processed 997 responses")
+		}
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles("/CSFTP866/Pickup/", time.Time{}, &edi824Processor{})
+		if err != nil {
+			logger.Error("Error reading 824 responses", zap.Error(err))
+		} else {
+			logger.Info("Successfully processed 824 responses")
+		}
+
+	} else {
+		// TODO Do we do nothing or do we fake a read from syncada?
+	}
 	payload := payloads.PaymentRequests(&updatedPaymentRequests)
 
 	return paymentrequestop.NewProcessReviewedPaymentRequestsOK().WithPayload(*payload)
+}
+
+// TODO where should this go?
+func createSyncadaSSHClient() (*ssh.Client, error) {
+	port := os.Getenv("SYNCADA_SFTP_PORT")
+	if port == "" {
+		return nil, fmt.Errorf("invalid SFTP credentials: missing SYNCADA_SFTP_PORT")
+	}
+
+	userID := os.Getenv("SYNCADA_SFTP_USER_ID")
+	if userID == "" {
+		return nil, fmt.Errorf("invalid SFTP credentials: missing SYNCADA_SFTP_USER_ID")
+	}
+
+	remote := os.Getenv("SYNCADA_SFTP_IP_ADDRESS")
+	if remote == "" {
+		return nil, fmt.Errorf("invalid SFTP credentials: missing SYNCADA_SFTP_IP_ADDRESS")
+	}
+
+	password := os.Getenv("SYNCADA_SFTP_PASSWORD")
+	if password == "" {
+		return nil, fmt.Errorf("invalid SFTP credentials: missing SYNCADA_SFTP_PASSWORD")
+	}
+
+	hostKeyString := os.Getenv("SYNCADA_SFTP_HOST_KEY")
+	if hostKeyString == "" {
+		return nil, fmt.Errorf("invalid SFTP credentials: missing SYNCADA_SFTP_HOST_KEY")
+	}
+	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse host key %w", err)
+	}
+
+	config := &ssh.ClientConfig{
+		User: userID,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(password),
+		},
+		HostKeyCallback: ssh.FixedHostKey(hostKey),
+	}
+	address := remote + ":" + port
+	sshClient, err := ssh.Dial("tcp", address, config)
+	if err != nil {
+		return nil, err
+	}
+
+	return sshClient, nil
 }
