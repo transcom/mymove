@@ -22,7 +22,7 @@ func (suite *SegmentSuite) TestValidateST() {
 		}
 
 		err := suite.validator.Struct(st)
-		suite.ValidateError(err, "TransactionSetIdentifierCode", "eq")
+		suite.ValidateError(err, "TransactionSetIdentifierCode", "oneof")
 		suite.ValidateError(err, "TransactionSetControlNumber", "min")
 		suite.ValidateErrorLen(err, 2)
 	})
