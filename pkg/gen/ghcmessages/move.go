@@ -43,7 +43,7 @@ type Move struct {
 	Locator string `json:"locator,omitempty"`
 
 	// orders
-	Orders *MoveOrder `json:"orders,omitempty"`
+	Orders *Order `json:"orders,omitempty"`
 
 	// orders Id
 	// Format: uuid

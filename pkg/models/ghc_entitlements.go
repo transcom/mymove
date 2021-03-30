@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// Entitlement is an object representing entitlements for move orders
+// Entitlement is an object representing entitlements for orders
 type Entitlement struct {
 	ID                    uuid.UUID `db:"id"`
 	DependentsAuthorized  *bool     `db:"dependents_authorized"`

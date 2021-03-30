@@ -18,27 +18,27 @@ var msAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 3, 12, 57,
 func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 	suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 	paymentServiceItem := suite.setupManagementServicesItem()
-	counselingServicesPricer := NewManagementServicesPricer(suite.DB())
+	managementServicesPricer := NewManagementServicesPricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, _, err := managementServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := counselingServicesPricer.Price(testdatagen.DefaultContractCode, msAvailableToPrimeAt)
+		priceCents, _, err := managementServicesPricer.Price(testdatagen.DefaultContractCode, msAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
 
 	suite.T().Run("sending PaymentServiceItemParams without expected param", func(t *testing.T) {
-		_, _, err := counselingServicesPricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		_, _, err := managementServicesPricer.PriceUsingParams(models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.T().Run("not finding a rate record", func(t *testing.T) {
-		_, _, err := counselingServicesPricer.Price("BOGUS", msAvailableToPrimeAt)
+		_, _, err := managementServicesPricer.Price("BOGUS", msAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }

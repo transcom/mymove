@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import classnames from 'classnames';
-import { useParams } from 'react-router-dom';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { GridContainer, Grid, Tag } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
 
@@ -17,7 +18,9 @@ import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
+import { shipmentStatuses } from 'constants/shipments';
+import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -27,12 +30,13 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-const MoveDetails = ({ setUnapprovedShipmentCount }) => {
+const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount }) => {
   const { moveCode } = useParams();
+  const history = useHistory();
 
   const [activeSection, setActiveSection] = useState('');
 
-  const { move, moveOrder, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
   let sections = ['orders', 'allowances', 'customer-info'];
 
@@ -66,6 +70,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   const [mutateMoveStatus] = useMutation(updateMoveStatus, {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
+      queryCache.invalidateQueries([MOVES, data.locator]);
+      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, data.id]);
     },
   });
 
@@ -73,22 +79,37 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
     },
   });
 
-  const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
+  const submittedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.SUBMITTED);
+  const approvedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.APPROVED);
 
   useEffect(() => {
-    const shipmentCount = submittedShipments.length;
+    const shipmentCount = submittedShipments?.length || 0;
     setUnapprovedShipmentCount(shipmentCount);
   }, [mtoShipments, submittedShipments, setUnapprovedShipmentCount]);
+
+  useEffect(() => {
+    let serviceItemCount = 0;
+    mtoServiceItems?.forEach((serviceItem) => {
+      if (
+        serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED &&
+        serviceItem.mtoShipmentID &&
+        approvedShipments?.find((shipment) => shipment.id === serviceItem.mtoShipmentID)
+      ) {
+        serviceItemCount += 1;
+      }
+    });
+    setUnapprovedServiceItemCount(serviceItemCount);
+  }, [approvedShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { customer, entitlement: allowances } = moveOrder;
-
-  const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
+  const { customer, entitlement: allowances } = order;
 
   if (submittedShipments.length > 0 && approvedShipments.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];
@@ -99,20 +120,20 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
   }
 
   const ordersInfo = {
-    newDutyStation: moveOrder.destinationDutyStation,
-    currentDutyStation: moveOrder.originDutyStation,
-    issuedDate: moveOrder.date_issued,
-    reportByDate: moveOrder.report_by_date,
-    departmentIndicator: moveOrder.department_indicator,
-    ordersNumber: moveOrder.order_number,
-    ordersType: moveOrder.order_type,
-    ordersTypeDetail: moveOrder.order_type_detail,
-    tacMDC: moveOrder.tac,
-    sacSDN: moveOrder.sac,
+    newDutyStation: order.destinationDutyStation,
+    currentDutyStation: order.originDutyStation,
+    issuedDate: order.date_issued,
+    reportByDate: order.report_by_date,
+    departmentIndicator: order.department_indicator,
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
+    sacSDN: order.sac,
   };
   const allowancesInfo = {
     branch: customer.agency,
-    rank: moveOrder.grade,
+    rank: order.grade,
     weightAllowance: allowances.totalWeight,
     authorizedWeight: allowances.authorizedWeight,
     progear: allowances.proGearWeight,
@@ -129,15 +150,28 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
     backupContact: customer.backup_contact,
   };
 
+  const requiredOrdersInfo = {
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
+  };
+
+  const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
         <LeftNav className={styles.sidebar}>
           {sections.map((s) => {
-            const classes = classnames({ active: s === activeSection });
             return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
+              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
                 {sectionLabels[`${s}`]}
+                {s === 'orders' && hasMissingOrdersRequiredInfo && (
+                  <Tag className="usa-tag usa-tag--alert">
+                    <FontAwesomeIcon icon="exclamation" />
+                  </Tag>
+                )}
               </a>
             );
           })}
@@ -154,23 +188,25 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
-                shipmentsStatus="SUBMITTED"
+                shipmentsStatus={shipmentStatuses.SUBMITTED}
                 approveMTO={mutateMoveStatus}
                 approveMTOShipment={mutateMTOShipmentStatus}
                 moveTaskOrder={move}
+                missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
+                handleAfterSuccess={history.push}
               />
             </div>
           )}
           {approvedShipments.length > 0 && (
             <div className={styles.section} id="approved-shipments">
               <RequestedShipments
+                moveTaskOrder={move}
                 mtoShipments={approvedShipments}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
-                shipmentsStatus="APPROVED"
-                moveTaskOrder={move}
+                shipmentsStatus={shipmentStatuses.APPROVED}
               />
             </div>
           )}
@@ -209,6 +245,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount }) => {
 
 MoveDetails.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
+  setUnapprovedServiceItemCount: func.isRequired,
 };
 
 export default MoveDetails;

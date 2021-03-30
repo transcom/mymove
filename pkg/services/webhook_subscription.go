@@ -21,5 +21,5 @@ type WebhookSubscriptionCreator interface {
 //WebhookSubscriptionUpdater is the service object interface for UpdateWebhookSubscription
 //go:generate mockery -name WebhookSubscriptionUpdater
 type WebhookSubscriptionUpdater interface {
-	UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription, severity *int64) (*models.WebhookSubscription, error)
+	UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription, severity *int64, eTag *string) (*models.WebhookSubscription, error)
 }

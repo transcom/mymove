@@ -4,20 +4,21 @@
 @import '../../shared/styles/_variables';
 
 .footer {
-  font-size: 13px;
   color: $base;
-  line-height: 16px;
-  @include u-padding-top(3);
-  @include u-padding-bottom(3);
+  @include u-margin-top(3);
+  @include u-margin-bottom(3);
 }
 
 h1.selectTypeHeader.header {
   margin-top: 0;
   @include u-padding-top(1);
-  @include u-padding-bottom(4);
   & + * {
     margin-top: 0;
   }
+}
+
+h3.longTermStorageHeader {
+  @include u-margin-top(6);
 }
 
 .gridContainer {

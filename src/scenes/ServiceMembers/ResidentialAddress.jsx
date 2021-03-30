@@ -10,6 +10,9 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { ValidateZipRateData } from 'shared/api';
 import AddressForm from 'shared/AddressForm';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import { profileStates } from 'constants/customerStates';
+import { PageKeyShape, PageListShape } from 'types/customerShapes';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -67,7 +70,7 @@ export class ResidentialAddress extends Component {
 
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = get(currentServiceMember, 'residential_address');
-    const serviceMemberId = this.props.match.params.serviceMemberId;
+    const serviceMemberId = currentServiceMember.id;
     return (
       <ResidentalWizardForm
         handleSubmit={this.handleSubmit}
@@ -92,6 +95,8 @@ ResidentialAddress.propTypes = {
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
+  pages: PageListShape.isRequired,
+  pageKey: PageKeyShape.isRequired,
 };
 
 const mapDispatchToProps = {
@@ -107,4 +112,7 @@ function mapStateToProps(state) {
     currentServiceMember: serviceMember,
   };
 }
-export default connect(mapStateToProps, mapDispatchToProps)(ResidentialAddress);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(requireCustomerState(ResidentialAddress, profileStates.DUTY_STATION_COMPLETE));

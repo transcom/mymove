@@ -56,7 +56,11 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Defer closing the store until after the api call has completed
 	if cacStore != nil {
-		defer cacStore.Close()
+		defer func() {
+			if closeErr := cacStore.Close(); closeErr != nil {
+				logger.Error("CAC connection close failed", zap.Error(closeErr))
+			}
+		}()
 	}
 
 	// Create a webhook engine
@@ -67,17 +71,23 @@ func webhookNotify(cmd *cobra.Command, args []string) error {
 		PeriodInSeconds:     v.GetInt(PeriodFlag),
 		MaxImmediateRetries: v.GetInt(MaxRetriesFlag),
 		SeverityThresholds:  []int{60},
+		QuitChannel:         make(chan os.Signal, 1),
+		DoneChannel:         make(chan bool, 1),
 	}
 
-	// Start polling the db for changes
-	go webhookEngine.Start()
+	// Wait for interrupt signal to gracefully shutdown the client
+	signal.Notify(webhookEngine.QuitChannel, os.Interrupt)
 
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 5 seconds.
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	log.Println("Shutdown Server ...")
+	// Start polling the db for changes
+	go func() {
+		if engineStartFailed := webhookEngine.Start(); engineStartFailed != nil {
+			logger.Error("Engine start failed", zap.Error(err))
+		}
+	}()
+
+	// Done channel was set to true and code becomes unblocked
+	<-webhookEngine.DoneChannel
+	logger.Info("Starting Db shutdown")
 	if err = db.Close(); err == nil {
 		logger.Info("Db connection closed")
 	} else {

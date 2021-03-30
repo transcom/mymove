@@ -6,7 +6,7 @@ import (
 
 // ST represents the ST EDI segment
 type ST struct {
-	TransactionSetIdentifierCode string `validate:"eq=858"`
+	TransactionSetIdentifierCode string `validate:"oneof=858 997 824 810"`
 	TransactionSetControlNumber  string `validate:"min=4,max=9"`
 }
 

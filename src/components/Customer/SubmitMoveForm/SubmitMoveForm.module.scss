@@ -1,0 +1,34 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.SubmitMoveForm {
+  :global(.usa-button--unstyled) {
+    padding: 0;
+    width: auto;
+  }
+}
+
+.signatureBox {
+  @include u-padding(2);
+  @include u-margin-top(2);
+  background-color: $base-lightest;
+
+  h3 {
+    text-transform: uppercase;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+
+  :global(.usa-form-group--error) {
+    @include u-margin-left(0);
+  }
+}
+
+@media print {
+  .hideForPrint {
+    display: none;
+  }
+}

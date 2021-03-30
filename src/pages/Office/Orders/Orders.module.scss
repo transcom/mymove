@@ -1,0 +1,109 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import '../../../shared/styles/colors';
+
+.Orders {
+  display: flex;
+  flex-basis: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow: auto;
+
+  form {
+    @include u-display(flex);
+    height: 100%;
+  }
+
+  .orderDetails {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: auto;
+
+    box-shadow: -4px 0px 8px 0px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.embed {
+  flex-grow: 1;
+}
+
+.sidebar {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+
+  .top {
+    @include u-padding(3);
+    @include u-padding-left(4);
+    @include u-bg('white');
+    @include u-border-bottom('2px');
+    @include u-border-bottom('gray-10');
+    @include u-height('auto');
+
+    .closeButton {
+      float: right;
+      // on mobile the button becomes flexed so must override centering
+      justify-content: flex-end;
+      @include u-padding(0);
+      svg {
+        @include u-width(2);
+        @include u-height(2);
+        path {
+          fill: $primary;
+        }
+      }
+    }
+
+    h2 {
+      @include u-margin-bottom(2);
+    }
+
+    .viewAllowances {
+      @include u-padding-left(0);
+
+      &:hover {
+        text-decoration: none;
+      }
+
+      &:visited {
+        color: $primary;
+      }
+    }
+  }
+
+  .body {
+    @include u-padding(4);
+    background-color: $bg-gray;
+    @include u-overflow-y('auto');
+    flex: 1 1 0;
+    flex-basis: 0;
+
+    :global .usa-form-group:first-child label {
+      @include u-margin-top(0);
+    }
+
+    :global .usa-form-group:last-child {
+      @include u-padding-bottom(4);
+    }
+  }
+
+  .bottom {
+    @include u-padding-x('3');
+    @include u-padding-y('1');
+    @include u-bg('white');
+
+    @include u-border-top('2px');
+    @include u-border-top('gray-10');
+    @include u-position('relative');
+
+    display: flex;
+    align-items: center;
+
+    .buttonGroup {
+      @include u-display(flex);
+    }
+  }
+}

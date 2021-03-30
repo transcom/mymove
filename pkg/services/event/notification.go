@@ -6,7 +6,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -37,7 +36,7 @@ func notificationSave(event *Event, payload *[]byte) error {
 		EventKey:        string(event.EventKey),
 		MoveTaskOrderID: &event.MtoID,
 		ObjectID:        &event.UpdatedObjectID,
-		Payload:         swag.String(payloadString),
+		Payload:         payloadString,
 		Status:          models.WebhookNotificationPending,
 	}
 
@@ -170,8 +169,8 @@ func assemblePaymentRequestPayload(db *pop.Connection, updatedObjectID uuid.UUID
 
 }
 
-// assembleMoveOrderPayload assembles the MoveOrder Payload and returns the JSON in bytes
-func assembleMoveOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+// assembleOrderPayload assembles the Order Payload and returns the JSON in bytes
+func assembleOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
 	model := models.Order{}
 	// Important to be specific about which addl associations to load to reduce DB hits
 	err := db.Eager(
@@ -185,12 +184,12 @@ func assembleMoveOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]
 	}
 
 	if err != nil {
-		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MoveOrder")
+		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for Order")
 		notFoundError.Wrap(err)
 		return nil, notFoundError
 	}
 
-	payload := payloads.MoveOrder(&model)
+	payload := payloads.Order(&model)
 	payloadArray, err := json.Marshal(payload)
 	if err != nil {
 		unknownErr := services.NewEventError("Unknown error creating payload", err)
@@ -277,7 +276,7 @@ func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error
 	// case models.Order:
 	var payloadArray []byte
 	var err error
-	payloadArray, _ = assembleMoveOrderPayload(db, event.UpdatedObjectID)
+	payloadArray, _ = assembleOrderPayload(db, event.UpdatedObjectID)
 
 	// STORE NOTIFICATION IN DB
 	err = notificationSave(event, &payloadArray)

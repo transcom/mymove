@@ -44,6 +44,7 @@ export const moves = new schema.Array(move);
 
 // Orders
 
+export const order = new schema.Entity('orders');
 export const orders = new schema.Entity('orders');
 orders.define({
   moves: moves,
@@ -151,10 +152,6 @@ export const paymentServiceItems = new schema.Array(paymentServiceItem);
 // Move Task Orders
 export const moveTaskOrder = new schema.Entity('moveTaskOrders');
 export const moveTaskOrders = new schema.Array(moveTaskOrder);
-
-// Move Orders
-export const moveOrder = new schema.Entity('moveOrders');
-export const moveOrders = new schema.Array(moveOrder);
 
 // Customer
 export const customer = new schema.Entity('customer');
