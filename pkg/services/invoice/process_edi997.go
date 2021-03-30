@@ -64,7 +64,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	var transactionError error
 	transactionError = e.db.Transaction(func(tx *pop.Connection) error {
 		paymentRequest.Status = models.PaymentRequestStatusReceivedByGex
-		err = e.db.Update(&paymentRequest)
+		err = tx.Update(&paymentRequest)
 		if err != nil {
 			// TODO: save error to the db
 			e.logger.Error("failure updating payment request", zap.Error(err))

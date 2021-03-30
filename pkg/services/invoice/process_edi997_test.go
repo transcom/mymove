@@ -152,7 +152,7 @@ func (suite *ProcessEDI997Suite) TestValidatingEDIHeader() {
 	suite.T().Run("fails when there are validation errors on EDI header fields", func(t *testing.T) {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *210217*1530*U*00401*2000000000*8*A*|
-GS*FA*MILMOVE*8004171844*20190903*1617*2000000000*X*004010
+GS*BS*MILMOVE*8004171844*20190903*1617*2000000000*X*004010
 ST*997*0001
 AK1*FA*100001251
 AK2*909*0001
@@ -164,7 +164,7 @@ AK5*Q
 AK9*P*10*1*1
 SE*6*0001
 ST*997*0002
-AK1*FA*100001251
+AK1*BA*100001251
 AK2*900*0001
 AK3*ab*123
 AK4*1*2*3*4*MM*bad data goes here 90
@@ -203,7 +203,6 @@ IEA*1*000000995
 			{TestName: "Invalid TransactionSetIdentifierCode", ExpectedErrorMsg: "'TransactionSetIdentifierCode' failed on the 'eq' tag"},
 			{TestName: "Invalid TransactionSetAcknowledgmentCode", ExpectedErrorMsg: "'FunctionalIdentifierCode' failed on the 'eq' tag"},
 			{TestName: "Second AK2 Invalid TransactionSetIdentifierCode", ExpectedErrorMsg: "'TransactionSetIdentifierCode' failed on the 'eq' tag"},
-			{TestName: "Second AK1 failure for Invalid FunctionalIdentifierCode", ExpectedErrorMsg: "'FunctionalIdentifierCode' failed on the 'oneof' tag"},
 			{TestName: "Invalid GroupControlNumber", ExpectedErrorMsg: "'GroupControlNumber' failed on the 'max' tag"},
 			{TestName: "Second AK5 Invalid TransactionSetAcknowledgmentCode", ExpectedErrorMsg: "'FunctionalIdentifierCode' failed on the 'eq' tag"},
 			{TestName: "Third (in second functionalGroupEnvelope) AK2 Invalid TransactionSetIdentifierCode", ExpectedErrorMsg: "'TransactionSetIdentifierCode' failed on the 'eq' tag"},
