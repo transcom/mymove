@@ -12,8 +12,11 @@ const SERVICE_ITEM_PARAM_KEYS = {
   WeightEstimated: 'WeightEstimated',
   DistanceZip3: 'DistanceZip3',
   DistanceZip5: 'DistanceZip5',
+  DistanceZipSITOrigin: 'DistanceZipSITOrigin',
   ZipDestAddress: 'ZipDestAddress',
   ZipPickupAddress: 'ZipPickupAddress',
+  ZipSITOriginHHGOriginalAddress: 'ZipSITOriginHHGOriginalAddress',
+  ZipSITOriginHHGActualAddress: 'ZipSITOriginHHGActualAddress',
   PriceRateOrFactor: 'PriceRateOrFactor',
   IsPeak: 'IsPeak',
   ServiceAreaOrigin: 'ServiceAreaOrigin',
@@ -26,6 +29,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   OriginPrice: 'OriginPrice',
   ServiceSchedule: 'ServiceSchedule',
   NumberDaysSIT: 'NumberDaysSIT',
+  SITScheduleOrigin: 'SITScheduleOrigin',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
@@ -42,6 +46,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   ServiceArea: 'Service area',
   RequestedPickup: 'Requested pickup',
   PackPrice: 'Pack price',
+  PickupSITPrice: 'SIT pickup price',
   [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightActual]: 'Shipment weight',
@@ -57,6 +62,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
   [SERVICE_ITEM_PARAM_KEYS.OriginPrice]: 'Origin price',
+  [SERVICE_ITEM_PARAM_KEYS.SITScheduleOrigin]: 'Origin SIT schedule',
 };
 
 const SERVICE_ITEM_CODES = {
@@ -67,6 +73,7 @@ const SERVICE_ITEM_CODES = {
   DSH: 'DSH',
   DOASIT: 'DOASIT',
   DOFSIT: 'DOFSIT',
+  DOPSIT: 'DOPSIT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -78,6 +85,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DOP,
   SERVICE_ITEM_CODES.DOASIT,
   SERVICE_ITEM_CODES.DOFSIT,
+  SERVICE_ITEM_CODES.DOPSIT,
 ];
 
 export {
