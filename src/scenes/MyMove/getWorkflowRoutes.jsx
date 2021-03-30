@@ -118,7 +118,7 @@ const pages = {
   [customerRoutes.CURRENT_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.residential_address),
-    render: (key, pages) => ({ history }) => <ResidentialAddress push={history.push} />,
+    render: () => ({ history }) => <ResidentialAddress push={history.push} />,
   },
   [customerRoutes.BACKUP_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
