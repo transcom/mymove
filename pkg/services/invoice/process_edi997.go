@@ -18,7 +18,7 @@ type edi997Processor struct {
 
 // NewEDI997Processor returns a new EDI997 processor
 func NewEDI997Processor(db *pop.Connection,
-	logger Logger) services.EDI997Processor {
+	logger Logger) services.SyncadaFileProcessor {
 
 	return &edi997Processor{
 		db:     db,
