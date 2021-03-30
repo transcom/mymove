@@ -11,3 +11,9 @@ type MTOAgentUpdater interface {
 	UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error)
 	UpdateMTOAgentPrime(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error)
 }
+
+// MTOAgentCreator is the service object interface for CreateMTOAgent
+// go:generate mockery -name MTOAgentCreator
+type MTOAgentCreator interface {
+	CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*models.MTOAgent, error)
+}
