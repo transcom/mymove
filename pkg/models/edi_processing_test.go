@@ -19,7 +19,7 @@ func (suite *ModelSuite) TestBasicEDIProcessingInstantiation() {
 				ID:               uuid.Must(uuid.NewV4()),
 				ProcessStartedAt: time.Now(),
 				ProcessEndedAt:   time.Now(),
-				EDIType:          models.EDI997,
+				EDIType:          models.EDIType997,
 				NumEDIsProcessed: 6,
 			},
 			expectedErrs: nil,
@@ -39,7 +39,7 @@ func (suite *ModelSuite) TestBasicEDIProcessingInstantiation() {
 				ProcessStartedAt: time.Now(),
 				ProcessEndedAt:   time.Now(),
 				NumEDIsProcessed: 6,
-				EDIType:          "models.EDI997",
+				EDIType:          "models.EDIType997",
 			},
 			expectedErrs: map[string][]string{
 				"editype": {"EDIType is not in the list [810, 824, 858, 997]."},

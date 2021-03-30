@@ -14,14 +14,14 @@ import (
 type EDIType string
 
 const (
-	// EDI810 captures enum value "810"
-	EDI810 EDIType = "810"
-	// EDI824 captures enum value "824"
-	EDI824 EDIType = "824"
-	// EDI858 captures enum value "858"
-	EDI858 EDIType = "858"
-	// EDI997 captures enum value "997"
-	EDI997 EDIType = "997"
+	// EDIType810 captures enum value "810"
+	EDIType810 EDIType = "810"
+	// EDIType824 captures enum value "824"
+	EDIType824 EDIType = "824"
+	// EDIType858 captures enum value "858"
+	EDIType858 EDIType = "858"
+	// EDIType997 captures enum value "997"
+	EDIType997 EDIType = "997"
 )
 
 // EDIProcessing represents an email sent to a service member
@@ -45,10 +45,10 @@ func (e *EDIProcessing) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.TimeIsPresent{Field: e.ProcessEndedAt, Name: "ProcessEndedAt"},
 		&validators.IntIsPresent{Field: e.NumEDIsProcessed, Name: "NumEDIsProcessed"},
 		&validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: []string{
-			string(EDI810),
-			string(EDI824),
-			string(EDI858),
-			string(EDI997),
+			string(EDIType810),
+			string(EDIType824),
+			string(EDIType858),
+			string(EDIType997),
 		}},
 	), nil
 }
