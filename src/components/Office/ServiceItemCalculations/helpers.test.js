@@ -92,7 +92,28 @@ describe('makeCalculations', () => {
 
   it('returns correct data for DomesticDestinationPrice', () => {
     const result = makeCalculations('DDP', 99999, testParams.DomesticDestinationPrice);
-    expect(result).toEqual([]);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: '',
+        label: 'Destination price',
+        details: ['Service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: ['Base year: 2'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for DomesticOrigin1stSIT', () => {

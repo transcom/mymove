@@ -222,7 +222,7 @@ const ServiceAreaDest = {
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'STRING',
-  value: '',
+  value: '080',
 };
 const SITScheduleOrigin = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
@@ -418,6 +418,8 @@ const testParams = {
     WeightBilledActual,
     WeightEstimated,
     ZipDestAddress,
+    EscalationCompounded,
+    ContractYearName,
   ],
   DomesticOrigin1stSIT: [
     WeightActual,

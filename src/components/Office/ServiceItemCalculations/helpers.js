@@ -78,7 +78,7 @@ const baselineLinehaulPrice = (params) => {
   return calculation(value, label, detail1, detail2, detail3);
 };
 
-// There is no param representing the orgin price as available in the re_domestic_service_area_prices table
+// There is no param representing the orgin price or destination price as available in the re_domestic_service_area_prices table
 // A param to return the service schedule is also not being created
 const originAndDestinationPrice = (params, isOrigin = true) => {
   const valueKey = isOrigin ? SERVICE_ITEM_PARAM_KEYS.OriginPrice : SERVICE_ITEM_PARAM_KEYS.DestinationPrice;
