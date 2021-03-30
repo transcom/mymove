@@ -13,7 +13,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { dropdownInputOptions } from 'shared/formatters';
 import formStyles from 'styles/form.module.scss';
 
-const DodInfoForm = ({ initialValues, onSubmit }) => {
+const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const rankOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -27,17 +27,7 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, setFieldValue, handleSubmit }) => {
-        const handleBack = (e) => {
-          setFieldValue('nextPage', 'back');
-          handleSubmit(e);
-        };
-
-        const handleNext = (e) => {
-          setFieldValue('nextPage', 'next');
-          handleSubmit(e);
-        };
-
+      {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Create your profile</h1>
@@ -64,9 +54,9 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
 
             <div className={formStyles.formActions}>
               <WizardNavigation
-                onBackClick={handleBack}
+                onBackClick={onBack}
                 disableNext={!isValid || isSubmitting}
-                onNextClick={handleNext}
+                onNextClick={handleSubmit}
               />
             </div>
           </Form>
@@ -83,6 +73,7 @@ DodInfoForm.propTypes = {
     rank: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
+  onBack: PropTypes.func.isRequired,
 };
 
 export default DodInfoForm;
