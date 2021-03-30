@@ -27,8 +27,7 @@ export const BackupContactInfoFields = ({ legend, className, render }) => {
                 name="telephone"
                 type="tel"
                 minimum="12"
-                mask="000-000-0000"
-                useMaskedValue
+                mask="000{-}000{-}0000"
                 required
               />
             </div>
