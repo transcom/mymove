@@ -193,9 +193,7 @@ const pages = {
   [customerRoutes.MOVE_REVIEW_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
-    render: (key, pages) => ({ match, history }) => (
-      <Review pages={pages} pageKey={key} match={match} history={history} />
-    ),
+    render: () => ({ history }) => <Review push={history.push} />,
   },
   [customerRoutes.MOVE_AGREEMENT_PATH]: {
     isInFlow: always,
