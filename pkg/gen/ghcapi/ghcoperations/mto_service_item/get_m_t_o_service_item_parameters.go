@@ -29,7 +29,7 @@ type GetMTOServiceItemParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*ID of move order to use
+	/*ID of move to use
 	  Required: true
 	  In: path
 	*/

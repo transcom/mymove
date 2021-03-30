@@ -76,7 +76,7 @@ function customerReviewsNTSMoveDetails() {
 function customerEditsNTSShipment() {
   cy.get('button[data-testid="edit-nts-shipment-btn"]').contains('Edit').click();
   cy.get('input[name="pickup.requestedDate"]').clear().type('12/25/2020').blur();
-  cy.get('input[data-testid="lastName"]').clear().type('Bourne').blur();
+  cy.get('input[name="pickup.agent.lastName"]').clear().type('Bourne').blur();
   cy.get('textarea[data-testid="remarks"]').clear().type('Handle with care').blur();
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
@@ -98,7 +98,7 @@ function customerCreatesAnNTSShipment() {
   cy.get('input[type="radio"]').eq(2).check({ force: true });
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/nts-start/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/new-shipment/);
   });
 
   // pickup date
@@ -108,10 +108,10 @@ function customerCreatesAnNTSShipment() {
   cy.get(`input[name="useCurrentResidence"]`).check({ force: true });
 
   // releasing agent
-  cy.get(`[data-testid="firstName"]`).type('John');
-  cy.get(`[data-testid="lastName"]`).type('Lee');
-  cy.get(`[data-testid="phone"]`).type('9999999999');
-  cy.get(`[data-testid="email"]`).type('john@example.com').blur();
+  cy.get('input[name="pickup.agent.firstName"]').type('John');
+  cy.get('input[name="pickup.agent.lastName"]').type('Lee');
+  cy.get('input[name="pickup.agent.phone"]').type('9999999999');
+  cy.get('input[name="pickup.agent.email"]').type('john@example.com').blur();
 
   // remarks
   cy.get(`[data-testid="remarks"]`).first().type('some customer remark');

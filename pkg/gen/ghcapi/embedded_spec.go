@@ -167,209 +167,16 @@ func init() {
         }
       }
     },
-    "/move-orders/{orderID}": {
-      "get": {
-        "description": "Gets an order",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "order"
-        ],
-        "summary": "Gets an order by ID",
-        "operationId": "getMoveOrder",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved order",
-            "schema": {
-              "$ref": "#/definitions/MoveOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "patch": {
-        "description": "All fields sent in this request will be set on the order referenced",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "order"
-        ],
-        "summary": "Updates an order",
-        "operationId": "updateMoveOrder",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateMoveOrderPayload"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of orders",
-            "schema": {
-              "$ref": "#/definitions/MoveOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was unauthenticated",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was unauthorized",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of order to use",
-          "name": "orderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move-orders/{orderID}/move-task-orders": {
-      "get": {
-        "description": "Gets move task orders associated with an order",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "order"
-        ],
-        "summary": "Gets move task orders associated with an order",
-        "operationId": "listMoveTaskOrders",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all move task orders associated with an order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of order to use",
-          "name": "orderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
-        "description": "Gets a move order",
+        "description": "Gets a move",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a move order by ID",
+        "summary": "Gets a move by ID",
         "operationId": "getMoveTaskOrder",
         "responses": {
           "200": {
@@ -411,14 +218,14 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a move order by ID",
+        "description": "Deletes a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Deletes a move order by ID",
+        "summary": "Deletes a move by ID",
         "operationId": "deleteMoveTaskOrder",
         "responses": {
           "200": {
@@ -460,7 +267,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a move order by ID",
+        "description": "Updates a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -470,7 +277,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates a move order by ID",
+        "summary": "Updates a move by ID",
         "operationId": "updateMoveTaskOrder",
         "parameters": [
           {
@@ -525,6 +332,12 @@ func init() {
               "$ref": "#/responses/PreconditionFailed"
             }
           },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -536,7 +349,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -552,7 +365,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets entitlements for a move order by ID",
+        "summary": "Gets entitlements for a move by ID",
         "operationId": "getEntitlements",
         "responses": {
           "200": {
@@ -596,7 +409,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -605,7 +418,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
       "patch": {
-        "description": "Changes the status of a line item for a move order by ID",
+        "description": "Changes the status of a line item for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -615,7 +428,7 @@ func init() {
         "tags": [
           "paymentServiceItem"
         ],
-        "summary": "Change the status of a payment service item for a move order by ID",
+        "summary": "Change the status of a payment service item for a move by ID",
         "operationId": "updatePaymentServiceItemStatus",
         "parameters": [
           {
@@ -681,7 +494,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -697,14 +510,14 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
-        "description": "Gets a line item by ID for a move order by ID",
+        "description": "Gets a line item by ID for a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Gets a line item by ID for a move order by ID",
+        "summary": "Gets a line item by ID for a move by ID",
         "operationId": "getMTOServiceItem",
         "responses": {
           "200": {
@@ -746,14 +559,14 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a line item by ID for a move order by ID",
+        "description": "Deletes a line item by ID for a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Deletes a line item by ID for a move order by ID",
+        "summary": "Deletes a line item by ID for a move by ID",
         "operationId": "deleteMTOServiceItem",
         "responses": {
           "200": {
@@ -795,7 +608,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a service item by ID for a move order by ID",
+        "description": "Updates a service item by ID for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -805,7 +618,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Updates a service item by ID for a move order by ID",
+        "summary": "Updates a service item by ID for a move by ID",
         "operationId": "updateMTOServiceItem",
         "parameters": [
           {
@@ -871,7 +684,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -887,7 +700,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status": {
       "patch": {
-        "description": "Changes the status of a line item for a move order by ID",
+        "description": "Changes the status of a line item for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -897,7 +710,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Change the status of a line item for a move order by ID",
+        "summary": "Change the status of a line item for a move by ID",
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
@@ -969,7 +782,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -1000,7 +813,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "ID of move order to use",
+            "description": "ID of move to use",
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
@@ -1061,6 +874,12 @@ func init() {
             "description": "Precondition Failed",
             "schema": {
               "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -1131,14 +950,14 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
       "get": {
-        "description": "Gets all line items for a move orders",
+        "description": "Gets all line items for a move",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Gets all line items for a move order",
+        "summary": "Gets all line items for a move",
         "operationId": "listMTOServiceItems",
         "responses": {
           "200": {
@@ -1171,7 +990,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of move order for mto service item to use",
+          "description": "ID of move for mto service item to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -1422,6 +1241,205 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}": {
+      "get": {
+        "description": "Gets an order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Gets an order by ID",
+        "operationId": "getOrder",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved order",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an order",
+        "operationId": "updateOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was unauthenticated",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was unauthorized",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/move-task-orders": {
+      "get": {
+        "description": "Gets move task orders associated with an order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Gets move task orders associated with an order",
+        "operationId": "listMoveTaskOrders",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move task orders associated with an order",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
           "in": "path",
           "required": true
         }
@@ -2837,7 +2855,7 @@ func init() {
           "example": "1K43AR"
         },
         "orders": {
-          "$ref": "#/definitions/MoveOrder"
+          "$ref": "#/definitions/Order"
         },
         "ordersId": {
           "type": "string",
@@ -2863,7 +2881,89 @@ func init() {
         }
       }
     },
-    "MoveOrder": {
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVALS REQUESTED",
+        "APPROVED",
+        "CANCELED"
+      ]
+    },
+    "MoveTaskOrder": {
+      "type": "object",
+      "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "destinationDutyStation": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "entitlements": {
+          "$ref": "#/definitions/Entitlements"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isCanceled": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "originDutyStation": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "MoveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "Order": {
       "type": "object",
       "properties": {
         "agency": {
@@ -2970,88 +3070,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
-      }
-    },
-    "MoveStatus": {
-      "type": "string",
-      "enum": [
-        "DRAFT",
-        "SUBMITTED",
-        "APPROVALS REQUESTED",
-        "APPROVED",
-        "CANCELED"
-      ]
-    },
-    "MoveTaskOrder": {
-      "type": "object",
-      "properties": {
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "eTag": {
-          "type": "string"
-        },
-        "entitlements": {
-          "$ref": "#/definitions/Entitlements"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "locator": {
-          "type": "string",
-          "example": "1K43AR"
-        },
-        "orderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "MoveTaskOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
       }
     },
     "OrdersType": {
@@ -3212,6 +3230,10 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemCode": {
+          "type": "string",
+          "example": "DLH"
         },
         "mtoServiceItemID": {
           "type": "string",
@@ -3539,7 +3561,7 @@ func init() {
         }
       }
     },
-    "UpdateMoveOrderPayload": {
+    "UpdateOrderPayload": {
       "type": "object",
       "required": [
         "issueDate",
@@ -3967,254 +3989,16 @@ func init() {
         }
       }
     },
-    "/move-orders/{orderID}": {
-      "get": {
-        "description": "Gets an order",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "order"
-        ],
-        "summary": "Gets an order by ID",
-        "operationId": "getMoveOrder",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved order",
-            "schema": {
-              "$ref": "#/definitions/MoveOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "description": "All fields sent in this request will be set on the order referenced",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "order"
-        ],
-        "summary": "Updates an order",
-        "operationId": "updateMoveOrder",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateMoveOrderPayload"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of orders",
-            "schema": {
-              "$ref": "#/definitions/MoveOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was unauthenticated",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was unauthorized",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of order to use",
-          "name": "orderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move-orders/{orderID}/move-task-orders": {
-      "get": {
-        "description": "Gets move task orders associated with an order",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "order"
-        ],
-        "summary": "Gets move task orders associated with an order",
-        "operationId": "listMoveTaskOrders",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all move task orders associated with an order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of order to use",
-          "name": "orderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
-        "description": "Gets a move order",
+        "description": "Gets a move",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a move order by ID",
+        "summary": "Gets a move by ID",
         "operationId": "getMoveTaskOrder",
         "responses": {
           "200": {
@@ -4271,14 +4055,14 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a move order by ID",
+        "description": "Deletes a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Deletes a move order by ID",
+        "summary": "Deletes a move by ID",
         "operationId": "deleteMoveTaskOrder",
         "responses": {
           "200": {
@@ -4335,7 +4119,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a move order by ID",
+        "description": "Updates a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -4345,7 +4129,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates a move order by ID",
+        "summary": "Updates a move by ID",
         "operationId": "updateMoveTaskOrder",
         "parameters": [
           {
@@ -4415,6 +4199,12 @@ func init() {
               }
             }
           },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -4429,7 +4219,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -4445,7 +4235,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets entitlements for a move order by ID",
+        "summary": "Gets entitlements for a move by ID",
         "operationId": "getEntitlements",
         "responses": {
           "200": {
@@ -4504,7 +4294,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -4513,7 +4303,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
       "patch": {
-        "description": "Changes the status of a line item for a move order by ID",
+        "description": "Changes the status of a line item for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -4523,7 +4313,7 @@ func init() {
         "tags": [
           "paymentServiceItem"
         ],
-        "summary": "Change the status of a payment service item for a move order by ID",
+        "summary": "Change the status of a payment service item for a move by ID",
         "operationId": "updatePaymentServiceItemStatus",
         "parameters": [
           {
@@ -4607,7 +4397,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -4623,14 +4413,14 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
-        "description": "Gets a line item by ID for a move order by ID",
+        "description": "Gets a line item by ID for a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Gets a line item by ID for a move order by ID",
+        "summary": "Gets a line item by ID for a move by ID",
         "operationId": "getMTOServiceItem",
         "responses": {
           "200": {
@@ -4687,14 +4477,14 @@ func init() {
         }
       },
       "delete": {
-        "description": "Deletes a line item by ID for a move order by ID",
+        "description": "Deletes a line item by ID for a move by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Deletes a line item by ID for a move order by ID",
+        "summary": "Deletes a line item by ID for a move by ID",
         "operationId": "deleteMTOServiceItem",
         "responses": {
           "200": {
@@ -4751,7 +4541,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a service item by ID for a move order by ID",
+        "description": "Updates a service item by ID for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -4761,7 +4551,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Updates a service item by ID for a move order by ID",
+        "summary": "Updates a service item by ID for a move by ID",
         "operationId": "updateMTOServiceItem",
         "parameters": [
           {
@@ -4845,7 +4635,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -4861,7 +4651,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status": {
       "patch": {
-        "description": "Changes the status of a line item for a move order by ID",
+        "description": "Changes the status of a line item for a move by ID",
         "consumes": [
           "application/json"
         ],
@@ -4871,7 +4661,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Change the status of a line item for a move order by ID",
+        "summary": "Change the status of a line item for a move by ID",
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
@@ -4961,7 +4751,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -4992,7 +4782,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "ID of move order to use",
+            "description": "ID of move to use",
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
@@ -5071,6 +4861,12 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -5156,14 +4952,14 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
       "get": {
-        "description": "Gets all line items for a move orders",
+        "description": "Gets all line items for a move",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Gets all line items for a move order",
+        "summary": "Gets all line items for a move",
         "operationId": "listMTOServiceItems",
         "responses": {
           "200": {
@@ -5202,7 +4998,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of move order for mto service item to use",
+          "description": "ID of move for mto service item to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -5486,6 +5282,250 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}": {
+      "get": {
+        "description": "Gets an order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Gets an order by ID",
+        "operationId": "getOrder",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved order",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an order",
+        "operationId": "updateOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was unauthenticated",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was unauthorized",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/move-task-orders": {
+      "get": {
+        "description": "Gets move task orders associated with an order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Gets move task orders associated with an order",
+        "operationId": "listMoveTaskOrders",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move task orders associated with an order",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
           "in": "path",
           "required": true
         }
@@ -6961,7 +7001,7 @@ func init() {
           "example": "1K43AR"
         },
         "orders": {
-          "$ref": "#/definitions/MoveOrder"
+          "$ref": "#/definitions/Order"
         },
         "ordersId": {
           "type": "string",
@@ -6987,7 +7027,89 @@ func init() {
         }
       }
     },
-    "MoveOrder": {
+    "MoveStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVALS REQUESTED",
+        "APPROVED",
+        "CANCELED"
+      ]
+    },
+    "MoveTaskOrder": {
+      "type": "object",
+      "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "destinationDutyStation": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "entitlements": {
+          "$ref": "#/definitions/Entitlements"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isCanceled": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43AR"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "originDutyStation": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "MoveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "Order": {
       "type": "object",
       "properties": {
         "agency": {
@@ -7094,88 +7216,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
-      }
-    },
-    "MoveStatus": {
-      "type": "string",
-      "enum": [
-        "DRAFT",
-        "SUBMITTED",
-        "APPROVALS REQUESTED",
-        "APPROVED",
-        "CANCELED"
-      ]
-    },
-    "MoveTaskOrder": {
-      "type": "object",
-      "properties": {
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "eTag": {
-          "type": "string"
-        },
-        "entitlements": {
-          "$ref": "#/definitions/Entitlements"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "locator": {
-          "type": "string",
-          "example": "1K43AR"
-        },
-        "orderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "MoveTaskOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
       }
     },
     "OrdersType": {
@@ -7336,6 +7376,10 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemCode": {
+          "type": "string",
+          "example": "DLH"
         },
         "mtoServiceItemID": {
           "type": "string",
@@ -7663,7 +7707,7 @@ func init() {
         }
       }
     },
-    "UpdateMoveOrderPayload": {
+    "UpdateOrderPayload": {
       "type": "object",
       "required": [
         "issueDate",

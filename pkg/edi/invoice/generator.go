@@ -57,6 +57,13 @@ type InvoiceHeader struct {
 	OriginPhone              *edisegment.PER
 }
 
+// InvoiceResponseHeader holds all the segments used in the headers of the 997, 824 and 810 response types
+type InvoiceResponseHeader struct {
+	ISA edisegment.ISA
+	GS  edisegment.GS
+	ST  edisegment.ST
+}
+
 // ServiceItemSegmentsSize is the number of fields in the ServiceItemSegments struct
 const ServiceItemSegmentsSize int = 7
 

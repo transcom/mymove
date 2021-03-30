@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './RejectServiceItemModal.module.scss';
 
 import { Form } from 'components/form';
-import { TextInput } from 'components/form/fields';
+import TextField from 'components/form/fields/TextField';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { formatDateFromIso } from 'shared/formatters';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
@@ -19,7 +19,7 @@ const rejectionSchema = Yup.object().shape({
 });
 
 const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
-  const { serviceItem: serviceItemName, id, code, status, createdAt, approvedAt, details } = serviceItem;
+  const { serviceItem: serviceItemName, id, mtoShipmentID, code, status, createdAt, approvedAt, details } = serviceItem;
   return (
     <>
       <Overlay />
@@ -42,7 +42,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
               initialValues={{ rejectionReason: '' }}
               validationSchema={rejectionSchema}
               onSubmit={(values) => {
-                onSubmit(id, SERVICE_ITEM_STATUS.REJECTED, values.rejectionReason);
+                onSubmit(id, mtoShipmentID, SERVICE_ITEM_STATUS.REJECTED, values.rejectionReason);
               }}
             >
               {({ handleChange, values, isValid, dirty }) => {
@@ -74,7 +74,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                         </tbody>
                       </table>
                     </div>
-                    <TextInput
+                    <TextField
                       id="rejectionReason"
                       name="rejectionReason"
                       label="Reason for rejection"
@@ -104,6 +104,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
 RejectServiceItemModal.propTypes = {
   serviceItem: PropTypes.shape({
     id: PropTypes.string,
+    mtoShipmentID: PropTypes.string,
     code: PropTypes.string,
     status: PropTypes.string,
     serviceItem: PropTypes.string,

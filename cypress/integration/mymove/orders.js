@@ -12,7 +12,7 @@ describe('orders entry', function () {
     cy.contains('Continue Move Setup').click();
 
     cy.location().should((loc) => {
-      expect(loc.pathname).to.eq('/orders');
+      expect(loc.pathname).to.eq('/orders/info');
     });
 
     cy.get('select[name="orders_type"]').select('Separation');

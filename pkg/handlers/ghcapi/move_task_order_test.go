@@ -1,3 +1,12 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+//RA: in a unit test, then there is no risk
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
 package ghcapi
 
 import (
@@ -163,4 +172,40 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	}
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)
+}
+
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncompleteOrder() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
+	order.TAC = nil
+	suite.MustSave(&order)
+	err := move.Submit(time.Now())
+	if err != nil {
+		suite.T().Fatal("Should transition.")
+	}
+	suite.MustSave(&move)
+
+	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	request = suite.AuthenticateUserRequest(request, requestUser)
+	params := move_task_order.UpdateMoveTaskOrderStatusParams{
+		HTTPRequest:     request,
+		MoveTaskOrderID: move.ID.String(),
+		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+
+	// make the request
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+	}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusUnprocessableEntity{}, response)
+	invalidResponse := response.(*move_task_order.UpdateMoveTaskOrderStatusUnprocessableEntity).Payload
+	errorDetail := invalidResponse.Detail
+
+	suite.Contains(*errorDetail, "TransportationAccountingCode cannot be blank.")
 }

@@ -28,8 +28,8 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         moveTaskOrder.IsCanceled(),
-		MoveOrderID:        strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		MoveOrder:          MoveOrder(&moveTaskOrder.Orders),
+		OrderID:            strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		Order:              Order(&moveTaskOrder.Orders),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
 		PaymentRequests:    *paymentRequests,
 		MtoShipments:       *mtoShipments,
@@ -88,30 +88,30 @@ func Customer(customer *models.ServiceMember) *primemessages.Customer {
 	return &payload
 }
 
-// MoveOrder payload
-func MoveOrder(moveOrder *models.Order) *primemessages.MoveOrder {
-	if moveOrder == nil {
+// Order payload
+func Order(order *models.Order) *primemessages.Order {
+	if order == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
-	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
-	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
-		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
+	destinationDutyStation := DutyStation(&order.NewDutyStation)
+	originDutyStation := DutyStation(order.OriginDutyStation)
+	if order.Grade != nil && order.Entitlement != nil {
+		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
-	entitlements := Entitlement(moveOrder.Entitlement)
+	entitlements := Entitlement(order.Entitlement)
 
-	payload := primemessages.MoveOrder{
-		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
-		Customer:               Customer(&moveOrder.ServiceMember),
+	payload := primemessages.Order{
+		CustomerID:             strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:               Customer(&order.ServiceMember),
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
-		ID:                     strfmt.UUID(moveOrder.ID.String()),
+		ID:                     strfmt.UUID(order.ID.String()),
 		OriginDutyStation:      originDutyStation,
-		OrderNumber:            moveOrder.OrdersNumber,
-		LinesOfAccounting:      moveOrder.TAC,
-		Rank:                   moveOrder.Grade,
-		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
-		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
+		OrderNumber:            order.OrdersNumber,
+		LinesOfAccounting:      order.TAC,
+		Rank:                   order.Grade,
+		ETag:                   etag.GenerateEtag(order.UpdatedAt),
+		ReportByDate:           strfmt.Date(order.ReportByDate),
 	}
 
 	return &payload

@@ -3,6 +3,22 @@ import { arrayOf, bool, func, string, shape, object, number } from 'prop-types';
 import { AddressShape } from 'types/address';
 import { DutyStationShape } from 'types/dutyStation';
 
+export const ServiceMemberShape = shape({
+  id: string.isRequired,
+  affiliation: string,
+  edipi: string,
+  rank: string,
+  first_name: string,
+  middle_name: string,
+  last_name: string,
+  suffix: string,
+  telephone: string,
+  secondary_telephone: string,
+  personal_email: string,
+  email_is_preferred: bool,
+  phone_is_preferred: bool,
+});
+
 export const MoveShape = shape({
   id: string,
   locator: string,
@@ -116,6 +132,12 @@ export const WizardPageShape = shape({
   pageKey: PageKeyShape.isRequired,
   match: MatchShape.isRequired,
   history: HistoryShape.isRequired,
+});
+
+export const BackupContactShape = shape({
+  name: string.isRequired,
+  telephone: string.isRequired,
+  email: string.isRequired,
 });
 
 export default {
