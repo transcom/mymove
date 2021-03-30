@@ -2,11 +2,10 @@ package supportapi
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/ssh"
+	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -369,95 +368,52 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		}
 	}
 
-	if *readFromSyncada {
-		sshClient, err := createSyncadaSSHClient()
-		if err != nil {
-			logger.Fatal("couldn't initialize SSH client", zap.Error(err))
-		}
-		defer func() {
-			if closeErr := sshClient.Close(); closeErr != nil {
-				logger.Fatal("could not close SFTP client", zap.Error(closeErr))
-			}
-		}()
+	v := viper.New()
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+	sshClient, err := cli.InitSyncadaSSH(v, logger)
 
-		sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
-		if err != nil {
-			logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
-		}
-		defer func() {
-			if closeErr := sftpClient.Close(); closeErr != nil {
-				logger.Fatal("could not close SFTP client", zap.Error(closeErr))
-			}
-		}()
-
-		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger, false)
-
-		// TODO where should we get path from?
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles("/CSFTP866/Pickup/", time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
-		if err != nil {
-			logger.Error("Error reading 997 responses", zap.Error(err))
-		} else {
-			logger.Info("Successfully processed 997 responses")
-		}
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles("/CSFTP866/Pickup/", time.Time{}, &edi824Processor{})
-		if err != nil {
-			logger.Error("Error reading 824 responses", zap.Error(err))
-		} else {
-			logger.Info("Successfully processed 824 responses")
-		}
-
-	} else {
-		// TODO Do we do nothing or do we fake a read from syncada?
+	if err != nil {
+		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 	}
+	defer func() {
+		if closeErr := sshClient.Close(); closeErr != nil {
+			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		}
+	}()
+
+	sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+	if err != nil {
+		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
+	}
+	defer func() {
+		if closeErr := sftpClient.Close(); closeErr != nil {
+			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		}
+	}()
+
+	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
+	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger, false)
+
+	// TODO GEX will put different response types in different directories, but
+	// Syncada puts everything in the same directory. When we have access to GEX in staging
+	// we will have to change this to use separate paths for different response types.
+	path := "/" + v.GetString(cli.SyncadaSFTPUserIDFlag) + v.GetString(cli.SyncadaSFTPOutboundDirectory)
+
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
+	if err != nil {
+		logger.Error("Error reading 997 responses", zap.Error(err))
+	} else {
+		logger.Info("Successfully processed 997 responses")
+	}
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, &edi824Processor{})
+	if err != nil {
+		logger.Error("Error reading 824 responses", zap.Error(err))
+	} else {
+		logger.Info("Successfully processed 824 responses")
+	}
+
 	payload := payloads.PaymentRequests(&updatedPaymentRequests)
 
 	return paymentrequestop.NewProcessReviewedPaymentRequestsOK().WithPayload(*payload)
-}
-
-// TODO where should this go?
-func createSyncadaSSHClient() (*ssh.Client, error) {
-	port := os.Getenv("SYNCADA_SFTP_PORT")
-	if port == "" {
-		return nil, fmt.Errorf("invalid SFTP credentials: missing SYNCADA_SFTP_PORT")
-	}
-
-	userID := os.Getenv("SYNCADA_SFTP_USER_ID")
-	if userID == "" {
-		return nil, fmt.Errorf("invalid SFTP credentials: missing SYNCADA_SFTP_USER_ID")
-	}
-
-	remote := os.Getenv("SYNCADA_SFTP_IP_ADDRESS")
-	if remote == "" {
-		return nil, fmt.Errorf("invalid SFTP credentials: missing SYNCADA_SFTP_IP_ADDRESS")
-	}
-
-	password := os.Getenv("SYNCADA_SFTP_PASSWORD")
-	if password == "" {
-		return nil, fmt.Errorf("invalid SFTP credentials: missing SYNCADA_SFTP_PASSWORD")
-	}
-
-	hostKeyString := os.Getenv("SYNCADA_SFTP_HOST_KEY")
-	if hostKeyString == "" {
-		return nil, fmt.Errorf("invalid SFTP credentials: missing SYNCADA_SFTP_HOST_KEY")
-	}
-	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse host key %w", err)
-	}
-
-	config := &ssh.ClientConfig{
-		User: userID,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(password),
-		},
-		HostKeyCallback: ssh.FixedHostKey(hostKey),
-	}
-	address := remote + ":" + port
-	sshClient, err := ssh.Dial("tcp", address, config)
-	if err != nil {
-		return nil, err
-	}
-
-	return sshClient, nil
 }

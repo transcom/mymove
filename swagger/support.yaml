@@ -1593,13 +1593,8 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
-      readFromSyncada:
-        example: true
-        type: boolean
-        x-nullable: true
     required:
       - sendToSyncada
-      - readFromSyncada
   ProofOfServicePackage:
     properties:
       id:
