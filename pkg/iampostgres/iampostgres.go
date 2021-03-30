@@ -11,8 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/transcom/mymove/pkg/random"
-
 	"database/sql"
 	"database/sql/driver"
 
@@ -78,40 +76,30 @@ func updateDSN(dsn string) (string, error) {
 	return dsn, nil
 }
 
-// EnableIAM enables the use of IAM and pulls first credential set as a sanity check
-// Note: This method is intended to be non-blocking, so please add any changes to the goroutine
-// Note: Ensure the timer is on an interval lower than 15 minutes (AWS RDS IAM auth limit)
-func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger) {
-	// Lets enable and configure the DSN settings
-	iamConfig.useIAM = true
-	iamConfig.passHolder = passTemplate
-	iamConfig.logger = logger
-
-	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
-	go func() {
-
-		// Add some entropy to this value so all instances don't fire at the same time
-		minDur := 100
-		maxDur := 5000
-		randInt, err := random.GetRandomIntAddend(minDur, maxDur)
-		if err != nil {
-			logger.Error("Error building auth token", zap.Error(err))
+// Refreshes the RDS IAM on the given interval.
+func refreshRDSIAM(host string, port string, region string, user string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger, errorMessagesChan chan error, shouldQuitChan chan bool) {
+	logger.Info("Starting refresh of RDS IAM")
+	// This for loop immediately runs the first tick then on interval
+	// This for loop will run indefinitely until it either errors or true is
+	// passed to the should quit channel.
+	for {
+		select {
+		case <-shouldQuitChan:
+			close(errorMessagesChan)
 			return
-		}
-		wait := time.Millisecond * time.Duration(randInt+minDur)
-		logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
-		time.Sleep(wait)
-
-		// This for loop immediately runs the first tick then on interval
-		for ; true; <-ticker.C {
+		default:
 			if creds == nil {
 				logger.Error("IAM Credentials are missing")
+				errorMessagesChan <- errors.New("IAM Credientials are missing")
+				close(errorMessagesChan)
 				return
 			}
 			logger.Info("Using IAM Authentication")
 			authToken, err := rus.GetToken(host+":"+port, region, user, creds)
 			if err != nil {
 				logger.Error("Error building auth token", zap.Error(err))
+				errorMessagesChan <- fmt.Errorf("Error building auth token %v", err)
+				close(errorMessagesChan)
 				return
 			}
 
@@ -119,8 +107,34 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 			iamConfig.currentIamPass = url.QueryEscape(authToken)
 			iamConfig.currentPassMutex.Unlock()
 			logger.Info("Successfully generated new IAM token")
+			<-ticker.C
 		}
-	}()
+	}
+}
+
+// EnableIAM enables the use of IAM and pulls first credential set as a sanity check
+// Note: This method is intended to be non-blocking, so please add any changes to the goroutine
+// Note: Ensure the timer is on an interval lower than 15 minutes (AWS RDS IAM auth limit)
+func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger, shouldQuitChan chan bool) {
+	// Lets enable and configure the DSN settings
+	iamConfig.useIAM = true
+	iamConfig.passHolder = passTemplate
+	iamConfig.logger = logger
+
+	errorMessagesChan := make(chan error)
+
+	// GoRoutine to continually refresh the RDS IAM auth on the given interval.
+	go refreshRDSIAM(host, port, region, user, creds, rus, ticker, logger, errorMessagesChan, shouldQuitChan)
+
+	go logEnableIAMFailed(logger, errorMessagesChan)
+}
+
+func logEnableIAMFailed(logger Logger, errorMessagesChan chan error) {
+	errorMessages := <-errorMessagesChan
+
+	if errorMessages != nil {
+		logger.Error("Refreshing RDS IAM failed")
+	}
 }
 
 // Open wrapper around postgres Open func

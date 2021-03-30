@@ -57,8 +57,8 @@ function customerReviewsNTSRMoveDetails() {
 function customerEditsNTSRShipmentFromReviewPage() {
   cy.get('button[data-testid="edit-ntsr-shipment-btn"]').contains('Edit').click();
   cy.get('input[name="delivery.requestedDate"]').clear().type('01/01/2022').blur();
-  cy.get('[data-testid="mailingAddress1"]').clear().type('123 Maple street');
-  cy.get('input[data-testid="firstName"]').clear().type('Ketchum').blur();
+  cy.get('input[name="delivery.address.street_address_1"]').clear().type('123 Maple street');
+  cy.get('input[name="delivery.agent.firstName"]').clear().type('Ketchum').blur();
   cy.get('textarea[data-testid="remarks"]').clear().type('Warning: fragile').blur();
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
@@ -81,7 +81,7 @@ function customerCreatesAnNTSRShipment() {
   cy.get('input[type="radio"]').eq(3).check({ force: true });
   cy.nextPage();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ntsr-start/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/new-shipment/);
   });
 
   // pickup date
@@ -90,10 +90,10 @@ function customerCreatesAnNTSRShipment() {
   // no delivery location
 
   // receiving agent
-  cy.get(`[data-testid="firstName"]`).type('James');
-  cy.get(`[data-testid="lastName"]`).type('Bond');
-  cy.get(`[data-testid="phone"]`).type('7777777777');
-  cy.get(`[data-testid="email"]`).type('007@example.com').blur();
+  cy.get(`input[name="delivery.agent.firstName"]`).type('James');
+  cy.get(`input[name="delivery.agent.lastName"]`).type('Bond');
+  cy.get(`input[name="delivery.agent.phone"]`).type('7777777777');
+  cy.get(`input[name="delivery.agent.email"]`).type('007@example.com').blur();
 
   // remarks
   cy.get(`[data-testid="remarks"]`).first().type('some other customer remark');

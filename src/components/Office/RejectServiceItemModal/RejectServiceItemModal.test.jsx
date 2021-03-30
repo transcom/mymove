@@ -9,6 +9,7 @@ import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/Rej
 describe('RejectServiceItemModal', () => {
   const submittedServiceItem = {
     id: 'abc123',
+    mtoShipmentID: 'xyz789',
     code: 'DCRT',
     serviceItem: 'Domestic Crating',
     status: SERVICE_ITEM_STATUS.SUBMITTED,
@@ -108,7 +109,7 @@ describe('RejectServiceItemModal', () => {
   });
 
   // onSubmit is not getting called
-  it.skip('calls the submit function when submit putton is clicked', async () => {
+  it('calls the submit function when submit button is clicked', async () => {
     const onSubmit = jest.fn();
 
     const wrapper = mount(
@@ -117,14 +118,16 @@ describe('RejectServiceItemModal', () => {
 
     await act(async () => {
       wrapper
-        .find('[data-testid="textInput"]')
+        .find('input[name="rejectionReason"]')
         .simulate('change', { target: { name: 'rejectionReason', value: 'good reason' } });
-
-      wrapper.find('form').simulate('click');
     });
-
     wrapper.update();
 
-    expect(onSubmit.mock.calls.length).toBe(1);
+    await act(async () => {
+      // the submit button doesn't have an onClick listener explicitly attached but the form does
+      wrapper.find('form').simulate('submit');
+    });
+
+    expect(onSubmit).toHaveBeenCalledWith('abc123', 'xyz789', SERVICE_ITEM_STATUS.REJECTED, 'good reason');
   });
 });

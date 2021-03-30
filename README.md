@@ -258,7 +258,7 @@ You can feel free to skip running the pre-commit checks at this time. Before you
 
 #### Troubleshooting install issues (process hanging on install hooks)
 
-Since pre-commit uses node to hook things up in both your local repo and its cache folder (located at `~/.cache/pre-commit`),it requires a global node install. If you are using nodenv to manage multiple installed nodes, you'll need to set a global version to proceed (eg `nodenv global 12.16.3`). You can find the current supported node version [here (in `.node-version`)](./.node-version). Make sure you run `nodenv install` to install the current supported version.
+Since pre-commit uses node to hook things up in both your local repo and its cache folder (located at `~/.cache/pre-commit`),it requires a global node install. If you are using nodenv to manage multiple installed nodes, you'll need to set a global version to proceed (eg `nodenv global 12.21.0`). You can find the current supported node version [here (in `.node-version`)](./.node-version). Make sure you run `nodenv install` to install the current supported version.
 
 ### Setup: Dependencies
 

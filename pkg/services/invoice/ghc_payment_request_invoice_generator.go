@@ -16,6 +16,12 @@ import (
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 )
 
+/*
+	NOTE: The GCN from GS06 and GE02 will match the ICN in ISA13 and IEA02,
+	which restricts the 858 to only ever have 1 functional group.
+	If multiple functional groups are needed, this will have to change.
+*/
+
 type ghcPaymentRequestInvoiceGenerator struct {
 	db           *pop.Connection
 	icnSequencer sequence.Sequencer
@@ -90,6 +96,18 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to get next Interchange Control Number: %w", err)
 	}
 
+	// save ICN
+	pr2icn := models.PaymentRequestToInterchangeControlNumber{
+		PaymentRequestID:         paymentRequest.ID,
+		InterchangeControlNumber: int(interchangeControlNumber),
+	}
+	verrs, err := g.db.ValidateAndSave(&pr2icn)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %w", err)
+	} else if verrs != nil && verrs.HasAny() {
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %s", verrs.String())
+	}
+
 	var usageIndicator string
 	if sendProductionInvoice {
 		usageIndicator = "P"
@@ -123,7 +141,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		ApplicationReceiversCode: "8004171844",
 		Date:                     currentTime.Format(dateFormat),
 		Time:                     currentTime.Format(timeFormat),
-		GroupControlNumber:       100001251,
+		GroupControlNumber:       interchangeControlNumber,
 		ResponsibleAgencyCode:    "X",
 		Version:                  "004010",
 	}
@@ -137,7 +155,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		TransactionSetPurposeCode:    "00",
 		TransactionMethodTypeCode:    "J",
 		ShipmentMethodOfPayment:      "PP",
-		ShipmentIdentificationNumber: *moveTaskOrder.ReferenceID,
+		ShipmentIdentificationNumber: paymentRequest.PaymentRequestNumber,
 		StandardCarrierAlphaCode:     "TRUS",
 		ShipmentQualifier:            "4",
 	}
@@ -233,7 +251,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.GE = edisegment.GE{
 		NumberOfTransactionSetsIncluded: 1,
-		GroupControlNumber:              100001251,
+		GroupControlNumber:              interchangeControlNumber,
 	}
 
 	edi858.IEA = edisegment.IEA{

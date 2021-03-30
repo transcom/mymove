@@ -35,3 +35,13 @@ export const formatYesNoAPIValue = (value) => {
   if (value === 'no') return false;
   return undefined;
 };
+
+// Translate weights from lbs to CWT
+export const formatWeightCWTFromLbs = (value) => {
+  return `${parseInt(value, 10) / 100} cwt`;
+};
+
+// Translate currency from millicents to dollars
+export const formatDollarFromMillicents = (value) => {
+  return `$${(parseInt(value, 10) / 100000).toFixed(2)}`;
+};

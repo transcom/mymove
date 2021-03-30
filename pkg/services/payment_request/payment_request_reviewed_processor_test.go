@@ -9,19 +9,21 @@
 package paymentrequest
 
 import (
-	"errors"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/services"
+	"github.com/pkg/errors"
 
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/services"
+
+	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/services/invoice"
+
 	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -372,7 +374,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sftpSender)
 
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.Contains(err.Error(), "error sending the following EDIs")
+		suite.Contains(err.Error(), "error sending the following EDI")
+
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
 		fetcher := NewPaymentRequestFetcher(suite.DB())
 		for _, pr := range prs {
@@ -449,5 +452,69 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		// Run init with no issues
 		_, err := InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false, suite.icnSequencer)
 		suite.NoError(err)
+	})
+}
+
+func (suite *PaymentRequestServiceSuite) lockPR(prID uuid.UUID) {
+	query := `
+		BEGIN;
+		SELECT * FROM payment_requests
+		WHERE id = $1 FOR UPDATE SKIP LOCKED;
+		UPDATE payment_requests
+		SET
+			status = $2,
+		WHERE id = $1;
+	`
+	suite.DB().RawQuery(query, prID, models.PaymentRequestStatusPaid).Exec()
+	time.Sleep(1 * time.Second)
+	suite.DB().RawQuery(`COMMIT;`).Exec()
+}
+
+func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest() {
+	os.Setenv("SYNCADA_SFTP_PORT", "1234")
+	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	// generated fake host key to pass parser used following command and only saved the pub key
+	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
+	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+
+	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+	SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
+	suite.NoError(SFTPSessionError)
+	var gexSender services.GexSender
+	gexSender = nil
+	sendToSyncada := false
+
+	paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+		suite.DB(),
+		suite.logger,
+		reviewedPaymentRequestFetcher,
+		generator,
+		sendToSyncada,
+		gexSender,
+		SFTPSession)
+
+	suite.T().Run("successfully process prs even when a locked row has a delay", func(t *testing.T) {
+		reviewedPaymentRequests := suite.createPaymentRequest(2)
+
+		go suite.lockPR(reviewedPaymentRequests[0].ID)
+
+		for _, pr := range reviewedPaymentRequests {
+			err := paymentRequestReviewedProcessor.ProcessAndLockReviewedPR(pr)
+			suite.NoError(err)
+		}
+
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for i, pr := range reviewedPaymentRequests {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			if i == 0 {
+				suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
+			} else {
+				suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
+			}
+		}
 	})
 }

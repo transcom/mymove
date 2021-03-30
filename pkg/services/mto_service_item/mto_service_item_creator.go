@@ -195,7 +195,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure
-	o.builder.Transaction(func(tx *pop.Connection) error {
+	transactionErr := o.builder.Transaction(func(tx *pop.Connection) error {
+
 		// create new builder to use tx
 		txBuilder := o.createNewBuilder(tx)
 
@@ -262,22 +263,56 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			}
 		}
 
-		// Once the service item is successfully created, the Move's status needs to
-		// be updated to 'Approvals Requested' if it's not already in that state,
-		// which will let the TOO know they need to review it.
-		err = move.SetApprovalsRequested()
-		if err != nil {
-			return fmt.Errorf("%e", err)
+		moveShouldBeApproved := true
+
+		// If any of the requested service items are in SUBMITTED status, then
+		// we need to change the move status to APPROVALS REQUESTED so the TOO
+		// can review them. Setting moveSouldBeApproved to false is how we know
+		// to set it to APPROVALS REQUESTED further down below.
+		for _, serviceItem := range requestedServiceItems {
+			if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+				moveShouldBeApproved = false
+				break
+			}
 		}
-		verrs, err = txBuilder.UpdateOne(&move, nil)
-		if verrs != nil || err != nil {
-			return fmt.Errorf("%#v %e", verrs, err)
+
+		// In case other service items have been created at the same time on this
+		// same move, we fetch the move from the DB and check if it has any
+		// submitted service items.
+		tx.Reload(&move)
+		for _, serviceItem := range move.MTOServiceItems {
+			if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+				moveShouldBeApproved = false
+				break
+			}
+		}
+
+		if moveShouldBeApproved {
+			err = move.Approve()
+			if err != nil {
+				return fmt.Errorf("%e", err)
+			}
+			verrs, err = txBuilder.UpdateOne(&move, nil)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("%#v %e", verrs, err)
+			}
+		} else {
+			err = move.SetApprovalsRequested()
+			if err != nil {
+				return fmt.Errorf("%e", err)
+			}
+			verrs, err = txBuilder.UpdateOne(&move, nil)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("%#v %e", verrs, err)
+			}
 		}
 
 		return nil
 	})
 
-	if verrs != nil && verrs.HasAny() {
+	if transactionErr != nil {
+		return nil, nil, transactionErr
+	} else if verrs != nil && verrs.HasAny() {
 		return nil, verrs, nil
 	} else if err != nil {
 		return nil, verrs, services.NewQueryError("unknown", err, "")

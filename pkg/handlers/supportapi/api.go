@@ -76,7 +76,7 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{context, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)}
-	supportAPI.WebhookPostWebhookNotifyHandler = PostWebhookNotifyHandler{context}
+	supportAPI.WebhookReceiveWebhookNotificationHandler = ReceiveWebhookNotificationHandler{context}
 
 	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
 		HandlerContext:                    context,
@@ -97,6 +97,10 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		// - https://github.com/transcom/mymove/blob/c42adf61735be8ee8e5e83f41a656206f1e59b9d/pkg/handlers/primeapi/api.go
 		// As a temporary workaround paymentrequest.InitNewPaymentRequestReviewedProcessor
 		// is called directly in the handler
+	}
+
+	supportAPI.WebhookCreateWebhookNotificationHandler = CreateWebhookNotificationHandler{
+		HandlerContext: context,
 	}
 
 	return supportAPI.Serve(nil)

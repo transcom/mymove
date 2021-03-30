@@ -44,7 +44,7 @@ type UpdatePaymentServiceItemStatusParams struct {
 	  In: body
 	*/
 	Body *ghcmessages.PaymentServiceItem
-	/*ID of move order to use
+	/*ID of move to use
 	  Required: true
 	  In: path
 	*/

@@ -46,7 +46,7 @@ const networkProfiles = {
     upload: (10 * 1024 * 1024) / 8,
     latency: 20,
   },
-  medium: {
+  average: {
     offline: false,
     download: (5 * 1024 * 1024) / 8,
     upload: (5 * 1024 * 1024) / 8,
@@ -102,7 +102,7 @@ const fileSizePaymentRequestIds = {
 };
 
 // All speeds available
-const speeds = ['fast', 'medium', 'slow'];
+const speeds = ['fast', 'average', 'slow'];
 
 module.exports = {
   schema,

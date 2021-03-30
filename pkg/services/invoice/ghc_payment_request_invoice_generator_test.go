@@ -244,6 +244,19 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	result, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
 
+	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
+	suite.T().Run("the GCN is equal to the ICN", func(t *testing.T) {
+		suite.EqualValues(result.ISA.InterchangeControlNumber, result.IEA.InterchangeControlNumber, result.GS.GroupControlNumber, result.GE.GroupControlNumber)
+	})
+
+	// Test that the Interchange Control Number (ICN) is being saved to the db
+	suite.T().Run("the ICN is saved to the database", func(t *testing.T) {
+		var pr2icn models.PaymentRequestToInterchangeControlNumber
+		err := suite.DB().Where("payment_request_id = ?", paymentRequest.ID).First(&pr2icn)
+		suite.NoError(err)
+		suite.Equal(int(result.ISA.InterchangeControlNumber), pr2icn.InterchangeControlNumber)
+	})
+
 	// Test Invoice Start and End Segments
 	suite.T().Run("adds isa start segment", func(t *testing.T) {
 		suite.Equal("00", result.ISA.AuthorizationInformationQualifier)
@@ -270,7 +283,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("8004171844", result.GS.ApplicationReceiversCode)
 		suite.Equal(currentTime.Format(testDateFormat), result.GS.Date)
 		suite.Equal(currentTime.Format(testTimeFormat), result.GS.Time)
-		suite.Equal(int64(100001251), result.GS.GroupControlNumber)
+		suite.Equal(int64(123), result.GS.GroupControlNumber)
 		suite.Equal("X", result.GS.ResponsibleAgencyCode)
 		suite.Equal("004010", result.GS.Version)
 	})
@@ -288,7 +301,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds ge end segment", func(t *testing.T) {
 		suite.Equal(1, result.GE.NumberOfTransactionSetsIncluded)
-		suite.Equal(int64(100001251), result.GE.GroupControlNumber)
+		suite.Equal(int64(123), result.GE.GroupControlNumber)
 	})
 
 	suite.T().Run("adds iea end segment", func(t *testing.T) {
@@ -303,7 +316,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("00", bx.TransactionSetPurposeCode)
 		suite.Equal("J", bx.TransactionMethodTypeCode)
 		suite.Equal("PP", bx.ShipmentMethodOfPayment)
-		suite.Equal(*paymentRequest.MoveTaskOrder.ReferenceID, bx.ShipmentIdentificationNumber)
+		suite.Equal(paymentRequest.PaymentRequestNumber, bx.ShipmentIdentificationNumber)
 		suite.Equal("TRUS", bx.StandardCarrierAlphaCode)
 		suite.Equal("4", bx.ShipmentQualifier)
 	})
@@ -682,8 +695,16 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	// This won't work because we don't have PaymentServiceItems on the PaymentRequest right now.
 	// nilPaymentRequest.PaymentServiceItems[0].PriceCents = nil
 
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+	//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+	//RA: in a unit test, then there is no risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
 	panicFunc := func() {
-		generator.Generate(nilPaymentRequest, false)
+		generator.Generate(nilPaymentRequest, false) // nolint:errcheck
 	}
 
 	suite.T().Run("nil TAC does not cause panic", func(t *testing.T) {

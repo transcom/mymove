@@ -8,13 +8,13 @@ import (
 // ISA represents the ISA EDI segment
 type ISA struct {
 	AuthorizationInformationQualifier string `validate:"eq=00"`
-	AuthorizationInformation          string `validate:"eq=0084182369"`
+	AuthorizationInformation          string `validate:"omitempty,eq=0084182369"`
 	SecurityInformationQualifier      string `validate:"eq=00"`
-	SecurityInformation               string `validate:"eq=0000000000"`
-	InterchangeSenderIDQualifier      string `validate:"eq=ZZ"`
-	InterchangeSenderID               string `validate:"eq=MILMOVE        "`
-	InterchangeReceiverIDQualifier    string `validate:"eq=12"`
-	InterchangeReceiverID             string `validate:"eq=8004171844     "`
+	SecurityInformation               string `validate:"omitempty,eq=0000000000"`
+	InterchangeSenderIDQualifier      string `validate:"oneof=12 ZZ"`
+	InterchangeSenderID               string `validate:"len=15"`
+	InterchangeReceiverIDQualifier    string `validate:"oneof=12 ZZ"`
+	InterchangeReceiverID             string `validate:"len=15"`
 	InterchangeDate                   string `validate:"datetime=060102"`
 	InterchangeTime                   string `validate:"datetime=1504"`
 	InterchangeControlStandards       string `validate:"eq=U"`
