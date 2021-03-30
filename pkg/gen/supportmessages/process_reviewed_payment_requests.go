@@ -22,10 +22,6 @@ type ProcessReviewedPaymentRequests struct {
 	// Format: uuid
 	PaymentRequestID strfmt.UUID `json:"paymentRequestID,omitempty"`
 
-	// read from syncada
-	// Required: true
-	ReadFromSyncada *bool `json:"readFromSyncada"`
-
 	// send to syncada
 	// Required: true
 	SendToSyncada *bool `json:"sendToSyncada"`
@@ -39,10 +35,6 @@ func (m *ProcessReviewedPaymentRequests) Validate(formats strfmt.Registry) error
 	var res []error
 
 	if err := m.validatePaymentRequestID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReadFromSyncada(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -67,15 +59,6 @@ func (m *ProcessReviewedPaymentRequests) validatePaymentRequestID(formats strfmt
 	}
 
 	if err := validate.FormatOf("paymentRequestID", "body", "uuid", m.PaymentRequestID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ProcessReviewedPaymentRequests) validateReadFromSyncada(formats strfmt.Registry) error {
-
-	if err := validate.Required("readFromSyncada", "body", m.ReadFromSyncada); err != nil {
 		return err
 	}
 
