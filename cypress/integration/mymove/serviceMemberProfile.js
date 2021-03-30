@@ -111,8 +111,6 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   //backup contact
   cy.get('input[name="name"]').type('Douglas Glass');
   cy.get('input[name="email"]').type('doug@glass.net');
+  cy.get('input[name="telephone"]').type('555-555-3333');
   cy.nextPage();
-
-  //transition
-  // cy.nextPage();
 }
