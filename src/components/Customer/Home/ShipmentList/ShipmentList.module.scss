@@ -11,6 +11,9 @@
   padding-right: 13px;
   padding-top: 12px;
   padding-bottom: 12px;
+  width: 100%;
+  background-color: transparent;
+  cursor: pointer;
   @include u-margin-bottom(1);
 
   strong {
