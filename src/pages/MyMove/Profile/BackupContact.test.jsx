@@ -8,11 +8,13 @@ import userEvent from '@testing-library/user-event';
 import ConnectedBackupContact, { BackupContact } from './BackupContact';
 
 import { MockProviders } from 'testUtils';
-import { createBackupContactForServiceMember } from 'services/internalApi';
+import { createBackupContactForServiceMember, patchBackupContact, getServiceMember } from 'services/internalApi';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   createBackupContactForServiceMember: jest.fn(),
+  patchBackupContact: jest.fn(),
+  getServiceMember: jest.fn(),
 }));
 
 describe('BackupContact page', () => {
@@ -30,7 +32,7 @@ describe('BackupContact page', () => {
     name: 'Ima Goddess',
     telephone: '555-555-5555',
     email: 'test@example.com',
-    permission: 'NONE',
+    // permission: 'NONE',
   };
 
   const testBackupContacts = [testBackupContactValues];
@@ -53,55 +55,114 @@ describe('BackupContact page', () => {
 
     expect(testProps.push).toHaveBeenCalledWith('/service-member/backup-address');
   });
+  describe('if there is an existing backup contact', () => {
+    it('next button submits the form and goes to the Home step if there is an existing backup contact', async () => {
+      patchBackupContact.mockImplementation(() => Promise.resolve(testBackupContactValues));
+      getServiceMember.mockImplementation(() => Promise.resolve({ id: 'test' }));
+      testProps.updateServiceMember.mockImplementation(() => Promise.resolve({}));
 
-  it('next button submits the form and goes to the Home step', async () => {
-    createBackupContactForServiceMember.mockImplementation(() => Promise.resolve(testBackupContactValues));
+      // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
+      const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContacts} />);
 
-    // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContacts} />);
+      const submitButton = queryByText('Next');
+      expect(submitButton).toBeInTheDocument();
+      userEvent.click(submitButton);
 
-    const submitButton = queryByText('Next');
-    expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+      await waitFor(() => {
+        expect(patchBackupContact).toHaveBeenCalled();
+      });
 
-    await waitFor(() => {
-      expect(createBackupContactForServiceMember).toHaveBeenCalled();
+      expect(testProps.updateBackupContact).toHaveBeenCalledWith(testBackupContactValues);
+      expect(testProps.push).toHaveBeenCalledWith('/');
     });
 
-    expect(testProps.updateBackupContact).toHaveBeenCalledWith(testBackupContactValues);
-    expect(testProps.push).toHaveBeenCalledWith('/');
-  });
-
-  it('shows an error if the API returns an error', async () => {
-    createBackupContactForServiceMember.mockImplementation(() =>
-      // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
-      // eslint-disable-next-line prefer-promise-reject-errors
-      Promise.reject({
-        message: 'A server error occurred saving the backup contact',
-        response: {
-          body: {
-            detail: 'A server error occurred saving the backup contact',
+    it('shows an error if the API returns an error', async () => {
+      patchBackupContact.mockImplementation(() =>
+        // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
+        // eslint-disable-next-line prefer-promise-reject-errors
+        Promise.reject({
+          message: 'A server error occurred saving the backup contact',
+          response: {
+            body: {
+              detail: 'A server error occurred saving the backup contact',
+            },
           },
-        },
-      }),
-    );
+        }),
+      );
 
-    // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContacts} />);
+      // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
+      const { queryByText } = render(<BackupContact {...testProps} currentBackupContacts={testBackupContacts} />);
 
-    const submitButton = queryByText('Next');
-    expect(submitButton).toBeInTheDocument();
-    userEvent.click(submitButton);
+      const submitButton = queryByText('Next');
+      expect(submitButton).toBeInTheDocument();
+      userEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(createBackupContactForServiceMember).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(patchBackupContact).toHaveBeenCalled();
+      });
+
+      expect(queryByText('A server error occurred saving the backup contact')).toBeInTheDocument();
+      expect(testProps.updateBackupContact).not.toHaveBeenCalled();
+      expect(testProps.push).not.toHaveBeenCalled();
+    });
+  });
+  describe('if there is no existing backup contact', () => {
+    it('next button submits the form and goes to the Home step if there is an existing backup contact', async () => {
+      createBackupContactForServiceMember.mockImplementation(() => Promise.resolve(testBackupContactValues));
+      getServiceMember.mockImplementation(() => Promise.resolve({ id: 'test' }));
+      testProps.updateServiceMember.mockImplementation(() => Promise.resolve({}));
+
+      // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
+      const { queryByText, getByLabelText } = render(<BackupContact {...testProps} />);
+
+      const submitButton = queryByText('Next');
+      expect(submitButton).toBeInTheDocument();
+      userEvent.type(getByLabelText('Name'), 'Joe Schmoe');
+      userEvent.type(getByLabelText('Phone'), '555-555-5555');
+      userEvent.type(getByLabelText('Email'), 'test@sample.com');
+      userEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(createBackupContactForServiceMember).toHaveBeenCalled();
+      });
+
+      expect(testProps.updateBackupContact).toHaveBeenCalledWith(testBackupContactValues);
+      expect(testProps.push).toHaveBeenCalledWith('/');
     });
 
-    expect(queryByText('A server error occurred saving the backup contact')).toBeInTheDocument();
-    expect(testProps.updateBackupContact).not.toHaveBeenCalled();
-    expect(testProps.push).not.toHaveBeenCalled();
-  });
+    it('shows an error if the API returns an error', async () => {
+      createBackupContactForServiceMember.mockImplementation(() =>
+        // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
+        // eslint-disable-next-line prefer-promise-reject-errors
+        Promise.reject({
+          message: 'A server error occurred saving the backup contact',
+          response: {
+            body: {
+              detail: 'A server error occurred saving the backup contact',
+            },
+          },
+        }),
+      );
 
+      // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
+      const { queryByText, getByLabelText } = render(<BackupContact {...testProps} />);
+
+      const submitButton = queryByText('Next');
+      expect(submitButton).toBeInTheDocument();
+      userEvent.type(getByLabelText('Name'), 'Joe Schmitty');
+      userEvent.type(getByLabelText('Phone'), '555-555-5555');
+      userEvent.type(getByLabelText('Email'), 'test@sample.com');
+      userEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(createBackupContactForServiceMember).toHaveBeenCalled();
+      });
+
+      expect(queryByText('A server error occurred saving the backup contact')).toBeInTheDocument();
+      expect(testProps.updateBackupContact).not.toHaveBeenCalled();
+      expect(testProps.push).not.toHaveBeenCalled();
+    });
+  });
   afterEach(jest.resetAllMocks);
 });
 

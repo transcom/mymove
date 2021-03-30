@@ -19,7 +19,7 @@ import {
 import { selectServiceMemberFromLoggedInUser, selectBackupContacts } from 'store/entities/selectors';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
-import { customerRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import scrollToTop from 'shared/scrollToTop';
 
 export const BackupContact = ({
@@ -64,6 +64,7 @@ export const BackupContact = ({
         .then((response) => {
           updateServiceMember(response);
         })
+        .then(() => push(generalRoutes.HOME_PATH))
         .catch((e) => {
           // TODO - error handling - below is rudimentary error handling to approximate existing UX
           // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
@@ -82,6 +83,7 @@ export const BackupContact = ({
       .then((response) => {
         updateServiceMember(response);
       })
+      .then(() => push(generalRoutes.HOME_PATH))
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
