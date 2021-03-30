@@ -274,7 +274,6 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 
 	paymentRequestID := uuid.FromStringOrNil(params.Body.PaymentRequestID.String())
 	sendToSyncada := params.Body.SendToSyncada
-	readFromSyncada := params.Body.ReadFromSyncada
 	paymentRequestStatus := params.Body.Status
 	var paymentRequests models.PaymentRequests
 	var updatedPaymentRequests models.PaymentRequests
@@ -282,10 +281,6 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	if sendToSyncada == nil {
 		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, sendToSyncada flag required", h.GetTraceID()))
 	}
-	if readFromSyncada == nil {
-		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, readFromSyncada flag required", h.GetTraceID()))
-	}
-
 	if *sendToSyncada {
 		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, h.ICNSequencer())
 		if err != nil {
