@@ -39,7 +39,7 @@ export const BackupMailingAddress = ({ serviceMember, updateServiceMember, push 
   const handleSubmit = (values) => {
     const payload = {
       id: serviceMember.id,
-      residential_address: values.current_residence,
+      backup_mailing_address: values.backup_mailing_address,
     };
 
     return patchServiceMember(payload)
