@@ -615,6 +615,6 @@
 20210224194311_alter_transportation_accounting_codes_timestamps_to_default_to_now.up.sql
 20210224203932_add_transportation_accounting_codes.up.sql
 20210301215522_add_cancellation_requested_shipment_status.up.sql
-20210310173244_create-edi-errors-tables.up.sql
 20210318162232_create_edi_processing_table.up.sql
 20210323204715_add_payment_request_to_interchange_control_number.up.sql
+20210330000000_create-edi-errors-tables.up.sql
