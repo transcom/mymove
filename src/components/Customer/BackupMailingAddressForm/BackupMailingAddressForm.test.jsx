@@ -24,7 +24,7 @@ describe('BackupMailingAddressForm component', () => {
 
   const fakeAddress = {
     street_address_1: '235 Prospect Valley Road SE',
-    street_address_2: '',
+    street_address_2: '#125',
     city: 'El Paso',
     state: 'TX',
     postal_code: '79912',
@@ -87,6 +87,7 @@ describe('BackupMailingAddressForm component', () => {
     const submitBtn = getByRole('button', { name: 'Next' });
 
     userEvent.type(getByLabelText('Address 1'), fakeAddress.street_address_1);
+    userEvent.type(getByLabelText(/Address 2/), fakeAddress.street_address_2);
     userEvent.type(getByLabelText('City'), fakeAddress.city);
     userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
     userEvent.type(getByLabelText('ZIP'), fakeAddress.postal_code);
