@@ -381,6 +381,10 @@ describe('MoveDetails page', () => {
       expect(wrapper.find('#customer-info h4').text()).toEqual('Customer info');
     });
 
+    it('renders the requested shipments tag', () => {
+      expect(wrapper.find('span[data-testid="requestedShipmentsTag"]').text()).toEqual('1');
+    });
+
     it('updates the unapproved shipments tag state', () => {
       expect(setUnapprovedShipmentCount).toHaveBeenCalledWith(1);
       expect(setUnapprovedShipmentCount.mock.calls[0][0]).toBe(1);
