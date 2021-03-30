@@ -123,7 +123,7 @@ const pages = {
   [customerRoutes.BACKUP_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.backup_mailing_address),
-    render: (key, pages) => ({ history }) => <BackupMailingAddress push={history.push} />,
+    render: () => ({ history }) => <BackupMailingAddress push={history.push} />,
   },
   [customerRoutes.BACKUP_CONTACTS_PATH]: {
     isInFlow: myFirstRodeo,
