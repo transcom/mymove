@@ -8,15 +8,52 @@ export default {
   argTypes: {
     onSubmit: { action: 'submit form' },
     onBack: { action: 'go back' },
-    initialValues: {
-      current_station: {},
-    },
   },
 };
 
 export const DefaultState = (argTypes) => (
+  <CurrentDutyStationForm initialValues={{}} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
+);
+
+export const InitialValues = (argTypes) => (
   <CurrentDutyStationForm
-    initialValues={argTypes.initialValues}
+    initialValues={{
+      current_station: {
+        address: {
+          city: 'Los Angeles',
+          state: 'CA',
+          postal_code: '90245',
+        },
+        name: 'Los Angeles AFB',
+        id: 'testId',
+      },
+    }}
+    onSubmit={argTypes.onSubmit}
+    onBack={argTypes.onBack}
+  />
+);
+
+export const Error = (argTypes) => (
+  <CurrentDutyStationForm
+    initialValues={{
+      current_station: {
+        address: {
+          city: 'Los Angeles',
+          state: 'CA',
+          postal_code: '90245',
+        },
+        name: 'Los Angeles AFB',
+        id: 'testId',
+      },
+    }}
+    newDutyStation={{
+      address: {
+        city: 'Los Angeles',
+        state: 'CA',
+        postal_code: '90245',
+      },
+      id: 'testId',
+    }}
     onSubmit={argTypes.onSubmit}
     onBack={argTypes.onBack}
   />

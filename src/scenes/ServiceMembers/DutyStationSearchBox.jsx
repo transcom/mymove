@@ -118,7 +118,7 @@ export class DutyStationSearchBox extends Component {
         borderRadius: '0px',
         borderColor: uswdsBlack,
         padding: '0.1rem',
-        maxWidth: '30rem',
+        maxWidth: '32rem',
         ':hover': {
           ...styles[':hover'],
           borderColor: uswdsBlack,

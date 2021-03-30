@@ -44,14 +44,17 @@ describe('CurrentDutyStationForm component', () => {
         initialValues={{
           current_station: {
             address: {
-              city: 'San Diego',
+              city: 'Los Angeles',
               state: 'CA',
-              postal_code: '92104',
+              postal_code: '90245',
             },
+            name: 'Los Angeles AFB',
             id: 'testId',
           },
         }}
-        newDutyStataion={{ id: 'testId' }}
+        newDutyStation={{
+          id: 'testId',
+        }}
       />,
     );
     const submitBtn = getByRole('button', { name: 'Next' });
