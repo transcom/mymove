@@ -24,7 +24,7 @@ jest.mock('shared/api', () => ({
 describe('ResidentialAddress page', () => {
   const fakeAddress = {
     street_address_1: '235 Prospect Valley Road SE',
-    street_address_2: '',
+    street_address_2: '#125',
     city: 'El Paso',
     state: 'TX',
     postal_code: '79912',
