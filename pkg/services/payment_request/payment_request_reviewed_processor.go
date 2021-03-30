@@ -7,6 +7,7 @@ import (
 
 	"github.com/benbjohnson/clock"
 	"github.com/gobuffalo/pop/v5"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services/invoice"
 
@@ -137,11 +138,45 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 	}
 
 	// Send all reviewed payment request to Syncada
+	numProcessed := 0
+	start := time.Now()
 	for _, pr := range reviewedPaymentRequests {
 		err := p.ProcessAndLockReviewedPR(pr)
 		if err != nil {
+			// Since this stops if we get an error processing a PR, we need to record metrics here too.
+			recordErr := p.recordMetrics(start, time.Now(), numProcessed)
+			if recordErr != nil {
+				return recordErr
+			}
 			return err
 		}
+		numProcessed++
+	}
+
+	recordErr := p.recordMetrics(start, time.Now(), numProcessed)
+	if recordErr != nil {
+		return recordErr
+	}
+
+	return nil
+}
+
+func (p *paymentRequestReviewedProcessor) recordMetrics(start time.Time, end time.Time, numProcessed int) error {
+	p.logger.Info("EDIs processed", zap.Time("start", start), zap.Time("end", end), zap.Int("num processed", numProcessed))
+
+	ediProcessing := models.EDIProcessing{
+		EDIType:          models.EDIType858, // TODO: May want to change name of type to have prefix "EDIType"
+		ProcessStartedAt: start,
+		ProcessEndedAt:   end,
+		NumEDIsProcessed: numProcessed,
+	}
+
+	verrs, err := p.db.ValidateAndCreate(&ediProcessing)
+	if err != nil {
+		return fmt.Errorf("failed to create EDIProcessing record: %w", err)
+	}
+	if verrs.HasAny() {
+		return fmt.Errorf("failed to validate EDIProcessing record: %w", verrs)
 	}
 
 	return nil
