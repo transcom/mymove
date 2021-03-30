@@ -101,7 +101,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="backup_mailing_address.street_address_1"]').type('567 Another St');
   cy.get('input[name="backup_mailing_address.city"]').type('Anytown');
   cy.get('select[name="backup_mailing_address.state"]').select('CO');
-  cy.get('input[name="backup_mailing_address.postal_code"]').type('80913');
+  cy.get('input[name="backup_mailing_address.postal_code"]').type('80913').blur();
   cy.nextPage();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/backup-contact/);
