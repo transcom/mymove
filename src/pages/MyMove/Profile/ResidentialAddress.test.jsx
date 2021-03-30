@@ -47,7 +47,7 @@ describe('ResidentialAddress page', () => {
     const { queryByRole } = render(<ResidentialAddress {...testProps} />);
 
     await waitFor(() => {
-      expect(queryByRole('heading', { name: 'Current residence', level: 1 })).toBeInTheDocument();
+      expect(queryByRole('heading', { name: 'Current mailing address', level: 1 })).toBeInTheDocument();
     });
   });
 
