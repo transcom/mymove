@@ -56,9 +56,9 @@ describe('BackupContact page', () => {
     expect(testProps.push).toHaveBeenCalledWith('/service-member/backup-address');
   });
   describe('if there is an existing backup contact', () => {
-    it('next button submits the form and goes to the Home step if there is an existing backup contact', async () => {
+    it('next button submits the form and goes to the Home step', async () => {
       patchBackupContact.mockImplementation(() => Promise.resolve(testBackupContactValues));
-      getServiceMember.mockImplementation(() => Promise.resolve({ id: 'test' }));
+      getServiceMember.mockImplementation(() => Promise.resolve(testProps.serviceMember));
       testProps.updateServiceMember.mockImplementation(() => Promise.resolve({}));
 
       // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
@@ -73,6 +73,8 @@ describe('BackupContact page', () => {
       });
 
       expect(testProps.updateBackupContact).toHaveBeenCalledWith(testBackupContactValues);
+      expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMember.id);
+      expect(testProps.updateServiceMember).toHaveBeenCalledWith(testProps.serviceMember);
       expect(testProps.push).toHaveBeenCalledWith('/');
     });
 
@@ -107,9 +109,9 @@ describe('BackupContact page', () => {
     });
   });
   describe('if there is no existing backup contact', () => {
-    it('next button submits the form and goes to the Home step if there is an existing backup contact', async () => {
+    it('next button submits the form and goes to the Home step', async () => {
       createBackupContactForServiceMember.mockImplementation(() => Promise.resolve(testBackupContactValues));
-      getServiceMember.mockImplementation(() => Promise.resolve({ id: 'test' }));
+      getServiceMember.mockImplementation(() => Promise.resolve(testProps.serviceMember));
       testProps.updateServiceMember.mockImplementation(() => Promise.resolve({}));
 
       // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
@@ -127,6 +129,8 @@ describe('BackupContact page', () => {
       });
 
       expect(testProps.updateBackupContact).toHaveBeenCalledWith(testBackupContactValues);
+      expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMember.id);
+      expect(testProps.updateServiceMember).toHaveBeenCalledWith(testProps.serviceMember);
       expect(testProps.push).toHaveBeenCalledWith('/');
     });
 
