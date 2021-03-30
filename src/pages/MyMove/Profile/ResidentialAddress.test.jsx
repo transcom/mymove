@@ -85,24 +85,32 @@ describe('ResidentialAddress page', () => {
   });
 
   it('next button submits the form and goes to the Backup address step', async () => {
-    const testProps = generateTestProps(fakeAddress);
+    const testProps = generateTestProps(blankAddress);
+
+    const expectedServiceMemberPayload = { ...testProps.serviceMember, residential_address: fakeAddress };
 
     ValidateZipRateData.mockImplementation(() => ({
       valid: true,
     }));
-    patchServiceMember.mockImplementation(() => Promise.resolve(testProps.serviceMember));
+    patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    const { getByRole } = render(<ResidentialAddress {...testProps} />);
+    const { getByRole, getByLabelText } = render(<ResidentialAddress {...testProps} />);
+
+    userEvent.type(getByLabelText('Address 1'), fakeAddress.street_address_1);
+    userEvent.type(getByLabelText(/Address 2/), fakeAddress.street_address_2);
+    userEvent.type(getByLabelText('City'), fakeAddress.city);
+    userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
+    userEvent.type(getByLabelText('ZIP'), fakeAddress.postal_code);
 
     const submitButton = getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(patchServiceMember).toHaveBeenCalled();
+      expect(patchServiceMember).toHaveBeenCalledWith(expectedServiceMemberPayload);
     });
 
-    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testProps.serviceMember);
+    expect(testProps.updateServiceMember).toHaveBeenCalledWith(expectedServiceMemberPayload);
     expect(testProps.push).toHaveBeenCalledWith(customerRoutes.BACKUP_ADDRESS_PATH);
   });
 
