@@ -9,7 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func (suite *ModelSuite) TestEdiErrorsTechnicalErrorDescription() {
+func (suite *ModelSuite) TestEdiErrorsAcknowledgementCodeError() {
 	pr := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 	ediError := models.EdiError{
 		ID:               uuid.Must(uuid.NewV4()),
@@ -23,13 +23,13 @@ func (suite *ModelSuite) TestEdiErrorsTechnicalErrorDescription() {
 	}
 	suite.MustCreate(suite.DB(), &prICN)
 	testCases := map[string]struct {
-		ted          models.EdiErrorsTechnicalErrorDescription
+		ack          models.EdiErrorsAcknowledgementCodeError
 		expectedErrs map[string][]string
 	}{
 		"Successful Create": {
-			ted: models.EdiErrorsTechnicalErrorDescription{
+			ack: models.EdiErrorsAcknowledgementCodeError{
 				ID:                         uuid.Must(uuid.NewV4()),
-				EDIType:                    models.EDI824,
+				EDIType:                    models.EDI997,
 				EdiErrorID:                 ediError.ID,
 				PaymentRequestID:           pr.ID,
 				InterchangeControlNumberID: prICN.ID,
@@ -39,18 +39,18 @@ func (suite *ModelSuite) TestEdiErrorsTechnicalErrorDescription() {
 			expectedErrs: nil,
 		},
 		"Empty Fields": {
-			ted: models.EdiErrorsTechnicalErrorDescription{},
+			ack: models.EdiErrorsAcknowledgementCodeError{},
 			expectedErrs: map[string][]string{
 				"edi_error_id":                  {"EdiErrorID can not be blank."},
 				"description":                   {"Code or Description must be present"},
 				"code":                          {"Code or Description must be present"},
 				"payment_request_id":            {"PaymentRequestID can not be blank."},
 				"interchange_control_number_id": {"InterchangeControlNumberID can not be blank."},
-				"editype":                       {"EDIType is not in the list [824]."},
+				"editype":                       {"EDIType is not in the list [997]."},
 			},
 		},
 		"Message Type Invalid": {
-			ted: models.EdiErrorsTechnicalErrorDescription{
+			ack: models.EdiErrorsAcknowledgementCodeError{
 				ID:                         uuid.Must(uuid.NewV4()),
 				EDIType:                    "EDI956",
 				EdiErrorID:                 ediError.ID,
@@ -60,14 +60,14 @@ func (suite *ModelSuite) TestEdiErrorsTechnicalErrorDescription() {
 				Description:                "EDI Error happened to field 123",
 			},
 			expectedErrs: map[string][]string{
-				"editype": {"EDIType is not in the list [824]."},
+				"editype": {"EDIType is not in the list [997]."},
 			},
 		},
 	}
 
 	for name, test := range testCases {
 		suite.T().Run(name, func(t *testing.T) {
-			suite.verifyValidationErrors(&test.ted, test.expectedErrs)
+			suite.verifyValidationErrors(&test.ack, test.expectedErrs)
 		})
 	}
 }

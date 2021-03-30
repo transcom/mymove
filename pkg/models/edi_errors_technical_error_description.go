@@ -30,10 +30,7 @@ type EdiErrorsTechnicalErrorDescription struct {
 func (e *EdiErrorsTechnicalErrorDescription) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: []string{
-		string(EDI810),
 		string(EDI824),
-		string(EDI858),
-		string(EDI997),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: e.EdiErrorID, Name: "EdiErrorID"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: e.PaymentRequestID, Name: "PaymentRequestID"})

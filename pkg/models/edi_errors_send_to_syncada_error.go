@@ -3,6 +3,9 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 )
 
@@ -23,3 +26,18 @@ type EdiErrorsSendToSyncadaError struct {
 
 // EdiErrorsSendToSyncadaErrors list of EdiErrorsSendToSyncadaError
 type EdiErrorsSendToSyncadaErrors []EdiErrorsSendToSyncadaError
+
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+func (e *EdiErrorsSendToSyncadaError) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	var vs []validate.Validator
+	vs = append(vs, &validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: []string{
+		string(EDI858),
+	}})
+	vs = append(vs, &validators.UUIDIsPresent{Field: e.EdiErrorID, Name: "EdiErrorID"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: e.PaymentRequestID, Name: "PaymentRequestID"})
+	if e.InterchangeControlNumberID != nil {
+		vs = append(vs, &validators.UUIDIsPresent{Field: *e.InterchangeControlNumberID, Name: "InterchangeControlNumberID"})
+	}
+	vs = append(vs, &validators.StringIsPresent{Field: e.Description, Name: "Description", Message: "Description cannot be empty"})
+	return validate.Validate(vs...), nil
+}
