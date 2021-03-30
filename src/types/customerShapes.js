@@ -8,6 +8,15 @@ export const ServiceMemberShape = shape({
   affiliation: string,
   edipi: string,
   rank: string,
+  first_name: string,
+  middle_name: string,
+  last_name: string,
+  suffix: string,
+  telephone: string,
+  secondary_telephone: string,
+  personal_email: string,
+  email_is_preferred: bool,
+  phone_is_preferred: bool,
 });
 
 export const MoveShape = shape({

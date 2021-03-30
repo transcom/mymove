@@ -32,28 +32,15 @@ describe('DodInfo page', () => {
     });
   });
 
-  it('back button submits the form and goes to the CONUS/OCONUS step', async () => {
-    const testServiceMemberValues = {
-      id: 'testServiceMemberId',
-      affiliation: 'ARMY',
-      edipi: '9999999999',
-      rank: 'E_2',
-    };
-
-    patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
-
-    // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<DodInfo {...testProps} serviceMember={testServiceMemberValues} />);
+  it('back button goes to the CONUS/OCONUS step', async () => {
+    const { queryByText } = render(<DodInfo {...testProps} />);
 
     const backButton = queryByText('Back');
-    expect(backButton).toBeInTheDocument();
-    userEvent.click(backButton);
-
     await waitFor(() => {
-      expect(patchServiceMember).toHaveBeenCalled();
+      expect(backButton).toBeInTheDocument();
     });
 
-    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
+    userEvent.click(backButton);
     expect(testProps.push).toHaveBeenCalledWith('/service-member/conus-oconus');
   });
 
