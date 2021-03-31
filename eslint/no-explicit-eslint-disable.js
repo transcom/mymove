@@ -1,6 +1,6 @@
 const MESSAGE_ID = 'no-ruleless-eslint-disable';
 const messages = {
-  [MESSAGE_ID]: 'Please specify the rules you want to disable.',
+  [MESSAGE_ID]: 'Please specify the rule(s) you want to disable.',
 };
 
 // eslint-disable-next-line security/detect-unsafe-regex
