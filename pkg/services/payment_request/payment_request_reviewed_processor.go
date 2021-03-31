@@ -125,6 +125,27 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
+	numProcessed := 0
+	start := time.Now()
+
+	// Store/log metrics about EDI processing upon exiting this method.
+	defer func() {
+		ediProcessing := models.EDIProcessing{
+			EDIType:          models.EDIType858,
+			ProcessStartedAt: start,
+			ProcessEndedAt:   time.Now(),
+			NumEDIsProcessed: numProcessed,
+		}
+		p.logger.Info("EDIs processed", zap.Object("EDIs processed", &ediProcessing))
+
+		verrs, err := p.db.ValidateAndCreate(&ediProcessing)
+		if err != nil {
+			p.logger.Error("failed to create EDIProcessing record", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			p.logger.Error("failed to validate EDIProcessing record", zap.Error(err))
+		}
+	}()
 
 	// Fetch all payment request that have been reviewed
 	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
@@ -138,45 +159,12 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 	}
 
 	// Send all reviewed payment request to Syncada
-	numProcessed := 0
-	start := time.Now()
 	for _, pr := range reviewedPaymentRequests {
 		err := p.ProcessAndLockReviewedPR(pr)
 		if err != nil {
-			// Since this stops if we get an error processing a PR, we need to record metrics here too.
-			recordErr := p.recordMetrics(start, time.Now(), numProcessed)
-			if recordErr != nil {
-				return recordErr
-			}
 			return err
 		}
 		numProcessed++
-	}
-
-	recordErr := p.recordMetrics(start, time.Now(), numProcessed)
-	if recordErr != nil {
-		return recordErr
-	}
-
-	return nil
-}
-
-func (p *paymentRequestReviewedProcessor) recordMetrics(start time.Time, end time.Time, numProcessed int) error {
-	p.logger.Info("EDIs processed", zap.Time("start", start), zap.Time("end", end), zap.Int("num processed", numProcessed))
-
-	ediProcessing := models.EDIProcessing{
-		EDIType:          models.EDIType858,
-		ProcessStartedAt: start,
-		ProcessEndedAt:   end,
-		NumEDIsProcessed: numProcessed,
-	}
-
-	verrs, err := p.db.ValidateAndCreate(&ediProcessing)
-	if err != nil {
-		return fmt.Errorf("failed to create EDIProcessing record: %w", err)
-	}
-	if verrs.HasAny() {
-		return fmt.Errorf("failed to validate EDIProcessing record: %w", verrs)
 	}
 
 	return nil

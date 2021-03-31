@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/gofrs/uuid"
 )
@@ -23,6 +24,11 @@ const (
 	// EDIType997 captures enum value "997"
 	EDIType997 EDIType = "997"
 )
+
+// String returns a string representation of the admin role
+func (e EDIType) String() string {
+	return string(e)
+}
 
 // EDIProcessing represents an email sent to a service member
 type EDIProcessing struct {
@@ -56,4 +62,13 @@ func (e *EDIProcessing) Validate(tx *pop.Connection) (*validate.Errors, error) {
 // TableName overrides the table name used by Pop.
 func (e *EDIProcessing) TableName() string {
 	return "edi_processings"
+}
+
+// MarshalLogObject is required to be able to zap.Object log this model.
+func (e *EDIProcessing) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddString("EDIType", e.EDIType.String())
+	encoder.AddInt("NumEDIsProcessed", e.NumEDIsProcessed)
+	encoder.AddTime("ProcessStartedAt", e.ProcessStartedAt)
+	encoder.AddTime("ProcessEndedAt", e.ProcessEndedAt)
+	return nil
 }
