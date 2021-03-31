@@ -43,6 +43,15 @@ export const DOFSIT = (data) => (
   />
 );
 
+export const DDFSIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestination1stSIT}
+    totalAmountRequested={642}
+    itemCode="DDFSIT"
+    tableSize={data.tableSize}
+  />
+);
+
 export const DPK = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticPacking}

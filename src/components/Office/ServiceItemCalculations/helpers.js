@@ -211,6 +211,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
   let result = [];
 
   switch (itemCode) {
+    // Domestic longhaul
     case SERVICE_ITEM_CODES.DLH:
       result = [
         billableWeight(params),
@@ -220,6 +221,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Fuel surcharge
     case SERVICE_ITEM_CODES.FSC:
       result = [
         billableWeight(params),
@@ -228,7 +230,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
-
+    // Domestic origin price
     case SERVICE_ITEM_CODES.DOP:
       result = [
         billableWeight(params),
@@ -237,7 +239,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
-
+    // Domestic origin 1st day SIT
     case SERVICE_ITEM_CODES.DOFSIT:
       result = [
         billableWeight(params),
@@ -246,7 +248,15 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
-
+    // Domestic destination 1st day SIT
+    case SERVICE_ITEM_CODES.DDFSIT:
+      result = [
+        billableWeight(params),
+        originAndDestinationPrice(params, false),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     // Domestic packing
     case SERVICE_ITEM_CODES.DPK:
       result = [
@@ -275,6 +285,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Domestic origin additional SIT
     case SERVICE_ITEM_CODES.DOASIT:
       result = [
         billableWeight(params),

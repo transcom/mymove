@@ -71,6 +71,7 @@ const SERVICE_ITEM_CODES = {
   DSH: 'DSH',
   DOASIT: 'DOASIT',
   DOFSIT: 'DOFSIT',
+  DDFSIT: 'DDFSIT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -83,6 +84,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DDP,
   SERVICE_ITEM_CODES.DOASIT,
   SERVICE_ITEM_CODES.DOFSIT,
+  SERVICE_ITEM_CODES.DDFSIT,
 ];
 
 export {

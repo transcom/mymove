@@ -788,14 +788,56 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
+	destSITAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+	destSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDFSIT,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate:                 &entryDate,
+			SITPostalCode:                models.StringPointer("90210"),
+			SITDestinationFinalAddress:   &destSITAddress,
+			SITDestinationFinalAddressID: &destSITAddress.ID,
+		},
+		Stub: true,
+	})
+
+	createdDestServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(&destSIT)
+	if validErrs.HasAny() || createErr != nil {
+		logger.Fatal(fmt.Sprintf("error while creating destination sit service item: %v", verrs.Errors), zap.Error(createErr))
+	}
+
 	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
 
-	for _, createdServiceItem := range *createdServiceItems {
+	for _, createdServiceItem := range append(*createdServiceItems, *createdDestServiceItems...) {
 		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
-			logger.Fatal("Error approving origin SIT service item", zap.Error(updateErr))
+			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
 		}
 	}
+
+	// var serviceItemDDFSIT models.MTOServiceItem
+	// var serviceItemDDASIT models.MTOServiceItem
+	var serviceItemDDPSIT models.MTOServiceItem
+	for _, createdDestServiceItem := range *createdDestServiceItems {
+		switch createdDestServiceItem.ReService.Code {
+		// case models.ReServiceCodeDDFSIT:
+		// 	serviceItemDDFSIT = createdDestServiceItem
+		// case models.ReServiceCodeDDASIT:
+		// 	serviceItemDDASIT = createdDestServiceItem
+		case models.ReServiceCodeDDDSIT:
+			serviceItemDDPSIT = createdDestServiceItem
+		}
+	}
+	destDepartureDate := entryDate.Add(15 * 24 * time.Hour)
+	serviceItemDDPSIT.SITDepartureDate = &destDepartureDate
+	updatedDDPSIT, updateErr := serviceItemUpdator.UpdateMTOServiceItemPrime(db, &serviceItemDDPSIT, etag.GenerateEtag(serviceItemDDPSIT.UpdatedAt))
+	if updateErr != nil {
+		logger.Fatal("Error updating DDPSIT with departure date")
+	}
+	serviceItemDDPSIT = *updatedDDPSIT
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 		db,
