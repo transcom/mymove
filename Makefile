@@ -14,12 +14,9 @@ TASKS_DOCKER_CONTAINER = tasks
 WEBHOOK_CLIENT_DOCKER_CONTAINER = webhook-client
 export PGPASSWORD=mysecretpassword
 
-# if S3 or CDN access is enabled, wrap webserver in aws-vault command
+# if S3 access is enabled, wrap webserver in aws-vault command
 # to pass temporary AWS credentials to the binary.
 ifeq ($(STORAGE_BACKEND),s3)
-	USE_AWS:=true
-endif
-ifeq ($(STORAGE_BACKEND),cdn)
 	USE_AWS:=true
 endif
 ifeq ($(USE_AWS),true)
