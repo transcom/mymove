@@ -369,11 +369,12 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	}
 
 	if *readFromSyncada {
+		// Set up viper to read environment variables
 		v := viper.New()
 		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 		v.AutomaticEnv()
-		sshClient, err := cli.InitSyncadaSSH(v, logger)
 
+		sshClient, err := cli.InitSyncadaSSH(v, logger)
 		if err != nil {
 			logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 		}
