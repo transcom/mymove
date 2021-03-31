@@ -58,7 +58,6 @@ describe('CurrentDutyStationForm component', () => {
       />,
     );
     const submitBtn = getByRole('button', { name: 'Next' });
-    userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(submitBtn).toHaveAttribute('disabled');
@@ -85,7 +84,7 @@ describe('CurrentDutyStationForm component', () => {
             id: 'testId',
           },
         }}
-        newDutyStataion={{ id: 'test' }}
+        newDutyStation={{ id: 'test' }}
       />,
     );
     const submitBtn = getByRole('button', { name: 'Next' });
