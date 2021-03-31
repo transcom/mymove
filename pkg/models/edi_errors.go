@@ -23,6 +23,9 @@ type EdiError struct {
 	EDIType                    EDIType                                  `json:"edi_type" db:"edi_type"`
 }
 
+// EdiErrors is a list of EDI Error
+type EdiErrors []EdiError
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (e *EdiError) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
@@ -45,6 +48,3 @@ func (e *EdiError) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	return validate.Validate(vs...), nil
 }
-
-// EdiErrors is a list of EDI Error
-type EdiErrors []EdiError
