@@ -54,7 +54,7 @@ func main() {
 
 	createWebhookCommand := &cobra.Command{
 		Use:   "support-create-webhook-notification",
-		Short: "Create a Webhook Notification",
+		Short: "Create a WebhookNotification",
 		Long: `
   This command creates a WebhookNotification object.
   It requires the caller to pass in a file using the --filename param.
@@ -62,28 +62,14 @@ func main() {
   Endpoint path: /webhook-notifications
   The file should contain json as follows:
     {
-      "body": <WebhookNotification>
-    }`
-	support.InitCreateWebhookNotificationFlags(createWebhookCommand.Flags())
-	root.AddCommand(createWebhookCommand)
-
-	createWebhookNotificationCommand := &cobra.Command{
-		Use:   "create-webhook-notification",
-		Short: "Create Webhook Notification",
-		Long:
-		`
-		This command creates a Webhook Notification.
-		It requires the caller to pass in a file using the --filename arg.
-		The file should contain a body defining the WebhookNotification object.
-		Endpoint path: /webhook-notifications
-		The file should contain json as follows:
-	{
-		"body": <WebhookNotification>,
-	}
-		Please see API documentation for full details on the endpoint definition.`,
-		RunE:         prime.CreateWebhookNotification,
+      "body": <MoveTaskOrder>
+    }
+  Please see API documentation for full details on the WebhookNotification definition.`,
+		RunE:         support.CreateWebhookNotification,
 		SilenceUsage: true,
 	}
+	support.InitCreateMTOFlags(createWebhookCommand.Flags())
+	root.AddCommand(createWebhookCommand)
 
 	createMTOCommand := &cobra.Command{
 		Use:   "support-create-move-task-order",
