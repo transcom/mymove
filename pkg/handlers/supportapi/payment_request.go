@@ -413,9 +413,8 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		} else {
 			logger.Info("Successfully processed 824 responses")
 		}
-
 	} else {
-		// TODO Do we do nothing or do we fake a read from syncada?
+		logger.Info("Skipping reading from Syncada")
 	}
 	payload := payloads.PaymentRequests(&updatedPaymentRequests)
 
