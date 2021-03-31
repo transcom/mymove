@@ -82,11 +82,20 @@ export class SelectMoveType extends Component {
 
     const shipmentInfo = determineShipmentInfo(move, mtoShipments);
 
-    const canMoveNext = moveType ? moveType !== '' : false;
-    const ppmCardText =
-      'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
-    const hhgCardText =
-      'Your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).';
+    let ppmCardLabel = 'Do it yourself';
+
+    if (!shipmentInfo.isPPMSelectable) {
+      ppmCardLabel += ' (already chosen)';
+    }
+
+    const ppmCardText = shipmentInfo.isPPMSelectable
+      ? 'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.'
+      : 'You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.';
+
+    const hhgCardText = shipmentInfo.isHHGSelectable
+      ? 'Your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).'
+      : 'Talk with your movers directly if you want to add or change shipments.';
+
     const ntsCardText = `Movers pack and ship things to a storage facility, where they stay until a future move. Your orders might not authorize long-term storage — your counselor can verify. This is an NTS (non-temporary storage) shipment.`;
     const ntsrCardText =
       'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-R (non-temporary storage release) shipment.';
@@ -94,69 +103,17 @@ export class SelectMoveType extends Component {
       'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.';
     const ntsrDisabledText =
       'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
-    const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
-    const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
-    const noLongTermStorageCardsText =
-      'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.';
 
     const selectableCardDefaultProps = {
       onChange: (e) => this.setMoveType(e),
       name: 'moveType',
     };
 
-    const ppmEnabledCard = (
-      <SelectableCard
-        {...selectableCardDefaultProps}
-        label="Do it yourself"
-        value={SHIPMENT_OPTIONS.PPM}
-        id={SHIPMENT_OPTIONS.PPM}
-        cardText={ppmCardText}
-        checked={moveType === SHIPMENT_OPTIONS.PPM}
-        disabled={false}
-        onHelpClick={this.toggleMoveInfoModal}
-      />
-    );
-    const ppmDisabledCard = (
-      <SelectableCard
-        {...selectableCardDefaultProps}
-        label="Do it yourself (already chosen)"
-        value={SHIPMENT_OPTIONS.PPM}
-        id={SHIPMENT_OPTIONS.PPM}
-        cardText={ppmCardTextAlreadyChosen}
-        checked={false}
-        disabled={!shipmentInfo.isPPMSelectable}
-        onHelpClick={this.toggleMoveInfoModal}
-      />
-    );
-    const hhgEnabledCard = (
-      <SelectableCard
-        {...selectableCardDefaultProps}
-        label="Professional movers"
-        value={SHIPMENT_OPTIONS.HHG}
-        id={SHIPMENT_OPTIONS.HHG}
-        cardText={hhgCardText}
-        checked={moveType === SHIPMENT_OPTIONS.HHG}
-        disabled={false}
-        onHelpClick={this.toggleMoveInfoModal}
-      />
-    );
-    const hhgDisabledCard = (
-      <SelectableCard
-        {...selectableCardDefaultProps}
-        label="Professional movers"
-        value={SHIPMENT_OPTIONS.HHG}
-        id={SHIPMENT_OPTIONS.HHG}
-        cardText={hhgCardTextPostSubmit}
-        checked={false}
-        disabled={!shipmentInfo.isHHGSelectable}
-        onHelpClick={this.toggleMoveInfoModal}
-      />
-    );
-
     const handleBack = () => {
       const backPath = shipmentInfo.hasShipment
         ? generalRoutes.HOME_PATH
         : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id });
+
       push(backPath);
     };
 
@@ -176,20 +133,46 @@ export class SelectMoveType extends Component {
               <h6 data-testid="number-eyebrow" className="sm-heading margin-top-205 margin-bottom-0">
                 Shipment {shipmentInfo.shipmentNumber}
               </h6>
+
               <h1 className={`${styles.selectTypeHeader} ${styles.header}`} data-testid="select-move-type-header">
                 {shipmentInfo.shipmentNumber > 1
                   ? 'How do you want this group of things moved?'
                   : 'How do you want to move your belongings?'}
               </h1>
+
               <h2>Choose 1 shipment at a time.</h2>
               <p>You can add more later</p>
-              {shipmentInfo.isPPMSelectable ? ppmEnabledCard : ppmDisabledCard}
-              {shipmentInfo.isHHGSelectable ? hhgEnabledCard : hhgDisabledCard}
+
+              <SelectableCard
+                {...selectableCardDefaultProps}
+                label={ppmCardLabel}
+                value={SHIPMENT_OPTIONS.PPM}
+                id={SHIPMENT_OPTIONS.PPM}
+                cardText={ppmCardText}
+                checked={moveType === SHIPMENT_OPTIONS.PPM}
+                disabled={!shipmentInfo.isPPMSelectable}
+                onHelpClick={this.toggleMoveInfoModal}
+              />
+              <SelectableCard
+                {...selectableCardDefaultProps}
+                label="Professional movers"
+                value={SHIPMENT_OPTIONS.HHG}
+                id={SHIPMENT_OPTIONS.HHG}
+                cardText={hhgCardText}
+                checked={moveType === SHIPMENT_OPTIONS.HHG}
+                disabled={!shipmentInfo.isHHGSelectable}
+                onHelpClick={this.toggleMoveInfoModal}
+              />
+
               <h3 className={styles.longTermStorageHeader} data-testid="long-term-storage-heading">
                 Long-term storage
               </h3>
+
               {!shipmentInfo.isNTSSelectable && !shipmentInfo.isNTSRSelectable ? (
-                <p className={styles.pSmall}>{noLongTermStorageCardsText}</p>
+                <p className={styles.pSmall}>
+                  Talk to your movers about long-term storage if you need to add it to this move or change a request you
+                  made earlier.
+                </p>
               ) : (
                 <>
                   <p>These shipments do count against your weight allowance for this move.</p>
@@ -226,7 +209,11 @@ export class SelectMoveType extends Component {
               )}
 
               <div className={formStyles.formActions}>
-                <WizardNavigation disableNext={!canMoveNext} onBackClick={handleBack} onNextClick={this.handleSubmit} />
+                <WizardNavigation
+                  disableNext={moveType === undefined || moveType === ''}
+                  onBackClick={handleBack}
+                  onNextClick={this.handleSubmit}
+                />
               </div>
             </Grid>
           </Grid>
