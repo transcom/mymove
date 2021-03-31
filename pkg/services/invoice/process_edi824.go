@@ -41,29 +41,20 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 
 	// Find the PaymentRequestID that matches the ICN
 	icn := edi824.InterchangeControlEnvelope.ISA.InterchangeControlNumber
-	var paymentRequest models.PaymentRequest
-	err = e.db.Q().
-		Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
-		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(icn)).
-		First(&paymentRequest)
-	if err != nil {
-		errString += fmt.Sprintf("unable to find payment request with ID: %s, %d", err.Error(), int(icn)) + "\n"
-	}
 
 	var prToICN models.PaymentRequestToInterchangeControlNumber
 	err = e.db.Q().
-		Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
-		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(icn)).
+		Where("interchange_control_number = ?", int(icn)).
 		First(&prToICN)
 	if err != nil {
-		errString += fmt.Sprintf("unable to find payment request with ID: %s, %d", err.Error(), int(icn)) + "\n"
+		errString += fmt.Sprintf("unable to find PaymentRequestTOInterchangeControlNumber with ICN: %s, %d", err.Error(), int(icn)) + "\n"
 	}
 	err = edi824.Validate()
 	if err != nil {
 		errString += err.Error()
 	}
 
-	teds := fetchAndRecordTEDSegments(edi824)
+	teds := fetchTEDSegments(edi824)
 
 	if errString != "" {
 		e.logger.Error(errString)
@@ -72,35 +63,29 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 
 	var transactionError error
 	transactionError = e.db.Transaction(func(tx *pop.Connection) error {
-		ediError := models.EdiError{
-			PaymentRequest:   paymentRequest,
-			PaymentRequestID: paymentRequest.ID,
-		}
-		err = tx.Save(&ediError)
-		var ediTechnicalErrors models.EdiErrorsTechnicalErrorDescriptions
 		for _, ted := range teds {
-			ediTechnicalError := models.EdiErrorsTechnicalErrorDescription{
-				Code:             ted.ApplicationErrorConditionCode,
-				Description:      ted.FreeFormMessage,
-				PaymentRequest:   paymentRequest,
-				PaymentRequestID: paymentRequest.ID,
-				EDIType:          models.EDI824,
-				EdiErrorID:       ediError.ID,
-				EdiError:         ediError,
+			code := ted.ApplicationErrorConditionCode
+			desc := ted.FreeFormMessage
+			ediError := models.EdiError{
+				Code:                       &code,
+				Description:                &desc,
+				PaymentRequestID:           prToICN.PaymentRequestID,
+				InterchangeControlNumberID: prToICN.ID,
+				EDIType:                    models.EDI824,
 			}
-			err = tx.Save(&ediTechnicalError)
+			err = tx.Save(&ediError)
 			if err != nil {
 				e.logger.Error("failure saving edi technical error description", zap.Error(err))
 				return fmt.Errorf("failure saving edi technical error description: %w", err)
 			}
-			ediTechnicalErrors = append(ediTechnicalErrors, ediTechnicalError)
 		}
-
+		var paymentRequest models.PaymentRequest
+		err = e.db.Q().
+			Where("id = ?", prToICN.PaymentRequestID).
+			First(&paymentRequest)
 		if err != nil {
-			e.logger.Error("failure saving edi error", zap.Error(err))
-			return fmt.Errorf("failure saving edi error: %w", err)
+			errString += fmt.Sprintf("unable to find payment request with ID: %s, %d", err.Error(), int(icn)) + "\n"
 		}
-
 		paymentRequest.Status = models.PaymentRequestStatusEDIError
 		err = tx.Update(&paymentRequest)
 		if err != nil {
@@ -117,7 +102,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 	return nil
 }
 
-func fetchAndRecordTEDSegments(edi ediResponse824.EDI) []edisegment.TED {
+func fetchTEDSegments(edi ediResponse824.EDI) []edisegment.TED {
 	var teds []edisegment.TED
 	for _, functionalGroup := range edi.InterchangeControlEnvelope.FunctionalGroups {
 		for _, transactionSet := range functionalGroup.TransactionSets {

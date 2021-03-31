@@ -135,7 +135,7 @@ IEA*1*000000997
 `
 		err := edi824Processor.ProcessFile("", sample824EDIString)
 		suite.Error(err, "fail to process 824")
-		suite.Contains(err.Error(), "unable to find payment request")
+		suite.Contains(err.Error(), "unable to find PaymentRequestTOInterchangeControlNumber")
 	})
 
 	suite.T().Run("Save TED errors to the database", func(t *testing.T) {
@@ -155,21 +155,27 @@ IEA*1*000000997
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 996,
+				InterchangeControlNumber: 997,
 				PaymentRequest:           paymentRequest,
 			},
 		})
 		err := edi824Processor.ProcessFile("", sample824EDIString)
 		suite.NoError(err)
 
-		var teds models.EdiErrorsTechnicalErrorDescriptions
-		err = suite.DB().Where("payment_request_id = ?", paymentRequest.ID).All(&teds)
+		var ediErrors models.EdiErrors
+		err = suite.DB().Where("payment_request_id = ?", paymentRequest.ID).All(&ediErrors)
 		suite.NoError(err)
 
-		// for _, ted := range teds {
-
-		// }
-		suite.Equal(2, len(teds))
+		suite.Equal(2, len(ediErrors))
+		for i, ediError := range ediErrors {
+			suite.Equal("K", *ediError.Code)
+			suite.Equal(models.EDI824, ediError.EDIType)
+			if i == 0 {
+				suite.Equal("DOCUMENT OWNER CANNOT BE DETERMINED", *ediError.Description)
+			} else {
+				suite.Equal("MISSING DATA", *ediError.Description)
+			}
+		}
 	})
 }
 
@@ -197,7 +203,7 @@ IEA*1*000000001
 			TestName         string
 			ExpectedErrorMsg string
 		}{
-			{TestName: "Invalid ICN causes missing PR", ExpectedErrorMsg: "unable to find payment request"},
+			{TestName: "Invalid ICN causes missing PR", ExpectedErrorMsg: "unable to find PaymentRequestTOInterchangeControlNumber"},
 			{TestName: "Invalid ICN", ExpectedErrorMsg: "'InterchangeControlNumber' failed on the 'max' tag"},
 			{TestName: "Invalid AcknowledgementRequested", ExpectedErrorMsg: "'AcknowledgementRequested' failed on the 'oneof' tag"},
 			{TestName: "Invalid UsageIndicator", ExpectedErrorMsg: "'UsageIndicator' failed on the 'oneof' tag"},
@@ -251,7 +257,7 @@ IEA*1*000000001
 		edi824 := ediResponse824.EDI{}
 		err := edi824.Parse(sample824EDIString)
 		suite.NoError(err)
-		teds := fetchAndRecordTEDSegments(edi824)
+		teds := fetchTEDSegments(edi824)
 		suite.Equal(6, len(teds))
 	})
 }
