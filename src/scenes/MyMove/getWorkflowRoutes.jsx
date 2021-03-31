@@ -11,7 +11,7 @@ import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
 
 import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
 import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
-import BackupContact from 'scenes/ServiceMembers/BackupContact';
+import BackupContact from 'pages/MyMove/Profile/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
@@ -93,7 +93,7 @@ const pages = {
   [customerRoutes.DOD_INFO_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
-    render: (key, pages) => ({ history }) => <DodInfo push={history.push} />,
+    render: () => ({ history }) => <DodInfo push={history.push} />,
   },
   [customerRoutes.NAME_PATH]: {
     isInFlow: myFirstRodeo,
@@ -131,7 +131,7 @@ const pages = {
     isComplete: ({ sm, orders, move, ppm, backupContacts }) => {
       return sm.is_profile_complete || backupContacts.length > 0;
     },
-    render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <BackupContact push={history.push} />,
     description: 'Backup contacts',
   },
   [generalRoutes.HOME_PATH]: {

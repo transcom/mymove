@@ -27,6 +27,8 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	CreateMTOAgent(params *CreateMTOAgentParams) (*CreateMTOAgentOK, error)
+
 	CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOShipmentOK, error)
 
 	UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK, error)
@@ -36,6 +38,52 @@ type ClientService interface {
 	UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams) (*UpdateMTOShipmentAddressOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CreateMTOAgent creates m t o agent
+
+  ### Functionality
+This endpoint is used to **create** and add agents for an existing MTO Shipment. Only the fields being modified need to be sent in the request body.
+
+### Errors
+The agent must always have a name and at least one method of contact (either `email` or `phone`).
+
+The agent must be associated with the MTO shipment passed in the url.
+
+The shipment should be associated with an MTO that is available to the Pime.
+If the caller requests a new agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
+
+*/
+func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams) (*CreateMTOAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateMTOAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "createMTOAgent",
+		Method:             "POST",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/agents",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &CreateMTOAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CreateMTOAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for createMTOAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
