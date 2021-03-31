@@ -1,4 +1,5 @@
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import MOVE_STATUSES from 'constants/moves';
 
 const determineShipmentInfo = (move, mtoShipments) => {
   const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
