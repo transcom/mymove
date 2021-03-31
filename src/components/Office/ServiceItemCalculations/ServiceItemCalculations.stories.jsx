@@ -78,3 +78,12 @@ export const DOP = (data) => (
     tableSize={data.tableSize}
   />
 );
+
+export const DOPSIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginSITDelivery}
+    totalAmountRequested={642}
+    itemCode="DOPSIT"
+    tableSize={data.tableSize}
+  />
+);
