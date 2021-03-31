@@ -82,7 +82,6 @@ export class SelectMoveType extends Component {
 
     const shipmentInfo = determineShipmentInfo(move, mtoShipments);
 
-    const hasShipment = shipmentInfo.shipmentNumber - 1 > 0;
     const canMoveNext = moveType ? moveType !== '' : false;
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
@@ -155,7 +154,7 @@ export class SelectMoveType extends Component {
     );
 
     const handleBack = () => {
-      const backPath = hasShipment
+      const backPath = shipmentInfo.hasShipment
         ? generalRoutes.HOME_PATH
         : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id });
       push(backPath);
@@ -217,7 +216,7 @@ export class SelectMoveType extends Component {
                 </>
               )}
 
-              {!hasShipment && (
+              {!shipmentInfo.hasShipment && (
                 <p data-testid="helper-footer" className={styles.footer}>
                   <small>
                     It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and

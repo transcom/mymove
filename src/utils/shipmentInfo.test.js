@@ -40,6 +40,7 @@ describe('determineShipmentInfo', () => {
     [2, ['fakePPM', 'anotherPPM'], []],
     [3, ['fakePPM'], ['fakeMTO']],
     [4, ['fakePPM'], ['fakeMTO', 'anotherMTO']],
+    [2, [], ['fakeMTO']],
     [3, [], ['fakeMTO', 'anotherMTO']],
   ])(
     'should return the correct new shipment number (%i) based on PPM (%s) and MTO (%s) shipments',
@@ -49,6 +50,25 @@ describe('determineShipmentInfo', () => {
       const info = determineShipmentInfo(move, mtoShipments);
 
       expect(info.shipmentNumber).toBe(expectedNumber);
+    },
+  );
+
+  it.each([
+    [false, [], []],
+    [true, ['fakePPM'], []],
+    [true, ['fakePPM', 'anotherPPM'], []],
+    [true, ['fakePPM'], ['fakeMTO']],
+    [true, ['fakePPM'], ['fakeMTO', 'anotherMTO']],
+    [true, [], ['fakeMTO']],
+    [true, [], ['fakeMTO', 'anotherMTO']],
+  ])(
+    'should set hasShipment to (%i) based on PPM (%s) and MTO (%s) shipments',
+    (expectedNumber, ppmList, mtoShipments) => {
+      const move = { ...fakeMove, personally_procured_moves: ppmList };
+
+      const info = determineShipmentInfo(move, mtoShipments);
+
+      expect(info.hasShipment).toBe(expectedNumber);
     },
   );
 
@@ -63,7 +83,7 @@ describe('determineShipmentInfo', () => {
     [false, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.PPM }, { shipmentType: SHIPMENT_OPTIONS.NTS }]],
     [false, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.HHG }, { shipmentType: SHIPMENT_OPTIONS.NTS }]],
   ])(
-    'sets isNTSSelectable to %s if move status is "%s" and has MTO shipments === %s',
+    'sets isNTSSelectable to %s if move status is "%s" and MTO shipments === %s',
     (expectedNTSSelectable, moveStaus, mtoShipments) => {
       const move = { ...fakeMove, status: moveStaus };
 
@@ -84,7 +104,7 @@ describe('determineShipmentInfo', () => {
     [false, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.PPM }, { shipmentType: SHIPMENT_OPTIONS.NTSR }]],
     [false, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.HHG }, { shipmentType: SHIPMENT_OPTIONS.NTSR }]],
   ])(
-    'sets isNTSRSelectable to %s if move status is "%s" and has MTO shipments === %s',
+    'sets isNTSRSelectable to %s if move status is "%s" and MTO shipments === %s',
     (expectedNTSRSelectable, moveStaus, mtoShipments) => {
       const move = { ...fakeMove, status: moveStaus };
 

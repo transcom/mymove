@@ -12,12 +12,15 @@ const determineShipmentInfo = (move, mtoShipments) => {
 
   const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
 
+  const existingShipmentCount = ppmCount + mtoCount;
+
   return {
+    hasShipment: existingShipmentCount > 0,
     isHHGSelectable: isMoveDraft,
     isNTSSelectable: isMoveDraft && !hasNTS,
     isNTSRSelectable: isMoveDraft && !hasNTSR,
     isPPMSelectable: !hasPPM,
-    shipmentNumber: ppmCount + mtoCount + 1,
+    shipmentNumber: existingShipmentCount + 1,
   };
 };
 
