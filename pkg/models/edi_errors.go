@@ -1,7 +1,6 @@
 package models
 
 import (
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -36,21 +35,12 @@ func (e *EdiError) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	vs = append(vs, &validators.UUIDIsPresent{Field: e.PaymentRequestID, Name: "PaymentRequestID"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: e.InterchangeControlNumberID, Name: "InterchangeControlNumberID"})
-	/*
-		if e.Code == nil && e.Description == nil {
-			vs = append(vs, &validators.StringIsPresent{Field: *e.Code, Name: "Code", Message: "Code or Description must be present"})
-			vs = append(vs, &validators.StringIsPresent{Field: *e.Description, Name: "Description", Message: "Code or Description must be present"})
-		}
-	*/
+	vs = append(vs, &AtLeastOneNotNil{FieldName1: "Code", FieldValue1: e.Code, FieldName2: "Description", FieldValue2: e.Description})
 	if e.Code != nil {
 		vs = append(vs, &validators.StringIsPresent{Field: *e.Code, Name: "Code", Message: "Code string if present should not be empty"})
 	}
 	if e.Description != nil {
 		vs = append(vs, &validators.StringIsPresent{Field: *e.Description, Name: "Description", Message: "Description string if present should not be empty"})
-	}
-	if e.Code != nil && strings.TrimSpace(*e.Code) == "" && e.Description != nil && strings.TrimSpace(*e.Description) == "" {
-		vs = append(vs, &validators.StringIsPresent{Field: *e.Code, Name: "Code", Message: "Code or Description must be present"})
-		vs = append(vs, &validators.StringIsPresent{Field: *e.Description, Name: "Description", Message: "Code or Description must be present"})
 	}
 
 	return validate.Validate(vs...), nil

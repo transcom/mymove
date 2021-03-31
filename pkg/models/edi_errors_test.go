@@ -37,10 +37,8 @@ func (suite *ModelSuite) TestEdiErrors() {
 		"Empty Fields": {
 			ediError: models.EdiError{},
 			expectedErrs: map[string][]string{
-				/*
-					"description":                   {"Code or Description must be present"},
-					"code":                          {"Code or Description must be present"},
-				*/
+				"description":                   {"Both Description and Code cannont be nil, one must be valid"},
+				"code":                          {"Both Code and Description cannont be nil, one must be valid"},
 				"payment_request_id":            {"PaymentRequestID can not be blank."},
 				"interchange_control_number_id": {"InterchangeControlNumberID can not be blank."},
 				"editype":                       {"EDIType is not in the list [810, 824, 858, 997]."},
@@ -57,6 +55,28 @@ func (suite *ModelSuite) TestEdiErrors() {
 			},
 			expectedErrs: map[string][]string{
 				"editype": {"EDIType is not in the list [810, 824, 858, 997]."},
+			},
+		},
+		"At least one valid Code or Description": {
+			ediError: models.EdiError{
+				ID:                         uuid.Must(uuid.NewV4()),
+				EDIType:                    models.EDI824,
+				PaymentRequestID:           pr.ID,
+				InterchangeControlNumberID: prICN.ID,
+				Description:                swag.String("EDI Error happened to field 99"),
+			},
+			expectedErrs: nil,
+		},
+		"At least one valid Code or Description and no empty string": {
+			ediError: models.EdiError{
+				ID:                         uuid.Must(uuid.NewV4()),
+				EDIType:                    models.EDI824,
+				PaymentRequestID:           pr.ID,
+				InterchangeControlNumberID: prICN.ID,
+				Description:                swag.String(""),
+			},
+			expectedErrs: map[string][]string{
+				"description": {"Description string if present should not be empty"},
 			},
 		},
 	}
