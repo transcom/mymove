@@ -71,7 +71,11 @@
     "reselect": "^4.0.0",
     "swagger-client": "^3.13.1",
     "uswds": "2.10.1",
+<<<<<<< HEAD
     "swagger-ui-dist": "^3.45.1", ,
+=======
+    "swagger-ui-dist": "^3.45.1",
+>>>>>>> 8bee47c1eb7d7e83c28eb2983931e1855014f141
     "uuid": "^8.3.2",
     "yup": "^0.32.9"
   },
