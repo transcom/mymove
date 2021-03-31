@@ -20,6 +20,8 @@
   strong {
     white-space: nowrap;
     @include u-minw(8);
+    text-align: left;
+
   }
 
   &:last-child {
