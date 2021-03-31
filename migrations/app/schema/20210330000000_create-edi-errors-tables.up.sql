@@ -12,6 +12,8 @@ CREATE TABLE edi_errors (
      created_at timestamp not null,
      updated_at timestamp not null
 );
+CREATE INDEX on edi_errors (payment_request_id);
+CREATE INDEX on edi_errors (interchange_control_number_id);
 
 ALTER TYPE payment_request_status
     ADD VALUE 'EDI_ERROR';
