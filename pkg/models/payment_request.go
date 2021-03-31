@@ -30,6 +30,8 @@ const (
 	PaymentRequestStatusReceivedByGex PaymentRequestStatus = "RECEIVED_BY_GEX"
 	// PaymentRequestStatusPaid is paid
 	PaymentRequestStatusPaid PaymentRequestStatus = "PAID"
+	// PaymentRequestStatusEDIError is EDIError
+	PaymentRequestStatusEDIError PaymentRequestStatus = "EDIError"
 )
 
 var validPaymentRequestStatus = []string{
@@ -39,6 +41,7 @@ var validPaymentRequestStatus = []string{
 	string(PaymentRequestStatusSentToGex),
 	string(PaymentRequestStatusReceivedByGex),
 	string(PaymentRequestStatusPaid),
+	string(PaymentRequestStatusEDIError),
 }
 
 // PaymentRequest is an object representing a payment request on a move task order

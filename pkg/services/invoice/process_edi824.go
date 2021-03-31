@@ -50,6 +50,14 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		errString += fmt.Sprintf("unable to find payment request with ID: %s, %d", err.Error(), int(icn)) + "\n"
 	}
 
+	var prToICN models.PaymentRequestToInterchangeControlNumber
+	err = e.db.Q().
+		Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
+		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(icn)).
+		First(&prToICN)
+	if err != nil {
+		errString += fmt.Sprintf("unable to find payment request with ID: %s, %d", err.Error(), int(icn)) + "\n"
+	}
 	err = edi824.Validate()
 	if err != nil {
 		errString += err.Error()
@@ -64,6 +72,11 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 
 	var transactionError error
 	transactionError = e.db.Transaction(func(tx *pop.Connection) error {
+		ediError := models.EdiError{
+			PaymentRequest:   paymentRequest,
+			PaymentRequestID: paymentRequest.ID,
+		}
+		err = tx.Save(&ediError)
 		var ediTechnicalErrors models.EdiErrorsTechnicalErrorDescriptions
 		for _, ted := range teds {
 			ediTechnicalError := models.EdiErrorsTechnicalErrorDescription{
@@ -72,6 +85,8 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				PaymentRequest:   paymentRequest,
 				PaymentRequestID: paymentRequest.ID,
 				EDIType:          models.EDI824,
+				EdiErrorID:       ediError.ID,
+				EdiError:         ediError,
 			}
 			err = tx.Save(&ediTechnicalError)
 			if err != nil {
@@ -80,12 +95,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 			}
 			ediTechnicalErrors = append(ediTechnicalErrors, ediTechnicalError)
 		}
-		ediError := models.EdiError{
-			PaymentRequest:                      paymentRequest,
-			PaymentRequestID:                    paymentRequest.ID,
-			EdiErrorsTechnicalErrorDescriptions: ediTechnicalErrors,
-		}
-		err = tx.Save(&ediError)
+
 		if err != nil {
 			e.logger.Error("failure saving edi error", zap.Error(err))
 			return fmt.Errorf("failure saving edi error: %w", err)
