@@ -80,7 +80,7 @@ const baselineLinehaulPrice = (params) => {
 
 // There is no param representing the orgin price or destination price as available in the re_domestic_service_area_prices table
 // A param to return the service schedule is also not being created
-const originAndDestinationPrice = (params, isOrigin = true) => {
+const originOrDestinationPrice = (params, isOrigin = true) => {
   const valueKey = isOrigin ? SERVICE_ITEM_PARAM_KEYS.OriginPrice : SERVICE_ITEM_PARAM_KEYS.DestinationPrice;
   const value = getParamValue(valueKey, params) ? getParamValue(valueKey, params) : '';
   const serviceAreaKey = isOrigin ? SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin : SERVICE_ITEM_PARAM_KEYS.ServiceAreaDest;
@@ -232,7 +232,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DOP:
       result = [
         billableWeight(params),
-        originAndDestinationPrice(params),
+        originOrDestinationPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
@@ -241,7 +241,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DOFSIT:
       result = [
         billableWeight(params),
-        originAndDestinationPrice(params),
+        originOrDestinationPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
@@ -270,7 +270,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DDP:
       result = [
         billableWeight(params),
-        originAndDestinationPrice(params, false),
+        originOrDestinationPrice(params, false),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
