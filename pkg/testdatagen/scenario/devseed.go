@@ -906,6 +906,25 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 		MoveTaskOrderID: move.ID,
 	}
 
+	//dopCost := unit.Cents(3456)
+	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		ReService: models.ReService{
+			ID:   uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+			Code: models.ReServiceCodeDOP,
+		},
+		Stub: true,
+	})
+
+	_, validErrsDOP, createErrDOP := serviceItemCreator.CreateMTOServiceItem(&serviceItemDOP)
+	if validErrsDOP.HasAny() || createErrDOP != nil {
+		logger.Error(fmt.Sprintf("error while creating domestic origin price service item: %v", verrs.Errors), zap.Error(createErrDOP))
+	}
+
 	var serviceItems []models.MTOServiceItem
 	db.Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
 
