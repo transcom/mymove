@@ -772,6 +772,9 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 	// called for domestic origin SIT pickup service item
 	planner.On("Zip3TransitDistance", "90210", "94535").Return(348, nil).Once()
 
+	// called for domestic destination SIT delivery service item
+	planner.On("Zip3TransitDistance", "94535", "90210").Return(348, nil).Once()
+
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(db, queryBuilder, serviceItemCreator, planner)
 		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
@@ -869,17 +872,19 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 	var serviceItemDDDSIT models.MTOServiceItem
 	for _, createdDestServiceItem := range *createdDestServiceItems {
 		switch createdDestServiceItem.ReService.Code {
-		case models.ReServiceCodeDOFSIT:
+		case models.ReServiceCodeDDFSIT:
 			serviceItemDDFSIT = createdDestServiceItem
-		case models.ReServiceCodeDOASIT:
+		case models.ReServiceCodeDDASIT:
 			serviceItemDDASIT = createdDestServiceItem
-		case models.ReServiceCodeDOPSIT:
+		case models.ReServiceCodeDDDSIT:
 			serviceItemDDDSIT = createdDestServiceItem
 		}
 	}
 
 	destDepartureDate := destEntryDate.Add(15 * 24 * time.Hour)
 	serviceItemDDDSIT.SITDepartureDate = &destDepartureDate
+	serviceItemDDDSIT.SITDestinationFinalAddress = &destSITAddress
+	serviceItemDDDSIT.SITDestinationFinalAddressID = &destSITAddress.ID
 
 	updatedDDDSIT, updateErr := serviceItemUpdator.UpdateMTOServiceItemPrime(db, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
 
