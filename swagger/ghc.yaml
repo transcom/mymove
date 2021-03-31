@@ -2108,6 +2108,7 @@ definitions:
       - DENIED
       - SENT_TO_GEX
       - PAID
+      - EDI_ERROR
     title: Payment Service Item Status
     type: string
   PaymentServiceItemParam:
@@ -2214,6 +2215,7 @@ definitions:
       - SENT_TO_GEX
       - RECEIVED_BY_GEX
       - PAID
+      - EDI_ERROR
     title: Payment Request Status
     type: string
   ProofOfServiceDocs:
