@@ -68,6 +68,10 @@ type OfficeUser struct {
 	// Required: true
 	// Format: date-time
 	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
+
+	// user Id
+	// Format: uuid
+	UserID strfmt.UUID `json:"userId,omitempty"`
 }
 
 // Validate validates this office user
@@ -115,6 +119,10 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUserID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -257,6 +265,19 @@ func (m *OfficeUser) validateUpdatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) validateUserID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UserID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("userId", "body", "uuid", m.UserID.String(), formats); err != nil {
 		return err
 	}
 

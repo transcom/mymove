@@ -53,16 +53,6 @@ func NewUserListHandler(ac Context, db *pop.Connection) UserListHandler {
 // UserListHandler lists users in the local database for local login
 func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session := auth.SessionFromRequestContext(r)
-	if session != nil && session.UserID != uuid.Nil {
-		// User is already authenticated, so clear out their current session and have
-		// them try again. This the issue where a developer will get stuck with a stale
-		// session and have to manually clear cookies to get back to the login page.
-		h.sessionManager(session).Destroy(r.Context())
-		auth.DeleteCSRFCookies(w)
-
-		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
-		return
-	}
 	limit := 100
 	identities, err := models.FetchAppUserIdentities(h.db, session.ApplicationName, limit)
 	if err != nil {
@@ -304,7 +294,7 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	jsonOut, _ := json.Marshal(user)
-	fmt.Fprintf(w, string(jsonOut))
+	fmt.Fprint(w, string(jsonOut))
 }
 
 // CreateAndLoginUserHandler creates and then logs in a new user
@@ -412,7 +402,10 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		h.db.Where("role_type = $1", "ppm_office_users").First(&role)
+		err = h.db.Where("role_type = $1", "ppm_office_users").First(&role)
+		if err != nil {
+			h.logger.Error("could not fetch role ppm_office_users", zap.Error(err))
+		}
 
 		usersRole := models.UsersRoles{
 			UserID: user.ID,
@@ -480,7 +473,10 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		h.db.Where("role_type = $1", "transportation_ordering_officer").First(&role)
+		err = h.db.Where("role_type = $1", "transportation_ordering_officer").First(&role)
+		if err != nil {
+			h.logger.Error("could not fetch role transportation_ordering_officer", zap.Error(err))
+		}
 
 		usersRole := models.UsersRoles{
 			UserID: user.ID,
@@ -548,8 +544,10 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		h.db.Where("role_type = $1", "transportation_invoicing_officer").First(&role)
-
+		err = h.db.Where("role_type = $1", "transportation_invoicing_officer").First(&role)
+		if err != nil {
+			h.logger.Error("could not fetch role transporation_invoicing_officer", zap.Error(err))
+		}
 		usersRole := models.UsersRoles{
 			UserID: user.ID,
 			RoleID: role.ID,

@@ -1,0 +1,7 @@
+{
+  "rules": {
+    // React-Admin relies heavily on props spreading to handle all the default machinery under the hood.
+    // We therefore can't reasonably enable this rule for these pages.
+    "react/jsx-props-no-spreading": "off"
+  }
+}

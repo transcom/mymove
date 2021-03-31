@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -37,7 +36,7 @@ func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchDocument returns a document if the user has access to that document
-func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool) (Document, error) {
+func FetchDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool) (Document, error) {
 	var document Document
 	query := db.Q()
 
@@ -58,7 +57,7 @@ func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Sessio
 		return Document{}, err
 	}
 
-	_, smErr := FetchServiceMemberForUser(ctx, db, session, document.ServiceMemberID)
+	_, smErr := FetchServiceMemberForUser(db, session, document.ServiceMemberID)
 	if smErr != nil {
 		return Document{}, smErr
 	}

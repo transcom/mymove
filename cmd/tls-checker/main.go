@@ -31,17 +31,6 @@ func (s stringSlice) Contains(value string) bool {
 	return false
 }
 
-type intSlice []int
-
-func (s intSlice) Contains(value int) bool {
-	for _, x := range s {
-		if value == x {
-			return true
-		}
-	}
-	return false
-}
-
 type errInvalidScheme struct {
 	Scheme string
 }
@@ -309,10 +298,16 @@ func main() {
 	flag.String("log-level", "error", "log level: debug, info, warn, error, dpanic, panic, or fatal")
 	flag.Bool("verbose", false, "output extra information")
 
-	flag.Parse(os.Args[1:])
+	parseErr := flag.Parse(os.Args[1:])
+	if parseErr != nil {
+		log.Fatalf("Could not parse flags: %v\n", parseErr)
+	}
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	bindErr := v.BindPFlags(flag)
+	if bindErr != nil {
+		log.Fatal("failed to bind flags", zap.Error(bindErr))
+	}
 	v.SetEnvPrefix("TLSCHECKER")
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
@@ -329,7 +324,11 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	defer logger.Sync()
+	defer func() {
+		if loggerSyncErr := logger.Sync(); loggerSyncErr != nil {
+			logger.Error("Failed to sync logger", zap.Error(loggerSyncErr))
+		}
+	}()
 
 	err = checkConfig(v)
 	if err != nil {

@@ -61,14 +61,6 @@ func (e *errInvalidRegion) Error() string {
 	return fmt.Sprintf("invalid region %s", e.Region)
 }
 
-type errInvalidComparison struct {
-	Comparison string
-}
-
-func (e *errInvalidComparison) Error() string {
-	return fmt.Sprintf("invalid comparison %s", e.Comparison)
-}
-
 func initFlags(flag *pflag.FlagSet) {
 	flag.String("aws-region", "us-west-2", "AWS region used inspecting ECS")
 	flag.String("aws-profile", "", "The aws-vault profile")

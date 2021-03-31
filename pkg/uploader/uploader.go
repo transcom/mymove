@@ -200,7 +200,7 @@ func (u *Uploader) CreateUpload(file File, allowedTypes AllowedFileTypes) (*mode
 	var uploadError error
 	// If we are already in a transaction, don't start one
 	if u.db.TX != nil {
-		responseCreateAndPushVerrs := validate.NewErrors()
+		var responseCreateAndPushVerrs *validate.Errors
 		var responseCreateAndPushErr error
 		newUpload, responseCreateAndPushVerrs, responseCreateAndPushErr = u.createAndPushUploadToS3(u.db, file, newUpload)
 		if responseCreateAndPushErr != nil || responseCreateAndPushVerrs.HasAny() {
@@ -214,7 +214,7 @@ func (u *Uploader) CreateUpload(file File, allowedTypes AllowedFileTypes) (*mode
 
 	err := u.db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
-		responseCreateAndPushVerrs := validate.NewErrors()
+		var responseCreateAndPushVerrs *validate.Errors
 		var responseCreateAndPushErr error
 		newUpload, responseCreateAndPushVerrs, responseCreateAndPushErr = u.createAndPushUploadToS3(db, file, newUpload)
 		if responseCreateAndPushErr != nil || responseCreateAndPushVerrs.HasAny() {

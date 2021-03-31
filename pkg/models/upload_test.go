@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"context"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -77,7 +75,6 @@ func (suite *ModelSuite) Test_UploadValidations() {
 func (suite *ModelSuite) TestFetchUpload() {
 	t := suite.T()
 
-	ctx := context.Background()
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	session := auth.Session{
@@ -116,12 +113,12 @@ func (suite *ModelSuite) TestFetchUpload() {
 		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
 	}
 
-	upUser, _ := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
+	upUser, _ := models.FetchUserUpload(suite.DB(), &session, uploadUser.ID)
 	suite.Equal(upUser.UploadID, upload.ID)
 	suite.Equal(upUser.Upload.ID, upload.ID)
 	suite.Equal(upUser.ID, uploadUser.ID)
 
-	upUser, _ = models.FetchUserUploadFromUploadID(ctx, suite.DB(), &session, upload.ID)
+	upUser, _ = models.FetchUserUploadFromUploadID(suite.DB(), &session, upload.ID)
 	suite.Equal(upUser.UploadID, upload.ID)
 	suite.Equal(upUser.Upload.ID, upload.ID)
 	suite.Equal(upUser.ID, uploadUser.ID)
@@ -130,7 +127,6 @@ func (suite *ModelSuite) TestFetchUpload() {
 func (suite *ModelSuite) TestFetchDeletedUpload() {
 	t := suite.T()
 
-	ctx := context.Background()
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	session := auth.Session{
@@ -155,8 +151,16 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 		t.Errorf("did not expect validation errors: %v", verrs)
 	}
 
-	models.DeleteUpload(suite.DB(), &upload)
-	up, _ := models.FetchUserUpload(ctx, suite.DB(), &session, upload.ID)
+	//RA Summary: gosec - errcheck - Unchecked return value
+	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+	//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+	//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+	//RA: in a unit test, then there is no risk
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
+	models.DeleteUpload(suite.DB(), &upload) // nolint:errcheck
+	up, _ := models.FetchUserUpload(suite.DB(), &session, upload.ID)
 
 	// fetches a nil upload
 	suite.Equal(up.ID, uuid.Nil)

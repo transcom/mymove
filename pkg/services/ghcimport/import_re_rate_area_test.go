@@ -57,8 +57,6 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateArea(action string) {
 		wales, err = models.FetchReRateAreaItem(suite.DB(), contract.ID, "AS11")
 		suite.NoError(err)
 		suite.Equal(modifiedName, wales.Name)
-	} else if action == "verify" {
-		// nothing to do, verify happens at the top
 	}
 }
 

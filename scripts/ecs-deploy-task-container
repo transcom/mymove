@@ -25,6 +25,11 @@ readonly environment=$3
 readonly RESERVATION_CPU=256
 readonly RESERVATION_MEM=512
 
+if [[ "${name}" == "connect-to-gex-via-sftp" ]] && [[ "${environment}" != "prd" ]]; then
+  echo "We do not deploy connect-to-gex-via-sftp to non-prd environments. Skipping deployment."
+  exit 0
+fi
+
 echo "Checking for existence of variables file"
 
 variables_file="${DIR}/../config/env/${environment}.${name}.env"

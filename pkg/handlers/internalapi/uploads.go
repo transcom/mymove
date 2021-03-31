@@ -70,7 +70,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		}
 
 		// Fetch document to ensure user has access to it
-		document, docErr := models.FetchDocument(ctx, h.DB(), session, documentID, true)
+		document, docErr := models.FetchDocument(h.DB(), session, documentID, true)
 		if docErr != nil {
 			return handlers.ResponseForError(logger, docErr)
 		}
@@ -114,13 +114,10 @@ type DeleteUploadHandler struct {
 
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
-
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	uploadID, _ := uuid.FromString(params.UploadID.String())
-	userUpload, err := models.FetchUserUploadFromUploadID(ctx, h.DB(), session, uploadID)
+	userUpload, err := models.FetchUserUploadFromUploadID(h.DB(), session, uploadID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -143,9 +140,6 @@ type DeleteUploadsHandler struct {
 
 // Handle deletes uploads
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
-
-	ctx := params.HTTPRequest.Context()
-
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
@@ -155,7 +149,7 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 
 	for _, uploadID := range params.UploadIds {
 		uploadUUID, _ := uuid.FromString(uploadID.String())
-		userUpload, err := models.FetchUserUploadFromUploadID(ctx, h.DB(), session, uploadUUID)
+		userUpload, err := models.FetchUserUploadFromUploadID(h.DB(), session, uploadUUID)
 		if err != nil {
 			return handlers.ResponseForError(logger, err)
 		}

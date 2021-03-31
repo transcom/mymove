@@ -43,9 +43,6 @@ type GetDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h GetDocumentHandler) Handle(params documentop.GetDocumentParams) middleware.Responder {
-
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
@@ -53,7 +50,7 @@ func (h GetDocumentHandler) Handle(params documentop.GetDocumentParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 
-	document, err := models.FetchDocument(ctx, h.DB(), session, documentID, false)
+	document, err := models.FetchDocument(h.DB(), session, documentID, false)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

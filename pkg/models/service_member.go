@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"strings"
 	"time"
 
@@ -91,7 +90,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 
 // FetchServiceMemberForUser returns a service member only if it is allowed for the given user to access that service member.
 // This method is thereby a useful way of performing access control checks.
-func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
+func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
 
 	var serviceMember ServiceMember
 	err := db.Q().Eager("User",
@@ -101,9 +100,11 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"DutyStation.TransportationOffice",
 		"DutyStation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyStation.TransportationOffice",
-		"Orders.Moves",
+		"Orders.OriginDutyStation",
 		"Orders.UploadedOrders.UserUploads.Upload",
+		"Orders.Moves",
 		"ResidentialAddress").Find(&serviceMember, id)
+
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
@@ -151,7 +152,8 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 	var responseError error
 
 	// If the passed in function returns an error, the transaction is rolled back
-	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+
 		transactionError := errors.New("Rollback The transaction")
 
 		if serviceMember.ResidentialAddress != nil {
@@ -180,6 +182,10 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 
 		return nil
 	})
+
+	if transactionErr != nil {
+		return responseVErrors, responseError
+	}
 
 	return responseVErrors, responseError
 
@@ -223,7 +229,7 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	db.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 		uploadedOrders := Document{
 			ServiceMemberID: s.ID,
@@ -267,6 +273,10 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 
 		return nil
 	})
+
+	if transactionErr != nil {
+		return newOrders, responseVErrors, responseError
+	}
 
 	return newOrders, responseVErrors, responseError
 }
@@ -317,12 +327,13 @@ func (s *ServiceMember) IsProfileComplete() bool {
 
 // FetchLatestOrder gets the latest order for a service member
 func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) {
-
 	var order Order
 	query := db.Where("orders.service_member_id = $1", s.ID).Order("created_at desc")
-	err := query.Eager("ServiceMember.User",
+	err := query.EagerPreload("ServiceMember.User",
+		"OriginDutyStation.Address",
+		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
-		"UploadedOrders.UserUploads.Upload",
+		"UploadedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
@@ -331,6 +342,12 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
+		return Order{}, err
+	}
+
+	// Eager loading of nested has_many associations is broken
+	err = db.Load(&order.UploadedOrders, "UserUploads.Upload")
+	if err != nil {
 		return Order{}, err
 	}
 

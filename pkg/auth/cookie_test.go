@@ -90,7 +90,7 @@ func (suite *authSuite) TestMaskedCSRFMiddleware() {
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 
 	// And the cookie should be added to the session
-	setCookies := rr.HeaderMap["Set-Cookie"]
+	setCookies := rr.Result().Cookies()
 	suite.Equal(1, len(setCookies), "expected cookie to be set")
 }
 
@@ -118,7 +118,7 @@ func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesNewToken() {
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 
 	// No new cookie should be added to the session
-	setCookies := rr.HeaderMap["Set-Cookie"]
+	setCookies := rr.Result().Cookies()
 	suite.Equal(1, len(setCookies), "expected a new cookie to be set")
 }
 

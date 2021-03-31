@@ -6,13 +6,10 @@ import {
   milmoveBaseURL,
   officeBaseURL,
   adminBaseURL,
-  milmoveAppName,
-  officeAppName,
   milmoveUserType,
   PPMOfficeUserType,
   TOOOfficeUserType,
   TIOOfficeUserType,
-  userTypeToBaseURL,
   longPageLoadTimeout,
 } from './constants';
 

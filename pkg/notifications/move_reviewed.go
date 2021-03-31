@@ -2,7 +2,6 @@ package notifications
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	html "html/template"
 	text "text/template"
@@ -83,7 +82,7 @@ WHERE CAST(reviewed_date AS date) = $1
 
 // NotificationSendingContext expects a `notification` with an `emails` method,
 // so we implement `email` to satisfy that interface
-func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {
+func (m MoveReviewed) emails() ([]emailContent, error) {
 	emailInfos, err := m.GetEmailInfo(m.date)
 	if err != nil {
 		m.logger.Error("error retrieving email info", zap.String("date", m.date.String()))

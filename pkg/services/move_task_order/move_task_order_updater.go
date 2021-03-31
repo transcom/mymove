@@ -38,31 +38,38 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 	searchParams := services.FetchMoveTaskOrderParams{
 		IncludeHidden: false,
 	}
-	mto, err := o.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
+	move, err := o.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
 	if err != nil {
 		return &models.Move{}, err
 	}
 
-	if mto.AvailableToPrimeAt == nil {
-		// update field for mto
-		now := time.Now()
-		mto.AvailableToPrimeAt = &now
+	// Fail early if the Order is invalid due to missing required fields
+	order := move.Orders
+	o.db.Load(&order, "Moves")
+	if verrs, err = o.db.ValidateAndUpdate(&order); verrs.HasAny() || err != nil {
+		return &models.Move{}, services.NewInvalidInputError(move.ID, nil, verrs, "")
+	}
 
-		if mto.Status == models.MoveStatusSUBMITTED {
-			err = mto.Approve()
+	if move.AvailableToPrimeAt == nil {
+		// update field for move
+		now := time.Now()
+		move.AvailableToPrimeAt = &now
+
+		if move.Status == models.MoveStatusSUBMITTED {
+			err = move.Approve()
 			if err != nil {
-				return &models.Move{}, services.NewConflictError(mto.ID, err.Error())
+				return &models.Move{}, services.NewConflictError(move.ID, err.Error())
 			}
 		}
 
-		verrs, err = o.builder.UpdateOne(mto, &eTag)
+		verrs, err = o.builder.UpdateOne(move, &eTag)
 		if verrs != nil && verrs.HasAny() {
-			return &models.Move{}, services.NewInvalidInputError(mto.ID, nil, verrs, "")
+			return &models.Move{}, services.NewInvalidInputError(move.ID, nil, verrs, "")
 		}
 		if err != nil {
 			switch err.(type) {
 			case query.StaleIdentifierError:
-				return nil, services.NewPreconditionFailedError(mto.ID, err)
+				return nil, services.NewPreconditionFailedError(move.ID, err)
 			default:
 				return &models.Move{}, err
 			}
@@ -84,7 +91,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 
 		if err != nil {
 			if errors.Is(err, models.ErrInvalidTransition) {
-				return &models.Move{}, services.NewConflictError(mto.ID, err.Error())
+				return &models.Move{}, services.NewConflictError(move.ID, err.Error())
 			}
 			return &models.Move{}, err
 		}
@@ -105,7 +112,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 
 		if err != nil {
 			if errors.Is(err, models.ErrInvalidTransition) {
-				return &models.Move{}, services.NewConflictError(mto.ID, err.Error())
+				return &models.Move{}, services.NewConflictError(move.ID, err.Error())
 			}
 			return &models.Move{}, err
 		}
@@ -113,15 +120,15 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 			return &models.Move{}, verrs
 		}
 
-		// CreateMTOServiceItem may have updated the mto status so refetch as to not return incorrect status
+		// CreateMTOServiceItem may have updated the move status so refetch as to not return incorrect status
 		// TODO: Modify CreateMTOServiceItem to return the updated move or refactor to operate on the passed in reference
-		mto, err = o.FetchMoveTaskOrder(moveTaskOrderID, nil)
+		move, err = o.FetchMoveTaskOrder(moveTaskOrderID, nil)
 		if err != nil {
 			return &models.Move{}, err
 		}
 	}
 
-	return mto, nil
+	return move, nil
 }
 
 // UpdateMoveTaskOrderQueryBuilder is the query builder for updating MTO
@@ -132,9 +139,10 @@ type UpdateMoveTaskOrderQueryBuilder interface {
 func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	var moveTaskOrder models.Move
 
-	err := o.db.Q().Eager(
+	err := o.db.Q().EagerPreload(
 		"Orders.NewDutyStation.Address",
 		"Orders.ServiceMember",
+		"Orders.Entitlement",
 		"MTOShipments",
 		"PaymentRequests",
 	).Find(&moveTaskOrder, moveTaskOrderID)

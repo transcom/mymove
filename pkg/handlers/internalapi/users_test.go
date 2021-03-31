@@ -3,6 +3,8 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/go-openapi/swag"
+
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -136,4 +138,31 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+}
+
+func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Show: swag.Bool(false),
+		},
+	})
+
+	req := httptest.NewRequest("GET", "/users/logged_in", nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+	params := userop.ShowLoggedInUserParams{
+		HTTPRequest: req,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+
+	handler := ShowLoggedInUserHandler{context, builder}
+
+	response := handler.Handle(params)
+
+	suite.IsType(&userop.ShowLoggedInUserUnauthorized{}, response)
+
 }

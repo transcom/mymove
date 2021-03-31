@@ -13,7 +13,7 @@ export default {
 
 const props = {
   customer: { last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-  moveOrder: {
+  order: {
     agency: 'MARINES',
     grade: 'E_6',
     originDutyStation: {

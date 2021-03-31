@@ -32,7 +32,7 @@ describe('Moves Details Show Page', function () {
     cy.prepareAdminApp();
   });
 
-  it('pulls up details page for a user', function () {
+  it('pulls up details page for a move', function () {
     cy.signInAsNewAdminUser();
     cy.get('a[href*="system/moves"]').click();
     cy.url().should('eq', adminBaseURL + '/system/moves');

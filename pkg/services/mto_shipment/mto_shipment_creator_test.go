@@ -9,7 +9,6 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -19,24 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-type testMTOShipmentQueryBuilder struct {
-	fakeCreateOne   func(model interface{}) (*validate.Errors, error)
-	fakeFetchOne    func(model interface{}, filters []services.QueryFilter) error
-	fakeTransaction func(func(tx *pop.Connection) error) error
-}
-
-func (t *testMTOShipmentQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
-	return t.fakeCreateOne(model)
-}
-
-func (t *testMTOShipmentQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
-	return t.fakeFetchOne(model, filters)
-}
-
-func (t *testMTOShipmentQueryBuilder) Transaction(fn func(tx *pop.Connection) error) error {
-	return t.fakeTransaction(fn)
-}
 
 func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 	mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())

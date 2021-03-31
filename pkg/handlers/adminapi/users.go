@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/services/audit"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -169,6 +171,11 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 		fmt.Printf("%#v", validationErrors)
 		logger.Error("Error revoking user session", zap.Error(revokeErr))
 		return userop.NewUpdateUserInternalServerError()
+	}
+
+	_, err = audit.Capture(updatedUser, params.User, logger, session, params.HTTPRequest)
+	if err != nil {
+		logger.Error("Error capturing audit record", zap.Error(err))
 	}
 
 	returnPayload := payloadForUserModel(*updatedUser)

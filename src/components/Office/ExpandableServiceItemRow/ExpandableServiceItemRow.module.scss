@@ -1,0 +1,76 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+@import 'shared/styles/_custom';
+
+.ExpandableServiceItemRow {
+  .accepted {
+    svg {
+      @include u-margin-right(1);
+      height: 18px;
+      width: 18px;
+      display: inline-block;
+      position: relative;
+      top: 2px;
+
+      path {
+        fill: $success;
+      }
+    }
+  }
+
+  .rejected {
+    svg {
+      @include u-margin-right(1);
+      height: 18px;
+      width: 18px;
+      display: inline-block;
+      position: relative;
+      top: 2px;
+
+      path {
+        fill: $error;
+      }
+    }
+  }
+
+  .needsReview {
+    svg {
+      @include u-margin-right(1);
+      height: 18px;
+      width: 18px;
+      display: inline-block;
+      position: relative;
+      top: 2px;
+
+      path {
+        fill: $warning;
+      }
+    }
+  }
+
+  &.isExpandable {
+    cursor: pointer;
+  }
+
+  &.expandable {
+    .icon {
+      @include u-margin-left(-1);
+      @include u-margin-right(2);
+      color: $primary;
+    }
+  }
+
+  &.expandedRow,
+  &.expandedDetail {
+    border: 1px solid $base-lighter;
+  }
+
+  &.expandedRow td {
+    background-color: $link-light;
+  }
+
+  &.expandedDetail td {
+    @include u-padding(3);
+  }
+}

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/services/audit"
+
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -116,7 +118,7 @@ type UpdateMoveHandler struct {
 
 // Handle updates a given move
 func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
@@ -124,7 +126,7 @@ func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Res
 		return moveop.NewUpdateMoveBadRequest()
 	}
 
-	updatedMove, err := h.MoveTaskOrderUpdater.ShowHide(moveID, &params.Move.Show)
+	updatedMove, err := h.MoveTaskOrderUpdater.ShowHide(moveID, params.Move.Show)
 	if err != nil {
 		switch e := err.(type) {
 		case services.NotFoundError:
@@ -140,6 +142,11 @@ func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Res
 		default:
 			return moveop.NewUpdateMoveInternalServerError()
 		}
+	}
+
+	_, err = audit.Capture(updatedMove, params.Move, logger, session, params.HTTPRequest)
+	if err != nil {
+		logger.Error("Error capturing audit record", zap.Error(err))
 	}
 
 	if updatedMove == nil {

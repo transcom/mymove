@@ -34,6 +34,11 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	if order.Entitlement != nil {
 		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
 	}
+	var originDutyStation models.DutyStation
+	originDutyStation = models.DutyStation{}
+	if order.OriginDutyStation != nil {
+		originDutyStation = *order.OriginDutyStation
+	}
 
 	payload := &internalmessages.Orders{
 		ID:                  handlers.FmtUUID(order.ID),
@@ -44,6 +49,8 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		ReportByDate:        handlers.FmtDate(order.ReportByDate),
 		OrdersType:          order.OrdersType,
 		OrdersTypeDetail:    order.OrdersTypeDetail,
+		OriginDutyStation:   payloadForDutyStationModel(originDutyStation),
+		Grade:               order.Grade,
 		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
 		HasDependents:       handlers.FmtBool(order.HasDependents),
 		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
@@ -67,9 +74,6 @@ type CreateOrdersHandler struct {
 
 // Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
-
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	payload := params.CreateOrders
@@ -78,7 +82,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

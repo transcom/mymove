@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -103,6 +104,21 @@ func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 		},
 		Stub: assertions.Stub,
 	})
+
+	return officeUser
+}
+
+// MakeActiveOfficeUser returns an active office user
+func MakeActiveOfficeUser(db *pop.Connection) models.OfficeUser {
+	officeUser := MakeDefaultOfficeUser(db)
+
+	officeUser.Active = true
+
+	err := db.Update(&officeUser)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return officeUser
 }

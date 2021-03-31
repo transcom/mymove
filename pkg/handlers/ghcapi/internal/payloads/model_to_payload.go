@@ -45,7 +45,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		Contractor:         Contractor(move.Contractor),
 		Locator:            move.Locator,
 		OrdersID:           strfmt.UUID(move.OrdersID.String()),
-		Orders:             MoveOrder(&move.Orders),
+		Orders:             Order(&move.Orders),
 		ReferenceID:        handlers.FmtStringPtr(move.ReferenceID),
 		Status:             ghcmessages.MoveStatus(move.Status),
 		CreatedAt:          strfmt.DateTime(move.CreatedAt),
@@ -68,7 +68,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *ghcmessages.MoveTaskOrder {
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         moveTaskOrder.IsCanceled(),
-		MoveOrderID:        strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		OrderID:            strfmt.UUID(moveTaskOrder.OrdersID.String()),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
@@ -99,68 +99,68 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	return &payload
 }
 
-// MoveOrder payload
-func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
-	if moveOrder == nil {
+// Order payload
+func Order(order *models.Order) *ghcmessages.Order {
+	if order == nil {
 		return nil
 	}
-	if moveOrder.ID == uuid.Nil {
+	if order.ID == uuid.Nil {
 		return nil
 	}
 
-	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
-	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
-	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
-		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
+	destinationDutyStation := DutyStation(&order.NewDutyStation)
+	originDutyStation := DutyStation(order.OriginDutyStation)
+	if order.Grade != nil && order.Entitlement != nil {
+		order.Entitlement.SetWeightAllotment(*order.Grade)
 	}
-	entitlements := Entitlement(moveOrder.Entitlement)
+	entitlements := Entitlement(order.Entitlement)
 
 	var deptIndicator ghcmessages.DeptIndicator
-	if moveOrder.DepartmentIndicator != nil {
-		deptIndicator = ghcmessages.DeptIndicator(*moveOrder.DepartmentIndicator)
+	if order.DepartmentIndicator != nil {
+		deptIndicator = ghcmessages.DeptIndicator(*order.DepartmentIndicator)
 	}
 
 	var ordersTypeDetail ghcmessages.OrdersTypeDetail
-	if moveOrder.OrdersTypeDetail != nil {
-		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
+	if order.OrdersTypeDetail != nil {
+		ordersTypeDetail = ghcmessages.OrdersTypeDetail(*order.OrdersTypeDetail)
 	}
 
 	var grade ghcmessages.Grade
-	if moveOrder.Grade != nil {
-		grade = ghcmessages.Grade(*moveOrder.Grade)
+	if order.Grade != nil {
+		grade = ghcmessages.Grade(*order.Grade)
 	}
 	//
 	var branch ghcmessages.Branch
-	if moveOrder.ServiceMember.Affiliation != nil {
-		branch = ghcmessages.Branch(*moveOrder.ServiceMember.Affiliation)
+	if order.ServiceMember.Affiliation != nil {
+		branch = ghcmessages.Branch(*order.ServiceMember.Affiliation)
 	}
 
 	var moveCode string
-	if moveOrder.Moves != nil && len(moveOrder.Moves) > 0 {
-		moveCode = moveOrder.Moves[0].Locator
+	if order.Moves != nil && len(order.Moves) > 0 {
+		moveCode = order.Moves[0].Locator
 	}
 
-	payload := ghcmessages.MoveOrder{
+	payload := ghcmessages.Order{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
 		Grade:                  &grade,
-		OrderNumber:            moveOrder.OrdersNumber,
+		OrderNumber:            order.OrdersNumber,
 		OrderTypeDetail:        &ordersTypeDetail,
-		ID:                     strfmt.UUID(moveOrder.ID.String()),
+		ID:                     strfmt.UUID(order.ID.String()),
 		OriginDutyStation:      originDutyStation,
-		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+		ETag:                   etag.GenerateEtag(order.UpdatedAt),
 		Agency:                 branch,
-		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
-		Customer:               Customer(&moveOrder.ServiceMember),
-		FirstName:              swag.StringValue(moveOrder.ServiceMember.FirstName),
-		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),
-		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
-		DateIssued:             strfmt.Date(moveOrder.IssueDate),
-		OrderType:              ghcmessages.OrdersType(moveOrder.OrdersType),
+		CustomerID:             strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:               Customer(&order.ServiceMember),
+		FirstName:              swag.StringValue(order.ServiceMember.FirstName),
+		LastName:               swag.StringValue(order.ServiceMember.LastName),
+		ReportByDate:           strfmt.Date(order.ReportByDate),
+		DateIssued:             strfmt.Date(order.IssueDate),
+		OrderType:              ghcmessages.OrdersType(order.OrdersType),
 		DepartmentIndicator:    &deptIndicator,
-		Tac:                    handlers.FmtStringPtr(moveOrder.TAC),
-		Sac:                    handlers.FmtStringPtr(moveOrder.SAC),
-		UploadedOrderID:        strfmt.UUID(moveOrder.UploadedOrdersID.String()),
+		Tac:                    handlers.FmtStringPtr(order.TAC),
+		Sac:                    handlers.FmtStringPtr(order.SAC),
+		UploadedOrderID:        strfmt.UUID(order.UploadedOrdersID.String()),
 		MoveCode:               moveCode,
 	}
 
@@ -274,7 +274,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             mtoShipment.ShipmentType,
-		Status:                   string(mtoShipment.Status),
+		Status:                   ghcmessages.MTOShipmentStatus(mtoShipment.Status),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
@@ -310,8 +310,8 @@ func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		//  G601 TODO needs review
-		payload[i] = MTOShipment(&m)
+		copyOfMtoShipment := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOShipment(&copyOfMtoShipment)
 	}
 	return &payload
 }
@@ -337,8 +337,8 @@ func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 	payload := make(ghcmessages.MTOAgents, len(*mtoAgents))
 	for i, m := range *mtoAgents {
-		//  G601 TODO needs review
-		payload[i] = MTOAgent(&m)
+		copyOfMtoAgent := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOAgent(&copyOfMtoAgent)
 	}
 	return &payload
 }
@@ -390,18 +390,25 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 
 // PaymentServiceItem payload
 func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServiceItem {
+	if ps == nil {
+		return nil
+	}
+	paymentServiceItemParams := PaymentServiceItemParams(&ps.PaymentServiceItemParams)
+
 	return &ghcmessages.PaymentServiceItem{
-		ID:                 *handlers.FmtUUID(ps.ID),
-		MtoServiceItemID:   *handlers.FmtUUID(ps.MTOServiceItemID),
-		MtoServiceItemName: ps.MTOServiceItem.ReService.Name,
-		MtoShipmentType:    ghcmessages.MTOShipmentType(ps.MTOServiceItem.MTOShipment.ShipmentType),
-		MtoShipmentID:      handlers.FmtUUIDPtr(ps.MTOServiceItem.MTOShipmentID),
-		CreatedAt:          strfmt.DateTime(ps.CreatedAt),
-		PriceCents:         handlers.FmtCost(ps.PriceCents),
-		RejectionReason:    ps.RejectionReason,
-		Status:             ghcmessages.PaymentServiceItemStatus(ps.Status),
-		ReferenceID:        ps.ReferenceID,
-		ETag:               etag.GenerateEtag(ps.UpdatedAt),
+		ID:                       *handlers.FmtUUID(ps.ID),
+		MtoServiceItemID:         *handlers.FmtUUID(ps.MTOServiceItemID),
+		MtoServiceItemCode:       string(ps.MTOServiceItem.ReService.Code),
+		MtoServiceItemName:       ps.MTOServiceItem.ReService.Name,
+		MtoShipmentType:          ghcmessages.MTOShipmentType(ps.MTOServiceItem.MTOShipment.ShipmentType),
+		MtoShipmentID:            handlers.FmtUUIDPtr(ps.MTOServiceItem.MTOShipmentID),
+		CreatedAt:                strfmt.DateTime(ps.CreatedAt),
+		PriceCents:               handlers.FmtCost(ps.PriceCents),
+		RejectionReason:          ps.RejectionReason,
+		Status:                   ghcmessages.PaymentServiceItemStatus(ps.Status),
+		ReferenceID:              ps.ReferenceID,
+		ETag:                     etag.GenerateEtag(ps.UpdatedAt),
+		PaymentServiceItemParams: *paymentServiceItemParams,
 	}
 }
 
@@ -409,8 +416,35 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcmessages.PaymentServiceItems {
 	payload := make(ghcmessages.PaymentServiceItems, len(*paymentServiceItems))
 	for i, m := range *paymentServiceItems {
-		//  G601 TODO needs review
-		payload[i] = PaymentServiceItem(&m)
+		copyOfPaymentServiceItem := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = PaymentServiceItem(&copyOfPaymentServiceItem)
+	}
+	return &payload
+}
+
+// PaymentServiceItemParam payload
+func PaymentServiceItemParam(paymentServiceItemParam models.PaymentServiceItemParam) *ghcmessages.PaymentServiceItemParam {
+	return &ghcmessages.PaymentServiceItemParam{
+		ID:                   strfmt.UUID(paymentServiceItemParam.ID.String()),
+		PaymentServiceItemID: strfmt.UUID(paymentServiceItemParam.PaymentServiceItemID.String()),
+		Key:                  ghcmessages.ServiceItemParamName(paymentServiceItemParam.ServiceItemParamKey.Key),
+		Value:                paymentServiceItemParam.Value,
+		Type:                 ghcmessages.ServiceItemParamType(paymentServiceItemParam.ServiceItemParamKey.Type),
+		Origin:               ghcmessages.ServiceItemParamOrigin(paymentServiceItemParam.ServiceItemParamKey.Origin),
+		ETag:                 etag.GenerateEtag(paymentServiceItemParam.UpdatedAt),
+	}
+}
+
+// PaymentServiceItemParams payload
+func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceItemParams) *ghcmessages.PaymentServiceItemParams {
+	if paymentServiceItemParams == nil {
+		return nil
+	}
+
+	payload := make(ghcmessages.PaymentServiceItemParams, len(*paymentServiceItemParams))
+
+	for i, p := range *paymentServiceItemParams {
+		payload[i] = PaymentServiceItemParam(p)
 	}
 	return &payload
 }
@@ -446,8 +480,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 func MTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
 	serviceItems := ghcmessages.MTOServiceItems{}
 	for _, item := range s {
-		//  G601 TODO needs review
-		serviceItems = append(serviceItems, MTOServiceItemModel(&item))
+		copyOfServiceItem := item // Make copy to avoid implicit memory aliasing of items from a range statement.
+		serviceItems = append(serviceItems, MTOServiceItemModel(&copyOfServiceItem))
 	}
 
 	return serviceItems
@@ -468,8 +502,8 @@ func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTO
 func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTOServiceItemDimensions {
 	payload := make(ghcmessages.MTOServiceItemDimensions, len(d))
 	for i, item := range d {
-		//  G601 TODO needs review
-		payload[i] = MTOServiceItemDimension(&item)
+		copyOfServiceItem := item // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOServiceItemDimension(&copyOfServiceItem)
 	}
 	return payload
 }
@@ -487,8 +521,8 @@ func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghc
 func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghcmessages.MTOServiceItemCustomerContacts {
 	payload := make(ghcmessages.MTOServiceItemCustomerContacts, len(c))
 	for i, item := range c {
-		//  G601 TODO needs review
-		payload[i] = MTOServiceItemCustomerContact(&item)
+		copyOfServiceItem := item // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOServiceItemCustomerContact(&copyOfServiceItem)
 	}
 	return payload
 }
@@ -534,7 +568,7 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 
 // QueueMoves payload
 func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
-	queueMoveOrders := make(ghcmessages.QueueMoves, len(moves))
+	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
@@ -550,7 +584,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
 		}
 
-		queueMoveOrders[i] = &ghcmessages.QueueMove{
+		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
 			ID:                     *handlers.FmtUUID(move.Orders.ID),
@@ -561,18 +595,18 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			OriginGBLOC:            ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
 		}
 	}
-	return &queueMoveOrders
+	return &queueMoves
 }
 
 var (
 	// QueuePaymentRequestPaymentRequested status payment requested
-	QueuePaymentRequestPaymentRequested string = "Payment requested"
+	QueuePaymentRequestPaymentRequested = "Payment requested"
 	// QueuePaymentRequestReviewed status Payment request reviewed
-	QueuePaymentRequestReviewed string = "Reviewed"
+	QueuePaymentRequestReviewed = "Reviewed"
 	// QueuePaymentRequestRejected status Payment request rejected
-	QueuePaymentRequestRejected string = "Rejected"
+	QueuePaymentRequestRejected = "Rejected"
 	// QueuePaymentRequestPaid status PaymentRequest paid
-	QueuePaymentRequestPaid string = "Paid"
+	QueuePaymentRequestPaid = "Paid"
 )
 
 // This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload

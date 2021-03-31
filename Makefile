@@ -14,12 +14,9 @@ TASKS_DOCKER_CONTAINER = tasks
 WEBHOOK_CLIENT_DOCKER_CONTAINER = webhook-client
 export PGPASSWORD=mysecretpassword
 
-# if S3 or CDN access is enabled, wrap webserver in aws-vault command
+# if S3 access is enabled, wrap webserver in aws-vault command
 # to pass temporary AWS credentials to the binary.
 ifeq ($(STORAGE_BACKEND),s3)
-	USE_AWS:=true
-endif
-ifeq ($(STORAGE_BACKEND),cdn)
 	USE_AWS:=true
 endif
 ifeq ($(USE_AWS),true)
@@ -275,6 +272,9 @@ bin/send-to-gex: pkg/gen/ cmd/send-to-gex
 bin/send-to-syncada-via-sftp: pkg/gen/ cmd/send-to-syncada-via-sftp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-syncada-via-sftp ./cmd/send-to-syncada-via-sftp
 
+bin/fetch-from-syncada-via-sftp: pkg/gen/ cmd/fetch-from-syncada-via-sftp
+	go build -ldflags "$(LDFLAGS)" -o bin/fetch-from-syncada-via-sftp ./cmd/fetch-from-syncada-via-sftp
+
 bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
@@ -416,19 +416,11 @@ server_test_coverage_generate: db_test_reset db_test_migrate redis_reset server_
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
 	# Add coverage tracker via go cover
-	NO_DB=1 COVERAGE=1 scripts/run-server-test
+	NO_DB=1 SERVER_REPORT=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
-
-.PHONY: server_test_docker
-server_test_docker:
-	docker-compose -f docker-compose.circle.yml --compatibility up --remove-orphans --abort-on-container-exit
-
-.PHONY: server_test_docker_down
-server_test_docker_down:
-	docker-compose -f docker-compose.circle.yml --compatibility down
 
 #
 # ----- END SERVER TARGETS -----
@@ -532,7 +524,7 @@ db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-t
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
@@ -548,7 +540,7 @@ db_dev_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate dat
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
@@ -636,9 +628,8 @@ ifndef CIRCLECI
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p $(DB_PORT_TEST):$(DB_PORT_DOCKER)\
-			$(DB_DOCKER_CONTAINER_IMAGE)\
-			-c fsync=off\
-			-c full_page_writes=off
+			--mount type=tmpfs,destination=/var/lib/postgresql/data \
+			$(DB_DOCKER_CONTAINER_IMAGE)
 else
 	@echo "Relying on CircleCI's database setup to start the DB."
 endif
@@ -783,6 +774,28 @@ tasks_build_linux_docker:  ## Build Scheduled Task binaries (linux) and Docker i
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
+.PHONY: tasks_connect_to_gex_via_sftp
+tasks_connect_to_gex_via_sftp: tasks_build_linux_docker ## Run connect-to-gex-via-sftp from inside docker container
+	@echo "Connecting to GEX via SFTP with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		-e GEX_SFTP_HOST \
+		-e GEX_SFTP_HOST_KEY \
+		-e GEX_SFTP_IP_ADDRESS \
+		-e GEX_SFTP_PASSWORD \
+		-e GEX_SFTP_PORT \
+		-e GEX_SFTP_USER_ID \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		milmove-tasks connect-to-gex-via-sftp
+
 .PHONY: tasks_save_ghc_fuel_price_data
 tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-price-data from inside docker container
 	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
@@ -905,23 +918,51 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 webhook_client_docker:
 	docker build -f Dockerfile.webhook_client_local -t $(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest .
 
-.PHONY: webhook_client_start
-webhook_client_start: db_dev_e2e_populate webhook_client_start_standalone
+.PHONY: webhook_client_start_reset_db
+webhook_client_start_reset_db: db_dev_e2e_populate webhook_client_start
 
-.PHONY: webhook_client_start_standalone
-webhook_client_start_standalone:
+.PHONY: webhook_client_start
+webhook_client_start:
 	@echo "Starting the webhook client..."
-	# More environment variables can be added here that correlate with the command line options for
-	# the webhook-client binary.
+	# Note regarding the use of 172.17.0.1: the default network bridge in Docker is 172.17.0.1
+	# according to https://docs.docker.com/network/network-tutorial-standalone/. Based on Internet
+	# searches, this IP address seems to be fairly static. Therefore, this address can be used to
+	# serve as the IP address for various local hostnames used during testing. If this stops
+	# working some day, dynamic resolution may be required to look up the host.docker.internal IP.
+	# However, by using a static IP, it allows developers to restart Docker after building an image
+	# and still have the container work if the /etc/hosts file had already been updated with this
+	# script. While brainstorming a usable approach, we tried to introduce the use of
+	# host.docker.internal by using the HOSTALIASES environment variable
+	# (https://man7.org/linux/man-pages/man7/hostname.7.html), but this resulted in a segfaults
+	# occurring during DNS lookup from within the container about 70% of the time. So we opted for
+	# the more stable hardcoded Docker gateway IP approch.
+	#
+	# If this fails, make sure you are running both the mTLS server and the database in containers.
+	# Due to the fact that on MacOS, Docker containers are run within a virtual machine rather than
+	# directly from the host system, if the webhook client is running inside a container, it won't
+	# be able to see anything outside of that Docker-managed virtual machine. Therefore, you need
+	# to run the mTLS server and database from inside a container. This is possible with a command
+	# like the following:
+	#
+	#   docker-compose -f docker-compose.mtls_local.yml --compatibility up --remove-orphans
+	#
+	# For more information about this, please see the following page:
+	# https://docs.docker.com/docker-for-mac/networking/#known-limitations-use-cases-and-workarounds
 	docker run \
-		-e LOGGING_LEVEL=debug \
-		-e DB_HOST="database" \
+		--add-host "adminlocal:172.17.0.1" \
+		--add-host "milmovelocal:172.17.0.1" \
+		--add-host "officelocal:172.17.0.1" \
+		--add-host "orderslocal:172.17.0.1" \
+		--add-host "primelocal:172.17.0.1" \
+		-e DB_HOST=172.17.0.1 \
 		-e DB_NAME \
 		-e DB_PORT \
 		-e DB_USER \
 		-e DB_PASSWORD \
+		-e GEX_MTLS_CLIENT_CERT \
+		-e GEX_MTLS_CLIENT_KEY \
+		-e LOGGING_LEVEL=debug \
 		-e PERIOD \
-		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		$(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest
 
 .PHONY: webhook_client_test
@@ -981,7 +1022,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app
+	docker pull milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images

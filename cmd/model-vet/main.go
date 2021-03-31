@@ -106,8 +106,8 @@ func loadModelsFromFile(path string) ([]Model, error) {
 						// Build an internal representation of the model, which will
 						// also house the fields when we get to them.
 						m := Model{
-							name:   typeSpec.Name.Name,                  // Name of the struct, e.g. MoveOrder
-							dbName: nflect.Tableize(typeSpec.Name.Name), // e.g. move_order
+							name:   typeSpec.Name.Name,                  // Name of the struct, e.g. ServiceMember
+							dbName: nflect.Tableize(typeSpec.Name.Name), // e.g. service_members
 						}
 
 						// Loop through fields and add them to m
@@ -188,10 +188,17 @@ func auditModel(db *pop.Connection, model Model) (bool, error) {
 func main() {
 	flag := pflag.CommandLine
 	initFlags(flag)
-	flag.Parse(os.Args[1:])
+	err := flag.Parse(os.Args[1:])
+	if err != nil {
+		log.Fatalf("Could not parse flags: %v\n", err)
+	}
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	bindErr := v.BindPFlags(flag)
+	if bindErr != nil {
+		log.Fatal("failed to bind flags", zap.Error(bindErr))
+	}
+
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 

@@ -4,9 +4,12 @@ import MockDate from 'mockdate';
 import addons from '@storybook/addons';
 import { isHappoRun } from 'happo-plugin-storybook/register';
 
+import { SHIPMENT_OPTIONS } from '../../../shared/constants';
+
 import PaymentRequestCard from './PaymentRequestCard';
 
 import { MockProviders } from 'testUtils';
+import { serviceItemCodes } from 'content/serviceItems';
 
 const mockedDate = '2020-12-08T00:00:00.000Z';
 
@@ -70,7 +73,7 @@ const pendingPaymentRequest = {
     {
       id: '09474c6a-69b6-4501-8e08-670a12512a5f',
       createdAt: '2020-12-01T00:00:00.000Z',
-      mtoServiceItemName: 'Counseling Services',
+      mtoServiceItemName: serviceItemCodes.CS,
       mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       priceCents: 1000001,
       status: 'REQUESTED',
@@ -78,20 +81,20 @@ const pendingPaymentRequest = {
     {
       id: '39474c6a-69b6-4501-8e08-670a12512a5f',
       createdAt: '2020-12-01T00:00:00.000Z',
-      mtoServiceItemName: 'Dom. Linehaul',
+      mtoServiceItemName: serviceItemCodes.DLH,
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
-      mtoShipmentType: 'HHG',
+      mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
       priceCents: 4000001,
       status: 'REQUESTED',
     },
     {
       id: 'ad8b97ed-bb8a-4efa-abb3-2b00c849f537',
       createdAt: '2020-12-01T00:00:00.000Z',
-      mtoServiceItemName: 'Fuel Surcharge',
+      mtoServiceItemName: serviceItemCodes.FSC,
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbb',
       mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
-      mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+      mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
       priceCents: 6000001,
       status: 'REQUESTED',
     },
@@ -110,7 +113,7 @@ const reviewedPaymentRequest = {
     {
       id: '09474c6a-69b6-4501-8e08-670a12512a5f',
       createdAt: '2020-12-01T00:00:00.000Z',
-      mtoServiceItemName: 'Counseling Services',
+      mtoServiceItemName: serviceItemCodes.CS,
       mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       priceCents: 2000001,
       status: 'APPROVED',
@@ -118,10 +121,10 @@ const reviewedPaymentRequest = {
     {
       id: '39474c6a-69b6-4501-8e08-670a12512a5f',
       createdAt: '2020-12-01T00:00:00.000Z',
-      mtoServiceItemName: 'Dom. Linehaul',
+      mtoServiceItemName: serviceItemCodes.DLH,
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
-      mtoShipmentType: 'HHG',
+      mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
       priceCents: 4000001,
       status: 'DENIED',
       rejectionReason: 'Requested amount exceeds guideline',
@@ -129,10 +132,10 @@ const reviewedPaymentRequest = {
     {
       id: 'ad8b97ed-bb8a-4efa-abb3-2b00c849f537',
       createdAt: '2020-12-01T00:00:00.000Z',
-      mtoServiceItemName: 'Fuel Surcharge',
+      mtoServiceItemName: serviceItemCodes.FSC,
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbb',
       mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
-      mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+      mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
       priceCents: 6000001,
       status: 'APPROVED',
     },
@@ -151,7 +154,7 @@ const rejectedPaymentRequest = {
     {
       id: '09474c6a-69b6-4501-8e08-670a12512a5f',
       createdAt: '2020-12-01T00:00:00.000Z',
-      mtoServiceItemName: 'Counseling Services',
+      mtoServiceItemName: serviceItemCodes.CS,
       mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       priceCents: 2000001,
       status: 'DENIED',
@@ -159,10 +162,10 @@ const rejectedPaymentRequest = {
     {
       id: '39474c6a-69b6-4501-8e08-670a12512a5f',
       createdAt: '2020-12-01T00:00:00.000Z',
-      mtoServiceItemName: 'Dom. Linehaul',
+      mtoServiceItemName: serviceItemCodes.DLH,
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
       mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
-      mtoShipmentType: 'HHG',
+      mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
       priceCents: 4000001,
       status: 'DENIED',
       rejectionReason: 'Requested amount exceeds guideline',
@@ -170,10 +173,10 @@ const rejectedPaymentRequest = {
     {
       id: 'ad8b97ed-bb8a-4efa-abb3-2b00c849f537',
       createdAt: '2020-12-01T00:00:00.000Z',
-      mtoServiceItemName: 'Fuel Surcharge',
+      mtoServiceItemName: serviceItemCodes.FSC,
       mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbb',
       mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
-      mtoShipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+      mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
       priceCents: 6000001,
       status: 'DENIED',
       rejectionReason: 'Duplicate charge',

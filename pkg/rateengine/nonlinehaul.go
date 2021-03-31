@@ -162,24 +162,21 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 		zapFields = append(zapFields,
 			zap.Int("210A", rate210A.RateCents.Int()),
 			zap.Int("225A", rate225A.RateCents.Int()))
-	} else {
-		// Just return 185A and 185B parts of HHG for now.  Full implementation in later story.
-
-		// TODO: The rest of the HHG scenarios are as follows (to be added to the 185A and 185B parts):
-		//   * 30 miles or less from original delivery address to final delivery address (block 18 on GBL):
-		//       (185A SIT first day rate * CWT) +
-		//       (185B SIT additional day rate * additional days * CWT)
-		//       210A SIT PD 30 miles or less for SIT PD schedule of service area
-		//   * Between 31 and 50 miles from original delivery address to final delivery address (block 18 on GBL):
-		//       (185A SIT first day rate * CWT) +
-		//	     (185B SIT additional day rate * additional days * CWT)
-		//       210A SIT PD 30 miles or less for SIT PD schedule of service area +
-		//       210B SIT PD 30 to 50 miles SIT PD schedule of service area
-		//   * Over 50 miles from original delivery address to final delivery address (block 18 on GBL):
-		//       (185A SIT first day rate * CWT) +
-		//	     (185B SIT additional day rate * additional days * CWT)
-		//       210C SIT PD over 50 miles SIT PD schedule of service area
 	}
+	// TODO: The rest of the HHG scenarios are as follows (to be added to the 185A and 185B parts):
+	//   * 30 miles or less from original delivery address to final delivery address (block 18 on GBL):
+	//       (185A SIT first day rate * CWT) +
+	//       (185B SIT additional day rate * additional days * CWT)
+	//       210A SIT PD 30 miles or less for SIT PD schedule of service area
+	//   * Between 31 and 50 miles from original delivery address to final delivery address (block 18 on GBL):
+	//       (185A SIT first day rate * CWT) +
+	//	     (185B SIT additional day rate * additional days * CWT)
+	//       210A SIT PD 30 miles or less for SIT PD schedule of service area +
+	//       210B SIT PD 30 to 50 miles SIT PD schedule of service area
+	//   * Over 50 miles from original delivery address to final delivery address (block 18 on GBL):
+	//       (185A SIT first day rate * CWT) +
+	//	     (185B SIT additional day rate * additional days * CWT)
+	//       210C SIT PD over 50 miles SIT PD schedule of service area
 
 	sitComputation := SITComputation{
 		SITPart:            sitPart,

@@ -2,7 +2,14 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { mount, shallow } from 'enzyme';
 
+import { ORDERS_TYPE, ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from '../../../constants/orders';
+import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../constants/departmentIndicators';
+import SERVICE_ITEM_STATUSES from '../../../constants/serviceItems';
+
 import RequestedShipments from './RequestedShipments';
+
+import { SHIPMENT_OPTIONS, MTOAgentType } from 'shared/constants';
+import { serviceItemCodes } from 'content/serviceItems';
 
 const shipments = [
   {
@@ -59,7 +66,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.404031Z',
   },
@@ -106,7 +113,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },
@@ -132,7 +139,7 @@ const shipments = [
     primeActualWeight: 890,
     requestedPickupDate: '2018-03-15',
     scheduledPickupDate: '2018-03-16',
-    shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+    shipmentType: SHIPMENT_OPTIONS.NTS,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },
@@ -173,11 +180,11 @@ const ordersInfo = {
   },
   issuedDate: '2018-03-15',
   reportByDate: '2018-08-01',
-  departmentIndicator: 'COAST_GUARD',
+  departmentIndicator: DEPARTMENT_INDICATOR_OPTIONS.COAST_GUARD,
   ordersNumber: 'ORDER3',
-  ordersType: 'PERMANENT_CHANGE_OF_STATION',
+  ordersType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   ordersTypeDetail: 'TBD',
-  tacMDC: '',
+  tacMDC: 'F381',
   sacSDN: '',
 };
 
@@ -199,14 +206,14 @@ const customerInfo = {
 
 const agents = [
   {
-    type: 'RELEASING_AGENT',
+    type: MTOAgentType.RELEASING_AGENT,
     name: 'Dorothy Lagomarsino',
     email: 'dorothyl@email.com',
     phone: '+1 999-999-9999',
     shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
   },
   {
-    type: 'RECEIVING_AGENT',
+    type: MTOAgentType.RECEIVING_AGENT,
     name: 'Dorothy Lagomarsino',
     email: 'dorothyl@email.com',
     phone: '+1 999-999-9999',
@@ -215,8 +222,8 @@ const agents = [
 ];
 
 const allowancesInfo = {
-  branch: 'NAVY',
-  rank: 'E_6',
+  branch: ORDERS_BRANCH_OPTIONS.NAVY,
+  rank: ORDERS_RANK_OPTIONS.E_6,
   weightAllowance: 11000,
   authorizedWeight: 11000,
   progear: 2000,
@@ -239,8 +246,8 @@ const serviceItems = [
     mtoShipmentID: null,
     reServiceCode: 'MS',
     reServiceID: '6789',
-    reServiceName: 'Shipment Mgmt. Services',
-    status: 'APPROVED',
+    reServiceName: serviceItemCodes.MS,
+    status: SERVICE_ITEM_STATUSES.APPROVED,
   },
   {
     approvedAt: '2020-10-02T19:20:08.481139Z',
@@ -250,8 +257,8 @@ const serviceItems = [
     mtoShipmentID: null,
     reServiceCode: 'CS',
     reServiceID: '6790',
-    reServiceName: 'Counseling Services',
-    status: 'APPROVED',
+    reServiceName: serviceItemCodes.CS,
+    status: SERVICE_ITEM_STATUSES.APPROVED,
   },
   {
     approvedAt: '2020-10-02T19:20:08.481139Z',
@@ -261,8 +268,8 @@ const serviceItems = [
     mtoShipmentID: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
     reServiceCode: 'DLH',
     reServiceID: '6791',
-    reServiceRName: 'Dom. Linehaul',
-    status: 'SUBMITTED',
+    reServiceRName: serviceItemCodes.DLH,
+    status: SERVICE_ITEM_STATUSES.SUBMITTED,
   },
 ];
 
@@ -277,6 +284,19 @@ const requestedShipmentsComponent = (
     mtoShipments={shipments}
     approveMTO={approveMTO}
     shipmentsStatus="SUBMITTED"
+  />
+);
+
+const requestedShipmentsComponentMissingRequiredInfo = (
+  <RequestedShipments
+    ordersInfo={ordersInfo}
+    allowancesInfo={allowancesInfo}
+    mtoAgents={agents}
+    customerInfo={customerInfo}
+    mtoShipments={shipments}
+    approveMTO={approveMTO}
+    shipmentsStatus="SUBMITTED"
+    missingRequiredOrdersInfo
   />
 );
 
@@ -352,6 +372,34 @@ describe('RequestedShipments', () => {
     wrapper.update();
 
     expect(wrapper.find('#approvalConfirmationModal').prop('style')).toHaveProperty('display', 'block');
+  });
+
+  it('disables the modal button when there is missing required information', async () => {
+    const wrapper = mount(requestedShipmentsComponentMissingRequiredInfo);
+
+    await act(async () => {
+      wrapper
+        .find('input[name="shipments"]')
+        .at(0)
+        .simulate('change', {
+          target: {
+            name: 'shipments',
+            value: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+          },
+        });
+    });
+    wrapper.update();
+
+    expect(wrapper.find('form button[type="button"]').prop('disabled')).toEqual(true);
+
+    await act(async () => {
+      wrapper
+        .find('input[name="shipmentManagementFee"]')
+        .simulate('change', { target: { name: 'shipmentManagementFee', value: true } });
+    });
+    wrapper.update();
+
+    expect(wrapper.find('form button[type="button"]').prop('disabled')).toBe(true);
   });
 
   it('calls approveMTO onSubmit', async () => {
@@ -436,11 +484,11 @@ describe('RequestedShipments', () => {
     expect(approvedServiceItemNames.length).toBe(2);
     expect(approvedServiceItemDates.length).toBe(2);
 
-    expect(approvedServiceItemNames.at(0).text()).toBe('Shipment Mgmt. Services');
+    expect(approvedServiceItemNames.at(0).text()).toBe('Move management');
     expect(approvedServiceItemDates.at(0).find('FontAwesomeIcon').prop('icon')).toEqual('check');
     expect(approvedServiceItemDates.at(0).text()).toBe(' 02 Oct 2020');
 
-    expect(approvedServiceItemNames.at(1).text()).toBe('Counseling Services');
+    expect(approvedServiceItemNames.at(1).text()).toBe('Counseling');
     expect(approvedServiceItemDates.at(1).find('FontAwesomeIcon').prop('icon')).toEqual('check');
     expect(approvedServiceItemDates.at(1).text()).toBe(' 02 Oct 2020');
   });

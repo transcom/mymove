@@ -71,6 +71,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	var mtoServiceItems *models.MTOServiceItems
 
 	if mtoAvailableToPrime {
+		mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
 		mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
 	} else if err == nil {
 		logger.Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
@@ -118,9 +119,9 @@ type UpdateMTOServiceItemHandler struct {
 func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtoServiceItem, verrs := payloads.MTOServiceItemModelFromUpdate(params.Body)
+	mtoServiceItem, verrs := payloads.MTOServiceItemModelFromUpdate(params.MtoServiceItemID, params.Body)
 	if verrs != nil && verrs.HasAny() {
-		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+		return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 			verrs.Error(), h.GetTraceID(), verrs))
 	}
 

@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ff8839d671dc164855c21255c40541bb23fa1e75
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6
 
   postgres: &postgres postgres:12.4
 
@@ -22,7 +22,7 @@ executors:
     resource_class: medium
     working_directory: /root/project
     docker:
-      - image: mk0x/docker-clamav:alpine
+      - image: mk0x/docker-clamav:latest
         # Authenticate with Docker Hub to avoid rate limit problems beginning on Nov 1st, 2020.
         # See https://www.docker.com/blog/scaling-docker-to-serve-millions-more-developers-network-egress/ for details
         # We'll need this until CircleCI and Docker Hub work out a deal to prevent rate limiting errors from CircleCI
@@ -98,16 +98,6 @@ executors:
         command: '-c fsync=off -c full_page_writes=off -c max_connections=200'
 
 commands:
-  aws_vars_legacy:
-    steps:
-      - run:
-          name: 'Setting up AWS environment variables for legacy env'
-          command: |
-            echo "export AWS_DEFAULT_REGION=$LEGACY_REGION" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=$LEGACY_ACCOUNT_ID" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=$LEGACY_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=$LEGACY_SECRET_ACCESS_KEY" >> $BASH_ENV
-            source $BASH_ENV
   aws_vars_exp:
     steps:
       - run:
@@ -141,12 +131,22 @@ commands:
   aws_vars_transcom_com_dev:
     steps:
       - run:
-          name: 'Setting up AWS environment variables for prd env'
+          name: 'Setting up AWS environment variables for com-dev env'
           command: |
             echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            source $BASH_ENV
+  aws_vars_transcom_gov_dev:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for gov-dev env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$GOV_DEV_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$GOV_DEV_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$GOV_DEV_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$GOV_DEV_SECRET_KEY" >> $BASH_ENV
             source $BASH_ENV
   announce_failure:
     parameters:
@@ -192,6 +192,11 @@ commands:
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+      - deploy:
+          name: Deploy connect to GEX via SFTP service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          no_output_timeout: 20m
+      - announce_failure
       - deploy:
           name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
@@ -441,7 +446,8 @@ commands:
             ENV: test
             ENVIRONMENT: test
             GOFLAGS: '-p=4'
-            JUNIT: 1
+            SERVER_REPORT: 1
+            COVERAGE: 1
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
             SERVE_API_INTERNAL: true
@@ -556,9 +562,10 @@ jobs:
   anti_virus:
     executor: av_medium
     steps:
-      - run: apk update && apk add --no-cache git openssh
+      - run: apt-get update && apt-get install -y clamav curl git ssh
       - checkout
       - run: clamscan --version
+      - run: mkdir -p /store && chown clamav /store
       - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
       - run:
           name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
@@ -732,7 +739,7 @@ jobs:
     parallelism: 5
     executor: mymove_large
     steps:
-      - aws_vars_legacy
+      - aws_vars_transcom_gov_dev
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -779,7 +786,7 @@ jobs:
   integration_tests_mtls:
     executor: mymove_medium_plus
     steps:
-      - aws_vars_legacy
+      - aws_vars_transcom_gov_dev
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -929,21 +936,21 @@ jobs:
       - run: make server_build
       - build_image:
           dockerfile: Dockerfile
-          image_name: ppp
+          image_name: app
           tag: web-dev
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_app_legacy` pushes the app container to the legacy container repository
-  push_app_legacy:
+  # `push_app_gov_dev` pushes the app container to the gov_dev container repository
+  push_app_gov_dev:
     executor: mymove_small
     steps:
       - setup_remote_docker:
           docker_layer_caching: false
-      - aws_vars_legacy
+      - aws_vars_transcom_gov_dev
       - push_image:
-          ecr_env: legacy
-          image_name: ppp
+          ecr_env: gov_dev
+          image_name: app
           tag: web-dev
           repo: app
       - announce_failure
@@ -957,7 +964,7 @@ jobs:
       - aws_vars_exp
       - push_image:
           ecr_env: exp
-          image_name: ppp
+          image_name: app
           tag: web-dev
           repo: app
       - announce_failure
@@ -971,7 +978,7 @@ jobs:
       - aws_vars_stg
       - push_image:
           ecr_env: stg
-          image_name: ppp
+          image_name: app
           tag: web-dev
           repo: app
       - announce_failure
@@ -985,7 +992,7 @@ jobs:
       - aws_vars_prd
       - push_image:
           ecr_env: prd
-          image_name: ppp
+          image_name: app
           tag: web-dev
           repo: app
       - announce_failure
@@ -1035,21 +1042,21 @@ jobs:
       - run: make server_build
       - build_image:
           dockerfile: Dockerfile.migrations
-          image_name: ppp-migrations
+          image_name: app-migrations
           tag: dev
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_migrations_legacy` pushes the migrations container to the legacy container repository
-  push_migrations_legacy:
+  # `push_migrations_gov_dev` pushes the migrations container to the gov_dev container repository
+  push_migrations_gov_dev:
     executor: mymove_small
     steps:
       - setup_remote_docker:
           docker_layer_caching: false
-      - aws_vars_legacy
+      - aws_vars_transcom_gov_dev
       - push_image:
-          ecr_env: legacy
-          image_name: ppp-migrations
+          ecr_env: gov_dev
+          image_name: app-migrations
           tag: dev
           repo: app-migrations
       - announce_failure
@@ -1063,7 +1070,7 @@ jobs:
       - aws_vars_exp
       - push_image:
           ecr_env: exp
-          image_name: ppp-migrations
+          image_name: app-migrations
           tag: dev
           repo: app-migrations
       - announce_failure
@@ -1077,7 +1084,7 @@ jobs:
       - aws_vars_stg
       - push_image:
           ecr_env: stg
-          image_name: ppp-migrations
+          image_name: app-migrations
           tag: dev
           repo: app-migrations
       - announce_failure
@@ -1091,7 +1098,7 @@ jobs:
       - aws_vars_prd
       - push_image:
           ecr_env: prd
-          image_name: ppp-migrations
+          image_name: app-migrations
           tag: dev
           repo: app-migrations
       - announce_failure
@@ -1118,15 +1125,15 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_tasks_legacy` pushes the tasks containers to the legacy container repository
-  push_tasks_legacy:
+  # `push_tasks_gov_dev` pushes the tasks containers to the gov_dev container repository
+  push_tasks_gov_dev:
     executor: mymove_small
     steps:
       - setup_remote_docker:
           docker_layer_caching: false
-      - aws_vars_legacy
+      - aws_vars_transcom_gov_dev
       - push_image:
-          ecr_env: legacy
+          ecr_env: gov_dev
           image_name: tasks
           tag: dev
           repo: app-tasks
@@ -1204,6 +1211,20 @@ jobs:
           repo: app-webhook-client
       - announce_failure
 
+  # `push_webhook_client_stg` pushes the webhook client container to the stg container repository
+  push_webhook_client_stg:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_stg
+      - push_image:
+          ecr_env: stg
+          image_name: webhook_client
+          tag: dev
+          repo: app-webhook-client
+      - announce_failure
+
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
     executor: mymove_small
@@ -1247,6 +1268,7 @@ jobs:
           health_check_hosts: gex.exp.move.mil,orders.exp.move.mil
           ecr_env: exp
 
+  # `deploy_exp_webhook_client` deploys the webhook client to exp
   deploy_exp_webhook_client:
     executor: mymove_small
     environment:
@@ -1306,6 +1328,16 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
+          ecr_env: stg
+
+  # `deploy_stg_webhook_client` deploys the webhook client to stg
+  deploy_stg_webhook_client:
+    executor: mymove_small
+    environment:
+      APP_ENVIRONMENT: 'stg'
+    steps:
+      - aws_vars_stg
+      - deploy_webhook_client_steps:
           ecr_env: stg
 
   deploy_storybook_dp3:
@@ -1394,9 +1426,9 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
             - check_generated_code
-            - push_app_legacy
+            - push_app_gov_dev
             - push_app_stg
-            - push_migrations_legacy
+            - push_migrations_gov_dev
             - push_migrations_stg
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1407,9 +1439,9 @@ workflows:
           requires:
             - pre_deps_golang
             - check_generated_code
-            - push_app_legacy
+            - push_app_gov_dev
             - push_app_stg
-            - push_migrations_legacy
+            - push_migrations_gov_dev
             - push_migrations_stg
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1438,7 +1470,7 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - push_app_legacy:
+      - push_app_gov_dev:
           requires:
             - build_app
 
@@ -1452,7 +1484,7 @@ workflows:
             - anti_virus
             - pre_deps_golang
 
-      - push_migrations_legacy:
+      - push_migrations_gov_dev:
           requires:
             - build_migrations
 
@@ -1465,7 +1497,7 @@ workflows:
             - anti_virus
             - pre_deps_golang
 
-      - push_tasks_legacy:
+      - push_tasks_gov_dev:
           requires:
             - build_tasks
 
@@ -1561,6 +1593,13 @@ workflows:
             branches:
               only: master
 
+      - push_webhook_client_stg:
+          requires:
+            - build_webhook_client
+          filters:
+            branches:
+              only: master
+
       - check_circle_against_stg_sha:
           requires:
             - pre_deps_golang
@@ -1571,6 +1610,7 @@ workflows:
             - build_tools
             - push_migrations_stg
             - push_tasks_stg
+            - push_webhook_client_stg
             - integration_tests
             - integration_tests_mtls
           filters:
@@ -1605,12 +1645,20 @@ workflows:
             branches:
               only: master
 
+      - deploy_stg_webhook_client:
+          requires:
+            - deploy_stg_migrations
+          filters:
+            branches:
+              only: master
+
       - approve_prd_deploy:
           type: approval
           requires:
             - deploy_stg_tasks
             - deploy_stg_app
             - deploy_stg_app_client_tls
+            - deploy_stg_webhook_client
 
       - deploy_storybook_dp3:
           requires:

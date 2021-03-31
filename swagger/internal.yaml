@@ -2054,6 +2054,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      grade:
+        type: string
+        example: 'O-6'
+        x-nullable: true
       issue_date:
         type: string
         description: The date and time that these orders were cut.
@@ -2078,6 +2082,9 @@ definitions:
       spouse_has_pro_gear:
         type: boolean
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+      origin_duty_station:
+        $ref: '#/definitions/DutyStationPayload'
+        x-nullable: true
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:

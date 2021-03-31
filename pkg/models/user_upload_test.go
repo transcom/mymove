@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"context"
-
 	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -123,7 +121,6 @@ func (suite *ModelSuite) TestFetchUserUploadWithNoUpload() {
 func (suite *ModelSuite) TestFetchUserUpload() {
 	t := suite.T()
 
-	ctx := context.Background()
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	session := auth.Session{
@@ -163,7 +160,7 @@ func (suite *ModelSuite) TestFetchUserUpload() {
 		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
 	}
 
-	upUser, _ := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
+	upUser, _ := models.FetchUserUpload(suite.DB(), &session, uploadUser.ID)
 	suite.Equal(upUser.ID, uploadUser.ID)
 	suite.Equal(upload.ID, uploadUser.Upload.ID)
 	suite.Equal(upload.ID, uploadUser.UploadID)
@@ -172,7 +169,6 @@ func (suite *ModelSuite) TestFetchUserUpload() {
 func (suite *ModelSuite) TestFetchDeletedUserUpload() {
 	t := suite.T()
 
-	ctx := context.Background()
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	session := auth.Session{
@@ -215,7 +211,7 @@ func (suite *ModelSuite) TestFetchDeletedUserUpload() {
 
 	err = models.DeleteUserUpload(suite.DB(), &uploadUser)
 	suite.Nil(err)
-	userUp, err := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
+	userUp, err := models.FetchUserUpload(suite.DB(), &session, uploadUser.ID)
 	suite.Equal("error fetching user_uploads: FETCH_NOT_FOUND", err.Error())
 
 	// fetches a nil userupload

@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { arrayOf, bool, shape, string, node, func } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 import { Button } from '@trussworks/react-uswds';
+import { generatePath } from 'react-router';
 
 import styles from './Home.module.scss';
 import {
@@ -14,9 +14,9 @@ import {
   HelperSubmittedPPM,
 } from './HomeHelpers';
 
+import ScrollToTop from 'components/ScrollToTop';
+import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
-import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
-import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -24,7 +24,6 @@ import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
-import { selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess, selectIsLoggedIn } from 'store/auth/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
@@ -38,11 +37,12 @@ import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { MtoShipmentShape, UploadShape, HistoryShape, MoveShape, OrdersShape } from 'types/customerShapes';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import { profileStates } from 'constants/customerStates';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -61,7 +61,7 @@ Description.defaultProps = {
   dataTestId: '',
 };
 
-class Home extends Component {
+export class Home extends Component {
   componentDidMount() {
     const { move, getSignedCertification } = this.props;
     if (Object.entries(move).length && move.status === MOVE_STATUSES.SUBMITTED) {
@@ -70,22 +70,7 @@ class Home extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { serviceMember, loggedInUserSuccess, isProfileComplete, move, getSignedCertification } = this.props;
-    if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
-      if (serviceMember && !isProfileComplete) {
-        // If the service member exists, but is not complete, redirect to next incomplete page.
-        this.resumeMove();
-      }
-    }
-
-    if (!prevProps.serviceMember && serviceMember && !isProfileComplete) {
-      this.resumeMove();
-    }
-
-    if (prevProps.serviceMember && prevProps.serviceMember !== serviceMember && !isProfileComplete) {
-      // if service member existed but was updated, redirect to next incomplete page.
-      this.resumeMove();
-    }
+    const { move, getSignedCertification } = this.props;
 
     if (!Object.entries(prevProps.move).length && Object.entries(move).length) {
       getSignedCertification(move.id);
@@ -137,38 +122,6 @@ class Home extends Component {
     return 'Plan your shipments';
   }
 
-  resumeMove = () => {
-    const { history } = this.props;
-    history.push(this.getNextIncompletePage());
-  };
-
-  getNextIncompletePage = () => {
-    const {
-      selectedMoveType,
-      lastMoveIsCanceled,
-      serviceMember,
-      orders,
-      uploadedOrderDocuments,
-      move,
-      currentPpm,
-      mtoShipment,
-      backupContacts,
-      context,
-    } = this.props;
-    return getNextIncompletePageInternal({
-      selectedMoveType,
-      lastMoveIsCanceled,
-      serviceMember,
-      orders,
-      uploads: uploadedOrderDocuments,
-      move,
-      currentPpm,
-      mtoShipment,
-      backupContacts,
-      context,
-    });
-  };
-
   renderHelper = () => {
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
@@ -183,20 +136,13 @@ class Home extends Component {
     return <HelperSubmittedMove />;
   };
 
-  renderCustomerHeader = () => {
+  renderCustomerHeaderText = () => {
     const { serviceMember, orders, move } = this.props;
-    if (!this.hasOrders) {
-      return (
-        <p>
-          You&apos;re leaving <strong>{serviceMember.current_station?.name}</strong>
-        </p>
-      );
-    }
     return (
       <>
         <p>
           You’re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
-          <strong>{serviceMember.current_station?.name}.</strong> Report by{' '}
+          <strong>{orders.origin_duty_station?.name}.</strong> Report by{' '}
           <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         </p>
 
@@ -227,10 +173,16 @@ class Home extends Component {
     if (shipmentType === 'PPM') {
       destLink = `/moves/${move.id}/review/edit-date-and-location`;
     } else if (shipmentType === 'HHG') {
-      destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`;
+      destLink = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: move.id,
+        mtoShipmentId: shipmentId,
+      })}${queryString}`;
     } else {
       // nts/ntsr shipment
-      destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment`;
+      destLink = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+        moveId: move.id,
+        mtoShipmentId: shipmentId,
+      });
     }
 
     history.push(destLink);
@@ -265,10 +217,7 @@ class Home extends Component {
   render() {
     const {
       currentPpm,
-      isLoggedIn,
       isProfileComplete,
-      location,
-      loggedInUserIsLoading,
       move,
       mtoShipments,
       serviceMember,
@@ -277,8 +226,7 @@ class Home extends Component {
     } = this.props;
 
     // early return if loading user/service member
-    // TODO - handle this at the top level MyMove/index instead
-    if (loggedInUserIsLoading || (isLoggedIn && !serviceMember)) {
+    if (!serviceMember) {
       return (
         <div className={styles.homeContainer}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -288,42 +236,35 @@ class Home extends Component {
       );
     }
 
-    // early return if not logged in
-    // TODO - handle this at the top level MyMove/index instead, and use a redirect instead
-    if (!isLoggedIn && !loggedInUserIsLoading) {
-      return (
-        <div className={styles.homeContainer}>
-          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-            <SignIn location={location} />
-          </div>
-        </div>
-      );
-    }
-
     // eslint-disable-next-line camelcase
     const { current_station } = serviceMember;
-    const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
-    const shipmentSelectionPath = this.hasAnyShipments
-      ? `/moves/${move.id}/select-type`
-      : `/moves/${move.id}/moving-info`;
-    const confirmationPath = `/moves/${move.id}/review`;
+    const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
+
+    const shipmentSelectionPath =
+      move?.id &&
+      (this.hasAnyShipments
+        ? generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: move.id })
+        : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id }));
+
+    const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
 
     return (
       <>
+        <ScrollToTop />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
             <div className={`usa-prose grid-container ${styles['grid-container']}`}>
               <h2>
                 {serviceMember.first_name} {serviceMember.last_name}
               </h2>
-              {this.renderCustomerHeader()}
+              {(this.hasOrdersNoUpload || this.hasOrders) && this.renderCustomerHeaderText()}
             </div>
           </header>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-            {isLoggedIn && <ConnectedFlashMessage />}
+            <ConnectedFlashMessage />
 
             {isProfileComplete && (
               <>
@@ -444,21 +385,7 @@ Home.propTypes = {
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
   history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
-  isLoggedIn: bool.isRequired,
-  loggedInUserIsLoading: bool.isRequired,
-  loggedInUserSuccess: bool.isRequired,
   isProfileComplete: bool.isRequired,
-  location: shape({}).isRequired,
-  selectedMoveType: string,
-  lastMoveIsCanceled: bool,
-  backupContacts: arrayOf(string),
-  context: shape({
-    flags: shape({
-      hhgFlow: bool,
-      ghcFlow: bool,
-    }),
-  }),
-  mtoShipment: MtoShipmentShape.isRequired,
   signedCertification: shape({
     signature: string,
     created_at: string,
@@ -469,16 +396,7 @@ Home.propTypes = {
 Home.defaultProps = {
   orders: null,
   serviceMember: null,
-  selectedMoveType: '',
-  lastMoveIsCanceled: false,
-  backupContacts: [],
   signedCertification: {},
-  context: {
-    flags: {
-      hhgFlow: false,
-      ghcFlow: false,
-    },
-  },
 };
 
 const mapStateToProps = (state) => {
@@ -487,9 +405,6 @@ const mapStateToProps = (state) => {
 
   return {
     currentPpm: selectCurrentPPM(state) || {},
-    isLoggedIn: selectIsLoggedIn(state),
-    loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
-    loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     isProfileComplete: selectIsProfileComplete(state),
     orders: selectCurrentOrders(state) || {},
     uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
@@ -500,8 +415,6 @@ const mapStateToProps = (state) => {
     mtoShipments: selectMTOShipmentsForCurrentMove(state),
     // TODO: change when we support multiple moves
     move,
-    // TODO - deprecate this prop (need to refactor wizard flow)
-    mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
   };
 };
 
@@ -516,4 +429,10 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => ({
   ...ownProps,
 });
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home));
+export default withContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+    mergeProps,
+  )(requireCustomerState(Home, profileStates.BACKUP_CONTACTS_COMPLETE)),
+);

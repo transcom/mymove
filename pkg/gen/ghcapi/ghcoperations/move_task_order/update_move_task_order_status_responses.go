@@ -309,6 +309,50 @@ func (o *UpdateMoveTaskOrderStatusPreconditionFailed) WriteResponse(rw http.Resp
 	}
 }
 
+// UpdateMoveTaskOrderStatusUnprocessableEntityCode is the HTTP code returned for type UpdateMoveTaskOrderStatusUnprocessableEntity
+const UpdateMoveTaskOrderStatusUnprocessableEntityCode int = 422
+
+/*UpdateMoveTaskOrderStatusUnprocessableEntity Validation error
+
+swagger:response updateMoveTaskOrderStatusUnprocessableEntity
+*/
+type UpdateMoveTaskOrderStatusUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdateMoveTaskOrderStatusUnprocessableEntity creates UpdateMoveTaskOrderStatusUnprocessableEntity with default headers values
+func NewUpdateMoveTaskOrderStatusUnprocessableEntity() *UpdateMoveTaskOrderStatusUnprocessableEntity {
+
+	return &UpdateMoveTaskOrderStatusUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update move task order status unprocessable entity response
+func (o *UpdateMoveTaskOrderStatusUnprocessableEntity) WithPayload(payload *ghcmessages.ValidationError) *UpdateMoveTaskOrderStatusUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update move task order status unprocessable entity response
+func (o *UpdateMoveTaskOrderStatusUnprocessableEntity) SetPayload(payload *ghcmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMoveTaskOrderStatusUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateMoveTaskOrderStatusInternalServerErrorCode is the HTTP code returned for type UpdateMoveTaskOrderStatusInternalServerError
 const UpdateMoveTaskOrderStatusInternalServerErrorCode int = 500
 

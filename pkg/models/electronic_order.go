@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"encoding/json"
 	"time"
 
@@ -84,7 +83,7 @@ func (e *ElectronicOrder) ValidateUpdate(tx *pop.Connection) (*validate.Errors, 
 }
 
 // CreateElectronicOrder inserts an empty set of electronic Orders into the database
-func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, order *ElectronicOrder) (*validate.Errors, error) {
+func CreateElectronicOrder(dbConnection *pop.Connection, order *ElectronicOrder) (*validate.Errors, error) {
 
 	responseVErrors := validate.NewErrors()
 	verrs, responseError := dbConnection.ValidateAndCreate(order)
@@ -96,7 +95,7 @@ func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, or
 }
 
 // CreateElectronicOrderWithRevision inserts a new set of electronic Orders into the database with its first Revision
-func CreateElectronicOrderWithRevision(ctx context.Context, dbConnection *pop.Connection, order *ElectronicOrder, firstRevision *ElectronicOrdersRevision) (*validate.Errors, error) {
+func CreateElectronicOrderWithRevision(dbConnection *pop.Connection, order *ElectronicOrder, firstRevision *ElectronicOrdersRevision) (*validate.Errors, error) {
 
 	responseVErrors := validate.NewErrors()
 	var responseError error
@@ -104,14 +103,14 @@ func CreateElectronicOrderWithRevision(ctx context.Context, dbConnection *pop.Co
 	// If the passed in function returns an error, the transaction is rolled back
 	errTransaction := dbConnection.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
-		if verrs, err := CreateElectronicOrder(ctx, dbConnection, order); verrs.HasAny() || err != nil {
+		if verrs, err := CreateElectronicOrder(dbConnection, order); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = err
 			return transactionError
 		}
 		firstRevision.ElectronicOrderID = order.ID
 		firstRevision.ElectronicOrder = *order
-		if verrs, err := CreateElectronicOrdersRevision(ctx, dbConnection, firstRevision); verrs.HasAny() || err != nil {
+		if verrs, err := CreateElectronicOrdersRevision(dbConnection, firstRevision); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = err
 			return transactionError

@@ -8,7 +8,6 @@
 package awardqueue
 
 import (
-	"context"
 	"math"
 
 	"github.com/gobuffalo/pop/v5"
@@ -50,14 +49,14 @@ func getTSPsPerBand(count int) []int {
 
 // assignPerformanceBands loops through each unique TransportationServiceProviderPerformances group
 // and assigns any unbanded TransportationServiceProviderPerformances to a band.
-func (aq *AwardQueue) assignPerformanceBands(ctx context.Context) error {
+func (aq *AwardQueue) assignPerformanceBands() error {
 	perfGroups, err := models.FetchUnbandedTSPPerformanceGroups(aq.db)
 	if err != nil {
 		return err
 	}
 
 	for _, perfGroup := range perfGroups {
-		if err := aq.assignPerformanceBandsForTSPPerformanceGroup(ctx, perfGroup); err != nil {
+		if err := aq.assignPerformanceBandsForTSPPerformanceGroup(perfGroup); err != nil {
 			return err
 		}
 	}
@@ -70,7 +69,7 @@ func (aq *AwardQueue) assignPerformanceBands(ctx context.Context) error {
 //
 // This assumes that all TransportationServiceProviderPerformances have been properly created and
 // have a valid BestValueScore.
-func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(ctx context.Context, perfGroup models.TSPPerformanceGroup) error {
+func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(perfGroup models.TSPPerformanceGroup) error {
 	aq.logger.Info("Assigning performance bands",
 		zap.String("traffic_distribution_list_id", perfGroup.TrafficDistributionListID.String()),
 		zap.String("performance_period_start", perfGroup.PerformancePeriodStart.String()),
@@ -90,7 +89,7 @@ func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(ctx context.C
 		for i := 0; i < count; i++ {
 			performance := perfs[perfsIndex]
 			aq.logger.Info("Assigning tspPerformance to band", zap.String("tsp_performance_id", performance.ID.String()), zap.Int("band", band+1))
-			err := models.AssignQualityBandToTSPPerformance(ctx, aq.db, band+1, performance.ID)
+			err := models.AssignQualityBandToTSPPerformance(aq.db, band+1, performance.ID)
 			if err != nil {
 				return err
 			}
@@ -101,7 +100,7 @@ func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(ctx context.C
 }
 
 // waitForLock MUST be called within a transaction!
-func waitForLock(ctx context.Context, db *pop.Connection, id int) error {
+func waitForLock(db *pop.Connection, id int) error {
 
 	// obtain transaction-level advisory-lock
 	return db.RawQuery("SELECT pg_advisory_xact_lock($1)", id).Exec()

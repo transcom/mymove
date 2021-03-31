@@ -16,14 +16,6 @@ func (e *errInvalidProtocol) Error() string {
 	return fmt.Sprintf("invalid protocol %s, must be http or https", e.Protocol)
 }
 
-type errInvalidURL struct {
-	URL string
-}
-
-func (e *errInvalidURL) Error() string {
-	return fmt.Sprintf("invalid url %s", e.URL)
-}
-
 func stringSliceContains(stringSlice []string, value string) bool {
 	for _, x := range stringSlice {
 		if value == x {

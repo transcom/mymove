@@ -6,8 +6,6 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -20,8 +18,7 @@ import (
 type MTOAgent struct {
 
 	// agent type
-	// Enum: [RELEASING_AGENT RECEIVING_AGENT]
-	AgentType string `json:"agentType,omitempty"`
+	AgentType MTOAgentType `json:"agentType,omitempty"`
 
 	// created at
 	// Read Only: true
@@ -33,7 +30,7 @@ type MTOAgent struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// email
-	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+	// Pattern: ^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$
 	Email *string `json:"email,omitempty"`
 
 	// first name
@@ -48,11 +45,12 @@ type MTOAgent struct {
 	LastName *string `json:"lastName,omitempty"`
 
 	// mto shipment ID
+	// Read Only: true
 	// Format: uuid
 	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
 	// phone
-	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+	// Pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
 	Phone *string `json:"phone,omitempty"`
 
 	// updated at
@@ -99,43 +97,16 @@ func (m *MTOAgent) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var mTOAgentTypeAgentTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["RELEASING_AGENT","RECEIVING_AGENT"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		mTOAgentTypeAgentTypePropEnum = append(mTOAgentTypeAgentTypePropEnum, v)
-	}
-}
-
-const (
-
-	// MTOAgentAgentTypeRELEASINGAGENT captures enum value "RELEASING_AGENT"
-	MTOAgentAgentTypeRELEASINGAGENT string = "RELEASING_AGENT"
-
-	// MTOAgentAgentTypeRECEIVINGAGENT captures enum value "RECEIVING_AGENT"
-	MTOAgentAgentTypeRECEIVINGAGENT string = "RECEIVING_AGENT"
-)
-
-// prop value enum
-func (m *MTOAgent) validateAgentTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, mTOAgentTypeAgentTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *MTOAgent) validateAgentType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.AgentType) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := m.validateAgentTypeEnum("agentType", "body", m.AgentType); err != nil {
+	if err := m.AgentType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("agentType")
+		}
 		return err
 	}
 
@@ -161,7 +132,7 @@ func (m *MTOAgent) validateEmail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", string(*m.Email), `^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$`); err != nil {
 		return err
 	}
 
@@ -200,7 +171,7 @@ func (m *MTOAgent) validatePhone(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("phone", "body", string(*m.Phone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("phone", "body", string(*m.Phone), `^([2-9]\d{2}-\d{3}-\d{4})?$`); err != nil {
 		return err
 	}
 

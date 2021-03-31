@@ -14,7 +14,7 @@ services:
   milmove_migrate:
     depends_on:
       - database
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
+    image: 021081706899.dkr.ecr.us-gov-west-1.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
     links:
       - database
     environment:
@@ -38,7 +38,7 @@ services:
     depends_on:
       - database
       - milmove_migrate
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-placeholder_branch_name
+    image: 021081706899.dkr.ecr.us-gov-west-1.amazonaws.com/app:git-branch-placeholder_branch_name
     links:
       - database
     ports:
@@ -67,7 +67,6 @@ services:
       - ENVIRONMENT=test
       - FEATURE_FLAG_ACCESS_CODE=false
       - HTTP_PRIME_SERVER_NAME=primelocal
-      - AWS_CF_DOMAIN=assets.devlocal.move.mil
       - IWS_RBS_ENABLED=1
       - IWS_RBS_HOST
       - LOCAL_STORAGE_ROOT=/tmp

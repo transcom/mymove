@@ -1,5 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 
+import { SHIPMENT_OPTIONS } from '../shared/constants';
+
 import {
   usePaymentRequestQueries,
   useMoveTaskOrderQueries,
@@ -10,6 +12,8 @@ import {
   useTXOMoveInfoQueries,
   useMoveDetailsQueries,
 } from './queries';
+
+import { serviceItemCodes } from 'content/serviceItems';
 
 jest.mock('services/ghcApi', () => ({
   getCustomer: (key, id) =>
@@ -30,7 +34,7 @@ jest.mock('services/ghcApi', () => ({
       return Promise.resolve({
         mtoShipments: {
           a1: {
-            shipmentType: 'HHG',
+            shipmentType: 'HHG_LONGHAUL_DOMESTIC',
             mtoAgents: [
               {
                 agentType: 'RELEASING_AGENT',
@@ -43,10 +47,10 @@ jest.mock('services/ghcApi', () => ({
             ],
             mtoServiceItems: [
               {
-                reServiceName: 'Domestic Linehaul',
+                reServiceName: 'Domestic linehaul',
               },
               {
-                reServiceName: 'Fuel Surcharge',
+                reServiceName: 'Fuel surcharge',
               },
             ],
           },
@@ -64,10 +68,10 @@ jest.mock('services/ghcApi', () => ({
             ],
             mtoServiceItems: [
               {
-                reServiceName: 'Domestic Origin Price',
+                reServiceName: 'Domestic origin price',
               },
               {
-                reServiceName: 'Domestic Unpacking',
+                reServiceName: 'Domestic unpacking',
               },
             ],
           },
@@ -76,7 +80,7 @@ jest.mock('services/ghcApi', () => ({
     }
     return Promise.resolve([
       {
-        shipmentType: 'HHG',
+        shipmentType: 'HHG_LONGHAUL_DOMESTIC',
         mtoAgents: [
           {
             agentType: 'RELEASING_AGENT',
@@ -89,10 +93,10 @@ jest.mock('services/ghcApi', () => ({
         ],
         mtoServiceItems: [
           {
-            reServiceName: 'Domestic Linehaul',
+            reServiceName: 'Domestic linehaul',
           },
           {
-            reServiceName: 'Fuel Surcharge',
+            reServiceName: 'Fuel surcharge',
           },
         ],
       },
@@ -110,10 +114,10 @@ jest.mock('services/ghcApi', () => ({
         ],
         mtoServiceItems: [
           {
-            reServiceName: 'Domestic Origin Price',
+            reServiceName: 'Domestic origin price',
           },
           {
-            reServiceName: 'Domestic Unpacking',
+            reServiceName: 'Domestic unpacking',
           },
         ],
       },
@@ -124,20 +128,22 @@ jest.mock('services/ghcApi', () => ({
       return Promise.resolve({
         mtoServiceItems: {
           a: {
-            reServiceName: 'Counseling Services',
+            reServiceName: 'Counseling',
           },
           b: {
-            reServiceName: 'Shipment Management Services',
+            reServiceName: 'Move management',
           },
         },
       });
     }
     return Promise.resolve([
       {
-        reServiceName: 'Counseling Services',
+        id: 'a',
+        reServiceName: 'Counseling',
       },
       {
-        reServiceName: 'Shipment Management Services',
+        id: 'b',
+        reServiceName: 'Move management',
       },
     ]);
   },
@@ -147,9 +153,9 @@ jest.mock('services/ghcApi', () => ({
       ordersId: '4321',
       moveCode: 'ABCDEF',
     }),
-  getMoveOrder: (key, id) =>
+  getOrder: (key, id) =>
     Promise.resolve({
-      moveOrders: {
+      orders: {
         [id]: {
           id,
           customerID: '2468',
@@ -234,7 +240,7 @@ describe('useTXOMoveInfoQueries', () => {
     const { result, waitForNextUpdate } = renderHook(() => useTXOMoveInfoQueries(testMoveCode));
 
     expect(result.current).toEqual({
-      moveOrder: undefined,
+      order: undefined,
       customerData: undefined,
       isLoading: true,
       isError: false,
@@ -245,7 +251,7 @@ describe('useTXOMoveInfoQueries', () => {
 
     expect(result.current).toEqual({
       customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-      moveOrder: {
+      order: {
         id: '4321',
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
@@ -302,11 +308,11 @@ describe('usePaymentRequestQueries', () => {
 
 describe('useMoveTaskOrderQueries', () => {
   it('loads data', async () => {
-    const testMoveOrderId = 'a1b2';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(testMoveOrderId));
+    const testOrderId = 'a1b2';
+    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(testOrderId));
 
     expect(result.current).toEqual({
-      moveOrders: undefined,
+      orders: undefined,
       moveTaskOrders: undefined,
       mtoShipments: undefined,
       mtoServiceItems: undefined,
@@ -318,7 +324,7 @@ describe('useMoveTaskOrderQueries', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      moveOrders: {
+      orders: {
         4321: {
           id: '4321',
           customerID: '2468',
@@ -340,9 +346,9 @@ describe('useMoveTaskOrderQueries', () => {
           id: '1',
         },
       },
-      mtoShipments: {
-        a1: {
-          shipmentType: 'HHG',
+      mtoShipments: [
+        {
+          shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -355,15 +361,15 @@ describe('useMoveTaskOrderQueries', () => {
           ],
           mtoServiceItems: [
             {
-              reServiceName: 'Domestic Linehaul',
+              reServiceName: serviceItemCodes.DLH,
             },
             {
-              reServiceName: 'Fuel Surcharge',
+              reServiceName: serviceItemCodes.FSC,
             },
           ],
         },
-        b2: {
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+        {
+          shipmentType: SHIPMENT_OPTIONS.NTSR,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -376,22 +382,24 @@ describe('useMoveTaskOrderQueries', () => {
           ],
           mtoServiceItems: [
             {
-              reServiceName: 'Domestic Origin Price',
+              reServiceName: serviceItemCodes.DOP,
             },
             {
-              reServiceName: 'Domestic Unpacking',
+              reServiceName: serviceItemCodes.DUPK,
             },
           ],
         },
-      },
-      mtoServiceItems: {
-        a: {
-          reServiceName: 'Counseling Services',
+      ],
+      mtoServiceItems: [
+        {
+          id: 'a',
+          reServiceName: serviceItemCodes.CS,
         },
-        b: {
-          reServiceName: 'Shipment Management Services',
+        {
+          id: 'b',
+          reServiceName: serviceItemCodes.MS,
         },
-      },
+      ],
       isLoading: false,
       isError: false,
       isSuccess: true,
@@ -410,7 +418,7 @@ describe('useMoveDetailsQueries', () => {
         ordersId: '4321',
         moveCode: 'ABCDEF',
       },
-      moveOrder: {
+      order: {
         id: '4321',
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
@@ -425,8 +433,8 @@ describe('useMoveDetailsQueries', () => {
         },
         report_by_date: '2018-08-01',
       },
-      mtoShipments: [],
-      mtoServiceItems: [],
+      mtoShipments: undefined,
+      mtoServiceItems: undefined,
       isLoading: true,
       isError: false,
       isSuccess: false,
@@ -440,7 +448,7 @@ describe('useMoveDetailsQueries', () => {
         ordersId: '4321',
         moveCode: 'ABCDEF',
       },
-      moveOrder: {
+      order: {
         id: '4321',
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
@@ -457,7 +465,7 @@ describe('useMoveDetailsQueries', () => {
       },
       mtoShipments: [
         {
-          shipmentType: 'HHG',
+          shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -470,15 +478,15 @@ describe('useMoveDetailsQueries', () => {
           ],
           mtoServiceItems: [
             {
-              reServiceName: 'Domestic Linehaul',
+              reServiceName: serviceItemCodes.DLH,
             },
             {
-              reServiceName: 'Fuel Surcharge',
+              reServiceName: serviceItemCodes.FSC,
             },
           ],
         },
         {
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          shipmentType: SHIPMENT_OPTIONS.NTSR,
           mtoAgents: [
             {
               agentType: 'RELEASING_AGENT',
@@ -491,20 +499,22 @@ describe('useMoveDetailsQueries', () => {
           ],
           mtoServiceItems: [
             {
-              reServiceName: 'Domestic Origin Price',
+              reServiceName: serviceItemCodes.DOP,
             },
             {
-              reServiceName: 'Domestic Unpacking',
+              reServiceName: serviceItemCodes.DUPK,
             },
           ],
         },
       ],
       mtoServiceItems: [
         {
-          reServiceName: 'Counseling Services',
+          id: 'a',
+          reServiceName: serviceItemCodes.CS,
         },
         {
-          reServiceName: 'Shipment Management Services',
+          id: 'b',
+          reServiceName: serviceItemCodes.MS,
         },
       ],
       isLoading: false,
@@ -523,7 +533,7 @@ describe('useOrdersDocumentQueries', () => {
 
     expect(result.current).toEqual({
       move: { id: '1234', ordersId: '4321', moveCode: testLocatorId },
-      moveOrders: {
+      orders: {
         4321: {
           id: '4321',
           customerID: '2468',

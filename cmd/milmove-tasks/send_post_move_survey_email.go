@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -127,7 +126,6 @@ func sendPostMoveSurvey(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	ctx := context.TODO()
 	targetDate := time.Now().AddDate(0, 0, -offsetDays)
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
 	if notificationSenderErr != nil {
@@ -138,7 +136,7 @@ func sendPostMoveSurvey(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("initializing MoveReviewed", zap.Error(err))
 	}
-	err = notificationSender.SendNotification(ctx, moveReviewedNotifier)
+	err = notificationSender.SendNotification(moveReviewedNotifier)
 	if err != nil {
 		logger.Fatal("Emails failed to send", zap.Error(err))
 	}

@@ -27,12 +27,106 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 	suite.verifyValidationErrors(order, expErrors)
 }
 
+func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
+	order.TAC = nil
+	err := move.Submit(time.Now())
+	if err != nil {
+		suite.T().Fatal("Should transition.")
+	}
+	suite.MustSave(&move)
+	suite.DB().Load(&order, "Moves")
+
+	expErrors := map[string][]string{
+		"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
+	}
+
+	suite.verifyValidationErrors(&order, expErrors)
+}
+
+func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
+	invalidCases := []struct {
+		desc  string
+		value *string
+	}{
+		{"EmptyString", swag.String("")},
+		{"Nil", nil},
+	}
+	for _, invalidCase := range invalidCases {
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		order := move.Orders
+		order.OrdersNumber = invalidCase.value
+		err := move.Submit(time.Now())
+		if err != nil {
+			suite.T().Fatal("Should transition.")
+		}
+		suite.MustSave(&move)
+		suite.DB().Load(&order, "Moves")
+
+		expErrors := map[string][]string{
+			"orders_number": {"OrdersNumber cannot be blank."},
+		}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	}
+}
+
+func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
+	emptyString := internalmessages.OrdersTypeDetail("")
+
+	invalidCases := []struct {
+		desc  string
+		value *internalmessages.OrdersTypeDetail
+	}{
+		{"EmptyString", &emptyString},
+		{"Nil", nil},
+	}
+	for _, invalidCase := range invalidCases {
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		order := move.Orders
+
+		order.OrdersTypeDetail = invalidCase.value
+		err := move.Submit(time.Now())
+		if err != nil {
+			suite.T().Fatal("Should transition.")
+		}
+		suite.MustSave(&move)
+		suite.DB().Load(&order, "Moves")
+
+		expErrors := map[string][]string{
+			"orders_type_detail": {"OrdersTypeDetail cannot be blank."},
+		}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	}
+}
+
+func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
+	order.DepartmentIndicator = nil
+	err := move.Submit(time.Now())
+	if err != nil {
+		suite.T().Fatal("Should transition.")
+	}
+	suite.MustSave(&move)
+	suite.DB().Load(&order, "Moves")
+
+	expErrors := map[string][]string{
+		"department_indicator": {"DepartmentIndicator cannot be blank."},
+	}
+
+	suite.verifyValidationErrors(&order, expErrors)
+}
+
 func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	dutyStation2 := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -57,8 +151,10 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		OrdersType:          ordersType,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
-		NewDutyStationID:    dutyStation.ID,
-		NewDutyStation:      dutyStation,
+		OriginDutyStationID: &dutyStation.ID,
+		OriginDutyStation:   &dutyStation,
+		NewDutyStationID:    dutyStation2.ID,
+		NewDutyStation:      dutyStation2,
 		UploadedOrdersID:    uploadedOrder.ID,
 		UploadedOrders:      uploadedOrder,
 		Status:              OrderStatusSUBMITTED,
@@ -66,6 +162,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		TAC:                 &TAC,
 		SAC:                 &SAC,
 		DepartmentIndicator: &deptIndicator,
+		Grade:               swag.String("E-3"),
 	}
 	suite.MustSave(&order)
 
@@ -76,13 +173,17 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		ServiceMemberID: serviceMember1.ID,
 	}
 	goodOrder, err := FetchOrderForUser(suite.DB(), session, order.ID)
+
 	if suite.NoError(err) {
 		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
 		suite.Equal(order.OrdersType, goodOrder.OrdersType)
 		suite.Equal(order.HasDependents, goodOrder.HasDependents)
 		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
+		suite.Equal(order.OriginDutyStation.ID, goodOrder.OriginDutyStation.ID)
 		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
+		suite.Equal(order.Grade, goodOrder.Grade)
+		suite.Equal(order.UploadedOrdersID, goodOrder.UploadedOrdersID)
 	}
 
 	// Wrong Order ID

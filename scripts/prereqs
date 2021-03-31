@@ -5,7 +5,7 @@ set -eu -o pipefail
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
-GOVERSION='1.15.5'
+GOVERSION='1.15.10'
 
 prereqs_found=true
 
@@ -61,7 +61,7 @@ has shellcheck "brew install shellcheck"
 has psql "brew install postgresql"
 has nodenv "brew install nodenv"
 has_path ".nodenv/shims" "nodenv init"
-has node "nodenv local 12.16.3"
+has node "nodenv local 12.21.0"
 
 # not on CircleCI
 if [[ -z ${CIRCLECI-} ]]; then

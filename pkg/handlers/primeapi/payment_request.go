@@ -67,7 +67,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	// Build up the paymentRequest.PaymentServiceItems using the incoming payload to offload Swagger data coming
 	// in from the API. These paymentRequest.PaymentServiceItems will be used as a temp holder to process the incoming API data
-	verrs := validate.NewErrors()
+	var verrs *validate.Errors
 	paymentRequest.PaymentServiceItems, verrs, err = h.buildPaymentServiceItems(payload)
 
 	if err != nil || verrs.HasAny() {
@@ -104,6 +104,19 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payload)
+		case services.InvalidInputError:
+			payload := payloads.ValidationError(err.Error(), h.GetTraceID(), &validate.Errors{})
+
+			logger.Error("Payment Request",
+				zap.Any("payload", payload))
+			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("primeapi.CreatePaymentRequestHandler query error", zap.Error(e.Unwrap()))
+			}
+			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+
 		case *services.BadDataError:
 			payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID())
 

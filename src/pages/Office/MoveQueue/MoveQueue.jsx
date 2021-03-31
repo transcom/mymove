@@ -1,6 +1,8 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
+import styles from './MoveQueue.module.scss';
+
 import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
 import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
@@ -84,19 +86,21 @@ const MoveQueue = ({ history }) => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <TableQueue
-      showFilters
-      showPagination
-      manualSortBy
-      defaultCanSort
-      defaultSortedColumns={[{ id: 'status', desc: false }]}
-      disableMultiSort
-      disableSortBy={false}
-      columns={columns(showBranchFilter)}
-      title="All moves"
-      handleClick={handleClick}
-      useQueries={useMovesQueueQueries}
-    />
+    <div className={styles.MoveQueue}>
+      <TableQueue
+        showFilters
+        showPagination
+        manualSortBy
+        defaultCanSort
+        defaultSortedColumns={[{ id: 'status', desc: false }]}
+        disableMultiSort
+        disableSortBy={false}
+        columns={columns(showBranchFilter)}
+        title="All moves"
+        handleClick={handleClick}
+        useQueries={useMovesQueueQueries}
+      />
+    </div>
   );
 };
 

@@ -52,9 +52,6 @@ type ValidateEntitlementHandler struct {
 
 // Handle is the handler
 func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlementParams) middleware.Responder {
-
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -67,7 +64,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, orders.ServiceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

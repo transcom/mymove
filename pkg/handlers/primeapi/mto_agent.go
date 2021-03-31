@@ -15,6 +15,64 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 )
 
+// CreateMTOAgentHandler is the handler to create an agent
+type CreateMTOAgentHandler struct {
+	handlers.HandlerContext
+	MTOAgentCreator services.MTOAgentCreator
+}
+
+// Handle created an MTO Agent for a shipment
+func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	// Get the mtoShipmentID and payload
+	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+	payload := params.Body
+
+	// Get the new agent model
+	mtoAgent := payloads.MTOAgentModel(payload)
+	mtoAgent.MTOShipmentID = mtoShipmentID
+
+	// Call the service object
+	// For now, only the Prime endpoint will use this handler
+	createdAgent, err := h.MTOAgentCreator.CreateMTOAgentPrime(mtoAgent)
+
+	// Convert the errors into error responses to return to caller
+	if err != nil {
+		logger.Error("primeapi.CreateMTOAgentHandler", zap.Error(err))
+
+		switch e := err.(type) {
+		// NotFoundError -> Not Found Response
+		case services.NotFoundError:
+			return mtoshipmentops.NewCreateMTOAgentNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			// ConflictError -> Conflict Response
+		case services.ConflictError:
+			return mtoshipmentops.NewCreateMTOAgentConflict().WithPayload(
+				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+		// InvalidInputError -> Unprocessable Entity Response
+		case services.InvalidInputError:
+			return mtoshipmentops.NewCreateMTOAgentUnprocessableEntity().WithPayload(
+				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+		// QueryError -> Internal Server Error
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				logger.Error("primeapi.CreateMTOAgentHandler error", zap.Error(e.Unwrap()))
+			}
+			return mtoshipmentops.NewCreateMTOAgentInternalServerError().WithPayload(
+				payloads.InternalServerError(nil, h.GetTraceID()))
+		// Unknown -> Internal Server Error
+		default:
+			return mtoshipmentops.NewCreateMTOAgentInternalServerError().
+				WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		}
+
+	}
+	// If no error, create a successful payload to return
+	payload = payloads.MTOAgent(createdAgent)
+	return mtoshipmentops.NewCreateMTOAgentOK().WithPayload(payload)
+}
+
 // UpdateMTOAgentHandler is the handler to update an agent
 type UpdateMTOAgentHandler struct {
 	handlers.HandlerContext

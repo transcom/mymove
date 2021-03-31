@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"encoding/json"
 	"time"
 
@@ -337,7 +336,7 @@ func (e *ElectronicOrdersRevision) ValidateUpdate(tx *pop.Connection) (*validate
 }
 
 // CreateElectronicOrdersRevision inserts a revision into the database
-func CreateElectronicOrdersRevision(ctx context.Context, dbConnection *pop.Connection, revision *ElectronicOrdersRevision) (*validate.Errors, error) {
+func CreateElectronicOrdersRevision(dbConnection *pop.Connection, revision *ElectronicOrdersRevision) (*validate.Errors, error) {
 
 	responseVErrors := validate.NewErrors()
 	verrs, responseError := dbConnection.ValidateAndCreate(revision)

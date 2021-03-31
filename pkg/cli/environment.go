@@ -40,14 +40,6 @@ var environments = []string{
 	EnvironmentPrd,
 }
 
-type errInvalidEnvironment struct {
-	Environment string
-}
-
-func (e *errInvalidEnvironment) Error() string {
-	return fmt.Sprintf("invalid environment %q, expecting one of %q", e.Environment, environments)
-}
-
 // InitEnvironmentFlags initializes the Environment command line flags
 func InitEnvironmentFlags(flag *pflag.FlagSet) {
 	flag.StringP(EnvironmentFlag, "e", EnvironmentDevelopment, fmt.Sprintf("The environment name, one of %v", environments))

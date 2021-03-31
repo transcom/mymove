@@ -1,3 +1,11 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to generate test data for use in the unit test
+//RA: Creation of test data generation for unit test consumption does not present any unexpected states and conditions
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
 package authentication
 
 import (
@@ -233,7 +241,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	milSession.LoadAndSave(handler).ServeHTTP(rr, req.WithContext(ctx))
 
 	serviceMemberID := session.ServiceMemberID
-	serviceMember, _ := models.FetchServiceMemberForUser(ctx, suite.DB(), &session, serviceMemberID)
+	serviceMember, _ := models.FetchServiceMemberForUser(suite.DB(), &session, serviceMemberID)
 
 	suite.NotEqual(uuid.Nil, serviceMemberID)
 	suite.NotEqual(uuid.Nil, serviceMember.UserID)

@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"context"
-
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -31,7 +29,9 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 	}
 
 	// if an existing service member, set requires access code to what they're already set
-	requiresAccessCode = serviceMember.RequiresAccessCode
+	if requiresAccessCode != serviceMember.RequiresAccessCode {
+		requiresAccessCode = serviceMember.RequiresAccessCode
+	}
 
 	var weightAllotment *internalmessages.WeightAllotment
 	if serviceMember.Rank != nil {
@@ -157,7 +157,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -171,6 +171,18 @@ type PatchServiceMemberHandler struct {
 	handlers.HandlerContext
 }
 
+// Check to see if a move is in draft state. If there are no orders, then the
+// move still counts as in draft state.
+func (h PatchServiceMemberHandler) isDraftMove(serviceMember *models.ServiceMember) bool {
+	if serviceMember.Orders == nil || len(serviceMember.Orders) <= 0 {
+		return true
+	}
+
+	move := serviceMember.Orders[0].Moves[0]
+
+	return move.Status == models.MoveStatusDRAFT
+}
+
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
 
@@ -180,34 +192,82 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
+	var err error
+	var serviceMember models.ServiceMember
+	var verrs *validate.Errors
+
+	serviceMember, err = models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := h.patchServiceMemberWithPayload(ctx, &serviceMember, payload); verrs.HasAny() || err != nil {
+
+	if verrs, err = h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
-	if verrs, err := models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
+
+	if verrs, err = models.SaveServiceMember(h.DB(), &serviceMember); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
+	}
+
+	if len(serviceMember.Orders) != 0 {
+		// Will have to be refactored once we support multiple moves/orders
+		order, err := models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
+
+		if err != nil {
+			return handlers.ResponseForError(logger, err)
+		}
+
+		serviceMemberRank := (*string)(serviceMember.Rank)
+		if serviceMemberRank != order.Grade {
+			order.Grade = serviceMemberRank
+		}
+
+		if serviceMember.DutyStation.ID != order.OriginDutyStation.ID {
+			order.OriginDutyStation = &serviceMember.DutyStation
+			order.OriginDutyStationID = &serviceMember.DutyStation.ID
+		}
+
+		verrs, err = h.DB().ValidateAndSave(&order)
+		if verrs.HasAny() || err != nil {
+			return handlers.ResponseForVErrors(logger, verrs, err)
+		}
+		serviceMember.Orders[0] = order
 	}
 
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
-func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(ctx context.Context, serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
+func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
+	if h.isDraftMove(serviceMember) {
+		if payload.CurrentStationID != nil {
+			stationID, err := uuid.FromString(payload.CurrentStationID.String())
+			if err != nil {
+				return validate.NewErrors(), err
+			}
+			// Fetch the model partially as a validation on the ID
+			station, err := models.FetchDutyStation(h.DB(), stationID)
+			if err != nil {
+				return validate.NewErrors(), err
+			}
+			serviceMember.DutyStation = station
+			serviceMember.DutyStationID = &stationID
+		}
 
+		if payload.Affiliation != nil {
+			serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
+		}
+
+		if payload.Rank != nil {
+			serviceMember.Rank = (*models.ServiceMemberRank)(payload.Rank)
+		}
+	}
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
 	}
-	if payload.Affiliation != nil {
-		serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
-	}
-	if payload.Rank != nil {
-		serviceMember.Rank = (*models.ServiceMemberRank)(payload.Rank)
-	}
+
 	if payload.FirstName != nil {
 		serviceMember.FirstName = payload.FirstName
 	}
@@ -235,19 +295,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(ctx context.Con
 	if payload.EmailIsPreferred != nil {
 		serviceMember.EmailIsPreferred = payload.EmailIsPreferred
 	}
-	if payload.CurrentStationID != nil {
-		stationID, err := uuid.FromString(payload.CurrentStationID.String())
-		if err != nil {
-			return validate.NewErrors(), err
-		}
-		// Fetch the model partially as a validation on the ID
-		station, err := models.FetchDutyStation(h.DB(), stationID)
-		if err != nil {
-			return validate.NewErrors(), err
-		}
-		serviceMember.DutyStation = station
-		serviceMember.DutyStationID = &stationID
-	}
+
 	if payload.ResidentialAddress != nil {
 		if serviceMember.ResidentialAddress == nil {
 			serviceMember.ResidentialAddress = addressModelFromPayload(payload.ResidentialAddress)
@@ -278,7 +326,7 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 
 	session, logger := h.SessionAndLoggerFromContext(ctx)
 
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, session.ServiceMemberID)
 	if err != nil {
 		return servicememberop.NewShowServiceMemberOrdersNotFound()
 	}

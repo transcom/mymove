@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
@@ -13,8 +14,10 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 	tdgs "github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -40,14 +43,6 @@ type errInvalidScenario struct {
 
 func (e *errInvalidScenario) Error() string {
 	return fmt.Sprintf("invalid scenario %d", e.Scenario)
-}
-
-type errInvalidNamedScenario struct {
-	NamedScenario string
-}
-
-func (e *errInvalidNamedScenario) Error() string {
-	return fmt.Sprintf("invalid named-scenario %s", e.NamedScenario)
 }
 
 func checkConfig(v *viper.Viper, logger logger) error {
@@ -102,10 +97,16 @@ func main() {
 
 	flag := pflag.CommandLine
 	initFlags(flag)
-	flag.Parse(os.Args[1:])
+	parseErr := flag.Parse(os.Args[1:])
+	if parseErr != nil {
+		log.Fatalf("Could not parse flags: %v\n", parseErr)
+	}
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	bindErr := v.BindPFlags(flag)
+	if bindErr != nil {
+		log.Fatal("failed to bind flags", zap.Error(bindErr))
+	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
@@ -163,17 +164,19 @@ func main() {
 
 		// Initialize storage and uploader
 		var session *awssession.Session
+		storageBackend := v.GetString(cli.StorageBackendFlag)
+		if storageBackend == "s3" {
+			c := &aws.Config{
+				Region: aws.String(v.GetString(cli.AWSRegionFlag)),
+			}
+			s, errorSession := awssession.NewSession(c)
 
-		c := &aws.Config{
-			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
+			if errorSession != nil {
+				logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+			}
+
+			session = s
 		}
-		s, errorSession := awssession.NewSession(c)
-
-		if errorSession != nil {
-			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
-		}
-
-		session = s
 		storer := storage.InitStorage(v, session, logger)
 
 		userUploader, uploaderErr := uploader.NewUserUploader(dbConnection, logger, storer, 25*uploader.MB)
@@ -184,10 +187,26 @@ func main() {
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate prime uploader", zap.Error(err))
 		}
+
 		if namedScenario == tdgs.E2eBasicScenario.Name {
 			tdgs.E2eBasicScenario.Run(dbConnection, userUploader, primeUploader, logger)
 		} else if namedScenario == tdgs.DevSeedScenario.Name {
-			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, logger)
+			// Something is different about our cert config in CI so only running this
+			// for the devseed scenario not e2e_basic for Cypress
+			certificates, rootCAs, certErr := certs.InitDoDCertificates(v, logger)
+			if certificates == nil || rootCAs == nil || certErr != nil {
+				logger.Fatal("Failed to initialize DOD certificates", zap.Error(certErr))
+			}
+
+			// Create a secondary planner specifically for GHC.
+			routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+			routePlanner, plannerErr := route.InitGHCRoutePlanner(v, logger, dbConnection, routeTLSConfig)
+
+			if plannerErr != nil {
+				logger.Fatal("Failed to initialize GHC route planner")
+			}
+
+			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, routePlanner, logger)
 		} else if namedScenario == tdgs.BandwidthScenario.Name {
 			tdgs.BandwidthScenario.Run(dbConnection, userUploader, primeUploader)
 		}

@@ -16,6 +16,9 @@ function getMockMatchProp(path = '') {
 }
 
 const defaultProps = {
+  location: {
+    search: '',
+  },
   match: {
     path: '',
     isExact: false,
@@ -27,6 +30,7 @@ const defaultProps = {
   history: {
     goBack: jest.fn(),
     push: jest.fn(),
+    replace: jest.fn(),
   },
   fetchCustomerData: jest.fn(),
   updateMTOShipment: jest.fn(),
@@ -58,6 +62,7 @@ const mockMtoShipment = {
     state: 'WA',
     postal_code: '98421',
   },
+  shipmentType: 'HHG',
 };
 
 const mountCreateOrEditMtoShipment = (props) => mount(<CreateOrEditMtoShipment {...defaultProps} {...props} />);
@@ -71,10 +76,21 @@ describe('CreateOrEditMtoShipment component', () => {
   });
 
   describe('when creating a new shipment', () => {
+    it('redirects to the PPM start page if selected shipment type is PPM', () => {
+      mountCreateOrEditMtoShipment({
+        location: {
+          search: `?type=${SHIPMENT_OPTIONS.PPM}`,
+        },
+      });
+
+      expect(defaultProps.history.replace).toHaveBeenCalledWith('/moves/move123/ppm-start');
+    });
+
     it('renders the MtoShipmentForm component right away', () => {
       const createWrapper = mountCreateOrEditMtoShipment({
-        selectedMoveType: SHIPMENT_OPTIONS.HHG,
-        isCreate: true,
+        location: {
+          search: `?type=${SHIPMENT_OPTIONS.HHG}`,
+        },
       });
       expect(createWrapper.find('MtoShipmentForm').length).toBe(1);
       expect(createWrapper.find('LoadingPlaceholder').exists()).toBe(false);
@@ -83,8 +99,7 @@ describe('CreateOrEditMtoShipment component', () => {
 
   describe('when editing an existing shipment', () => {
     const editWrapper = mountCreateOrEditMtoShipment({
-      selectedMoveType: SHIPMENT_OPTIONS.NTS,
-      match: getMockMatchProp('/moves/:moveId/mto-shipments/:mtoShipmentId/edit'),
+      match: getMockMatchProp('/moves/:moveId/shipments/:mtoShipmentId/edit'),
     });
 
     it('renders the loader right away', () => {

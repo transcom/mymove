@@ -22,41 +22,36 @@ func NewDomesticDestinationAdditionalDaysSITPricer(db *pop.Connection) services.
 }
 
 // Price determines the price for domestic destination additional days SIT
-func (p domesticDestinationAdditionalDaysSITPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, error) {
-	return priceDomesticAdditionalDaysSIT(p.db, models.ReServiceCodeDDASIT, contractCode, requestedPickupDate, isPeakPeriod, weight, serviceArea, numberOfDaysInSIT)
+func (p domesticDestinationAdditionalDaysSITPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingParams, error) {
+	return priceDomesticAdditionalDaysSIT(p.db, models.ReServiceCodeDDASIT, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
 }
 
 // PriceUsingParams determines the price for domestic destination first day SIT given PaymentServiceItemParams
-func (p domesticDestinationAdditionalDaysSITPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+func (p domesticDestinationAdditionalDaysSITPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	serviceAreaDest, err := getParamString(params, models.ServiceItemParamNameServiceAreaDest)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), nil, err
 	}
 
 	numberOfDaysInSIT, err := getParamInt(params, models.ServiceItemParamNameNumberDaysSIT)
 	if err != nil {
-		// TODO: Hardcoding numberOfDaysInSIT until MB-1564 is done
-		// once MB-1564 is done uncomment below line
-		// return unit.Cents(0), err
-		numberOfDaysInSIT = 29
+		return unit.Cents(0), nil, err
 	}
 
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-
-	return p.Price(contractCode, requestedPickupDate, isPeakPeriod, unit.Pound(weightBilledActual), serviceAreaDest, numberOfDaysInSIT)
+	return p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaDest, numberOfDaysInSIT)
 }

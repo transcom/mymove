@@ -6,8 +6,6 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -81,8 +79,7 @@ type MTOShipment struct {
 	ShipmentType interface{} `json:"shipmentType,omitempty"`
 
 	// status
-	// Enum: [APPROVED SUBMITTED REJECTED]
-	Status string `json:"status,omitempty"`
+	Status MTOShipmentStatus `json:"status,omitempty"`
 
 	// updated at
 	// Format: date-time
@@ -337,46 +334,16 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 	return nil
 }
 
-var mTOShipmentTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		mTOShipmentTypeStatusPropEnum = append(mTOShipmentTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// MTOShipmentStatusAPPROVED captures enum value "APPROVED"
-	MTOShipmentStatusAPPROVED string = "APPROVED"
-
-	// MTOShipmentStatusSUBMITTED captures enum value "SUBMITTED"
-	MTOShipmentStatusSUBMITTED string = "SUBMITTED"
-
-	// MTOShipmentStatusREJECTED captures enum value "REJECTED"
-	MTOShipmentStatusREJECTED string = "REJECTED"
-)
-
-// prop value enum
-func (m *MTOShipment) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, mTOShipmentTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

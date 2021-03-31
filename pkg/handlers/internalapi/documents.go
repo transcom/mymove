@@ -43,8 +43,6 @@ type CreateDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
@@ -53,7 +51,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	}
 
 	// Fetch to check auth
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -86,9 +84,6 @@ type ShowDocumentHandler struct {
 
 // Handle creates a new Document from a request payload
 func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
-
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
@@ -96,7 +91,7 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 		return handlers.ResponseForError(logger, err)
 	}
 
-	document, err := models.FetchDocument(ctx, h.DB(), session, documentID, false)
+	document, err := models.FetchDocument(h.DB(), session, documentID, false)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

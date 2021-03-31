@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"fmt"
 	"math"
 	"sort"
@@ -274,7 +273,7 @@ func FetchUnbandedTSPPerformanceGroups(db *pop.Connection) (TSPPerformanceGroups
 }
 
 // AssignQualityBandToTSPPerformance sets the QualityBand value for a TransportationServiceProviderPerformance.
-func AssignQualityBandToTSPPerformance(ctx context.Context, db *pop.Connection, band int, id uuid.UUID) error {
+func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUID) error {
 	performance := TransportationServiceProviderPerformance{}
 	if err := db.Find(&performance, id); err != nil {
 		return err

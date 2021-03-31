@@ -30,43 +30,55 @@ import (
 )
 
 func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
+	expectedServiceItemName := "Test Service"
+	expectedShipmentType := models.MTOShipmentTypeHHG
 
-	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	// This should create all the other associated records we need.
+	paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:  models.ServiceItemParamNameRequestedPickupDate,
+			Type: models.ServiceItemParamTypeDate,
+		},
+	})
+	paymentRequest := paymentServiceItemParam.PaymentServiceItem.PaymentRequest
 
-	paymentRequest := models.PaymentRequest{
-		ID:        paymentRequestID,
-		IsFinal:   false,
-		Status:    models.PaymentRequestStatusPending,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-	officeUserUUID, _ := uuid.NewV4()
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTIO,
 	})
 
 	suite.T().Run("successful fetch of payment request", func(t *testing.T) {
-		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
-
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/:paymentRequestID"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		params := paymentrequestop.GetPaymentRequestParams{
 			HTTPRequest:      req,
-			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
 		handler := GetPaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			paymentRequestFetcher,
+			paymentrequest.NewPaymentRequestFetcher(suite.DB()),
 		}
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.GetPaymentRequestOK{}, response)
 		okResponse := response.(*paymentrequestop.GetPaymentRequestOK)
-		suite.Equal(paymentRequestID.String(), okResponse.Payload.ID.String())
+		payload := okResponse.Payload
+		paymentServiceItemParamPayload := payload.ServiceItems[0].PaymentServiceItemParams[0]
+
+		suite.Equal(paymentRequest.ID.String(), payload.ID.String())
+		suite.Equal(expectedServiceItemName, payload.ServiceItems[0].MtoServiceItemName)
+		suite.EqualValues(expectedShipmentType, payload.ServiceItems[0].MtoShipmentType)
+
+		suite.Equal(1, len(payload.ServiceItems))
+		suite.Equal(paymentServiceItemParam.PaymentServiceItemID.String(), payload.ServiceItems[0].ID.String())
+		suite.Equal(1, len(payload.ServiceItems[0].PaymentServiceItemParams))
+		suite.Equal(paymentServiceItemParam.ID.String(), paymentServiceItemParamPayload.ID.String())
+		suite.EqualValues(models.ServiceItemParamNameRequestedPickupDate, paymentServiceItemParamPayload.Key)
+		suite.Equal(paymentServiceItemParam.Value, paymentServiceItemParamPayload.Value)
 	})
 
 	suite.T().Run("failed fetch for payment request - forbidden", func(t *testing.T) {
@@ -77,12 +89,12 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/:paymentRequestID"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUserTOO)
 
 		params := paymentrequestop.GetPaymentRequestParams{
 			HTTPRequest:      req,
-			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
 		handler := GetPaymentRequestHandler{
@@ -98,12 +110,12 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(models.PaymentRequest{}, nil).Once()
 
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/:paymentRequestID"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		params := paymentrequestop.GetPaymentRequestParams{
 			HTTPRequest:      req,
-			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
 		}
 
 		handler := GetPaymentRequestHandler{
@@ -117,52 +129,55 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
-	prUUID, _ := uuid.NewV4()
-	expectedServiceItemName := "Test Service Item Name"
+	expectedServiceItemName := "Test Service"
 	expectedShipmentType := models.MTOShipmentTypeHHG
-	paymentRequests := models.PaymentRequests{
-		models.PaymentRequest{
-			ID: prUUID,
-			PaymentServiceItems: models.PaymentServiceItems{
-				models.PaymentServiceItem{
-					MTOServiceItem: models.MTOServiceItem{
-						ReService: models.ReService{Name: expectedServiceItemName},
-						MTOShipment: models.MTOShipment{
-							ShipmentType: expectedShipmentType,
-						},
-					},
-				},
-			},
+
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	// This should create all the other associated records we need.
+	paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:  models.ServiceItemParamNameRequestedPickupDate,
+			Type: models.ServiceItemParamTypeDate,
 		},
-	}
-	officeUserUUID, _ := uuid.NewV4()
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
+	})
+	paymentRequest := paymentServiceItemParam.PaymentServiceItem.PaymentRequest
+	paymentRequests := models.PaymentRequests{paymentRequest}
+
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTIO,
 	})
 
 	suite.T().Run("Successful list fetch", func(t *testing.T) {
-		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", mock.Anything,
-			mock.Anything).Return(&paymentRequests, nil).Once()
-
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", move.Locator), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := paymentrequestop.GetPaymentRequestsForMoveParams{
 			HTTPRequest: request,
-			Locator:     "ABC123",
+			Locator:     move.Locator,
 		}
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		handler := GetPaymentRequestForMoveHandler{
 			HandlerContext:            context,
-			PaymentRequestListFetcher: paymentRequestListFetcher,
+			PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
 		}
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestsForMoveOK{}, response)
-		okResponse := response.(*paymentrequestop.GetPaymentRequestsForMoveOK)
-		suite.Equal(prUUID.String(), okResponse.Payload[0].ID.String())
-		suite.Equal(expectedServiceItemName, okResponse.Payload[0].ServiceItems[0].MtoServiceItemName)
-		suite.EqualValues(expectedShipmentType, okResponse.Payload[0].ServiceItems[0].MtoShipmentType)
+		paymentRequestsResponse := response.(*paymentrequestop.GetPaymentRequestsForMoveOK)
+		paymentRequestsPayload := paymentRequestsResponse.Payload
+		paymentServiceItemParamPayload := paymentRequestsPayload[0].ServiceItems[0].PaymentServiceItemParams[0]
+
+		suite.Equal(1, len(paymentRequestsPayload))
+		suite.Equal(paymentRequests[0].ID.String(), paymentRequestsPayload[0].ID.String())
+		suite.Equal(expectedServiceItemName, paymentRequestsPayload[0].ServiceItems[0].MtoServiceItemName)
+		suite.EqualValues(expectedShipmentType, paymentRequestsPayload[0].ServiceItems[0].MtoShipmentType)
+
+		suite.Equal(1, len(paymentRequestsPayload[0].ServiceItems))
+		suite.Equal(paymentServiceItemParam.PaymentServiceItemID.String(), paymentRequestsPayload[0].ServiceItems[0].ID.String())
+		suite.Equal(1, len(paymentRequestsPayload[0].ServiceItems[0].PaymentServiceItemParams))
+		suite.Equal(paymentServiceItemParam.ID.String(), paymentServiceItemParamPayload.ID.String())
+		suite.EqualValues(models.ServiceItemParamNameRequestedPickupDate, paymentServiceItemParamPayload.Key)
+		suite.Equal(paymentServiceItemParam.Value, paymentServiceItemParamPayload.Value)
 	})
 
 	suite.T().Run("Failed list fetch - Not found error ", func(t *testing.T) {

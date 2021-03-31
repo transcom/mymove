@@ -6,6 +6,8 @@ describe('office user finds the move', function () {
   });
 
   beforeEach(() => {
+    cy.clearAllCookies();
+    cy.intercept('**/internal/orders/**').as('updateOrder');
     cy.signInAsNewPPMOfficeUser();
   });
 
@@ -150,10 +152,6 @@ function officeUserVerifiesOrders(moveLocator) {
   // Click on edit orders
   cy.get('.editable-panel-header').contains('Orders').siblings().click();
 
-  // Enter details in form and save orders
-  cy.get('input[name="orders.orders_number"]').type('666666');
-  cy.get('select[name="orders.orders_type_detail"]').select('DELAYED_APPROVAL');
-
   cy.get('button').contains('Save').should('be.enabled');
 
   cy.get('button').contains('Save').click();
@@ -170,9 +168,6 @@ function officeUserVerifiesOrders(moveLocator) {
 
   // Refresh browser and make sure changes persist
   cy.patientReload();
-
-  cy.get('span').contains('666666');
-  cy.get('span').contains('Delayed Approval 20 Weeks or More');
 
   // Enter SAC
   cy.get('.combo-button button').should('be.disabled');
@@ -193,8 +188,7 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.get('.combo-button .dropdown').contains('Approve PPM').should('have.class', 'disabled');
   cy.get('.combo-button').click();
 
-  cy.get('span').contains('666666');
-  cy.get('span').contains('Delayed Approval 20 Weeks or More');
+  cy.patientReload();
 }
 
 function officeUserVerifiesAccounting() {
@@ -211,18 +205,16 @@ function officeUserVerifiesAccounting() {
   // Enter details in form and save
   cy.get('.editable-panel-header').contains('Accounting').siblings().click();
 
-  cy.get('input[name="tac"]').type('6789');
+  cy.get('input[name="tac"]').first().clear().type('7777');
   cy.get('select[name="department_indicator"]').select('AIR_FORCE');
-  cy.get('input[name="sac"]').type('N002214CSW32Y9');
+  cy.get('input[name="sac"]').first().clear().type('N002214CSW32Y9');
 
   cy.get('button').contains('Save').should('be.enabled');
 
   cy.get('button').contains('Save').click();
+  cy.wait('@updateOrder');
 
-  // Verify data has been saved in the UI
-  // added '.tac' as an additional selector since
-  // '6789' is part of the DoD ID that was a false positive
-  cy.get('.tac > span').contains('6789');
+  cy.get('.tac > span').contains('7777');
   cy.get('span').contains('N002214CSW32Y9');
 
   // Refresh browser and make sure changes persist
@@ -231,7 +223,7 @@ function officeUserVerifiesAccounting() {
   cy.get('.combo-button .dropdown').contains('Approve PPM').should('have.class', 'disabled');
   cy.get('.combo-button').click();
 
-  cy.get('span').contains('6789');
+  cy.get('span').contains('7777');
   cy.get('span').contains('57 Air Force');
   cy.get('span').contains('N002214CSW32Y9');
 }

@@ -17,7 +17,7 @@ jest.mock('hooks/queries', () => ({
   useTXOMoveInfoQueries: () => {
     return {
       customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-      moveOrder: {
+      order: {
         id: '4321',
         customerID: '2468',
         uploaded_order_id: '2',
@@ -52,6 +52,7 @@ describe('TXO Move Info Container', () => {
     expect(wrapper.find('li.tabItem').length).toEqual(4);
 
     expect(wrapper.find('span.tab-title').at(0).text()).toContain('Move details');
+    expect(wrapper.find('span.tab-title + span').at(0).exists()).toBe(false);
     expect(wrapper.find('span.tab-title').at(1).text()).toContain('Move task order');
     expect(wrapper.find('span.tab-title').at(2).text()).toContain('Payment requests');
     expect(wrapper.find('span.tab-title').at(3).text()).toContain('History');
