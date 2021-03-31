@@ -17,7 +17,6 @@ const MaskedTextField = ({
   blocks,
   lazy,
   warning,
-  useMaskedValue,
   ...props
 }) => {
   const [field, meta, helpers] = useField({ id, name, ...props });
@@ -40,7 +39,7 @@ const MaskedTextField = ({
         blocks={blocks}
         lazy={lazy}
         onAccept={(val, masked) => {
-          helpers.setValue(useMaskedValue ? masked.value : masked.unmaskedValue);
+          helpers.setValue(masked.unmaskedValue);
           helpers.setTouched(true);
         }}
         {...props}
@@ -67,7 +66,6 @@ MaskedTextField.propTypes = {
   blocks: PropTypes.oneOfType([PropTypes.object]),
   lazy: PropTypes.bool,
   warning: PropTypes.string,
-  useMaskedValue: PropTypes.bool,
 };
 
 MaskedTextField.defaultProps = {
@@ -78,7 +76,6 @@ MaskedTextField.defaultProps = {
   blocks: {},
   lazy: true, // make placeholder not visible
   warning: '',
-  useMaskedValue: false,
 };
 
 export default MaskedTextField;
