@@ -165,7 +165,7 @@ func main() {
 		// Initialize storage and uploader
 		var session *awssession.Session
 		storageBackend := v.GetString(cli.StorageBackendFlag)
-		if storageBackend == "s3" || storageBackend == "cdn" {
+		if storageBackend == "s3" {
 			c := &aws.Config{
 				Region: aws.String(v.GetString(cli.AWSRegionFlag)),
 			}
