@@ -55,8 +55,10 @@ type Assertions struct {
 	Organization                             models.Organization
 	OriginDutyStation                        models.DutyStation
 	PaymentRequest                           models.PaymentRequest
+	PaymentRequestToInterchangeControlNumber models.PaymentRequestToInterchangeControlNumber
 	PaymentServiceItem                       models.PaymentServiceItem
 	PaymentServiceItemParam                  models.PaymentServiceItemParam
+	PaymentServiceItemParams                 models.PaymentServiceItemParams
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	PickupAddress                            models.Address
 	PrimeUpload                              models.PrimeUpload
@@ -146,6 +148,11 @@ func mergeModels(dst, src interface{}) {
 	noErr(
 		mergo.Merge(dst, src, mergo.WithOverride, mergo.WithTransformers(customTransformer{})),
 	)
+}
+
+// MergeModels exposes the private function mergeModels
+func MergeModels(dst, src interface{}) {
+	mergeModels(dst, src)
 }
 
 // Source chars for random string

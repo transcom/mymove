@@ -6,9 +6,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func TestMoveOrder(t *testing.T) {
-	moveOrder := &models.Order{}
-	MoveOrder(moveOrder)
+func TestOrder(t *testing.T) {
+	order := &models.Order{}
+	Order(order)
 }
 
 // TestMove makes sure zero values/optional fields are handled

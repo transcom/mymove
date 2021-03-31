@@ -14,6 +14,9 @@ const UpdateMTOAgentBasicValidator string = "UpdateMTOAgentBasicValidator"
 // UpdateMTOAgentPrimeValidator is the key for validating the MTO Agent for the Prime contractor
 const UpdateMTOAgentPrimeValidator string = "UpdateMTOAgentPrimeValidator"
 
+// CreateMTOAgentPrimeValidator is the key for validating the MTO Agent for the Prime
+const CreateMTOAgentPrimeValidator = "CreateMTOAgentPrimeValidator"
+
 // UpdateMTOAgentValidators is the map connecting the constant keys to the correct validator
 var UpdateMTOAgentValidators = map[string]updateMTOAgentValidator{
 	UpdateMTOAgentBasicValidator: new(basicUpdateMTOAgentValidator),

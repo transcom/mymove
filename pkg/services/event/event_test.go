@@ -225,8 +225,15 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 		// Reinflate the json from the notification payload
 		suite.NotEmpty(notification.Payload)
 		var mtoInPayload MoveTaskOrder
-		json.Unmarshal([]byte(*notification.Payload), &mtoInPayload)
-
+		//RA Summary: gosec - errcheck - Unchecked return value
+		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+		//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+		//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+		//RA: in a unit test, then there is no risk
+		//RA Developer Status: Mitigated
+		//RA Validator Status: Mitigated
+		//RA Modified Severity: N/A
+		json.Unmarshal([]byte(notification.Payload), &mtoInPayload) // nolint:errcheck
 		// Check some params
 		suite.Equal(mto.PPMType, &mtoInPayload.PpmType)
 		suite.Equal(handlers.FmtDateTimePtr(mto.AvailableToPrimeAt).String(), mtoInPayload.AvailableToPrimeAt.String())
@@ -278,8 +285,15 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		// Reinflate the json from the notification payload
 		suite.NotEmpty(notification.Payload)
 		var mtoShipmentInPayload primemessages.MTOShipment
-		json.Unmarshal([]byte(*notification.Payload), &mtoShipmentInPayload)
-
+		//RA Summary: gosec - errcheck - Unchecked return value
+		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+		//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+		//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+		//RA: in a unit test, then there is no risk
+		//RA Developer Status: Mitigated
+		//RA Validator Status: Mitigated
+		//RA Modified Severity: N/A
+		json.Unmarshal([]byte(notification.Payload), &mtoShipmentInPayload) // nolint:errcheck
 		// Check some params
 		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
 		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())
@@ -328,7 +342,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 	})
 }
 
-func (suite *EventServiceSuite) TestMoveOrderEventTrigger() {
+func (suite *EventServiceSuite) TestOrderEventTrigger() {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	dummyRequest := http.Request{
 		URL: &url.URL{
@@ -343,7 +357,7 @@ func (suite *EventServiceSuite) TestMoveOrderEventTrigger() {
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
 		_, err := TriggerEvent(Event{
-			EventKey:        MoveOrderUpdateEventKey,
+			EventKey:        OrderUpdateEventKey,
 			MtoID:           move.ID,
 			UpdatedObjectID: move.OrdersID,
 			Request:         &dummyRequest,
@@ -360,14 +374,14 @@ func (suite *EventServiceSuite) TestMoveOrderEventTrigger() {
 
 		// Reinflate the json from the notification payload
 		suite.NotEmpty(notification.Payload)
-		var moveOrderPayload primemessages.MoveOrder
-		err = json.Unmarshal([]byte(*notification.Payload), &moveOrderPayload)
+		var orderPayload primemessages.Order
+		err = json.Unmarshal([]byte(notification.Payload), &orderPayload)
 		suite.FatalNoError(err)
 
 		// Check some params
-		suite.Equal(move.Orders.ServiceMember.ID.String(), moveOrderPayload.Customer.ID.String())
-		suite.Equal(move.Orders.Entitlement.ID.String(), moveOrderPayload.Entitlement.ID.String())
-		suite.Equal(move.Orders.OriginDutyStation.ID.String(), moveOrderPayload.OriginDutyStation.ID.String())
+		suite.Equal(move.Orders.ServiceMember.ID.String(), orderPayload.Customer.ID.String())
+		suite.Equal(move.Orders.Entitlement.ID.String(), orderPayload.Entitlement.ID.String())
+		suite.Equal(move.Orders.OriginDutyStation.ID.String(), orderPayload.OriginDutyStation.ID.String())
 	})
 }
 
@@ -387,7 +401,7 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 	suite.T().Run("No move and notification stored", func(t *testing.T) {
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 		event := Event{
-			EventKey:        MoveOrderUpdateEventKey,
+			EventKey:        OrderUpdateEventKey,
 			MtoID:           uuid.Nil,
 			UpdatedObjectID: order.ID,
 			Request:         &dummyRequest,

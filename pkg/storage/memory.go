@@ -78,7 +78,12 @@ func (fs *Memory) Store(key string, data io.ReadSeeker, checksum string, tags *s
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open file")
 	}
-	defer file.Close()
+
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			fmt.Println("Failed to close file")
+		}
+	}()
 
 	_, err = io.Copy(file, data)
 	if err != nil {

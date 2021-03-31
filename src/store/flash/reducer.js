@@ -7,7 +7,7 @@ export const initialState = {
 const flashReducer = (state = initialState, action) => {
   switch (action?.type) {
     case SET_FLASH_MESSAGE: {
-      const { key, messageType, message, title } = action;
+      const { key, messageType, message, title, slim } = action;
 
       return {
         ...state,
@@ -16,15 +16,23 @@ const flashReducer = (state = initialState, action) => {
           type: messageType,
           message,
           title,
+          slim,
         },
       };
     }
 
-    case CLEAR_FLASH_MESSAGE:
-      return {
-        ...state,
-        flashMessage: initialState.flashMessage,
-      };
+    case CLEAR_FLASH_MESSAGE: {
+      const { key } = action;
+
+      if (key && state.flashMessage?.key === key) {
+        return {
+          ...state,
+          flashMessage: initialState.flashMessage,
+        };
+      }
+
+      return state;
+    }
 
     default:
       return state;

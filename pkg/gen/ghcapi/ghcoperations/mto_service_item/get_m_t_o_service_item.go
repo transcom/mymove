@@ -31,9 +31,9 @@ func NewGetMTOServiceItem(ctx *middleware.Context, handler GetMTOServiceItemHand
 
 /*GetMTOServiceItem swagger:route GET /move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID} mtoServiceItem getMTOServiceItem
 
-Gets a line item by ID for a move order by ID
+Gets a line item by ID for a move by ID
 
-Gets a line item by ID for a move order by ID
+Gets a line item by ID for a move by ID
 
 */
 type GetMTOServiceItem struct {

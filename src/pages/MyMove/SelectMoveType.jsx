@@ -2,19 +2,24 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { string, bool, func, arrayOf, shape } from 'prop-types';
+import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+import { generatePath } from 'react-router';
 
 import styles from './SelectMoveType.module.scss';
 
+import formStyles from 'styles/form.module.scss';
+import { generalRoutes, customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
-import { WizardPage } from 'shared/WizardPage';
 import SelectableCard from 'components/Customer/SelectableCard';
 import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
 import { patchMove, getResponseError } from 'services/internalApi';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
-import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
+import { MoveTaskOrderShape, MTOShipmentShape } from 'types/order';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
+import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import ScrollToTop from 'components/ScrollToTop';
 
 export class SelectMoveType extends Component {
   constructor(props) {
@@ -48,16 +53,18 @@ export class SelectMoveType extends Component {
   };
 
   handleSubmit = () => {
-    const { match, updateMove } = this.props;
+    const { push, move, updateMove } = this.props;
     const { moveType } = this.state;
 
+    const createShipmentPath = generatePath(customerRoutes.SHIPMENT_CREATE_PATH, { moveId: move.id });
     return patchMove({
-      id: match.params.moveId,
+      id: move.id,
       selected_move_type: moveType,
     })
       .then((response) => {
         // Update Redux with new data
         updateMove(response);
+        push(`${createShipmentPath}?type=${moveType}`);
       })
       .catch((e) => {
         const { response } = e;
@@ -69,7 +76,7 @@ export class SelectMoveType extends Component {
   };
 
   render() {
-    const { pageKey, pageList, match, push, move, mtoShipments } = this.props;
+    const { push, move, mtoShipments } = this.props;
     const { moveType, showStorageInfoModal, showMoveInfoModal, errorMessage } = this.state;
     const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
     const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
@@ -151,70 +158,85 @@ export class SelectMoveType extends Component {
         onHelpClick={this.toggleMoveInfoModal}
       />
     );
-    const footerText = (
-      <div>
-        {!hasShipment && (
-          <div data-testid="helper-footer" className={`${styles.footer} grid-col-12`}>
-            It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and can
-            help make changes if necessary.
-          </div>
-        )}
-      </div>
-    );
+
+    const handleBack = () => {
+      const backPath = hasShipment
+        ? generalRoutes.HOME_PATH
+        : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id });
+      push(backPath);
+    };
+
     return (
       <>
-        <WizardPage
-          pageKey={pageKey}
-          match={match}
-          pageList={pageList}
-          dirty
-          handleSubmit={this.handleSubmit}
-          push={push}
-          footerText={footerText}
-          canMoveNext={canMoveNext}
-          error={errorMessage}
-        >
-          <h6 data-testid="number-eyebrow" className="sm-heading">
-            Shipment {shipmentNumber}
-          </h6>
-          <h1 className={`${styles.selectTypeHeader} ${styles.header}`} data-testid="select-move-type-header">
-            {shipmentNumber > 1
-              ? 'How do you want this group of things moved?'
-              : 'How do you want to move your belongings?'}
-          </h1>
-          <h2>Choose 1 shipment at a time.</h2>
-          <p>You can add more later</p>
-          {isPpmSelectable ? ppmEnabledCard : ppmDisabledCard}
-          {isHhgSelectable ? hhgEnabledCard : hhgDisabledCard}
-          <h3 data-testid="long-term-storage-heading">Long-term storage</h3>
-          {!isNtsSelectable && !isNtsrSelectable ? (
-            <p className={styles.pSmall}>{noLongTermStorageCardsText}</p>
-          ) : (
-            <>
-              <p>These shipments do count against your weight allowance for this move.</p>
-              <SelectableCard
-                {...selectableCardDefaultProps}
-                label="Put things into long-term storage"
-                value={SHIPMENT_OPTIONS.NTS}
-                id={SHIPMENT_OPTIONS.NTS}
-                cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
-                checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
-                disabled={!isNtsSelectable}
-                onHelpClick={this.toggleStorageModal}
-              />
-              <SelectableCard
-                {...selectableCardDefaultProps}
-                label="Get things out of long-term storage"
-                value={SHIPMENT_OPTIONS.NTSR}
-                id={SHIPMENT_OPTIONS.NTSR}
-                cardText={isNtsrSelectable ? ntsrCardText : ntsrDisabledText}
-                checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
-                disabled={!isNtsrSelectable}
-                onHelpClick={this.toggleStorageModal}
-              />
-            </>
-          )}
-        </WizardPage>
+        <GridContainer>
+          <ScrollToTop otherDep={errorMessage} />
+
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              {errorMessage && (
+                <Alert type="error" heading="An error occurred">
+                  {errorMessage}
+                </Alert>
+              )}
+
+              <h6 data-testid="number-eyebrow" className="sm-heading margin-top-205 margin-bottom-0">
+                Shipment {shipmentNumber}
+              </h6>
+              <h1 className={`${styles.selectTypeHeader} ${styles.header}`} data-testid="select-move-type-header">
+                {shipmentNumber > 1
+                  ? 'How do you want this group of things moved?'
+                  : 'How do you want to move your belongings?'}
+              </h1>
+              <h2>Choose 1 shipment at a time.</h2>
+              <p>You can add more later</p>
+              {isPpmSelectable ? ppmEnabledCard : ppmDisabledCard}
+              {isHhgSelectable ? hhgEnabledCard : hhgDisabledCard}
+              <h3 className={styles.longTermStorageHeader} data-testid="long-term-storage-heading">
+                Long-term storage
+              </h3>
+              {!isNtsSelectable && !isNtsrSelectable ? (
+                <p className={styles.pSmall}>{noLongTermStorageCardsText}</p>
+              ) : (
+                <>
+                  <p>These shipments do count against your weight allowance for this move.</p>
+                  <SelectableCard
+                    {...selectableCardDefaultProps}
+                    label="Put things into long-term storage"
+                    value={SHIPMENT_OPTIONS.NTS}
+                    id={SHIPMENT_OPTIONS.NTS}
+                    cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
+                    checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
+                    disabled={!isNtsSelectable}
+                    onHelpClick={this.toggleStorageModal}
+                  />
+                  <SelectableCard
+                    {...selectableCardDefaultProps}
+                    label="Get things out of long-term storage"
+                    value={SHIPMENT_OPTIONS.NTSR}
+                    id={SHIPMENT_OPTIONS.NTSR}
+                    cardText={isNtsrSelectable ? ntsrCardText : ntsrDisabledText}
+                    checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
+                    disabled={!isNtsrSelectable}
+                    onHelpClick={this.toggleStorageModal}
+                  />
+                </>
+              )}
+
+              {!hasShipment && (
+                <p data-testid="helper-footer" className={styles.footer}>
+                  <small>
+                    It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and
+                    can help make changes if necessary.
+                  </small>
+                </p>
+              )}
+
+              <div className={formStyles.formActions}>
+                <WizardNavigation disableNext={!canMoveNext} onBackClick={handleBack} onNextClick={this.handleSubmit} />
+              </div>
+            </Grid>
+          </Grid>
+        </GridContainer>
         <ConnectedMoveInfoModal isOpen={showMoveInfoModal} closeModal={this.toggleMoveInfoModal} />
         <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
       </>
@@ -223,8 +245,6 @@ export class SelectMoveType extends Component {
 }
 
 SelectMoveType.propTypes = {
-  pageKey: string.isRequired,
-  pageList: arrayOf(string).isRequired,
   match: shape({
     isExact: bool.isRequired,
     params: shape({

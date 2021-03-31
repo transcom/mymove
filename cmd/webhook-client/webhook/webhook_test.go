@@ -1,3 +1,11 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to generate test data for use in the unit test
+//RA: Creation of test data generation for unit test consumption does not present any unexpected states and conditions
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
 package webhook
 
 import (
@@ -9,7 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/handlers"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
@@ -67,7 +77,7 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 	notification := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
 			Status:  models.WebhookNotificationPending,
-			Payload: swag.String("{\"message\":\"This is an updated notification #1\"}"),
+			Payload: "{\"message\":\"This is an updated notification #1\"}",
 		},
 	})
 	// Create a subscription
@@ -125,7 +135,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 	notification := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
 			Status:  models.WebhookNotificationSent,
-			Payload: swag.String("{\"message\":\"This is an updated notification #1\"}"),
+			Payload: "{\"message\":\"This is an updated notification #1\"}",
 		},
 	})
 	// Create a subscription
@@ -339,19 +349,19 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunSuccessful() {
 	bodyBytes := []byte("notification0 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[0].ID
+		return message.ID == *handlers.FmtUUID(notifications[0].ID)
 	}), subscriptions[0].CallbackURL).Return(&response, bodyBytes, nil)
 
 	bodyBytes = []byte("notification1 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[1].ID
+		return message.ID == *handlers.FmtUUID(notifications[1].ID)
 	}), subscriptions[1].CallbackURL).Return(&response, bodyBytes, nil)
 
 	bodyBytes = []byte("notification2 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[2].ID
+		return message.ID == *handlers.FmtUUID(notifications[2].ID)
 	}), subscriptions[0].CallbackURL).Return(&response, bodyBytes, nil)
 
 	// RUN TEST
@@ -419,13 +429,13 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 	bodyBytes := []byte("notification1 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[0].ID
+		return message.ID == *handlers.FmtUUID(notifications[0].ID)
 	}), subscriptions[0].CallbackURL).Return(&response, bodyBytes, nil)
 
 	bodyBytes = []byte("notification3 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[2].ID
+		return message.ID == *handlers.FmtUUID(notifications[2].ID)
 	}), subscriptions[0].CallbackURL).Return(&response, bodyBytes, nil)
 
 	// RUN TEST
@@ -501,13 +511,13 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunFailingSub() {
 	bodyBytes := []byte("notification1 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[0].ID
+		return message.ID == *handlers.FmtUUID(notifications[0].ID)
 	}), subscriptions[0].CallbackURL).Return(&responseSuccess, bodyBytes, nil)
 
 	bodyBytes = []byte("notification2 received")
 	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
 		message := convertBodyToPayload(body)
-		return message.ID == notifications[1].ID
+		return message.ID == *handlers.FmtUUID(notifications[1].ID)
 	}), subscriptions[1].CallbackURL).Return(&responseFail, bodyBytes, nil)
 
 	// RUN TEST
@@ -977,21 +987,21 @@ func setupEngineRun(suite *WebhookClientTestingSuite) (*Engine, []models.Webhook
 	notification0 := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
 			EventKey: "Payment.Update",
-			Payload:  swag.String("{\"message\":\"This is an updated notification #0\"}"),
+			Payload:  "{\"message\":\"This is an updated notification #0\"}",
 		},
 	})
 	// Pending notification for Payment.Create
 	notification1 := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
 			EventKey: "Payment.Create",
-			Payload:  swag.String("{\"message\":\"This is an updated notification #1\"}"),
+			Payload:  "{\"message\":\"This is an updated notification #1\"}",
 		},
 	})
 	// Pending notification for Payment.Update
 	notification2 := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
 		WebhookNotification: models.WebhookNotification{
 			EventKey: "Payment.Update",
-			Payload:  swag.String("{\"message\":\"This is an updated notification #2\"}"),
+			Payload:  "{\"message\":\"This is an updated notification #2\"}",
 		},
 	})
 
@@ -1043,8 +1053,8 @@ func teardownEngineRun(suite *WebhookClientTestingSuite) {
 }
 
 // convertBodyToPayload is a helper function to convert []byte to a webhookMessage payload
-func convertBodyToPayload(body []byte) Message {
-	message := Message{}
+func convertBodyToPayload(body []byte) supportmessages.WebhookNotification {
+	message := supportmessages.WebhookNotification{}
 	json.Unmarshal(body, &message)
 	return message
 }

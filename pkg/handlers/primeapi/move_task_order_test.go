@@ -286,7 +286,7 @@ func (suite *HandlerSuite) makeAvailableMoveWithAddress(addressToSet models.Addr
 		},
 	})
 
-	moveOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			NewDutyStationID: newDutyStation.ID,
 			NewDutyStation:   newDutyStation,
@@ -298,7 +298,7 @@ func (suite *HandlerSuite) makeAvailableMoveWithAddress(addressToSet models.Addr
 			AvailableToPrimeAt: swag.Time(time.Now()),
 			Status:             models.MoveStatusAPPROVED,
 		},
-		Order: moveOrder,
+		Order: order,
 	})
 
 	return move
@@ -387,8 +387,8 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 		move2Payload = moveTaskOrdersPayload[0]
 	}
 
-	suite.equalAddress(move1.Orders.NewDutyStation.Address, move1Payload.MoveOrder.DestinationDutyStation.Address)
-	suite.equalAddress(move2.Orders.NewDutyStation.Address, move2Payload.MoveOrder.DestinationDutyStation.Address)
+	suite.equalAddress(move1.Orders.NewDutyStation.Address, move1Payload.Order.DestinationDutyStation.Address)
+	suite.equalAddress(move2.Orders.NewDutyStation.Address, move2Payload.Order.DestinationDutyStation.Address)
 
 	// Check the two payment requests across the second move.
 	// NOTE: The payload isn't ordered, so I have to associate the correct payment request.

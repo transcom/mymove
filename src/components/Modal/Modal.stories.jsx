@@ -7,7 +7,7 @@ import { Button } from '@trussworks/react-uswds';
 import Modal, { ModalTitle, ModalClose, ModalActions } from './Modal';
 
 import { Form } from 'components/form';
-import { TextInput } from 'components/form/fields';
+import TextField from 'components/form/fields/TextField';
 
 export default {
   title: 'Components/Modals',
@@ -33,7 +33,7 @@ export const withContent = () => (
       onReset={action('Form Canceled')}
     >
       <Form>
-        <TextInput name="rejectionReason" label="Reason for rejection" type="text" />
+        <TextField name="rejectionReason" label="Reason for rejection" type="text" />
         <ModalActions>
           <Button type="submit">Confirm</Button>
           <Button secondary type="reset">

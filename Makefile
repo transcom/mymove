@@ -275,6 +275,9 @@ bin/send-to-gex: pkg/gen/ cmd/send-to-gex
 bin/send-to-syncada-via-sftp: pkg/gen/ cmd/send-to-syncada-via-sftp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-syncada-via-sftp ./cmd/send-to-syncada-via-sftp
 
+bin/fetch-from-syncada-via-sftp: pkg/gen/ cmd/fetch-from-syncada-via-sftp
+	go build -ldflags "$(LDFLAGS)" -o bin/fetch-from-syncada-via-sftp ./cmd/fetch-from-syncada-via-sftp
+
 bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
@@ -422,14 +425,6 @@ server_test_coverage_generate_standalone: ## Run server unit tests with coverage
 server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
 
-.PHONY: server_test_docker
-server_test_docker:
-	docker-compose -f docker-compose.circle.yml --compatibility up --remove-orphans --abort-on-container-exit
-
-.PHONY: server_test_docker_down
-server_test_docker_down:
-	docker-compose -f docker-compose.circle.yml --compatibility down
-
 #
 # ----- END SERVER TARGETS -----
 #
@@ -532,7 +527,7 @@ db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-t
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
@@ -548,7 +543,7 @@ db_dev_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate dat
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
@@ -1008,7 +1003,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app
+	docker pull milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images

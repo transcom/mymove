@@ -9,6 +9,9 @@ import { updateServiceMember as updateServiceMemberAction } from 'store/entities
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import AddressForm from 'shared/AddressForm';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import { profileStates } from 'constants/customerStates';
+import { PageKeyShape, PageListShape } from 'types/customerShapes';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -53,7 +56,7 @@ export class BackupMailingAddress extends Component {
 
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = get(currentServiceMember, 'backup_mailing_address');
-    const serviceMemberId = this.props.match.params.serviceMemberId;
+    const serviceMemberId = currentServiceMember.id;
     return (
       <BackupMailingWizardForm
         handleSubmit={this.handleSubmit}
@@ -82,6 +85,8 @@ BackupMailingAddress.propTypes = {
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
+  pages: PageListShape.isRequired,
+  pageKey: PageKeyShape.isRequired,
 };
 
 const mapDispatchToProps = {
@@ -97,4 +102,7 @@ function mapStateToProps(state) {
     currentServiceMember: serviceMember,
   };
 }
-export default connect(mapStateToProps, mapDispatchToProps)(BackupMailingAddress);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(requireCustomerState(BackupMailingAddress, profileStates.ADDRESS_COMPLETE));

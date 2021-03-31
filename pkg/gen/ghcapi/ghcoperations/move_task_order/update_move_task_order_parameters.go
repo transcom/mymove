@@ -44,7 +44,7 @@ type UpdateMoveTaskOrderParams struct {
 	  In: body
 	*/
 	Body *ghcmessages.MoveTaskOrder
-	/*ID of move order to use
+	/*ID of move to use
 	  Required: true
 	  In: path
 	*/

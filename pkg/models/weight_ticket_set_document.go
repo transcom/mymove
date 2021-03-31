@@ -117,7 +117,7 @@ func (m Move) CreateWeightTicketSetDocument(
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
-	db.Transaction(func(db *pop.Connection) error {
+	transactionErr := db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		var newMoveDocument *MoveDocument
@@ -129,6 +129,7 @@ func (m Move) CreateWeightTicketSetDocument(
 			weightTicketSetTitle,
 			weightTicketSetDocument.VehicleNickname,
 			moveType)
+		responseError = errors.Wrap(responseError, "Error creating move document")
 		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
 		}
@@ -145,8 +146,11 @@ func (m Move) CreateWeightTicketSetDocument(
 		}
 
 		return nil
-
 	})
+
+	if transactionErr != nil {
+		return weightTicketSetDocument, responseVErrors, responseError
+	}
 
 	return weightTicketSetDocument, responseVErrors, responseError
 }

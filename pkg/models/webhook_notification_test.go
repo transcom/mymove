@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -30,7 +29,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 			TraceID:         &trace,
 			MoveTaskOrderID: &mtoID,
 			ObjectID:        &paymentRequestID,
-			Payload:         swag.String("{\"msg\": \"This is the payload\"}"),
+			Payload:         "{\"msg\": \"This is the payload\"}",
 			Status:          "PENDING",
 		}
 		expErrors := map[string][]string{}
@@ -55,7 +54,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 		// Allowing for a simple message notification, with an eventkey and payload
 		newNotification := models.WebhookNotification{
 			EventKey: "PaymentRequest.Update",
-			Payload:  swag.String("{\"msg\": \"This is the payload\"}"),
+			Payload:  "{\"msg\": \"This is the payload\"}",
 			Status:   "SKIPPED",
 		}
 		expErrors := map[string][]string{}
@@ -67,7 +66,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 		newNotification := models.WebhookNotification{
 			EventKey: "",
 			TraceID:  &trace,
-			Payload:  swag.String(""),
+			Payload:  "",
 			Status:   "NEW",
 		}
 		expErrors := map[string][]string{}

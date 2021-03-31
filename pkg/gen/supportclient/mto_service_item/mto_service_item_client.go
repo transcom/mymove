@@ -35,7 +35,7 @@ type ClientService interface {
 /*
   UpdateMTOServiceItemStatus updates m t o service item status
 
-  Updates the status of a service item for a move order to APPROVED or REJECTED. <br />
+  Updates the status of a service item for a move to APPROVED or REJECTED. <br />
 <br />
 This is a support endpoint and will not be available in production.
 
