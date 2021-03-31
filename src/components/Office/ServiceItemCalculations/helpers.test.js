@@ -205,8 +205,34 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticOriginSITDelivery', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticOriginSITDelivery);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITDelivery);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: '29',
+        label: 'Mileage',
+        details: ['Zip 90210 to Zip 90211'],
+      },
+      {
+        value: '1.71',
+        label: 'SIT pickup price',
+        details: ['Origin SIT schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: ['Base year: 2'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for DomesticDestinationSITDelivery', () => {
