@@ -125,10 +125,9 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
+	// Store/log metrics about EDI processing upon exiting this method.
 	numProcessed := 0
 	start := time.Now()
-
-	// Store/log metrics about EDI processing upon exiting this method.
 	defer func() {
 		ediProcessing := models.EDIProcessing{
 			EDIType:          models.EDIType858,

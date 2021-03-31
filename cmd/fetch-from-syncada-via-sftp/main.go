@@ -137,7 +137,7 @@ func main() {
 	logger.Info("lastRead", zap.String("t", t.String()))
 
 	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger, v.GetBool(DeleteFilesFlag))
+	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, db, logger, v.GetBool(DeleteFilesFlag))
 
 	// Just use a processor that prints the files to stdout for now.
 	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, &stdoutProcessor{})
@@ -160,5 +160,5 @@ func (p stdoutProcessor) ProcessFile(syncadaPath string, text string) error {
 
 func (p stdoutProcessor) EDIType() models.EDIType {
 	// Just return anything for now.
-	return models.EDIType997
+	return models.EDIType810
 }
