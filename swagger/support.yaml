@@ -970,6 +970,12 @@ definitions:
           $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
+      selectedMoveType:
+        type: string
+        title: Selected Move Type
+        enum:
+          - HHG
+          - PPM
       ppmType:
         description: If the move is a PPM, indicates whether it is full or partial.
         type: string

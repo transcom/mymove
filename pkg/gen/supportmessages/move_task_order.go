@@ -93,6 +93,10 @@ type MoveTaskOrder struct {
 	// Read Only: true
 	ReferenceID string `json:"referenceId,omitempty"`
 
+	// Selected Move Type
+	// Enum: [HHG PPM]
+	SelectedMoveType string `json:"selectedMoveType,omitempty"`
+
 	// status
 	Status MoveStatus `json:"status,omitempty"`
 
@@ -144,6 +148,8 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 		PpmType string `json:"ppmType,omitempty"`
 
 		ReferenceID string `json:"referenceId,omitempty"`
+
+		SelectedMoveType string `json:"selectedMoveType,omitempty"`
 
 		Status MoveStatus `json:"status,omitempty"`
 
@@ -213,6 +219,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// referenceId
 	result.ReferenceID = data.ReferenceID
 
+	// selectedMoveType
+	result.SelectedMoveType = data.SelectedMoveType
+
 	// status
 	result.Status = data.Status
 
@@ -257,6 +266,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
+		SelectedMoveType string `json:"selectedMoveType,omitempty"`
+
 		Status MoveStatus `json:"status,omitempty"`
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
@@ -289,6 +300,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		PpmType: m.PpmType,
 
 		ReferenceID: m.ReferenceID,
+
+		SelectedMoveType: m.SelectedMoveType,
 
 		Status: m.Status,
 
@@ -351,6 +364,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSelectedMoveType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -540,6 +557,49 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 
 	// value enum
 	if err := m.validatePpmTypeEnum("ppmType", "body", m.PpmType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var moveTaskOrderTypeSelectedMoveTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["HHG","PPM"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		moveTaskOrderTypeSelectedMoveTypePropEnum = append(moveTaskOrderTypeSelectedMoveTypePropEnum, v)
+	}
+}
+
+const (
+
+	// MoveTaskOrderSelectedMoveTypeHHG captures enum value "HHG"
+	MoveTaskOrderSelectedMoveTypeHHG string = "HHG"
+
+	// MoveTaskOrderSelectedMoveTypePPM captures enum value "PPM"
+	MoveTaskOrderSelectedMoveTypePPM string = "PPM"
+)
+
+// prop value enum
+func (m *MoveTaskOrder) validateSelectedMoveTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, moveTaskOrderTypeSelectedMoveTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validateSelectedMoveType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SelectedMoveType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateSelectedMoveTypeEnum("selectedMoveType", "body", m.SelectedMoveType); err != nil {
 		return err
 	}
 

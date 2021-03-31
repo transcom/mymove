@@ -1800,6 +1800,14 @@ func init() {
           "readOnly": true,
           "example": "1001-3456"
         },
+        "selectedMoveType": {
+          "type": "string",
+          "title": "Selected Move Type",
+          "enum": [
+            "HHG",
+            "PPM"
+          ]
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -4459,6 +4467,14 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "1001-3456"
+        },
+        "selectedMoveType": {
+          "type": "string",
+          "title": "Selected Move Type",
+          "enum": [
+            "HHG",
+            "PPM"
+          ]
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
