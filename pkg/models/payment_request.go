@@ -65,6 +65,7 @@ type PaymentRequest struct {
 	MoveTaskOrder       Move                `belongs_to:"moves"`
 	PaymentServiceItems PaymentServiceItems `has_many:"payment_service_items"`
 	ProofOfServiceDocs  ProofOfServiceDocs  `has_many:"proof_of_service_docs"`
+	EdiErrors           EdiErrors           `has_many:"edi_errors"`
 }
 
 // PaymentRequests is a slice of PaymentRequest
