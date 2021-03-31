@@ -55,7 +55,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		errString += err.Error()
 	}
 
-	teds := fetchAndRecordTEDSegments(edi824, paymentRequest.ID)
+	teds := fetchAndRecordTEDSegments(edi824)
 
 	if errString != "" {
 		e.logger.Error(errString)
@@ -64,18 +64,33 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 
 	var transactionError error
 	transactionError = e.db.Transaction(func(tx *pop.Connection) error {
-		for _, ted := teds {
-			ediError := models.ediErrorsTechnicalErrorDescription{
-				Code: ted.ApplicationErrorConditionCode,
-				Description: ted.FreeFormMessage,
-				Source: models.EDI824
+		var ediTechnicalErrors models.EdiErrorsTechnicalErrorDescriptions
+		for _, ted := range teds {
+			ediTechnicalError := models.EdiErrorsTechnicalErrorDescription{
+				Code:             ted.ApplicationErrorConditionCode,
+				Description:      ted.FreeFormMessage,
+				PaymentRequest:   paymentRequest,
+				PaymentRequestID: paymentRequest.ID,
+				EDIType:          models.EDI824,
 			}
-			err = tx.Save(&ediError)
+			err = tx.Save(&ediTechnicalError)
 			if err != nil {
-				e.logger.Error("failure saving edi error", zap.Error(err))
-				return fmt.Errorf("failure saving edi error: %w", err)
+				e.logger.Error("failure saving edi technical error description", zap.Error(err))
+				return fmt.Errorf("failure saving edi technical error description: %w", err)
 			}
+			ediTechnicalErrors = append(ediTechnicalErrors, ediTechnicalError)
 		}
+		ediError := models.EdiError{
+			PaymentRequest:                      paymentRequest,
+			PaymentRequestID:                    paymentRequest.ID,
+			EdiErrorsTechnicalErrorDescriptions: ediTechnicalErrors,
+		}
+		err = tx.Save(&ediError)
+		if err != nil {
+			e.logger.Error("failure saving edi error", zap.Error(err))
+			return fmt.Errorf("failure saving edi error: %w", err)
+		}
+
 		paymentRequest.Status = models.PaymentRequestStatusEDIError
 		err = tx.Update(&paymentRequest)
 		if err != nil {

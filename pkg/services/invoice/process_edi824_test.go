@@ -90,7 +90,7 @@ IEA*1*000000996
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
 		suite.NoError(err)
-		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
+		suite.Equal(models.PaymentRequestStatusEDIError, updatedPR.Status)
 	})
 
 	suite.T().Run("doesn't update a payment request status after processing an invalid EDI824", func(t *testing.T) {
@@ -146,13 +146,30 @@ ST*824*000000001
 BGN*11*1126-9404*20210217
 OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+TED*K*MISSING DATA
 SE*5*000000001
 GE*1*1
 IEA*1*000000997
 `
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+				PaymentRequestID:         paymentRequest.ID,
+				InterchangeControlNumber: 996,
+				PaymentRequest:           paymentRequest,
+			},
+		})
 		err := edi824Processor.ProcessFile("", sample824EDIString)
-		suite.Error(err, "fail to process 824")
-		suite.Contains(err.Error(), "unable to find payment request")
+		suite.NoError(err)
+
+		var teds models.EdiErrorsTechnicalErrorDescriptions
+		err = suite.DB().Where("payment_request_id = ?", paymentRequest.ID).All(&teds)
+		suite.NoError(err)
+
+		// for _, ted := range teds {
+
+		// }
+		suite.Equal(2, len(teds))
 	})
 }
 
