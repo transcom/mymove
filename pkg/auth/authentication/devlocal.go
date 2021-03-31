@@ -53,19 +53,6 @@ func NewUserListHandler(ac Context, db *pop.Connection) UserListHandler {
 // UserListHandler lists users in the local database for local login
 func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session := auth.SessionFromRequestContext(r)
-	if session != nil && session.UserID != uuid.Nil {
-		// User is already authenticated, so clear out their current session and have
-		// them try again. This the issue where a developer will get stuck with a stale
-		// session and have to manually clear cookies to get back to the login page.
-		err := h.sessionManager(session).Destroy(r.Context())
-		if err != nil {
-			h.logger.Error("Could not destroy session", zap.Error(err))
-		}
-		auth.DeleteCSRFCookies(w)
-
-		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
-		return
-	}
 	limit := 100
 	identities, err := models.FetchAppUserIdentities(h.db, session.ApplicationName, limit)
 	if err != nil {
