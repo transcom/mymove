@@ -12,8 +12,8 @@ module.exports = {
   rules: {
     'prettier/prettier': 'error',
     'no-only-tests/no-only-tests': 'error',
-    'cato/no-explicit-eslint-disable': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
-    'cato/no-unapproved-annotation': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+    'cato/no-explicit-eslint-disable': 'error',
+    'cato/no-unapproved-annotation': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': 'warn',
     'no-console': 'warn',
     'jsx-a11y/anchor-is-valid': ['warn', { aspects: ['noHref', 'preferButton'] }],

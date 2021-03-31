@@ -97,6 +97,7 @@
     "prettier": "prettier --write --loglevel warn 'src/**/*.{js,jsx}'",
     "prettier-ci": "prettier --check 'src/**/*.{js,jsx}'",
     "lint": "eslint --ext .js,.jsx src",
+    "lint:production": "NODE_ENV=production yarn lint",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "happo": "happo",
