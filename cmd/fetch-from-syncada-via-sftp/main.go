@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/invoice"
 
 	"github.com/spf13/pflag"
@@ -155,4 +156,9 @@ func (p stdoutProcessor) ProcessFile(syncadaPath string, text string) error {
 	fmt.Println(strings.Repeat("=", len(syncadaPath)))
 	fmt.Print(text)
 	return nil
+}
+
+func (p stdoutProcessor) EDIType() models.EDIType {
+	// Just return anything for now.
+	return models.EDIType997
 }

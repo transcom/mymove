@@ -52,4 +52,5 @@ type SyncadaSFTPReader interface {
 //go:generate mockery -name SyncadaFileProcessor
 type SyncadaFileProcessor interface {
 	ProcessFile(syncadaPath string, text string) error
+	EDIType() models.EDIType
 }

@@ -80,3 +80,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 
 	return nil
 }
+
+func (e *edi997Processor) EDIType() models.EDIType {
+	return models.EDIType997
+}
