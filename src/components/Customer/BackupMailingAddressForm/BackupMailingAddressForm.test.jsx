@@ -46,25 +46,6 @@ describe('BackupMailingAddressForm component', () => {
     });
   });
 
-  it('passes custom validators to fields', async () => {
-    const postalCodeValidator = jest.fn().mockImplementation(() => undefined);
-
-    const { findByLabelText } = render(
-      <BackupMailingAddressForm {...testProps} validators={{ postalCode: postalCodeValidator }} />,
-    );
-
-    const postalCodeInput = await findByLabelText('ZIP');
-
-    const postalCode = '99999';
-
-    userEvent.type(postalCodeInput, postalCode);
-    userEvent.tab();
-
-    await waitFor(() => {
-      expect(postalCodeValidator).toHaveBeenCalledWith(postalCode);
-    });
-  });
-
   it('shows an error message if trying to submit an invalid form', async () => {
     const { getByRole, findAllByRole } = render(<BackupMailingAddressForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });

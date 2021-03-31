@@ -11,7 +11,7 @@ import formStyles from 'styles/form.module.scss';
 import { requiredAddressSchema } from 'utils/validation';
 import { ResidentialAddressShape } from 'types/address';
 
-const BackupMailingAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack, validators }) => {
+const BackupMailingAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
     [formFieldsName]: requiredAddressSchema.required(),
   });
@@ -30,7 +30,7 @@ const BackupMailingAddressForm = ({ formFieldsName, initialValues, onSubmit, onB
             <h1>Backup mailing address</h1>
 
             <SectionWrapper className={formStyles.formSection}>
-              <AddressFields name={formFieldsName} validators={validators} />
+              <AddressFields name={formFieldsName} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -52,17 +52,6 @@ BackupMailingAddressForm.propTypes = {
   initialValues: ResidentialAddressShape.isRequired,
   onBack: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  validators: PropTypes.shape({
-    streetAddress1: PropTypes.func,
-    streetAddress2: PropTypes.func,
-    city: PropTypes.func,
-    state: PropTypes.func,
-    postalCode: PropTypes.func,
-  }),
-};
-
-BackupMailingAddressForm.defaultProps = {
-  validators: {},
 };
 
 export default BackupMailingAddressForm;
