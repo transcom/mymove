@@ -16,3 +16,11 @@ export const AddressShape = shape({
   street_address_3: string,
   country: string,
 });
+
+export const ResidentialAddressShape = shape({
+  street_address_1: string,
+  street_address_2: string,
+  city: string,
+  state: string,
+  postal_code: string,
+});

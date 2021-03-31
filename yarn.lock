@@ -5588,15 +5588,7 @@ buffer@^4.3.0:
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
-buffer@^5.1.0, buffer@^5.5.0:
-  version "5.6.0"
-  resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.6.0.tgz#a31749dc7d81d84db08abf937b6b8c4033f62786"
-  integrity sha512-/gDYp/UtU0eA1ys8bOs9J6a+E/KWIY+DZ+Q2WESNUA0jFRsJOc0SNUO6xJ5SGA1xueg3NL65W6s+NY5l9cunuw==
-  dependencies:
-    base64-js "^1.0.2"
-    ieee754 "^1.1.4"
-
-buffer@^5.2.1:
+buffer@^5.1.0, buffer@^5.2.1, buffer@^5.5.0:
   version "5.7.1"
   resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.7.1.tgz#ba62e7c13133053582197160851a8f648e99eed0"
   integrity sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==
@@ -18558,10 +18550,10 @@ svgo@^1.0.0, svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-client@^3.13.1:
-  version "3.13.1"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.13.1.tgz#d2531ede4a498911aa084384e387e5008e7b6a70"
-  integrity sha512-Hmy4+wVVa3kveWzC7PIeUwiAY5qcYbm4XlC4uZ7e5kAePfB2cprXImiqrZHIzL+ndU0YTN7I+9w/ZayTisn3Jg==
+swagger-client@^3.13.2:
+  version "3.13.2"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.13.2.tgz#df1a1fe92e6db87ab5f76cee6381dcb7da1ad117"
+  integrity sha512-kamtyXtmbZiA2C5YTVqJYgoPJgzqtM5RbeP23Rt/YPYjMArTKZ2fjx1UTsI0aSbws0GluU5pVHiGp8YMciSUfw==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     btoa "^1.2.1"
