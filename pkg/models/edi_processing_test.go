@@ -29,20 +29,20 @@ func (suite *ModelSuite) TestBasicEDIProcessingInstantiation() {
 			expectedErrs: map[string][]string{
 				"process_started_at": {"ProcessStartedAt can not be blank."},
 				"process_ended_at":   {"ProcessEndedAt can not be blank."},
-				"num_edis_processed": {"NumEDIsProcessed can not be blank."},
 				"editype":            {"EDIType is not in the list [810, 824, 858, 997]."},
 			},
 		},
-		"Message Type Invalid": {
+		"Other Errors": {
 			ediProcessing: models.EDIProcessing{
 				ID:               uuid.Must(uuid.NewV4()),
 				ProcessStartedAt: time.Now(),
 				ProcessEndedAt:   time.Now(),
-				NumEDIsProcessed: 6,
+				NumEDIsProcessed: -1,
 				EDIType:          "models.EDIType997",
 			},
 			expectedErrs: map[string][]string{
-				"editype": {"EDIType is not in the list [810, 824, 858, 997]."},
+				"num_edis_processed": {"-1 is not greater than -1."},
+				"editype":            {"EDIType is not in the list [810, 824, 858, 997]."},
 			},
 		},
 	}
