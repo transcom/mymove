@@ -22,12 +22,12 @@ func NewDomesticDestinationFirstDaySITPricer(db *pop.Connection) services.Domest
 }
 
 // Price determines the price for domestic destination first day SIT
-func (p domesticDestinationFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingParams, error) {
+func (p domesticDestinationFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	return priceDomesticFirstDaySIT(p.db, models.ReServiceCodeDDFSIT, contractCode, requestedPickupDate, weight, serviceArea)
 }
 
 // PriceUsingParams determines the price for domestic destination first day SIT given PaymentServiceItemParams
-func (p domesticDestinationFirstDaySITPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
+func (p domesticDestinationFirstDaySITPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
