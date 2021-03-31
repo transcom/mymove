@@ -1506,6 +1506,7 @@ definitions:
     required:
       - orderNumber
       - ordersType
+      - ordersTypeDetail
       - rank
       - reportByDate
       - issueDate
@@ -1514,6 +1515,7 @@ definitions:
       - tac
       - originDutyStationID
       - destinationDutyStationID
+      - departmentIndicator
   OrdersStatus:
     type: string
     title: Move status

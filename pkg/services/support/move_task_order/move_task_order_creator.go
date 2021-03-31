@@ -291,6 +291,14 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 		model.UploadedOrdersID = uploadedOrdersID
 	}
 
+	if orderPayload.OrdersTypeDetail != nil {
+		model.OrdersTypeDetail = (*internalmessages.OrdersTypeDetail)(orderPayload.OrdersTypeDetail)
+	}
+
+	if orderPayload.DepartmentIndicator != nil {
+		model.DepartmentIndicator = (*string)(orderPayload.DepartmentIndicator)
+	}
+
 	reportByDate := time.Time(*orderPayload.ReportByDate)
 	if !reportByDate.IsZero() {
 		model.ReportByDate = reportByDate

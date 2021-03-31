@@ -28,7 +28,8 @@ type Order struct {
 	CustomerID *strfmt.UUID `json:"customerID,omitempty"`
 
 	// department indicator
-	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
+	// Required: true
+	DepartmentIndicator *DeptIndicator `json:"departmentIndicator"`
 
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
@@ -70,7 +71,8 @@ type Order struct {
 	OrdersType OrdersType `json:"ordersType"`
 
 	// orders type detail
-	OrdersTypeDetail *OrdersTypeDetail `json:"ordersTypeDetail,omitempty"`
+	// Required: true
+	OrdersTypeDetail *OrdersTypeDetail `json:"ordersTypeDetail"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
@@ -228,8 +230,8 @@ func (m *Order) validateCustomerID(formats strfmt.Registry) error {
 
 func (m *Order) validateDepartmentIndicator(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.DepartmentIndicator) { // not required
-		return nil
+	if err := validate.Required("departmentIndicator", "body", m.DepartmentIndicator); err != nil {
+		return err
 	}
 
 	if m.DepartmentIndicator != nil {
@@ -342,8 +344,8 @@ func (m *Order) validateOrdersType(formats strfmt.Registry) error {
 
 func (m *Order) validateOrdersTypeDetail(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.OrdersTypeDetail) { // not required
-		return nil
+	if err := validate.Required("ordersTypeDetail", "body", m.OrdersTypeDetail); err != nil {
+		return err
 	}
 
 	if m.OrdersTypeDetail != nil {

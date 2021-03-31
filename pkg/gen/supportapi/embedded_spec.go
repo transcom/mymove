@@ -1822,6 +1822,7 @@ func init() {
       "required": [
         "orderNumber",
         "ordersType",
+        "ordersTypeDetail",
         "rank",
         "reportByDate",
         "issueDate",
@@ -1829,7 +1830,8 @@ func init() {
         "uploadedOrdersID",
         "tac",
         "originDutyStationID",
-        "destinationDutyStationID"
+        "destinationDutyStationID",
+        "departmentIndicator"
       ],
       "properties": {
         "customer": {
@@ -4480,6 +4482,7 @@ func init() {
       "required": [
         "orderNumber",
         "ordersType",
+        "ordersTypeDetail",
         "rank",
         "reportByDate",
         "issueDate",
@@ -4487,7 +4490,8 @@ func init() {
         "uploadedOrdersID",
         "tac",
         "originDutyStationID",
-        "destinationDutyStationID"
+        "destinationDutyStationID",
+        "departmentIndicator"
       ],
       "properties": {
         "customer": {
