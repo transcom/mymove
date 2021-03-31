@@ -368,51 +368,55 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		}
 	}
 
-	v := viper.New()
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-	sshClient, err := cli.InitSyncadaSSH(v, logger)
+	if *readFromSyncada {
+		v := viper.New()
+		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+		v.AutomaticEnv()
+		sshClient, err := cli.InitSyncadaSSH(v, logger)
 
-	if err != nil {
-		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
-	}
-	defer func() {
-		if closeErr := sshClient.Close(); closeErr != nil {
-			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		if err != nil {
+			logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 		}
-	}()
+		defer func() {
+			if closeErr := sshClient.Close(); closeErr != nil {
+				logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			}
+		}()
 
-	sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
-	if err != nil {
-		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
-	}
-	defer func() {
-		if closeErr := sftpClient.Close(); closeErr != nil {
-			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+		if err != nil {
+			logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
 		}
-	}()
+		defer func() {
+			if closeErr := sftpClient.Close(); closeErr != nil {
+				logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			}
+		}()
 
-	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger, false)
+		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
+		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger, false)
 
-	// TODO GEX will put different response types in different directories, but
-	// Syncada puts everything in the same directory. When we have access to GEX in staging
-	// we will have to change this to use separate paths for different response types.
-	path := "/" + v.GetString(cli.SyncadaSFTPUserIDFlag) + v.GetString(cli.SyncadaSFTPOutboundDirectory)
+		// TODO GEX will put different response types in different directories, but
+		// Syncada puts everything in the same directory. When we have access to GEX in staging
+		// we will have to change this to use separate paths for different response types.
+		path := "/" + v.GetString(cli.SyncadaSFTPUserIDFlag) + v.GetString(cli.SyncadaSFTPOutboundDirectory)
 
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
-	if err != nil {
-		logger.Error("Error reading 997 responses", zap.Error(err))
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
+		if err != nil {
+			logger.Error("Error reading 997 responses", zap.Error(err))
+		} else {
+			logger.Info("Successfully processed 997 responses")
+		}
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, &edi824Processor{})
+		if err != nil {
+			logger.Error("Error reading 824 responses", zap.Error(err))
+		} else {
+			logger.Info("Successfully processed 824 responses")
+		}
+
 	} else {
-		logger.Info("Successfully processed 997 responses")
+		// TODO Do we do nothing or do we fake a read from syncada?
 	}
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, &edi824Processor{})
-	if err != nil {
-		logger.Error("Error reading 824 responses", zap.Error(err))
-	} else {
-		logger.Info("Successfully processed 824 responses")
-	}
-
 	payload := payloads.PaymentRequests(&updatedPaymentRequests)
 
 	return paymentrequestop.NewProcessReviewedPaymentRequestsOK().WithPayload(*payload)

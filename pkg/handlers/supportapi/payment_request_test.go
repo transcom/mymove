@@ -575,8 +575,9 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada: &sendToSyncada,
-				Status:        "SENT_TO_GEX",
+				SendToSyncada:   &sendToSyncada,
+				ReadFromSyncada: &sendToSyncada,
+				Status:          "SENT_TO_GEX",
 			},
 		}
 
@@ -597,8 +598,9 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada: &sendToSyncada,
-				Status:        "SENT_TO_GEX",
+				SendToSyncada:   &sendToSyncada,
+				ReadFromSyncada: &sendToSyncada,
+				Status:          "SENT_TO_GEX",
 			},
 		}
 
@@ -624,7 +626,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
-			Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada},
+			Body:        &supportmessages.ProcessReviewedPaymentRequests{ReadFromSyncada: &sendToSyncada, SendToSyncada: &sendToSyncada},
 		}
 
 		response := handler.Handle(params)
@@ -650,6 +652,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
 				SendToSyncada:    &sendToSyncada,
+				ReadFromSyncada:  &sendToSyncada,
 				PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 			},
 		}
@@ -708,6 +711,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
 				SendToSyncada:    &sendToSyncada,
+				ReadFromSyncada:  &sendToSyncada,
 				PaymentRequestID: strfmt.UUID(prID.String()),
 			},
 		}
@@ -741,7 +745,8 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada: &sendToSyncada,
+				SendToSyncada:   &sendToSyncada,
+				ReadFromSyncada: &sendToSyncada,
 			},
 		}
 
