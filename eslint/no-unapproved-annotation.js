@@ -2,8 +2,8 @@ const MESSAGE_ID = 'no-unapproved-annotation';
 const NO_ANNOTATION_MESSAGE_ID = 'no-annotation';
 const messages = {
   [MESSAGE_ID]: 'Requires annotation approval from an ISSO',
-  [NO_ANNOTATION_MESSAGE_ID]: `Disabling of this rule requires an annotation.
-    Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit?usp=sharing`,
+  [NO_ANNOTATION_MESSAGE_ID]:
+    'Disabling of this rule requires an annotation. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit?usp=sharing',
 };
 
 // eslint-disable-next-line security/detect-unsafe-regex
@@ -38,7 +38,7 @@ const approvedBypassableRules = new Set([
 
 /*
 Lint reqs:
-- for disabling of a specific rule, we're checking to see if it has annotations at all (show err if not and link to documentation)
+- (x) for disabling of a specific rule, we're checking to see if it has annotations at all (show err if not and link to documentation)
   - doc link: https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit?usp=sharing
 - if it has an annotation, check the validator status and ensure that it is not empty
 - if it has an annotation and validator status is not empty, check if that status is a single value
@@ -46,9 +46,14 @@ Lint reqs:
 const VALIDATOR_LABEL = 'RA Validator Status:';
 
 const hasAnnotation = (context, comment) => {
-  if (!context.getCommentsBefore(comment).length) {
+  const possibleAnnotation = context.getCommentsBefore(comment);
+  if (!possibleAnnotation.length) {
     return false;
   }
+  const containsAnnotationBlock =
+    possibleAnnotation.map(({ value }) => value.trim()).filter((str) => str.startsWith('RA')).length > 0;
+
+  return containsAnnotationBlock;
 };
 const create = (context) => ({
   Program: (node) => {
