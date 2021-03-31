@@ -165,7 +165,7 @@ func (p *paymentRequestReviewedProcessor) recordMetrics(start time.Time, end tim
 	p.logger.Info("EDIs processed", zap.Time("start", start), zap.Time("end", end), zap.Int("num processed", numProcessed))
 
 	ediProcessing := models.EDIProcessing{
-		EDIType:          models.EDIType858, // TODO: May want to change name of type to have prefix "EDIType"
+		EDIType:          models.EDIType858,
 		ProcessStartedAt: start,
 		ProcessEndedAt:   end,
 		NumEDIsProcessed: numProcessed,
