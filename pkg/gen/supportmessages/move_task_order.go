@@ -93,9 +93,8 @@ type MoveTaskOrder struct {
 	// Read Only: true
 	ReferenceID string `json:"referenceId,omitempty"`
 
-	// Selected Move Type
-	// Enum: [HHG PPM]
-	SelectedMoveType string `json:"selectedMoveType,omitempty"`
+	// selected move type
+	SelectedMoveType *SelectedMoveType `json:"selectedMoveType,omitempty"`
 
 	// status
 	Status MoveStatus `json:"status,omitempty"`
@@ -149,7 +148,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
-		SelectedMoveType string `json:"selectedMoveType,omitempty"`
+		SelectedMoveType *SelectedMoveType `json:"selectedMoveType,omitempty"`
 
 		Status MoveStatus `json:"status,omitempty"`
 
@@ -266,7 +265,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
-		SelectedMoveType string `json:"selectedMoveType,omitempty"`
+		SelectedMoveType *SelectedMoveType `json:"selectedMoveType,omitempty"`
 
 		Status MoveStatus `json:"status,omitempty"`
 
@@ -563,44 +562,19 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 	return nil
 }
 
-var moveTaskOrderTypeSelectedMoveTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["HHG","PPM"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		moveTaskOrderTypeSelectedMoveTypePropEnum = append(moveTaskOrderTypeSelectedMoveTypePropEnum, v)
-	}
-}
-
-const (
-
-	// MoveTaskOrderSelectedMoveTypeHHG captures enum value "HHG"
-	MoveTaskOrderSelectedMoveTypeHHG string = "HHG"
-
-	// MoveTaskOrderSelectedMoveTypePPM captures enum value "PPM"
-	MoveTaskOrderSelectedMoveTypePPM string = "PPM"
-)
-
-// prop value enum
-func (m *MoveTaskOrder) validateSelectedMoveTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, moveTaskOrderTypeSelectedMoveTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *MoveTaskOrder) validateSelectedMoveType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.SelectedMoveType) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := m.validateSelectedMoveTypeEnum("selectedMoveType", "body", m.SelectedMoveType); err != nil {
-		return err
+	if m.SelectedMoveType != nil {
+		if err := m.SelectedMoveType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("selectedMoveType")
+			}
+			return err
+		}
 	}
 
 	return nil

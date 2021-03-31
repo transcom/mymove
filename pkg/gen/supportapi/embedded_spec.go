@@ -1801,12 +1801,7 @@ func init() {
           "example": "1001-3456"
         },
         "selectedMoveType": {
-          "type": "string",
-          "title": "Selected Move Type",
-          "enum": [
-            "HHG",
-            "PPM"
-          ]
+          "$ref": "#/definitions/SelectedMoveType"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
@@ -2188,6 +2183,20 @@ func init() {
         "NSTH",
         "NSTUB"
       ]
+    },
+    "SelectedMoveType": {
+      "type": "string",
+      "title": "Selected Move Type",
+      "enum": [
+        "HHG",
+        "PPM",
+        "UB",
+        "POV",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_PPM"
+      ],
+      "x-nullable": true
     },
     "UpdateMTOServiceItemStatus": {
       "properties": {
@@ -4469,12 +4478,7 @@ func init() {
           "example": "1001-3456"
         },
         "selectedMoveType": {
-          "type": "string",
-          "title": "Selected Move Type",
-          "enum": [
-            "HHG",
-            "PPM"
-          ]
+          "$ref": "#/definitions/SelectedMoveType"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
@@ -4856,6 +4860,20 @@ func init() {
         "NSTH",
         "NSTUB"
       ]
+    },
+    "SelectedMoveType": {
+      "type": "string",
+      "title": "Selected Move Type",
+      "enum": [
+        "HHG",
+        "PPM",
+        "UB",
+        "POV",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "HHG_PPM"
+      ],
+      "x-nullable": true
     },
     "UpdateMTOServiceItemStatus": {
       "properties": {
