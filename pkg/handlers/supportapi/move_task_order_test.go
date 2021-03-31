@@ -232,10 +232,12 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	reportByDate := swag.Time(time.Now().AddDate(0, 0, -1))
 	ordersTypedetail := supportmessages.OrdersTypeDetailHHGPERMITTED
 	deptIndicator := supportmessages.DeptIndicatorAIRFORCE
+	selectedMoveType := supportmessages.SelectedMoveTypeHHG
 
 	mtoPayload := &supportmessages.MoveTaskOrder{
-		PpmType:      "FULL",
-		ContractorID: handlers.FmtUUID(contractor.ID),
+		PpmType:          "FULL",
+		SelectedMoveType: &selectedMoveType,
+		ContractorID:     handlers.FmtUUID(contractor.ID),
 		Order: &supportmessages.Order{
 			Rank:                     (supportmessages.Rank)("E_6"),
 			OrderNumber:              swag.String("4554"),
@@ -299,6 +301,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.Equal(dbCustomer.FirstName, responsePayload.Order.Customer.FirstName)
 		// Check that status has defaulted to DRAFT
 		suite.Equal(models.MoveStatusDRAFT, (models.MoveStatus)(responsePayload.Status))
+		// Check that SelectedMoveType was set
+		suite.Equal(string(models.SelectedMoveTypeHHG), string(*responsePayload.SelectedMoveType))
 	})
 
 	suite.T().Run("Successful integration test with createMoveTaskOrder", func(t *testing.T) {
