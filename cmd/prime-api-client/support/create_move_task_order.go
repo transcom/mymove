@@ -32,7 +32,7 @@ func CheckCreateMTOConfig(v *viper.Viper, args []string) error {
 	}
 
 	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
-		return errors.New("create-payment-request expects a file to be passed in")
+		return errors.New("create-move-task-order expects a file to be passed in")
 	}
 
 	return nil
