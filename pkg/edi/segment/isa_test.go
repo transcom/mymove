@@ -88,7 +88,7 @@ func (suite *SegmentSuite) TestValidateISA() {
 		suite.ValidateError(err, "InterchangeControlNumber", "min")
 		suite.ValidateError(err, "AcknowledgementRequested", "oneof")
 		suite.ValidateError(err, "UsageIndicator", "oneof")
-		suite.ValidateError(err, "ComponentElementSeparator", "eq")
+		suite.ValidateError(err, "ComponentElementSeparator", "oneof")
 		suite.ValidateErrorLen(err, 16)
 	})
 

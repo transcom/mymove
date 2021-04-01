@@ -38,7 +38,7 @@ func (suite *SegmentSuite) TestValidateGS() {
 		suite.ValidateError(err, "ApplicationSendersCode", "eq")
 		suite.ValidateError(err, "ApplicationReceiversCode", "eq")
 		suite.ValidateError(err, "Date", "datetime")
-		suite.ValidateError(err, "Time", "datetime")
+		suite.ValidateError(err, "Time", "datetime=1504|datetime=150405")
 		suite.ValidateError(err, "GroupControlNumber", "min")
 		suite.ValidateError(err, "ResponsibleAgencyCode", "eq")
 		suite.ValidateError(err, "Version", "eq")
