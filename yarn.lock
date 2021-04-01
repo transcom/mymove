@@ -8018,7 +8018,7 @@ eslint-module-utils@^2.6.0:
     debug "^2.6.9"
     pkg-dir "^2.0.0"
 
-"eslint-plugin-cato@file:./eslint":
+"eslint-plugin-ato@file:./eslint":
   version "1.0.0"
 
 eslint-plugin-flowtype@^5.2.0:
