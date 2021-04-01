@@ -188,11 +188,28 @@ const packPrice = (params) => {
   return calculation(value, label, originServiceSchedule, requestedPickup, domesticNonPeak);
 };
 
-const additionalDaySITPrice = (params) => {
+const additionalDayOriginSITPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.AdditionalDaySITPrice;
-  const serviceArea = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]}: ${getParamValue(
+  const serviceArea = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin,
+    params,
+  )}`;
+  const requestedPickupDate = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
+  }: ${formatDate(getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params), 'DD MMM YYYY')}`;
+  const peak = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+
+  return calculation(value, label, serviceArea, requestedPickupDate, peak);
+};
+
+const additionalDayDestinationSITPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.AdditionalDaySITPrice;
+  const serviceArea = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServiceAreaDest,
     params,
   )}`;
   const requestedPickupDate = `${
@@ -323,7 +340,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
       result = [
         billableWeight(params),
         daysInSIT(params),
-        additionalDaySITPrice(params),
+        additionalDayOriginSITPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
@@ -333,6 +350,15 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         billableWeight(params),
         mileageZipSITOrigin(params),
         pickupSITPrice(params),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    case SERVICE_ITEM_CODES.DDASIT:
+      result = [
+        billableWeight(params),
+        daysInSIT(params),
+        additionalDayDestinationSITPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];

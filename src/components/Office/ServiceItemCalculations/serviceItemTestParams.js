@@ -483,6 +483,10 @@ const testParams = {
     WeightBilledActual,
     WeightEstimated,
     ZipDestAddress,
+    PriceRateOrFactor,
+    IsPeak,
+    NumberDaysSIT,
+    EscalationCompounded,
     ContractYearName,
   ],
   DomesticOriginSITDelivery: [
