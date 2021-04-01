@@ -14,7 +14,6 @@ import (
 	"encoding/base64"
 	"io"
 	"net/http"
-	"net/url"
 	"path"
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -94,7 +93,7 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 	localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
 
 	var storer FileStorer
-	if storageBackend == "s3" || storageBackend == "cdn" {
+	if storageBackend == "s3" {
 		awsS3Bucket := v.GetString(cli.AWSS3BucketNameFlag)
 		awsS3Region := v.GetString(cli.AWSS3RegionFlag)
 		awsS3KeyNamespace := v.GetString(cli.AWSS3KeyNamespaceFlag)
@@ -103,25 +102,6 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 			zap.String("bucket", awsS3Bucket),
 			zap.String("region", awsS3Region),
 			zap.String("key", awsS3KeyNamespace))
-
-		//init cdn related variables
-		cdnEnabled := false
-		var cfPrivateKey, cfPrivateKeyID *string
-		assetsFQDN := url.URL{Scheme: "https"}
-
-		if storageBackend == "cdn" {
-			cdnEnabled = true
-			privateKey := v.GetString(cli.CFPrivateKeyFlag)
-			privateKeyID := v.GetString(cli.CFKeyIDFlag)
-			cfPrivateKey = &privateKey
-			cfPrivateKeyID = &privateKeyID
-			assetsDomain := v.GetString(cli.AWSCfDomain)
-			assetsFQDN.Host = assetsDomain
-
-			logger.Info("Using cloudfront as CDN for distribution",
-				zap.String("assets domain", assetsDomain),
-				zap.String("key", privateKeyID))
-		}
 
 		if len(awsS3Bucket) == 0 {
 			logger.Fatal("must provide aws-s3-bucket-name parameter, exiting")
@@ -133,7 +113,7 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
 		}
 
-		storer = NewS3(awsS3Bucket, awsS3KeyNamespace, assetsFQDN.String(), cfPrivateKey, cfPrivateKeyID, cdnEnabled, logger, sess)
+		storer = NewS3(awsS3Bucket, awsS3KeyNamespace, logger, sess)
 	} else if storageBackend == "memory" {
 		logger.Info("Using memory storage backend",
 			zap.String(cli.LocalStorageRootFlag, path.Join(localStorageRoot, localStorageWebRoot)),
