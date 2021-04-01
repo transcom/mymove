@@ -9,6 +9,8 @@ ruleTester.run('no-explicit-eslint-disable', rule, {
     '// eslint-disable no-console',
     '// eslint-disable react/jsx-props-no-spreading',
     '/* eslint-disable no-console */',
+    '/* eslint-disable no-console, prefer-const */',
+    '// eslint-disable no-console',
   ],
 
   invalid: [

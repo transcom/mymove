@@ -21,7 +21,6 @@ const validatorStatusOptions = new Set([
 const approvedBypassableRules = new Set([
   'react/button-has-type',
   'react/destructuring-assignment',
-  'react/destructuring-assignment',
   'react/forbid-prop-types',
   'react/jsx-boolean-value',
   'react/jsx-filename-extension',

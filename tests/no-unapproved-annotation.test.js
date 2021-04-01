@@ -9,9 +9,9 @@ ruleTester.run('no-unapproved-annotation', rule, {
     '// RA Validator Status: Mitigated\n// eslint-disable no-console',
     '// RA Validator Status: Known Issue\n// eslint-disable security/detect-unsafe-regex',
     '// RA Validator Status: RA Accepted\n// eslint-disable-next-line no-console',
+    '// RA Validator Status: Mitigated\n// eslint-disable-next-line no-console, prefer-const ',
     // approved to be bypassed, does not require annotation
     '// eslint-disable react/button-has-type',
-    '// eslint-disable react/destructuring-assignment',
     '// eslint-disable react/destructuring-assignment',
     '// eslint-disable react/forbid-prop-types',
     '// eslint-disable react/jsx-boolean-value',

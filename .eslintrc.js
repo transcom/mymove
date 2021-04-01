@@ -48,6 +48,7 @@ module.exports = {
     'you-dont-need-lodash-underscore/sum': 'off',
     'you-dont-need-lodash-underscore/union': 'off',
     'you-dont-need-lodash-underscore/uniqueId': 'off',
+    'you-dont-need-lodash-underscore/get': 'off',
   },
   overrides: [
     {
@@ -55,6 +56,7 @@ module.exports = {
       rules: {
         'import/no-extraneous-dependencies': 'off',
         'react/jsx-props-no-spreading': 'off',
+        'react/destructuring-assignment': 'off',
       },
     },
     {
