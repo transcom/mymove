@@ -57,18 +57,18 @@ func main() {
 		Short: "Create a WebhookNotification",
 		Long: `
   This command creates a WebhookNotification object.
-  It requires the caller to pass in a file using the --filename param.
+  Passing in a file is optional, but when passed in a file the --filename param must be used.
 
   Endpoint path: /webhook-notifications
   The file should contain json as follows:
     {
-      "body": <MoveTaskOrder>
+      "body": <WebhookNotification>
     }
   Please see API documentation for full details on the WebhookNotification definition.`,
 		RunE:         support.CreateWebhookNotification,
 		SilenceUsage: true,
 	}
-	support.InitCreateMTOFlags(createWebhookCommand.Flags())
+	support.InitCreateWebhookNotificationFlags(createWebhookCommand.Flags())
 	root.AddCommand(createWebhookCommand)
 
 	createMTOCommand := &cobra.Command{
