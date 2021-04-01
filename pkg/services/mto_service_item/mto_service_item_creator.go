@@ -453,14 +453,14 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 		verrs := validate.NewErrors()
 		verrs.Add("SITOriginHHGOriginalAddressID", fmt.Sprintf("%s invalid SITOriginHHGOriginalAddressID", serviceItem.ReService.Code))
 		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
-			fmt.Sprintf("SITOriginHHGOriginalAddressID must be nil and it is %s", serviceItem.SITOriginHHGOriginalAddress.ID))
+			fmt.Sprintf("SITOriginHHGOriginalAddressID must be nil or match existing ID and it is %s", serviceItem.SITOriginHHGOriginalAddress.ID))
 	}
 
 	if serviceItem.SITOriginHHGActualAddress != nil && serviceItem.SITOriginHHGActualAddress.ID != mtoServiceItem.SITOriginHHGActualAddress.ID {
 		verrs := validate.NewErrors()
 		verrs.Add("SITOriginHHGActualAddress", fmt.Sprintf("%s invalid SITOriginHHGActualAddressID", serviceItem.ReService.Code))
 		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
-			fmt.Sprintf("SITOriginHHGActualAddressID must be nil and it is %s", serviceItem.SITOriginHHGActualAddress.ID))
+			fmt.Sprintf("SITOriginHHGActualAddressID must be nil or match existing ID and it is %s", serviceItem.SITOriginHHGActualAddress.ID))
 	}
 
 	// If the required first-day SIT item exists, we can update the related
