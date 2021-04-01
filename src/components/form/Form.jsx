@@ -5,9 +5,6 @@ import { Form as UswdsForm } from '@trussworks/react-uswds';
 
 export const Form = ({ errorCallback, ...props }) => {
   const { errors, touched, handleReset, handleSubmit } = useFormikContext();
-
-  // eslint-disable-next-line no-console
-  console.log('what');
   React.useEffect(() => {
     if (errorCallback) {
       errorCallback(errors, touched);

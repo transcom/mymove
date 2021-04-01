@@ -96,7 +96,7 @@
     "test:e2e-clean-debug": "make db_dev_e2e_populate; DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "prettier": "prettier --write --loglevel warn 'src/**/*.{js,jsx}'",
     "prettier-ci": "prettier --check 'src/**/*.{js,jsx}'",
-    "lint": "eslint --ext .js,.jsx src/components/form/Form.jsx",
+    "lint": "eslint --ext .js,.jsx src",
     "lint:production": "NODE_ENV=production yarn lint",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",

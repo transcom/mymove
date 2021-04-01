@@ -1,7 +1,7 @@
-const MESSAGE_ID = 'no-unapproved-annotation';
+const REQUIRES_APPROVAL_MESSAGE_ID = 'no-unapproved-annotation';
 const NO_ANNOTATION_MESSAGE_ID = 'no-annotation';
 const messages = {
-  [MESSAGE_ID]: 'Requires annotation approval from an ISSO',
+  [REQUIRES_APPROVAL_MESSAGE_ID]: 'Requires annotation approval from an ISSO',
   [NO_ANNOTATION_MESSAGE_ID]:
     'Disabling of this rule requires an annotation. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit?usp=sharing',
 };
@@ -34,27 +34,36 @@ const approvedBypassableRules = new Set([
   'import/no-named-as-default',
 ]);
 
-// const rulesRequiringAnnotation = new Set(['no-console', 'security', 'react']);
-
-/*
-Lint reqs:
-- (x) for disabling of a specific rule, we're checking to see if it has annotations at all (show err if not and link to documentation)
-  - doc link: https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit?usp=sharing
-- if it has an annotation, check the validator status and ensure that it is not empty
-- if it has an annotation and validator status is not empty, check if that status is a single value
-*/
 const VALIDATOR_LABEL = 'RA Validator Status:';
 
-const hasAnnotation = (context, comment) => {
-  const possibleAnnotation = context.getCommentsBefore(comment);
-  if (!possibleAnnotation.length) {
+const hasAnnotation = (commentsArr) => {
+  if (!commentsArr.length) {
     return false;
   }
-  const containsAnnotationBlock =
-    possibleAnnotation.map(({ value }) => value.trim()).filter((str) => str.startsWith('RA')).length > 0;
 
-  return containsAnnotationBlock;
+  return commentsArr.filter((str) => str.startsWith('RA')).length > 0;
 };
+
+const getValidatorStatus = (commentsArr) =>
+  commentsArr.reduce((accum, curr) => {
+    if (curr.startsWith(VALIDATOR_LABEL)) {
+      // eg. RA Validator Status: Mitigated
+      return curr.split(':')[1].trim();
+    }
+    return accum;
+  }, '');
+
+/*
+  List of false positives:
+  - comments directly in render func
+    - ex.
+    {// RA ... }
+    {// eslint-disable some-rule }
+  - inline eslint disables (eslint-disable-line)
+    - RA Validator status: ...
+    - someCode() // eslint-disable-line
+*/
+
 const create = (context) => ({
   Program: (node) => {
     node.comments.forEach((comment) => {
@@ -66,7 +75,9 @@ const create = (context) => ({
         result.groups.ruleId // disabling a specific rule
       ) {
         const [, rule] = result.input.split(' ');
-        if (!approvedBypassableRules.has(rule) && !hasAnnotation(context, comment)) {
+        const commentsBefore = context.getCommentsBefore(comment).map(({ value }) => value.trim());
+        const validatorStatus = getValidatorStatus(commentsBefore);
+        if (!approvedBypassableRules.has(rule) && !hasAnnotation(commentsBefore)) {
           context.report({
             // Can't set it at the given location as the warning
             // will be ignored due to the disable comment
@@ -79,28 +90,20 @@ const create = (context) => ({
             },
             messageId: NO_ANNOTATION_MESSAGE_ID,
           });
+        } else if (!approvedBypassableRules.has(rule) && !validatorStatusOptions.has(validatorStatus)) {
+          context.report({
+            // Can't set it at the given location as the warning
+            // will be ignored due to the disable comment
+            loc: {
+              start: {
+                ...comment.loc.start,
+                column: -1,
+              },
+              end: comment.loc.end,
+            },
+            messageId: REQUIRES_APPROVAL_MESSAGE_ID,
+          });
         }
-        // const validatorComment = context
-        //   .getCommentsBefore(comment)
-        //   .map(({ value }) => value.trim())
-        //   .filter((value) => value.includes(VALIDATOR_LABEL))[0];
-        // if (validatorComment) {
-        // const [, validatorStatusValue] = validatorComment.split(':');
-        //   if (!validatorStatusOptions.has(validatorStatusValue.trim())) {
-        //     context.report({
-        //       // Can't set it at the given location as the warning
-        //       // will be ignored due to the disable comment
-        //       loc: {
-        //         start: {
-        //           ...comment.loc.start,
-        //           column: -1,
-        //         },
-        //         end: comment.loc.end,
-        //       },
-        //       messageId: MESSAGE_ID,
-        //     });
-        //   }
-        // }
       }
     });
   },
