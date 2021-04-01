@@ -20,11 +20,9 @@ describe('BackupContactInfoFields component', () => {
   describe('with pre-filled values', () => {
     it('renders a legend and all backup contact info inputs', () => {
       const initialValues = {
-        backupContact: {
-          email: 'test@example.com',
-          name: 'test',
-          phone: '555-123-4567',
-        },
+        email: 'test@example.com',
+        name: 'test',
+        telephone: '555-123-4567',
       };
 
       const { getByLabelText } = render(
@@ -32,9 +30,9 @@ describe('BackupContactInfoFields component', () => {
           <BackupContactInfoFields legend="Backup contact" name="backupContact" />
         </Formik>,
       );
-      expect(getByLabelText('Name')).toHaveValue(initialValues.backupContact.name);
-      expect(getByLabelText('Email')).toHaveValue(initialValues.backupContact.email);
-      expect(getByLabelText('Phone')).toHaveValue(initialValues.backupContact.phone);
+      expect(getByLabelText('Name')).toHaveValue(initialValues.name);
+      expect(getByLabelText('Email')).toHaveValue(initialValues.email);
+      expect(getByLabelText('Phone')).toHaveValue(initialValues.telephone);
     });
   });
 });

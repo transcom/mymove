@@ -177,6 +177,27 @@ func main() {
 	prime.InitUpdateMTOAgentFlags(updateMTOAgentCommand.Flags())
 	root.AddCommand(updateMTOAgentCommand)
 
+	createMTOAgentCommand := &cobra.Command{
+		Use:   "create-mto-agent",
+		Short: "Create MTO agent",
+		Long: `
+  This command creates an agent associated with an MTO shipment.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and a body for the payload.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}/agents
+  The file should contain json as follows:
+  	{
+	  "mtoShipmentID": <uuid string>,
+      "body": <MTOAgent>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         prime.CreateMTOAgent,
+		SilenceUsage: true,
+	}
+	prime.InitCreateMTOAgentFlags(createMTOAgentCommand.Flags())
+	root.AddCommand(createMTOAgentCommand)
+
 	updatePostCounselingInfo := &cobra.Command{
 		Use:          "update-mto-post-counseling-information",
 		Short:        "update post counseling info",

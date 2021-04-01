@@ -9,7 +9,7 @@ import Highlighter from 'react-highlight-words';
 import { NULL_UUID } from 'shared/constants';
 import { SearchDutyStations, ShowAddress } from './api.js';
 
-import './DutyStation.css';
+import 'pages/MyMove/Profile/DutyStation.css';
 import styles from './DutyStationSearchBox.module.scss';
 
 const inputDebounceTime = 200;
@@ -118,7 +118,7 @@ export class DutyStationSearchBox extends Component {
         borderRadius: '0px',
         borderColor: uswdsBlack,
         padding: '0.1rem',
-        maxWidth: '30rem',
+        maxWidth: '32rem',
         ':hover': {
           ...styles[':hover'],
           borderColor: uswdsBlack,
@@ -152,7 +152,7 @@ export class DutyStationSearchBox extends Component {
             </div>
           )}
           <div className={inputContainerClasses}>
-            <label className={`${styles.title} ${searchBoxHeaderClasses} usa-label`}>
+            <label className={`${styles.title} ${searchBoxHeaderClasses} usa-label`} htmlFor="react-select-2-input">
               {errorMsg ? <strong>{title}</strong> : title}
             </label>
             <AsyncSelect

@@ -29,7 +29,7 @@ func NewFuelSurchargePricer(db *pop.Connection) services.FuelSurchargePricer {
 }
 
 // Price determines the price for a counseling service
-func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier float64, fuelPrice unit.Millicents) (unit.Cents, services.PricingParams, error) {
+func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier float64, fuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -55,7 +55,7 @@ func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Ti
 	return totalCost, nil, nil
 }
 
-func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
+func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
