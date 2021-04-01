@@ -476,6 +476,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
 		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		actualPickupAddress.ID = uuid.Nil
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:             move,
