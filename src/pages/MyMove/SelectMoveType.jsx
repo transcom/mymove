@@ -96,13 +96,13 @@ export class SelectMoveType extends Component {
       ? 'Your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).'
       : 'Talk with your movers directly if you want to add or change shipments.';
 
-    const ntsCardText = `Movers pack and ship things to a storage facility, where they stay until a future move. Your orders might not authorize long-term storage — your counselor can verify. This is an NTS (non-temporary storage) shipment.`;
-    const ntsrCardText =
-      'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-R (non-temporary storage release) shipment.';
-    const ntsDisabledText =
-      'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.';
-    const ntsrDisabledText =
-      'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
+    const ntsCardText = shipmentInfo.isNTSSelectable
+      ? `Movers pack and ship things to a storage facility, where they stay until a future move. Your orders might not authorize long-term storage — your counselor can verify. This is an NTS (non-temporary storage) shipment.`
+      : 'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.';
+
+    const ntsrCardText = shipmentInfo.isNTSRSelectable
+      ? 'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-R (non-temporary storage release) shipment.'
+      : 'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
 
     const selectableCardDefaultProps = {
       onChange: (e) => this.setMoveType(e),
@@ -181,7 +181,7 @@ export class SelectMoveType extends Component {
                     label="Put things into long-term storage"
                     value={SHIPMENT_OPTIONS.NTS}
                     id={SHIPMENT_OPTIONS.NTS}
-                    cardText={shipmentInfo.isNTSSelectable ? ntsCardText : ntsDisabledText}
+                    cardText={ntsCardText}
                     checked={moveType === SHIPMENT_OPTIONS.NTS && shipmentInfo.isNTSSelectable}
                     disabled={!shipmentInfo.isNTSSelectable}
                     onHelpClick={this.toggleStorageModal}
@@ -191,7 +191,7 @@ export class SelectMoveType extends Component {
                     label="Get things out of long-term storage"
                     value={SHIPMENT_OPTIONS.NTSR}
                     id={SHIPMENT_OPTIONS.NTSR}
-                    cardText={shipmentInfo.isNTSRSelectable ? ntsrCardText : ntsrDisabledText}
+                    cardText={ntsrCardText}
                     checked={moveType === SHIPMENT_OPTIONS.NTSR && shipmentInfo.isNTSRSelectable}
                     disabled={!shipmentInfo.isNTSRSelectable}
                     onHelpClick={this.toggleStorageModal}
