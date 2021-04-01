@@ -234,8 +234,8 @@ type AtLeastOneNotNil struct {
 // IsValid adds an error if fieldValue1 and fieldValue2 are nil
 func (v *AtLeastOneNotNil) IsValid(errors *validate.Errors) {
 	if v.FieldValue1 == nil && v.FieldValue2 == nil {
-		errors.Add(validators.GenerateKey(v.FieldName1), fmt.Sprintf("Both %s and %s cannont be nil, one must be valid", v.FieldName1, v.FieldName2))
-		errors.Add(validators.GenerateKey(v.FieldName2), fmt.Sprintf("Both %s and %s cannont be nil, one must be valid", v.FieldName2, v.FieldName1))
+		errors.Add(validators.GenerateKey(v.FieldName1), fmt.Sprintf("Both %s and %s cannot be nil, one must be valid", v.FieldName1, v.FieldName2))
+		errors.Add(validators.GenerateKey(v.FieldName2), fmt.Sprintf("Both %s and %s cannot be nil, one must be valid", v.FieldName2, v.FieldName1))
 	}
 }
 

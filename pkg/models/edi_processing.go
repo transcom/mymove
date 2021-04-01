@@ -11,25 +11,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// EDIType represents types of EDI Responses
-type EDIType string
-
-const (
-	// EDIType810 captures enum value "810"
-	EDIType810 EDIType = "810"
-	// EDIType824 captures enum value "824"
-	EDIType824 EDIType = "824"
-	// EDIType858 captures enum value "858"
-	EDIType858 EDIType = "858"
-	// EDIType997 captures enum value "997"
-	EDIType997 EDIType = "997"
-)
-
-// String returns a string representation of the admin role
-func (e EDIType) String() string {
-	return string(e)
-}
-
 // EDIProcessing represents an email sent to a service member
 type EDIProcessing struct {
 	ID               uuid.UUID `db:"id"`
@@ -47,12 +28,7 @@ type EDIProcessings []EDIProcessing
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (e *EDIProcessing) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: []string{
-			string(EDIType810),
-			string(EDIType824),
-			string(EDIType858),
-			string(EDIType997),
-		}},
+		&validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: allowedEDITypes},
 		&validators.IntIsGreaterThan{Field: e.NumEDIsProcessed, Name: "NumEDIsProcessed", Compared: -1},
 		&validators.TimeIsPresent{Field: e.ProcessStartedAt, Name: "ProcessStartedAt"},
 		&validators.TimeIsPresent{Field: e.ProcessEndedAt, Name: "ProcessEndedAt"},
