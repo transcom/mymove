@@ -58,19 +58,19 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 	err = e.db.Q().
 		Find(&move, paymentRequest.MoveTaskOrderID)
 	if err != nil {
-		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
-		return fmt.Errorf("unable to find PaymentRequest with GCN: %s, %d", err.Error(), int(otiGCN))
+		e.logger.Error("unable to find move with associated payment request", zap.Error(err))
+		return fmt.Errorf("unable to find move with associated payment request: %w", err)
 	}
 
 	bgnRefIdentification := bgn.ReferenceIdentification
 	mtoRefID := move.ReferenceID
 	if mtoRefID == nil {
 		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
-		return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID)
+		return fmt.Errorf("firstThe BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID)
 	}
 	if bgnRefIdentification != *mtoRefID {
 		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
-		return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID)
+		return fmt.Errorf("secondThe BGN02 Reference Identification field: %s doesn't match the Reference ID %v of the associated move", bgnRefIdentification, move)
 	}
 
 	err = edi824.Validate()
