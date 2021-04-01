@@ -20,6 +20,7 @@ import { OrdersShape, UploadsShape } from 'types/customerShapes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
+import formStyles from 'styles/form.module.scss';
 
 export class UploadOrders extends Component {
   constructor(props) {
@@ -123,7 +124,9 @@ export class UploadOrders extends Component {
               <div className="hint">(Each page must be clear and legible.)</div>
             </div>
 
-            <WizardNavigation onBackClick={handleBack} disableNext={!isValid} onNextClick={handleNext} />
+            <div className={formStyles.formActions}>
+              <WizardNavigation onBackClick={handleBack} disableNext={!isValid} onNextClick={handleNext} />
+            </div>
           </Grid>
         </Grid>
       </GridContainer>
