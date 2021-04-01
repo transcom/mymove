@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/pop/v5"
+	"go.uber.org/zap"
 
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
@@ -30,37 +31,52 @@ func NewEDI824Processor(db *pop.Connection,
 //ProcessFile parses an EDI 824 response and updates the payment request status
 func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 	fmt.Printf(path)
-	errString := ""
 
 	edi824 := ediResponse824.EDI{}
 	err := edi824.Parse(stringEDI824)
 	if err != nil {
-		errString += err.Error()
+		e.logger.Error("unable to parse EDI824", zap.Error(err))
+		return fmt.Errorf("unable to parse EDI824")
 	}
 
 	transactionSet := edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0]
+	icn := edi824.InterchangeControlEnvelope.ISA.InterchangeControlNumber
 	otiGCN := transactionSet.OTIs[0].GroupControlNumber
 	bgn := transactionSet.BGN
 
 	var paymentRequest models.PaymentRequest
 	err = e.db.Q().
-		Eager("moves").
 		Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
 		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(otiGCN)).
 		First(&paymentRequest)
 	if err != nil {
-		errString += fmt.Sprintf("unable to find PaymentRequest with GCN: %s, %d", err.Error(), int(otiGCN)) + "\n"
+		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
+		return fmt.Errorf("unable to find PaymentRequest with GCN: %s, %d", err.Error(), int(otiGCN))
+	}
+
+	var move models.Move
+	err = e.db.Q().
+		Find(&move, paymentRequest.MoveTaskOrderID)
+	if err != nil {
+		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
+		return fmt.Errorf("unable to find PaymentRequest with GCN: %s, %d", err.Error(), int(otiGCN))
 	}
 
 	bgnRefIdentification := bgn.ReferenceIdentification
-	mtoRefID := paymentRequest.MoveTaskOrder.ReferenceID
+	mtoRefID := move.ReferenceID
+	if mtoRefID == nil {
+		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
+		return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID)
+	}
 	if bgnRefIdentification != *mtoRefID {
-		errString += fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID) + "\n"
+		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
+		return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID)
 	}
 
 	err = edi824.Validate()
 	if err != nil {
-		errString += err.Error()
+		e.logger.Error("Validation error(s) detected with the EDI824", zap.Error(err))
+		return fmt.Errorf("Validation error(s) detected with the EDI824: %w", err)
 	}
 
 	teds := fetchTEDSegments(edi824)
@@ -68,7 +84,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 	var transactionError error
 	transactionError = e.db.Transaction(func(tx *pop.Connection) error {
 		prToICN := models.PaymentRequestToInterchangeControlNumber{
-			InterchangeControlNumber: int(otiGCN),
+			InterchangeControlNumber: int(icn),
 			PaymentRequestID:         paymentRequest.ID,
 		}
 		err = tx.Save(&prToICN)
@@ -81,7 +97,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 			ediError := models.EdiError{
 				Code:                       &code,
 				Description:                &desc,
-				PaymentRequestID:           prToICN.PaymentRequestID,
+				PaymentRequestID:           paymentRequest.ID,
 				InterchangeControlNumberID: prToICN.ID,
 				EDIType:                    models.EDI824,
 			}
@@ -100,12 +116,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 	})
 
 	if transactionError != nil {
-		errString += transactionError.Error()
-	}
-
-	if errString != "" {
-		e.logger.Error(errString)
-		return fmt.Errorf(errString)
+		e.logger.Error(transactionError.Error())
 	}
 
 	return nil
