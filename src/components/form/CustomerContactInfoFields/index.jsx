@@ -23,7 +23,7 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
                 name="telephone"
                 type="tel"
                 minimum="12"
-                mask="000-000-0000"
+                mask="000{-}000{-}0000"
                 useMaskedValue
                 required
               />
@@ -38,8 +38,7 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
                 name="secondary_telephone"
                 type="tel"
                 minimum="12"
-                mask="000-000-0000"
-                useMaskedValue
+                mask="000{-}000{-}0000"
               />
             </div>
           </div>

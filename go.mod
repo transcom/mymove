@@ -8,7 +8,7 @@ require (
 	github.com/99designs/keyring v1.1.6
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
-	github.com/aws/aws-sdk-go v1.38.7
+	github.com/aws/aws-sdk-go v1.38.9
 	github.com/benbjohnson/clock v1.1.0
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -23,7 +23,7 @@ require (
 	github.com/go-openapi/loads v0.20.2
 	github.com/go-openapi/runtime v0.19.27
 	github.com/go-openapi/spec v0.20.3
-	github.com/go-openapi/strfmt v0.20.0
+	github.com/go-openapi/strfmt v0.20.1
 	github.com/go-openapi/swag v0.19.14
 	github.com/go-openapi/validate v0.20.2
 	github.com/go-playground/locales v0.13.0

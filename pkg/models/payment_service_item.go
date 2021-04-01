@@ -31,6 +31,8 @@ const (
 	PaymentServiceItemStatusSentToGex PaymentServiceItemStatus = "SENT_TO_GEX"
 	// PaymentServiceItemStatusPaid is the paid status
 	PaymentServiceItemStatusPaid PaymentServiceItemStatus = "PAID"
+	// PaymentServiceItemStatusEDIError is an error status
+	PaymentServiceItemStatusEDIError PaymentServiceItemStatus = "EDI_ERROR"
 
 	// PaymentServiceItemMaxReferenceIDLength is the maximum overall length allowed for a reference ID
 	// (given the EDI field's max length)
@@ -45,6 +47,7 @@ var validPaymentServiceItemStatus = []string{
 	string(PaymentServiceItemStatusDenied),
 	string(PaymentServiceItemStatusSentToGex),
 	string(PaymentServiceItemStatusPaid),
+	string(PaymentServiceItemStatusEDIError),
 }
 
 // PaymentServiceItem represents a payment service item
