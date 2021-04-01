@@ -60,6 +60,20 @@ const mileageZip5 = (params) => {
   return calculation(value, label, detail);
 };
 
+const mileageZipSITOrigin = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
+    params,
+  )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
+    params,
+  )}`;
+
+  return calculation(value, label, detail);
+};
+
 const baselineLinehaulPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.BaselineLinehaulPrice;
@@ -78,19 +92,19 @@ const baselineLinehaulPrice = (params) => {
   return calculation(value, label, detail1, detail2, detail3);
 };
 
-// There is no param representing the orgin price as available in the re_domestic_service_area_prices table
+// There is no param representing the orgin price or destination price as available in the re_domestic_service_area_prices table
 // A param to return the service schedule is also not being created
-const originPrice = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.OriginPrice, params)
-    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.OriginPrice, params)
-    : '';
-  const serviceAreaVal = getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin, params)
-    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin, params)
-    : '';
+const originAndDestinationPrice = (params, isOrigin = true) => {
+  const valueKey = isOrigin ? SERVICE_ITEM_PARAM_KEYS.OriginPrice : SERVICE_ITEM_PARAM_KEYS.DestinationPrice;
+  const value = getParamValue(valueKey, params) ? getParamValue(valueKey, params) : '';
+  const serviceAreaKey = isOrigin ? SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin : SERVICE_ITEM_PARAM_KEYS.ServiceAreaDest;
+  const serviceAreaVal = getParamValue(serviceAreaKey, params) ? getParamValue(serviceAreaKey, params) : '';
   const requestedPickupDateVal = getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params)
     ? getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params)
     : '';
-  const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
+  const label = isOrigin
+    ? SERVICE_ITEM_CALCULATION_LABELS.OriginPrice
+    : SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
 
   const serviceArea = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${serviceAreaVal}`;
   const requestedPickupDate = `${
@@ -198,6 +212,25 @@ const daysInSIT = (params) => {
   return calculation(value, label);
 };
 
+const pickupSITPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.PickupSITPrice;
+
+  const originSITSchedule = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITScheduleOrigin]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.SITScheduleOrigin, params)}`;
+
+  const requestedPickupDate = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
+  }: ${formatDate(getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params), 'DD MMM YYYY')}`;
+
+  const peak = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+
+  return calculation(value, label, originSITSchedule, requestedPickupDate, peak);
+};
+
 // totalAmountRequested is not a service item param
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
@@ -211,6 +244,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
   let result = [];
 
   switch (itemCode) {
+    // Domestic longhaul
     case SERVICE_ITEM_CODES.DLH:
       result = [
         billableWeight(params),
@@ -220,6 +254,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Fuel surcharge
     case SERVICE_ITEM_CODES.FSC:
       result = [
         billableWeight(params),
@@ -228,25 +263,33 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
-
+    // Domestic origin price
     case SERVICE_ITEM_CODES.DOP:
       result = [
         billableWeight(params),
-        originPrice(params),
+        originAndDestinationPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
       break;
-
+    // Domestic origin 1st day SIT
     case SERVICE_ITEM_CODES.DOFSIT:
       result = [
         billableWeight(params),
-        originPrice(params),
+        originAndDestinationPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
       break;
-
+    // Domestic destination 1st day SIT
+    case SERVICE_ITEM_CODES.DDFSIT:
+      result = [
+        billableWeight(params),
+        originAndDestinationPrice(params, false),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     // Domestic packing
     case SERVICE_ITEM_CODES.DPK:
       result = [
@@ -266,6 +309,16 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Domestic destination
+    case SERVICE_ITEM_CODES.DDP:
+      result = [
+        billableWeight(params),
+        originAndDestinationPrice(params, false),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic origin additional SIT
     case SERVICE_ITEM_CODES.DOASIT:
       result = [
         billableWeight(params),
@@ -275,7 +328,15 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
-
+    case SERVICE_ITEM_CODES.DOPSIT:
+      result = [
+        billableWeight(params),
+        mileageZipSITOrigin(params),
+        pickupSITPrice(params),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     default:
       break;
   }
