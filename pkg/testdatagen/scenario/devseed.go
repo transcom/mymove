@@ -808,32 +808,32 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 
 	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
 
-	var serviceItemDOFSIT models.MTOServiceItem
-	var serviceItemDOASIT models.MTOServiceItem
-	var serviceItemDOPSIT models.MTOServiceItem
+	var originFirstDaySIT models.MTOServiceItem
+	var originAdditionalDaySIT models.MTOServiceItem
+	var originPickupSIT models.MTOServiceItem
 	for _, createdServiceItem := range *createdServiceItems {
 		switch createdServiceItem.ReService.Code {
 		case models.ReServiceCodeDOFSIT:
-			serviceItemDOFSIT = createdServiceItem
+			originFirstDaySIT = createdServiceItem
 		case models.ReServiceCodeDOASIT:
-			serviceItemDOASIT = createdServiceItem
+			originAdditionalDaySIT = createdServiceItem
 		case models.ReServiceCodeDOPSIT:
-			serviceItemDOPSIT = createdServiceItem
+			originPickupSIT = createdServiceItem
 		}
 	}
 
 	originDepartureDate := originEntryDate.Add(15 * 24 * time.Hour)
-	serviceItemDOPSIT.SITDepartureDate = &originDepartureDate
+	originPickupSIT.SITDepartureDate = &originDepartureDate
 
-	updatedDOPSIT, updateErr := serviceItemUpdator.UpdateMTOServiceItemPrime(db, &serviceItemDOPSIT, etag.GenerateEtag(serviceItemDOPSIT.UpdatedAt))
+	updatedDOPSIT, updateErr := serviceItemUpdator.UpdateMTOServiceItemPrime(db, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
 
 	if updateErr != nil {
 		logger.Fatal("Error updating DOPSIT with departure date")
 	}
 
-	serviceItemDOPSIT = *updatedDOPSIT
+	originPickupSIT = *updatedDOPSIT
 
-	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDOFSIT, serviceItemDOASIT, serviceItemDOPSIT} {
+	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
 		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving origin SIT service item", zap.Error(updateErr))
