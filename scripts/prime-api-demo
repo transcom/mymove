@@ -79,7 +79,6 @@ function createPaymentRequest() {
   if [ "$prStatus" == "\"PENDING\"" ]; then
     echo "setting prID"
     prID=$tempPrID
-    prNumber=$tempPrNumber
   else
     return 0
   fi
@@ -344,49 +343,3 @@ done
 if [[ -z ${prID+x} ]]; then
   exit 1
 fi
-
-# -----------------------
-# SEND TO SYNCADA
-printf "\n==========\n\n"
-
-cat > ./tmp/pad_get_payment_request_edi.json <<-EOM
-{
-  "paymentRequestID": "${prID}"
-}
-EOM
-
-printf "Sending the following to generate an EDI:\n\n"
-jq . tmp/pad_get_payment_request_edi.json
-
-echo
-
-read -p "Ready to continue? Hit enter..." -n 1 -r
-
-printf "\n==========\n\n"
-
-echo "EDI for payment request number: ${prNumber}:"
-
-printf "\n-----\n\n"
-
-bin/prime-api-client "${primeapiopts[@]}" support-get-payment-request-edi --filename ./tmp/pad_get_payment_request_edi.json > tmp/pad_edi_response.json
-
-jq -r .edi tmp/pad_edi_response.json
-
-echo
-
-echo "Payment request status updated for payment request number: ${prNumber}:"
-
-printf "\n-----\n\n"
-
-cat > ./tmp/pad_update_payment_request_status.json <<-EOM
-{
-  "body": {
-    "paymentRequestID": "${prID}",
-    "sendToSyncada": false
-  }
-}
-EOM
-
-bin/prime-api-client "${primeapiopts[@]}" support-reviewed-payment-requests --filename ./tmp/pad_update_payment_request_status.json > tmp/pad_pr_update_response.json
-
-jq . tmp/pad_pr_update_response.json
