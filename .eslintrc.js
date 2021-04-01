@@ -1,5 +1,5 @@
 module.exports = {
-  plugins: ['prettier', 'security', 'no-only-tests', 'you-dont-need-lodash-underscore', 'cato'],
+  plugins: ['prettier', 'security', 'no-only-tests', 'you-dont-need-lodash-underscore'],
   extends: [
     'react-app',
     'airbnb',
@@ -54,6 +54,13 @@ module.exports = {
       files: ['*.stories.js', '*.stories.jsx', 'setupTests.js'],
       rules: {
         'import/no-extraneous-dependencies': 'off',
+        'react/jsx-props-no-spreading': 'off',
+      },
+    },
+    {
+      files: ['*.test.jsx'],
+      rules: {
+        'react/jsx-props-no-spreading': 'off',
       },
     },
   ],
