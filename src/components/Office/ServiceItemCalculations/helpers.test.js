@@ -73,7 +73,7 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: '',
+        value: '1.71',
         label: 'Origin price',
         details: ['Service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
@@ -99,7 +99,7 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: '',
+        value: '1.71',
         label: 'Destination price',
         details: ['Service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
@@ -125,7 +125,7 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: '',
+        value: '1.71',
         label: 'Origin price',
         details: ['Service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
@@ -202,7 +202,7 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: undefined,
+        value: '1.71',
         label: 'Pack price',
         details: ['Origin service schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
