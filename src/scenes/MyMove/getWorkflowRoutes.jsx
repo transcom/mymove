@@ -156,17 +156,13 @@ const pages = {
         orders.report_by_date,
         get(orders, 'new_duty_station.id', NULL_UUID) !== NULL_UUID,
       ]),
-    render: (key, pages) => ({ match, history }) => (
-      <Orders pages={pages} pageKey={key} match={match} history={history} />
-    ),
+    render: (key, pages) => ({ history }) => <Orders push={history.push} />,
   },
   [customerRoutes.ORDERS_UPLOAD_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, uploads }) =>
       get(orders, 'uploaded_orders.uploads', []).length > 0 || uploads.length > 0,
-    render: (key, pages, description, props) => ({ match }) => (
-      <UploadOrders pages={pages} pageKey={key} additionalParams={{ moveId: props.moveId }} match={match} />
-    ),
+    render: (key, pages, description, props) => ({ history }) => <UploadOrders push={history.push} />,
     description: 'Upload your orders',
   },
   [customerRoutes.SHIPMENT_SELECT_TYPE_PATH]: {

@@ -143,7 +143,7 @@ export class Orders extends Component {
         )}
 
         <Grid row>
-          <Grid col desktop={{ col: 8, offset: 3 }}>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
             <OrdersInfoForm
               ordersTypeOptions={ordersTypeOptions}
               initialValues={initialValues}
