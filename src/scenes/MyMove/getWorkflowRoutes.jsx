@@ -20,7 +20,7 @@ import SMName from 'pages/MyMove/Profile/Name';
 import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
-import SelectMoveType from 'pages/MyMove/SelectMoveType';
+import SelectShipmentType from 'pages/MyMove/SelectShipmentType';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import BackupMailingAddress from 'pages/MyMove/Profile/BackupMailingAddress';
@@ -172,7 +172,7 @@ const pages = {
   [customerRoutes.SHIPMENT_SELECT_TYPE_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
-    render: (key, pages, props) => ({ match, history }) => <SelectMoveType match={match} push={history.push} />,
+    render: (key, pages, props) => ({ match, history }) => <SelectShipmentType match={match} push={history.push} />,
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: (state) => {

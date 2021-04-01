@@ -5,8 +5,6 @@ import { string, bool, func, arrayOf, shape } from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
-import styles from './SelectMoveType.module.scss';
-
 import formStyles from 'styles/form.module.scss';
 import { generalRoutes, customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -21,8 +19,9 @@ import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/Mov
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import ScrollToTop from 'components/ScrollToTop';
 import determineShipmentInfo from 'utils/shipmentInfo';
+import styles from 'pages/MyMove/SelectShipmentType.module.scss';
 
-export class SelectMoveType extends Component {
+export class SelectShipmentType extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -225,7 +224,7 @@ export class SelectMoveType extends Component {
   }
 }
 
-SelectMoveType.propTypes = {
+SelectShipmentType.propTypes = {
   match: shape({
     isExact: bool.isRequired,
     params: shape({
@@ -256,5 +255,5 @@ const mapDispatchToProps = {
   loadMTOShipments: loadMTOShipmentsAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SelectMoveType);
+export default connect(mapStateToProps, mapDispatchToProps)(SelectShipmentType);
 export { mapStateToProps as _mapStateToProps };

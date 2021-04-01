@@ -4,9 +4,9 @@ import { mount } from 'enzyme';
 import { Radio } from '@trussworks/react-uswds';
 
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
-import { SelectMoveType } from 'pages/MyMove/SelectMoveType';
+import { SelectShipmentType } from 'pages/MyMove/SelectShipmentType';
 
-describe('SelectMoveType', () => {
+describe('SelectShipmentType', () => {
   const defaultProps = {
     pageList: ['page1', 'anotherPage/:foo/:bar'],
     pageKey: 'page1',
@@ -19,7 +19,7 @@ describe('SelectMoveType', () => {
   };
 
   const getWrapper = (props = {}) => {
-    return mount(<SelectMoveType {...defaultProps} {...props} />);
+    return mount(<SelectShipmentType {...defaultProps} {...props} />);
   };
 
   it('should render radio buttons with no option selected', () => {
