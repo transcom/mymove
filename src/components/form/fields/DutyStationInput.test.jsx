@@ -52,8 +52,8 @@ describe('DutyStationInput', () => {
       await act(async () => {
         // Only the hidden input that gets the final selected duty station has a name attribute
         mounted
-          .find('input#react-select-2-input')
-          .simulate('change', { target: { id: 'react-select-2-input', value: '-][)(*+?.\\^$|' } });
+          .find('input#dutyStation-input')
+          .simulate('change', { target: { id: 'dutyStation-input', value: '-][)(*+?.\\^$|' } });
       });
       mounted.update();
 
