@@ -20,6 +20,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   PriceRateOrFactor: 'PriceRateOrFactor',
   IsPeak: 'IsPeak',
   ServiceAreaOrigin: 'ServiceAreaOrigin',
+  ServiceAreaDest: 'ServiceAreaDest',
   ServicesScheduleOrigin: 'ServicesScheduleOrigin',
   RequestedPickupDate: 'RequestedPickupDate',
   ActualPickupDate: 'ActualPickupDate',
@@ -30,6 +31,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   ServiceSchedule: 'ServiceSchedule',
   NumberDaysSIT: 'NumberDaysSIT',
   SITScheduleOrigin: 'SITScheduleOrigin',
+  DestinationPrice: 'DestinationPrice',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
@@ -63,6 +65,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
   [SERVICE_ITEM_PARAM_KEYS.OriginPrice]: 'Origin price',
   [SERVICE_ITEM_PARAM_KEYS.SITScheduleOrigin]: 'Origin SIT schedule',
+  [SERVICE_ITEM_PARAM_KEYS.DestinationPrice]: 'Destination price',
 };
 
 const SERVICE_ITEM_CODES = {
@@ -70,6 +73,7 @@ const SERVICE_ITEM_CODES = {
   DPK: 'DPK',
   FSC: 'FSC',
   DOP: 'DOP',
+  DDP: 'DDP',
   DSH: 'DSH',
   DOASIT: 'DOASIT',
   DOFSIT: 'DOFSIT',
@@ -83,6 +87,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DPK,
   SERVICE_ITEM_CODES.DSH,
   SERVICE_ITEM_CODES.DOP,
+  SERVICE_ITEM_CODES.DDP,
   SERVICE_ITEM_CODES.DOASIT,
   SERVICE_ITEM_CODES.DOFSIT,
   SERVICE_ITEM_CODES.DOPSIT,

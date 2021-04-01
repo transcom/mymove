@@ -87,3 +87,12 @@ export const DOPSIT = (data) => (
     tableSize={data.tableSize}
   />
 );
+
+export const DDP = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestinationPrice}
+    totalAmountRequested={642}
+    itemCode="DDP"
+    tableSize={data.tableSize}
+  />
+);

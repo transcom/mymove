@@ -1902,7 +1902,8 @@ func init() {
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentRequests": {
@@ -2005,7 +2006,8 @@ func init() {
         "APPROVED",
         "DENIED",
         "SENT_TO_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentServiceItems": {
@@ -4471,7 +4473,8 @@ func init() {
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentRequests": {
@@ -4574,7 +4577,8 @@ func init() {
         "APPROVED",
         "DENIED",
         "SENT_TO_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentServiceItems": {
