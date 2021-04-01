@@ -173,7 +173,7 @@ func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.U
 			Where("key = ?", param.Key).
 			First(&serviceItemParamKey)
 		if err != nil {
-			return paymentServiceItemParams, fmt.Errorf("Unable to find service item param key for %v", serviceItemParamKey.Key)
+			return paymentServiceItemParams, fmt.Errorf("Unable to find service item param key for %v", param.Key)
 		}
 		if serviceItemParamKey.Origin != models.ServiceItemParamOriginPricer {
 			return paymentServiceItemParams, fmt.Errorf("Service item param key is not a pricer param. Param key: %v", serviceItemParamKey.Key)
