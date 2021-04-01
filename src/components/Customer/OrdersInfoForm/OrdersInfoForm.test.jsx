@@ -1,47 +1,113 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
-import { Formik } from 'formik';
+import { render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
 const testProps = {
+  onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+  initialValues: { orders_type: '', issue_date: '', report_by_date: '', has_dependents: '', new_duty_station: {} },
+  onBack: jest.fn(),
   ordersTypeOptions: [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
   ],
+  currentStation: {},
 };
 
 describe('OrdersInfoForm component', () => {
-  describe('with no initial values', () => {
-    const wrapper = mount(
-      <Formik>
-        <OrdersInfoForm {...testProps} />
-      </Formik>,
+  it('renders the form inputs', async () => {
+    const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
+
+    await waitFor(() => {
+      expect(getByLabelText('Orders type')).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText('Orders type')).toBeRequired();
+      expect(getByLabelText('Orders date')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('Orders date')).toBeRequired();
+      expect(getByLabelText('Report-by date')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('Report-by date')).toBeRequired();
+      expect(getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+
+      // TODO - fixed when Yan's PR merged
+      // expect(getByLabelText('New duty station')).toBeInstanceOf(HTMLSelectElement);
+    });
+  });
+
+  it('renders each option for orders type', async () => {
+    const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
+
+    await waitFor(() => {
+      const ordersTypeDropdown = getByLabelText('Orders type');
+      expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
+
+      userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
+      expect(ordersTypeDropdown).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+
+      userEvent.selectOptions(ordersTypeDropdown, 'RETIREMENT');
+      expect(ordersTypeDropdown).toHaveValue('RETIREMENT');
+
+      userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
+      expect(ordersTypeDropdown).toHaveValue('SEPARATION');
+    });
+  });
+
+  it.skip('validates the new duty station against the current duty station', () => {
+    //
+  });
+
+  it('shows an error message if trying to submit an invalid form', async () => {
+    const { getByRole, getAllByText } = render(<OrdersInfoForm {...testProps} />);
+    const submitBtn = getByRole('button', { name: 'Next' });
+
+    userEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(getAllByText('Required').length).toBe(3);
+    });
+    expect(testProps.onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('submits the form when its valid', async () => {
+    const { getByRole, getByLabelText } = render(
+      <OrdersInfoForm
+        {...testProps}
+        initialValues={{ ...testProps.initialValues, new_duty_station: { id: 'testId', name: 'test duty station' } }}
+      />,
     );
+    const submitBtn = getByRole('button', { name: 'Next' });
 
-    it('renders without errors', () => {
-      expect(wrapper.exists()).toBe(true);
+    userEvent.selectOptions(getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    userEvent.type(getByLabelText('Orders date'), '08 Nov 2020');
+    userEvent.type(getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.click(getByLabelText('No'));
+
+    // TODO - select duty station option
+
+    userEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(testProps.onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          has_dependents: 'no',
+          issue_date: '08 Nov 2020',
+          report_by_date: '26 Nov 2020',
+        }),
+        expect.anything(),
+      );
     });
+  });
 
-    it('renders the expected form inputs', () => {
-      expect(wrapper.find('DropdownInput[name="orders_type"]').length).toBe(1);
-      expect(wrapper.find('DatePickerInput[name="issue_date"]').length).toBe(1);
-      expect(wrapper.find('DatePickerInput[name="report_by_date"]').length).toBe(1);
-      expect(wrapper.find('input[name="has_dependents"][value="yes"]').length).toBe(1);
-      expect(wrapper.find('input[name="has_dependents"][value="no"]').length).toBe(1);
-      expect(wrapper.find('DutyStationInput[name="new_duty_station"]').length).toBe(1);
-    });
+  it('implements the onBack handler when the Back button is clicked', async () => {
+    const { getByRole } = render(<OrdersInfoForm {...testProps} />);
+    const backBtn = getByRole('button', { name: 'Back' });
 
-    it('renders each option for orders type', () => {
-      const ordersTypeDropdown = wrapper.find('DropdownInput[name="orders_type"]');
-      const expectedOptions = [
-        { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
-        { key: 'RETIREMENT', value: 'Retirement' },
-        { key: 'SEPARATION', value: 'Separation' },
-      ];
-      expect(ordersTypeDropdown.prop('options')).toEqual(expectedOptions);
+    userEvent.click(backBtn);
+
+    await waitFor(() => {
+      expect(testProps.onBack).toHaveBeenCalled();
     });
   });
 
@@ -70,25 +136,20 @@ describe('OrdersInfoForm component', () => {
         updated_at: '2020-10-19T17:01:16.114Z',
       },
     };
-    const wrapper = mount(
-      <Formik initialValues={testInitialValues}>
-        <OrdersInfoForm {...testProps} />
-      </Formik>,
-    );
 
-    it('renders without errors', () => {
-      expect(wrapper.exists()).toBe(true);
-    });
+    it('pre-fills the inputs', async () => {
+      const { getByLabelText } = render(<OrdersInfoForm {...testProps} initialValues={testInitialValues} />);
 
-    it('pre-fills the inputs', () => {
-      expect(wrapper.find('select[name="orders_type"]').prop('value')).toBe(testInitialValues.orders_type);
-      expect(wrapper.find('input[name="issue_date"]').prop('value')).toBe('08 Nov 2020');
-      expect(wrapper.find('input[name="report_by_date"]').prop('value')).toBe('26 Nov 2020');
-      expect(wrapper.find('input[name="has_dependents"][value="yes"]').prop('checked')).toBe(false);
-      expect(wrapper.find('input[name="has_dependents"][value="no"]').prop('checked')).toBe(true);
-      expect(wrapper.find('input[name="new_duty_station"]').prop('value')).toBe(
-        testInitialValues.new_duty_station.name,
-      );
+      await waitFor(() => {
+        expect(getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
+        expect(getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
+        expect(getByLabelText('Report-by date')).toHaveValue('26 Nov 2020');
+        expect(getByLabelText('Yes')).not.toBeChecked();
+        expect(getByLabelText('No')).toBeChecked();
+
+        // TODO - fixed when Yan's PR merged
+        // expect(getByLabelText('New duty station')).toHaveValue(testInitialValues.new_duty_station.id);
+      });
     });
   });
 });
