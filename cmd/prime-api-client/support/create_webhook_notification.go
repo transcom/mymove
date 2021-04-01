@@ -84,9 +84,6 @@ func CreateWebhookNotification(cmd *cobra.Command, args []string) error {
 
 	// Get the successful response payload and convert to json for output
 	payload := resp.GetPayload()
-	//if v.GetString(utils.FilenameFlag) == "" && len(args) < 1 {
-	//	return nil
-	//}
 	if payload != nil {
 		payload, errJSONMarshall := json.Marshal(payload)
 		if errJSONMarshall != nil {
