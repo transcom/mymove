@@ -71,6 +71,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				Description:                &desc,
 				PaymentRequestID:           prToICN.PaymentRequestID,
 				InterchangeControlNumberID: prToICN.ID,
+				InterchangeControlNumber:   prToICN,
 				EDIType:                    models.EDI824,
 			}
 			err = tx.Save(&ediError)
