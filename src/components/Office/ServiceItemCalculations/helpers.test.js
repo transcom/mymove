@@ -151,7 +151,7 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: '',
+        value: '1.71',
         label: 'Destination price',
         details: ['Service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
