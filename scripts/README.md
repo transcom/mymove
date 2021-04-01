@@ -131,6 +131,7 @@ application testing
 | `make-test`                     | A script to test common developer make targets.                                                   |
 | `prime-api`                     | A script to connect to endpoints on the Prime API.                                                |
 | `prime-api-demo`                | A script to demo the Prime API.                                                                   |
+| `invoice-demo`                  | A script to demo the invoice flow.                                                                |
 | `to-for-gbloc`                  | Helper script to find transportation offices with the same GBLOC as the given duty station        |
 | `update-docker-compose`         | Update branch name before running docker-compose                                                  |
 

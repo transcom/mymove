@@ -1,0 +1,111 @@
+#! /usr/bin/env bash
+
+#
+# script to help with invoicing demo script
+#
+
+# =====================================
+#     USAGE AND DEFAULTS
+# =====================================
+set -eu -o pipefail
+function usage() {
+  echo "Usage: invoice-demo <movecode> | <payment request id> | <payment request number> [ <hostname> ]"
+  echo "  movecode   Either moveCode or orderID or moveTaskOrderID can be provided"
+  echo "             will pick the first payment request on the move"
+  echo "  hostname   Target host of api calls, defaults to 'local' which is primelocal:9443"
+  echo
+  echo "EXAMPLES:"
+  echo "$0 --help # prints this help"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d"
+  echo "$0 RDY4PY"
+  echo "$0 RDY4PY api.stg.move.mil"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil"
+}
+
+# =====================================
+#     OPTIONS HANDLING
+# =====================================
+if [ "${#@}" -eq 0 ]; then
+  usage
+  exit 1
+elif [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  usage
+  exit 0
+fi
+
+primeapiopts=(--insecure)
+mtoid=$1
+readonly environment=${2:-local}
+# check to see if proofs are passed in
+if [ "${#@}" -gt 2 ]; then
+  shift # to remove mtoid from $@
+  shift # to remove environment from $@
+fi
+
+printf "\nRunning against "
+if [ "$environment" == "local" ]; then
+  echo "local server"
+else
+  echo "remote ${environment}"
+  primeapiopts=(--cac --hostname "${environment}" --port 443)
+fi
+
+if bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates > tmp/id_all_mtos.json; then
+  echo "server is running"
+else
+  echo "server is not running"
+  exit 1
+fi
+
+
+# Payment Request ID: "2d1751fd-9015-4f68-8673-3d602508d0e7"
+# Payment Request Number: "1335-5565-1"
+
+# =====================================
+#     Figure out what type of id was given
+# =====================================
+
+printf "\n==========\n\n"
+
+prid=""
+# Find PaymentRequest
+if jq -e 'map(.paymentRequests) | flatten | map(select(.paymentRequestNumber == "'"${mtoid}"'" or .id == "'"${mtoid}"'")) | .[0]' tmp/id_all_mtos.json > tmp/id_demo_pr.json; then
+  # extract the mtoid
+  mtoid=$(jq '.moveTaskOrderID' tmp/id_demo_pr.json | tr -d '"')
+  prid=$(jq '.id' tmp/id_demo_pr.json | tr -d '"')
+  echo "Found MTO (${mtoid}) by Payment Request (${prid})."
+# Find MTO By MTO ID
+elif jq -e 'map(select(.id == "'"${mtoid}"'" or .orderID == "'"${mtoid}"'" or .moveCode == "'"${mtoid}"'")) | .[0]' tmp/id_all_mtos.json > tmp/id_demo_mto.json; then
+  # extract the mtoid
+  mtoid=$(jq '.id' tmp/id_demo_mto.json | tr -d '"')
+  prid=$(jq '.paymentRequests | .[0].id' tmp/id_demo_mto.json | tr -d '"')
+  echo "Found MTO (${mtoid}) by MTO with Payment Request (${prid})."
+else
+  echo "ID not found"
+  exit 1
+fi
+
+# =====================================
+#     Send To Syncada
+# =====================================
+
+printf "\n==========\n\n"
+
+cat > ./tmp/id_get_payment_request_edi.json <<-EOM
+{
+  "paymentRequestID": "${prid}"
+}
+EOM
+
+printf "Sending the following to generate an EDI:\n\n"
+jq . tmp/pad_get_payment_request_edi.json
+
+echo
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+bin/prime-api-client "${primeapiopts[@]}" support-get-payment-request-edi --filename ./tmp/id_get_payment_request_edi.json | tee tmp/id_edi_response.json | jq -r .edi
+
+echo
+
+exit 0
