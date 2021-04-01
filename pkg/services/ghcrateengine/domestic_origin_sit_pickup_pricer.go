@@ -22,12 +22,12 @@ func NewDomesticOriginSITPickupPricer(db *pop.Connection) services.DomesticOrigi
 }
 
 // Price determines the price for domestic origin SIT pickup
-func (p domesticOriginSITPickupPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, services.PricingParams, error) {
+func (p domesticOriginSITPickupPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
 	return priceDomesticPickupDeliverySIT(p.db, models.ReServiceCodeDOPSIT, contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance)
 }
 
 // PriceUsingParams determines the price for domestic origin SIT pickup given PaymentServiceItemParams
-func (p domesticOriginSITPickupPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
+func (p domesticOriginSITPickupPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
