@@ -2,7 +2,6 @@ package support
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -31,10 +30,6 @@ func CheckCreateWebhookNotificationConfig(v *viper.Viper, args []string) error {
 		return err
 	}
 
-	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
-		return errors.New("create-webhook-notification expects a file to be passed in")
-	}
-
 	return nil
 }
 
@@ -56,12 +51,14 @@ func CreateWebhookNotification(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
-	// Decode json from file that was passed in
+	// Decode json from file if it was passed in
 	filename := v.GetString(utils.FilenameFlag)
 	var createWebhookNotificationParams webhookclient.CreateWebhookNotificationParams
-	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &createWebhookNotificationParams)
-	if err != nil {
-		logger.Fatal(err)
+	if filename != "" {
+		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &createWebhookNotificationParams)
+		if err != nil {
+			logger.Fatal(err)
+		}
 	}
 	createWebhookNotificationParams.SetTimeout(time.Second * 30)
 
@@ -87,6 +84,9 @@ func CreateWebhookNotification(cmd *cobra.Command, args []string) error {
 
 	// Get the successful response payload and convert to json for output
 	payload := resp.GetPayload()
+	//if v.GetString(utils.FilenameFlag) == "" && len(args) < 1 {
+	//	return nil
+	//}
 	if payload != nil {
 		payload, errJSONMarshall := json.Marshal(payload)
 		if errJSONMarshall != nil {
