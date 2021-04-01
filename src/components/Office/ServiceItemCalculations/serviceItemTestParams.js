@@ -454,12 +454,15 @@ const testParams = {
     ContractYearName,
   ],
   DomesticDestination1stSIT: [
-    RequestedPickupDate,
-    ServiceAreaDest,
     WeightActual,
     WeightBilledActual,
     WeightEstimated,
+    PriceRateOrFactor,
+    ServiceAreaDest,
+    RequestedPickupDate,
     ZipDestAddress,
+    EscalationCompounded,
+    ContractYearName,
   ],
   DomesticOriginAdditionalSIT: [
     NumberDaysSIT,
