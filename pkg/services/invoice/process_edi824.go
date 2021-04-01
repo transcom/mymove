@@ -66,11 +66,11 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 	mtoRefID := move.ReferenceID
 	if mtoRefID == nil {
 		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
-		return fmt.Errorf("firstThe BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID)
+		return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID)
 	}
 	if bgnRefIdentification != *mtoRefID {
 		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
-		return fmt.Errorf("secondThe BGN02 Reference Identification field: %s doesn't match the Reference ID %v of the associated move", bgnRefIdentification, move)
+		return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %v of the associated move", bgnRefIdentification, *mtoRefID)
 	}
 
 	err = edi824.Validate()
