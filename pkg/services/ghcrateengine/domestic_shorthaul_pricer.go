@@ -29,7 +29,7 @@ func NewDomesticShorthaulPricer(db *pop.Connection) services.DomesticShorthaulPr
 }
 
 // Price determines the price for a counseling service
-func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (totalCost unit.Cents, params services.PricingParams, err error) {
+func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (totalCost unit.Cents, params services.PricingDisplayParams, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -84,7 +84,7 @@ func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate 
 	return totalCost, nil, nil
 }
 
-func (p domesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
+func (p domesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err

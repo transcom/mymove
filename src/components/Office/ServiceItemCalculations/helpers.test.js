@@ -73,7 +73,7 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: '',
+        value: '1.71',
         label: 'Origin price',
         details: ['Service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
@@ -99,7 +99,7 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: '',
+        value: '1.71',
         label: 'Destination price',
         details: ['Service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
@@ -125,7 +125,7 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: '',
+        value: '1.71',
         label: 'Origin price',
         details: ['Service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
@@ -143,7 +143,7 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticDestination1stSIT', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticDestination1stSIT);
+    const result = makeCalculations('DDFSIT', 99999, testParams.DomesticDestination1stSIT);
     expect(result).toEqual([
       {
         value: '85 cwt',
@@ -151,9 +151,9 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: '',
-        label: 'Origin price',
-        details: ['Service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        value: '1.71',
+        label: 'Destination price',
+        details: ['Service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
       {
         value: '1.033',
@@ -275,7 +275,7 @@ describe('makeCalculations', () => {
         details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
-        value: undefined,
+        value: '1.71',
         label: 'Pack price',
         details: ['Origin service schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
@@ -293,8 +293,29 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticUnpacking', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticUnpacking);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DDFSIT', 99999, testParams.DomesticUnpacking);
+    expect(result).toEqual([
+      {
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        label: 'Billable weight (cwt)',
+        value: '85 cwt',
+      },
+      {
+        details: ['Service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        label: 'Destination price',
+        value: '',
+      },
+      {
+        details: ['Base year: '],
+        label: 'Price escalation factor',
+        value: '',
+      },
+      {
+        details: [''],
+        label: 'Total amount requested',
+        value: '$999.99',
+      },
+    ]);
   });
 
   it('returns correct data for DomesticCrating', () => {
