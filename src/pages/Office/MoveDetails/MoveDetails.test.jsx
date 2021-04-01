@@ -359,10 +359,22 @@ describe('MoveDetails page', () => {
     });
 
     it('renders side navigation for each section', () => {
-      expect(wrapper.containsMatchingElement(<a href="#requested-shipments">Requested shipments</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#orders">Orders</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#allowances">Allowances</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#customer-info">Customer info</a>)).toBe(true);
+      expect(wrapper.find('LeftNav').exists()).toBe(true);
+
+      const navLinks = wrapper.find('LeftNav a');
+
+      expect(navLinks.at(0).contains('Requested shipments')).toBe(true);
+      expect(navLinks.at(0).contains(1)).toBe(true);
+      expect(navLinks.at(0).prop('href')).toBe('#requested-shipments');
+
+      expect(navLinks.at(1).contains('Orders')).toBe(true);
+      expect(navLinks.at(1).prop('href')).toBe('#orders');
+
+      expect(navLinks.at(2).contains('Allowances')).toBe(true);
+      expect(navLinks.at(2).prop('href')).toBe('#allowances');
+
+      expect(navLinks.at(3).contains('Customer info')).toBe(true);
+      expect(navLinks.at(3).prop('href')).toBe('#customer-info');
     });
 
     it('renders the Requested Shipments component', () => {
@@ -404,11 +416,25 @@ describe('MoveDetails page', () => {
     );
 
     it('renders side navigation for each section', () => {
-      expect(wrapper.containsMatchingElement(<a href="#approved-shipments">Approved shipments</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#requested-shipments">Requested shipments</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#orders">Orders</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#allowances">Allowances</a>)).toBe(true);
-      expect(wrapper.containsMatchingElement(<a href="#customer-info">Customer info</a>)).toBe(true);
+      expect(wrapper.find('LeftNav').exists()).toBe(true);
+
+      const navLinks = wrapper.find('LeftNav a');
+
+      expect(navLinks.at(0).contains('Requested shipments')).toBe(true);
+      expect(navLinks.at(0).contains(1)).toBe(true);
+      expect(navLinks.at(0).prop('href')).toBe('#requested-shipments');
+
+      expect(navLinks.at(1).contains('Approved shipments')).toBe(true);
+      expect(navLinks.at(1).prop('href')).toBe('#approved-shipments');
+
+      expect(navLinks.at(2).contains('Orders')).toBe(true);
+      expect(navLinks.at(2).prop('href')).toBe('#orders');
+
+      expect(navLinks.at(3).contains('Allowances')).toBe(true);
+      expect(navLinks.at(3).prop('href')).toBe('#allowances');
+
+      expect(navLinks.at(4).contains('Customer info')).toBe(true);
+      expect(navLinks.at(4).prop('href')).toBe('#customer-info');
     });
   });
 
