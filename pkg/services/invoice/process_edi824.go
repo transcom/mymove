@@ -20,7 +20,7 @@ type edi824Processor struct {
 
 // NewEDI824Processor returns a new EDI824 processor
 func NewEDI824Processor(db *pop.Connection,
-	logger Logger) services.SyncadaFileProcessor {
+	logger Logger) services.EDI824Processor {
 
 	return &edi824Processor{
 		db:     db,
@@ -100,10 +100,6 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 	}
 
 	return nil
-}
-
-func (e *edi824Processor) EDIType() models.EDIType {
-	return models.EDI824
 }
 
 func fetchTEDSegments(edi ediResponse824.EDI) []edisegment.TED {

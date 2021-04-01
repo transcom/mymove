@@ -25,7 +25,6 @@ type GHCPaymentRequestInvoiceGenerator interface {
 //go:generate mockery -name EDI824Processor
 type EDI824Processor interface {
 	ProcessFile(path string, ediString string) error
-	EDIType() models.EDIType
 }
 
 // EDI997Processor is the exported interface for generating an invoice
