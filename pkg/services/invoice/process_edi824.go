@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/pop/v5"
-	"go.uber.org/zap"
 
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
@@ -39,16 +38,26 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		errString += err.Error()
 	}
 
-	// Find the PaymentRequestID that matches the ICN
-	icn := edi824.InterchangeControlEnvelope.ISA.InterchangeControlNumber
+	transactionSet := edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0]
+	otiGCN := transactionSet.OTIs[0].GroupControlNumber
+	bgn := transactionSet.BGN
 
-	var prToICN models.PaymentRequestToInterchangeControlNumber
+	var paymentRequest models.PaymentRequest
 	err = e.db.Q().
-		Where("interchange_control_number = ?", int(icn)).
-		First(&prToICN)
+		Eager("moves").
+		Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
+		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(otiGCN)).
+		First(&paymentRequest)
 	if err != nil {
-		errString += fmt.Sprintf("unable to find PaymentRequestTOInterchangeControlNumber with ICN: %s, %d", err.Error(), int(icn)) + "\n"
+		errString += fmt.Sprintf("unable to find PaymentRequest with GCN: %s, %d", err.Error(), int(otiGCN)) + "\n"
 	}
+
+	bgnRefIdentification := bgn.ReferenceIdentification
+	mtoRefID := paymentRequest.MoveTaskOrder.ReferenceID
+	if bgnRefIdentification != *mtoRefID {
+		errString += fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID) + "\n"
+	}
+
 	err = edi824.Validate()
 	if err != nil {
 		errString += err.Error()
@@ -56,13 +65,16 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 
 	teds := fetchTEDSegments(edi824)
 
-	if errString != "" {
-		e.logger.Error(errString)
-		return fmt.Errorf(errString)
-	}
-
 	var transactionError error
 	transactionError = e.db.Transaction(func(tx *pop.Connection) error {
+		prToICN := models.PaymentRequestToInterchangeControlNumber{
+			InterchangeControlNumber: int(otiGCN),
+			PaymentRequestID:         paymentRequest.ID,
+		}
+		err = tx.Save(&prToICN)
+		if err != nil {
+			return fmt.Errorf("failure saving payment request to interchange control number: %w", err)
+		}
 		for _, ted := range teds {
 			code := ted.ApplicationErrorConditionCode
 			desc := ted.FreeFormMessage
@@ -71,33 +83,29 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				Description:                &desc,
 				PaymentRequestID:           prToICN.PaymentRequestID,
 				InterchangeControlNumberID: prToICN.ID,
-				InterchangeControlNumber:   prToICN,
 				EDIType:                    models.EDI824,
 			}
 			err = tx.Save(&ediError)
 			if err != nil {
-				e.logger.Error("failure saving edi technical error description", zap.Error(err))
 				return fmt.Errorf("failure saving edi technical error description: %w", err)
 			}
 		}
-		var paymentRequest models.PaymentRequest
-		err = e.db.Q().
-			Where("id = ?", prToICN.PaymentRequestID).
-			First(&paymentRequest)
-		if err != nil {
-			errString += fmt.Sprintf("unable to find payment request with ID: %s, %d", err.Error(), int(icn)) + "\n"
-		}
+
 		paymentRequest.Status = models.PaymentRequestStatusEDIError
 		err = tx.Update(&paymentRequest)
 		if err != nil {
-			e.logger.Error("failure updating payment request", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
 		return nil
 	})
 
 	if transactionError != nil {
-		return transactionError
+		errString += transactionError.Error()
+	}
+
+	if errString != "" {
+		e.logger.Error(errString)
+		return fmt.Errorf(errString)
 	}
 
 	return nil
