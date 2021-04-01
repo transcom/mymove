@@ -162,8 +162,8 @@ describe('makeCalculations', () => {
     expect(result).toEqual([]);
   });
 
-  it('returns correct data for DomesticOriginSITDelivery', () => {
-    const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITDelivery);
+  it('returns correct data for DomesticOriginSITPickup', () => {
+    const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITPickup);
     expect(result).toEqual([
       {
         value: '85 cwt',

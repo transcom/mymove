@@ -483,7 +483,7 @@ const testParams = {
     ZipDestAddress,
     ContractYearName,
   ],
-  DomesticOriginSITDelivery: [
+  DomesticOriginSITPickup: [
     RequestedPickupDate,
     ServiceAreaOrigin,
     SITScheduleOrigin,
