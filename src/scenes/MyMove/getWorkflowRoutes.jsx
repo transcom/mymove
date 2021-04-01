@@ -8,10 +8,7 @@ import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
 import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
-
-import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
-import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
-import BackupContact from 'scenes/ServiceMembers/BackupContact';
+import BackupContact from 'pages/MyMove/Profile/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
@@ -26,6 +23,8 @@ import UploadOrders from 'pages/MyMove/UploadOrders';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
+import BackupMailingAddress from 'pages/MyMove/Profile/BackupMailingAddress';
+import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress';
 import Review from 'pages/MyMove/Review';
 import Agreement from 'pages/MyMove/Agreement';
 
@@ -93,7 +92,7 @@ const pages = {
   [customerRoutes.DOD_INFO_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
-    render: (key, pages) => ({ history }) => <DodInfo push={history.push} />,
+    render: () => ({ history }) => <DodInfo push={history.push} />,
   },
   [customerRoutes.NAME_PATH]: {
     isInFlow: myFirstRodeo,
@@ -119,19 +118,19 @@ const pages = {
   [customerRoutes.CURRENT_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.residential_address),
-    render: (key, pages) => ({ match }) => <ResidentialAddress pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <ResidentialAddress push={history.push} />,
   },
   [customerRoutes.BACKUP_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.backup_mailing_address),
-    render: (key, pages) => ({ match }) => <BackupMailingAddress pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <BackupMailingAddress push={history.push} />,
   },
   [customerRoutes.BACKUP_CONTACTS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm, orders, move, ppm, backupContacts }) => {
       return sm.is_profile_complete || backupContacts.length > 0;
     },
-    render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <BackupContact push={history.push} />,
     description: 'Backup contacts',
   },
   [generalRoutes.HOME_PATH]: {
