@@ -10,12 +10,12 @@ const messages = {
 const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
 
 const validatorStatusOptions = new Set([
-  'RA Accepted',
-  'Return to Developer',
-  'Known Issue',
-  'Mitigated',
-  'False Positive',
-  'Bad Practice',
+  'RA ACCEPTED',
+  'RETURN TO DEVELOPER',
+  'KNOWN ISSUE',
+  'MITIGATED',
+  'FALSE POSITIVE',
+  'BAD PRACTICE',
 ]);
 
 const approvedBypassableRules = new Set([
@@ -123,7 +123,7 @@ const create = (context) => ({
             },
             messageId: NO_ANNOTATION_MESSAGE_ID,
           });
-        } else if (!approvedBypassableRules.has(rule) && !validatorStatusOptions.has(validatorStatus)) {
+        } else if (!approvedBypassableRules.has(rule) && !validatorStatusOptions.has(validatorStatus.toUpperCase())) {
           context.report({
             // Can't set it at the given location as the warning
             // will be ignored due to the disable comment
