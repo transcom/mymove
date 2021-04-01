@@ -179,7 +179,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
-	params := services.PricingParams{
+	params := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
 			Value: 40000.9,
@@ -260,7 +260,7 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 	})
 
 	suite.T().Run("errors if PricingParm points to a serviceItem that doesnt originate from the Pricer", func(t *testing.T) {
-		invalidParam := services.PricingParams{
+		invalidParam := services.PricingDisplayParams{
 			{
 				Key:   models.ServiceItemParamNameServiceAreaOrigin,
 				Value: 40000.9,
@@ -282,10 +282,10 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 	})
 
 	suite.T().Run("errors if no PricingParms passed from the Pricer", func(t *testing.T) {
-		emptyParams := services.PricingParams{}
+		emptyParams := services.PricingDisplayParams{}
 
 		_, err := createPricerGeneratedParams(suite.DB(), paymentServiceItem.ID, emptyParams)
 		suite.Error(err)
-		suite.Contains(err.Error(), "PricingParams must not be empty")
+		suite.Contains(err.Error(), "PricingDisplayParams must not be empty")
 	})
 }
