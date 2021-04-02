@@ -13,7 +13,7 @@ describe('makeCalculations', () => {
       {
         value: '210',
         label: 'Mileage',
-        details: ['Zip 210 to Zip 910'],
+        details: ['ZIP 210 to ZIP 910'],
       },
       {
         value: '1.71',
@@ -44,7 +44,7 @@ describe('makeCalculations', () => {
       {
         value: '32210',
         label: 'Mileage',
-        details: ['Zip 32210 to Zip 91910'],
+        details: ['ZIP 32210 to ZIP 91910'],
       },
       {
         value: '1.71',
@@ -204,8 +204,8 @@ describe('makeCalculations', () => {
     expect(result).toEqual([]);
   });
 
-  it('returns correct data for DomesticOriginSITDelivery', () => {
-    const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITDelivery);
+  it('returns correct data for DomesticOriginSITPickup', () => {
+    const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITPickup);
     expect(result).toEqual([
       {
         value: '85 cwt',
@@ -215,7 +215,7 @@ describe('makeCalculations', () => {
       {
         value: '29',
         label: 'Mileage',
-        details: ['Zip 90210 to Zip 90211'],
+        details: ['ZIP 90210 to ZIP 90211'],
       },
       {
         value: '1.71',
@@ -236,8 +236,34 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticDestinationSITDelivery', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticDestinationSITDelivery);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DDDSIT', 99999, testParams.DomesticDestinationSITDelivery);
+    expect(result).toEqual([
+      {
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        label: 'Billable weight (cwt)',
+        value: '85 cwt',
+      },
+      {
+        value: '348',
+        label: 'Mileage',
+        details: ['ZIP 91910 to ZIP 94535'],
+      },
+      {
+        details: ['Destination SIT schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        label: 'SIT delivery price',
+        value: '1.71',
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: ['Base year: 2'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for DomesticPacking', () => {
@@ -338,7 +364,7 @@ describe('makeCalculations', () => {
       {
         value: '210',
         label: 'Mileage',
-        details: ['Zip 210 to Zip 910'],
+        details: ['ZIP 210 to ZIP 910'],
       },
       {
         value: '0.09',

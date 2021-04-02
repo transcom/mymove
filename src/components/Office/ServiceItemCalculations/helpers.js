@@ -36,28 +36,31 @@ const billableWeight = (params) => {
 };
 
 // mileage calculation
-const mileageZIP = (params, isZIP3 = false) => {
-  let value = '';
-  let label = '';
-  let detail = '';
-  if (
-    getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipDestAddress, params) &&
-    getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress, params)
-  ) {
-    value = isZIP3
-      ? getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params)
-      : getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip5, params);
-    const pickupAddress = isZIP3
-      ? getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress, params)?.slice(2)
-      : getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress, params);
-    const destAddress = isZIP3
-      ? getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipDestAddress, params)?.slice(2)
-      : getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipDestAddress, params);
-    label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
-    detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${pickupAddress} to ${
-      SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]
-    } ${destAddress}`;
-  }
+const mileageZIP3 = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress, // take the zip 3
+    params,
+  )?.slice(2)} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
+    params,
+  )?.slice(2)}`;
+
+  return calculation(value, label, detail);
+};
+
+const mileageZip5 = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip5, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
+    params,
+  )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
+    params,
+  )}`;
+
   return calculation(value, label, detail);
 };
 
@@ -75,22 +78,54 @@ const mileageZipSITOrigin = (params) => {
   return calculation(value, label, detail);
 };
 
-const baselineHaulPrice = (params, isShortHaul = false) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
-  const label = isShortHaul
-    ? SERVICE_ITEM_CALCULATION_LABELS.BaselineShorthaulPrice
-    : SERVICE_ITEM_CALCULATION_LABELS.BaselineLinehaulPrice;
-  const isPeakDetail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+const baselineLinehaulPrice = (params) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.BaselineLinehaulPrice;
+  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
     getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
   }`;
-  const serviceAreaOriginDetail = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]
-  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin, params)}`;
-  const requestedPickupDateDetail = `${
-    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
-  }: ${formatDate(getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params), 'DD MMM YYYY')}`;
+  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin,
+    params,
+  )}`;
+  const detail3 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
 
-  return calculation(value, label, isPeakDetail, serviceAreaOriginDetail, requestedPickupDateDetail);
+  return calculation(value, label, detail1, detail2, detail3);
+};
+
+const baselineShorthaulPrice = (params) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.BaselineShorthaulPrice;
+  const detail1 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+  const detail2 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin,
+    params,
+  )}`;
+  const detail3 = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+
+  return calculation(value, label, detail1, detail2, detail3);
+};
+
+const dddSITmileageZip5 = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
+    params,
+  )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress,
+    params,
+  )}`;
+
+  return calculation(value, label, detail);
 };
 
 // There is no param representing the orgin price or destination price as available in the re_domestic_service_area_prices table
@@ -201,6 +236,22 @@ const additionalDaySITPrice = (params) => {
   return calculation(value, label, serviceArea, requestedPickupDate, peak);
 };
 
+const sitDeliveryPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.SITDeliveryPrice;
+  const sitScheduleDestination = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.SITScheduleDest, params)}`;
+  const requestedPickup = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
+  }: ${formatDate(getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params), 'DD MMM YYYY')}`;
+  const domesticNonPeak = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+
+  return calculation(value, label, sitScheduleDestination, requestedPickup, domesticNonPeak);
+};
+
 const daysInSIT = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.NumberDaysSIT, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.DaysInSIT;
@@ -240,12 +291,21 @@ const makeCalculations = (itemCode, totalAmount, params) => {
   let result = [];
 
   switch (itemCode) {
+    case SERVICE_ITEM_CODES.DDDSIT:
+      result = [
+        billableWeight(params),
+        dddSITmileageZip5(params),
+        sitDeliveryPrice(params),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     // Domestic longhaul
     case SERVICE_ITEM_CODES.DLH:
       result = [
         billableWeight(params),
-        mileageZIP(params, true),
-        baselineHaulPrice(params),
+        mileageZIP3(params),
+        baselineLinehaulPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
@@ -254,7 +314,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.FSC:
       result = [
         billableWeight(params),
-        mileageZIP(params, true),
+        mileageZIP3(params),
         fuelSurchargePrice(params),
         totalAmountRequested(totalAmount),
       ];
@@ -299,8 +359,8 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DSH:
       result = [
         billableWeight(params),
-        mileageZIP(params),
-        baselineHaulPrice(params, true),
+        mileageZip5(params),
+        baselineShorthaulPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];

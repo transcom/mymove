@@ -25,6 +25,15 @@ export default {
   },
 };
 
+export const DDDSIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestinationSITDelivery}
+    totalAmountRequested={642}
+    itemCode="DDDSIT"
+    tableSize={data.tableSize}
+  />
+);
+
 export const DLH = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticLongHaul}
