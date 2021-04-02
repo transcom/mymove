@@ -23,7 +23,7 @@ func NewCounselingServicesPricer(db *pop.Connection) services.CounselingServices
 }
 
 // Price determines the price for a counseling service
-func (p counselingServicesPricer) Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingParams, error) {
+func (p counselingServicesPricer) Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingDisplayParams, error) {
 	taskOrderFee, err := fetchTaskOrderFee(p.db, contractCode, models.ReServiceCodeCS, mtoAvailableToPrimeAt)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch task order fee: %w", err)
@@ -33,7 +33,7 @@ func (p counselingServicesPricer) Price(contractCode string, mtoAvailableToPrime
 }
 
 // PriceUsingParams determines the price for a counseling service given PaymentServiceItemParams
-func (p counselingServicesPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
+func (p counselingServicesPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err

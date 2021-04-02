@@ -19,7 +19,7 @@ type FuelSurchargePricer struct {
 }
 
 // Price provides a mock function with given fields: contractCode, actualPickupDate, distance, weight, weightBasedDistanceMultiplier, fuelPrice
-func (_m *FuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier float64, fuelPrice unit.Millicents) (unit.Cents, services.PricingParams, error) {
+func (_m *FuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier float64, fuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(contractCode, actualPickupDate, distance, weight, weightBasedDistanceMultiplier, fuelPrice)
 
 	var r0 unit.Cents
@@ -29,12 +29,12 @@ func (_m *FuelSurchargePricer) Price(contractCode string, actualPickupDate time.
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingParams
-	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) services.PricingParams); ok {
+	var r1 services.PricingDisplayParams
+	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) services.PricingDisplayParams); ok {
 		r1 = rf(contractCode, actualPickupDate, distance, weight, weightBasedDistanceMultiplier, fuelPrice)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(services.PricingParams)
+			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
@@ -49,7 +49,7 @@ func (_m *FuelSurchargePricer) Price(contractCode string, actualPickupDate time.
 }
 
 // PriceUsingParams provides a mock function with given fields: params
-func (_m *FuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
+func (_m *FuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(params)
 
 	var r0 unit.Cents
@@ -59,12 +59,12 @@ func (_m *FuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItem
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingParams
-	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) services.PricingParams); ok {
+	var r1 services.PricingDisplayParams
+	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
 		r1 = rf(params)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(services.PricingParams)
+			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
