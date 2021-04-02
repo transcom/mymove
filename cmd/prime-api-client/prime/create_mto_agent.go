@@ -1,4 +1,4 @@
-package support
+package prime
 
 import (
 	"encoding/json"
@@ -13,33 +13,30 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
-
-	movetaskorderclient "github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
+	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
 )
 
-// InitCreateMTOFlags initializes flags.
-func InitCreateMTOFlags(flag *pflag.FlagSet) {
-	flag.String(utils.FilenameFlag, "", "Path to the file with the payment request JSON payload")
-
+// InitCreateMTOAgentFlags declares which flags are enabled
+func InitCreateMTOAgentFlags(flag *pflag.FlagSet) {
+	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 	flag.SortFlags = false
 }
 
-// CheckCreateMTOConfig checks the args.
-func CheckCreateMTOConfig(v *viper.Viper, args []string) error {
+func checkCreateMTOAgentConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
-		return err
+		logger.Fatal(err)
 	}
 
 	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
-		return errors.New("create-move-task-order expects a file to be passed in")
+		logger.Fatal(errors.New("create-agents expects a file to be passed in"))
 	}
 
 	return nil
 }
 
-// CreateMTO sends a CreateMoveTaskOrder request to the support endpoint
-func CreateMTO(cmd *cobra.Command, args []string) error {
+// CreateMTOAgent creates a gateway and sends the request to the endpoint
+func CreateMTOAgent(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	// Create the logger - remove the prefix and any datetime data
@@ -51,25 +48,26 @@ func CreateMTO(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := CheckCreateMTOConfig(v, args)
+	err := checkCreateMTOAgentConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	// Decode json from file that was passed in
+	// Decode json from file that was passed into MTOShipment
 	filename := v.GetString(utils.FilenameFlag)
-	var createMTOParams movetaskorderclient.CreateMoveTaskOrderParams
-	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &createMTOParams)
+	var mtoAgentPayload mtoShipment.CreateMTOAgentParams // CreateMTOAgentParams Takes data out of JSon and puts it in struct
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &mtoAgentPayload)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	createMTOParams.SetTimeout(time.Second * 30)
+	mtoAgentPayload.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
-	gateway, cacStore, errCreateClient := utils.CreateSupportClient(v)
+	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
+
 	// Defer closing the store until after the API call has completed
 	if cacStore != nil {
 		defer func() {
@@ -80,12 +78,11 @@ func CreateMTO(cmd *cobra.Command, args []string) error {
 	}
 
 	// Make the API Call
-	resp, err := gateway.MoveTaskOrder.CreateMoveTaskOrder(&createMTOParams)
+	resp, err := primeGateway.MtoShipment.CreateMTOAgent(&mtoAgentPayload) // Sends the request
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}
 
-	// Get the successful response payload and convert to json for output
 	payload := resp.GetPayload()
 	if payload != nil {
 		payload, errJSONMarshall := json.Marshal(payload)
@@ -98,5 +95,4 @@ func CreateMTO(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-
 }
