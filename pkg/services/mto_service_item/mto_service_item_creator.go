@@ -448,19 +448,21 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 		return nil, err
 	}
 
+	verrs := validate.NewErrors()
+
 	// check if the address IDs are nil, if not they need to match the orginal SIT address
 	if serviceItem.SITOriginHHGOriginalAddress != nil && serviceItem.SITOriginHHGOriginalAddress.ID != mtoServiceItem.SITOriginHHGOriginalAddress.ID {
-		verrs := validate.NewErrors()
 		verrs.Add("SITOriginHHGOriginalAddressID", fmt.Sprintf("%s invalid SITOriginHHGOriginalAddressID", serviceItem.ReService.Code))
-		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
-			fmt.Sprintf("SITOriginHHGOriginalAddressID must be nil or match existing ID and it is %s", serviceItem.SITOriginHHGOriginalAddress.ID))
 	}
 
 	if serviceItem.SITOriginHHGActualAddress != nil && serviceItem.SITOriginHHGActualAddress.ID != mtoServiceItem.SITOriginHHGActualAddress.ID {
-		verrs := validate.NewErrors()
 		verrs.Add("SITOriginHHGActualAddress", fmt.Sprintf("%s invalid SITOriginHHGActualAddressID", serviceItem.ReService.Code))
+	}
+
+	if verrs.HasAny() {
 		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
-			fmt.Sprintf("SITOriginHHGActualAddressID must be nil or match existing ID and it is %s", serviceItem.SITOriginHHGActualAddress.ID))
+			fmt.Sprintf("There was invalid input in the standalone service item %s", serviceItem.ID))
+
 	}
 
 	// If the required first-day SIT item exists, we can update the related
@@ -485,19 +487,20 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *mode
 		return nil, err
 	}
 
+	verrs := validate.NewErrors()
+
 	// check if the address IDs are nil
 	if serviceItem.SITOriginHHGOriginalAddress != nil && serviceItem.SITOriginHHGOriginalAddress.ID != uuid.Nil {
-		verrs := validate.NewErrors()
-		verrs.Add("SITOriginHHGOriginalAddressID", fmt.Sprintf("%s invalid SITOriginHHGOriginalAddressID", serviceItem.ReService.Code))
-		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
-			fmt.Sprintf("SITOriginHHGOriginalAddressID must be nil and it is %s", serviceItem.SITOriginHHGOriginalAddress.ID))
+		verrs.Add("SITOriginHHGOriginalAddressID", fmt.Sprintf("%s invalid SITOriginHHGOriginalAddressID", serviceItem.SITOriginHHGOriginalAddress.ID))
 	}
 
 	if serviceItem.SITOriginHHGActualAddress != nil && serviceItem.SITOriginHHGActualAddress.ID != uuid.Nil {
-		verrs := validate.NewErrors()
-		verrs.Add("SITOriginHHGActualAddress", fmt.Sprintf("%s invalid SITOriginHHGActualAddressID", serviceItem.ReService.Code))
+		verrs.Add("SITOriginHHGActualAddress", fmt.Sprintf("%s invalid SITOriginHHGActualAddressID", serviceItem.SITOriginHHGActualAddress.ID))
+	}
+
+	if verrs.HasAny() {
 		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
-			fmt.Sprintf("SITOriginHHGActualAddressID must be nil and it is %s", serviceItem.SITOriginHHGActualAddress.ID))
+			fmt.Sprintf("There was invalid input in the service item %s", serviceItem.ID))
 	}
 
 	// create the extra service items for first day SIT
