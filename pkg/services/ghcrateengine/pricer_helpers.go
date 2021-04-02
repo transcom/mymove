@@ -160,8 +160,8 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	return totalPriceCents, nil, nil
 }
 
-// createPricerGeneratedParams stores params, whose origin is the PRICER, into the database
-// It also returns the
+// createPricerGeneratedParams stores PaymentServiceItemParams, whose origin is the PRICER, into the database
+// It also returns the newly created PaymentServiceItemParams.
 func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params services.PricingDisplayParams) (models.PaymentServiceItemParams, error) {
 	var paymentServiceItemParams models.PaymentServiceItemParams
 
