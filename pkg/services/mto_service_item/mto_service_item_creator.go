@@ -417,6 +417,7 @@ func validateTimeMilitaryField(timeMilitary string) error {
 	return nil
 }
 
+// Check if and address has and ID, if it does, it needs to match OG SIT
 func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *models.MTOServiceItem, reServiceCode models.ReServiceCode) (*models.MTOServiceItem, error) {
 	var mtoServiceItem models.MTOServiceItem
 	var mtoShipmentID uuid.UUID
@@ -447,6 +448,23 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 		return nil, err
 	}
 
+	verrs := validate.NewErrors()
+
+	// check if the address IDs are nil, if not they need to match the orginal SIT address
+	if serviceItem.SITOriginHHGOriginalAddress != nil && serviceItem.SITOriginHHGOriginalAddress.ID != mtoServiceItem.SITOriginHHGOriginalAddress.ID {
+		verrs.Add("SITOriginHHGOriginalAddressID", fmt.Sprintf("%s invalid SITOriginHHGOriginalAddressID", serviceItem.ReService.Code))
+	}
+
+	if serviceItem.SITOriginHHGActualAddress != nil && serviceItem.SITOriginHHGActualAddress.ID != mtoServiceItem.SITOriginHHGActualAddress.ID {
+		verrs.Add("SITOriginHHGActualAddress", fmt.Sprintf("%s invalid SITOriginHHGActualAddressID", serviceItem.ReService.Code))
+	}
+
+	if verrs.HasAny() {
+		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+			fmt.Sprintf("There was invalid input in the standalone service item %s", serviceItem.ID))
+
+	}
+
 	// If the required first-day SIT item exists, we can update the related
 	// service item passed in with the parent item's field values
 
@@ -458,6 +476,7 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 	return serviceItem, nil
 }
 
+// check if an address has an ID
 func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, error) {
 	var extraServiceItems models.MTOServiceItems
 	var extraServiceItem *models.MTOServiceItem
@@ -466,6 +485,22 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *mode
 	err := o.checkDuplicateServiceCodes(serviceItem)
 	if err != nil {
 		return nil, err
+	}
+
+	verrs := validate.NewErrors()
+
+	// check if the address IDs are nil
+	if serviceItem.SITOriginHHGOriginalAddress != nil && serviceItem.SITOriginHHGOriginalAddress.ID != uuid.Nil {
+		verrs.Add("SITOriginHHGOriginalAddressID", fmt.Sprintf("%s invalid SITOriginHHGOriginalAddressID", serviceItem.SITOriginHHGOriginalAddress.ID))
+	}
+
+	if serviceItem.SITOriginHHGActualAddress != nil && serviceItem.SITOriginHHGActualAddress.ID != uuid.Nil {
+		verrs.Add("SITOriginHHGActualAddress", fmt.Sprintf("%s invalid SITOriginHHGActualAddressID", serviceItem.SITOriginHHGActualAddress.ID))
+	}
+
+	if verrs.HasAny() {
+		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+			fmt.Sprintf("There was invalid input in the service item %s", serviceItem.ID))
 	}
 
 	// create the extra service items for first day SIT
