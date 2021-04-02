@@ -74,7 +74,6 @@ const mileageZipSITOrigin = (params) => {
     SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
     params,
   )}`;
-
   return calculation(value, label, detail);
 };
 
@@ -415,7 +414,6 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
-
     default:
       break;
   }

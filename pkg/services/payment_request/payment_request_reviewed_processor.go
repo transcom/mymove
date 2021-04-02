@@ -7,6 +7,7 @@ import (
 
 	"github.com/benbjohnson/clock"
 	"github.com/gobuffalo/pop/v5"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services/invoice"
 
@@ -124,6 +125,26 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
+	// Store/log metrics about EDI processing upon exiting this method.
+	numProcessed := 0
+	start := time.Now()
+	defer func() {
+		ediProcessing := models.EDIProcessing{
+			EDIType:          models.EDIType858,
+			ProcessStartedAt: start,
+			ProcessEndedAt:   time.Now(),
+			NumEDIsProcessed: numProcessed,
+		}
+		p.logger.Info("EDIs processed", zap.Object("EDIs processed", &ediProcessing))
+
+		verrs, err := p.db.ValidateAndCreate(&ediProcessing)
+		if err != nil {
+			p.logger.Error("failed to create EDIProcessing record", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			p.logger.Error("failed to validate EDIProcessing record", zap.Error(err))
+		}
+	}()
 
 	// Fetch all payment request that have been reviewed
 	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
@@ -142,6 +163,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 		if err != nil {
 			return err
 		}
+		numProcessed++
 	}
 
 	return nil

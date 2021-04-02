@@ -244,7 +244,7 @@ describe('makeCalculations', () => {
         value: '85 cwt',
       },
       {
-        value: '348',
+        value: '29',
         label: 'Mileage',
         details: ['ZIP 91910 to ZIP 94535'],
       },
