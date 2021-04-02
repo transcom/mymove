@@ -267,7 +267,7 @@ IEA*1*000000997
 		suite.Equal(2, len(ediErrors))
 		for i, ediError := range ediErrors {
 			suite.Equal("K", *ediError.Code)
-			suite.Equal(models.EDI824, ediError.EDIType)
+			suite.Equal(models.EDIType824, ediError.EDIType)
 			if i == 0 {
 				suite.Equal("DOCUMENT OWNER CANNOT BE DETERMINED", *ediError.Description)
 			} else {

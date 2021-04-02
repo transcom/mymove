@@ -86,7 +86,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
 				InterchangeControlNumberID: prToICN.ID,
-				EDIType:                    models.EDI997,
+				EDIType:                    models.EDIType997,
 			}
 			err = tx.Save(&ediError)
 			if err != nil {
@@ -115,5 +115,5 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 }
 
 func (e *edi997Processor) EDIType() models.EDIType {
-	return models.EDI997
+	return models.EDIType997
 }

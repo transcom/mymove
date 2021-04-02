@@ -93,7 +93,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
 				InterchangeControlNumberID: prToICN.ID,
-				EDIType:                    models.EDI824,
+				EDIType:                    models.EDIType824,
 			}
 			err = tx.Save(&ediError)
 			if err != nil {
@@ -134,7 +134,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
 				InterchangeControlNumberID: prToICN.ID,
-				EDIType:                    models.EDI824,
+				EDIType:                    models.EDIType824,
 			}
 			err = tx.Save(&ediError)
 			if err != nil {
@@ -171,5 +171,5 @@ func fetchTEDSegments(edi ediResponse824.EDI) []edisegment.TED {
 }
 
 func (e *edi824Processor) EDIType() models.EDIType {
-	return models.EDI824
+	return models.EDIType824
 }
