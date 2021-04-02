@@ -30,6 +30,8 @@ const (
 	PaymentRequestStatusReceivedByGex PaymentRequestStatus = "RECEIVED_BY_GEX"
 	// PaymentRequestStatusPaid is paid
 	PaymentRequestStatusPaid PaymentRequestStatus = "PAID"
+	// PaymentRequestStatusEDIError an error has occurred
+	PaymentRequestStatusEDIError PaymentRequestStatus = "EDI_ERROR"
 )
 
 var validPaymentRequestStatus = []string{
@@ -39,6 +41,7 @@ var validPaymentRequestStatus = []string{
 	string(PaymentRequestStatusSentToGex),
 	string(PaymentRequestStatusReceivedByGex),
 	string(PaymentRequestStatusPaid),
+	string(PaymentRequestStatusEDIError),
 }
 
 // PaymentRequest is an object representing a payment request on a move task order
@@ -62,6 +65,7 @@ type PaymentRequest struct {
 	MoveTaskOrder       Move                `belongs_to:"moves"`
 	PaymentServiceItems PaymentServiceItems `has_many:"payment_service_items"`
 	ProofOfServiceDocs  ProofOfServiceDocs  `has_many:"proof_of_service_docs"`
+	EdiErrors           EdiErrors           `has_many:"edi_errors"`
 }
 
 // PaymentRequests is a slice of PaymentRequest
