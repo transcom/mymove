@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ConnectedReview from './index';
@@ -18,42 +18,42 @@ describe('Review page', () => {
   };
 
   it('renders the Review Page', async () => {
-    const { getByText } = render(
+    const { findByRole } = render(
       <MockProviders>
         <ConnectedReview {...testProps} />
       </MockProviders>,
     );
-    await waitFor(() => {
-      expect(getByText('Review your details')).toBeInstanceOf(HTMLHeadingElement);
-    });
+
+    await findByRole('heading', { level: 1, name: 'Review your details' });
   });
 
   it('Finish Later button goes to the home page', async () => {
-    const { queryByText } = render(
+    const { findByRole } = render(
       <MockProviders>
         <ConnectedReview {...testProps} />
       </MockProviders>,
     );
 
-    const backButton = queryByText('Finish later');
+    const backButton = await findByRole('button', { name: 'Finish later' });
 
-    await waitFor(() => {
-      expect(backButton).toBeInTheDocument();
-    });
+    expect(backButton).toBeInTheDocument();
 
     userEvent.click(backButton);
+
     expect(testProps.push).toHaveBeenCalledWith('/');
   });
 
   it('next button goes to the Agreement page', async () => {
-    const { queryByText } = render(
+    const { findByRole } = render(
       <MockProviders>
         <ConnectedReview {...testProps} />
       </MockProviders>,
     );
 
-    const submitButton = queryByText('Next');
+    const submitButton = await findByRole('button', { name: 'Next' });
+
     expect(submitButton).toBeInTheDocument();
+
     userEvent.click(submitButton);
 
     expect(testProps.push).toHaveBeenCalledWith('/moves/:moveId/agreement');
