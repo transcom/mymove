@@ -76,7 +76,7 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhook
 	}
 	if err != nil {
 		logger.Error("Error creating WebhookNotification: ", zap.Error(err))
-		return webhookops.NewCreateWebhookNotificationInternalServerError().WithPayload(payloads.InternalServerError(swag.String("that thing happened"), h.GetTraceID()))
+		return webhookops.NewCreateWebhookNotificationInternalServerError().WithPayload(payloads.InternalServerError(swag.String(err.Error()), h.GetTraceID()))
 	}
 
 	payload = payloads.WebhookNotification(notification)
