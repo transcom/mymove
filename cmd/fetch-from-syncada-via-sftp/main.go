@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/invoice"
 
 	"github.com/spf13/pflag"
@@ -136,7 +137,7 @@ func main() {
 	logger.Info("lastRead", zap.String("t", t.String()))
 
 	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger, v.GetBool(DeleteFilesFlag))
+	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, db, logger, v.GetBool(DeleteFilesFlag))
 
 	// Just use a processor that prints the files to stdout for now.
 	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, &stdoutProcessor{})
@@ -155,4 +156,9 @@ func (p stdoutProcessor) ProcessFile(syncadaPath string, text string) error {
 	fmt.Println(strings.Repeat("=", len(syncadaPath)))
 	fmt.Print(text)
 	return nil
+}
+
+func (p stdoutProcessor) EDIType() models.EDIType {
+	// Just return anything for now.
+	return models.EDIType810
 }

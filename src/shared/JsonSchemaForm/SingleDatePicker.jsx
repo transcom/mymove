@@ -20,6 +20,7 @@ export default function SingleDatePicker(props) {
     onChange,
     onBlur,
     disabled,
+    required,
     name,
     disabledDays,
     placeholder,
@@ -39,6 +40,7 @@ export default function SingleDatePicker(props) {
       dayPickerProps={getDayPickerProps(disabledDays)}
       inputProps={{
         disabled,
+        required,
         name,
         id,
         autoComplete: 'off',

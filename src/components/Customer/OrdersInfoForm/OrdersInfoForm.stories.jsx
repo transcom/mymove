@@ -1,6 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { Formik } from 'formik';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
@@ -30,46 +28,51 @@ const testInitialValues = {
 };
 
 export default {
-  title: 'Customer Components / Forms / OrdersInfoForm',
+  title: 'Customer Components / Forms / Orders Info Form',
   component: OrdersInfoForm,
-  // TODO - Story-level decorators not working, maybe after we update Storybook?
-  /* decorators: [
-    (Story) => (
-      <Formik initialValues={{ ...testInitialValues, has_dependents: 'no' }}>
-        <Story />
-      </Formik>
-    ),
-  ], */
+  argTypes: {
+    onSubmit: { action: 'submit form' },
+    onBack: { action: 'go back' },
+  },
 };
 
 const testProps = {
+  initialValues: { orders_type: '', issue_date: '', report_by_date: '', has_dependents: '', new_duty_station: {} },
   ordersTypeOptions: [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
   ],
+  currentStation: {},
 };
 
-export const EmptyValues = () => (
-  <Formik>
-    <OrdersInfoForm {...testProps} />
-  </Formik>
+export const EmptyValues = (argTypes) => (
+  <OrdersInfoForm {...testProps} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
 );
 
-export const PrefillNoDependents = () => (
-  <Formik initialValues={testInitialValues}>
-    <OrdersInfoForm {...testProps} />
-  </Formik>
+export const PrefillNoDependents = (argTypes) => (
+  <OrdersInfoForm
+    {...testProps}
+    initialValues={testInitialValues}
+    onSubmit={argTypes.onSubmit}
+    onBack={argTypes.onBack}
+  />
 );
 
-export const PrefillYesDependents = () => (
-  <Formik initialValues={{ ...testInitialValues, has_dependents: 'yes' }}>
-    <OrdersInfoForm {...testProps} />
-  </Formik>
+export const PrefillYesDependents = (argTypes) => (
+  <OrdersInfoForm
+    {...testProps}
+    initialValues={{ ...testInitialValues, has_dependents: 'yes' }}
+    onSubmit={argTypes.onSubmit}
+    onBack={argTypes.onBack}
+  />
 );
 
-export const PCSOnly = () => (
-  <Formik>
-    <OrdersInfoForm ordersTypeOptions={[testProps.ordersTypeOptions[0]]} />
-  </Formik>
+export const PCSOnly = (argTypes) => (
+  <OrdersInfoForm
+    {...testProps}
+    ordersTypeOptions={[testProps.ordersTypeOptions[0]]}
+    onSubmit={argTypes.onSubmit}
+    onBack={argTypes.onBack}
+  />
 );
