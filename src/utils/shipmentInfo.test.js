@@ -63,12 +63,12 @@ describe('determineShipmentInfo', () => {
     [true, [], ['fakeMTO', 'anotherMTO']],
   ])(
     'should set hasShipment to (%i) based on PPM (%s) and MTO (%s) shipments',
-    (expectedNumber, ppmList, mtoShipments) => {
+    (expectedHasShipment, ppmList, mtoShipments) => {
       const move = { ...fakeMove, personally_procured_moves: ppmList };
 
       const info = determineShipmentInfo(move, mtoShipments);
 
-      expect(info.hasShipment).toBe(expectedNumber);
+      expect(info.hasShipment).toBe(expectedHasShipment);
     },
   );
 
