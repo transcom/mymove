@@ -57,7 +57,7 @@ IEA*1*000000022
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 999,
+				InterchangeControlNumber: 100001251,
 				PaymentRequest:           paymentRequest,
 			},
 		})
@@ -65,12 +65,28 @@ IEA*1*000000022
 		suite.NoError(err)
 	})
 
+	suite.T().Run("throw error when parsing an EDI997 when an EDI824 is expected", func(t *testing.T) {
+		sample997EDIString := `
+		ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
+		GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
+		ST*824*000000001
+		BGN*11*1126-9404*20210217
+		OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
+		TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+		SE*5*000000001
+		GE*1*1
+		IEA*1*000000995
+`
+		err := edi997Processor.ProcessFile("", sample997EDIString)
+		suite.Contains(err.Error(), "unable to parse EDI997")
+	})
+
 	suite.T().Run("successfully updates a payment request status after processing a valid EDI997", func(t *testing.T) {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
 ST*997*0001
-AK1*SI*100001251
+AK1*SI*100001252
 AK2*858*0001
 
 AK5*A
@@ -83,7 +99,7 @@ IEA*1*000000995
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
-				InterchangeControlNumber: 995,
+				InterchangeControlNumber: 100001252,
 				PaymentRequest:           paymentRequest,
 			},
 		})
@@ -126,12 +142,12 @@ IEA*1*000000022
 		suite.Equal(models.PaymentRequestStatusPending, updatedPR.Status)
 	})
 
-	suite.T().Run("Return an error if payment request is not found with ICN", func(t *testing.T) {
+	suite.T().Run("Return an error if payment request is not found with GCN", func(t *testing.T) {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000009*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
 ST*997*0001
-AK1*SI*100001251
+AK1*SI*100001253
 AK2*858*0001
 
 AK5*A
@@ -142,14 +158,14 @@ IEA*1*000000022
 	`
 		err := edi997Processor.ProcessFile("", sample997EDIString)
 		suite.Error(err, "fail to process 997")
-		suite.Contains(err.Error(), "unable to find payment request")
+		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
 	})
 }
 
-func (suite *ProcessEDI997Suite) TestValidatingEDIHeader() {
+func (suite *ProcessEDI997Suite) TestValidatingEDI997() {
 	edi997Processor := NewEDI997Processor(suite.DB(), suite.logger)
 
-	suite.T().Run("fails when there are validation errors on EDI header fields", func(t *testing.T) {
+	suite.T().Run("fails when there are validation errors on EDI997 fields", func(t *testing.T) {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *210217*1530*U*00401*2000000000*8*A*|
 GS*BS*MILMOVE*8004171844*20190903*1617*2000000000*X*004010
@@ -184,7 +200,14 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000995
 `
-
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+				PaymentRequestID:         paymentRequest.ID,
+				InterchangeControlNumber: 100001251,
+				PaymentRequest:           paymentRequest,
+			},
+		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		errString := err.Error()
@@ -193,7 +216,6 @@ IEA*1*000000995
 			TestName         string
 			ExpectedErrorMsg string
 		}{
-			{TestName: "Invalid ICN causes missing PR", ExpectedErrorMsg: "unable to find payment request"},
 			{TestName: "Invalid ICN", ExpectedErrorMsg: "'InterchangeControlNumber' failed on the 'max' tag"},
 			{TestName: "Invalid AcknowledgementRequested", ExpectedErrorMsg: "'AcknowledgementRequested' failed on the 'oneof' tag"},
 			{TestName: "Invalid UsageIndicator", ExpectedErrorMsg: "'UsageIndicator' failed on the 'oneof' tag"},

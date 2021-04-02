@@ -138,6 +138,7 @@ IEA*1*000000022
 		err := edi824Processor.ProcessFile("", sample824EDIString)
 		suite.Contains(err.Error(), "unable to parse EDI824")
 	})
+
 	suite.T().Run("successfully updates a payment request status after processing a valid EDI824", func(t *testing.T) {
 		sample824EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000996*0*T*|

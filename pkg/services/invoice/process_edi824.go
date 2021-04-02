@@ -38,6 +38,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		e.logger.Error("unable to parse EDI824", zap.Error(err))
 		return fmt.Errorf("unable to parse EDI824")
 	}
+
 	var transactionError error
 	var otiGCN int64
 	var bgn edisegment.BGN
@@ -55,7 +56,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		}
 
 		// In the 858, the EDI only has 1 group, and the ICN and the GCN are the same. Therefore, we'll query the PR to ICN table
-		// to find the associated payment request using the reported GCN from the 997.
+		// to find the associated payment request using the reported GCN from the 824.
 		var paymentRequest models.PaymentRequest
 		err = e.db.Q().
 			Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
@@ -91,7 +92,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				return fmt.Errorf("failure saving edi validation errors: %w", err)
 			}
 			e.logger.Error("Validation error(s) detected with the EDI824", zap.Error(err))
-			return fmt.Errorf("Validation error(s) detected with the EDI824: %w", err)
+			return fmt.Errorf("Validation error(s) detected with the EDI824: %w, %v", err, desc)
 		}
 
 		var move models.Move
@@ -129,6 +130,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 			}
 			err = tx.Save(&ediError)
 			if err != nil {
+				e.logger.Error("failure saving edi technical error description", zap.Error(err))
 				return fmt.Errorf("failure saving edi technical error description: %w", err)
 			}
 		}
@@ -136,6 +138,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		paymentRequest.Status = models.PaymentRequestStatusEDIError
 		err = tx.Update(&paymentRequest)
 		if err != nil {
+			e.logger.Error("failure updating payment request status:", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
 		return nil
@@ -143,6 +146,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 
 	if transactionError != nil {
 		e.logger.Error(transactionError.Error())
+		return transactionError
 	}
 
 	return nil

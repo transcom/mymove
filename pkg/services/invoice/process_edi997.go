@@ -29,44 +29,74 @@ func NewEDI997Processor(db *pop.Connection,
 //ProcessFile parses an EDI 997 response and updates the payment request status
 func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	fmt.Printf(path)
-	errString := ""
 
 	edi997 := ediResponse997.EDI{}
 	err := edi997.Parse(stringEDI997)
 	if err != nil {
-		// TODO: save error to the db
-		errString += err.Error()
+		e.logger.Error("unable to parse EDI997", zap.Error(err))
+		return fmt.Errorf("unable to parse EDI997")
 	}
 
-	err = edi997.Validate()
-	if err != nil {
-		// TODO: save error to the db
-		errString += err.Error()
-	}
-
-	// Find the PaymentRequestID that matches the ICN
+	// Find the PaymentRequestID that matches the GCN
 	icn := edi997.InterchangeControlEnvelope.ISA.InterchangeControlNumber
+	var gcn int64
+	if edi997.InterchangeControlEnvelope.FunctionalGroups != nil {
+		if edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets != nil {
+			transactionSet := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
+			gcn = transactionSet.GroupControlNumber
+		}
+	} else {
+		e.logger.Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))
+		return fmt.Errorf("Validation error(s) detected with the EDI824. EDI Errors could not be saved: %w", err)
+	}
+
+	// In the 858, the EDI only has 1 group, and the ICN and the GCN are the same. Therefore, we'll query the PR to ICN table
+	// to find the associated payment request using the reported GCN from the 997.
 	var paymentRequest models.PaymentRequest
 	err = e.db.Q().
 		Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
-		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(icn)).
+		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(gcn)).
 		First(&paymentRequest)
 	if err != nil {
-		// TODO: save error to the db
-		errString += fmt.Sprintf("unable to find payment request with ID: %s, %d", err.Error(), int(icn)) + "\n"
+		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
+		return fmt.Errorf("unable to find PaymentRequest with GCN: %s, %d", err.Error(), int(gcn))
 	}
 
-	if errString != "" {
-		e.logger.Error(errString)
-		return fmt.Errorf(errString)
+	prToICN := models.PaymentRequestToInterchangeControlNumber{
+		InterchangeControlNumber: int(icn),
+		PaymentRequestID:         paymentRequest.ID,
 	}
 
 	var transactionError error
 	transactionError = e.db.Transaction(func(tx *pop.Connection) error {
+		err = tx.Save(&prToICN)
+		if err != nil {
+			e.logger.Error("failure saving payment request to interchange control number", zap.Error(err))
+			return fmt.Errorf("failure saving payment request to interchange control number: %w", err)
+		}
+		err = edi997.Validate()
+		if err != nil {
+			code := "MilMove"
+			desc := err.Error()
+			ediError := models.EdiError{
+				Code:                       &code,
+				Description:                &desc,
+				PaymentRequestID:           paymentRequest.ID,
+				InterchangeControlNumberID: prToICN.ID,
+				EDIType:                    models.EDI997,
+			}
+			err = tx.Save(&ediError)
+			if err != nil {
+				e.logger.Error("failure saving edi validation errors", zap.Error(err))
+				return fmt.Errorf("failure saving edi validation errors: %w", err)
+			}
+			e.logger.Error("Validation error(s) detected with the EDI824", zap.Error(err))
+			return fmt.Errorf("Validation error(s) detected with the EDI824: %w, %v", err, desc)
+		}
+
 		paymentRequest.Status = models.PaymentRequestStatusReceivedByGex
 		err = tx.Update(&paymentRequest)
 		if err != nil {
-			// TODO: save error to the db
 			e.logger.Error("failure updating payment request", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
@@ -74,7 +104,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	})
 
 	if transactionError != nil {
-		// TODO: save error to the db
+		e.logger.Error(transactionError.Error())
 		return transactionError
 	}
 
