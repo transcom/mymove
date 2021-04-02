@@ -115,15 +115,7 @@ const DistanceZip5 = {
   type: 'INTEGER',
   value: '32210',
 };
-const DistanceZipSITDest = {
-  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
-  id: 'b4ba804d-f661-4df1-a488-11da9668647b',
-  key: 'DistanceZipSITDest',
-  origin: 'SYSTEM',
-  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'INTEGER',
-  value: '348',
-};
+
 const ContractCode = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNDYwMDRa',
   id: 'f2a3e73f-6450-43d6-a783-181501cfab22',
@@ -179,33 +171,55 @@ const CubicFeetCrating = {
   type: 'INTEGER',
   value: '',
 };
-const DistanceZip5SITOrigin = {
+const DistanceZipSITOrigin = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: 'f9753611-4b3e-4bf5-8e00-6d9ce9900f50',
-  key: 'DistanceZip5SITOrigin',
+  key: 'DistanceZipSITOrigin',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'INTEGER',
-  value: '',
+  value: '29',
 };
-const ZipSITDestHHGFinalAddress = {
+const DistanceZipSITDest = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: '45ede48b-364d-473a-8c61-0f520a6a4e04',
-  key: 'ZipSITDestHHGFinalAddress',
+  key: 'DistanceZipSITDest',
   origin: 'SYSTEM',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'INTEGER',
+  value: '29',
+};
+
+const ZipSITOriginHHGOriginalAddress = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
+  id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
+  key: 'ZipSITOriginHHGOriginalAddress',
+  origin: 'PRIME',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'STRING',
   value: '90210',
 };
-const ZipSITAddress = {
+
+const ZipSITOriginHHGActualAddress = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
-  key: 'ZipSITAddress',
+  key: 'ZipSITOriginHHGActualAddress',
   origin: 'PRIME',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'STRING',
-  value: '',
+  value: '90211',
 };
+
+const ZipSITDestHHGFinalAddress = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
+  id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
+  key: 'ZipSITDestHHGFinalAddress',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'STRING',
+  value: '94535',
+};
+
 const EIAFuelPrice = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: 'adeb57e5-6b1c-4c0f-b5c9-9e57e600303f',
@@ -239,8 +253,8 @@ const SITScheduleOrigin = {
   key: 'SITScheduleOrigin',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'INTEGER',
-  value: '',
+  type: 'STRING',
+  value: '3',
 };
 const SITScheduleDest = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
@@ -474,20 +488,19 @@ const testParams = {
     ZipDestAddress,
     ContractYearName,
   ],
-  DomesticOriginSITDelivery: [
-    ContractCode,
-    ContractYearName,
-    DistanceZipSITDest,
-    EscalationCompounded,
-    PriceRateOrFactor,
+  DomesticOriginSITPickup: [
     RequestedPickupDate,
-    ServiceAreaDest,
-    SITScheduleDest,
+    ServiceAreaOrigin,
+    SITScheduleOrigin,
     WeightActual,
     WeightBilledActual,
     WeightEstimated,
-    ZipDestAddress,
-    ZipSITDestHHGFinalAddress,
+    DistanceZipSITOrigin,
+    ZipSITOriginHHGOriginalAddress,
+    ZipSITOriginHHGActualAddress,
+    PriceRateOrFactor,
+    ContractYearName,
+    EscalationCompounded,
   ],
   DomesticDestinationSITDelivery: [
     ContractCode,

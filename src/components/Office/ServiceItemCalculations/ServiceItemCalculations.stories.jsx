@@ -97,6 +97,15 @@ export const DUPK = (data) => (
   />
 );
 
+export const DOPSIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginSITPickup}
+    totalAmountRequested={642}
+    itemCode="DOPSIT"
+    tableSize={data.tableSize}
+  />
+);
+
 export const DDP = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticDestinationPrice}

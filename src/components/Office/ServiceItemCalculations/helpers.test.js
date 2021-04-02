@@ -183,9 +183,35 @@ describe('makeCalculations', () => {
     expect(result).toEqual([]);
   });
 
-  it('returns correct data for DomesticOriginSITDelivery', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticOriginSITDelivery);
-    expect(result).toEqual([]);
+  it('returns correct data for DomesticOriginSITPickup', () => {
+    const result = makeCalculations('DOPSIT', 99999, testParams.DomesticOriginSITPickup);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: '29',
+        label: 'Mileage',
+        details: ['ZIP 90210 to ZIP 90211'],
+      },
+      {
+        value: '1.71',
+        label: 'SIT pickup price',
+        details: ['Origin SIT schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: ['Base year: 2'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for DomesticDestinationSITDelivery', () => {
@@ -197,9 +223,9 @@ describe('makeCalculations', () => {
         value: '85 cwt',
       },
       {
-        value: '348',
+        value: '29',
         label: 'Mileage',
-        details: ['ZIP 91910 to ZIP 90210'],
+        details: ['ZIP 91910 to ZIP 94535'],
       },
       {
         details: ['Destination SIT schedule: 3', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
