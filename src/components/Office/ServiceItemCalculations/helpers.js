@@ -128,22 +128,35 @@ const dddSITmileageZip5 = (params) => {
   return calculation(value, label, detail);
 };
 
-// There is no param representing the orgin price or destination price as available in the re_domestic_service_area_prices table
+// There is no param representing the orgin price as available in the re_domestic_service_area_prices table
 // A param to return the service schedule is also not being created
-const originOrDestinationPrice = (params, isOrigin = true) => {
+const originPrice = (params) => {
   const value = getPriceRateOrFactor(params);
-  const serviceAreaKey = isOrigin ? SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin : SERVICE_ITEM_PARAM_KEYS.ServiceAreaDest;
-  const serviceAreaVal = getParamValue(serviceAreaKey, params) ? getParamValue(serviceAreaKey, params) : '';
+  const serviceAreaVal = getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin, params) || '';
   const requestedPickupDateVal = getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params) || '';
-  const label = isOrigin
-    ? SERVICE_ITEM_CALCULATION_LABELS.OriginPrice
-    : SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
-
+  const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
   const serviceArea = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${serviceAreaVal}`;
   const requestedPickupDate = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
   }: ${formatDate(requestedPickupDateVal, 'DD MMM YYYY')}`;
+  const isPeak = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
 
+  return calculation(value, label, serviceArea, requestedPickupDate, isPeak);
+};
+
+// There is no param representing the destination price as available in the re_domestic_service_area_prices table
+// A param to return the service schedule is also not being created
+const destinationPrice = (params) => {
+  const value = getPriceRateOrFactor(params);
+  const serviceAreaVal = getParamValue(SERVICE_ITEM_PARAM_KEYS.ServiceAreaDest, params) || '';
+  const requestedPickupDateVal = getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params) || '';
+  const label = SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
+  const serviceArea = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceArea}: ${serviceAreaVal}`;
+  const requestedPickupDate = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
+  }: ${formatDate(requestedPickupDateVal, 'DD MMM YYYY')}`;
   const isPeak = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
     getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
   }`;
@@ -323,7 +336,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DOP:
       result = [
         billableWeight(params),
-        originOrDestinationPrice(params),
+        originPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
@@ -332,7 +345,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DOFSIT:
       result = [
         billableWeight(params),
-        originOrDestinationPrice(params),
+        originPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
@@ -341,7 +354,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DDFSIT:
       result = [
         billableWeight(params),
-        originOrDestinationPrice(params, false),
+        destinationPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
@@ -369,7 +382,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DDP:
       result = [
         billableWeight(params),
-        originOrDestinationPrice(params, false),
+        destinationPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
