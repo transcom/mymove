@@ -40,6 +40,7 @@ const ExpandableServiceItemRow = ({ serviceItem, index }) => {
         data-groupid={index}
         className={tableRowClasses}
         onClick={canClickToExpandContent(canShowExpandableContent, serviceItem) ? handleExpandClick : undefined}
+        aria-expanded={isExpanded}
       >
         <td data-testid="serviceItemName">
           {canShowExpandableContent && serviceItem.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (

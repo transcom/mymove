@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestEdiErrors() {
 		"Successful Create": {
 			ediError: models.EdiError{
 				ID:                         uuid.Must(uuid.NewV4()),
-				EDIType:                    models.EDI824,
+				EDIType:                    models.EDIType824,
 				PaymentRequestID:           pr.ID,
 				InterchangeControlNumberID: prICN.ID,
 				Code:                       swag.String("B"),
@@ -37,8 +37,8 @@ func (suite *ModelSuite) TestEdiErrors() {
 		"Empty Fields": {
 			ediError: models.EdiError{},
 			expectedErrs: map[string][]string{
-				"description":                   {"Both Description and Code cannont be nil, one must be valid"},
-				"code":                          {"Both Code and Description cannont be nil, one must be valid"},
+				"description":                   {"Both Description and Code cannot be nil, one must be valid"},
+				"code":                          {"Both Code and Description cannot be nil, one must be valid"},
 				"payment_request_id":            {"PaymentRequestID can not be blank."},
 				"interchange_control_number_id": {"InterchangeControlNumberID can not be blank."},
 				"editype":                       {"EDIType is not in the list [810, 824, 858, 997]."},
@@ -47,7 +47,7 @@ func (suite *ModelSuite) TestEdiErrors() {
 		"Message Type Invalid": {
 			ediError: models.EdiError{
 				ID:                         uuid.Must(uuid.NewV4()),
-				EDIType:                    "EDI956",
+				EDIType:                    "956",
 				PaymentRequestID:           pr.ID,
 				InterchangeControlNumberID: prICN.ID,
 				Code:                       swag.String("C"),
@@ -60,7 +60,7 @@ func (suite *ModelSuite) TestEdiErrors() {
 		"At least one valid Code or Description": {
 			ediError: models.EdiError{
 				ID:                         uuid.Must(uuid.NewV4()),
-				EDIType:                    models.EDI824,
+				EDIType:                    models.EDIType824,
 				PaymentRequestID:           pr.ID,
 				InterchangeControlNumberID: prICN.ID,
 				Description:                swag.String("EDI Error happened to field 99"),
@@ -70,7 +70,7 @@ func (suite *ModelSuite) TestEdiErrors() {
 		"At least one valid Code or Description and no empty string": {
 			ediError: models.EdiError{
 				ID:                         uuid.Must(uuid.NewV4()),
-				EDIType:                    models.EDI824,
+				EDIType:                    models.EDIType824,
 				PaymentRequestID:           pr.ID,
 				InterchangeControlNumberID: prICN.ID,
 				Description:                swag.String(""),

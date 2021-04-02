@@ -5,24 +5,28 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
 
 	"github.com/pkg/sftp"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 // syncadaReaderSFTPSession contains information to create a new Syncada SFTP session
 type syncadaReaderSFTPSession struct {
 	client                     services.SFTPClient
+	db                         *pop.Connection
 	logger                     Logger
 	deleteFilesAfterProcessing bool
 }
 
 // NewSyncadaSFTPReaderSession initialize a NewSyncadaSFTPSession and return services.SyncadaSFTPReader
-func NewSyncadaSFTPReaderSession(client services.SFTPClient, logger Logger, deleteFilesAfterProcessing bool) services.SyncadaSFTPReader {
+func NewSyncadaSFTPReaderSession(client services.SFTPClient, db *pop.Connection, logger Logger, deleteFilesAfterProcessing bool) services.SyncadaSFTPReader {
 	return &syncadaReaderSFTPSession{
 		client,
+		db,
 		logger,
 		deleteFilesAfterProcessing,
 	}
@@ -30,6 +34,27 @@ func NewSyncadaSFTPReaderSession(client services.SFTPClient, logger Logger, dele
 
 // FetchAndProcessSyncadaFiles downloads Syncada files with SFTP, processes them using the provided processor, and deletes them from the SFTP server if they were successfully processed
 func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
+	// Store/log metrics about EDI processing upon exiting this method.
+	numProcessed := 0
+	start := time.Now()
+	defer func() {
+		ediProcessing := models.EDIProcessing{
+			EDIType:          processor.EDIType(),
+			ProcessStartedAt: start,
+			ProcessEndedAt:   time.Now(),
+			NumEDIsProcessed: numProcessed,
+		}
+		s.logger.Info("EDIs processed", zap.Object("EDIs processed", &ediProcessing))
+
+		verrs, err := s.db.ValidateAndCreate(&ediProcessing)
+		if err != nil {
+			s.logger.Error("failed to create EDIProcessing record", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			s.logger.Error("failed to validate EDIProcessing record", zap.Error(err))
+		}
+	}()
+
 	fileList, err := s.client.ReadDir(syncadaPath)
 	if err != nil {
 		s.logger.Error("Error reading SFTP directory", zap.String("directory", syncadaPath))
@@ -56,6 +81,8 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath strin
 				s.logger.Error("Error while processing Syncada file", zap.String("path", filePath), zap.String("file contents", fileText), zap.Error(err))
 				continue
 			}
+
+			numProcessed++
 
 			if s.deleteFilesAfterProcessing {
 				err = s.client.Remove(filePath)

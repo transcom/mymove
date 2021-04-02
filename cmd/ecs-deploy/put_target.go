@@ -29,6 +29,7 @@ const (
 var names = []string{
 	"connect-to-gex-via-sftp",
 	"post-file-to-gex",
+	"process-edis",
 	"save-ghc-fuel-price-data",
 	"send-payment-reminder",
 	"send-post-move-survey",

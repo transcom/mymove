@@ -29,13 +29,7 @@ type EdiErrors []EdiError
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (e *EdiError) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
-	vs = append(vs, &validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: []string{
-		string(EDI810),
-		string(EDI824),
-		string(EDI858),
-		string(EDI997),
-	}})
-
+	vs = append(vs, &validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: allowedEDITypes})
 	vs = append(vs, &validators.UUIDIsPresent{Field: e.PaymentRequestID, Name: "PaymentRequestID"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: e.InterchangeControlNumberID, Name: "InterchangeControlNumberID"})
 	vs = append(vs, &AtLeastOneNotNil{FieldName1: "Code", FieldValue1: e.Code, FieldName2: "Description", FieldValue2: e.Description})

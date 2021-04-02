@@ -60,6 +60,10 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		payload.PpmType = *moveTaskOrder.PPMType
 	}
 
+	if moveTaskOrder.SelectedMoveType != nil {
+		payload.SelectedMoveType = (*supportmessages.SelectedMoveType)(moveTaskOrder.SelectedMoveType)
+	}
+
 	payload.SetMtoServiceItems(*mtoServiceItems)
 
 	return payload
@@ -126,6 +130,12 @@ func Order(order *models.Order) *supportmessages.Order {
 	}
 	if order.OriginDutyStationID != nil {
 		payload.OriginDutyStationID = handlers.FmtUUID(*order.OriginDutyStationID)
+	}
+	if order.DepartmentIndicator != nil {
+		payload.DepartmentIndicator = (*supportmessages.DeptIndicator)(order.DepartmentIndicator)
+	}
+	if order.OrdersTypeDetail != nil {
+		payload.OrdersTypeDetail = (*supportmessages.OrdersTypeDetail)(order.OrdersTypeDetail)
 	}
 	return &payload
 }
