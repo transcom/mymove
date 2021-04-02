@@ -25,12 +25,14 @@ type GHCPaymentRequestInvoiceGenerator interface {
 //go:generate mockery -name EDI824Processor
 type EDI824Processor interface {
 	ProcessFile(path string, ediString string) error
+	EDIType() models.EDIType
 }
 
 // EDI997Processor is the exported interface for generating an invoice
 //go:generate mockery -name EDI997Processor
 type EDI997Processor interface {
 	ProcessFile(path string, ediString string) error
+	EDIType() models.EDIType
 }
 
 // SyncadaSFTPSender is the exported interface for sending an EDI to Syncada
