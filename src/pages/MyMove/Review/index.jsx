@@ -30,11 +30,9 @@ const Review = ({ push, canMoveNext }) => {
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <div className={styles.reviewMoveContainer}>
-            <div className={`${styles.reviewMoveHeaderContainer} grid-row margin-bottom-3`}>
-              <h1 className="tablet:grid-col-10" data-testid="review-move-header">
-                Review your details
-              </h1>
-              <p className="tablet:grid-col-9">
+            <div className={styles.reviewMoveHeaderContainer}>
+              <h1 data-testid="review-move-header">Review your details</h1>
+              <p>
                 You’re almost done setting up your move. Double&#8209;check that your information is accurate, then move
                 on to the final step.
               </p>

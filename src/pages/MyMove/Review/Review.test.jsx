@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -19,13 +18,13 @@ describe('Review page', () => {
   };
 
   it('renders the Review Page', async () => {
+    const { getByText } = render(
+      <MockProviders>
+        <ConnectedReview {...testProps} />
+      </MockProviders>,
+    );
     await waitFor(() => {
-      const wrapper = mount(
-        <MockProviders>
-          <ConnectedReview {...testProps} />
-        </MockProviders>,
-      );
-      expect(wrapper.find('h1').text()).toBe('Review your details');
+      expect(getByText('Review your details')).toBeInstanceOf(HTMLHeadingElement);
     });
   });
 
