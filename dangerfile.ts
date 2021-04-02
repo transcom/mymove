@@ -60,8 +60,7 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
   // Request update of yarn.lock if package.json changed but yarn.lock isn't
   const packageChanged = allFiles.includes('package.json');
   const lockfileChanged = allFiles.includes('yarn.lock');
-  // eslint-disable-next-line no-constant-condition
-  if (false && packageChanged && !lockfileChanged) {
+  if (packageChanged && !lockfileChanged) {
     const message = 'Changes were made to package.json, but not to yarn.lock';
     const idea = 'Perhaps you need to run `yarn install`?';
     warn(`${message} - <i>${idea}</i>`);
