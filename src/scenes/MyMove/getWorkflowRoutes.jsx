@@ -172,7 +172,7 @@ const pages = {
   [customerRoutes.SHIPMENT_SELECT_TYPE_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
-    render: (key, pages, props) => ({ match, history }) => <SelectShipmentType match={match} push={history.push} />,
+    render: () => ({ history }) => <SelectShipmentType push={history.push} />,
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: (state) => {

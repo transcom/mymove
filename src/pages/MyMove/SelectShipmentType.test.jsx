@@ -8,9 +8,6 @@ import { SelectShipmentType } from 'pages/MyMove/SelectShipmentType';
 
 describe('SelectShipmentType', () => {
   const defaultProps = {
-    pageList: ['page1', 'anotherPage/:foo/:bar'],
-    pageKey: 'page1',
-    match: { isExact: false, path: '', url: '' },
     updateMove: jest.fn(),
     push: jest.fn(),
     loadMTOShipments: jest.fn(),

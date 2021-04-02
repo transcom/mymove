@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { string, bool, func, arrayOf, shape } from 'prop-types';
+import { func, arrayOf } from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
@@ -225,14 +225,6 @@ export class SelectShipmentType extends Component {
 }
 
 SelectShipmentType.propTypes = {
-  match: shape({
-    isExact: bool.isRequired,
-    params: shape({
-      moveId: string.isRequired,
-    }),
-    path: string.isRequired,
-    url: string.isRequired,
-  }).isRequired,
   push: func.isRequired,
   updateMove: func.isRequired,
   loadMTOShipments: func.isRequired,
