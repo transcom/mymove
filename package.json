@@ -76,6 +76,7 @@
     "yup": "^0.32.9"
   },
   "resolutions": {
+    "babel-loader": "~8.1.0",
     "kind-of": "^6.0.2",
     "selfsigned": "^1.10.8",
     "immer": "^8.0.1",
