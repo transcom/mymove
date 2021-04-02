@@ -3212,7 +3212,7 @@
     global "^4.3.2"
     regenerator-runtime "^0.13.7"
 
-"@storybook/addons@6.2.2", "@storybook/addons@^6.1.21":
+"@storybook/addons@6.2.2", "@storybook/addons@^6.2.2":
   version "6.2.2"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.2.2.tgz#d0ad3fa05e1569264511b8f8fb1fd08324e776a2"
   integrity sha512-3FSnNl+0wzkeh3KVk+CB8bYb4FDRIEeFI0kU+UDj46PAXuqObQeIzPlpsU59D5Qq6zFXV+IhzLRknGrrMh1XzA==
