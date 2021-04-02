@@ -54,8 +54,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightEstimated]: 'Estimated',
-  [SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]: 'Zip',
-  [SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]: 'Zip',
+  [SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]: 'ZIP',
+  [SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]: 'ZIP',
   // Domestic non-peak or Domestic peak
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',

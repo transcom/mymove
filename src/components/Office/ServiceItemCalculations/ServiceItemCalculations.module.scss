@@ -38,6 +38,7 @@
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: flex-start;
+    overflow: auto;
 
     .col {
       flex-shrink: 0;
