@@ -173,7 +173,9 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
                   </Tag>
                 )}
                 {s === 'requested-shipments' && (
-                  <Tag data-testid="requestedShipmentsTag">{submittedShipments?.length}</Tag>
+                  <Tag className={styles.tag} data-testid="requestedShipmentsTag">
+                    {submittedShipments?.length}
+                  </Tag>
                 )}
               </a>
             );
