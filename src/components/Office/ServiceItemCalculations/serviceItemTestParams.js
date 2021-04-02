@@ -115,6 +115,7 @@ const DistanceZip5 = {
   type: 'INTEGER',
   value: '32210',
 };
+
 const ContractCode = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNDYwMDRa',
   id: 'f2a3e73f-6450-43d6-a783-181501cfab22',
@@ -188,6 +189,7 @@ const DistanceZipSITDest = {
   type: 'INTEGER',
   value: '29',
 };
+
 const ZipSITOriginHHGOriginalAddress = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
@@ -224,7 +226,7 @@ const EIAFuelPrice = {
   key: 'EIAFuelPrice',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'INT',
+  type: 'INTEGER',
   value: '273300',
 };
 const FSCWeightBasedDistanceMultiplier = {
@@ -260,8 +262,8 @@ const SITScheduleDest = {
   key: 'SITScheduleDest',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'STRING',
-  value: '',
+  type: 'INTEGER',
+  value: '3',
 };
 const ServicesScheduleOrigin = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
@@ -269,7 +271,7 @@ const ServicesScheduleOrigin = {
   key: 'ServicesScheduleOrigin',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'INT',
+  type: 'INTEGER',
   value: '3',
 };
 const ServicesScheduleDest = {
@@ -278,7 +280,7 @@ const ServicesScheduleDest = {
   key: 'ServicesScheduleDest',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'INT',
+  type: 'INTEGER',
   value: '3',
 };
 const RateAreaNonStdOrigin = {
@@ -501,8 +503,12 @@ const testParams = {
     EscalationCompounded,
   ],
   DomesticDestinationSITDelivery: [
-    RequestedPickupDate,
+    ContractCode,
+    ContractYearName,
     DistanceZipSITDest,
+    EscalationCompounded,
+    PriceRateOrFactor,
+    RequestedPickupDate,
     ServiceAreaDest,
     SITScheduleDest,
     WeightActual,

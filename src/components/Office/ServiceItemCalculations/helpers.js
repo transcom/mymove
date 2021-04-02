@@ -74,6 +74,19 @@ const mileageZipSITOrigin = (params) => {
     SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
     params,
   )}`;
+  return calculation(value, label, detail);
+};
+
+const dddSITmileageZip5 = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
+    params,
+  )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress]} ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress,
+    params,
+  )}`;
 
   return calculation(value, label, detail);
 };
@@ -222,6 +235,22 @@ const additionalDaySITPrice = (params) => {
   return calculation(value, label, serviceArea, requestedPickupDate, peak);
 };
 
+const sitDeliveryPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.SITDeliveryPrice;
+  const sitScheduleDestination = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.SITScheduleDest, params)}`;
+  const requestedPickup = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
+  }: ${formatDate(getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params), 'DD MMM YYYY')}`;
+  const domesticNonPeak = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+
+  return calculation(value, label, sitScheduleDestination, requestedPickup, domesticNonPeak);
+};
+
 const daysInSIT = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.NumberDaysSIT, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.DaysInSIT;
@@ -261,6 +290,15 @@ const makeCalculations = (itemCode, totalAmount, params) => {
   let result = [];
 
   switch (itemCode) {
+    case SERVICE_ITEM_CODES.DDDSIT:
+      result = [
+        billableWeight(params),
+        dddSITmileageZip5(params),
+        sitDeliveryPrice(params),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     case SERVICE_ITEM_CODES.DLH:
       result = [
         billableWeight(params),
