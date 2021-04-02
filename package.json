@@ -119,7 +119,7 @@
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.6",
     "@testing-library/react-hooks": "^5.1.1",
-    "@testing-library/user-event": "^13.0.16",
+    "@testing-library/user-event": "^13.1.1",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.0",
     "commander": "^7.2.0",
     "conf": "^9.0.2",
