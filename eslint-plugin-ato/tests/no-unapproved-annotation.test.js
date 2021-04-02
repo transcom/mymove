@@ -1,6 +1,6 @@
 const { RuleTester } = require('eslint');
 
-const rule = require('../eslint/no-unapproved-annotation');
+const rule = require('../no-unapproved-annotation');
 
 const ruleTester = new RuleTester();
 

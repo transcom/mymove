@@ -1,6 +1,6 @@
 const { RuleTester } = require('eslint');
 
-const rule = require('../eslint/no-explicit-eslint-disable');
+const rule = require('../no-explicit-eslint-disable');
 
 const ruleTester = new RuleTester();
 
