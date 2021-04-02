@@ -182,13 +182,13 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 	params := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: 40000.9,
+			Value: "4000.90",
 		}, {
 			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: 1.06,
+			Value: "1.06",
 		}, {
 			Key:   models.ServiceItemParamNameIsPeak,
-			Value: true,
+			Value: "True",
 		}, {
 			Key:   models.ServiceItemParamNameContractYearName,
 			Value: "TRUSS_TEST",
@@ -263,7 +263,7 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 		invalidParam := services.PricingDisplayParams{
 			{
 				Key:   models.ServiceItemParamNameServiceAreaOrigin,
-				Value: 40000.9,
+				Value: "40000.9",
 			},
 		}
 
