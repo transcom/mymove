@@ -787,7 +787,9 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 	// have a departure date for the payment request param lookup to not encounter an error
 	originEntryDate := actualPickupDate
 
-	originSITAddress := testdatagen.MakeAddress2(db, testdatagen.Assertions{})
+	originSITAddress := testdatagen.MakeAddress2(db, testdatagen.Assertions{Stub: true})
+	originSITAddress.ID = uuid.Nil
+
 	originSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		Move:        move,
 		MTOShipment: longhaulShipment,

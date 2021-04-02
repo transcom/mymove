@@ -123,3 +123,12 @@ export const DDP = (data) => (
     tableSize={data.tableSize}
   />
 );
+
+export const DDASIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestinationAdditionalSIT}
+    totalAmountRequested={642}
+    itemCode="DDASIT"
+    tableSize={data.tableSize}
+  />
+);
