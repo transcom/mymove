@@ -76,15 +76,15 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
 };
 
 const SERVICE_ITEM_CODES = {
+  DDASIT: 'DDASIT',
   DDDSIT: 'DDDSIT',
+  DDFSIT: 'DDFSIT',
   DDP: 'DDP',
   DLH: 'DLH',
   DOASIT: 'DOASIT',
   DOFSIT: 'DOFSIT',
   DOP: 'DOP',
   DOPSIT: 'DOPSIT',
-  DDFSIT: 'DDFSIT',
-  DDASIT: 'DDASIT',
   DPK: 'DPK',
   DSH: 'DSH',
   DUPK: 'DUPK',
@@ -93,6 +93,7 @@ const SERVICE_ITEM_CODES = {
 
 // TODO - temporary, will remove once all service item calculations are implemented
 const allowedServiceItemCalculations = [
+  SERVICE_ITEM_CODES.DDASIT,
   SERVICE_ITEM_CODES.DDDSIT,
   SERVICE_ITEM_CODES.DDFSIT,
   SERVICE_ITEM_CODES.DDP,
@@ -101,7 +102,6 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DOFSIT,
   SERVICE_ITEM_CODES.DOP,
   SERVICE_ITEM_CODES.DOPSIT,
-  SERVICE_ITEM_CODES.DDASIT,
   SERVICE_ITEM_CODES.DPK,
   SERVICE_ITEM_CODES.DSH,
   SERVICE_ITEM_CODES.DUPK,
