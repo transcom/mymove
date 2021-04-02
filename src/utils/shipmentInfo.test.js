@@ -37,8 +37,9 @@ describe('determineShipmentInfo', () => {
   it.each([
     [1, [], []],
     [2, ['fakePPM'], []],
-    [2, ['fakePPM', 'anotherPPM'], []],
+    [3, ['fakePPM', 'anotherPPM'], []],
     [3, ['fakePPM'], ['fakeMTO']],
+    [5, ['fakePPM', 'anotherPPM'], ['fakeMTO', 'anotherMTO']],
     [4, ['fakePPM'], ['fakeMTO', 'anotherMTO']],
     [2, [], ['fakeMTO']],
     [3, [], ['fakeMTO', 'anotherMTO']],
