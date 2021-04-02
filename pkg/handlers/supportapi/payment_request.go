@@ -24,18 +24,6 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 
-// TODO Temporarily just printing to stdout, will replace with actual 824 processor when it gets created
-type edi824Processor struct {
-}
-
-func (p edi824Processor) ProcessFile(syncadaPath string, text string) error {
-	fmt.Println(strings.Repeat("=", len(syncadaPath)))
-	fmt.Println(syncadaPath)
-	fmt.Println(strings.Repeat("=", len(syncadaPath)))
-	fmt.Print(text)
-	return nil
-}
-
 // UpdatePaymentRequestStatusHandler updates payment requests status
 type UpdatePaymentRequestStatusHandler struct {
 	handlers.HandlerContext
@@ -395,7 +383,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		}()
 
 		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, logger, false)
+		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, h.DB(), logger, false)
 
 		// TODO GEX will put different response types in different directories, but
 		// Syncada puts everything in the same directory. When we have access to GEX in staging
@@ -408,7 +396,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		} else {
 			logger.Info("Successfully processed 997 responses")
 		}
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, &edi824Processor{})
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, invoice.NewEDI824Processor(h.DB(), logger))
 		if err != nil {
 			logger.Error("Error reading 824 responses", zap.Error(err))
 		} else {
