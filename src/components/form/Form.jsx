@@ -11,7 +11,7 @@ export const Form = ({ errorCallback, ...props }) => {
     }
   });
   // eslint-disable-next-line react/jsx-props-no-spreading
-  return <UswdsForm onSubmit={handleSubmit} onReset={handleReset} {...props} />;
+  return <UswdsForm onSubmit={handleSubmit} onReset={handleReset} role="form" {...props} />;
 };
 
 Form.defaultProps = {

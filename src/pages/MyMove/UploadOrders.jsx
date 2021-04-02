@@ -1,12 +1,13 @@
 import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import './UploadOrders.css';
 
+import ScrollToTop from 'components/ScrollToTop';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
-import ConnectedWizardPage from 'shared/WizardPage/index';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { getOrdersForServiceMember, createUploadForDocument, deleteUpload } from 'services/internalApi';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
@@ -15,13 +16,17 @@ import {
   selectCurrentOrders,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
-// eslint-disable-next-line camelcase
-import { no_op as noop } from 'shared/utils';
-import { PageListShape, PageKeyShape, AdditionalParamsShape, OrdersShape, UploadsShape } from 'types/customerShapes';
+import { OrdersShape, UploadsShape } from 'types/customerShapes';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import { customerRoutes, generalRoutes } from 'constants/routes';
+import formStyles from 'styles/form.module.scss';
 
 export class UploadOrders extends Component {
   constructor(props) {
     super(props);
+
+    this.state = { isLoading: true, serverError: null };
 
     this.filePondEl = createRef();
 
@@ -34,6 +39,7 @@ export class UploadOrders extends Component {
     const { serviceMemberId, updateOrders } = this.props;
     getOrdersForServiceMember(serviceMemberId).then((response) => {
       updateOrders(response);
+      this.setState({ isLoading: false });
     });
   }
 
@@ -67,42 +73,63 @@ export class UploadOrders extends Component {
   }
 
   render() {
-    const { pages, pageKey, error, currentOrders, uploads, additionalParams } = this.props;
+    const { uploads, push } = this.props;
     const isValid = !!uploads.length;
 
+    const handleBack = () => {
+      push(customerRoutes.ORDERS_INFO_PATH);
+    };
+    const handleNext = () => {
+      push(generalRoutes.HOME_PATH);
+    };
+
+    const { isLoading, serverError } = this.state;
+    if (isLoading) return <LoadingPlaceholder />;
+
     return (
-      <ConnectedWizardPage
-        additionalParams={additionalParams}
-        error={error}
-        handleSubmit={noop}
-        pageIsValid={isValid}
-        pageKey={pageKey}
-        pageList={pages}
-      >
-        <div>
-          <h1>Upload your orders</h1>
-          <p>In order to schedule your move, we need to have a complete copy of your orders.</p>
-          <p>You can upload a PDF, or you can take a picture of each page and upload the images.</p>
-          <p>{documentSizeLimitMsg}</p>
-        </div>
-        {Boolean(uploads.length) && (
-          <>
-            <br />
-            <UploadsTable uploads={uploads} onDelete={this.handleDeleteFile} />
-          </>
+      <GridContainer>
+        <ScrollToTop otherDep={serverError} />
+
+        {serverError && (
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <Alert type="error" heading="An error occurred">
+                {serverError}
+              </Alert>
+            </Grid>
+          </Grid>
         )}
-        {currentOrders && (
-          <div className="uploader-box">
-            <FileUpload
-              ref={this.filePondEl}
-              createUpload={this.handleUploadFile}
-              onChange={this.onChange}
-              labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
-            />
-            <div className="hint">(Each page must be clear and legible.)</div>
-          </div>
-        )}
-      </ConnectedWizardPage>
+
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <h1>Upload your orders</h1>
+            <p>In order to schedule your move, we need to have a complete copy of your orders.</p>
+            <p>You can upload a PDF, or you can take a picture of each page and upload the images.</p>
+            <p>{documentSizeLimitMsg}</p>
+
+            {uploads.length > 0 && (
+              <>
+                <br />
+                <UploadsTable uploads={uploads} onDelete={this.handleDeleteFile} />
+              </>
+            )}
+
+            <div className="uploader-box">
+              <FileUpload
+                ref={this.filePondEl}
+                createUpload={this.handleUploadFile}
+                onChange={this.onChange}
+                labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
+              />
+              <div className="hint">(Each page must be clear and legible.)</div>
+            </div>
+
+            <div className={formStyles.formActions}>
+              <WizardNavigation onBackClick={handleBack} disableNext={!isValid} onNextClick={handleNext} />
+            </div>
+          </Grid>
+        </Grid>
+      </GridContainer>
     );
   }
 }
@@ -110,18 +137,13 @@ export class UploadOrders extends Component {
 UploadOrders.propTypes = {
   serviceMemberId: PropTypes.string.isRequired,
   updateOrders: PropTypes.func.isRequired,
-  pages: PageListShape.isRequired,
-  pageKey: PageKeyShape.isRequired,
   currentOrders: OrdersShape,
-  error: PropTypes.string,
   uploads: UploadsShape,
-  additionalParams: AdditionalParamsShape,
+  push: PropTypes.func.isRequired,
 };
 
 UploadOrders.defaultProps = {
   currentOrders: null,
-  error: null,
-  additionalParams: null,
   uploads: [],
 };
 
