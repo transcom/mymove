@@ -42,12 +42,15 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	var gcn int64
 	if edi997.InterchangeControlEnvelope.FunctionalGroups != nil {
 		if edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets != nil {
-			transactionSet := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
-			gcn = transactionSet.GroupControlNumber
+			ak1 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
+			gcn = ak1.GroupControlNumber
+		} else {
+			e.logger.Error("Validation error(s) detected with the EDI997. EDI Errors could not be saved", zap.Error(err))
+			return fmt.Errorf("Validation error(s) detected with the EDI997. EDI Errors could not be saved: %w", err)
 		}
 	} else {
-		e.logger.Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))
-		return fmt.Errorf("Validation error(s) detected with the EDI824. EDI Errors could not be saved: %w", err)
+		e.logger.Error("Validation error(s) detected with the EDI997. EDI Errors could not be saved", zap.Error(err))
+		return fmt.Errorf("Validation error(s) detected with the EDI997. EDI Errors could not be saved: %w", err)
 	}
 
 	// In the 858, the EDI only has 1 group, and the ICN and the GCN are the same. Therefore, we'll query the PR to ICN table
@@ -90,8 +93,8 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 				e.logger.Error("failure saving edi validation errors", zap.Error(err))
 				return fmt.Errorf("failure saving edi validation errors: %w", err)
 			}
-			e.logger.Error("Validation error(s) detected with the EDI824", zap.Error(err))
-			return fmt.Errorf("Validation error(s) detected with the EDI824: %w, %v", err, desc)
+			e.logger.Error("Validation error(s) detected with the EDI997", zap.Error(err))
+			return fmt.Errorf("Validation error(s) detected with the EDI997: %w, %v", err, desc)
 		}
 
 		paymentRequest.Status = models.PaymentRequestStatusReceivedByGex

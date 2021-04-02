@@ -47,8 +47,16 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		if edi824.InterchangeControlEnvelope.FunctionalGroups != nil {
 			if edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets != nil {
 				transactionSet := edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0]
-				otiGCN = transactionSet.OTIs[0].GroupControlNumber
+				if len(transactionSet.OTIs) > 0 {
+					otiGCN = transactionSet.OTIs[0].GroupControlNumber
+				} else {
+					e.logger.Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))
+					return fmt.Errorf("Validation error(s) detected with the EDI824. EDI Errors could not be saved: %w", err)
+				}
 				bgn = transactionSet.BGN
+			} else {
+				e.logger.Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))
+				return fmt.Errorf("Validation error(s) detected with the EDI824. EDI Errors could not be saved: %w", err)
 			}
 		} else {
 			e.logger.Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))

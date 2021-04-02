@@ -65,11 +65,11 @@ IEA*1*000000022
 		suite.NoError(err)
 	})
 
-	suite.T().Run("throw error when parsing an EDI997 when an EDI824 is expected", func(t *testing.T) {
+	suite.T().Run("throw error when parsing an EDI997 when an EDI997 is expected", func(t *testing.T) {
 		sample997EDIString := `
 		ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 		GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
-		ST*824*000000001
+		ST*997*000000001
 		BGN*11*1126-9404*20210217
 		OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
 		TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
@@ -140,6 +140,17 @@ IEA*1*000000022
 		err := suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
 		suite.NoError(err)
 		suite.Equal(models.PaymentRequestStatusPending, updatedPR.Status)
+	})
+
+	suite.T().Run("throw an error when edi997 is missing a transaction set", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000999*0*T*|
+GS*SI*8004171844*MILMOVE*20210217*152945*220001*X*004010
+GE*1*220001
+IEA*1*000000022
+`
+		err := edi997Processor.ProcessFile("", sample997EDIString)
+		suite.Contains(err.Error(), "Validation error(s) detected with the EDI997. EDI Errors could not be saved")
 	})
 
 	suite.T().Run("Return an error if payment request is not found with GCN", func(t *testing.T) {

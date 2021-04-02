@@ -75,6 +75,32 @@ IEA*1*000000995
 		suite.NoError(err)
 	})
 
+	suite.T().Run("throw an error when edi824 is missing an OTI segment", func(t *testing.T) {
+		sample824EDIString := `
+ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
+GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
+ST*824*000000001
+BGN*11*1126-9404*20210217
+TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+SE*5*000000001
+GE*1*1
+IEA*1*000000995
+`
+		err := edi824Processor.ProcessFile("", sample824EDIString)
+		suite.Contains(err.Error(), "Validation error(s) detected with the EDI824. EDI Errors could not be saved")
+	})
+
+	suite.T().Run("throw an error when edi824 is missing a transaction set", func(t *testing.T) {
+		sample824EDIString := `
+ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
+GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
+GE*1*1
+IEA*1*000000995
+`
+		err := edi824Processor.ProcessFile("", sample824EDIString)
+		suite.Contains(err.Error(), "Validation error(s) detected with the EDI824. EDI Errors could not be saved")
+	})
+
 	suite.T().Run("throw an error when a payment request cannot be found with the OTI.GroupControlNumber", func(t *testing.T) {
 		sample824EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
