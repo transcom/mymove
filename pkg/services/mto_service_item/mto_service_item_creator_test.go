@@ -468,6 +468,39 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	sitPostalCode := "99999"
 	reason := "lorem ipsum"
 
+	suite.T().Run("Failure - 422 Cannot create DOFSIT service item with non-null address.ID", func(t *testing.T) {
+		testMove := testdatagen.MakeAvailableMove(suite.DB())
+		testMove.Status = models.MoveStatusAPPROVED
+		testMtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: testMove,
+		})
+
+		// Create and address where ID != uuid.Nil
+		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+
+		serviceItemDOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:             testMove,
+			MoveTaskOrderID:           testMove.ID,
+			MTOShipment:               testMtoShipment,
+			MTOShipmentID:             &testMtoShipment.ID,
+			ReService:                 reServiceDOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		builder := query.NewQueryBuilder(suite.DB())
+		creator := NewMTOServiceItemCreator(builder)
+
+		createdServiceItems, verr, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(verr)
+		suite.IsType(services.InvalidInputError{}, err)
+
+	})
+
 	suite.T().Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT", func(t *testing.T) {
 		// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
 		// creating DOFSIT (SIT origin first day).
@@ -476,6 +509,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
 		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		actualPickupAddress.ID = uuid.Nil
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:             move,
@@ -543,6 +577,21 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.EqualValues(originalDate, returnedDate)
 		suite.EqualValues(*createdDOASITItem.Reason, reason)
 		suite.EqualValues(*createdDOASITItem.SITPostalCode, sitPostalCode)
+	})
+
+	suite.T().Run("Failure - 422 Create standalone DOASIT item for shipment does not match existing DOFSIT addresses", func(t *testing.T) {
+		builder := query.NewQueryBuilder(suite.DB())
+		creator := NewMTOServiceItemCreator(builder)
+
+		// Change pickup address
+		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
+		existingServiceItem := &serviceItemDOASIT
+		existingServiceItem.SITOriginHHGActualAddress = &actualPickupAddress
+
+		createdServiceItems, verr, err := creator.CreateMTOServiceItem(existingServiceItem)
+		suite.Nil(createdServiceItems)
+		suite.Error(verr)
+		suite.IsType(services.InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Do not create DOFSIT if one already exists for the shipment", func(t *testing.T) {
