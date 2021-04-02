@@ -25,6 +25,15 @@ export default {
   },
 };
 
+export const DDDSIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestinationSITDelivery}
+    totalAmountRequested={642}
+    itemCode="DDDSIT"
+    tableSize={data.tableSize}
+  />
+);
+
 export const DLH = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticLongHaul}
@@ -93,15 +102,6 @@ export const DUPK = (data) => (
     serviceItemParams={testParams.DomesticUnpacking}
     totalAmountRequested={642}
     itemCode="DUPK"
-    tableSize={data.tableSize}
-  />
-);
-
-export const DOPSIT = (data) => (
-  <ServiceItemCalculations
-    serviceItemParams={testParams.DomesticOriginSITDelivery}
-    totalAmountRequested={642}
-    itemCode="DOPSIT"
     tableSize={data.tableSize}
   />
 );

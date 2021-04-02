@@ -19,7 +19,7 @@ type ServiceItemPricer interface {
 // PricingDisplayParam represents a parameter (key/value pair) returned from a pricer
 type PricingDisplayParam struct {
 	Key   models.ServiceItemParamName
-	Value interface{}
+	Value string
 }
 
 // PricingDisplayParams represents a slice of pricing parameters
