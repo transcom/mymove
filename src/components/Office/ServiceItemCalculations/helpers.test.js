@@ -13,7 +13,7 @@ describe('makeCalculations', () => {
       {
         value: '210',
         label: 'Mileage',
-        details: ['Zip 210 to Zip 910'],
+        details: ['ZIP 210 to ZIP 910'],
       },
       {
         value: '1.71',
@@ -44,7 +44,7 @@ describe('makeCalculations', () => {
       {
         value: '32210',
         label: 'Mileage',
-        details: ['Zip 32210 to Zip 91910'],
+        details: ['ZIP 32210 to ZIP 91910'],
       },
       {
         value: '1.71',
@@ -194,7 +194,7 @@ describe('makeCalculations', () => {
       {
         value: '29',
         label: 'Mileage',
-        details: ['Zip 90210 to Zip 90211'],
+        details: ['ZIP 90210 to ZIP 90211'],
       },
       {
         value: '1.71',
@@ -317,7 +317,7 @@ describe('makeCalculations', () => {
       {
         value: '210',
         label: 'Mileage',
-        details: ['Zip 210 to Zip 910'],
+        details: ['ZIP 210 to ZIP 910'],
       },
       {
         value: '0.09',
