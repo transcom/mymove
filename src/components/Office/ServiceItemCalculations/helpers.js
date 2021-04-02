@@ -168,6 +168,22 @@ const packPrice = (params) => {
   return calculation(value, label, originServiceSchedule, requestedPickup, domesticNonPeak);
 };
 
+const unpackPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.UnpackPrice;
+  const destServiceSchedule = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest, params)}`;
+  const requestedPickup = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]
+  }: ${formatDate(getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params), 'DD MMM YYYY')}`;
+  const domesticNonPeak = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.IsPeak]} ${
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.IsPeak, params)?.toLowerCase() === 'true' ? 'peak' : 'non-peak'
+  }`;
+
+  return calculation(value, label, destServiceSchedule, requestedPickup, domesticNonPeak);
+};
+
 const additionalDaySITPrice = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.AdditionalDaySITPrice;
@@ -317,6 +333,16 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Domestic unpacking
+    case SERVICE_ITEM_CODES.DUPK:
+      result = [
+        billableWeight(params),
+        unpackPrice(params),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+
     default:
       break;
   }

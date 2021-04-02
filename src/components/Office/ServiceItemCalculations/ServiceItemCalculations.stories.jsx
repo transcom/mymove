@@ -34,6 +34,15 @@ export const DLH = (data) => (
   />
 );
 
+export const DOASIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginAdditionalSIT}
+    totalAmountRequested={642}
+    itemCode="DOASIT"
+    tableSize={data.tableSize}
+  />
+);
+
 export const DOFSIT = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticOrigin1stSIT}
@@ -48,6 +57,15 @@ export const DDFSIT = (data) => (
     serviceItemParams={testParams.DomesticDestination1stSIT}
     totalAmountRequested={642}
     itemCode="DDFSIT"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DOP = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginPrice}
+    totalAmountRequested={642}
+    itemCode="DOP"
     tableSize={data.tableSize}
   />
 );
@@ -70,20 +88,11 @@ export const DSH = (data) => (
   />
 );
 
-export const DOASIT = (data) => (
+export const DUPK = (data) => (
   <ServiceItemCalculations
-    serviceItemParams={testParams.DomesticOriginAdditionalSIT}
+    serviceItemParams={testParams.DomesticUnpacking}
     totalAmountRequested={642}
-    itemCode="DOASIT"
-    tableSize={data.tableSize}
-  />
-);
-
-export const DOP = (data) => (
-  <ServiceItemCalculations
-    serviceItemParams={testParams.DomesticOriginPrice}
-    totalAmountRequested={642}
-    itemCode="DOP"
+    itemCode="DUPK"
     tableSize={data.tableSize}
   />
 );

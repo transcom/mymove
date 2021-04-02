@@ -2,7 +2,6 @@ package support
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -14,32 +13,28 @@ import (
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 
-	movetaskorderclient "github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
+	webhookclient "github.com/transcom/mymove/pkg/gen/supportclient/webhook"
 )
 
-// InitCreateMTOFlags initializes flags.
-func InitCreateMTOFlags(flag *pflag.FlagSet) {
-	flag.String(utils.FilenameFlag, "", "Path to the file with the payment request JSON payload")
+// InitCreateWebhookNotificationFlags initializes flags.
+func InitCreateWebhookNotificationFlags(flag *pflag.FlagSet) {
+	flag.String(utils.FilenameFlag, "", "Path to the file with webhook notifications JSON payload")
 
 	flag.SortFlags = false
 }
 
-// CheckCreateMTOConfig checks the args.
-func CheckCreateMTOConfig(v *viper.Viper, args []string) error {
+// CheckCreateWebhookNotificationConfig checks the args.
+func CheckCreateWebhookNotificationConfig(v *viper.Viper, args []string) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		return err
 	}
 
-	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
-		return errors.New("create-move-task-order expects a file to be passed in")
-	}
-
 	return nil
 }
 
-// CreateMTO sends a CreateMoveTaskOrder request to the support endpoint
-func CreateMTO(cmd *cobra.Command, args []string) error {
+// CreateWebhookNotification sends a CreateWebhookNotification request to the support endpoint
+func CreateWebhookNotification(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	// Create the logger - remove the prefix and any datetime data
@@ -51,19 +46,21 @@ func CreateMTO(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := CheckCreateMTOConfig(v, args)
+	err := CheckCreateWebhookNotificationConfig(v, args)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	// Decode json from file that was passed in
+	// Decode json from file if it was passed in
 	filename := v.GetString(utils.FilenameFlag)
-	var createMTOParams movetaskorderclient.CreateMoveTaskOrderParams
-	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &createMTOParams)
-	if err != nil {
-		logger.Fatal(err)
+	var createWebhookNotificationParams webhookclient.CreateWebhookNotificationParams
+	if filename != "" {
+		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &createWebhookNotificationParams)
+		if err != nil {
+			logger.Fatal(err)
+		}
 	}
-	createMTOParams.SetTimeout(time.Second * 30)
+	createWebhookNotificationParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
 	gateway, cacStore, errCreateClient := utils.CreateSupportClient(v)
@@ -80,7 +77,7 @@ func CreateMTO(cmd *cobra.Command, args []string) error {
 	}
 
 	// Make the API Call
-	resp, err := gateway.MoveTaskOrder.CreateMoveTaskOrder(&createMTOParams)
+	resp, err := gateway.Webhook.CreateWebhookNotification(&createWebhookNotificationParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}
