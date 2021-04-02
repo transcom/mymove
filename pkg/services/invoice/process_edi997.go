@@ -38,6 +38,12 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 		errString += err.Error()
 	}
 
+	err = edi997.Validate()
+	if err != nil {
+		// TODO: save error to the db
+		errString += err.Error()
+	}
+
 	// Find the PaymentRequestID that matches the ICN
 	icn := edi997.InterchangeControlEnvelope.ISA.InterchangeControlNumber
 	var paymentRequest models.PaymentRequest
@@ -48,12 +54,6 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	if err != nil {
 		// TODO: save error to the db
 		errString += fmt.Sprintf("unable to find payment request with ID: %s, %d", err.Error(), int(icn)) + "\n"
-	}
-
-	err = edi997.Validate()
-	if err != nil {
-		// TODO: save error to the db
-		errString += err.Error()
 	}
 
 	if errString != "" {
