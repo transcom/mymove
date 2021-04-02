@@ -316,6 +316,9 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 	})
 
 	suite.T().Run("process reviewed payment request, failed EDI generator", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
 
 		prs := suite.createPaymentRequest(4)
 
@@ -340,7 +343,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
 
 		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
@@ -349,9 +352,22 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
 			suite.Nil(paymentRequest.SentToGexAt)
 		}
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		suite.Equal(0, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
 	suite.T().Run("process reviewed payment request, failed payment request fetcher", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
 
 		prs := suite.createPaymentRequest(4)
 
@@ -377,7 +393,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			gexSender,
 			SFTPSession)
 
-		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
 
 		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
@@ -386,9 +402,22 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
 			suite.Nil(paymentRequest.SentToGexAt)
 		}
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		suite.Equal(0, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
 	suite.T().Run("process reviewed payment request, fail SFTP send", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
 
 		prs := suite.createPaymentRequest(4)
 
@@ -414,7 +443,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			gexSender,
 			sftpSender)
 
-		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "error sending the following EDI")
 
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
@@ -423,11 +452,25 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
 			suite.Nil(paymentRequest.SentToGexAt)
 		}
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		suite.Equal(0, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
 	suite.T().Run("process reviewed payment request, successful SFTP send", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
 
-		_ = suite.createPaymentRequest(4)
+		numPrs := 4
+		_ = suite.createPaymentRequest(numPrs)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
@@ -451,8 +494,19 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			gexSender,
 			sftpSender)
 
-		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.NoError(err)
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		// TODO: Adding in UT for edi processing not sure why we have 16 processed here
+		suite.Equal(16, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
 
 	})
 

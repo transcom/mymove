@@ -189,6 +189,10 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 	})
 
 	suite.T().Run("File WriteTo error should prevent processing and deletion", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
+
 		client := &mocks.SFTPClient{}
 		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
 
@@ -203,16 +207,30 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor.On("ProcessFile", mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, suite.DB(), suite.logger, true)
-		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		_, err = session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		client.AssertCalled(t, "Open", mock.Anything)
 		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
 		client.AssertNotCalled(t, "Remove", mock.Anything)
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType997).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		suite.Equal(0, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
 	suite.T().Run("File WriteTo error also with a failing Close should prevent processing and deletion", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
+
 		client := &mocks.SFTPClient{}
 		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
 
@@ -227,16 +245,30 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor.On("ProcessFile", mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, suite.DB(), suite.logger, true)
-		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		_, err = session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		client.AssertCalled(t, "Open", mock.Anything)
 		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
 		client.AssertNotCalled(t, "Remove", mock.Anything)
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType997).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		suite.Equal(0, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
 	suite.T().Run("File close error should prevent processing and deletion", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
+
 		client := &mocks.SFTPClient{}
 		client.On("ReadDir", mock.Anything).Return(singleFileInfo, nil)
 
@@ -251,16 +283,30 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor.On("ProcessFile", mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, suite.DB(), suite.logger, true)
-		_, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		_, err = session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		client.AssertCalled(t, "Open", mock.Anything)
 		processor.AssertNotCalled(t, "ProcessFile", mock.Anything)
 		client.AssertNotCalled(t, "Remove", mock.Anything)
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType997).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		suite.Equal(0, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
 	suite.T().Run("If ProcessFile returns error, we should not remove the file", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
+
 		// set up mocks
 		client := &mocks.SFTPClient{}
 		client.On("ReadDir", mock.Anything).Return(infoForMultipleFiles, nil)
@@ -277,7 +323,8 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 		processor.On("ProcessFile", mock.Anything, mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, suite.DB(), suite.logger, true)
-		modTime, err := session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
+		var modTime time.Time
+		modTime, err = session.FetchAndProcessSyncadaFiles(pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
 		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
@@ -289,6 +336,16 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 			processor.AssertCalled(t, "ProcessFile", data.path, data.file.contents)
 		}
 		client.AssertNotCalled(t, "Remove", multipleFileTestData[1].path)
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType997).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		suite.Equal(2, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType997).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
 	suite.T().Run("Files read successfully should be processed and deleted", func(t *testing.T) {
