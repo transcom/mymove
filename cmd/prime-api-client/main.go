@@ -52,6 +52,25 @@ func main() {
 	support.InitListMTOsFlags(listMTOsCommand.Flags())
 	root.AddCommand(listMTOsCommand)
 
+	createWebhookCommand := &cobra.Command{
+		Use:   "support-create-webhook-notification",
+		Short: "Create a WebhookNotification",
+		Long: `
+  This command creates a WebhookNotification object.
+  Passing in a file is optional, but when passed in a file the --filename param must be used.
+
+  Endpoint path: /webhook-notifications
+  The file should contain json as follows:
+    {
+      "body": <WebhookNotification>
+    }
+  Please see API documentation for full details on the WebhookNotification definition.`,
+		RunE:         support.CreateWebhookNotification,
+		SilenceUsage: true,
+	}
+	support.InitCreateWebhookNotificationFlags(createWebhookCommand.Flags())
+	root.AddCommand(createWebhookCommand)
+
 	createMTOCommand := &cobra.Command{
 		Use:   "support-create-move-task-order",
 		Short: "Create a MoveTaskOrder",
@@ -157,6 +176,27 @@ func main() {
 	}
 	prime.InitUpdateMTOAgentFlags(updateMTOAgentCommand.Flags())
 	root.AddCommand(updateMTOAgentCommand)
+
+	createMTOAgentCommand := &cobra.Command{
+		Use:   "create-mto-agent",
+		Short: "Create MTO agent",
+		Long: `
+  This command creates an agent associated with an MTO shipment.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and a body for the payload.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}/agents
+  The file should contain json as follows:
+  	{
+	  "mtoShipmentID": <uuid string>,
+      "body": <MTOAgent>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         prime.CreateMTOAgent,
+		SilenceUsage: true,
+	}
+	prime.InitCreateMTOAgentFlags(createMTOAgentCommand.Flags())
+	root.AddCommand(createMTOAgentCommand)
 
 	updatePostCounselingInfo := &cobra.Command{
 		Use:          "update-mto-post-counseling-information",
