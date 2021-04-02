@@ -189,6 +189,7 @@ const DistanceZipSITDest = {
   type: 'INTEGER',
   value: '29',
 };
+
 const ZipSITOriginHHGOriginalAddress = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
