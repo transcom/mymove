@@ -19,6 +19,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   ServiceAreaOrigin: 'ServiceAreaOrigin',
   ServiceAreaDest: 'ServiceAreaDest',
   ServicesScheduleOrigin: 'ServicesScheduleOrigin',
+  ServicesScheduleDest: 'ServicesScheduleDest',
   RequestedPickupDate: 'RequestedPickupDate',
   ActualPickupDate: 'ActualPickupDate',
   EscalationCompounded: 'EscalationCompounded',
@@ -42,8 +43,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   DaysInSIT: 'Days in SIT',
   ServiceSchedule: 'Service schedule',
   ServiceArea: 'Service area',
-  RequestedPickup: 'Requested pickup',
   PackPrice: 'Pack price',
+  UnpackPrice: 'Unpack price',
   [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]: 'Shipment weight',
   [SERVICE_ITEM_PARAM_KEYS.WeightActual]: 'Shipment weight',
@@ -54,6 +55,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',
   [SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin]: 'Origin service schedule',
+  [SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest]: 'Destination service schedule',
   [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]: 'Pickup date',
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
@@ -71,6 +73,7 @@ const SERVICE_ITEM_CODES = {
   DSH: 'DSH',
   DOASIT: 'DOASIT',
   DOFSIT: 'DOFSIT',
+  DUPK: 'DUPK',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -83,6 +86,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DDP,
   SERVICE_ITEM_CODES.DOASIT,
   SERVICE_ITEM_CODES.DOFSIT,
+  SERVICE_ITEM_CODES.DUPK,
 ];
 
 export {
