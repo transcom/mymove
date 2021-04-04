@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/invoice"
 
 	"github.com/spf13/pflag"
@@ -139,26 +137,17 @@ func main() {
 	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
 	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, db, logger, v.GetBool(DeleteFilesFlag))
 
-	// Just use a processor that prints the files to stdout for now.
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, &stdoutProcessor{})
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), time.Time{}, invoice.NewEDI997Processor(db, logger))
 	if err != nil {
-		log.Fatal(err)
+		logger.Error("Error reading 997 responses", zap.Error(err))
+	} else {
+		logger.Info("Successfully processed 997 responses")
 	}
-}
 
-// Temporarily, we process each file by just printing out its name and contents.
-type stdoutProcessor struct {
-}
-
-func (p stdoutProcessor) ProcessFile(syncadaPath string, text string) error {
-	fmt.Println(strings.Repeat("=", len(syncadaPath)))
-	fmt.Println(syncadaPath)
-	fmt.Println(strings.Repeat("=", len(syncadaPath)))
-	fmt.Print(text)
-	return nil
-}
-
-func (p stdoutProcessor) EDIType() models.EDIType {
-	// Just return anything for now.
-	return models.EDIType810
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), time.Time{}, invoice.NewEDI824Processor(db, logger))
+	if err != nil {
+		logger.Error("Error reading 824 responses", zap.Error(err))
+	} else {
+		logger.Info("Successfully processed 824 responses")
+	}
 }
