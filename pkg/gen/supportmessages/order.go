@@ -27,6 +27,10 @@ type Order struct {
 	// Format: uuid
 	CustomerID *strfmt.UUID `json:"customerID,omitempty"`
 
+	// department indicator
+	// Required: true
+	DepartmentIndicator *DeptIndicator `json:"departmentIndicator"`
+
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
 
@@ -65,6 +69,10 @@ type Order struct {
 	// orders type
 	// Required: true
 	OrdersType OrdersType `json:"ordersType"`
+
+	// orders type detail
+	// Required: true
+	OrdersTypeDetail *OrdersTypeDetail `json:"ordersTypeDetail"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
@@ -115,6 +123,10 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDepartmentIndicator(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationDutyStation(formats); err != nil {
 		res = append(res, err)
 	}
@@ -140,6 +152,10 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOrdersType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrdersTypeDetail(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -207,6 +223,24 @@ func (m *Order) validateCustomerID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("customerID", "body", "uuid", m.CustomerID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *Order) validateDepartmentIndicator(formats strfmt.Registry) error {
+
+	if err := validate.Required("departmentIndicator", "body", m.DepartmentIndicator); err != nil {
+		return err
+	}
+
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("departmentIndicator")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -303,6 +337,24 @@ func (m *Order) validateOrdersType(formats strfmt.Registry) error {
 			return ve.ValidateName("ordersType")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *Order) validateOrdersTypeDetail(formats strfmt.Registry) error {
+
+	if err := validate.Required("ordersTypeDetail", "body", m.OrdersTypeDetail); err != nil {
+		return err
+	}
+
+	if m.OrdersTypeDetail != nil {
+		if err := m.OrdersTypeDetail.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("ordersTypeDetail")
+			}
+			return err
+		}
 	}
 
 	return nil

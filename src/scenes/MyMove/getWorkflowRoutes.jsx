@@ -8,24 +8,22 @@ import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
 import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
-
-import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
-import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'pages/MyMove/Profile/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
-
-import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import Home from 'pages/MyMove/Home';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import DodInfo from 'pages/MyMove/Profile/DodInfo';
 import SMName from 'pages/MyMove/Profile/Name';
+import DutyStation from 'pages/MyMove/Profile/DutyStation';
 import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
-import SelectMoveType from 'pages/MyMove/SelectMoveType';
+import SelectShipmentType from 'pages/MyMove/SelectShipmentType';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
+import BackupMailingAddress from 'pages/MyMove/Profile/BackupMailingAddress';
+import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress';
 import Review from 'pages/MyMove/Review';
 import Agreement from 'pages/MyMove/Agreement';
 
@@ -113,18 +111,18 @@ const pages = {
     // api for duty station always returns an object, even when duty station is not set
     // if there is no duty station, that object will have a null uuid
     isComplete: ({ sm }) => sm.is_profile_complete || get(sm, 'current_station.id', NULL_UUID) !== NULL_UUID,
-    render: (key, pages) => ({ match }) => <DutyStation pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <DutyStation push={history.push} />,
     description: 'current duty station',
   },
   [customerRoutes.CURRENT_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.residential_address),
-    render: (key, pages) => ({ match }) => <ResidentialAddress pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <ResidentialAddress push={history.push} />,
   },
   [customerRoutes.BACKUP_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.backup_mailing_address),
-    render: (key, pages) => ({ match }) => <BackupMailingAddress pages={pages} pageKey={key} match={match} />,
+    render: () => ({ history }) => <BackupMailingAddress push={history.push} />,
   },
   [customerRoutes.BACKUP_CONTACTS_PATH]: {
     isInFlow: myFirstRodeo,
@@ -157,23 +155,19 @@ const pages = {
         orders.report_by_date,
         get(orders, 'new_duty_station.id', NULL_UUID) !== NULL_UUID,
       ]),
-    render: (key, pages) => ({ match, history }) => (
-      <Orders pages={pages} pageKey={key} match={match} history={history} />
-    ),
+    render: (key, pages) => ({ history }) => <Orders push={history.push} />,
   },
   [customerRoutes.ORDERS_UPLOAD_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, uploads }) =>
       get(orders, 'uploaded_orders.uploads', []).length > 0 || uploads.length > 0,
-    render: (key, pages, description, props) => ({ match }) => (
-      <UploadOrders pages={pages} pageKey={key} additionalParams={{ moveId: props.moveId }} match={match} />
-    ),
+    render: (key, pages, description, props) => ({ history }) => <UploadOrders push={history.push} />,
     description: 'Upload your orders',
   },
   [customerRoutes.SHIPMENT_SELECT_TYPE_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
-    render: (key, pages, props) => ({ match, history }) => <SelectMoveType match={match} push={history.push} />,
+    render: () => ({ history }) => <SelectShipmentType push={history.push} />,
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: (state) => {
@@ -193,9 +187,7 @@ const pages = {
   [customerRoutes.MOVE_REVIEW_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
-    render: (key, pages) => ({ match, history }) => (
-      <Review pages={pages} pageKey={key} match={match} history={history} />
-    ),
+    render: () => ({ history }) => <Review push={history.push} />,
   },
   [customerRoutes.MOVE_AGREEMENT_PATH]: {
     isInFlow: always,

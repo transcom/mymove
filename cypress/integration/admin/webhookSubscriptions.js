@@ -8,9 +8,8 @@ const checkLabels = (itemToGet, labels) => {
 
 describe('Webhook Subscriptions', function () {
   before(() => {
-    cy.clearAllCookies();
     cy.prepareAdminApp();
-    cy.clearAllCookies();
+    cy.logout();
   });
 
   it('successfully navigates to the webhook subscriptions list page', function () {
@@ -26,8 +25,8 @@ describe('Webhook Subscriptions', function () {
 
 describe('WebhookSubscriptions Details Show Page', function () {
   before(() => {
-    cy.clearAllCookies();
     cy.prepareAdminApp();
+    cy.logout();
   });
 
   it('pulls up details page for a webhook subscription', function () {
@@ -50,9 +49,8 @@ describe('WebhookSubscriptions Details Show Page', function () {
 
 describe('WebhookSubscriptions Details Edit Page', function () {
   before(() => {
-    cy.clearAllCookies();
     cy.prepareAdminApp();
-    cy.clearAllCookies();
+    cy.logout();
   });
 
   it('pulls up edit page for a webhook subscription', function () {
@@ -87,9 +85,8 @@ describe('WebhookSubscriptions Details Edit Page', function () {
 
 describe('Webhook Subscription Create Page', function () {
   before(() => {
-    cy.clearAllCookies();
     cy.prepareAdminApp();
-    cy.clearAllCookies();
+    cy.logout();
   });
 
   it('pulls up create page for a webhook subscription', function () {

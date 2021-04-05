@@ -34,7 +34,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 		expErrors := map[string][]string{
 			"payment_request_id": {"PaymentRequestID can not be blank."},
 			"mtoservice_item_id": {"MTOServiceItemID can not be blank."},
-			"status":             {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},
+			"status":             {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID, EDI_ERROR]."},
 			"requested_at":       {"RequestedAt can not be blank."},
 		}
 
@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 			PriceCents:       &cents,
 		}
 		expErrors := map[string][]string{
-			"status": {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},
+			"status": {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID, EDI_ERROR]."},
 		}
 		suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors)
 	})

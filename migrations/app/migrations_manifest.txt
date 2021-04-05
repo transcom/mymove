@@ -617,3 +617,5 @@
 20210301215522_add_cancellation_requested_shipment_status.up.sql
 20210318162232_create_edi_processing_table.up.sql
 20210323204715_add_payment_request_to_interchange_control_number.up.sql
+20210330000000_create-edi-errors-tables.up.sql
+20210331135106_rename_edi_processing_table.up.sql

@@ -3,6 +3,7 @@ import { adminBaseURL } from '../../support/constants';
 describe('Admin Users List Page', function () {
   before(() => {
     cy.prepareAdminApp();
+    cy.logout();
   });
 
   it('successfully navigates to Admin Users page', function () {
@@ -21,6 +22,7 @@ describe('Admin Users List Page', function () {
 describe('Admin User Create Page', function () {
   before(() => {
     cy.prepareAdminApp();
+    cy.logout();
   });
 
   it('pulls up create page for an admin user', function () {
@@ -62,6 +64,7 @@ describe('Admin User Create Page', function () {
 describe('Admin Users Show Page', function () {
   before(() => {
     cy.prepareAdminApp();
+    cy.logout();
   });
 
   it('pulls up details page for an admin user', function () {
@@ -101,6 +104,7 @@ describe('Admin Users Show Page', function () {
 describe('Admin Users Edit Page', function () {
   before(() => {
     cy.prepareAdminApp();
+    cy.logout();
   });
 
   it('pulls up edit page for an admin user', function () {
