@@ -1,9 +1,11 @@
-import * as child from 'child_process';
-
-/* eslint-disable import/no-extraneous-dependencies */
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { danger, warn, fail } from 'danger';
-import jiraIssue from 'danger-plugin-jira-issue';
-/* eslint-enable import/no-extraneous-dependencies */
+
+// eslint-disable-next-line security/detect-child-process
+const child = require('child_process');
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+const jiraIssue = require('danger-plugin-jira-issue').default;
 
 const githubChecks = () => {
   if (danger.github) {
@@ -110,7 +112,7 @@ function doesLineHaveProhibitedOverride(disablingString) {
   // rules format: ['no-jsx', 'no-default']
   const rules = disablingStringParts.slice(1);
   for (let r = 0; r < rules.length; r += 1) {
-    const rule = rules[r];
+    const rule = rules[parseInt(r, 10)];
     if (!okBypassRules.includes(rule)) {
       prohibitedOverrideMsg = `Contains a rule that is not in the permitted eslint list. You are free to disable only: (\n${okBypassRules.map(
         (q) => `${q}\n`,
@@ -138,7 +140,7 @@ function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
     // split file diffs into lines
     const lines = diff.split('\n');
     for (let l = 0; l < lines.length; l += 1) {
-      const line = lines[l];
+      const line = lines[parseInt(l, 10)];
       if (diffContainsEslint(line)) {
         // check for comment marker (// or /*)
         // eg line: 'const whatever = something() // eslint-disable-line'
