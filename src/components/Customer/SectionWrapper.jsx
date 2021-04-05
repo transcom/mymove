@@ -11,8 +11,6 @@ const SectionWrapper = ({ children, className, ...props }) => (
   </div>
 );
 
-// TEST
-
 SectionWrapper.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
