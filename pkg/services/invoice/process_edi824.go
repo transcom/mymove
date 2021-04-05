@@ -106,12 +106,25 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 			return fmt.Errorf("Validation error(s) detected with the EDI824: %w, %v", err, desc)
 		}
 
+		var move models.Move
+		err = e.db.Q().
+			Find(&move, paymentRequest.MoveTaskOrderID)
+		if err != nil {
+			e.logger.Error("unable to find move with associated payment request", zap.Error(err))
+			return fmt.Errorf("unable to find move with associated payment request: %w", err)
+		}
+
 		// The BGN02 Reference Identification field from the 824 stores the reference identification used in the 858.
-		// For MilMove we use the Payment Request Number in the 858 (which used to the field for the GBLOC, but is not relevant for GHC MilMove).
+		// For MilMove we use the MTO Reference ID in the 858 (which used to the field for the GBLOC, but is not relevant for GHC MilMove).
 		bgnRefIdentification := bgn.ReferenceIdentification
-		if bgnRefIdentification != paymentRequest.PaymentRequestNumber {
-			e.logger.Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the Payment Request Number %s", bgnRefIdentification, paymentRequest.PaymentRequestNumber), zap.Error(err))
-			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Payment Request Number %s", bgnRefIdentification, paymentRequest.PaymentRequestNumber)
+		mtoRefID := move.ReferenceID
+		if mtoRefID == nil {
+			e.logger.Error(fmt.Sprintf("An associated move with mto.ReferenceID: %s was not found", *mtoRefID), zap.Error(err))
+			return fmt.Errorf("An associated move with mto.ReferenceID: %s was not found", *mtoRefID)
+		}
+		if bgnRefIdentification != *mtoRefID {
+			e.logger.Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID), zap.Error(err))
+			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %v of the associated move", bgnRefIdentification, *mtoRefID)
 		}
 
 		teds := fetchTEDSegments(edi824)
