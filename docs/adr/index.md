@@ -64,6 +64,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0057](0057-lodash.md) - Deprecate use of lodash over time
 - [ADR-0058](0058-replace-loki-with-happo.md) - Use Happo for visual regression testing
 - [ADR-0059](0059-use-snapshot-to-cleanup-loadtesting.md) - Use snapshot to cleanup load testing
+- [ADR-0060](0060-move-state-for-service-counseling.md) - Move state for service counseling
 
 <!-- adrlogstop -->
 
