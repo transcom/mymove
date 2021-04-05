@@ -3,6 +3,7 @@ package invoice
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -61,6 +62,19 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath strin
 		return time.Time{}, err
 	}
 
+	// This check is intended to be temporary. We are currently getting all EDI
+	// responses in the same directory. Once we start getting them in separate
+	// dirs, then we won't need to inspect the file to determine the type.
+	var checkEDIType *regexp.Regexp
+	if processor.EDIType() == models.EDIType997 {
+		checkEDIType, err = regexp.Compile(`ST\*997\*\d*`)
+	} else if processor.EDIType() == models.EDIType824 {
+		checkEDIType, err = regexp.Compile(`ST\*824\*\d*`)
+	}
+	if err != nil {
+		return time.Time{}, err
+	}
+
 	mostRecentFileModTime := lastRead
 
 	for _, fileInfo := range fileList {
@@ -74,6 +88,13 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath strin
 			if err != nil {
 				s.logger.Info("Error while downloading Syncada file", zap.String("path", filePath), zap.Error(err))
 				continue
+			}
+
+			if checkEDIType != nil {
+				if checkEDIType.FindStringIndex(fileText) == nil {
+					s.logger.Info("Skipping file that does not match current response type", zap.String("path", filePath))
+					continue
+				}
 			}
 
 			err = processor.ProcessFile(filePath, fileText)

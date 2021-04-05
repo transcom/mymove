@@ -572,11 +572,14 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
+		readFromSyncada := false
+
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada: &sendToSyncada,
-				Status:        "SENT_TO_GEX",
+				SendToSyncada:   &sendToSyncada,
+				ReadFromSyncada: &readFromSyncada,
+				Status:          "SENT_TO_GEX",
 			},
 		}
 
@@ -594,11 +597,13 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
+		readFromSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada: &sendToSyncada,
-				Status:        "SENT_TO_GEX",
+				SendToSyncada:   &sendToSyncada,
+				ReadFromSyncada: &readFromSyncada,
+				Status:          "SENT_TO_GEX",
 			},
 		}
 
@@ -622,9 +627,10 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
+		readFromSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
-			Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada},
+			Body:        &supportmessages.ProcessReviewedPaymentRequests{ReadFromSyncada: &readFromSyncada, SendToSyncada: &sendToSyncada},
 		}
 
 		response := handler.Handle(params)
@@ -646,10 +652,12 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
+		readFromSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
 				SendToSyncada:    &sendToSyncada,
+				ReadFromSyncada:  &readFromSyncada,
 				PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 			},
 		}
@@ -703,11 +711,13 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 		prID := reviewedPRs[0].ID
 		sendToSyncada := false
+		readFromSyncada := false
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
 				SendToSyncada:    &sendToSyncada,
+				ReadFromSyncada:  &readFromSyncada,
 				PaymentRequestID: strfmt.UUID(prID.String()),
 			},
 		}
@@ -737,11 +747,13 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 		sendToSyncada := false
+		readFromSyncada := false
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada: &sendToSyncada,
+				SendToSyncada:   &sendToSyncada,
+				ReadFromSyncada: &readFromSyncada,
 			},
 		}
 
