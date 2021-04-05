@@ -137,14 +137,14 @@ func main() {
 	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
 	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, db, logger, v.GetBool(DeleteFilesFlag))
 
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), time.Time{}, invoice.NewEDI997Processor(db, logger))
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, invoice.NewEDI997Processor(db, logger))
 	if err != nil {
 		logger.Error("Error reading 997 responses", zap.Error(err))
 	} else {
 		logger.Info("Successfully processed 997 responses")
 	}
 
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), time.Time{}, invoice.NewEDI824Processor(db, logger))
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, invoice.NewEDI824Processor(db, logger))
 	if err != nil {
 		logger.Error("Error reading 824 responses", zap.Error(err))
 	} else {
