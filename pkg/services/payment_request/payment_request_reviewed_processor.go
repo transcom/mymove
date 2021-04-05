@@ -103,7 +103,8 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 
 		p.logger.Info("858 Processor calling SendToSyncada...",
 			zap.Int64("858 ICN", edi858c.ISA.InterchangeControlNumber),
-			zap.String("PaymentRequestNumber", edi858c.Header.ShipmentInformation.ShipmentIdentificationNumber),
+			zap.String("ShipmentIdentificationNumber/PaymentRequestNumber", edi858c.Header.ShipmentInformation.ShipmentIdentificationNumber),
+			zap.String("ReferenceIdentification/PaymentRequestNumber", edi858c.Header.PaymentRequestNumber.ReferenceIdentification),
 			zap.String("Date", edi858c.ISA.InterchangeDate),
 			zap.String("Time", edi858c.ISA.InterchangeTime),
 		)
