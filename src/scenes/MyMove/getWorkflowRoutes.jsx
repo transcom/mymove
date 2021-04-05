@@ -19,7 +19,7 @@ import DutyStation from 'pages/MyMove/Profile/DutyStation';
 import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
-import SelectMoveType from 'pages/MyMove/SelectMoveType';
+import SelectShipmentType from 'pages/MyMove/SelectShipmentType';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import BackupMailingAddress from 'pages/MyMove/Profile/BackupMailingAddress';
@@ -167,7 +167,7 @@ const pages = {
   [customerRoutes.SHIPMENT_SELECT_TYPE_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
-    render: (key, pages, props) => ({ match, history }) => <SelectMoveType match={match} push={history.push} />,
+    render: () => ({ history }) => <SelectShipmentType push={history.push} />,
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: (state) => {
@@ -187,9 +187,7 @@ const pages = {
   [customerRoutes.MOVE_REVIEW_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
-    render: (key, pages) => ({ match, history }) => (
-      <Review pages={pages} pageKey={key} match={match} history={history} />
-    ),
+    render: () => ({ history }) => <Review push={history.push} />,
   },
   [customerRoutes.MOVE_AGREEMENT_PATH]: {
     isInFlow: always,

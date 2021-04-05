@@ -61,6 +61,15 @@ export const DOFSIT = (data) => (
   />
 );
 
+export const DDFSIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestination1stSIT}
+    totalAmountRequested={642}
+    itemCode="DDFSIT"
+    tableSize={data.tableSize}
+  />
+);
+
 export const DOP = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticOriginPrice}
@@ -111,6 +120,15 @@ export const DDP = (data) => (
     serviceItemParams={testParams.DomesticDestinationPrice}
     totalAmountRequested={642}
     itemCode="DDP"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DDASIT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestinationAdditionalSIT}
+    totalAmountRequested={642}
+    itemCode="DDASIT"
     tableSize={data.tableSize}
   />
 );
