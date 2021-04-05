@@ -24,6 +24,7 @@ func SendToSyncada(edi string, gexSender services.GexSender, sftpSender services
 		syncadaFileName := fmt.Sprintf("%s_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"))
 
 		if sendEDIFile == true {
+			logger.Info("SendToSyncada() is in send mode, sending syncadaFileName: " + syncadaFileName + "")
 			_, err = sftpSender.SendToSyncadaViaSFTP(edi858String, syncadaFileName)
 			if err != nil {
 				return err
