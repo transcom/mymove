@@ -26,14 +26,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.Equal(msPriceCents, priceCents)
 
 		// Check that the PricingDisplayParams were successfully set and returned
-		prfKeyFound := false
-		for _, v := range displayParams {
-			if v.Key == models.ServiceItemParamNamePriceRateOrFactor {
-				prfKeyFound = true
-				break
-			}
-		}
-		suite.True(prfKeyFound)
+		suite.Equal(len(displayParams), 1)
+		suite.Equal(displayParams[0].Key, models.ServiceItemParamNamePriceRateOrFactor)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
