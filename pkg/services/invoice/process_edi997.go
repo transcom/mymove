@@ -104,6 +104,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
 		e.logger.Info("SUCCESS: 997 Processor updated Payment Request to new status",
+			zap.Int64("997 ICN", edi997.InterchangeControlEnvelope.ISA.InterchangeControlNumber),
 			zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
 			zap.String("Status", string(paymentRequest.Status)),
 		)
