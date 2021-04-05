@@ -6,7 +6,7 @@ jobs:
   danger:
     runs-on: ubuntu-latest
     steps:
-      - uses actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - name: Danger
         uses: danger/danger-js@9.1.8
