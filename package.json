@@ -80,8 +80,7 @@
     "kind-of": "^6.0.2",
     "selfsigned": "^1.10.8",
     "immer": "^8.0.1",
-    "y18n": "^5.0.5",
-    "babel-loader": "8.1.0"
+    "y18n": "^5.0.5"
   },
   "name": "client",
   "private": true,
