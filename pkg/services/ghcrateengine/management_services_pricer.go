@@ -34,9 +34,8 @@ func (p managementServicesPricer) Price(contractCode string, mtoAvailableToPrime
 		Value: taskOrderFee.PriceCents.ToDollarString(),
 	}
 	params = append(params, param)
-	fmt.Println(params)
 
-	return taskOrderFee.PriceCents, nil, nil
+	return taskOrderFee.PriceCents, params, nil
 }
 
 // PriceUsingParams determines the price for a management service given PaymentServiceItemParams
