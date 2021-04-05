@@ -172,6 +172,11 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
                     <FontAwesomeIcon icon="exclamation" />
                   </Tag>
                 )}
+                {s === 'requested-shipments' && (
+                  <Tag className={styles.tag} data-testid="requestedShipmentsTag">
+                    {submittedShipments?.length}
+                  </Tag>
+                )}
               </a>
             );
           })}
