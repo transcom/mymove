@@ -147,6 +147,9 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
 	}
 
+	sendToSyncada := v.GetBool(cli.SendToSyncada)
+	logger.Info(fmt.Sprintf("SendToSyncada is %v", sendToSyncada))
+
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
 	// test ICNs in Syncada.
@@ -161,7 +164,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
 	}
 
-	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, false, icnSequencer)
+	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer)
 	if err != nil {
 		logger.Fatal("InitNewPaymentRequestReviewedProcessor failed", zap.Error(err))
 	}
