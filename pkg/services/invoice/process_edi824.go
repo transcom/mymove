@@ -149,6 +149,10 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 			e.logger.Error("failure updating payment request status:", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
+		e.logger.Info("SUCCESS: 824 Processor updated Payment Request to new status",
+			zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
+			zap.String("Status", string(paymentRequest.Status)),
+		)
 		return nil
 	})
 

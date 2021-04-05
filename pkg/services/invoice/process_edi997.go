@@ -103,6 +103,10 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 			e.logger.Error("failure updating payment request", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
+		e.logger.Info("SUCCESS: 997 Processor updated Payment Request to new status",
+			zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
+			zap.String("Status", string(paymentRequest.Status)),
+		)
 		return nil
 	})
 
