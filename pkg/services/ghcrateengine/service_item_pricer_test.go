@@ -110,6 +110,13 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItemData() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentServiceItem {
+	// This ParamKey doesn't need to be connected to the PaymentServiceItem yet, so we'll create it separately
+	testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:    models.ServiceItemParamNamePriceRateOrFactor,
+			Origin: models.ServiceItemParamOriginPricer,
+		},
+	})
 	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeMS,
