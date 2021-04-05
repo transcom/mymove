@@ -21,11 +21,27 @@ func (suite *SegmentSuite) TestValidateGS() {
 		suite.NoError(err)
 	})
 
+	altValidGS := GS{
+		FunctionalIdentifierCode: "AG",
+		ApplicationSendersCode:   "8004171844",
+		ApplicationReceiversCode: "MILMOVE",
+		Date:                     "20190903",
+		Time:                     "1617",
+		GroupControlNumber:       1,
+		ResponsibleAgencyCode:    "X",
+		Version:                  "004010",
+	}
+
+	suite.T().Run("validate success", func(t *testing.T) {
+		err := suite.validator.Struct(altValidGS)
+		suite.NoError(err)
+	})
+
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		gs := GS{
-			FunctionalIdentifierCode: "XX",        // eq
-			ApplicationSendersCode:   "XXXXX",     // eq
-			ApplicationReceiversCode: "123456789", // eq
+			FunctionalIdentifierCode: "XX",        // oneof
+			ApplicationSendersCode:   "XXXXX",     // oneof
+			ApplicationReceiversCode: "123456789", // oneof
 			Date:                     "20190945",  // datetime
 			Time:                     "2517",      // datetime
 			GroupControlNumber:       0,           // min
@@ -34,11 +50,11 @@ func (suite *SegmentSuite) TestValidateGS() {
 		}
 
 		err := suite.validator.Struct(gs)
-		suite.ValidateError(err, "FunctionalIdentifierCode", "eq")
-		suite.ValidateError(err, "ApplicationSendersCode", "eq")
-		suite.ValidateError(err, "ApplicationReceiversCode", "eq")
+		suite.ValidateError(err, "FunctionalIdentifierCode", "oneof")
+		suite.ValidateError(err, "ApplicationSendersCode", "oneof")
+		suite.ValidateError(err, "ApplicationReceiversCode", "oneof")
 		suite.ValidateError(err, "Date", "datetime")
-		suite.ValidateError(err, "Time", "datetime")
+		suite.ValidateError(err, "Time", "datetime=1504|datetime=150405")
 		suite.ValidateError(err, "GroupControlNumber", "min")
 		suite.ValidateError(err, "ResponsibleAgencyCode", "eq")
 		suite.ValidateError(err, "Version", "eq")

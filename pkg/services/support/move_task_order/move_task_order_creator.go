@@ -291,6 +291,14 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 		model.UploadedOrdersID = uploadedOrdersID
 	}
 
+	if orderPayload.OrdersTypeDetail != nil {
+		model.OrdersTypeDetail = (*internalmessages.OrdersTypeDetail)(orderPayload.OrdersTypeDetail)
+	}
+
+	if orderPayload.DepartmentIndicator != nil {
+		model.DepartmentIndicator = (*string)(orderPayload.DepartmentIndicator)
+	}
+
 	reportByDate := time.Time(*orderPayload.ReportByDate)
 	if !reportByDate.IsZero() {
 		model.ReportByDate = reportByDate
@@ -346,6 +354,10 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	if mtoPayload.AvailableToPrimeAt != nil {
 		availableToPrimeAt := time.Time(*mtoPayload.AvailableToPrimeAt)
 		model.AvailableToPrimeAt = &availableToPrimeAt
+	}
+
+	if mtoPayload.SelectedMoveType != nil {
+		model.SelectedMoveType = (*models.SelectedMoveType)(mtoPayload.SelectedMoveType)
 	}
 
 	return model

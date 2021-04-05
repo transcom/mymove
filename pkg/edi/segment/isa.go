@@ -3,6 +3,7 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // ISA represents the ISA EDI segment
@@ -22,7 +23,7 @@ type ISA struct {
 	InterchangeControlNumber          int64  `validate:"min=1,max=999999999"`
 	AcknowledgementRequested          int    `validate:"oneof=0 1"`
 	UsageIndicator                    string `validate:"oneof=P T"`
-	ComponentElementSeparator         string `validate:"eq=0x7C"` // Have to escape pipe symbol
+	ComponentElementSeparator         string `validate:"oneof=0x7C :"` // Have to escape pipe symbol
 }
 
 // StringArray converts ISA to an array of strings
@@ -57,9 +58,9 @@ func (s *ISA) Parse(elements []string) error {
 
 	var err error
 	s.AuthorizationInformationQualifier = elements[0]
-	s.AuthorizationInformation = elements[1]
+	s.AuthorizationInformation = strings.TrimSpace(elements[1])
 	s.SecurityInformationQualifier = elements[2]
-	s.SecurityInformation = elements[3]
+	s.SecurityInformation = strings.TrimSpace(elements[3])
 	s.InterchangeSenderIDQualifier = elements[4]
 	s.InterchangeSenderID = elements[5]
 	s.InterchangeReceiverIDQualifier = elements[6]

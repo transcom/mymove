@@ -160,6 +160,8 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	return totalPriceCents, nil, nil
 }
 
+// createPricerGeneratedParams stores PaymentServiceItemParams, whose origin is the PRICER, into the database
+// It also returns the newly created PaymentServiceItemParams.
 func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params services.PricingDisplayParams) (models.PaymentServiceItemParams, error) {
 	var paymentServiceItemParams models.PaymentServiceItemParams
 
@@ -168,6 +170,8 @@ func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.U
 	}
 
 	for _, param := range params {
+
+		// Find the paymentServiceItemParam associated with this PricingDisplayParam
 		var serviceItemParamKey models.ServiceItemParamKey
 		err := db.Q().
 			Where("key = ?", param.Key).
@@ -179,26 +183,11 @@ func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.U
 			return paymentServiceItemParams, fmt.Errorf("Service item param key is not a pricer param. Param key: %v", serviceItemParamKey.Key)
 		}
 
-		value := param.Value
-		switch serviceItemParamKey.Type {
-		case models.ServiceItemParamTypeTimestamp:
-			if timestampValue, ok := param.Value.(time.Time); ok {
-				value = timestampValue.Format(TimestampParamFormat)
-			} else {
-				return paymentServiceItemParams, fmt.Errorf("Pricing param value is invalid timestamp time.Time type for key: %v", serviceItemParamKey.Key)
-			}
-		case models.ServiceItemParamTypeDate:
-			if dateValue, ok := param.Value.(time.Time); ok {
-				value = dateValue.Format(DateParamFormat)
-			} else {
-				return paymentServiceItemParams, fmt.Errorf("Pricing param value is invalid date time.Time type for key: %v", serviceItemParamKey.Key)
-			}
-		}
-
+		// Create the PaymentServiceItemParam from the PricingDisplayParam and store it in the DB
 		newParam := models.PaymentServiceItemParam{
 			PaymentServiceItemID:  paymentServiceItemID,
 			ServiceItemParamKeyID: serviceItemParamKey.ID,
-			Value:                 fmt.Sprintf("%v", value),
+			Value:                 param.Value,
 		}
 
 		verrs, err := db.ValidateAndCreate(&newParam)
@@ -207,6 +196,7 @@ func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.U
 		} else if verrs.HasAny() {
 			return paymentServiceItemParams, services.NewInvalidCreateInputError(verrs, "validation error with creating payment service item param")
 		} else {
+			// Append it to a slice of PaymentServiceItemParams to return
 			paymentServiceItemParams = append(paymentServiceItemParams, newParam)
 		}
 	}

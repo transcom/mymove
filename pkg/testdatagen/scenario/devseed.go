@@ -692,8 +692,13 @@ func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *up
 	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, affiliation, testdatagen.Assertions{})
 }
 
+// Creates a payment request with domestic longhaul and shorthaul shipments with
+// service item pricing params for displaying cost calculations
 func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
-	actualPickupDate := time.Now().Add(-24 * time.Hour)
+
+	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := issueDate.Add(31 * 24 * time.Hour)
 	longhaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -705,16 +710,27 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 		Move: models.Move{
 			Locator: "PARAMS",
 		},
+		Order: models.Order{
+			IssueDate:    issueDate,
+			ReportByDate: reportByDate,
+		},
 	})
 
 	move := longhaulShipment.MoveTaskOrder
 
+	shorthaulDestinationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			PostalCode: "90211",
+		},
+	})
 	shorthaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+			DestinationAddress:   &shorthaulDestinationAddress,
+			DestinationAddressID: &shorthaulDestinationAddress.ID,
 		},
 		Move: move,
 	})
@@ -740,19 +756,24 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 	}
 
 	planner := &routemocks.Planner{}
-	planner.On("Zip5TransitDistanceLineHaul",
-		mock.Anything,
-		mock.Anything,
-	).Return(90210, nil)
-	planner.On("Zip3TransitDistance",
-		mock.Anything,
-		mock.Anything,
-	).Return(910, nil)
-	planner.On("Zip5TransitDistance",
-		mock.Anything,
-		mock.Anything,
-	).Return(90210, nil)
-	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(100, nil)
+
+	// called using the addresses with origin zip of 90210 and destination zip of 94535
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(348, nil).Once()
+
+	// called using the addresses with origin zip of 90210 and destination zip of 90211
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(3, nil).Once()
+
+	// called for domestic linehaul service item
+	planner.On("Zip3TransitDistance", "94535", "94535").Return(348, nil).Once()
+
+	// called for domestic shorthaul service item
+	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Once()
+
+	// called for domestic origin SIT pickup service item
+	planner.On("Zip3TransitDistance", "90210", "94535").Return(348, nil).Once()
+
+	// called for domestic destination SIT delivery service item
+	planner.On("Zip3TransitDistance", "94535", "90210").Return(348, nil).Once()
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(db, queryBuilder, serviceItemCreator, planner)
@@ -764,9 +785,11 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 
 	// There is a minimum of 29 days period for a sit service item that doesn't
 	// have a departure date for the payment request param lookup to not encounter an error
-	entryDate := time.Now().Add(-29 * 24 * time.Hour)
+	originEntryDate := actualPickupDate
 
-	originSITAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+	originSITAddress := testdatagen.MakeAddress2(db, testdatagen.Assertions{Stub: true})
+	originSITAddress.ID = uuid.Nil
+
 	originSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		Move:        move,
 		MTOShipment: longhaulShipment,
@@ -775,25 +798,108 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 		},
 		MTOServiceItem: models.MTOServiceItem{
 			Reason:                      models.StringPointer("Holiday break"),
-			SITEntryDate:                &entryDate,
-			SITPostalCode:               models.StringPointer("90210"),
+			SITEntryDate:                &originEntryDate,
+			SITPostalCode:               &originSITAddress.PostalCode,
 			SITOriginHHGActualAddress:   &originSITAddress,
 			SITOriginHHGActualAddressID: &originSITAddress.ID,
 		},
 		Stub: true,
 	})
 
-	createdServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(&originSIT)
+	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(&originSIT)
 	if validErrs.HasAny() || createErr != nil {
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
+	destEntryDate := actualPickupDate
+	destDepDate := actualPickupDate
+	destSITAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+	destSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDFSIT,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate:                 &destEntryDate,
+			SITDepartureDate:             &destDepDate,
+			SITPostalCode:                models.StringPointer("90210"),
+			SITDestinationFinalAddress:   &destSITAddress,
+			SITDestinationFinalAddressID: &destSITAddress.ID,
+		},
+		Stub: true,
+	})
+
+	createdDestServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(&destSIT)
+	if validErrs.HasAny() || createErr != nil {
+		logger.Fatal(fmt.Sprintf("error while creating destination sit service item: %v", verrs.Errors), zap.Error(createErr))
+	}
+
 	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
 
-	for _, createdServiceItem := range *createdServiceItems {
+	var originFirstDaySIT models.MTOServiceItem
+	var originAdditionalDaySIT models.MTOServiceItem
+	var originPickupSIT models.MTOServiceItem
+	for _, createdServiceItem := range *createdOriginServiceItems {
+		switch createdServiceItem.ReService.Code {
+		case models.ReServiceCodeDOFSIT:
+			originFirstDaySIT = createdServiceItem
+		case models.ReServiceCodeDOASIT:
+			originAdditionalDaySIT = createdServiceItem
+		case models.ReServiceCodeDOPSIT:
+			originPickupSIT = createdServiceItem
+		}
+	}
+
+	originDepartureDate := originEntryDate.Add(15 * 24 * time.Hour)
+	originPickupSIT.SITDepartureDate = &originDepartureDate
+
+	updatedDOPSIT, updateOriginErr := serviceItemUpdator.UpdateMTOServiceItemPrime(db, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
+
+	if updateOriginErr != nil {
+		logger.Fatal("Error updating DOPSIT with departure date")
+	}
+
+	originPickupSIT = *updatedDOPSIT
+
+	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
 		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
-			logger.Fatal("Error approving origin SIT service item", zap.Error(updateErr))
+			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
+		}
+	}
+
+	var serviceItemDDFSIT models.MTOServiceItem
+	var serviceItemDDASIT models.MTOServiceItem
+	var serviceItemDDDSIT models.MTOServiceItem
+	for _, createdDestServiceItem := range *createdDestServiceItems {
+		switch createdDestServiceItem.ReService.Code {
+		case models.ReServiceCodeDDFSIT:
+			serviceItemDDFSIT = createdDestServiceItem
+		case models.ReServiceCodeDDASIT:
+			serviceItemDDASIT = createdDestServiceItem
+		case models.ReServiceCodeDDDSIT:
+			serviceItemDDDSIT = createdDestServiceItem
+		}
+	}
+
+	destDepartureDate := destEntryDate.Add(15 * 24 * time.Hour)
+	serviceItemDDDSIT.SITDepartureDate = &destDepartureDate
+	serviceItemDDDSIT.SITDestinationFinalAddress = &destSITAddress
+	serviceItemDDDSIT.SITDestinationFinalAddressID = &destSITAddress.ID
+
+	updatedDDDSIT, updateDestErr := serviceItemUpdator.UpdateMTOServiceItemPrime(db, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
+
+	if updateDestErr != nil {
+		logger.Fatal("Error updating DDDSIT with departure date")
+	}
+
+	serviceItemDDDSIT = *updatedDDDSIT
+
+	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDFSIT, serviceItemDDASIT, serviceItemDDDSIT} {
+		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
 		}
 	}
 
@@ -805,33 +911,6 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 
 	paymentRequest := models.PaymentRequest{
 		MoveTaskOrderID: move.ID,
-	}
-
-	//dopCost := unit.Cents(3456)
-	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		Move:        move,
-		MTOShipment: longhaulShipment,
-		ReService: models.ReService{
-			ID:   uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
-			Code: models.ReServiceCodeDOP,
-		},
-		Stub: true,
-	})
-
-	//testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-	//	PaymentServiceItem: models.PaymentServiceItem{
-	//		PriceCents: &dopCost,
-	//	},
-	//	PaymentRequest: paymentRequest,
-	//	MTOServiceItem: serviceItemDOP,
-	//})
-
-	_, validErrsDOP, createErrDOP := serviceItemCreator.CreateMTOServiceItem(&serviceItemDOP)
-	if validErrsDOP.HasAny() || createErrDOP != nil {
-		logger.Error(fmt.Sprintf("error while creating domestic origin price service item: %v", verrs.Errors), zap.Error(createErrDOP))
 	}
 
 	var serviceItems []models.MTOServiceItem
