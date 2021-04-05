@@ -114,14 +114,22 @@ func connectToGEXViaSFTP(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer connection.Close()
+	defer func() {
+		if closeErr := connection.Close(); closeErr != nil {
+			logger.Debug("Failed to close tcp connection", zap.Error(closeErr))
+		}
+	}()
 
 	// create new SFTP client
 	client, err := sftp.NewClient(connection)
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func() {
+		if closeErr := client.Close(); closeErr != nil {
+			logger.Debug("Failed to close sftp client connection", zap.Error(closeErr))
+		}
+	}()
 
 	pwd, err := client.Getwd()
 	if err != nil {
