@@ -1,5 +1,4 @@
 name: Danger JS
-
 on: [pull_request]
 
 jobs:
@@ -8,7 +7,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.21.0'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
       - name: Danger
-        uses: danger/danger-js@9.1.8
+        run: yarn danger ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
