@@ -21,7 +21,15 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services/invoice"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+)
+
+const (
+	// ProcessEDILastReadTimeFlag is the ENV var for the last read time
+	ProcessEDILastReadTimeFlag string = "process-edi-last-read-time"
+	// ProcessEDIDeleteFilesFlag is the ENV var for deleting SFTP files after they've been processed
+	ProcessEDIDeleteFilesFlag string = "process-edi-delete-files"
 )
 
 // Call this from the command line with go run ./cmd/milmove-tasks process-edis
@@ -29,6 +37,16 @@ func checkProcessEDIsConfig(v *viper.Viper, logger logger) error {
 	logger.Debug("checking config")
 
 	err := cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckLogging(v)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckSyncadaSFTP(v)
 	if err != nil {
 		return err
 	}
@@ -63,6 +81,12 @@ func initProcessEDIsFlags(flag *pflag.FlagSet) {
 
 	// Entrust Certificates
 	cli.InitEntrustCertFlags(flag)
+
+	// Syncada SFTP Config
+	cli.InitSyncadaSFTPFlags(flag)
+
+	flag.String(ProcessEDILastReadTimeFlag, "", "Files older than this RFC3339 time will not be fetched.")
+	flag.Bool(ProcessEDIDeleteFilesFlag, false, "If present, delete files on SFTP server that have been processed successfully")
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -166,9 +190,66 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		logger.Fatal("InitNewPaymentRequestReviewedProcessor failed", zap.Error(err))
 	}
 
+	// SSH and SFTP Connection Setup
+	sshClient, err := cli.InitSyncadaSSH(v, logger)
+	if err != nil {
+		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
+	}
+	defer func() {
+		if closeErr := sshClient.Close(); closeErr != nil {
+			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		}
+	}()
+
+	sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+	if err != nil {
+		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
+	}
+	defer func() {
+		if closeErr := sftpClient.Close(); closeErr != nil {
+			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		}
+	}()
+
+	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
+	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, dbConnection, logger, v.GetBool(ProcessEDIDeleteFilesFlag))
+
+	// TODO GEX will put different response types in different directories, but
+	// Syncada puts everything in the same directory. When we have access to GEX in staging
+	// we will have to change this to use separate paths for different response types.
+	path := "/" + v.GetString(cli.SyncadaSFTPUserIDFlag) + v.GetString(cli.SyncadaSFTPOutboundDirectory)
+
+	// Sample expected format: 2021-03-16T18:25:36Z
+	lastReadTimeFlag := v.GetString(ProcessEDILastReadTimeFlag)
+	var lastReadTime time.Time
+	if lastReadTimeFlag != "" {
+		lastReadTime, err = time.Parse(time.RFC3339, lastReadTimeFlag)
+		if err != nil {
+			logger.Error("couldn't parse last read time", zap.Error(err))
+		}
+	}
+	logger.Info("lastRead", zap.String("lastReadTime", lastReadTime.String()))
+
+	// Process 858s
 	err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 	if err != nil {
 		logger.Fatal("Could not process reviewed payment request(s)", zap.Error(err))
+	}
+
+	// Process 997s
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, lastReadTime, invoice.NewEDI997Processor(dbConnection, logger))
+	if err != nil {
+		logger.Error("Error reading 997 responses", zap.Error(err))
+	} else {
+		logger.Info("Successfully processed 997 responses")
+	}
+
+	// Process 824s
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, lastReadTime, invoice.NewEDI824Processor(dbConnection, logger))
+	if err != nil {
+		logger.Error("Error reading 824 responses", zap.Error(err))
+	} else {
+		logger.Info("Successfully processed 824 responses")
 	}
 
 	return nil
