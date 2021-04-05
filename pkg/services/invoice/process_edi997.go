@@ -103,9 +103,11 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 			e.logger.Error("failure updating payment request", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
+		ak1 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
 		e.logger.Info("SUCCESS: 997 Processor updated Payment Request to new status",
 			zap.Int64("997 ICN", edi997.InterchangeControlEnvelope.ISA.InterchangeControlNumber),
 			zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
+			zap.Int64("858 GCN/ICN", ak1.GroupControlNumber),
 			zap.String("Status", string(paymentRequest.Status)),
 		)
 		return nil
