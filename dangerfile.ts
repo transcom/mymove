@@ -1,10 +1,8 @@
-// import * as child from 'child_process';
-
-const child = require('child_process');
+import * as child from 'child_process';
 
 /* eslint-disable import/no-extraneous-dependencies */
 import { danger, warn, fail } from 'danger';
-const jiraIssue = require('danger-plugin-jira-issue');
+import jiraIssue from 'danger-plugin-jira-issue';
 /* eslint-enable import/no-extraneous-dependencies */
 
 const githubChecks = () => {
