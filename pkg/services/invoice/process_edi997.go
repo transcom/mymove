@@ -6,6 +6,8 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
 
+	edisegment "github.com/transcom/mymove/pkg/edi/segment"
+
 	ediResponse997 "github.com/transcom/mymove/pkg/edi/edi997"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -36,6 +38,8 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 		e.logger.Error("unable to parse EDI997", zap.Error(err))
 		return fmt.Errorf("unable to parse EDI997")
 	}
+	e.logger.Info("RECEIVED: 997 Processor received a 997")
+	e.logEDI(edi997)
 
 	// Find the PaymentRequestID that matches the GCN
 	icn := edi997.InterchangeControlEnvelope.ISA.InterchangeControlNumber
@@ -103,13 +107,8 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 			e.logger.Error("failure updating payment request", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
-		ak1 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
-		e.logger.Info("SUCCESS: 997 Processor updated Payment Request to new status",
-			zap.Int64("997 ICN", edi997.InterchangeControlEnvelope.ISA.InterchangeControlNumber),
-			zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
-			zap.Int64("858 GCN/ICN", ak1.GroupControlNumber),
-			zap.String("Status", string(paymentRequest.Status)),
-		)
+		e.logger.Info("SUCCESS: 997 Processor updated Payment Request to new status")
+		e.logEDIWithPaymentRequest(edi997, paymentRequest)
 		return nil
 	})
 
@@ -123,4 +122,36 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 
 func (e *edi997Processor) EDIType() models.EDIType {
 	return models.EDIType997
+}
+
+func (e *edi997Processor) logEDI(edi ediResponse997.EDI) {
+	var ak1 edisegment.AK1
+	if len(edi.InterchangeControlEnvelope.FunctionalGroups) > 0 && len(edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets) > 0 {
+		ak1 = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
+	} else {
+		e.logger.Warn("unable to log EDI 997, failed functional group or transaction set index check")
+		return
+	}
+
+	e.logger.Info("EDI 997 log",
+		zap.Int64("997 ICN", edi.InterchangeControlEnvelope.ISA.InterchangeControlNumber),
+		zap.Int64("858 GCN/ICN", ak1.GroupControlNumber),
+	)
+}
+
+func (e *edi997Processor) logEDIWithPaymentRequest(edi ediResponse997.EDI, paymentRequest models.PaymentRequest) {
+	var ak1 edisegment.AK1
+	if len(edi.InterchangeControlEnvelope.FunctionalGroups) > 0 && len(edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets) > 0 {
+		ak1 = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
+	} else {
+		e.logger.Warn("unable to log EDI 997, failed functional group or transaction set index check")
+		return
+	}
+
+	e.logger.Info("EDI 997 log",
+		zap.Int64("997 ICN", edi.InterchangeControlEnvelope.ISA.InterchangeControlNumber),
+		zap.Int64("858 GCN/ICN", ak1.GroupControlNumber),
+		zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
+		zap.String("PaymentRequest.Status", string(paymentRequest.Status)),
+	)
 }

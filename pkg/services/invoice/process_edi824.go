@@ -39,6 +39,9 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		return fmt.Errorf("unable to parse EDI824")
 	}
 
+	e.logger.Info("RECEIVED: 824 Processor received a 824")
+	e.logEDI(edi824)
+
 	var transactionError error
 	var otiGCN int64
 	var bgn edisegment.BGN
@@ -136,11 +139,8 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 			e.logger.Error("failure updating payment request status:", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
-		e.logger.Info("SUCCESS: 824 Processor updated Payment Request to new status",
-			zap.Int64("824 ICN", edi824.InterchangeControlEnvelope.ISA.InterchangeControlNumber),
-			zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
-			zap.String("Status", string(paymentRequest.Status)),
-		)
+		e.logger.Info("SUCCESS: 824 Processor updated Payment Request to new status")
+		e.logEDIWithPaymentRequest(edi824, paymentRequest)
 		return nil
 	})
 
@@ -164,4 +164,58 @@ func fetchTEDSegments(edi ediResponse824.EDI) []edisegment.TED {
 
 func (e *edi824Processor) EDIType() models.EDIType {
 	return models.EDIType824
+}
+
+func (e *edi824Processor) logEDI(edi ediResponse824.EDI) {
+	var transactionSet0 ediResponse824.TransactionSet
+	var bgn edisegment.BGN
+	var otiGCN int64
+	icn := edi.InterchangeControlEnvelope.ISA.InterchangeControlNumber
+	if len(edi.InterchangeControlEnvelope.FunctionalGroups) > 0 && len(edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets) > 0 {
+		transactionSet0 = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0]
+		bgn = transactionSet0.BGN
+		if len(transactionSet0.OTIs) > 0 {
+			otiGCN = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].OTIs[0].GroupControlNumber
+		} else {
+			e.logger.Warn("unable to log EDI 824, failed OTI index check")
+			return
+		}
+	} else {
+		e.logger.Warn("unable to log EDI 824, failed functional group or transaction sets index check")
+		return
+	}
+
+	e.logger.Info("SUCCESS: 824 Processor updated Payment Request to new status",
+		zap.Int64("824 ICN", icn),
+		zap.String("BGN.ReferenceIdentification", bgn.ReferenceIdentification),
+		zap.Int64("858 GCN", otiGCN),
+	)
+}
+
+func (e *edi824Processor) logEDIWithPaymentRequest(edi ediResponse824.EDI, paymentRequest models.PaymentRequest) {
+	var transactionSet0 ediResponse824.TransactionSet
+	var bgn edisegment.BGN
+	var otiGCN int64
+	icn := edi.InterchangeControlEnvelope.ISA.InterchangeControlNumber
+	if len(edi.InterchangeControlEnvelope.FunctionalGroups) > 0 && len(edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets) > 0 {
+		transactionSet0 = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0]
+		bgn = transactionSet0.BGN
+		if len(transactionSet0.OTIs) > 0 {
+			otiGCN = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].OTIs[0].GroupControlNumber
+		} else {
+			e.logger.Warn("unable to log EDI 824, failed OTI index check")
+			return
+		}
+	} else {
+		e.logger.Warn("unable to log EDI 824, failed functional group or transaction sets index check")
+		return
+	}
+
+	e.logger.Info("SUCCESS: 824 Processor updated Payment Request to new status",
+		zap.Int64("824 ICN", icn),
+		zap.String("BGN.ReferenceIdentification", bgn.ReferenceIdentification),
+		zap.Int64("858 GCN", otiGCN),
+		zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
+		zap.String("PaymentRequest.Status", string(paymentRequest.Status)),
+	)
 }
