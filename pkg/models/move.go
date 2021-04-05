@@ -34,6 +34,10 @@ const (
 	MoveStatusCANCELED MoveStatus = "CANCELED"
 	// MoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS REQUESTED"
 	MoveStatusAPPROVALSREQUESTED MoveStatus = "APPROVALS REQUESTED"
+	// MoveStatusNeedsServiceCounseling captures enum value "NEEDS SERVICE COUNSELING"
+	MoveStatusNeedsServiceCounseling MoveStatus = "NEEDS SERVICE COUNSELING"
+	// MoveStatusServiceCounselingCompleted captures enum value "SERVICE COUNSELING COMPLETED"
+	MoveStatusServiceCounselingCompleted MoveStatus = "SERVICE COUNSELING COMPLETED"
 )
 
 // SelectedMoveType represents the type of move being represented
