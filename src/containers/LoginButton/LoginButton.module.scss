@@ -27,7 +27,9 @@
 }
 
 :global(.my-move-header .usa-nav__primary-item) > .profileLink {
-  color: $bg-white;
+  @include at-media('desktop') {
+    color: white;
+  }
   &:hover,
   &:focus {
     color: $link-light-hover;
