@@ -3,7 +3,6 @@ package ghcrateengine
 import (
 	"fmt"
 	"math"
-	"strconv"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -64,19 +63,19 @@ func (p domesticUnpackPricer) Price(contractCode string, requestedPickupDate tim
 	displayParams := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNameContractYearName,
-			Value: contractYear.Contract.Name,
+			Value: contractYear.Name,
 		},
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: totalCost.ToDollarString(),
+			Value: FormatCents(totalCost),
 		},
 		{
 			Key:   models.ServiceItemParamNameIsPeak,
-			Value: strconv.FormatBool(isPeakPeriod),
+			Value: FormatBool(isPeakPeriod),
 		},
 		{
 			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: strconv.FormatFloat(contractYear.EscalationCompounded, 'f', 2, 64),
+			Value: FormatFloat(contractYear.EscalationCompounded),
 		},
 	}
 

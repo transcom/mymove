@@ -67,7 +67,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemPa
 		suite.Equal(expectedCost, cost)
 		suite.Equal(len(displayParams), 4)
 		suite.Equal(displayParams[0].Key, models.ServiceItemParamNameContractYearName)
-		suite.Equal(displayParams[0].Value, models.ServiceItemParamNameContractYearName)
+		suite.Equal(displayParams[0].Value, "Base Period Year 1")
+		suite.Equal(displayParams[1].Key, models.ServiceItemParamNamePriceRateOrFactor)
+		suite.Equal(displayParams[1].Value, "54.70")
+		suite.Equal(displayParams[2].Key, models.ServiceItemParamNameIsPeak)
+		suite.Equal(displayParams[2].Value, "true")
+		suite.Equal(displayParams[3].Key, models.ServiceItemParamNameEscalationCompounded)
+		suite.Equal(displayParams[3].Value, "1.0407")
 
 	})
 
