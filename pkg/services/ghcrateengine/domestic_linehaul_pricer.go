@@ -71,7 +71,7 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
 		{Key: models.ServiceItemParamNameEscalationCompounded, Value: fmt.Sprintf("%.5f", contractYear.EscalationCompounded)},
 		{Key: models.ServiceItemParamNameIsPeak, Value: strconv.FormatBool(isPeakPeriod)},
-		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: fmt.Sprintf("$%.2f", float64(domesticLinehaulPrice.PriceMillicents)/100000.0)},
+		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: fmt.Sprintf("%.3f", float64(domesticLinehaulPrice.PriceMillicents)/100000.0)},
 	}
 
 	return totalPriceCents, params, nil
