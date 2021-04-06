@@ -19,6 +19,7 @@ const (
 	dlhTestMilesLower           = 1001
 	dlhTestMilesUpper           = 1500
 	dlhTestBasePriceMillicents  = unit.Millicents(5000)
+	dlhTestContractYearName     = "DLH Test Year"
 	dlhTestEscalationCompounded = 1.04071
 	dlhTestDistance             = unit.Miles(1200)
 	dlhTestWeight               = unit.Pound(4000)
@@ -28,7 +29,7 @@ const (
 var dlhRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
-	suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestEscalationCompounded)
+	suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 	paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 	linehaulServicePricer := NewDomesticLinehaulPricer(suite.DB())
 
@@ -38,7 +39,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.Equal(dlhPriceCents, priceCents)
 
 		if suite.Len(displayParams, 4) {
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, "Test Contract Year")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, dlhTestContractYearName)
 			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, fmt.Sprintf("%.5f", dlhTestEscalationCompounded))
 			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, strconv.FormatBool(dlhTestIsPeakPeriod))
 			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, fmt.Sprintf("$%.2f", float64(dlhTestBasePriceMillicents)/100000.0))
