@@ -377,7 +377,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).All(&ediErrors)
 		suite.NoError(err)
 		// ProcessReviewedPaymentRequest() stops processing requests after it hits an error, so
-		// we only the first error payment request with an error will be recorded.
+		// we only expect the first payment request with an error to be recorded.
 		suite.Len(ediErrors, 1)
 		suite.Contains(*(ediErrors[0].Description), "test error")
 		suite.Equal(ediErrors[0].PaymentRequestID, prs[0].ID)
