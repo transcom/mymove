@@ -114,6 +114,7 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentSe
 	testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key:    models.ServiceItemParamNamePriceRateOrFactor,
+			Type:   models.ServiceItemParamTypeDecimal,
 			Origin: models.ServiceItemParamOriginPricer,
 		},
 	})
