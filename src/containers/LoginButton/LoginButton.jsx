@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { bool, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { selectIsLoggedIn } from '../../store/auth/selectors';
 
@@ -58,17 +60,24 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
   };
 
   return (
-    <li className="usa-nav__primary-item">
-      <Button
-        aria-label="Sign Out"
-        className={styles.signOut}
-        data-testid="signout"
-        onClick={handleLogOut}
-        type="button"
-      >
-        Sign Out
-      </Button>
-    </li>
+    <>
+      <li className="usa-nav__primary-item">
+        <Link to="/moves/review/profile" title="profile-link" aria-label="profile-link" className={styles.profileLink}>
+          <FontAwesomeIcon className="fa-2x" icon={['far', 'user']} />
+        </Link>
+      </li>
+      <li className="usa-nav__primary-item">
+        <Button
+          aria-label="Sign Out"
+          className={styles.signOut}
+          data-testid="signout"
+          onClick={handleLogOut}
+          type="button"
+        >
+          Sign Out
+        </Button>
+      </li>
+    </>
   );
 };
 
