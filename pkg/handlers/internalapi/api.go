@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 
+	"github.com/transcom/mymove/pkg/services/move"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -65,7 +66,10 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{context}
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{context}
-	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{context}
+	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
+		context,
+		move.NewMoveStatusRouter(context.DB()),
+	}
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{context}
 
 	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{context}

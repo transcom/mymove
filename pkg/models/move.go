@@ -164,6 +164,16 @@ func (m *Move) Submit(submittedDate time.Time) error {
 	return nil
 }
 
+// SendToServiceCounseling sends the move to needs service counseling
+func (m *Move) SendToServiceCounseling() error {
+	if m.Status != MoveStatusDRAFT {
+		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to NeedsServiceCounseling state when the Move is not in Draft status: %s", m.Status))
+	}
+	m.Status = MoveStatusNeedsServiceCounseling
+
+	return nil
+}
+
 // Approve approves the Move
 func (m *Move) Approve() error {
 	if m.Status == MoveStatusSUBMITTED || m.Status == MoveStatusAPPROVALSREQUESTED {

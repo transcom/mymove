@@ -22,3 +22,8 @@ type MoveFetcher interface {
 type MoveFetcherParams struct {
 	IncludeHidden bool // indicates if a hidden/disabled move can be returned
 }
+
+// MoveStatusRouter is the exported interface for routing moves after customer submission
+type MoveStatusRouter interface {
+	RouteMove(move *models.Move) error
+}
