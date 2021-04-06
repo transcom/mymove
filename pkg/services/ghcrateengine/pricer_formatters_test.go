@@ -20,3 +20,15 @@ func (suite *GHCRateEngineServiceSuite) TestFormatCents() {
 	expected = "100.99"
 	suite.Equal(expected, result)
 }
+
+func (suite *GHCRateEngineServiceSuite) TestFormatFloat() {
+	num := 1.00020000
+	result := FormatFloat(num)
+	expected := "1.0002"
+	suite.Equal(expected, result)
+
+	num = 1.002
+	result = FormatFloat(num)
+	expected = "1.002"
+	suite.Equal(expected, result)
+}
