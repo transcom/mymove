@@ -126,6 +126,50 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		return nil
 	})
 	if transactionError != nil {
+		errDescription := transactionError.Error()
+
+		pr2icn := models.PaymentRequestToInterchangeControlNumber{}
+		err := p.db.Where("payment_request_id = $1", pr.ID).First(&pr2icn)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				p.logger.Error(
+					"failed to save EDI 858 error due to missing ICN",
+					zap.String("PaymentRequestID", pr.ID.String()),
+					zap.Error(err),
+				)
+			} else {
+				p.logger.Error(
+					"failed to save EDI 858 error due to error while looking up ICN",
+					zap.String("PaymentRequestID", pr.ID.String()),
+					zap.Error(err),
+				)
+			}
+			// Returning original error instead of the error from the query so that it doesn't g
+			return transactionError
+		}
+		errToSave := models.EdiError{
+			PaymentRequestID:           pr.ID,
+			InterchangeControlNumberID: pr2icn.ID,
+			Code:                       nil,
+			Description:                &errDescription,
+			EDIType:                    models.EDIType858,
+		}
+		verrs, err := p.db.ValidateAndCreate(&errToSave)
+
+		// We are just logging these errors instead of returning them to avoid obscuring the original error
+		if err != nil {
+			p.logger.Error(
+				"failed to save EDI 858 error",
+				zap.String("PaymentRequestID", pr.ID.String()),
+				zap.Error(err),
+			)
+		} else if verrs != nil && verrs.HasAny() {
+			p.logger.Error(
+				"failed to save EDI 858 error due to validation errors",
+				zap.String("PaymentRequestID", pr.ID.String()),
+				zap.Error(verrs),
+			)
+		}
 		return transactionError
 	}
 	return nil

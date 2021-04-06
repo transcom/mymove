@@ -321,6 +321,15 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(err, "Get count of EDIProcessing")
 
 		prs := suite.createPaymentRequest(4)
+		for i, pr := range prs {
+			testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+				PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+					PaymentRequestID:         pr.ID,
+					InterchangeControlNumber: i,
+					PaymentRequest:           pr,
+				},
+			})
+		}
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
@@ -362,6 +371,16 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(err, "Get count of EDIProcessing")
 		suite.Greater(newCount, countProcessingRecordsBefore)
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
+
+		// Check that an error was recorded in the EdiErrors table.
+		var ediErrors models.EdiErrors
+		err = suite.DB().Where("edi_type = ?", models.EDIType858).All(&ediErrors)
+		suite.NoError(err)
+		// ProcessReviewedPaymentRequest() stops processing requests after it hits an error, so
+		// we only the first error payment request with an error will be recorded.
+		suite.Len(ediErrors, 1)
+		suite.Contains(*(ediErrors[0].Description), "test error")
+		suite.Equal(ediErrors[0].PaymentRequestID, prs[0].ID)
 	})
 
 	suite.T().Run("process reviewed payment request, failed payment request fetcher", func(t *testing.T) {
