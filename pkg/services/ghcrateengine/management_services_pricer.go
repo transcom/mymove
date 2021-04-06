@@ -28,12 +28,12 @@ func (p managementServicesPricer) Price(contractCode string, mtoAvailableToPrime
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch task order fee: %w", err)
 	}
-	var params = services.PricingDisplayParams{}
-	var param = services.PricingDisplayParam{
-		Key:   models.ServiceItemParamNamePriceRateOrFactor,
-		Value: taskOrderFee.PriceCents.ToDollarString(),
+	params := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: taskOrderFee.PriceCents.ToDollarString(),
+		},
 	}
-	params = append(params, param)
 
 	return taskOrderFee.PriceCents, params, nil
 }
