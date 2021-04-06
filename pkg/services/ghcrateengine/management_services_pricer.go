@@ -31,7 +31,7 @@ func (p managementServicesPricer) Price(contractCode string, mtoAvailableToPrime
 	params := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: taskOrderFee.PriceCents.ToDollarString(),
+			Value: FormatCents(taskOrderFee.PriceCents),
 		},
 	}
 
