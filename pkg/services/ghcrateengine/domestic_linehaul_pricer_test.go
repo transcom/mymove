@@ -2,6 +2,7 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -32,9 +33,16 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	linehaulServicePricer := NewDomesticLinehaulPricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := linehaulServicePricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dlhPriceCents, priceCents)
+
+		if suite.Len(displayParams, 4) {
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, "Test Contract Year")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, fmt.Sprintf("%.5f", dlhTestEscalationCompounded))
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, strconv.FormatBool(dlhTestIsPeakPeriod))
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, fmt.Sprintf("$%.2f", float64(dlhTestBasePriceMillicents)/100000.0))
+		}
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {

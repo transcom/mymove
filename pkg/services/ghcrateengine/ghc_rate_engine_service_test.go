@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
@@ -170,4 +171,16 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 	}
 
 	suite.MustSave(&baseLinehaulPrice)
+}
+
+func (suite *GHCRateEngineServiceSuite) HasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, value string) bool {
+	for _, displayParam := range displayParams {
+		if displayParam.Key == key {
+			if displayParam.Value == value {
+				return true
+			}
+		}
+	}
+
+	return suite.Failf("Could not find display param", "key=<%s> value=<%s>", key.String(), value)
 }
