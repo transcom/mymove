@@ -179,6 +179,10 @@ export const all = () => (
           external link | <strong>uses local svg, not FontAwesome</strong>
         </code>
       </div>
+      <div>
+        <FontAwesomeIcon className="fa-2x" icon={['far', 'user']} />
+        <code>user | icon=&quot;user&quot;</code>
+      </div>
     </div>
   </div>
 );
