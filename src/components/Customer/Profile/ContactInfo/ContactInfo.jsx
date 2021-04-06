@@ -22,7 +22,6 @@ const ContactInfo = ({
   onEditClick,
 }) => {
   const containerClassNames = classnames(reviewStyles['review-container'], serviceInfoTableStyles.ServiceInfoTable);
-  const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
 
   let preferredContactMethod = 'Unknown';
   if (phoneIsPreferred) {
@@ -41,74 +40,47 @@ const ContactInfo = ({
       </div>
 
       <div>
-        <table className={tableClassNames}>
-          <colgroup>
-            <col />
-            <col />
-          </colgroup>
-          <tbody>
-            <tr>
-              <th scope="row">Best contact phone</th>
-              <td>{telephone}</td>
-            </tr>
-            <tr>
-              <th scope="row">Alt. phone</th>
-              <td>{secondaryTelephone || '–'}</td>
-            </tr>
-            <tr>
-              <th scope="row">Personal email</th>
-              <td>{personalEmail}</td>
-            </tr>
-            <tr>
-              <th scope="row">Preferred contact method</th>
-              <td>{preferredContactMethod}</td>
-            </tr>
-            <tr>
-              <th scope="row">Current mailing address</th>
-              <td>
-                {residentialAddress.street_address_1} {residentialAddress.street_address_2}
-                <br />
-                {residentialAddress.city}, {residentialAddress.state} {residentialAddress.postal_code}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Backup mailing address</th>
-              <td>
-                {backupMailingAddress.street_address_1} {backupMailingAddress.street_address_2}
-                <br />
-                {backupMailingAddress.city}, {backupMailingAddress.state} {backupMailingAddress.postal_code}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <dl>
+          <dt>Best contact phone</dt>
+          <dd>{telephone}</dd>
+
+          <dt>Alt. phone</dt>
+          <dd>{secondaryTelephone || '–'}</dd>
+
+          <dt>Personal email</dt>
+          <dd>{personalEmail}</dd>
+
+          <dt>Preferred contact method</dt>
+          <dd>{preferredContactMethod}</dd>
+
+          <dt>Current mailing address</dt>
+          <dd>
+            {residentialAddress.street_address_1} {residentialAddress.street_address_2}
+            <br />
+            {residentialAddress.city}, {residentialAddress.state} {residentialAddress.postal_code}
+          </dd>
+
+          <dt>Backup mailing address</dt>
+          <dd>
+            {backupMailingAddress.street_address_1} {backupMailingAddress.street_address_2}
+            <br />
+            {backupMailingAddress.city}, {backupMailingAddress.state} {backupMailingAddress.postal_code}
+          </dd>
+        </dl>
       </div>
 
       <div>
         <h3>Backup contact</h3>
-        <table className={tableClassNames}>
-          <colgroup>
-            <col />
-            <col />
-          </colgroup>
-          <tbody>
-            <tr>
-              <th scope="row">Name</th>
-              <td>{backupContact.name}</td>
-            </tr>
-            <tr>
-              <th scope="row">Email</th>
-              <td>{backupContact.email}</td>
-            </tr>
-            <tr>
-              <th className={reviewStyles['table-divider-top']} scope="row" style={{ borderBottom: 'none' }}>
-                Phone
-              </th>
-              <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
-                {backupContact.telephone}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <dl>
+          <dt>Name</dt>
+          <dd>{backupContact.name}</dd>
+
+          <dt>Email</dt>
+          <dd>{backupContact.email}</dd>
+
+          <dt>Phone</dt>
+          <dd>{backupContact.telephone}</dd>
+        </dl>
       </div>
     </SectionWrapper>
   );
