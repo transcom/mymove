@@ -75,29 +75,30 @@ var locatorLetters = []rune("346789BCDFGHJKMPQRTVWXY")
 
 // Move is an object representing a move
 type Move struct {
-	ID                      uuid.UUID               `json:"id" db:"id"`
-	Locator                 string                  `json:"locator" db:"locator"`
-	CreatedAt               time.Time               `json:"created_at" db:"created_at"`
-	UpdatedAt               time.Time               `json:"updated_at" db:"updated_at"`
-	SubmittedAt             *time.Time              `json:"submitted_at" db:"submitted_at"`
-	OrdersID                uuid.UUID               `json:"orders_id" db:"orders_id"`
-	Orders                  Order                   `belongs_to:"orders"`
-	SelectedMoveType        *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
-	PersonallyProcuredMoves PersonallyProcuredMoves `has_many:"personally_procured_moves" order_by:"created_at desc"`
-	MoveDocuments           MoveDocuments           `has_many:"move_documents" order_by:"created_at desc"`
-	Status                  MoveStatus              `json:"status" db:"status"`
-	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
-	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
-	Show                    *bool                   `json:"show" db:"show"`
-	AvailableToPrimeAt      *time.Time              `db:"available_to_prime_at"`
-	ContractorID            *uuid.UUID              `db:"contractor_id"`
-	Contractor              *Contractor             `belongs_to:"contractors"`
-	PPMEstimatedWeight      *unit.Pound             `db:"ppm_estimated_weight"`
-	PPMType                 *string                 `db:"ppm_type"`
-	MTOServiceItems         MTOServiceItems         `has_many:"mto_service_items"`
-	PaymentRequests         PaymentRequests         `has_many:"payment_requests"`
-	MTOShipments            MTOShipments            `has_many:"mto_shipments"`
-	ReferenceID             *string                 `db:"reference_id"`
+	ID                           uuid.UUID               `json:"id" db:"id"`
+	Locator                      string                  `json:"locator" db:"locator"`
+	CreatedAt                    time.Time               `json:"created_at" db:"created_at"`
+	UpdatedAt                    time.Time               `json:"updated_at" db:"updated_at"`
+	SubmittedAt                  *time.Time              `json:"submitted_at" db:"submitted_at"`
+	OrdersID                     uuid.UUID               `json:"orders_id" db:"orders_id"`
+	Orders                       Order                   `belongs_to:"orders"`
+	SelectedMoveType             *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
+	PersonallyProcuredMoves      PersonallyProcuredMoves `has_many:"personally_procured_moves" order_by:"created_at desc"`
+	MoveDocuments                MoveDocuments           `has_many:"move_documents" order_by:"created_at desc"`
+	Status                       MoveStatus              `json:"status" db:"status"`
+	SignedCertifications         SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
+	CancelReason                 *string                 `json:"cancel_reason" db:"cancel_reason"`
+	Show                         *bool                   `json:"show" db:"show"`
+	AvailableToPrimeAt           *time.Time              `db:"available_to_prime_at"`
+	ContractorID                 *uuid.UUID              `db:"contractor_id"`
+	Contractor                   *Contractor             `belongs_to:"contractors"`
+	PPMEstimatedWeight           *unit.Pound             `db:"ppm_estimated_weight"`
+	PPMType                      *string                 `db:"ppm_type"`
+	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items"`
+	PaymentRequests              PaymentRequests         `has_many:"payment_requests"`
+	MTOShipments                 MTOShipments            `has_many:"mto_shipments"`
+	ReferenceID                  *string                 `db:"reference_id"`
+	ServiceCounselingCompletedAt *time.Time              `db:"service_counseling_completed_at"`
 }
 
 // MoveOptions is used when creating new moves based on parameters
