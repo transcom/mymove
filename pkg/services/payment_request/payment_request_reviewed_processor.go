@@ -101,6 +101,13 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to edi858c.EDIString: %w", err)
 		}
 
+		p.logger.Info("858 Processor calling SendToSyncada...",
+			zap.Int64("858 ICN", edi858c.ISA.InterchangeControlNumber),
+			zap.String("ShipmentIdentificationNumber/PaymentRequestNumber", edi858c.Header.ShipmentInformation.ShipmentIdentificationNumber),
+			zap.String("ReferenceIdentification/PaymentRequestNumber", edi858c.Header.PaymentRequestNumber.ReferenceIdentification),
+			zap.String("Date", edi858c.ISA.InterchangeDate),
+			zap.String("Time", edi858c.ISA.InterchangeTime),
+		)
 		// Send EDI string to Syncada
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
 		err = paymentrequesthelper.SendToSyncada(edi858cString, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)

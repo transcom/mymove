@@ -16,13 +16,11 @@
 /migrations/ @transcom/truss-db
 
 # Require design / frontend reviews on Storybook & CSS changes
-/src/stories/ @transcom/truss-design @suzubara
-*.stories.jsx @transcom/truss-design @suzubara
-*.css @transcom/truss-design @suzubara
-*.scss @transcom/truss-design @suzubara
+/src/stories/ @transcom/truss-design
+*.stories.jsx @transcom/truss-design
+*.css @transcom/truss-design
+*.scss @transcom/truss-design
 
 # Require team Pamplemoose to review changes to configs that may affect cATO static analysis compliancy
 .golangci.yaml @transcom/Truss-Pamplemoose
 .pre-commit-config.yaml @transcom/Truss-Pamplemoose
-
-
