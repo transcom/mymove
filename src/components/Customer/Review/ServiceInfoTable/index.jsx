@@ -1,6 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
-import { string } from 'prop-types';
+import { string, func, bool } from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import reviewStyles from '../Review.module.scss';
 
@@ -12,7 +13,9 @@ const ServiceInfoTable = ({
   currentDutyStationPhone,
   edipi,
   firstName,
+  isEditable,
   lastName,
+  onEditClick,
   rank,
 }) => {
   const containerClassNames = classnames(
@@ -21,15 +24,28 @@ const ServiceInfoTable = ({
     serviceInfoTableStyles.ServiceInfoTable,
   );
   const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
+  const editProfilePath = '/moves/review/edit-profile';
   return (
     <div className={containerClassNames}>
       <div className={classnames(reviewStyles['review-header'], serviceInfoTableStyles.ReviewHeader)}>
         <h2>Service info</h2>
+        {isEditable && (
+          <Button
+            unstyled
+            className={reviewStyles['edit-btn']}
+            data-testid="edit-profile-table"
+            onClick={() => onEditClick(editProfilePath)}
+          >
+            Edit
+          </Button>
+        )}
       </div>
-      <div>
-        To change information in this section, contact the {currentDutyStationName} transportation office{' '}
-        {currentDutyStationPhone ? ` at ${currentDutyStationPhone}.` : '.'}
-      </div>
+      {!isEditable && (
+        <div>
+          To change information in this section, contact the {currentDutyStationName} transportation office{' '}
+          {currentDutyStationPhone ? ` at ${currentDutyStationPhone}.` : '.'}
+        </div>
+      )}
       <table className={tableClassNames}>
         <colgroup>
           <col />
@@ -74,12 +90,16 @@ ServiceInfoTable.propTypes = {
   currentDutyStationPhone: string,
   edipi: string.isRequired,
   firstName: string.isRequired,
+  isEditable: bool,
   lastName: string.isRequired,
+  onEditClick: func,
   rank: string.isRequired,
 };
 
 ServiceInfoTable.defaultProps = {
   currentDutyStationPhone: '',
+  onEditClick: () => {},
+  isEditable: true,
 };
 
 export default ServiceInfoTable;

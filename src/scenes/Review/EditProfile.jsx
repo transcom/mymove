@@ -74,6 +74,7 @@ let EditProfileForm = (props) => {
                   affiliation={initialValues.affiliation}
                   rank={initialValues.rank}
                   edipi={initialValues.edipi}
+                  isEditable={false}
                 />
               )}
             </SectionWrapper>
