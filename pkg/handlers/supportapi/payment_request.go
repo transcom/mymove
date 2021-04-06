@@ -383,7 +383,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		}()
 
 		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, h.DB(), logger, false)
+		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, h.DB(), logger, true)
 
 		// TODO GEX will put different response types in different directories, but
 		// Syncada puts everything in the same directory. When we have access to GEX in staging
