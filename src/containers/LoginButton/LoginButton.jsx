@@ -63,7 +63,7 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
     <>
       <li className="usa-nav__primary-item">
         <Link to="/moves/review/profile" title="profile-link" aria-label="profile-link" className={styles.profileLink}>
-          <FontAwesomeIcon className="fa-2x" icon={['far', 'user']} />
+          <FontAwesomeIcon className="fa-3x" icon={['far', 'user']} />
         </Link>
       </li>
       <li className="usa-nav__primary-item">
