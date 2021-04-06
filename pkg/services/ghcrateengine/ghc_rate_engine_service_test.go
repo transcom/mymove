@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
@@ -170,4 +171,21 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 	}
 
 	suite.MustSave(&baseLinehaulPrice)
+}
+
+func (suite *GHCRateEngineServiceSuite) validatePricerCreatedParams(expectedValues services.PricingDisplayParams, actualValues services.PricingDisplayParams) {
+
+	suite.Equal(len(expectedValues), len(actualValues))
+
+	var foundAParamKey bool
+	for _, aValue := range actualValues {
+		foundAParamKey = false
+		for _, eValue := range expectedValues {
+			if aValue.Key == eValue.Key {
+				suite.Equal(eValue.Value, aValue.Value, "Matching expected value for actual value ServiceItemParamKey %s", eValue.Key)
+				foundAParamKey = true
+			}
+		}
+		suite.True(foundAParamKey, "Found actual ServiceItemParamKey %s", aValue.Key)
+	}
 }

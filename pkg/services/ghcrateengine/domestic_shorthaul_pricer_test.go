@@ -1,10 +1,12 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -63,14 +65,17 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceItemParams() {
 	suite.setUpDomesticShorthaulData()
 	paymentServiceItem := suite.setupDomesticShorthaulServiceItems()
+	expectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDB(paymentServiceItem.PaymentServiceItemParams, models.ReServiceCodeDSH)
 
 	pricer := NewDomesticShorthaulPricer(suite.DB())
 
 	suite.T().Run("success all params for shorthaul available", func(t *testing.T) {
-		cost, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		cost, rateEngineParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		expectedCost := unit.Cents(6563903)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
+
+		suite.validatePricerCreatedParams(expectedPricingCreatedParams, rateEngineParams)
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
@@ -290,4 +295,72 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticShorthaulData() {
 	domesticShorthaulNonpeakPrice.IsPeakPeriod = false
 	domesticShorthaulNonpeakPrice.PriceCents = 127
 	suite.MustSave(&domesticShorthaulNonpeakPrice)
+
+	/*
+		var pricingRateEngineParams = services.PricingDisplayParams{
+			{
+				Key: models.ServiceItemParamNameContractYearName,
+				Value: contractYear.Name,
+			},
+			{
+				Key: models.ServiceItemParamNamePriceRateOrFactor,
+				Value: domesticShorthaulPrice.PriceCents.String(),
+			},
+			{
+				Key: models.ServiceItemParamNameIsPeak,
+				Value: strconv.FormatBool(isPeakPeriod),
+			},
+			{
+				Key: models.ServiceItemParamNameEscalationCompounded,
+				Value: fmt.Sprintf("%.4f", contractYear.EscalationCompounded),
+			},
+		}
+	*/
+}
+
+func (suite *GHCRateEngineServiceSuite) getExpectedDSHPricerCreatedParamsFromDB(serviceItemParams models.PaymentServiceItemParams, serviceCode models.ReServiceCode) services.PricingDisplayParams {
+	var err error
+
+	serviceItemParamsMap := make(map[models.ServiceItemParamName]models.PaymentServiceItemParam)
+	for _, param := range serviceItemParams {
+		serviceItemParamsMap[param.ServiceItemParamKey.Key] = param
+	}
+
+	serviceArea := serviceItemParamsMap[models.ServiceItemParamNameServiceAreaOrigin].Value
+
+	requestedPickUp := serviceItemParamsMap[models.ServiceItemParamNameRequestedPickupDate].Value
+	var requestedPickUpDate time.Time
+	requestedPickUpDate, err = time.Parse(DateParamFormat, requestedPickUp)
+	suite.NoError(err)
+
+	isPeakPeriod := IsPeakPeriod(requestedPickUpDate)
+
+	var domServiceAreaPrice models.ReDomesticServiceAreaPrice
+	domServiceAreaPrice, err = fetchDomServiceAreaPrice(suite.DB(), testdatagen.DefaultContractCode, serviceCode, serviceArea, isPeakPeriod)
+	suite.NoError(err)
+
+	var contractYear models.ReContractYear
+	contractYear, err = fetchContractYear(suite.DB(), domServiceAreaPrice.ContractID, requestedPickUpDate)
+	suite.NoError(err)
+
+	var pricingRateEngineParams = services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: domServiceAreaPrice.PriceCents.String(),
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: strconv.FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: fmt.Sprintf("%.4f", contractYear.EscalationCompounded),
+		},
+	}
+
+	return pricingRateEngineParams
 }
