@@ -57,7 +57,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	suite.T().Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func(t *testing.T) {
 		priceCents, _, err := linehaulServicePricer.PriceUsingParams(paramsWithBelowMinimumWeight)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul rate: weight must be at least 500", err.Error())
+		suite.Equal("Weight must be at least 500", err.Error())
 		suite.Equal(unit.Cents(0), priceCents)
 	})
 
@@ -67,30 +67,35 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
-		// No move date
-		_, _, err := linehaulServicePricer.Price("BOGUS", time.Time{}, dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
+		// No contract code
+		_, _, err := linehaulServicePricer.Price("", dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul rate: MoveDate is required", err.Error())
+		suite.Equal("ContractCode is required", err.Error())
+
+		// No requested pickup date
+		_, _, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, time.Time{}, dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
+		suite.Error(err)
+		suite.Equal("RequestedPickupDate is required", err.Error())
 
 		// No distance
 		_, _, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(0), dlhTestWeight, dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul rate: distance must be at least 50", err.Error())
+		suite.Equal("Distance must be at least 50", err.Error())
 
 		// Short haul distance
 		_, _, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(49), dlhTestWeight, dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul rate: distance must be at least 50", err.Error())
+		suite.Equal("Distance must be at least 50", err.Error())
 
 		// No weight
 		_, _, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(0), dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul rate: weight must be at least 500", err.Error())
+		suite.Equal("Weight must be at least 500", err.Error())
 
 		// No service area
 		_, _, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, "")
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul rate: ServiceArea is required", err.Error())
+		suite.Equal("ServiceArea is required", err.Error())
 	})
 }
 

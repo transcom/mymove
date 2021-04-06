@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"go.uber.org/zap/zapcore"
-
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gobuffalo/pop/v5"
@@ -33,14 +31,36 @@ func NewDomesticLinehaulPricer(db *pop.Connection) services.DomesticLinehaulPric
 
 // Price determines the price for a domestic linehaul
 func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+	// Validate parameters
+	if len(contractCode) == 0 {
+		return 0, nil, errors.New("ContractCode is required")
+	}
+	if requestedPickupDate.IsZero() {
+		return 0, nil, errors.New("RequestedPickupDate is required")
+	}
+	if distance < dlhPricerMinimumDistance {
+		return 0, nil, fmt.Errorf("Distance must be at least %d", dlhPricerMinimumDistance)
+	}
+	if weight < dlhPricerMinimumWeight {
+		return 0, nil, fmt.Errorf("Weight must be at least %d", dlhPricerMinimumWeight)
+	}
+	if len(serviceArea) == 0 {
+		return 0, nil, errors.New("ServiceArea is required")
+	}
+
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	priceAndEscalation, err := fetchDomesticLinehaulPrice(p.db, contractCode, requestedPickupDate, isPeakPeriod, distance, weight, serviceArea)
+	domesticLinehaulPrice, err := fetchDomesticLinehaulPrice(p.db, contractCode, isPeakPeriod, distance, weight, serviceArea)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
 	}
 
-	baseTotalPrice := weight.ToCWTFloat64() * distance.Float64() * priceAndEscalation.PriceMillicents.Float64()
-	escalatedTotalPrice := priceAndEscalation.EscalationCompounded * baseTotalPrice
+	contractYear, err := fetchContractYear(p.db, domesticLinehaulPrice.ContractID, requestedPickupDate)
+	if err != nil {
+		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
+	}
+
+	baseTotalPrice := weight.ToCWTFloat64() * distance.Float64() * domesticLinehaulPrice.PriceMillicents.Float64()
+	escalatedTotalPrice := contractYear.EscalationCompounded * baseTotalPrice
 
 	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
 	totalPriceCents := totalPriceMillicents.ToCents()
@@ -79,58 +99,21 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 	return p.Price(contractCode, requestedPickupDate, unit.Miles(distanceZip3), unit.Pound(weightBilledActual), serviceAreaOrigin)
 }
 
-func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (milliCentPriceAndEscalation, error) {
-	// Validate parameters
-	if requestedPickupDate.IsZero() {
-		return milliCentPriceAndEscalation{}, errors.New("MoveDate is required")
-	}
-	if distance < dlhPricerMinimumDistance {
-		return milliCentPriceAndEscalation{}, fmt.Errorf("distance must be at least %d", dlhPricerMinimumDistance)
-	}
-	if weight < dlhPricerMinimumWeight {
-		return milliCentPriceAndEscalation{}, fmt.Errorf("weight must be at least %d", dlhPricerMinimumWeight)
-	}
-	if len(serviceArea) == 0 {
-		return milliCentPriceAndEscalation{}, errors.New("ServiceArea is required")
-	}
+func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {
+	var domesticLinehaulPrice models.ReDomesticLinehaulPrice
+	err := db.Q().
+		Join("re_domestic_service_areas sa", "domestic_service_area_id = sa.id").
+		Join("re_contracts c", "re_domestic_linehaul_prices.contract_id = c.id").
+		Where("c.code = $1", contractCode).
+		Where("re_domestic_linehaul_prices.is_peak_period = $2", isPeakPeriod).
+		Where("$3 between weight_lower and weight_upper", weight).
+		Where("$4 between miles_lower and miles_upper", distance).
+		Where("sa.service_area = $5", serviceArea).
+		First(&domesticLinehaulPrice)
 
-	var mpe milliCentPriceAndEscalation
-	query :=
-		`select price_millicents, escalation_compounded
-         from re_domestic_linehaul_prices dlp
-         inner join re_contracts c on dlp.contract_id = c.id
-         inner join re_contract_years cy on c.id = cy.contract_id
-         inner join re_domestic_service_areas dsa on dlp.domestic_service_area_id = dsa.id
-         where c.code = $1
-         and $2 between cy.start_date and cy.end_date
-         and dlp.is_peak_period = $3
-         and $4 between dlp.weight_lower and dlp.weight_upper
-         and $5 between dlp.miles_lower and dlp.miles_upper
-         and dsa.service_area = $6;`
-	err := db.RawQuery(
-		query,
-		contractCode,
-		requestedPickupDate,
-		isPeakPeriod,
-		weight,
-		distance,
-		serviceArea).First(&mpe)
 	if err != nil {
-		return mpe, errors.Wrap(err, "Lookup of domestic linehaul rate failed")
+		return models.ReDomesticLinehaulPrice{}, err
 	}
 
-	return mpe, nil
-
-}
-
-// priceAndEscalation is used to hold data returned by the database query
-type milliCentPriceAndEscalation struct {
-	PriceMillicents      unit.Millicents `db:"price_millicents"`
-	EscalationCompounded float64         `db:"escalation_compounded"`
-}
-
-func (p milliCentPriceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddInt("PriceMillicents", p.PriceMillicents.Int())
-	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)
-	return nil
+	return domesticLinehaulPrice, nil
 }
