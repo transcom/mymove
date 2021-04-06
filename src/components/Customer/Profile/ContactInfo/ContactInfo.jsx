@@ -8,6 +8,7 @@ import serviceInfoTableStyles from '../../Review/ServiceInfoTable/ServiceInfoTab
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ResidentialAddressShape } from 'types/address';
+import { BackupContactShape } from 'types/customerShapes';
 
 const ContactInfo = ({
   telephone,
@@ -121,11 +122,7 @@ ContactInfo.propTypes = {
   emailIsPreferred: PropTypes.string.isRequired,
   residentialAddress: ResidentialAddressShape.isRequired,
   backupMailingAddress: ResidentialAddressShape.isRequired,
-  backupContact: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    telephone: PropTypes.string.isRequired,
-    email: PropTypes.string.isRequired,
-  }).isRequired,
+  backupContact: BackupContactShape.isRequired,
   onEditClick: PropTypes.func.isRequired,
 };
 
