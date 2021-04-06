@@ -198,7 +198,7 @@ func (e *edi824Processor) logEDI(edi ediResponse824.EDI) {
 		return
 	}
 
-	e.logger.Info("SUCCESS: 824 Processor updated Payment Request to new status",
+	e.logger.Info("EDI 824 log",
 		zap.Int64("824 ICN", icn),
 		zap.String("BGN.ReferenceIdentification", bgn.ReferenceIdentification),
 		zap.Int64("858 GCN", otiGCN),
@@ -224,7 +224,7 @@ func (e *edi824Processor) logEDIWithPaymentRequest(edi ediResponse824.EDI, payme
 		return
 	}
 
-	e.logger.Info("SUCCESS: 824 Processor updated Payment Request to new status",
+	e.logger.Info("EDI 824 log",
 		zap.Int64("824 ICN", icn),
 		zap.String("BGN.ReferenceIdentification", bgn.ReferenceIdentification),
 		zap.Int64("858 GCN", otiGCN),
