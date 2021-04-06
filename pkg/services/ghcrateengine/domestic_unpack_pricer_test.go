@@ -61,10 +61,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemPa
 	pricer := NewDomesticUnpackPricer(suite.DB())
 
 	suite.T().Run("success all params for domestic unpack available", func(t *testing.T) {
-		cost, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		cost, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
+		suite.Equal(len(displayParams), 4)
+		suite.Equal(displayParams[0].Key, models.ServiceItemParamNameContractYearName)
+		suite.Equal(displayParams[0].Value, models.ServiceItemParamNameContractYearName)
+
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
