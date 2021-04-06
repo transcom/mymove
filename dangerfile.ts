@@ -161,7 +161,7 @@ function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
 }
 
 const bypassingLinterChecks = async () => {
-  const allFiles = danger.git.modified_files.concat(danger.git.created_files).filter(file => file.startsWith('src/'));
+  const allFiles = danger.git.modified_files.concat(danger.git.created_files).filter(file => file.includes('src/') || file.includes('pkg/'));
   const diffsByFile = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
   const dangerMsgSegment = checkPRHasProhibitedLinterOverride(diffsByFile);
   if (dangerMsgSegment) {
