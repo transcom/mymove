@@ -21,9 +21,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	counselingServicesPricer := NewCounselingServicesPricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
+
+		// Check that PricingDisplayParams have been set and are returned
+		suite.Equal(len(displayParams), 1)
+		suite.Equal(displayParams[0].Key, models.ServiceItemParamNamePriceRateOrFactor)
+		suite.Equal(displayParams[0].Value, msPriceCents.ToDollarString())
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
