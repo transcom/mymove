@@ -73,3 +73,5 @@ func TestMillicents_ToDollarFloat(t *testing.T) {
 		t.Errorf("wrong number of Millicents: expected %v, got %v", expected, result)
 	}
 }
+
+// TODO: Test new function

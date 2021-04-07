@@ -20,3 +20,5 @@ func (suite *GHCRateEngineServiceSuite) TestFormatCents() {
 	expected = "100.99"
 	suite.Equal(expected, result)
 }
+
+// TODO: Add more tests

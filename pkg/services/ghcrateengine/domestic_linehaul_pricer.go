@@ -2,7 +2,6 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -66,12 +65,11 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
 	totalPriceCents := totalPriceMillicents.ToCents()
 
-	// TODO: Move some of these string conversions to utility functions after #6324 lands
 	params := services.PricingDisplayParams{
 		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
-		{Key: models.ServiceItemParamNameEscalationCompounded, Value: fmt.Sprintf("%.5f", contractYear.EscalationCompounded)},
-		{Key: models.ServiceItemParamNameIsPeak, Value: strconv.FormatBool(isPeakPeriod)},
-		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: fmt.Sprintf("%.3f", float64(domesticLinehaulPrice.PriceMillicents)/100000.0)},
+		{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatFloat(contractYear.EscalationCompounded, 5)},
+		{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
+		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(domesticLinehaulPrice.PriceMillicents.ToDollarFloatNoRound(), 3)},
 	}
 
 	return totalPriceCents, params, nil

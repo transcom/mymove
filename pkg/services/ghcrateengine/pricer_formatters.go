@@ -2,6 +2,7 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -23,4 +24,14 @@ func FormatDate(value time.Time) string {
 func FormatCents(value unit.Cents) string {
 	valueFloat := value.ToDollarFloat()
 	return fmt.Sprintf("%.2f", valueFloat)
+}
+
+// FormatBool returns a formatted boolean value to display to the TXO
+func FormatBool(value bool) string {
+	return strconv.FormatBool(value)
+}
+
+// FormatFloat returns a formatted float value to display to the TXO
+func FormatFloat(value float64, precision int) string {
+	return strconv.FormatFloat(value, 'f', precision, 64)
 }
