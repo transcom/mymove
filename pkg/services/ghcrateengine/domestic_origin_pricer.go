@@ -58,7 +58,25 @@ func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate tim
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 
-	return totalCost, nil, nil
+	params := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(domServiceAreaPrice.PriceCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatFloat(contractYear.EscalationCompounded, 2),
+		},
+	}
+	return totalCost, params, nil
 }
 
 // PriceUsingParams determines the price for a domestic origin given PaymentServiceItemParams
