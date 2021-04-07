@@ -144,7 +144,6 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 					zap.Error(err),
 				)
 			}
-			// Returning original error instead of the error from the query so that it doesn't g
 			return transactionError
 		}
 		errToSave := models.EdiError{
