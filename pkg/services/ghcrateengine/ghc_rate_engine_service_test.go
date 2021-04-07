@@ -189,18 +189,3 @@ func (suite *GHCRateEngineServiceSuite) validatePricerCreatedParams(expectedValu
 		suite.True(foundAParamKey, "Found actual ServiceItemParamKey %s", aValue.Key)
 	}
 }
-
-func (suite *GHCRateEngineServiceSuite) updatePricingDisplayParams(pricingParams services.PricingDisplayParams, paramKey models.ServiceItemParamName, value string) services.PricingDisplayParams {
-	updatedPricingParams := services.PricingDisplayParams{}
-	for _, param := range pricingParams {
-		if param.Key == paramKey {
-			updatedPricingParams = append(updatedPricingParams, services.PricingDisplayParam{
-				Key:   paramKey,
-				Value: value,
-			})
-		} else {
-			updatedPricingParams = append(updatedPricingParams, param)
-		}
-	}
-	return updatedPricingParams
-}
