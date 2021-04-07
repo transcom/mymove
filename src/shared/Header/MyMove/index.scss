@@ -1,5 +1,3 @@
-@import 'shared/styles/colors';
-
 @media (min-width: 63.99em) {
   .my-move-header .usa-nav__primary-item > a,
   .my-move-header .usa-nav__primary-item > a:hover {
@@ -28,6 +26,10 @@
 .my-move-header {
   color: #ffffff;
   background-color: #252f3e;
+}
+
+.my-move-header .usa-nav {
+  padding: 0;
 }
 
 .my-move-header .usa-nav__primary {
