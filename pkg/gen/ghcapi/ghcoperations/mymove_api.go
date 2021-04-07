@@ -96,6 +96,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesGetPaymentRequestsQueueHandler: queues.GetPaymentRequestsQueueHandlerFunc(func(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetPaymentRequestsQueue has not yet been implemented")
 		}),
+		QueuesGetServicesCounselingQueueHandler: queues.GetServicesCounselingQueueHandlerFunc(func(params queues.GetServicesCounselingQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetServicesCounselingQueue has not yet been implemented")
+		}),
 		MtoServiceItemListMTOServiceItemsHandler: mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
 		}),
@@ -193,6 +196,8 @@ type MymoveAPI struct {
 	PaymentRequestsGetPaymentRequestsForMoveHandler payment_requests.GetPaymentRequestsForMoveHandler
 	// QueuesGetPaymentRequestsQueueHandler sets the operation handler for the get payment requests queue operation
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
+	// QueuesGetServicesCounselingQueueHandler sets the operation handler for the get services counseling queue operation
+	QueuesGetServicesCounselingQueueHandler queues.GetServicesCounselingQueueHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
@@ -324,6 +329,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.QueuesGetPaymentRequestsQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetPaymentRequestsQueueHandler")
+	}
+	if o.QueuesGetServicesCounselingQueueHandler == nil {
+		unregistered = append(unregistered, "queues.GetServicesCounselingQueueHandler")
 	}
 	if o.MtoServiceItemListMTOServiceItemsHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.ListMTOServiceItemsHandler")
@@ -505,6 +513,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/queues/payment-requests"] = queues.NewGetPaymentRequestsQueue(o.context, o.QueuesGetPaymentRequestsQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/queues/counseling"] = queues.NewGetServicesCounselingQueue(o.context, o.QueuesGetServicesCounselingQueueHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

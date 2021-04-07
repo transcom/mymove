@@ -1084,6 +1084,82 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
+  /queues/counseling:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all customer moves needing services counseling by GBLOC origin
+      description: >
+        An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.
+      operationId: getServicesCounselingQueue
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: requested page of results
+        - in: query
+          name: perPage
+          type: integer
+          description: results per page
+        - in: query
+          name: sort
+          type: string
+          enum: [lastName, dodID, branch, locator, status, submittedAt, originGBLOC, destinationDutyStation]
+          description: field that results should be sorted by
+        - in: query
+          name: order
+          type: string
+          enum: [asc, desc]
+          description: direction of sort order if applied
+        - in: query
+          name: branch
+          type: string
+        - in: query
+          name: locator
+          type: string
+        - in: query
+          name: lastName
+          type: string
+        - in: query
+          name: dodID
+          type: string
+        - in: query
+          name: requestedMoveDate
+          type: string
+        - in: query
+          name: submittedAt
+          type: string
+        - in: query
+          name: originGBLOC
+          type: string
+        - in: query
+          name: destinationDutyStation
+          type: string
+        - in: query
+          name: status
+          type: array
+          description: Filtering for the status.
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - NEEDS SERVICE COUNSELING
+              - SERVICE COUNSELING COMPLETED
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
   /queues/moves:
     get:
       produces:
@@ -1227,44 +1303,44 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
   '/tac/valid':
-      get:
-        summary: Validation of a TAC value
-        description: Returns a boolean based on whether a tac value is valid or not
-        operationId: tacValidation
-        tags:
-          - tac
-          - order
-        parameters:
-          - in: query
-            name: tac
-            type: string
-            required: true
-            description: The tac value to validate
-        responses:
-          '200':
-            description: Successfully retrieved validation status
-            schema:
-              $ref: '#/definitions/TacValid'
-          '400':
-            description: The request payload is invalid
-            schema:
-              $ref: '#/responses/InvalidRequest'
-          '401':
-            description: The request was denied
-            schema:
-              $ref: '#/responses/PermissionDenied'
-          '403':
-            description: The request was denied
-            schema:
-              $ref: '#/responses/PermissionDenied'
-          '404':
-            description: The requested resource wasn't found
-            schema:
-              $ref: '#/responses/NotFound'
-          '500':
-            description: A server error occurred
-            schema:
-              $ref: '#/responses/ServerError'
+    get:
+      summary: Validation of a TAC value
+      description: Returns a boolean based on whether a tac value is valid or not
+      operationId: tacValidation
+      tags:
+        - tac
+        - order
+      parameters:
+        - in: query
+          name: tac
+          type: string
+          required: true
+          description: The tac value to validate
+      responses:
+        '200':
+          description: Successfully retrieved validation status
+          schema:
+            $ref: '#/definitions/TacValid'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -1705,6 +1781,8 @@ definitions:
     type: string
     enum:
       - DRAFT
+      - NEEDS SERVICE COUNSELING
+      - SEVICE COUNSELING COMPLETED
       - SUBMITTED
       - APPROVALS REQUESTED
       - APPROVED
@@ -2610,6 +2688,14 @@ definitions:
         $ref: '#/definitions/QueueMoveStatus'
       locator:
         type: string
+      submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      requestedMoveDate:
+        format: date-time
+        type: string
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:

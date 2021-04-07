@@ -1,10 +1,23 @@
 import { shape, string, bool, arrayOf } from 'prop-types';
 
-// eslint-disable-next-line import/prefer-default-export
+import MOVE_STATUSES from 'constants/moves';
+
 export const MOVE_STATUS_OPTIONS = [
-  { value: 'SUBMITTED', label: 'New move' },
-  { value: 'APPROVALS REQUESTED', label: 'Approvals requested' },
-  { value: 'APPROVED', label: 'Move approved' },
+  { value: MOVE_STATUSES.SUBMITTED, label: 'New move' },
+  { value: MOVE_STATUSES.APPROVALS_REQUESTED, label: 'Approvals requested' },
+  { value: MOVE_STATUSES.APPROVED, label: 'Move approved' },
+];
+
+export const MOVE_STATUS_LABELS = {
+  [MOVE_STATUSES.SUBMITTED]: 'New move',
+  [MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED]: 'New move',
+  [MOVE_STATUSES.APPROVALS_REQUESTED]: 'Approvals requested',
+  [MOVE_STATUSES.APPROVED]: 'Move approved',
+};
+
+export const SERVICE_COUNSELING_MOVE_STATUS_OPTIONS = [
+  { value: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING, label: 'Needs counseling' },
+  { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service counseling completed' },
 ];
 
 export const PAYMENT_REQUEST_STATUS_OPTIONS = [

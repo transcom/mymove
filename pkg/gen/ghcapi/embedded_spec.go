@@ -1596,6 +1596,133 @@ func init() {
         }
       }
     },
+    "/queues/counseling": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing services counseling by GBLOC origin",
+        "operationId": "getServicesCounselingQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "locator",
+              "status",
+              "submittedAt",
+              "originGBLOC",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING",
+                "SERVICE COUNSELING COMPLETED"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/queues/moves": {
       "get": {
         "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
@@ -2885,6 +3012,8 @@ func init() {
       "type": "string",
       "enum": [
         "DRAFT",
+        "NEEDS SERVICE COUNSELING",
+        "SEVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -3377,11 +3506,21 @@ func init() {
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
+        "requestedMoveDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "shipmentsCount": {
           "type": "integer"
         },
         "status": {
           "$ref": "#/definitions/QueueMoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },
@@ -5717,6 +5856,139 @@ func init() {
         }
       }
     },
+    "/queues/counseling": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing services counseling by GBLOC origin",
+        "operationId": "getServicesCounselingQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "locator",
+              "status",
+              "submittedAt",
+              "originGBLOC",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING",
+                "SERVICE COUNSELING COMPLETED"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/queues/moves": {
       "get": {
         "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
@@ -7033,6 +7305,8 @@ func init() {
       "type": "string",
       "enum": [
         "DRAFT",
+        "NEEDS SERVICE COUNSELING",
+        "SEVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -7525,11 +7799,21 @@ func init() {
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
+        "requestedMoveDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "shipmentsCount": {
           "type": "integer"
         },
         "status": {
           "$ref": "#/definitions/QueueMoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },

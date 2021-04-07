@@ -1,15 +1,15 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
-import styles from './MoveQueue.module.scss';
+import styles from './ServicesCounselingQueue.module.scss';
 
-import { HistoryShape } from 'types/router';
+import { useServicesCounselingQueueQueries, useUserQueries } from 'hooks/queries';
 import { createHeader } from 'components/Table/utils';
-import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
-import { serviceMemberAgencyLabel } from 'shared/formatters';
+import { BRANCH_OPTIONS, SERVICE_COUNSELING_MOVE_STATUS_OPTIONS, GBLOC } from 'constants/queues';
+import { formatDateFromIso, serviceMemberAgencyLabel, serviceCounselingMoveStatusLabel } from 'shared/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS } from 'constants/queues';
+import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -30,22 +30,45 @@ const columns = (showBranchFilter = true) => [
     id: 'dodID',
     isFilterable: true,
   }),
+  createHeader('Move Code', 'locator', {
+    id: 'locator',
+    isFilterable: true,
+  }),
   createHeader(
     'Status',
     (row) => {
-      return MOVE_STATUS_LABELS[`${row.status}`];
+      return serviceCounselingMoveStatusLabel(row.status);
     },
     {
       id: 'status',
       isFilterable: true,
       // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
+      Filter: (props) => <MultiSelectCheckBoxFilter options={SERVICE_COUNSELING_MOVE_STATUS_OPTIONS} {...props} />,
     },
   ),
-  createHeader('Move Code', 'locator', {
-    id: 'locator',
-    isFilterable: true,
-  }),
+  createHeader(
+    'Requested move date',
+    (row) => {
+      return formatDateFromIso(row.requestedMoveDate, 'DD MMM YYYY');
+    },
+    {
+      id: 'requestedMoveDate',
+      isFilterable: true,
+      Filter: DateSelectFilter,
+      disableSortBy: true,
+    },
+  ),
+  createHeader(
+    'Date submitted',
+    (row) => {
+      return formatDateFromIso(row.submittedAt, 'DD MMM YYYY');
+    },
+    {
+      id: 'submittedAt',
+      isFilterable: true,
+      Filter: DateSelectFilter,
+    },
+  ),
   createHeader(
     'Branch',
     (row) => {
@@ -60,21 +83,25 @@ const columns = (showBranchFilter = true) => [
       ),
     },
   ),
-  createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
+  createHeader('Origin GBLOC', 'originGBLOC', {
+    isFilterable: !showBranchFilter,
+    disableSortBy: showBranchFilter,
+  }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
   createHeader('Destination duty station', 'destinationDutyStation.name', {
     id: 'destinationDutyStation',
     isFilterable: true,
   }),
-  createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
 ];
 
-const MoveQueue = ({ history }) => {
+const ServicesCounselingQueue = () => {
   const {
     // eslint-disable-next-line camelcase
     data: { office_user },
     isLoading,
     isError,
   } = useUserQueries();
+
+  const history = useHistory();
 
   const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
@@ -86,26 +113,23 @@ const MoveQueue = ({ history }) => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <div className={styles.MoveQueue}>
+    // TODO: Pull out header count and add new move button
+    <div className={styles.ServicesCounselingQueue}>
       <TableQueue
         showFilters
         showPagination
         manualSortBy
         defaultCanSort
-        defaultSortedColumns={[{ id: 'status', desc: false }]}
+        defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
         disableMultiSort
         disableSortBy={false}
         columns={columns(showBranchFilter)}
-        title="All moves"
+        title="Moves"
         handleClick={handleClick}
-        useQueries={useMovesQueueQueries}
+        useQueries={useServicesCounselingQueueQueries}
       />
     </div>
   );
 };
 
-MoveQueue.propTypes = {
-  history: HistoryShape.isRequired,
-};
-
-export default withRouter(MoveQueue);
+export default ServicesCounselingQueue;

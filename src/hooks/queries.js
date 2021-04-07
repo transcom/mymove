@@ -11,6 +11,7 @@ import {
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
+  getServicesCounselingQueue,
   getMovePaymentRequests,
   getCustomer,
 } from 'services/ghcApi';
@@ -29,6 +30,7 @@ import {
   PAYMENT_REQUESTS_QUEUE,
   USER,
   CUSTOMER,
+  SERVICES_COUNSELING_QUEUE,
 } from 'constants/queryKeys';
 
 export const useUserQueries = () => {
@@ -191,6 +193,27 @@ export const useMovesQueueQueries = ({ sort, order, filters = [], currentPage = 
     getMovesQueue,
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([movesQueueQuery]);
+  const { queueMoves, ...dataProps } = data;
+  return {
+    queueResult: { data: queueMoves, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useServicesCounselingQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = 1,
+  currentPageSize = 20,
+}) => {
+  const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
+    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
+    getServicesCounselingQueue,
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
   const { queueMoves, ...dataProps } = data;
   return {
     queueResult: { data: queueMoves, ...dataProps },

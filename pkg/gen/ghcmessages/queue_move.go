@@ -36,11 +36,19 @@ type QueueMove struct {
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
 
+	// requested move date
+	// Format: date-time
+	RequestedMoveDate *strfmt.DateTime `json:"requestedMoveDate,omitempty"`
+
 	// shipments count
 	ShipmentsCount int64 `json:"shipmentsCount,omitempty"`
 
 	// status
 	Status QueueMoveStatus `json:"status,omitempty"`
+
+	// submitted at
+	// Format: date-time
+	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 }
 
 // Validate validates this queue move
@@ -67,7 +75,15 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateRequestedMoveDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -160,6 +176,19 @@ func (m *QueueMove) validateOriginGBLOC(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *QueueMove) validateRequestedMoveDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RequestedMoveDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("requestedMoveDate", "body", "date-time", m.RequestedMoveDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *QueueMove) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status) { // not required
@@ -170,6 +199,19 @@ func (m *QueueMove) validateStatus(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *QueueMove) validateSubmittedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SubmittedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("submittedAt", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
 		return err
 	}
 
