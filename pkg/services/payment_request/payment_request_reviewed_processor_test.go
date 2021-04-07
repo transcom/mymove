@@ -9,9 +9,12 @@
 package paymentrequest
 
 import (
+	"log"
 	"os"
 	"testing"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
@@ -166,15 +169,32 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 
 func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
-	os.Setenv("SYNCADA_SFTP_PORT", "1234")
-	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
-	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	err := os.Setenv("SYNCADA_SFTP_PORT", "1234")
+	if err != nil {
+		log.Fatal("issue setting environment variable", zap.Error(err))
+	}
+	err = os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+	if err != nil {
+		log.Fatal("issue setting environment variable", zap.Error(err))
+	}
+	err = os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+	if err != nil {
+		log.Fatal("issue setting environment variable", zap.Error(err))
+	}
+	err = os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+	if err != nil {
+		log.Fatal("issue setting environment variable", zap.Error(err))
+	}
+	err = os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	if err != nil {
+		log.Fatal("issue setting environment variable", zap.Error(err))
+	}
 	// generated fake host key to pass parser used following command and only saved the pub key
 	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
-	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
-
+	err = os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+	if err != nil {
+		log.Fatal("issue setting environment variable", zap.Error(err))
+	}
 	suite.T().Run("process reviewed payment request successfully (0 Payments to review)", func(t *testing.T) {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)

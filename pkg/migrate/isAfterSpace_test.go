@@ -9,12 +9,21 @@
 // nolint:errcheck
 package migrate
 
+import (
+	"log"
+
+	"go.uber.org/zap"
+)
+
 func (suite *MigrateSuite) TestIsAfterSpaceZero() {
 
 	in := "hello world"
 	buf := NewBuffer()
 
-	buf.WriteString(in)
+	_, err := buf.WriteString(in)
+	if err != nil {
+		log.Fatal("issue writing string to buffer", zap.Error(err))
+	}
 	buf.Close()
 
 	suite.True(isAfterSpace(buf, 0))
@@ -25,7 +34,10 @@ func (suite *MigrateSuite) TestIsAfterSpace() {
 	in := "hello world"
 	buf := NewBuffer()
 
-	buf.WriteString(in)
+	_, err := buf.WriteString(in)
+	if err != nil {
+		log.Fatal("issue writing string to buffer", zap.Error(err))
+	}
 	buf.Close()
 
 	suite.True(isAfterSpace(buf, 6))

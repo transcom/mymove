@@ -11,8 +11,11 @@ package migrate
 
 import (
 	"io"
+	"log"
 	"testing"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/stretchr/testify/require"
 )
@@ -25,7 +28,10 @@ func TestBuffer(t *testing.T) {
 
 	go func() {
 		time.Sleep(time.Second * 1)
-		buf.WriteString(in)
+		_, err := buf.WriteString(in)
+		if err != nil {
+			log.Fatal("issue writing string to buffer", zap.Error(err))
+		}
 		buf.Close()
 	}()
 
@@ -74,7 +80,10 @@ func TestBufferString(t *testing.T) {
 	require.Equal(t, "", cstr)
 
 	time.Sleep(time.Second * 1)
-	buf.WriteString(in)
+	_, err = buf.WriteString(in)
+	if err != nil {
+		log.Fatal("issue writing string to buffer", zap.Error(err))
+	}
 	buf.Close()
 
 	out := buf.String()
@@ -92,13 +101,16 @@ func TestBufferByte(t *testing.T) {
 	buf := NewBuffer()
 
 	time.Sleep(time.Second * 1)
-	buf.WriteByte(in[0])
+	err := buf.WriteByte(in[0])
+	if err != nil {
+		log.Fatal("issue writing byte to buffer", zap.Error(err))
+	}
 	buf.Close()
 
 	out := buf.String()
 	require.Equal(t, out, string(in[0]))
 
-	err := buf.WriteByte(in[0])
+	err = buf.WriteByte(in[0])
 	require.Equal(t, err, ErrClosed)
 }
 
@@ -109,7 +121,10 @@ func TestBufferRune(t *testing.T) {
 	buf := NewBuffer()
 
 	time.Sleep(time.Second * 1)
-	buf.WriteRune(in)
+	_, err := buf.WriteRune(in)
+	if err != nil {
+		log.Fatal("issue writing rune to buffer", zap.Error(err))
+	}
 	buf.Close()
 
 	out := buf.String()

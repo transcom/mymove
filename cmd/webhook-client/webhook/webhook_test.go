@@ -12,10 +12,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -111,7 +114,10 @@ func (suite *WebhookClientTestingSuite) Test_SendStgNotification() {
 		suite.Nil(err)
 		// Check that notification Status was set to Sent in the model
 		notif := models.WebhookNotification{}
-		suite.DB().Find(&notif, notification.ID)
+		err = suite.DB().Find(&notif, notification.ID)
+		if err != nil {
+			log.Fatal("issue fetching notification", zap.Error(err))
+		}
 		suite.Equal(models.WebhookNotificationSent, notif.Status)
 		// Check that first attempted at date was set
 		suite.NotNil(notif.FirstAttemptedAt)
@@ -176,16 +182,22 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		//             Notification would be updated as SENT
 
 		// Set beginning status as pending
-		suite.DB().Find(&notification, notification.ID)
+		err := suite.DB().Find(&notification, notification.ID)
+		if err != nil {
+			log.Fatal("issue fetching notification", zap.Error(err))
+		}
 		notification.Status = models.WebhookNotificationPending
-		suite.DB().ValidateAndUpdate(&notification)
+		verrs, err := suite.DB().ValidateAndUpdate(&notification)
+		if err != nil || verrs.HasAny() {
+			log.Fatal("issue updating notification", zap.Error(err))
+		}
 
 		// Expectation: When Post is called, verify it was called with correct url.
 		// Then, make it return 200 success and a body. It should run once.
 		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&responseSuccess, bodyBytes, nil).Once()
 
 		// Call the engine function. Internally it should call the mocked client
-		err := engine.sendOneNotification(&notification, &subscription)
+		err = engine.sendOneNotification(&notification, &subscription)
 
 		// Check that there was no error
 		suite.Nil(err)
