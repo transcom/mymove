@@ -63,8 +63,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
 	}
-	// set re service for service item
+	// set re service fields for service item
 	serviceItem.ReServiceID = reService.ID
+	serviceItem.ReService.Name = reService.Name
 
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
