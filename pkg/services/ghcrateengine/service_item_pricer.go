@@ -39,6 +39,7 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 	// once all pricers have been updated to return pricingParams
 	// TODO: this conditional logic should be removed
 	var displayParams models.PaymentServiceItemParams
+	fmt.Printf("======================================== params: %v+ \n %v ===============", pricingParams, priceCents)
 	if len(pricingParams) > 0 {
 		displayParams, err = createPricerGeneratedParams(p.db, item.ID, pricingParams)
 	}

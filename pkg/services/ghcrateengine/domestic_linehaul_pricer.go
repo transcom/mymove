@@ -72,6 +72,8 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(domesticLinehaulPrice.PriceMillicents.ToDollarFloatNoRound(), 3)},
 	}
 
+	fmt.Printf("================")
+
 	return totalPriceCents, params, nil
 }
 
