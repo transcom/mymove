@@ -134,10 +134,12 @@ IEA*1*000000022
 				PaymentRequest:           paymentRequest,
 			},
 		})
-		edi997Processor.ProcessFile("", sample997EDIString)
-
+		err := edi997Processor.ProcessFile("", sample997EDIString)
+		if err != nil {
+			log.Fatal("unable to process file", zap.Error(err))
+		}
 		var updatedPR models.PaymentRequest
-		err := suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
+		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
 		suite.NoError(err)
 		suite.Equal(models.PaymentRequestStatusPending, updatedPR.Status)
 	})

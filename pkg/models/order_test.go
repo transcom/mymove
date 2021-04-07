@@ -1,7 +1,10 @@
 package models_test
 
 import (
+	"log"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -36,7 +39,10 @@ func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
 		suite.T().Fatal("Should transition.")
 	}
 	suite.MustSave(&move)
-	suite.DB().Load(&order, "Moves")
+	err = suite.DB().Load(&order, "Moves")
+	if err != nil {
+		log.Fatal("issue loading order from db", zap.Error(err))
+	}
 
 	expErrors := map[string][]string{
 		"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
@@ -62,7 +68,10 @@ func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 			suite.T().Fatal("Should transition.")
 		}
 		suite.MustSave(&move)
-		suite.DB().Load(&order, "Moves")
+		err = suite.DB().Load(&order, "Moves")
+		if err != nil {
+			log.Fatal("issue loading order from db", zap.Error(err))
+		}
 
 		expErrors := map[string][]string{
 			"orders_number": {"OrdersNumber cannot be blank."},
@@ -92,7 +101,10 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 			suite.T().Fatal("Should transition.")
 		}
 		suite.MustSave(&move)
-		suite.DB().Load(&order, "Moves")
+		err = suite.DB().Load(&order, "Moves")
+		if err != nil {
+			log.Fatal("issue loading order from db", zap.Error(err))
+		}
 
 		expErrors := map[string][]string{
 			"orders_type_detail": {"OrdersTypeDetail cannot be blank."},
@@ -111,7 +123,10 @@ func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
 		suite.T().Fatal("Should transition.")
 	}
 	suite.MustSave(&move)
-	suite.DB().Load(&order, "Moves")
+	err = suite.DB().Load(&order, "Moves")
+	if err != nil {
+		log.Fatal("issue loading order from db", zap.Error(err))
+	}
 
 	expErrors := map[string][]string{
 		"department_indicator": {"DepartmentIndicator cannot be blank."},

@@ -57,10 +57,6 @@ issues:
     # TODO: Remove this when errcheck is enabled above - duplication is ok
     - G104
   fix: true
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   deadline: 8m
