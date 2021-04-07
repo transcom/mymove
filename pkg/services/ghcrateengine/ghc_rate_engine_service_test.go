@@ -56,6 +56,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticPackAndUnpackData(code mode
 			ReContractYear: models.ReContractYear{
 				Escalation:           1.0197,
 				EscalationCompounded: 1.0407,
+				Name:                 "Base Period Year 1",
 			},
 		})
 
