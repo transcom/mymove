@@ -20,6 +20,11 @@ export const SERVICE_COUNSELING_MOVE_STATUS_OPTIONS = [
   { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service counseling completed' },
 ];
 
+export const SERVICE_COUNSELING_MOVE_STATUS_LABELS = {
+  [MOVE_STATUSES.NEEDS_SERVICE_COUNSELING]: 'Needs counseling',
+  [MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED]: 'Service counseling completed',
+};
+
 export const PAYMENT_REQUEST_STATUS_OPTIONS = [
   { value: 'Payment requested', label: 'Payment requested' },
   { value: 'Reviewed', label: 'Reviewed' },

@@ -5,8 +5,13 @@ import styles from './ServicesCounselingQueue.module.scss';
 
 import { useServicesCounselingQueueQueries, useUserQueries } from 'hooks/queries';
 import { createHeader } from 'components/Table/utils';
-import { BRANCH_OPTIONS, SERVICE_COUNSELING_MOVE_STATUS_OPTIONS, GBLOC } from 'constants/queues';
-import { formatDateFromIso, serviceMemberAgencyLabel, serviceCounselingMoveStatusLabel } from 'shared/formatters';
+import {
+  BRANCH_OPTIONS,
+  SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
+  GBLOC,
+  SERVICE_COUNSELING_MOVE_STATUS_LABELS,
+} from 'constants/queues';
+import { formatDateFromIso, serviceMemberAgencyLabel } from 'shared/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
@@ -14,7 +19,7 @@ import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const columns = (showBranchFilter = true) => [
+const columns = (isMarineCorpsUser = false) => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -37,7 +42,7 @@ const columns = (showBranchFilter = true) => [
   createHeader(
     'Status',
     (row) => {
-      return serviceCounselingMoveStatusLabel(row.status);
+      return SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`];
     },
     {
       id: 'status',
@@ -76,7 +81,7 @@ const columns = (showBranchFilter = true) => [
     },
     {
       id: 'branch',
-      isFilterable: showBranchFilter,
+      isFilterable: !isMarineCorpsUser,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <SelectFilter options={BRANCH_OPTIONS} {...props} />
@@ -84,8 +89,8 @@ const columns = (showBranchFilter = true) => [
     },
   ),
   createHeader('Origin GBLOC', 'originGBLOC', {
-    isFilterable: !showBranchFilter,
-    disableSortBy: showBranchFilter,
+    isFilterable: isMarineCorpsUser,
+    disableSortBy: !isMarineCorpsUser,
   }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
   createHeader('Destination duty station', 'destinationDutyStation.name', {
     id: 'destinationDutyStation',
@@ -103,7 +108,7 @@ const ServicesCounselingQueue = () => {
 
   const history = useHistory();
 
-  const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
+  const isMarineCorpsUser = office_user?.transportation_office?.gbloc === GBLOC.USMC;
 
   const handleClick = (values) => {
     history.push(`/moves/${values.locator}/details`);
@@ -123,7 +128,7 @@ const ServicesCounselingQueue = () => {
         defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
         disableMultiSort
         disableSortBy={false}
-        columns={columns(showBranchFilter)}
+        columns={columns(isMarineCorpsUser)}
         title="Moves"
         handleClick={handleClick}
         useQueries={useServicesCounselingQueueQueries}
