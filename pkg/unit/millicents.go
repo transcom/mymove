@@ -48,3 +48,8 @@ func (m Millicents) ToDollarFloat() float64 {
 	d = d / 100
 	return d
 }
+
+// ToDollarFloatNoRound returns a dollar representation of this value (no rounding, so partial cents possible)
+func (m Millicents) ToDollarFloatNoRound() float64 {
+	return float64(m) / 100000.0
+}

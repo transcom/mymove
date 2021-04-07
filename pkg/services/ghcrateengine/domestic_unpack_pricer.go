@@ -75,7 +75,7 @@ func (p domesticUnpackPricer) Price(contractCode string, requestedPickupDate tim
 		},
 		{
 			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: FormatFloat(contractYear.EscalationCompounded),
+			Value: FormatFloat(contractYear.EscalationCompounded, 5),
 		},
 	}
 

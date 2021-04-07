@@ -14,6 +14,7 @@ const (
 	dddsitTestSchedule                            = 1
 	dddsitTestServiceArea                         = "888"
 	dddsitTestIsPeakPeriod                        = false
+	dddsitTestContractYearName                    = "DDDSIT Test Year"
 	dddsitTestEscalationCompounded                = 1.03
 	dddsitTestWeight                              = unit.Pound(2250)
 	dddsitTestWeightLower                         = unit.Pound(500)
@@ -83,7 +84,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 }
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer50PlusMilesDiffZip3s() {
-	suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dddsitTestEscalationCompounded)
+	suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 
 	zipDest := "30907"
 	zipSITDest := "36106"       // different zip3
