@@ -24,6 +24,7 @@ type MoveFetcherParams struct {
 }
 
 // MoveStatusRouter is the exported interface for routing moves after customer submission
+//go:generate mockery -name MoveStatusRouter
 type MoveStatusRouter interface {
 	RouteMove(move *models.Move) error
 }

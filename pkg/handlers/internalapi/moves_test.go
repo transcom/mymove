@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http/httptest"
+	"os"
 	"time"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -270,6 +271,50 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 	})
 
+}
+
+func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
+	suite.Run("Routes to service counseling when feature flag is true", func() {
+		os.Setenv("FEATURE_FLAG_SERVICE_COUNSELING", "true")
+		// Given: a set of orders, a move, user and servicemember
+		move := testdatagen.MakeDefaultMove(suite.DB())
+
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
+		signingDate := strfmt.DateTime(time.Now())
+		certificate := internalmessages.CreateSignedCertificationPayload{
+			CertificationText: swag.String("This is your legal message"),
+			CertificationType: &certType,
+			Date:              &signingDate,
+			Signature:         swag.String("Jane Doe"),
+		}
+		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
+
+		params := moveop.SubmitMoveForApprovalParams{
+			HTTPRequest:                  req,
+			MoveID:                       strfmt.UUID(move.ID.String()),
+			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
+		}
+		// When: a move is submitted
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		handler := SubmitMoveHandler{context, moverouter.NewMoveStatusRouter(suite.DB())}
+		response := handler.Handle(params)
+
+		// Then: expect a 200 status code
+		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
+		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+
+		updatedMove, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, updatedMove.Status)
+
+		// And: Returned query to have a needs service counseling status
+		suite.Equal(internalmessages.MoveStatusNEEDSSERVICECOUNSELING, okResponse.Payload.Status)
+		suite.Nil(okResponse.Payload.SubmittedAt)
+	})
 }
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
