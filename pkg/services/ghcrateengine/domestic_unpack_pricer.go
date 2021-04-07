@@ -67,7 +67,7 @@ func (p domesticUnpackPricer) Price(contractCode string, requestedPickupDate tim
 		},
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(totalCost),
+			Value: FormatCents(domOtherPrice.PriceCents),
 		},
 		{
 			Key:   models.ServiceItemParamNameIsPeak,

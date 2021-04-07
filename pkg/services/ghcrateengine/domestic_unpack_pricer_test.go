@@ -64,17 +64,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemPa
 		cost, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
+		if suite.Len(displayParams, 4) {
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, "Base Period Year 1")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, "1.04070")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, "true")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, "1.46")
+		}
 		suite.Equal(expectedCost, cost)
-		suite.Equal(len(displayParams), 4)
-		suite.Equal(displayParams[0].Key, models.ServiceItemParamNameContractYearName)
-		suite.Equal(displayParams[0].Value, "Base Period Year 1")
-		suite.Equal(displayParams[1].Key, models.ServiceItemParamNamePriceRateOrFactor)
-		suite.Equal(displayParams[1].Value, "54.70")
-		suite.Equal(displayParams[2].Key, models.ServiceItemParamNameIsPeak)
-		suite.Equal(displayParams[2].Value, "true")
-		suite.Equal(displayParams[3].Key, models.ServiceItemParamNameEscalationCompounded)
-		suite.Equal(displayParams[3].Value, "1.0407")
-
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
