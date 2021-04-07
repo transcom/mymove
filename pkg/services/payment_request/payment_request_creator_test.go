@@ -72,6 +72,33 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		},
 	})
 
+	serviceItemParamKey5 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameContractYearName,
+			Description: "contract year name",
+			Type:        models.ServiceItemParamTypeString,
+			Origin:      models.ServiceItemParamOriginPricer,
+		},
+	})
+
+	serviceItemParamKey6 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameIsPeak,
+			Description: "is peak",
+			Type:        models.ServiceItemParamTypeBoolean,
+			Origin:      models.ServiceItemParamOriginPricer,
+		},
+	})
+
+	serviceItemParamKey7 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNamePriceRateOrFactor,
+			Description: "Price, rate, or factor used in calculation",
+			Type:        models.ServiceItemParamTypeDecimal,
+			Origin:      models.ServiceItemParamOriginPricer,
+		},
+	})
+
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             mtoServiceItem1.ReServiceID,
@@ -79,7 +106,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			ServiceItemParamKey:   serviceItemParamKey1,
 		},
 	})
-
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             mtoServiceItem1.ReServiceID,
@@ -92,6 +118,27 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			ServiceID:             mtoServiceItem1.ReServiceID,
 			ServiceItemParamKeyID: serviceItemParamKey4.ID,
 			ServiceItemParamKey:   serviceItemParamKey4,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey5.ID,
+			ServiceItemParamKey:   serviceItemParamKey5,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey6.ID,
+			ServiceItemParamKey:   serviceItemParamKey6,
+		},
+	})
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey7.ID,
+			ServiceItemParamKey:   serviceItemParamKey7,
 		},
 	})
 
@@ -132,6 +179,22 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 						{
 							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
 							Value:       "2019-12-16",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameContractYearName.String(),
+							Value:       "DOPSIT Test Year",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameEscalationCompounded.String(),
+							Value:       "1.0445",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNameIsPeak.String(),
+							Value:       "true",
+						},
+						{
+							IncomingKey: models.ServiceItemParamNamePriceRateOrFactor.String(),
+							Value:       "1232",
 						},
 					},
 				},

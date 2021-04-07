@@ -19,7 +19,7 @@ type ServiceItemPricer struct {
 }
 
 // PriceServiceItem provides a mock function with given fields: item
-func (_m *ServiceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (unit.Cents, error) {
+func (_m *ServiceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (unit.Cents, models.PaymentServiceItemParams, error) {
 	ret := _m.Called(item)
 
 	var r0 unit.Cents
@@ -29,14 +29,23 @@ func (_m *ServiceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (u
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(models.PaymentServiceItem) error); ok {
+	var r1 models.PaymentServiceItemParams
+	if rf, ok := ret.Get(1).(func(models.PaymentServiceItem) models.PaymentServiceItemParams); ok {
 		r1 = rf(item)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(models.PaymentServiceItemParams)
+		}
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(models.PaymentServiceItem) error); ok {
+		r2 = rf(item)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // UsingConnection provides a mock function with given fields: db
