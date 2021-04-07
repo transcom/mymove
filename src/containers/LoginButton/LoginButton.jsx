@@ -69,7 +69,7 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
           aria-label="profile-link"
           className={styles.profileLink}
         >
-          <FontAwesomeIcon className="fa-3x" icon={['far', 'user']} />
+          <FontAwesomeIcon className="fa-2x" icon={['far', 'user']} />
         </Link>
       </li>
       <li className="usa-nav__primary-item">
