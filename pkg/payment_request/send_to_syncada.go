@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -29,6 +31,7 @@ func SendToSyncada(edi string, gexSender services.GexSender, sftpSender services
 			if err != nil {
 				return err
 			}
+			logger.Info("SUCCESS: 858 Processor sent new file to syncada for Payment Request", zap.String("syncadaFileName", syncadaFileName))
 		} else {
 			logger.Info("SendToSyncada() is in do not send mode, syncadaFileName: " + syncadaFileName + "")
 		}
