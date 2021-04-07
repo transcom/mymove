@@ -23,4 +23,5 @@ export const customerRoutes = {
   SHIPMENT_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/edit',
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
+  PROFILE_PATH: '/moves/review/profile',
 };

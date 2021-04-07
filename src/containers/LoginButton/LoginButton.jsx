@@ -14,6 +14,7 @@ import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'utils/api';
 import { logOut as logOutFunction } from 'store/auth/actions';
 import ConnectedEulaModal from 'components/EulaModal';
+import { customerRoutes } from 'constants/routes';
 
 const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
   const [showEula, setShowEula] = useState(false);
@@ -62,7 +63,12 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
   return (
     <>
       <li className="usa-nav__primary-item">
-        <Link to="/moves/review/profile" title="profile-link" aria-label="profile-link" className={styles.profileLink}>
+        <Link
+          to={customerRoutes.PROFILE_PATH}
+          title="profile-link"
+          aria-label="profile-link"
+          className={styles.profileLink}
+        >
           <FontAwesomeIcon className="fa-3x" icon={['far', 'user']} />
         </Link>
       </li>
