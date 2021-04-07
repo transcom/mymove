@@ -20,6 +20,7 @@ const (
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceItemParamsBadData() {
+	requestedPickup := time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat)
 	suite.setUpDomesticShorthaulData()
 	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
@@ -33,7 +34,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
 				KeyType: models.ServiceItemParamTypeDate,
-				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
+				Value:   requestedPickup,
 			},
 			{
 				Key:     models.ServiceItemParamNameDistanceZip5,
@@ -56,16 +57,18 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 	pricer := NewDomesticShorthaulPricer(suite.DB())
 
 	suite.T().Run("failure during pricing bubbles up", func(t *testing.T) {
-		_, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		_, rateEngineParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
+		suite.Nil(rateEngineParams)
 	})
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceItemParams() {
+	requestedPickup := time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat)
 	suite.setUpDomesticShorthaulData()
-	paymentServiceItem := suite.setupDomesticShorthaulServiceItems()
-	expectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDB(paymentServiceItem.PaymentServiceItemParams, models.ReServiceCodeDSH)
+	paymentServiceItem := suite.setupDomesticShorthaulServiceItems(requestedPickup)
+	expectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup)
 
 	pricer := NewDomesticShorthaulPricer(suite.DB())
 
@@ -79,46 +82,55 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
+
 		// No contract code
-		_, _, err := pricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		_, rateEngineParams, err := pricer.PriceUsingParams(models.PaymentServiceItemParams{})
 		suite.Error(err)
 		suite.Equal("could not find param with key ContractCode", err.Error())
+		suite.Nil(rateEngineParams)
 
 		// No requested pickup date
 		missingRequestedPickupDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameRequestedPickupDate)
-		_, _, err = pricer.PriceUsingParams(missingRequestedPickupDate)
+		_, rateEngineParams, err = pricer.PriceUsingParams(missingRequestedPickupDate)
 		suite.Error(err)
 		suite.Equal("could not find param with key RequestedPickupDate", err.Error())
+		suite.Nil(rateEngineParams)
 
 		// No distance
 		missingDistanceZip5 := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameDistanceZip5)
-		_, _, err = pricer.PriceUsingParams(missingDistanceZip5)
+		_, rateEngineParams, err = pricer.PriceUsingParams(missingDistanceZip5)
 		suite.Error(err)
 		suite.Equal("could not find param with key DistanceZip5", err.Error())
+		suite.Nil(rateEngineParams)
 
 		// No weight
 		missingBilledActualWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilledActual)
-		_, _, err = pricer.PriceUsingParams(missingBilledActualWeight)
+		_, rateEngineParams, err = pricer.PriceUsingParams(missingBilledActualWeight)
 		suite.Error(err)
 		suite.Equal("could not find param with key WeightBilledActual", err.Error())
+		suite.Nil(rateEngineParams)
 
 		// No service area
 		missingServiceAreaOrigin := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServiceAreaOrigin)
-		_, _, err = pricer.PriceUsingParams(missingServiceAreaOrigin)
+		_, rateEngineParams, err = pricer.PriceUsingParams(missingServiceAreaOrigin)
 		suite.Error(err)
 		suite.Equal("could not find param with key ServiceAreaOrigin", err.Error())
+		suite.Nil(rateEngineParams)
 	})
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
+	requestedPickup := time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat)
 	suite.setUpDomesticShorthaulData()
 
 	pricer := NewDomesticShorthaulPricer(suite.DB())
 
 	suite.T().Run("success shorthaul cost within peak period", func(t *testing.T) {
-		cost, _, err := pricer.Price(
+		newRequestedPickup := time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC)
+		newExpectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup)
+		cost, rateEngineParams, err := pricer.Price(
 			testdatagen.DefaultContractCode,
-			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
+			newRequestedPickup,
 			dshTestMileage,
 			dshTestWeight,
 			dshTestServiceArea,
@@ -126,13 +138,17 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		expectedCost := unit.Cents(6563903)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
+		suite.validatePricerCreatedParams(newExpectedPricingCreatedParams, rateEngineParams)
 	})
 
 	suite.T().Run("success shorthaul cost within non-peak period", func(t *testing.T) {
 		nonPeakDate := peakStart.addDate(0, -1)
-		cost, _, err := pricer.Price(
+		newRequestedPickup := time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC)
+		newExpectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, newRequestedPickup.Format(DateParamFormat))
+
+		cost, rateEngineParams, err := pricer.Price(
 			testdatagen.DefaultContractCode,
-			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
+			newRequestedPickup,
 			dshTestMileage,
 			dshTestWeight,
 			dshTestServiceArea,
@@ -140,10 +156,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		expectedCost := unit.Cents(5709696)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
+		suite.validatePricerCreatedParams(newExpectedPricingCreatedParams, rateEngineParams)
 	})
 
 	suite.T().Run("failure if contract code bogus", func(t *testing.T) {
-		_, _, err := pricer.Price(
+		_, rateEngineParams, err := pricer.Price(
 			"bogus_code",
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dshTestMileage,
@@ -153,10 +170,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 
 		suite.Error(err)
 		suite.Equal("Could not lookup Domestic Service Area Price: "+models.RecordNotFoundErrorString, err.Error())
+		suite.validatePricerCreatedParams(nil, rateEngineParams)
 	})
 
 	suite.T().Run("failure if move date is outside of contract year", func(t *testing.T) {
-		_, _, err := pricer.Price(
+		_, rateEngineParams, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dshTestMileage,
@@ -166,10 +184,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 
 		suite.Error(err)
 		suite.Equal("Could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
+		suite.validatePricerCreatedParams(nil, rateEngineParams)
 	})
 
 	suite.T().Run("weight below minimum", func(t *testing.T) {
-		cost, _, err := pricer.Price(
+		cost, rateEngineParams, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dshTestMileage,
@@ -179,39 +198,45 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		suite.Equal(unit.Cents(0), cost)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
+		suite.validatePricerCreatedParams(nil, rateEngineParams)
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code
-		_, _, err := pricer.Price("", requestedPickupDate, dshTestMileage, dshTestWeight, dshTestServiceArea)
+		_, rateEngineParams, err := pricer.Price("", requestedPickupDate, dshTestMileage, dshTestWeight, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
+		suite.validatePricerCreatedParams(nil, rateEngineParams)
 
 		// No requested pickup date
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, time.Time{}, dshTestMileage, dshTestWeight, dshTestServiceArea)
+		_, rateEngineParams, err = pricer.Price(testdatagen.DefaultContractCode, time.Time{}, dshTestMileage, dshTestWeight, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("RequestedPickupDate is required", err.Error())
+		suite.validatePricerCreatedParams(nil, rateEngineParams)
 
 		// No distance
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, 0, dshTestWeight, dshTestServiceArea)
+		_, rateEngineParams, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, 0, dshTestWeight, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("Distance must be greater than 0", err.Error())
+		suite.validatePricerCreatedParams(nil, rateEngineParams)
 
 		// No weight
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, 0, dshTestServiceArea)
+		_, rateEngineParams, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, 0, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
+		suite.validatePricerCreatedParams(nil, rateEngineParams)
 
 		// No service area
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, dshTestWeight, "")
+		_, rateEngineParams, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, dshTestWeight, "")
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
+		suite.validatePricerCreatedParams(nil, rateEngineParams)
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems() models.PaymentServiceItem {
+func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems(requestedPickup string) models.PaymentServiceItem {
 	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDSH,
@@ -224,7 +249,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems() mod
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
 				KeyType: models.ServiceItemParamTypeDate,
-				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
+				Value:   requestedPickup,
 			},
 			{
 				Key:     models.ServiceItemParamNameDistanceZip5,
@@ -295,40 +320,11 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticShorthaulData() {
 	domesticShorthaulNonpeakPrice.IsPeakPeriod = false
 	domesticShorthaulNonpeakPrice.PriceCents = 127
 	suite.MustSave(&domesticShorthaulNonpeakPrice)
-
-	/*
-		var pricingRateEngineParams = services.PricingDisplayParams{
-			{
-				Key: models.ServiceItemParamNameContractYearName,
-				Value: contractYear.Name,
-			},
-			{
-				Key: models.ServiceItemParamNamePriceRateOrFactor,
-				Value: domesticShorthaulPrice.PriceCents.String(),
-			},
-			{
-				Key: models.ServiceItemParamNameIsPeak,
-				Value: strconv.FormatBool(isPeakPeriod),
-			},
-			{
-				Key: models.ServiceItemParamNameEscalationCompounded,
-				Value: fmt.Sprintf("%.4f", contractYear.EscalationCompounded),
-			},
-		}
-	*/
 }
 
-func (suite *GHCRateEngineServiceSuite) getExpectedDSHPricerCreatedParamsFromDB(serviceItemParams models.PaymentServiceItemParams, serviceCode models.ReServiceCode) services.PricingDisplayParams {
+func (suite *GHCRateEngineServiceSuite) getExpectedDSHPricerCreatedParamsFromDBGivenParams(serviceArea string, requestedPickUp string) services.PricingDisplayParams {
 	var err error
 
-	serviceItemParamsMap := make(map[models.ServiceItemParamName]models.PaymentServiceItemParam)
-	for _, param := range serviceItemParams {
-		serviceItemParamsMap[param.ServiceItemParamKey.Key] = param
-	}
-
-	serviceArea := serviceItemParamsMap[models.ServiceItemParamNameServiceAreaOrigin].Value
-
-	requestedPickUp := serviceItemParamsMap[models.ServiceItemParamNameRequestedPickupDate].Value
 	var requestedPickUpDate time.Time
 	requestedPickUpDate, err = time.Parse(DateParamFormat, requestedPickUp)
 	suite.NoError(err)
@@ -336,7 +332,7 @@ func (suite *GHCRateEngineServiceSuite) getExpectedDSHPricerCreatedParamsFromDB(
 	isPeakPeriod := IsPeakPeriod(requestedPickUpDate)
 
 	var domServiceAreaPrice models.ReDomesticServiceAreaPrice
-	domServiceAreaPrice, err = fetchDomServiceAreaPrice(suite.DB(), testdatagen.DefaultContractCode, serviceCode, serviceArea, isPeakPeriod)
+	domServiceAreaPrice, err = fetchDomServiceAreaPrice(suite.DB(), testdatagen.DefaultContractCode, models.ReServiceCodeDSH, serviceArea, isPeakPeriod)
 	suite.NoError(err)
 
 	var contractYear models.ReContractYear
