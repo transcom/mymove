@@ -143,10 +143,11 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 	suite.MustSave(&serviceAreaPrice)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCode string, isPeakPeriod bool, weightLower unit.Pound, weightUpper unit.Pound, milesLower int, milesUpper int, priceMillicents unit.Millicents, escalationCompounded float64) {
+func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCode string, isPeakPeriod bool, weightLower unit.Pound, weightUpper unit.Pound, milesLower int, milesUpper int, priceMillicents unit.Millicents, contractYearName string, escalationCompounded float64) {
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
+				Name:                 contractYearName,
 				EscalationCompounded: escalationCompounded,
 			},
 		})
@@ -171,6 +172,18 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 	}
 
 	suite.MustSave(&baseLinehaulPrice)
+}
+
+func (suite *GHCRateEngineServiceSuite) HasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, value string) bool {
+	for _, displayParam := range displayParams {
+		if displayParam.Key == key {
+			if displayParam.Value == value {
+				return true
+			}
+		}
+	}
+
+	return suite.Failf("Could not find display param", "key=<%s> value=<%s>", key.String(), value)
 }
 
 func (suite *GHCRateEngineServiceSuite) validatePricerCreatedParams(expectedValues services.PricingDisplayParams, actualValues services.PricingDisplayParams) {

@@ -14,6 +14,7 @@ const (
 	dopsitTestSchedule                            = 3
 	dopsitTestServiceArea                         = "012"
 	dopsitTestIsPeakPeriod                        = true
+	dopsitTestContractYearName                    = "DOPSIT Test Year"
 	dopsitTestEscalationCompounded                = 1.0445
 	dopsitTestWeight                              = unit.Pound(4555)
 	dopsitTestWeightLower                         = unit.Pound(4000)
@@ -83,7 +84,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricerSameZip
 }
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50PlusMilesDiffZip3s() {
-	suite.setupDomesticLinehaulPrice(dopsitTestServiceArea, dopsitTestIsPeakPeriod, dopsitTestWeightLower, dopsitTestWeightUpper, dopsitTestMilesLower, dopsitTestMilesUpper, dopsitTestDomesticLinehaulBasePriceMillicents, dopsitTestEscalationCompounded)
+	suite.setupDomesticLinehaulPrice(dopsitTestServiceArea, dopsitTestIsPeakPeriod, dopsitTestWeightLower, dopsitTestWeightUpper, dopsitTestMilesLower, dopsitTestMilesUpper, dopsitTestDomesticLinehaulBasePriceMillicents, dopsitTestContractYearName, dopsitTestEscalationCompounded)
 
 	zipOriginal := "29201"
 	zipActual := "30907"       // different zip3
