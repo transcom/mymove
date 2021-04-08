@@ -73,7 +73,7 @@ func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate tim
 		},
 		{
 			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: FormatFloat(contractYear.EscalationCompounded, 2),
+			Value: FormatFloat(contractYear.EscalationCompounded, 5),
 		},
 	}
 	return totalCost, params, nil
