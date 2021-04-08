@@ -20,6 +20,7 @@ import {
   selectCurrentOrders,
   selectCurrentMove,
   selectHasCurrentPPM,
+  selectEntitlementsForLoggedInUser,
 } from 'store/entities/selectors';
 
 import './Review.css';
@@ -99,7 +100,7 @@ class EditProfile extends Component {
   }
 
   updateProfile = (fieldValues) => {
-    const { setFlashMessage } = this.props;
+    const { setFlashMessage, entitlement } = this.props;
 
     let entitlementCouldChange = false;
 
@@ -115,10 +116,14 @@ class EditProfile extends Component {
         this.props.updateServiceMember(response);
 
         if (entitlementCouldChange) {
-          // TODO - setFlash with entitlement message if entitlement changed
-          setFlashMessage('EDIT_PROFILE_SUCCESS', 'info', 'Your changes have been saved.');
+          setFlashMessage(
+            'EDIT_PROFILE_SUCCESS',
+            'info',
+            `Your weight entitlement is now ${entitlement.sum.toLocaleString()} lbs.`,
+            'Your changes have been saved. Note that the entitlement has also changed.',
+          );
         } else {
-          setFlashMessage('EDIT_PROFILE_SUCCESS', 'success', 'Your changes have been saved.');
+          setFlashMessage('EDIT_PROFILE_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
 
         this.props.history.goBack();
@@ -183,6 +188,7 @@ function mapStateToProps(state) {
     isPpm: selectHasCurrentPPM(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
+    entitlement: selectEntitlementsForLoggedInUser(state),
   };
 }
 

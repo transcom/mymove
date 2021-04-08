@@ -27,6 +27,7 @@ import {
   selectMoveIsApproved,
   selectUploadsForCurrentOrders,
   selectHasCurrentPPM,
+  selectEntitlementsForLoggedInUser,
 } from 'store/entities/selectors';
 
 import './Review.css';
@@ -146,7 +147,7 @@ class EditOrders extends Component {
   };
 
   submitOrders = (fieldValues) => {
-    const { setFlashMessage } = this.props;
+    const { setFlashMessage, entitlement } = this.props;
 
     let entitlementCouldChange = false;
 
@@ -164,10 +165,14 @@ class EditOrders extends Component {
         this.props.updateOrders(response);
 
         if (entitlementCouldChange) {
-          // TODO - setFlash with entitlement message if entitlement changed
-          setFlashMessage('EDIT_ORDERS_SUCCESS', 'info', 'Your changes have been saved.');
+          setFlashMessage(
+            'EDIT_ORDERS_SUCCESS',
+            'info',
+            `Your weight entitlement is now ${entitlement.sum.toLocaleString()} lbs.`,
+            'Your changes have been saved. Note that the entitlement has also changed.',
+          );
         } else {
-          setFlashMessage('EDIT_ORDERS_SUCCESS', 'success', 'Your changes have been saved.');
+          setFlashMessage('EDIT_ORDERS_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
 
         this.props.history.goBack();
@@ -228,7 +233,7 @@ function mapStateToProps(state) {
   const currentOrders = selectCurrentOrders(state) || {};
   const uploads = selectUploadsForCurrentOrders(state);
 
-  const props = {
+  return {
     currentOrders,
     serviceMemberId,
     existingUploads: uploads,
@@ -238,8 +243,8 @@ function mapStateToProps(state) {
     moveIsApproved: selectMoveIsApproved(state),
     isPpm: selectHasCurrentPPM(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
+    entitlement: selectEntitlementsForLoggedInUser(state),
   };
-  return props;
 }
 
 const mapDispatchToProps = {
