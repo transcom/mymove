@@ -177,7 +177,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 func (suite *GHCRateEngineServiceSuite) HasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, value string) bool {
 	for _, displayParam := range displayParams {
 		if displayParam.Key == key {
-			return suite.Equal(value, displayParam.Value)
+			return suite.Equal(value, displayParam.Value, "%s param actual value did not match expected", key.String())
 		}
 	}
 
