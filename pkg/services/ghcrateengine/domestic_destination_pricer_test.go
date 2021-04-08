@@ -99,7 +99,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 	pricer := NewDomesticDestinationPricer(suite.DB())
 
 	suite.T().Run("success destination cost within peak period", func(t *testing.T) {
-		cost, _, err := pricer.Price(
+		cost, displayParams, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			ddpTestWeight,
@@ -108,6 +108,19 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
+		suite.Equal(4, len(displayParams))
+		for _, param := range displayParams {
+			switch param.Key {
+			case models.ServiceItemParamNamePriceRateOrFactor:
+				suite.Equal("1.46", param.Value)
+			case models.ServiceItemParamNameContractYearName:
+				suite.Equal("Base Year 5", param.Value)
+			case models.ServiceItemParamNameIsPeak:
+				suite.Equal("true", param.Value)
+			case models.ServiceItemParamNameEscalationCompounded:
+				suite.Equal("1.0407", param.Value)
+			}
+		}
 	})
 
 	suite.T().Run("success destination cost within non-peak period", func(t *testing.T) {
@@ -219,6 +232,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticDestinationData() {
 			ReContractYear: models.ReContractYear{
 				Escalation:           1.0197,
 				EscalationCompounded: 1.0407,
+				Name:                 "Base Year 5",
 			},
 		})
 
