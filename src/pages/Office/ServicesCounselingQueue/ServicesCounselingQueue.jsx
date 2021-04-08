@@ -60,7 +60,6 @@ const columns = (isMarineCorpsUser = false) => [
       id: 'requestedMoveDate',
       isFilterable: true,
       Filter: DateSelectFilter,
-      disableSortBy: true,
     },
   ),
   createHeader(
@@ -86,6 +85,7 @@ const columns = (isMarineCorpsUser = false) => [
         // eslint-disable-next-line react/jsx-props-no-spreading
         <SelectFilter options={BRANCH_OPTIONS} {...props} />
       ),
+      disableSortBy: isMarineCorpsUser,
     },
   ),
   createHeader('Origin GBLOC', 'originGBLOC', {
