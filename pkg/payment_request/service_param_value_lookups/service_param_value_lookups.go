@@ -452,7 +452,6 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(key models.ServiceItemParamN
 
 	if lookup, ok := s.lookups[key]; ok {
 		value, err := lookup.lookup(s)
-		// fmt.Printf("========== 455 service param value lookup %v ================ 455", value)
 		if err != nil {
 			return "", fmt.Errorf(" failed ServiceParamValue %sLookup with error %w", key, err)
 		}

@@ -1014,15 +1014,3 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 }
-
-func (suite *PaymentRequestServiceSuite) HasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, value string) bool {
-	for _, displayParam := range displayParams {
-		if displayParam.Key == key {
-			if displayParam.Value == value {
-				return true
-			}
-		}
-	}
-
-	return suite.Failf("Could not find display param", "key=<%s> value=<%s>", key.String(), value)
-}
