@@ -154,25 +154,25 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	serviceItemPricer := &mocks.ServiceItemPricer{}
 	displayParams := models.PaymentServiceItemParams{
 		{
-			PaymentServiceItemID:  uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+			ID:                    uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
 			ServiceItemParamKeyID: serviceItemParamKey4.ID,
 			ServiceItemParamKey:   serviceItemParamKey4,
 			Value:                 "1.000",
 		},
 		{
-			PaymentServiceItemID:  uuid.FromStringOrNil("d55d2f35-218c-4b85-b9d1-631949b9d984"),
+			ID:                    uuid.FromStringOrNil("d55d2f35-218c-4b85-b9d1-631949b9d984"),
 			ServiceItemParamKeyID: serviceItemParamKey5.ID,
 			ServiceItemParamKey:   serviceItemParamKey5,
 			Value:                 "Base Contract Year 1",
 		},
 		{
-			PaymentServiceItemID:  uuid.FromStringOrNil("d44d2f35-218c-4b85-b9d1-631949b9d984"),
+			ID:                    uuid.FromStringOrNil("d44d2f35-218c-4b85-b9d1-631949b9d984"),
 			ServiceItemParamKeyID: serviceItemParamKey6.ID,
 			ServiceItemParamKey:   serviceItemParamKey6,
 			Value:                 "true",
 		},
 		{
-			PaymentServiceItemID:  uuid.FromStringOrNil("d22d2f35-218c-4b85-b9d1-631949b9d984"),
+			ID:                    uuid.FromStringOrNil("d22d2f35-218c-4b85-b9d1-631949b9d984"),
 			ServiceItemParamKeyID: serviceItemParamKey7.ID,
 			ServiceItemParamKey:   serviceItemParamKey7,
 			Value:                 "333.2",
@@ -236,16 +236,21 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		if suite.Len(paymentRequestReturn.PaymentServiceItems, 2) {
 			for _, paymentServiceItem := range paymentRequestReturn.PaymentServiceItems {
+				var pricerDisplayParams models.PaymentServiceItemParams
 				suite.NotEqual(paymentServiceItem.ID, uuid.Nil)
 				suite.Equal(paymentServiceItem.PriceCents, &testPrice)
 				for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
-					fmt.Printf("%+v", paymentServiceItemParam)
 					suite.NotEqual(paymentServiceItemParam.ID, uuid.Nil)
-					suite.Equal(paymentServiceItem.PriceCents, &testPrice)
+					if paymentServiceItemParam.ServiceItemParamKey.Origin == models.ServiceItemParamOriginPricer {
+						pricerDisplayParams = append(pricerDisplayParams, paymentServiceItemParam)
+					}
+				}
+				for i, pricerDisplayParam := range pricerDisplayParams {
+					suite.Equal(pricerDisplayParam.Value, displayParams[i].Value)
+					suite.Equal(pricerDisplayParam.ServiceItemParamKeyID, displayParams[i].ServiceItemParamKeyID)
 				}
 			}
 		}
-		fmt.Printf("%+v", displayParams)
 	})
 
 	suite.T().Run("Payment request is created successfully (using ServiceItemParamKeyID)", func(t *testing.T) {
@@ -290,20 +295,24 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
+		suite.Equal(7, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 6")
+		suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+
 		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
-			suite.NotEqual(paymentRequest.PaymentServiceItems[0].ID, uuid.Nil)
-			suite.Equal(*paymentRequest.PaymentServiceItems[0].PriceCents, testPrice)
-			suite.Equal(7, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 7")
-			if suite.Len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams, 7) {
-				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
-				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
-				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[2].ID, uuid.Nil)
-			}
-			suite.NotEqual(paymentRequest.PaymentServiceItems[1].ID, uuid.Nil)
-			suite.Equal(*paymentRequest.PaymentServiceItems[1].PriceCents, testPrice)
-			suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
-			if suite.Len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams, 5) {
-				suite.NotEqual(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
+			for _, paymentServiceItem := range paymentRequest.PaymentServiceItems {
+				var pricerDisplayParams models.PaymentServiceItemParams
+				suite.NotEqual(paymentServiceItem.ID, uuid.Nil)
+				suite.Equal(paymentServiceItem.PriceCents, &testPrice)
+				for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
+					suite.NotEqual(paymentServiceItemParam.ID, uuid.Nil)
+					if paymentServiceItemParam.ServiceItemParamKey.Origin == models.ServiceItemParamOriginPricer {
+						pricerDisplayParams = append(pricerDisplayParams, paymentServiceItemParam)
+					}
+				}
+				for i, pricerDisplayParam := range pricerDisplayParams {
+					suite.Equal(pricerDisplayParam.Value, displayParams[i].Value)
+					suite.Equal(pricerDisplayParam.ServiceItemParamKeyID, displayParams[i].ServiceItemParamKeyID)
+				}
 			}
 		}
 	})
@@ -331,20 +340,26 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequestResult.ID, uuid.Nil)
+		suite.NotEqual(paymentRequest.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
-		if suite.Len(paymentRequestResult.PaymentServiceItems, 2) {
-			suite.NotEqual(paymentRequestResult.PaymentServiceItems[0].ID, uuid.Nil)
-			suite.Equal(*paymentRequestResult.PaymentServiceItems[0].PriceCents, testPrice)
-			suite.Equal(6, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 6")
-			if suite.Len(paymentRequestResult.PaymentServiceItems[0].PaymentServiceItemParams, 6) {
-				suite.NotEqual(paymentRequestResult.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
-				suite.NotEqual(paymentRequestResult.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
-			}
-			suite.NotEqual(paymentRequestResult.PaymentServiceItems[1].ID, uuid.Nil)
-			suite.Equal(*paymentRequestResult.PaymentServiceItems[1].PriceCents, testPrice)
-			suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
-			if suite.Len(paymentRequestResult.PaymentServiceItems[1].PaymentServiceItemParams, 5) {
-				suite.NotEqual(paymentRequestResult.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
+		suite.Equal(6, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 6")
+		suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+
+		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
+			for _, paymentServiceItem := range paymentRequest.PaymentServiceItems {
+				var pricerDisplayParams models.PaymentServiceItemParams
+				suite.NotEqual(paymentServiceItem.ID, uuid.Nil)
+				suite.Equal(paymentServiceItem.PriceCents, &testPrice)
+				for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
+					suite.NotEqual(paymentServiceItemParam.ID, uuid.Nil)
+					if paymentServiceItemParam.ServiceItemParamKey.Origin == models.ServiceItemParamOriginPricer {
+						pricerDisplayParams = append(pricerDisplayParams, paymentServiceItemParam)
+					}
+				}
+				for i, pricerDisplayParam := range pricerDisplayParams {
+					suite.Equal(pricerDisplayParam.Value, displayParams[i].Value)
+					suite.Equal(pricerDisplayParam.ServiceItemParamKeyID, displayParams[i].ServiceItemParamKeyID)
+				}
 			}
 		}
 	})
@@ -998,4 +1013,16 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 	})
 
+}
+
+func (suite *PaymentRequestServiceSuite) HasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, value string) bool {
+	for _, displayParam := range displayParams {
+		if displayParam.Key == key {
+			if displayParam.Value == value {
+				return true
+			}
+		}
+	}
+
+	return suite.Failf("Could not find display param", "key=<%s> value=<%s>", key.String(), value)
 }

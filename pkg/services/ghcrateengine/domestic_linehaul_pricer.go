@@ -72,8 +72,6 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(domesticLinehaulPrice.PriceMillicents.ToDollarFloatNoRound(), 3)},
 	}
 
-	fmt.Printf("====================================================\n\n\n params in pricer: %v+ params in pricer price func======================================================\n\n\n ==================================", params)
-
 	return totalPriceCents, params, nil
 }
 
@@ -103,7 +101,6 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
-	// fmt.Printf("================ params in pricer: %v+ :params in pricer =========", params)
 
 	return p.Price(contractCode, requestedPickupDate, unit.Miles(distanceZip3), unit.Pound(weightBilledActual), serviceAreaOrigin)
 }
