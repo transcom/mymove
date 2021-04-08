@@ -2,7 +2,6 @@ package move
 
 import (
 	"strings"
-	"time"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/spf13/pflag"
@@ -26,14 +25,12 @@ func NewMoveStatusRouter(db *pop.Connection) services.MoveStatusRouter {
 
 //FetchOrder retrieves a Move if it is visible for a given locator
 func (f moveStatusRouter) RouteMove(move *models.Move) error {
-	// TODO: In future, add logic based on the service member's origin duty station
-	// to route to send services counseling, otherwise submitted
 	var err error
+
 	if needsServiceCounseling() {
 		err = move.SendToServiceCounseling()
 	} else {
-		submitDate := time.Now()
-		err = move.Submit(submitDate)
+		err = move.Submit()
 	}
 	if err != nil {
 		return err
@@ -41,6 +38,13 @@ func (f moveStatusRouter) RouteMove(move *models.Move) error {
 	return nil
 }
 
+// TODO: Replace the code in this function to determine whether or not the move
+// needs service counseling based on the service member's origin duty station.
+// Then remove all code related to the service counseling feature flag here and
+// in pkg/cli/featureflag.go, and remove any references to
+// `FEATURE_FLAG_SERVICE_COUNSELING` from the entire project.
+// You'll need to update the test setup in TestSubmitMoveForServiceCounselingHandler
+// so that the move's origin duty station will trigger service counseling.
 func needsServiceCounseling() bool {
 	logger := zap.NewNop()
 	flag := pflag.CommandLine

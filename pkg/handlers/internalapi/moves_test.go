@@ -225,14 +225,28 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// Then: expect a 200 status code
 		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
 		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+		updatedMove, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
+		suite.NoError(err)
 
-		// And: Returned query to have an submitted status
+		// And: Returned query to have a submitted status
 		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 		// And: Expect move's PPM's advance to have "Requested" status
 		suite.Assertions.Equal(
 			internalmessages.ReimbursementStatusREQUESTED,
 			*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
 		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
+
+		actualSubmittedAt := updatedMove.SubmittedAt
+		currentTime := time.Now()
+		diff := currentTime.Sub(*actualSubmittedAt)
+		diffInSeconds := diff.Seconds()
+		var oneSecond float64
+		oneSecond = 1.000000
+
+		// Test that the move was submitted within a few seconds of the current time.
+		// This is better than asserting that it's not Nil, and avoids trying to mock
+		// time.Now() or having to pass in a date to move.Submit just to be able to test it.
+		suite.Assertions.LessOrEqual(diffInSeconds, oneSecond)
 	})
 	suite.Run("Submits hhg shipment success", func() {
 		// Given: a set of orders, a move, user and servicemember
@@ -309,11 +323,24 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 
 		updatedMove, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
 		suite.NoError(err)
-		suite.Equal(models.MoveStatusNeedsServiceCounseling, updatedMove.Status)
 
+		actualSubmittedAt := updatedMove.SubmittedAt
+		currentTime := time.Now()
+		diff := currentTime.Sub(*actualSubmittedAt)
+		diffInSeconds := diff.Seconds()
+		var oneSecond float64
+		oneSecond = 1.000000
+
+		// Test that the move was submitted within a few seconds of the current time.
+		// This is better than asserting that it's not Nil, and avoids trying to mock
+		// time.Now() or having to pass in a date to move.SendToServiceCounseling just
+		// to be able to test it.
+		suite.Assertions.LessOrEqual(diffInSeconds, oneSecond)
+
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, updatedMove.Status)
 		// And: Returned query to have a needs service counseling status
 		suite.Equal(internalmessages.MoveStatusNEEDSSERVICECOUNSELING, okResponse.Payload.Status)
-		suite.Nil(okResponse.Payload.SubmittedAt)
+		suite.NotNil(okResponse.Payload.SubmittedAt)
 	})
 }
 
