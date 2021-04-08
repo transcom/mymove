@@ -1,4 +1,5 @@
 @import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
 
 .shipmentContainer {
   @include u-padding-top(0);
