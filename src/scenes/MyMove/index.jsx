@@ -36,6 +36,7 @@ import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import PpmLanding from 'scenes/PpmLanding';
 import Edit from 'scenes/Review/Edit';
+import Profile from 'pages/MyMove/Profile/Profile';
 import EditProfile from 'scenes/Review/EditProfile';
 import EditBackupContact from 'scenes/Review/EditBackupContact';
 import EditContactInfo from 'scenes/Review/EditContactInfo';
@@ -146,6 +147,7 @@ export class CustomerApp extends Component {
                     path={customerRoutes.SHIPMENT_CREATE_PATH}
                     component={ConnectedCreateOrEditMtoShipment}
                   />
+                  <CustomerPrivateRoute exact path="/service-member/profile" component={Profile} />
                   <CustomerPrivateRoute
                     exact
                     path={customerRoutes.SHIPMENT_EDIT_PATH}
