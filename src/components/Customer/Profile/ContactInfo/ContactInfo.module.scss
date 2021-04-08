@@ -1,0 +1,56 @@
+@import 'shared/styles/_variables';
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.contact-info-container {
+  @include u-margin-top(3);
+
+  .contact-info-header {
+    h2 {
+      @include u-width(80%);
+      @include u-margin(0);
+    }
+
+    display: flex;
+    justify-content: space-between;
+
+    .edit-btn {
+      justify-content: flex-end;
+      padding: 0px;
+    }
+  }
+
+  .contact-info-section {
+    @include u-margin-y(0);
+    @include u-padding-x('05');
+
+    dl {
+      @include u-font('body', 'xs');
+      @include u-line-height('body', 2);
+
+      dt,
+      dd {
+        @include u-border-top('1px');
+        @include u-border-top('base-lighter');
+
+        @include u-padding-x(1);
+        @include u-padding-y(1.5);
+      }
+
+      dt {
+        @include u-text('bold');
+        @include u-text('base-darker');
+        @include u-width(33%);
+        @include u-float(left);
+        clear: both;
+      }
+
+      dd {
+        @include u-margin(0);
+        @include u-width(67%);
+        @include u-float(right);
+        clear: right;
+      }
+    }
+  }
+}
