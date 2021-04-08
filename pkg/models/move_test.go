@@ -258,6 +258,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
+
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 

@@ -651,8 +651,9 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 		}
 
 		order := &move.Orders
-		err := db.Load(&order, "Moves")
+		err := db.Load(order, "Moves")
 		if err != nil {
+			responseError = errors.Wrap(err, "Error Loading Order")
 			return transactionError
 		}
 		if verrs, err := db.ValidateAndSave(order); verrs.HasAny() || err != nil {
