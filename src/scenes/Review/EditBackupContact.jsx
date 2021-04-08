@@ -78,7 +78,7 @@ class EditBackupContact extends Component {
         // Update in Redux
         updateBackupContact(response);
 
-        setFlashMessage('EDIT_BACKUP_CONTACT_SUCCESS', 'success', 'Your changes have been saved.');
+        setFlashMessage('EDIT_BACKUP_CONTACT_SUCCESS', 'success', '', 'Your changes have been saved.');
         this.props.history.goBack();
       })
       .catch((e) => {

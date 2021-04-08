@@ -104,7 +104,7 @@ class EditContact extends Component {
       .then((response) => {
         // Update Redux with new data
         this.props.updateServiceMember(response);
-        setFlashMessage('EDIT_CONTACT_INFO_SUCCESS', 'success', 'Your changes have been saved.');
+        setFlashMessage('EDIT_CONTACT_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
         this.props.history.goBack();
       })
       .catch((e) => {

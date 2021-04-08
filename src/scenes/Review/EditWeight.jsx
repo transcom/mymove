@@ -257,7 +257,7 @@ class EditWeight extends Component {
       .then((response) => persistPPMEstimate(moveId, response.id))
       .then((response) => this.props.updatePPM(response))
       .then(() => {
-        setFlashMessage('EDIT_PPM_WEIGHT_SUCCESS', 'success', 'Your changes have been saved.');
+        setFlashMessage('EDIT_PPM_WEIGHT_SUCCESS', 'success', '', 'Your changes have been saved.');
 
         this.props.history.goBack();
       })
