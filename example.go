@@ -4,7 +4,7 @@ import "log"
 
 func myLog(format string, args ...interface{}) {
 	// test
-	// testtest
+	// #nosec
 	const prefix = "[my] "
 	log.Printf(prefix+format, args...)
 }
