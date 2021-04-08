@@ -39,7 +39,7 @@ func TestProcessEDI997Suite(t *testing.T) {
 
 func (suite *ProcessEDI997Suite) TestParsingEDI997() {
 	edi997Processor := NewEDI997Processor(suite.DB(), suite.logger)
-	suite.T().Run("successfully proccesses a valid EDI997", func(t *testing.T) {
+	suite.T().Run("successfully processes a valid EDI997", func(t *testing.T) {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000999*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
@@ -136,7 +136,7 @@ IEA*1*000000022
 		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
 		if err != nil {
-			log.Fatal("unable to process file", zap.Error(err))
+			suite.Error(err)
 		}
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
