@@ -1,11 +1,12 @@
 import React from 'react';
 
-import ContactInfo from 'components/Customer/Profile/ContactInfo/ContactInfo';
+import ContactInfoDisplay from './ContactInfoDisplay';
+
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
 export default {
-  title: 'Customer Components / Profile / ContactInfo',
-  component: ContactInfo,
+  title: 'Customer Components / Profile / ContactInfoDisplay',
+  component: ContactInfoDisplay,
   argTypes: {
     onEditClick: 'go to edit page',
   },
@@ -38,12 +39,12 @@ const baseProps = {
 
 export const DefaultState = (argTypes) => (
   <SectionWrapper>
-    <ContactInfo {...baseProps} onEditClick={argTypes.onEditClick} />
+    <ContactInfoDisplay {...baseProps} onEditClick={argTypes.onEditClick} />
   </SectionWrapper>
 );
 
 export const WithAltPhone = (argTypes) => (
   <SectionWrapper>
-    <ContactInfo {...baseProps} secondaryTelephone="619-555-3000" onEditClick={argTypes.onEditClick} />
+    <ContactInfoDisplay {...baseProps} secondaryTelephone="619-555-3000" onEditClick={argTypes.onEditClick} />
   </SectionWrapper>
 );

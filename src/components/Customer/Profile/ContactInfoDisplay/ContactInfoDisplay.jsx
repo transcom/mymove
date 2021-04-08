@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, GridContainer, Grid } from '@trussworks/react-uswds';
 
-import contactInfoStyles from './ContactInfo.module.scss';
+import contactInfoDisplayStyles from './ContactInfoDisplay.module.scss';
 
 import { ResidentialAddressShape } from 'types/address';
 import { BackupContactShape } from 'types/customerShapes';
 
-const ContactInfo = ({
+const ContactInfoDisplay = ({
   telephone,
   secondaryTelephone,
   personalEmail,
@@ -28,13 +28,13 @@ const ContactInfo = ({
   }
 
   return (
-    <GridContainer className={contactInfoStyles['contact-info-container']}>
+    <GridContainer className={contactInfoDisplayStyles['contact-info-container']}>
       <Grid row>
-        <Grid col className={contactInfoStyles['contact-info-header']}>
+        <Grid col className={contactInfoDisplayStyles['contact-info-header']}>
           <h2>Contact info</h2>
           <Button
             unstyled
-            className={contactInfoStyles['edit-btn']}
+            className={contactInfoDisplayStyles['edit-btn']}
             data-testid="edit-contact-info"
             onClick={onEditClick}
           >
@@ -44,7 +44,7 @@ const ContactInfo = ({
       </Grid>
 
       <Grid row>
-        <Grid col className={contactInfoStyles['contact-info-section']}>
+        <Grid col className={contactInfoDisplayStyles['contact-info-section']}>
           <dl>
             <dt>Best contact phone</dt>
             <dd>{telephone}</dd>
@@ -76,7 +76,7 @@ const ContactInfo = ({
       </Grid>
 
       <Grid row>
-        <Grid col className={contactInfoStyles['contact-info-section']}>
+        <Grid col className={contactInfoDisplayStyles['contact-info-section']}>
           <h3>Backup contact</h3>
           <dl>
             <dt>Name</dt>
@@ -94,7 +94,7 @@ const ContactInfo = ({
   );
 };
 
-ContactInfo.propTypes = {
+ContactInfoDisplay.propTypes = {
   telephone: PropTypes.string.isRequired,
   secondaryTelephone: PropTypes.string,
   personalEmail: PropTypes.string.isRequired,
@@ -106,8 +106,8 @@ ContactInfo.propTypes = {
   onEditClick: PropTypes.func.isRequired,
 };
 
-ContactInfo.defaultProps = {
+ContactInfoDisplay.defaultProps = {
   secondaryTelephone: '',
 };
 
-export default ContactInfo;
+export default ContactInfoDisplay;
