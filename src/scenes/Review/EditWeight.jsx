@@ -11,7 +11,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
-import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -202,8 +201,6 @@ class EditWeight extends Component {
   }
 
   componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
     getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
     const { currentPPM, originDutyStationZip, orders } = this.props;
@@ -258,22 +255,12 @@ class EditWeight extends Component {
       .then((response) => persistPPMEstimate(moveId, response.id))
       .then((response) => this.props.updatePPM(response))
       .then(() => {
-        if (!this.props.hasSubmitError) {
-          this.props.editSuccessful();
-          this.props.history.goBack();
-          this.props.checkEntitlement(moveId);
-        } else {
-          scrollToTop();
-        }
+        // TODO - setFlash Your changes have been saved.
+
+        this.props.history.goBack();
       })
       .catch(() => {
-        if (!this.props.hasSubmitError) {
-          this.props.editSuccessful();
-          this.props.history.goBack();
-          this.props.checkEntitlement(moveId);
-        } else {
-          scrollToTop();
-        }
+        scrollToTop();
       });
   };
 
@@ -374,10 +361,6 @@ const mapDispatchToProps = {
   fetchLatestOrders,
   updatePPM,
   updatePPMs,
-  editBegin,
-  editSuccessful,
-  entitlementChangeBegin,
-  checkEntitlement,
   updatePPMEstimate,
   setPPMEstimateError,
 };

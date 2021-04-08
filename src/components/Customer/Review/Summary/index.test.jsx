@@ -101,11 +101,6 @@ const testProps = {
       updatedAt: '2020-09-02T21:08:38.392Z',
     },
   ],
-  reviewState: {
-    editSuccess: null,
-    entitlementChange: null,
-    error: null,
-  },
   onDidMount: jest.fn(),
   showLoggedInUser: jest.fn(),
 };

@@ -13,7 +13,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
-import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -100,10 +99,12 @@ class EditProfile extends Component {
   }
 
   updateProfile = (fieldValues) => {
+    let entitlementCouldChange = false;
+
     fieldValues.current_station_id = fieldValues.current_station.id;
     fieldValues.id = this.props.serviceMember.id;
     if (fieldValues.rank !== this.props.serviceMember.rank) {
-      this.props.entitlementChanged();
+      entitlementCouldChange = true;
     }
 
     return patchServiceMember(fieldValues)
@@ -111,12 +112,12 @@ class EditProfile extends Component {
         // Update Redux with new data
         this.props.updateServiceMember(response);
 
-        this.props.editSuccessful();
-        this.props.history.goBack();
-        if (this.props.isPpm) {
-          const moveId = this.props.move?.id;
-          this.props.checkEntitlement(moveId);
+        if (entitlementCouldChange) {
+          // TODO - setFlash Your changes have been saved.
+        } else {
+          // TODO - setFlash with entitlement message if entitlement changed
         }
+        this.props.history.goBack();
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -130,11 +131,6 @@ class EditProfile extends Component {
         scrollToTop();
       });
   };
-
-  componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
-  }
 
   render() {
     const { schema, serviceMember, moveIsInDraft, schemaAffiliation, schemaRank, currentOrders } = this.props;
@@ -191,11 +187,6 @@ function mapDispatchToProps(dispatch) {
     {
       push,
       updateServiceMember: updateServiceMemberAction,
-      editBegin,
-      entitlementChangeBegin,
-      editSuccessful,
-      entitlementChanged,
-      checkEntitlement,
     },
     dispatch,
   );

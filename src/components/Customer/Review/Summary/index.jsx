@@ -199,13 +199,11 @@ export class Summary extends Component {
       currentMove,
       currentOrders,
       currentPPM,
-      entitlement,
       history,
       match,
       moveIsApproved,
       mtoShipments,
       serviceMember,
-      reviewState,
     } = this.props;
     const { entitlementWarning } = this.state;
 
@@ -217,7 +215,6 @@ export class Summary extends Component {
 
     // isReviewPage being false is the same thing as being in the /edit route
     const isReviewPage = rootReviewAddressWithMoveId === match.url;
-    const editSuccessBlurb = reviewState.editSuccess ? 'Your changes have been saved. ' : '';
 
     const showPPMShipmentSummary = !isReviewPage && currentPPM?.status !== 'DRAFT';
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
@@ -238,14 +235,6 @@ export class Summary extends Component {
           </Alert>
         )}
 
-        {reviewState.editSuccess &&
-          !reviewState.entitlementChange &&
-          get(reviewState.error, 'statusCode', false) === false && <Alert type="success" heading={editSuccessBlurb} />}
-        {currentMove && reviewState.entitlementChange && get(reviewState.error, 'statusCode', false) === false && (
-          <Alert type="info" heading={`${editSuccessBlurb}Note that the entitlement has also changed.`}>
-            Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
-          </Alert>
-        )}
         <SectionWrapper>
           <ProfileTable
             affiliation={serviceMember.affiliation}
@@ -322,16 +311,9 @@ Summary.propTypes = {
   mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
-  entitlement: shape({}).isRequired,
-  reviewState: shape({
-    editSuccess: bool,
-    entitlementChange: bool,
-    error: bool,
-  }),
 };
 
 Summary.defaultProps = {
-  reviewState: {},
   currentPPM: null,
 };
 
@@ -347,7 +329,6 @@ function mapStateToProps(state) {
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
     moveIsApproved: selectMoveIsApproved(state),
     lastMoveIsCanceled: selectHasCanceledMove(state),
-    reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
   };
 }

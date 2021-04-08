@@ -15,7 +15,6 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
 
-import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
@@ -146,24 +145,28 @@ class EditOrders extends Component {
   };
 
   submitOrders = (fieldValues) => {
+    let entitlementCouldChange = false;
+
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
     fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     if (
       fieldValues.has_dependents !== this.props.currentOrders.has_dependents ||
       fieldValues.spouse_has_pro_gear !== this.props.spouse_has_pro_gear
     ) {
-      this.props.entitlementChanged();
+      entitlementCouldChange = true;
     }
 
     return patchOrders(fieldValues).then((response) => {
       this.props.updateOrders(response);
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
-        this.props.editSuccessful();
-        this.props.history.goBack();
-        if (this.props.isPpm) {
-          this.props.checkEntitlement(this.props.match.params.moveId);
+        if (entitlementCouldChange) {
+          // TODO - setFlash Your changes have been saved.
+        } else {
+          // TODO - setFlash with entitlement message if entitlement changed
         }
+
+        this.props.history.goBack();
       } else {
         scrollToTop();
       }
@@ -171,9 +174,6 @@ class EditOrders extends Component {
   };
 
   componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
-
     const { serviceMemberId, updateOrders } = this.props;
     getOrdersForServiceMember(serviceMemberId).then((response) => {
       updateOrders(response);
@@ -241,11 +241,6 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   push,
   updateOrders: updateOrdersAction,
-  editBegin,
-  entitlementChangeBegin,
-  editSuccessful,
-  entitlementChanged,
-  checkEntitlement,
 };
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(EditOrders));

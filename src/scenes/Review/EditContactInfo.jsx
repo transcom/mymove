@@ -14,7 +14,6 @@ import AddressForm from 'shared/AddressForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
-import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import './Review.css';
 import SaveCancelButtons from './SaveCancelButtons';
 
@@ -103,8 +102,8 @@ class EditContact extends Component {
       .then((response) => {
         // Update Redux with new data
         this.props.updateServiceMember(response);
+        // TODO - setFlash Your changes have been saved.
 
-        this.props.editSuccessful();
         this.props.history.goBack();
       })
       .catch((e) => {
@@ -119,11 +118,6 @@ class EditContact extends Component {
         scrollToTop();
       });
   };
-
-  componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
-  }
 
   render() {
     const { serviceMemberSchema, addressSchema, serviceMember } = this.props;
@@ -174,9 +168,6 @@ function mapDispatchToProps(dispatch) {
     {
       push,
       updateServiceMember: updateServiceMemberAction,
-      editBegin,
-      editSuccessful,
-      entitlementChangeBegin,
     },
     dispatch,
   );

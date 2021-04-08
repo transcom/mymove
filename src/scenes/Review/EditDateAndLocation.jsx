@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { getFormValues, reduxForm } from 'redux-form';
 
 import SaveCancelButtons from './SaveCancelButtons';
-import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 
 import Alert from 'shared/Alert';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -133,22 +132,11 @@ class EditDateAndLocation extends Component {
         .then((response) => persistPPMEstimate(moveId, response.id))
         .then((response) => this.props.updatePPM(response))
         .then(() => {
-          // This promise resolves regardless of error.
-          if (!this.props.hasSubmitError) {
-            this.props.editSuccessful();
-            this.props.history.goBack();
-          } else {
-            scrollToTop();
-          }
+          // TODO - setFlash Your changes have been saved.
+          this.props.history.goBack();
         })
         .catch((err) => {
-          // This promise resolves regardless of error.
-          if (!this.props.hasSubmitError) {
-            this.props.editSuccessful();
-            this.props.history.goBack();
-          } else {
-            scrollToTop();
-          }
+          scrollToTop();
           return err;
         });
     }
@@ -181,8 +169,6 @@ class EditDateAndLocation extends Component {
   };
 
   componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
     getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
     scrollToTop();
   }
@@ -267,9 +253,6 @@ const mapDispatchToProps = {
   push,
   updatePPM,
   updatePPMs,
-  editBegin,
-  editSuccessful,
-  entitlementChangeBegin,
   updatePPMSitEstimate,
 };
 

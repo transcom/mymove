@@ -14,7 +14,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import SaveCancelButtons from './SaveCancelButtons';
 import './Review.css';
 import profileImage from './images/profile.png';
-import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import { selectBackupContacts } from 'store/entities/selectors';
 
 const editBackupContactFormName = 'edit_backup_contact';
@@ -64,8 +63,6 @@ class EditBackupContact extends Component {
   }
 
   componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
     scrollToTop();
   }
 
@@ -81,7 +78,7 @@ class EditBackupContact extends Component {
         // Update in Redux
         updateBackupContact(response);
 
-        this.props.editSuccessful();
+        // TODO - setFlash Your changes have been saved.
         this.props.history.goBack();
       })
       .catch((e) => {
@@ -135,9 +132,6 @@ function mapDispatchToProps(dispatch) {
     {
       push,
       updateBackupContact: updateBackupContactAction,
-      editBegin,
-      editSuccessful,
-      entitlementChangeBegin,
     },
     dispatch,
   );
