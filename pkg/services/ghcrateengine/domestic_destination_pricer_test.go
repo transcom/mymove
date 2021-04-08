@@ -109,19 +109,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.NoError(err)
 
 		suite.Equal(expectedCost, cost)
-		suite.Equal(4, len(displayParams))
-		for _, param := range displayParams {
-			switch param.Key {
-			case models.ServiceItemParamNamePriceRateOrFactor:
-				suite.Equal("1.46", param.Value)
-			case models.ServiceItemParamNameContractYearName:
-				suite.Equal("Base Year 5", param.Value)
-			case models.ServiceItemParamNameIsPeak:
-				suite.Equal("true", param.Value)
-			case models.ServiceItemParamNameEscalationCompounded:
-				suite.Equal("1.0407", param.Value)
-			}
+		if suite.Len(displayParams, 4) {
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, "Base Year 5")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, "1.04070")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, "true")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, "1.46")
 		}
+
 	})
 
 	suite.T().Run("success destination cost within non-peak period", func(t *testing.T) {
@@ -136,18 +130,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
-		suite.Equal(4, len(displayParams))
-		for _, param := range displayParams {
-			switch param.Key {
-			case models.ServiceItemParamNamePriceRateOrFactor:
-				suite.Equal("1.27", param.Value)
-			case models.ServiceItemParamNameContractYearName:
-				suite.Equal("Base Year 5", param.Value)
-			case models.ServiceItemParamNameIsPeak:
-				suite.Equal("false", param.Value)
-			case models.ServiceItemParamNameEscalationCompounded:
-				suite.Equal("1.0407", param.Value)
-			}
+		if suite.Len(displayParams, 4) {
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, "Base Year 5")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, "1.04070")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, "false")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, "1.27")
 		}
 	})
 
