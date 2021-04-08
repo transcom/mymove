@@ -142,7 +142,7 @@ export class CustomerApp extends Component {
                   {getWorkflowRoutes(props)}
                   <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} component={MovingInfo} />
                   <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
-                  <CustomerPrivateRoute exact path={customerRoutes.EDIT_PROFILE} component={EditProfile} />
+                  <CustomerPrivateRoute exact path={customerRoutes.EDIT_PROFILE_PATH} component={EditProfile} />
                   <CustomerPrivateRoute
                     path={customerRoutes.SHIPMENT_CREATE_PATH}
                     component={ConnectedCreateOrEditMtoShipment}

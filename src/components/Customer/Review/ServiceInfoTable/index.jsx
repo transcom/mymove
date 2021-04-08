@@ -35,7 +35,7 @@ const ServiceInfoTable = ({
             unstyled
             className={reviewStyles['edit-btn']}
             data-testid="edit-profile-table"
-            onClick={() => onEditClick(customerRoutes.EDIT_PROFILE)}
+            onClick={() => onEditClick(customerRoutes.EDIT_PROFILE_PATH)}
           >
             Edit
           </Button>
