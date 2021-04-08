@@ -11,29 +11,30 @@ import ServiceInfoTable from 'components/Customer/Review/ServiceInfoTable';
 const Profile = ({ currentOrders, serviceMember }) => {
   const rank = currentOrders ? currentOrders.grade : serviceMember.rank;
   const currentStation = currentOrders ? currentOrders.origin_duty_station : serviceMember.current_station;
-  const stationPhoneLines = currentStation?.transportation_office?.phone_lines;
-  const stationPhone = stationPhoneLines ? stationPhoneLines[0] : '';
 
   const handleEditClick = (path) => {
     push(path);
   };
 
   return (
-    <>
-      <h1>Profile</h1>
-      <SectionWrapper>
-        <ServiceInfoTable
-          firstName={serviceMember.first_name}
-          lastName={serviceMember.last_name}
-          currentDutyStationName={currentStation.name}
-          currentDutyStationPhone={stationPhone}
-          affiliation={serviceMember.affiliation}
-          rank={rank}
-          edipi={serviceMember.edipi}
-          onEditClick={handleEditClick}
-        />
-      </SectionWrapper>
-    </>
+    <div className="grid-container usa-prose">
+      <div className="grid-row">
+        <div className="grid-col-12">
+          <h1>Profile</h1>
+          <SectionWrapper>
+            <ServiceInfoTable
+              firstName={serviceMember.first_name}
+              lastName={serviceMember.last_name}
+              currentDutyStationName={currentStation.name}
+              affiliation={serviceMember.affiliation}
+              rank={rank}
+              edipi={serviceMember.edipi}
+              onEditClick={handleEditClick}
+            />
+          </SectionWrapper>
+        </div>
+      </div>
+    </div>
   );
 };
 

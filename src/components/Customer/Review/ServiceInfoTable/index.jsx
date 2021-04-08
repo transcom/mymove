@@ -7,6 +7,8 @@ import reviewStyles from '../Review.module.scss';
 
 import serviceInfoTableStyles from './ServiceInfoTable.module.scss';
 
+import { customerRoutes } from 'constants/routes';
+
 const ServiceInfoTable = ({
   affiliation,
   currentDutyStationName,
@@ -24,7 +26,6 @@ const ServiceInfoTable = ({
     serviceInfoTableStyles.ServiceInfoTable,
   );
   const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
-  const editProfilePath = '/moves/review/edit-profile';
   return (
     <div className={containerClassNames}>
       <div className={classnames(reviewStyles['review-header'], serviceInfoTableStyles.ReviewHeader)}>
@@ -34,7 +35,7 @@ const ServiceInfoTable = ({
             unstyled
             className={reviewStyles['edit-btn']}
             data-testid="edit-profile-table"
-            onClick={() => onEditClick(editProfilePath)}
+            onClick={() => onEditClick(customerRoutes.EDIT_PROFILE)}
           >
             Edit
           </Button>
