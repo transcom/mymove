@@ -891,6 +891,93 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed": {
+      "patch": {
+        "description": "Changes move (move task order) status to service counseling completed",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Changes move (move task order) status to service counseling completed",
+        "operationId": "updateMTOStatusServiceCounselingCompleted",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order status",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/move/{locator}": {
       "get": {
         "description": "Returns a given move for a unique alphanumeric locator string",
@@ -2994,6 +3081,11 @@ func init() {
           "x-nullable": true,
           "example": "1001-3456"
         },
+        "serviceCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -3021,6 +3113,7 @@ func init() {
       ]
     },
     "MoveTaskOrder": {
+      "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
         "availableToPrimeAt": {
@@ -3079,6 +3172,11 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "serviceCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "updatedAt": {
           "type": "string",
@@ -4941,6 +5039,114 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MTOApprovalServiceItemCodes"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order status",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "description": "Conflict error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed": {
+      "patch": {
+        "description": "Changes move (move task order) status to service counseling completed",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Changes move (move task order) status to service counseling completed",
+        "operationId": "updateMTOStatusServiceCounselingCompleted",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -7287,6 +7493,11 @@ func init() {
           "x-nullable": true,
           "example": "1001-3456"
         },
+        "serviceCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -7314,6 +7525,7 @@ func init() {
       ]
     },
     "MoveTaskOrder": {
+      "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
         "availableToPrimeAt": {
@@ -7372,6 +7584,11 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "serviceCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "updatedAt": {
           "type": "string",

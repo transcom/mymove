@@ -793,6 +793,64 @@ paths:
       description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
       summary: Change the status of a move task order to make it available to prime
+  '/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed':
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: ID of move to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully updated move task order status
+          schema:
+            $ref: '#/definitions/Move'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error
+          schema:
+            $ref: '#/responses/Conflict'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Changes move (move task order) status to service counseling completed
+      operationId: updateMTOStatusServiceCounselingCompleted
+      summary: Changes move (move task order) status to service counseling completed
   '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
     parameters:
       - description: ID of move to use
@@ -1740,6 +1798,10 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      serviceCounselingCompletedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       availableToPrimeAt:
         format: date-time
         type: string
@@ -1983,6 +2045,7 @@ definitions:
       - originDutyStationId
       - agency
   MoveTaskOrder:
+    description: The Move (MoveTaskOrder)
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -2001,6 +2064,10 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
+      serviceCounselingCompletedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       availableToPrimeAt:
         format: date-time
         type: string
