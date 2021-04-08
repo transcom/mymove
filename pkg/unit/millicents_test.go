@@ -50,7 +50,7 @@ func TestMillicents_ToDollarString(t *testing.T) {
 
 	expected := "$0.32"
 	if result != expected {
-		t.Errorf("wrong number of Millicents: expected %s, got %s", expected, result)
+		t.Errorf("wrong number of dollars: expected %s, got %s", expected, result)
 	}
 }
 
@@ -61,7 +61,7 @@ func TestMillicents_ToDollarFloat(t *testing.T) {
 
 	expected := float64(0.32)
 	if result != expected {
-		t.Errorf("wrong number of Millicents: expected %v, got %v", expected, result)
+		t.Errorf("wrong number of dollars: expected %v, got %v", expected, result)
 	}
 
 	// Expected to round up
@@ -70,6 +70,16 @@ func TestMillicents_ToDollarFloat(t *testing.T) {
 
 	expected = float64(0.33)
 	if result != expected {
-		t.Errorf("wrong number of Millicents: expected %v, got %v", expected, result)
+		t.Errorf("wrong number of dollars: expected %v, got %v", expected, result)
+	}
+}
+
+func TestMillicents_ToDollarFloatNoRound(t *testing.T) {
+	millicents := Millicents(32125)
+	result := millicents.ToDollarFloatNoRound()
+
+	expected := float64(0.32125)
+	if result != expected {
+		t.Errorf("wrong number of dollars: expected %v, got %v", expected, result)
 	}
 }
