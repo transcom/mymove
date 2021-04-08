@@ -6,8 +6,9 @@ import (
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 )
 
-type transactionSet struct {
-	ST   edisegment.ST    // transaction set header (bump up counter for "ST" and create new transactionSet)
+// TransactionSet holds the transaction set envelope for the 824
+type TransactionSet struct {
+	ST   edisegment.ST    // transaction set header (bump up counter for "ST" and create new TransactionSet)
 	BGN  edisegment.BGN   // beginning statement
 	OTIs []edisegment.OTI `validate:"min=1,dive"` // original transaction identifications
 	TEDs []edisegment.TED `validate:"dive"`       // technical error descriptions
@@ -16,7 +17,7 @@ type transactionSet struct {
 
 type functionalGroupEnvelope struct {
 	GS              edisegment.GS    // functional group header (bump up counter for "GS" and create new functionalGroupEnvelope)
-	TransactionSets []transactionSet `validate:"min=1,dive"`
+	TransactionSets []TransactionSet `validate:"min=1,dive"`
 	GE              edisegment.GE    // functional group trailer
 }
 
