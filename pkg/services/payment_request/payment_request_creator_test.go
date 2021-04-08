@@ -152,8 +152,34 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	testPrice := unit.Cents(12345)
 	serviceItemPricer := &mocks.ServiceItemPricer{}
+	displayParams := models.PaymentServiceItemParams{
+		{
+			PaymentServiceItemID:  uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+			ServiceItemParamKeyID: serviceItemParamKey4.ID,
+			ServiceItemParamKey:   serviceItemParamKey4,
+			Value:                 "1.000",
+		},
+		{
+			PaymentServiceItemID:  uuid.FromStringOrNil("d55d2f35-218c-4b85-b9d1-631949b9d984"),
+			ServiceItemParamKeyID: serviceItemParamKey5.ID,
+			ServiceItemParamKey:   serviceItemParamKey5,
+			Value:                 "Base Contract Year 1",
+		},
+		{
+			PaymentServiceItemID:  uuid.FromStringOrNil("d44d2f35-218c-4b85-b9d1-631949b9d984"),
+			ServiceItemParamKeyID: serviceItemParamKey6.ID,
+			ServiceItemParamKey:   serviceItemParamKey6,
+			Value:                 "true",
+		},
+		{
+			PaymentServiceItemID:  uuid.FromStringOrNil("d22d2f35-218c-4b85-b9d1-631949b9d984"),
+			ServiceItemParamKeyID: serviceItemParamKey7.ID,
+			ServiceItemParamKey:   serviceItemParamKey7,
+			Value:                 "333.2",
+		},
+	}
 	serviceItemPricer.
-		On("PriceServiceItem", mock.Anything).Return(testPrice, nil, nil).
+		On("PriceServiceItem", mock.Anything).Return(testPrice, displayParams, nil).
 		On("UsingConnection", mock.Anything).Return(serviceItemPricer)
 
 	planner := &routemocks.Planner{}
@@ -205,21 +231,21 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal(expectedSequenceNumber, paymentRequestReturn.SequenceNumber)
 		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequestReturn.PaymentServiceItems), "PaymentServiceItems expect 2")
+		suite.Equal(6, len(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 6")
+		suite.Equal(5, len(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+
 		if suite.Len(paymentRequestReturn.PaymentServiceItems, 2) {
-			suite.NotEqual(paymentRequestReturn.PaymentServiceItems[0].ID, uuid.Nil)
-			suite.Equal(*paymentRequestReturn.PaymentServiceItems[0].PriceCents, testPrice)
-			suite.Equal(2, len(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 2")
-			if suite.Len(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams, 2) {
-				suite.NotEqual(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
-				suite.NotEqual(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
-			}
-			suite.NotEqual(paymentRequestReturn.PaymentServiceItems[1].ID, uuid.Nil)
-			suite.Equal(*paymentRequestReturn.PaymentServiceItems[1].PriceCents, testPrice)
-			suite.Equal(1, len(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 1")
-			if suite.Len(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams, 1) {
-				suite.NotEqual(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
+			for _, paymentServiceItem := range paymentRequestReturn.PaymentServiceItems {
+				suite.NotEqual(paymentServiceItem.ID, uuid.Nil)
+				suite.Equal(paymentServiceItem.PriceCents, &testPrice)
+				for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
+					fmt.Printf("%+v", paymentServiceItemParam)
+					suite.NotEqual(paymentServiceItemParam.ID, uuid.Nil)
+					suite.Equal(paymentServiceItem.PriceCents, &testPrice)
+				}
 			}
 		}
+		fmt.Printf("%+v", displayParams)
 	})
 
 	suite.T().Run("Payment request is created successfully (using ServiceItemParamKeyID)", func(t *testing.T) {
@@ -267,16 +293,16 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
 			suite.NotEqual(paymentRequest.PaymentServiceItems[0].ID, uuid.Nil)
 			suite.Equal(*paymentRequest.PaymentServiceItems[0].PriceCents, testPrice)
-			suite.Equal(3, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 3")
-			if suite.Len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams, 3) {
+			suite.Equal(7, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 7")
+			if suite.Len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams, 7) {
 				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
 				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
 				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[2].ID, uuid.Nil)
 			}
 			suite.NotEqual(paymentRequest.PaymentServiceItems[1].ID, uuid.Nil)
 			suite.Equal(*paymentRequest.PaymentServiceItems[1].PriceCents, testPrice)
-			suite.Equal(1, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 1")
-			if suite.Len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams, 1) {
+			suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+			if suite.Len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams, 5) {
 				suite.NotEqual(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
 			}
 		}
@@ -309,15 +335,15 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		if suite.Len(paymentRequestResult.PaymentServiceItems, 2) {
 			suite.NotEqual(paymentRequestResult.PaymentServiceItems[0].ID, uuid.Nil)
 			suite.Equal(*paymentRequestResult.PaymentServiceItems[0].PriceCents, testPrice)
-			suite.Equal(2, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 2")
-			if suite.Len(paymentRequestResult.PaymentServiceItems[0].PaymentServiceItemParams, 2) {
+			suite.Equal(6, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 6")
+			if suite.Len(paymentRequestResult.PaymentServiceItems[0].PaymentServiceItemParams, 6) {
 				suite.NotEqual(paymentRequestResult.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
 				suite.NotEqual(paymentRequestResult.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
 			}
 			suite.NotEqual(paymentRequestResult.PaymentServiceItems[1].ID, uuid.Nil)
 			suite.Equal(*paymentRequestResult.PaymentServiceItems[1].PriceCents, testPrice)
-			suite.Equal(1, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 1")
-			if suite.Len(paymentRequestResult.PaymentServiceItems[1].PaymentServiceItemParams, 1) {
+			suite.Equal(5, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 5")
+			if suite.Len(paymentRequestResult.PaymentServiceItems[1].PaymentServiceItemParams, 5) {
 				suite.NotEqual(paymentRequestResult.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
 			}
 		}
