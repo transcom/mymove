@@ -107,6 +107,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		)
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
+
 		suite.Equal(expectedCost, cost)
 		suite.Equal(4, len(displayParams))
 		for _, param := range displayParams {
@@ -125,7 +126,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 
 	suite.T().Run("success destination cost within non-peak period", func(t *testing.T) {
 		nonPeakDate := peakStart.addDate(0, -1)
-		cost, _, err := pricer.Price(
+		cost, displayParams, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
 			ddpTestWeight,
@@ -134,6 +135,20 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		expectedCost := unit.Cents(4758)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
+
+		suite.Equal(4, len(displayParams))
+		for _, param := range displayParams {
+			switch param.Key {
+			case models.ServiceItemParamNamePriceRateOrFactor:
+				suite.Equal("1.27", param.Value)
+			case models.ServiceItemParamNameContractYearName:
+				suite.Equal("Base Year 5", param.Value)
+			case models.ServiceItemParamNameIsPeak:
+				suite.Equal("false", param.Value)
+			case models.ServiceItemParamNameEscalationCompounded:
+				suite.Equal("1.0407", param.Value)
+			}
+		}
 	})
 
 	suite.T().Run("failure if contract code bogus", func(t *testing.T) {
