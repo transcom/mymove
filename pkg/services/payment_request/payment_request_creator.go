@@ -187,7 +187,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 					paymentServiceItem.MTOServiceItem.ReService.Code, paymentServiceItem.MTOServiceItemID, err)
 			}
 			paymentServiceItem.PaymentServiceItemParams = append(paymentServiceItem.PaymentServiceItemParams, displayParams...)
-			fmt.Printf("================================== %v+ ========================", displayParams)
+			// fmt.Printf("================================== %v+ ========================", displayParams)
 			newPaymentServiceItems = append(newPaymentServiceItems, psItem)
 		}
 

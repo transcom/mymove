@@ -1782,6 +1782,7 @@ definitions:
     enum:
       - PRIME
       - SYSTEM
+      - PRICER
   ServiceItemParamType:
     type: string
     enum:
