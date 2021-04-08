@@ -1627,6 +1627,7 @@ func init() {
               "branch",
               "locator",
               "status",
+              "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
               "destinationDutyStation"
@@ -5887,6 +5888,7 @@ func init() {
               "branch",
               "locator",
               "status",
+              "requestedMoveDate",
               "submittedAt",
               "originGBLOC",
               "destinationDutyStation"
