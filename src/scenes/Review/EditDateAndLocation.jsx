@@ -16,6 +16,7 @@ import { formatDateForSwagger } from 'shared/dates';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
 import { getPPMsForMove, patchPPM, persistPPMEstimate, calculatePPMSITEstimate } from 'services/internalApi';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { updatePPMs, updatePPM, updatePPMSitEstimate } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -110,6 +111,8 @@ EditDateAndLocationForm = reduxForm({ form: editDateAndLocationFormName, enableR
 
 class EditDateAndLocation extends Component {
   handleSubmit = () => {
+    const { setFlashMessage } = this.props;
+
     const pendingValues = { ...this.props.formValues };
     if (pendingValues) {
       pendingValues.id = this.props.currentPPM.id;
@@ -132,7 +135,7 @@ class EditDateAndLocation extends Component {
         .then((response) => persistPPMEstimate(moveId, response.id))
         .then((response) => this.props.updatePPM(response))
         .then(() => {
-          // TODO - setFlash Your changes have been saved.
+          setFlashMessage('EDIT_PPM_DATE_LOCATION_SUCCESS', 'success', 'Your changes have been saved.');
           this.props.history.goBack();
         })
         .catch((err) => {
@@ -254,6 +257,7 @@ const mapDispatchToProps = {
   updatePPM,
   updatePPMs,
   updatePPMSitEstimate,
+  setFlashMessage: setFlashMessageAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditDateAndLocation);

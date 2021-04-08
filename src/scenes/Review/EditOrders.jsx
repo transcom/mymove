@@ -20,6 +20,7 @@ import { documentSizeLimitMsg } from 'shared/constants';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
 import { getOrdersForServiceMember, patchOrders, createUploadForDocument, deleteUpload } from 'services/internalApi';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -145,6 +146,8 @@ class EditOrders extends Component {
   };
 
   submitOrders = (fieldValues) => {
+    const { setFlashMessage } = this.props;
+
     let entitlementCouldChange = false;
 
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
@@ -156,21 +159,22 @@ class EditOrders extends Component {
       entitlementCouldChange = true;
     }
 
-    return patchOrders(fieldValues).then((response) => {
-      this.props.updateOrders(response);
-      // This promise resolves regardless of error.
-      if (!this.props.hasSubmitError) {
+    return patchOrders(fieldValues)
+      .then((response) => {
+        this.props.updateOrders(response);
+
         if (entitlementCouldChange) {
-          // TODO - setFlash Your changes have been saved.
-        } else {
           // TODO - setFlash with entitlement message if entitlement changed
+          setFlashMessage('EDIT_ORDERS_SUCCESS', 'info', 'Your changes have been saved.');
+        } else {
+          setFlashMessage('EDIT_ORDERS_SUCCESS', 'success', 'Your changes have been saved.');
         }
 
         this.props.history.goBack();
-      } else {
+      })
+      .catch((e) => {
         scrollToTop();
-      }
-    });
+      });
   };
 
   componentDidMount() {
@@ -241,6 +245,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   push,
   updateOrders: updateOrdersAction,
+  setFlashMessage: setFlashMessageAction,
 };
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(EditOrders));

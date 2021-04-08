@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
@@ -8,6 +7,7 @@ import { Field, reduxForm } from 'redux-form';
 
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
@@ -99,6 +99,8 @@ class EditProfile extends Component {
   }
 
   updateProfile = (fieldValues) => {
+    const { setFlashMessage } = this.props;
+
     let entitlementCouldChange = false;
 
     fieldValues.current_station_id = fieldValues.current_station.id;
@@ -113,10 +115,12 @@ class EditProfile extends Component {
         this.props.updateServiceMember(response);
 
         if (entitlementCouldChange) {
-          // TODO - setFlash Your changes have been saved.
-        } else {
           // TODO - setFlash with entitlement message if entitlement changed
+          setFlashMessage('EDIT_PROFILE_SUCCESS', 'info', 'Your changes have been saved.');
+        } else {
+          setFlashMessage('EDIT_PROFILE_SUCCESS', 'success', 'Your changes have been saved.');
         }
+
         this.props.history.goBack();
       })
       .catch((e) => {
@@ -182,14 +186,10 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-      updateServiceMember: updateServiceMemberAction,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  updateServiceMember: updateServiceMemberAction,
+  setFlashMessage: setFlashMessageAction,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditProfile);

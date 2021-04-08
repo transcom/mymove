@@ -22,6 +22,7 @@ import { getPPMsForMove, patchPPM, calculatePPMEstimate, persistPPMEstimate } fr
 import { updatePPMs, updatePPM, updatePPMEstimate } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
@@ -243,6 +244,7 @@ class EditWeight extends Component {
   };
 
   updatePpm = (values, dispatch, props) => {
+    const { setFlashMessage } = this.props;
     const moveId = this.props.match.params.moveId;
     return patchPPM(moveId, {
       id: this.props.currentPPM.id,
@@ -255,7 +257,7 @@ class EditWeight extends Component {
       .then((response) => persistPPMEstimate(moveId, response.id))
       .then((response) => this.props.updatePPM(response))
       .then(() => {
-        // TODO - setFlash Your changes have been saved.
+        setFlashMessage('EDIT_PPM_WEIGHT_SUCCESS', 'success', 'Your changes have been saved.');
 
         this.props.history.goBack();
       })
@@ -363,6 +365,7 @@ const mapDispatchToProps = {
   updatePPMs,
   updatePPMEstimate,
   setPPMEstimateError,
+  setFlashMessage: setFlashMessageAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditWeight);
