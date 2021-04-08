@@ -30,7 +30,7 @@ func NewDomesticLinehaulPricer(db *pop.Connection) services.DomesticLinehaulPric
 }
 
 // Price determines the price for a domestic linehaul
-func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticLinehaulPricer) Price(isShortHaul bool, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -38,6 +38,8 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 	if requestedPickupDate.IsZero() {
 		return 0, nil, errors.New("RequestedPickupDate is required")
 	}
+	// TODO: need to verify this, but I don't think we have a minimum distance requirement anymore. I think for domestic linehaul & shorthaul
+	//       it is determined by ZIP3 being the same, not a discriminator of 50 miles.
 	if distance < dlhPricerMinimumDistance {
 		return 0, nil, fmt.Errorf("Distance must be at least %d", dlhPricerMinimumDistance)
 	}
@@ -49,18 +51,44 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	domesticLinehaulPrice, err := fetchDomesticLinehaulPrice(p.db, contractCode, isPeakPeriod, distance, weight, serviceArea)
-	if err != nil {
-		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
-	}
+	var escalatedTotalPrice float64
+	var baseTotalPrice float64
+	var contractYear models.ReContractYear
+	var domesticLinehaulRatePriceMillicents *unit.Millicents
+	var domesticShortHaulRatePriceCents *unit.Cents
 
-	contractYear, err := fetchContractYear(p.db, domesticLinehaulPrice.ContractID, requestedPickupDate)
-	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
-	}
+	if isShortHaul {
+		// look up rate for shorthaul
+		domServiceAreaPrice, err := fetchDomServiceAreaPrice(p.db, contractCode, models.ReServiceCodeDSH, serviceArea, isPeakPeriod)
+		if err != nil {
+			return 0, nil, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
+		}
 
-	baseTotalPrice := weight.ToCWTFloat64() * distance.Float64() * domesticLinehaulPrice.PriceMillicents.Float64()
-	escalatedTotalPrice := contractYear.EscalationCompounded * baseTotalPrice
+		domesticShortHaulRatePriceCents = &domServiceAreaPrice.PriceCents
+
+		contractYear, err = fetchContractYear(p.db, domServiceAreaPrice.ContractID, requestedPickupDate)
+		if err != nil {
+			return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
+		}
+
+		baseTotalPrice = domServiceAreaPrice.PriceCents.Float64() * distance.Float64() * weight.ToCWTFloat64()
+		escalatedTotalPrice = contractYear.EscalationCompounded * baseTotalPrice
+	} else {
+		domesticLinehaulPrice, err := fetchDomesticLinehaulPrice(p.db, contractCode, isPeakPeriod, distance, weight, serviceArea)
+		if err != nil {
+			return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
+		}
+
+		domesticLinehaulRatePriceMillicents = &domesticLinehaulPrice.PriceMillicents
+
+		contractYear, err = fetchContractYear(p.db, domesticLinehaulPrice.ContractID, requestedPickupDate)
+		if err != nil {
+			return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
+		}
+
+		baseTotalPrice = weight.ToCWTFloat64() * distance.Float64() * domesticLinehaulPrice.PriceMillicents.Float64()
+		escalatedTotalPrice = contractYear.EscalationCompounded * baseTotalPrice
+	}
 
 	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
 	totalPriceCents := totalPriceMillicents.ToCents()
@@ -69,7 +97,14 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
 		{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatFloat(contractYear.EscalationCompounded, 5)},
 		{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
-		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(domesticLinehaulPrice.PriceMillicents.ToDollarFloatNoRound(), 3)},
+	}
+
+	if domesticLinehaulRatePriceMillicents != nil {
+		params = append(params, services.PricingDisplayParam{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(domesticLinehaulRatePriceMillicents.ToDollarFloatNoRound(), 3)})
+	} else if domesticShortHaulRatePriceCents != nil {
+		params = append(params, services.PricingDisplayParam{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(domesticShortHaulRatePriceCents.ToDollarFloat(), 3)})
+	} else {
+
 	}
 
 	return totalPriceCents, params, nil
@@ -87,6 +122,7 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 		return unit.Cents(0), nil, err
 	}
 
+	// TODO: change to distanceZip (get rid of distanceZip3 vs distanceZip5 -- this is simply the mileage)
 	distanceZip3, err := getParamInt(params, models.ServiceItemParamNameDistanceZip3)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -102,7 +138,19 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(contractCode, requestedPickupDate, unit.Miles(distanceZip3), unit.Pound(weightBilledActual), serviceAreaOrigin)
+	zipPickup, err := getParamString(params, models.ServiceItemParamNameZipPickupAddress)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
+
+	zipDestination, err := getParamString(params, models.ServiceItemParamNameZipDestAddress)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
+
+	isShortHaul := isSameZip3(zipPickup, zipDestination)
+
+	return p.Price(isShortHaul, contractCode, requestedPickupDate, unit.Miles(distanceZip3), unit.Pound(weightBilledActual), serviceAreaOrigin)
 }
 
 func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {

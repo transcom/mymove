@@ -58,6 +58,19 @@ func IsPeakPeriod(date time.Time) bool {
 	return false
 }
 
+func isSameZip3(zip1 string, zip2 string) bool {
+
+	if len(zip1) >= 3 && len(zip2) >= 3 {
+		if zip1[:3] == zip2[:3] {
+			return true
+		}
+	} else {
+		return false
+	}
+
+	return false
+}
+
 // centPriceAndEscalation is used to hold data returned by the database query
 type centPriceAndEscalation struct {
 	PriceCents           unit.Cents `db:"price_cents"`

@@ -55,6 +55,8 @@ func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 		return "", err
 	}
 
+	// TODO: need to verify this, but I don't think we have a minimum distance requirement anymore. I think for domestic linehaul & shorthaul
+	//       it is determined by ZIP3 being the same, not a discriminator of 50 miles.
 	if distanceMiles >= 50 {
 		miles := unit.Miles(distanceMiles)
 		mtoShipment.Distance = &miles
