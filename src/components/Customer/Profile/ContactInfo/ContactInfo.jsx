@@ -19,7 +19,9 @@ const ContactInfo = ({
   onEditClick,
 }) => {
   let preferredContactMethod = 'Unknown';
-  if (phoneIsPreferred) {
+  if (phoneIsPreferred && emailIsPreferred) {
+    preferredContactMethod = 'Phone, Email';
+  } else if (phoneIsPreferred) {
     preferredContactMethod = 'Phone';
   } else if (emailIsPreferred) {
     preferredContactMethod = 'Email';
