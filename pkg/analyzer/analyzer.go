@@ -14,23 +14,62 @@ var Analyzer = &analysis.Analyzer{
 	Run:  run,
 }
 
-// render returns the pretty-print of the given node
-/*func render(fset *token.FileSet, x interface{}) string {
-	var buf bytes.Buffer
-	if err := printer.Fprint(&buf, fset, x); err != nil {
-		panic(err)
-	}
-	return buf.String()
-}
-*/
+const disableNoSec = "#nosec"
+const validatorStatusLabel = "RA Validator Status:"
 
+var validatorStatuses = map[string]bool{
+	"RA Accepted":         true,
+	"Return to Developer": true,
+	"Known Issue":         true,
+	"Mitigated":           true,
+	"False Positive":      true,
+	"Bad Practice":        true,
+}
+
+// check if comment group has #nosec in it but it doesn't have a specific rule it is disabling
 func containsGosecDisableNoReason(comments []*ast.Comment) bool {
-	const disableNoSec = "#nosec"
 	for _, comment := range comments {
 		if strings.Contains(comment.Text, disableNoSec) {
 			individualCommentArr := strings.Split(comment.Text, " ")
 			for index, str := range individualCommentArr {
 				if str == disableNoSec && index == len(individualCommentArr)-1 {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func containsGosecNoAnnotation(comments []*ast.Comment) bool {
+	hasAnnotation := false
+	for _, comment := range comments {
+		if strings.Contains(comment.Text, validatorStatusLabel) {
+			hasAnnotation = true
+		} else if strings.Contains(comment.Text, disableNoSec) {
+			individualCommentArr := strings.Split(comment.Text, " ")
+			for _, str := range individualCommentArr {
+				if str == disableNoSec && !hasAnnotation {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func containsAnnotationNotApproved(comments []*ast.Comment) bool {
+	for _, comment := range comments {
+		if strings.Contains(comment.Text, validatorStatusLabel) {
+			// example str: //RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+			individualCommentArr := strings.Split(comment.Text, ": ")
+			// Has validator status label but no value ex. //RA Validator Status:
+			if len(individualCommentArr) == 1 {
+				return true
+			}
+			for index, str := range individualCommentArr {
+				str = strings.Trim(str, " ")
+				if index > 0 && !validatorStatuses[str] {
 					return true
 				}
 			}
@@ -49,49 +88,28 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		containsDisablingGosecWithNoReason := containsGosecDisableNoReason(comments.List)
 
 		if containsDisablingGosecWithNoReason {
-			pass.Reportf(node.Pos(), "Please provide gosec rule that is being disabled")
-			return true
-		}
-		/*fmt.Println(funcDecl)
-		params := funcDecl.Type.Params.List
-		if len(params) != 2 { // [0] must be format (string), [1] must be args (...interface{})
+			pass.Reportf(node.Pos(), "Please provide the gosec rule that is being disabled")
 			return true
 		}
 
-		firstParamType, ok := params[0].Type.(*ast.Ident)
-		if !ok { // first param type isn't identificator so it can't be of type "string"
+		containsDisablingGosecNoAnnotation := containsGosecNoAnnotation(comments.List)
+		if containsDisablingGosecNoAnnotation {
+			pass.Reportf(node.Pos(), "Disabling of gosec must have an annotation associated with it. Please visit doclink")
 			return true
 		}
 
-		if firstParamType.Name != "string" { // first param (format) type is not string
+		containsAnnotationNotApproved := containsAnnotationNotApproved(comments.List)
+		if containsAnnotationNotApproved {
+			pass.Reportf(node.Pos(), "Annotation needs approval from an ISSO")
 			return true
 		}
 
-		secondParamType, ok := params[1].Type.(*ast.Ellipsis)
-		if !ok { // args are not ellipsis (...args)
-			return true
-		}
-
-		elementType, ok := secondParamType.Elt.(*ast.InterfaceType)
-		if !ok { // args are not of interface type, but we need interface{}
-			return true
-		}
-
-		if elementType.Methods != nil && len(elementType.Methods.List) != 0 {
-			return true // has >= 1 method in interface, but we need an empty interface "interface{}"
-		}
-
-		if strings.HasSuffix(funcDecl.Name.Name, "f") {
-			return true
-		}
-
-		pass.Reportf(node.Pos(), "printf-like formatting function '%s' should be named '%sf'",
-			funcDecl.Name.Name, funcDecl.Name.Name)*/
 		return true
 	}
 
 	for _, f := range pass.Files {
 		ast.Inspect(f, inspect)
 	}
+
 	return nil, nil
 }
