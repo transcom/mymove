@@ -155,6 +155,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 						errMessage := fmt.Sprintf("Failed to create service item param for param key <%s> %s", reServiceParam.ServiceItemParamKey.Key, errMessageString)
 						return fmt.Errorf("%s err: %w", errMessage, err)
 					}
+					fmt.Printf("+++++++++++++++++++++++++++++ %v ++++++++++++++++++++++++++++++++", param.ServiceItemParamKey)
 					if param != nil {
 						newPaymentServiceItemParams = append(newPaymentServiceItemParams, *param)
 					}
@@ -182,12 +183,14 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			var psItem models.PaymentServiceItem
 			var displayParams models.PaymentServiceItemParams
 			psItem, displayParams, err = p.pricePaymentServiceItem(tx, txPricer, paymentServiceItem)
+
 			if err != nil {
 				return fmt.Errorf("failure pricing service %s for MTO service item ID %s: %w",
 					paymentServiceItem.MTOServiceItem.ReService.Code, paymentServiceItem.MTOServiceItemID, err)
 			}
-			paymentServiceItem.PaymentServiceItemParams = append(paymentServiceItem.PaymentServiceItemParams, displayParams...)
-			// fmt.Printf("================================== %v+ ========================", displayParams)
+			if len(displayParams) > 0 {
+				psItem.PaymentServiceItemParams = append(paymentServiceItem.PaymentServiceItemParams, displayParams...)
+			}
 			newPaymentServiceItems = append(newPaymentServiceItems, psItem)
 		}
 
@@ -422,6 +425,7 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 	// key not found in map
 	// Did not find service item param needed for pricing, add it to the list
 	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key)
+	// fmt.Printf("====== 427 %v ======================427", serviceParam)
 	if err != nil {
 		errMessage := "Failed to lookup ServiceParamValue for param key <" + serviceParam.ServiceItemParamKey.Key + "> "
 		return nil, fmt.Errorf("%s err: %w", errMessage, err)
@@ -437,6 +441,9 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 		Value:                 value,
 	}
 
+	if paymentServiceItemParam.ServiceItemParamKey.Origin == models.ServiceItemParamOriginPricer {
+		return &paymentServiceItemParam, nil
+	}
 	var verrs *validate.Errors
 	verrs, err = tx.ValidateAndCreate(&paymentServiceItemParam)
 	if verrs.HasAny() {

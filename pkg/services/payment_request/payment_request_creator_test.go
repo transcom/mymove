@@ -153,7 +153,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	testPrice := unit.Cents(12345)
 	serviceItemPricer := &mocks.ServiceItemPricer{}
 	serviceItemPricer.
-		On("PriceServiceItem", mock.Anything).Return(testPrice, nil).
+		On("PriceServiceItem", mock.Anything).Return(testPrice, nil, nil).
 		On("UsingConnection", mock.Anything).Return(serviceItemPricer)
 
 	planner := &routemocks.Planner{}
@@ -179,22 +179,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 						{
 							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
 							Value:       "2019-12-16",
-						},
-						{
-							IncomingKey: models.ServiceItemParamNameContractYearName.String(),
-							Value:       "DOPSIT Test Year",
-						},
-						{
-							IncomingKey: models.ServiceItemParamNameEscalationCompounded.String(),
-							Value:       "1.0445",
-						},
-						{
-							IncomingKey: models.ServiceItemParamNameIsPeak.String(),
-							Value:       "true",
-						},
-						{
-							IncomingKey: models.ServiceItemParamNamePriceRateOrFactor.String(),
-							Value:       "1232",
 						},
 					},
 				},
@@ -360,7 +344,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		errMsg := "pricing failed"
 		failingServiceItemPricer := &mocks.ServiceItemPricer{}
 		failingServiceItemPricer.
-			On("PriceServiceItem", mock.Anything).Return(unit.Cents(0), errors.New(errMsg)).
+			On("PriceServiceItem", mock.Anything).Return(unit.Cents(0), nil, errors.New(errMsg)).
 			On("UsingConnection", mock.Anything).Return(failingServiceItemPricer)
 
 		planner := &routemocks.Planner{}
