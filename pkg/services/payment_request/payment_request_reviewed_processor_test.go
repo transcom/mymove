@@ -321,15 +321,6 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(err, "Get count of EDIProcessing")
 
 		prs := suite.createPaymentRequest(4)
-		for i, pr := range prs {
-			testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
-				PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
-					PaymentRequestID:         pr.ID,
-					InterchangeControlNumber: i,
-					PaymentRequest:           pr,
-				},
-			})
-		}
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
