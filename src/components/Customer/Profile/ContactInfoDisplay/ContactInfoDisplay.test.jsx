@@ -9,7 +9,6 @@ describe('ContactInfoDisplay component', () => {
     telephone: '703-555-4578',
     personalEmail: 'test@example.com',
     emailIsPreferred: true,
-    phoneIsPreferred: false,
     residentialAddress: {
       street_address_1: '1292 Orchard Terrace',
       street_address_2: 'Building C, Unit 10',

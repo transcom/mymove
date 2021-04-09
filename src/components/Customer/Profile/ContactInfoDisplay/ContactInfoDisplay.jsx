@@ -93,8 +93,8 @@ ContactInfoDisplay.propTypes = {
   telephone: PropTypes.string.isRequired,
   secondaryTelephone: PropTypes.string,
   personalEmail: PropTypes.string.isRequired,
-  phoneIsPreferred: PropTypes.bool.isRequired,
-  emailIsPreferred: PropTypes.bool.isRequired,
+  phoneIsPreferred: PropTypes.bool,
+  emailIsPreferred: PropTypes.bool,
   residentialAddress: ResidentialAddressShape.isRequired,
   backupMailingAddress: ResidentialAddressShape.isRequired,
   backupContact: BackupContactShape.isRequired,
@@ -103,6 +103,8 @@ ContactInfoDisplay.propTypes = {
 
 ContactInfoDisplay.defaultProps = {
   secondaryTelephone: '',
+  phoneIsPreferred: false,
+  emailIsPreferred: false,
 };
 
 export default ContactInfoDisplay;
