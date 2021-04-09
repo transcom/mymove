@@ -37,7 +37,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
-            <SectionWrapper className={formStyles.formSection}>
+            <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
               <CustomerAltContactInfoFields
                 render={(fields) => (
                   <>

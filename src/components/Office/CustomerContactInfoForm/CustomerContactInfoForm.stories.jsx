@@ -18,13 +18,13 @@ export const DefaultState = (argTypes) => (
 export const WithInitialValues = (argTypes) => (
   <CustomerContactInfoForm
     initialValues={{
-      first_name: 'Leo',
-      middle_name: 'Star',
-      last_name: 'Spaceman',
+      firstName: 'Leo',
+      middleName: 'Star',
+      lastName: 'Spaceman',
       suffix: 'Mr.',
-      customer_telephone: '555-555-5555',
-      customer_email: 'test@sample.com',
-      customer_address: {
+      customerTelephone: '555-555-5555',
+      customerEmail: 'test@sample.com',
+      customerAddress: {
         street_address_1: '235 Prospect Valley Road SE',
         street_address_2: 'Apt. 3B',
         city: 'El Paso',
