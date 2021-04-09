@@ -42,8 +42,6 @@ const baseProps = {
   editURL: '/moves/review/edit-profile',
 };
 
-export const DefaultState = (argTypes) => <ContactInfoDisplay {...baseProps} onEditClick={argTypes.onEditClick} />;
+export const DefaultState = () => <ContactInfoDisplay {...baseProps} />;
 
-export const WithAltPhone = (argTypes) => (
-  <ContactInfoDisplay {...baseProps} secondaryTelephone="619-555-3000" onEditClick={argTypes.onEditClick} />
-);
+export const WithAltPhone = () => <ContactInfoDisplay {...baseProps} secondaryTelephone="619-555-3000" />;
