@@ -16,11 +16,6 @@ const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestRevie
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
-// TODO - Services Counselor work here for now, revisit after finalizing routes
-const ServicesCounselingMoveDetails = lazy(() =>
-  import('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetails'),
-);
-
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
@@ -120,14 +115,6 @@ const TXOMoveInfo = () => {
 
           <Route path="/moves/:moveCode/history" exact>
             <MoveHistory />
-          </Route>
-
-          {/* TODO - Routes not finalized, revisit */}
-          <Route path="/counseling/moves/:moveCode/details" exact>
-            <ServicesCounselingMoveDetails
-              setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-              setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            />
           </Route>
 
           {/* TODO - clarify role/tab access */}
