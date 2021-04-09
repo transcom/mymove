@@ -47,6 +47,9 @@ const MoveQueue = lazy(() => import('pages/Office/MoveQueue/MoveQueue'));
 // TIO pages
 const PaymentRequestQueue = lazy(() => import('pages/Office/PaymentRequestQueue/PaymentRequestQueue'));
 // Services Counselor pages
+const ServicesCounselingMoveInfo = lazy(() =>
+  import('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo'),
+);
 const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounselingQueue/ServicesCounselingQueue'));
 
 export class OfficeApp extends Component {
@@ -132,8 +135,14 @@ export class OfficeApp extends Component {
     const txoRoutes = [
       <PrivateRoute
         key="txoMoveInfoRoute"
-        path={['/moves/:moveCode', '/counseling/moves/:moveCode']}
+        path="/moves/:moveCode"
         component={TXOMoveInfo}
+        requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
+      />,
+      <PrivateRoute
+        key="servicesCounselingMoveInfoRoute"
+        path="/counseling/moves/:moveCode"
+        component={ServicesCounselingMoveInfo}
         requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
       />,
     ];
