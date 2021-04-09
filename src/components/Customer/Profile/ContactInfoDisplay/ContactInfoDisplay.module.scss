@@ -5,7 +5,7 @@
 .contactInfoContainer {
   .contactInfoHeader {
     h2 {
-      //@include u-width(80%);
+      @include u-width(80%);
       @include u-margin(0);
     }
 
