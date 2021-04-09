@@ -35,7 +35,7 @@ const columns = (isMarineCorpsUser = false) => [
     id: 'dodID',
     isFilterable: true,
   }),
-  createHeader('Move Code', 'locator', {
+  createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: true,
   }),

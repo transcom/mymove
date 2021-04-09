@@ -42,7 +42,7 @@ const columns = (showBranchFilter = true) => [
       Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
     },
   ),
-  createHeader('Move Code', 'locator', {
+  createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: true,
   }),
