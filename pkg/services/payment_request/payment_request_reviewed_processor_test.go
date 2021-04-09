@@ -372,6 +372,12 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Len(ediErrors, 1)
 		suite.Contains(*(ediErrors[0].Description), "test error")
 		suite.Equal(ediErrors[0].PaymentRequestID, prs[0].ID)
+
+		// Make sure that PR status is updated
+		var updatedPaymentRequest models.PaymentRequest
+		err = suite.DB().Where("id = ?", prs[0].ID).First(&updatedPaymentRequest)
+		suite.NoError(err)
+		suite.Equal(updatedPaymentRequest.Status, models.PaymentRequestStatusEDIError)
 	})
 
 	suite.T().Run("process reviewed payment request, failed payment request fetcher", func(t *testing.T) {
@@ -511,7 +517,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
 		suite.NoError(err, "Get number of processed files")
 		// TODO: Adding in UT for edi processing not sure why we have 16 processed here
-		suite.Equal(16, ediProcessing.NumEDIsProcessed)
+		suite.Equal(14, ediProcessing.NumEDIsProcessed)
 
 		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessing)
 		suite.NoError(err, "Get count of EDIProcessing")

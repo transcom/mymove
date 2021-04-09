@@ -151,6 +151,23 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 				zap.Error(verrs),
 			)
 		}
+
+		pr.Status = models.PaymentRequestStatusEDIError
+		verrs, err = p.db.ValidateAndUpdate(&pr)
+		if err != nil {
+			p.logger.Error(
+				"error while updating payment request status",
+				zap.String("PaymentRequestID", pr.ID.String()),
+				zap.Error(err),
+			)
+		} else if verrs != nil && verrs.HasAny() {
+			p.logger.Error(
+				"failed to update payment request status due to validation errors",
+				zap.String("PaymentRequestID", pr.ID.String()),
+				zap.Error(verrs),
+			)
+		}
+
 		return transactionError
 	}
 	return nil
