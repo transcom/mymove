@@ -1,8 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -31,7 +29,6 @@ func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.
 
 	mergeModels(&office, assertions.TransportationOffice)
 
-	fmt.Printf("transportation office gbloc %s assertions gbloc %s\n", office.Gbloc, assertions.TransportationOffice.Gbloc)
 	mustCreate(db, &office, assertions.Stub)
 
 	var phoneLines []models.OfficePhoneLine

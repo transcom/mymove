@@ -3288,12 +3288,14 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 
 func createHHGNeedsServicesCounseling(db *pop.Connection) {
 	submittedAt := time.Now()
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{})
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:     "SRVCSL",
 			Status:      models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt: &submittedAt,
 		},
+		Order: orders,
 	})
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)

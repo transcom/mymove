@@ -224,19 +224,13 @@ func moveStatusFilter(statuses []string) QueryOption {
 			for _, status := range statuses {
 				if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
 					translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
-				} else if strings.EqualFold(status, string(models.MoveStatusNeedsServiceCounseling)) {
-					translatedStatuses = append(translatedStatuses, string(models.MoveStatusNeedsServiceCounseling))
-				} else if strings.EqualFold(status, string(models.MoveStatusServiceCounselingCompleted)) {
-					translatedStatuses = append(translatedStatuses, string(models.MoveStatusServiceCounselingCompleted))
-				} else if strings.EqualFold(status, string(models.MoveStatusAPPROVALSREQUESTED)) {
-					translatedStatuses = append(translatedStatuses, string(models.MoveStatusAPPROVALSREQUESTED))
-				} else if strings.EqualFold(status, string(models.MoveStatusAPPROVED)) {
-					translatedStatuses = append(translatedStatuses, string(models.MoveStatusAPPROVED))
+				} else {
+					translatedStatuses = append(translatedStatuses, status)
 				}
 			}
 			query.Where("moves.status IN (?)", translatedStatuses)
 		}
-		// If we don't have statuses let's just filter out cancelled and draft moves (they should not be in the queue)
+		// The TOO should never see moves that are in the following statuses: Draft, Canceled, Needs Service Counseling
 		if len(statuses) <= 0 {
 			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED, models.MoveStatusNeedsServiceCounseling)
 		}
