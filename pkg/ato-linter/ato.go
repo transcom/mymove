@@ -5,13 +5,16 @@ import (
 	"strings"
 
 	"golang.org/x/tools/go/analysis"
+	"golang.org/x/tools/go/analysis/passes/inspect"
+	"golang.org/x/tools/go/ast/inspector"
 )
 
 // ATOAnalyzer describes an analysis function and its options.
 var ATOAnalyzer = &analysis.Analyzer{
-	Name: "atolint",
-	Doc:  "Checks that disabling of gosec is accompanied by annotations",
-	Run:  run,
+	Name:     "atolint",
+	Doc:      "Checks that disabling of gosec is accompanied by annotations",
+	Run:      run,
+	Requires: []*analysis.Analyzer{inspect.Analyzer},
 }
 
 const disableNoSec = "#nosec"
@@ -86,43 +89,42 @@ func containsAnnotationNotApproved(comments []*ast.Comment) bool {
 }
 
 func run(pass *analysis.Pass) (interface{}, error) {
-	inspect := func(node ast.Node) bool {
-		comments, ok := node.(*ast.CommentGroup)
-		if !ok {
-			return true
-		}
+	// pass.ResultOf[inspect.Analyzer] will be set if we've added inspect.Analyzer to Requires.
+	inspector := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
+	nodeFilter := []ast.Node{ // filter needed nodes: visit only them
+		(*ast.CommentGroup)(nil),
+	}
+
+	inspector.Preorder(nodeFilter, func(node ast.Node) {
+		comments := node.(*ast.CommentGroup)
 
 		commentsContainNosec := containsNosec(comments.List)
 
 		if !commentsContainNosec {
-			return true
+			return
 		}
 
 		containsDisablingGosecWithNoReason := containsGosecDisableNoReason(comments.List)
 
 		if containsDisablingGosecWithNoReason {
 			pass.Reportf(node.Pos(), "Please provide the gosec rule that is being disabled")
-			return true
+			return
 		}
 
 		containsDisablingGosecNoAnnotation := containsGosecNoAnnotation(comments.List)
 		if containsDisablingGosecNoAnnotation {
 			pass.Reportf(node.Pos(), "Disabling of gosec must have an annotation associated with it. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi")
-			return true
+			return
 		}
 
 		containsAnnotationNotApproved := containsAnnotationNotApproved(comments.List)
 		if containsAnnotationNotApproved {
 			pass.Reportf(node.Pos(), "Annotation needs approval from an ISSO")
-			return true
+			return
 		}
 
-		return true
-	}
-
-	for _, f := range pass.Files {
-		ast.Inspect(f, inspect)
-	}
+		return
+	})
 
 	return nil, nil
 }
