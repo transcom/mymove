@@ -5,17 +5,12 @@
 .contactInfoContainer {
   .contactInfoHeader {
     h2 {
-      @include u-width(80%);
+      flex-shrink: 0;
       @include u-margin(0);
     }
 
     display: flex;
     justify-content: space-between;
-
-    .editBtn {
-      justify-content: flex-end;
-      padding: 0px;
-    }
   }
 
   .contactInfoSection {
