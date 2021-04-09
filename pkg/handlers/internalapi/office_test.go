@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Move is submitted and saved
-	err := move.Submit(time.Now())
+	err := move.Submit()
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -63,7 +63,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Move is submitted and saved
-	err := move.Submit(time.Now())
+	err := move.Submit()
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.NoError(err)
 
 	// Move is submitted
-	err = move.Submit(time.Now())
+	err = move.Submit()
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
