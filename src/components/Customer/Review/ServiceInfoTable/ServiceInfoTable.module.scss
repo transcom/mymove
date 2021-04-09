@@ -1,3 +1,6 @@
+@import 'shared/styles/_variables';
+@import 'shared/styles/_basics';
+
 .ServiceInfoTable {
   :global(.table--stacked) {
     border: none;
@@ -5,5 +8,9 @@
 }
 
 .ReviewHeader {
-  padding-top: 3px;
+  @include u-margin-top(3);
+
+  h2 {
+    width: 100%;
+  }
 }
