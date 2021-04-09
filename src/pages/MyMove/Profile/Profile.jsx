@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { arrayOf } from 'prop-types';
 
-import ContactInfo from 'components/Customer/Profile/ContactInfo/ContactInfo';
+import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -38,7 +38,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
         <div className="grid-col-12">
           <h1>Profile</h1>
           <SectionWrapper>
-            <ContactInfo
+            <ContactInfoDisplay
               telephone={serviceMember.telephone}
               personalEmail={serviceMember.personal_email}
               emailIsPreferred={serviceMember.email_is_preferred}
