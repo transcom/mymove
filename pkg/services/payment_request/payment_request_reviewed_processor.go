@@ -128,27 +128,9 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 	if transactionError != nil {
 		errDescription := transactionError.Error()
 
-		pr2icn := models.PaymentRequestToInterchangeControlNumber{}
-		err := p.db.Where("payment_request_id = $1", pr.ID).First(&pr2icn)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				p.logger.Error(
-					"failed to save EDI 858 error due to missing ICN",
-					zap.String("PaymentRequestID", pr.ID.String()),
-					zap.Error(err),
-				)
-			} else {
-				p.logger.Error(
-					"failed to save EDI 858 error due to error while looking up ICN",
-					zap.String("PaymentRequestID", pr.ID.String()),
-					zap.Error(err),
-				)
-			}
-			return transactionError
-		}
 		errToSave := models.EdiError{
 			PaymentRequestID:           pr.ID,
-			InterchangeControlNumberID: pr2icn.ID,
+			InterchangeControlNumberID: nil,
 			Code:                       nil,
 			Description:                &errDescription,
 			EDIType:                    models.EDIType858,
