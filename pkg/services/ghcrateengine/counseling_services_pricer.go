@@ -32,7 +32,7 @@ func (p counselingServicesPricer) Price(contractCode string, mtoAvailableToPrime
 	displayPriceParams := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: taskOrderFee.PriceCents.ToDollarString(),
+			Value: FormatCents(taskOrderFee.PriceCents),
 		},
 	}
 	return taskOrderFee.PriceCents, displayPriceParams, nil
