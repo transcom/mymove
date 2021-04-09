@@ -1,7 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import { string, func, bool } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { string, bool } from 'prop-types';
 
 import reviewStyles from '../Review.module.scss';
 
@@ -15,7 +14,7 @@ const ServiceInfoTable = ({
   firstName,
   isEditable,
   lastName,
-  onEditClick,
+  editLink,
   rank,
 }) => {
   const containerClassNames = classnames(
@@ -28,11 +27,7 @@ const ServiceInfoTable = ({
     <div className={containerClassNames}>
       <div className={classnames(reviewStyles['review-header'], serviceInfoTableStyles.ReviewHeader)}>
         <h2>Service info</h2>
-        {isEditable && (
-          <Button unstyled className={reviewStyles['edit-btn']} data-testid="edit-profile-table" onClick={onEditClick}>
-            Edit
-          </Button>
-        )}
+        {isEditable && <a href={editLink}>Edit</a>}
       </div>
       {!isEditable && (
         <div>
@@ -86,13 +81,13 @@ ServiceInfoTable.propTypes = {
   firstName: string.isRequired,
   isEditable: bool,
   lastName: string.isRequired,
-  onEditClick: func,
+  editLink: string,
   rank: string.isRequired,
 };
 
 ServiceInfoTable.defaultProps = {
   currentDutyStationPhone: '',
-  onEditClick: () => {},
+  editLink: '',
   isEditable: true,
 };
 

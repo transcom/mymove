@@ -24,10 +24,6 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, push }) 
     email: currentBackupContacts[0]?.email || '',
   };
 
-  const handleServiceInfoEditClick = () => {
-    push(customerRoutes.EDIT_PROFILE_PATH);
-  };
-
   const handleContactInfoEditClick = () => {
     push(customerRoutes.EDIT_PROFILE_PATH);
   };
@@ -57,7 +53,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, push }) 
               affiliation={serviceMember.affiliation}
               rank={rank}
               edipi={serviceMember.edipi}
-              onEditClick={handleServiceInfoEditClick}
+              editLink={customerRoutes.EDIT_PROFILE_PATH}
             />
           </SectionWrapper>
         </div>

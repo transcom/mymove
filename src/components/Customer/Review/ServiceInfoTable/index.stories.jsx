@@ -17,8 +17,14 @@ export default {
   title: 'Customer Components / ServiceInfoTable',
 };
 
-export const Basic = () => (
+export const Editable = () => (
   <div style={{ padding: 40 }}>
     <ServiceInfoTable {...defaultProps} />
+  </div>
+);
+
+export const NonEditable = () => (
+  <div style={{ padding: 40 }}>
+    <ServiceInfoTable {...defaultProps} isEditable={false} />
   </div>
 );

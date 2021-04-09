@@ -1,5 +1,6 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/_basics';
+@import 'shared/styles/colors';
 
 .ServiceInfoTable {
   :global(.table--stacked) {
@@ -11,6 +12,21 @@
   @include u-margin-top(3);
 
   h2 {
-    width: 100%;
+    flex-shrink: 0;
+  }
+
+  a {
+    color: $link;
+    text-decoration: none;
+
+    &:visited {
+      color: $link;
+    }
+
+    &:hover,
+    &:focus {
+      color: $link;
+      @include u-text('no-underline');
+    }
   }
 }
