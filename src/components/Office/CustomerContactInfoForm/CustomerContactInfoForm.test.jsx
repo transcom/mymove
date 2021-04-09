@@ -6,13 +6,13 @@ import CustomerContactInfoForm from './CustomerContactInfoForm';
 
 describe('CustomerContactInfoForm Component', () => {
   const initialValues = {
-    first_name: '',
-    middle_name: '',
-    last_name: '',
+    firstName: '',
+    middleName: '',
+    lastName: '',
     suffix: '',
-    customer_telephone: '',
-    customer_email: '',
-    customer_address: {
+    customerTelephone: '',
+    customerEmail: '',
+    customerAddress: {
       street_address_1: '',
       street_address_2: '',
       city: '',
