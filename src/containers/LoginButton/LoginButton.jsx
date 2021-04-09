@@ -15,8 +15,9 @@ import { LogoutUser } from 'utils/api';
 import { logOut as logOutFunction } from 'store/auth/actions';
 import ConnectedEulaModal from 'components/EulaModal';
 import { customerRoutes } from 'constants/routes';
+import { selectIsProfileComplete } from 'store/entities/selectors';
 
-const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
+const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete }) => {
   const [showEula, setShowEula] = useState(false);
 
   if (!isLoggedIn) {
@@ -62,16 +63,18 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton }) => {
 
   return (
     <>
-      <li className="usa-nav__primary-item">
-        <Link
-          to={customerRoutes.PROFILE_PATH}
-          title="profile-link"
-          aria-label="profile-link"
-          className={styles.profileLink}
-        >
-          <FontAwesomeIcon className="fa-2x" icon={['far', 'user']} />
-        </Link>
-      </li>
+      {isProfileComplete && (
+        <li className="usa-nav__primary-item">
+          <Link
+            to={customerRoutes.PROFILE_PATH}
+            title="profile-link"
+            aria-label="profile-link"
+            className={styles.profileLink}
+          >
+            <FontAwesomeIcon className="fa-2x" icon={['far', 'user']} />
+          </Link>
+        </li>
+      )}
       <li className="usa-nav__primary-item">
         <Button
           aria-label="Sign Out"
@@ -91,11 +94,13 @@ LoginButton.propTypes = {
   isLoggedIn: bool.isRequired,
   logOut: func.isRequired,
   showDevlocalButton: bool.isRequired,
+  isProfileComplete: bool.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     isLoggedIn: selectIsLoggedIn(state),
+    isProfileComplete: selectIsProfileComplete(state),
     showDevlocalButton: get(state, 'isDevelopment', isDevelopment),
   };
 }
