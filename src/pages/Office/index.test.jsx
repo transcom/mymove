@@ -343,7 +343,7 @@ describe('Office App', () => {
 
         const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
+        expect(renderedRoute.prop('path')).toEqual(['/moves/:moveCode', '/counseling/moves/:moveCode']);
       });
     });
 
@@ -385,7 +385,7 @@ describe('Office App', () => {
 
         const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
+        expect(renderedRoute.prop('path')).toEqual(['/moves/:moveCode', '/counseling/moves/:moveCode']);
       });
     });
   });

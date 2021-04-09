@@ -58,6 +58,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	})
 
 	suite.T().Run("Etag is stale", func(t *testing.T) {
+		expectedMTO = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+			Order: expectedOrder,
+		})
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(expectedMTO.ID, eTag)
 

@@ -261,6 +261,12 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	})
 
 	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func(t *testing.T) {
+		moveTaskOrder = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+			Order: order,
+		})
 		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
 			HTTPRequest:     request,
 			MoveTaskOrderID: moveTaskOrder.ID.String(),
