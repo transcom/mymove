@@ -33,7 +33,7 @@ const ServicesCounselingMoveDetails = () => {
       setAlertType('success');
     },
     onError: () => {
-      setAlertMessage('Error submitting move details.');
+      setAlertMessage('There was a problem submitting the move. Please try again later.');
       setAlertType('error');
     },
   });
