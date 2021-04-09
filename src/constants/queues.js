@@ -8,6 +8,9 @@ export const MOVE_STATUS_OPTIONS = [
   { value: MOVE_STATUSES.APPROVED, label: 'Move approved' },
 ];
 
+// Both moves that progressed straight from customer submission to the TOO
+// queue as well as those that completed services counseling should have the
+// status label of New move
 export const MOVE_STATUS_LABELS = {
   [MOVE_STATUSES.SUBMITTED]: 'New move',
   [MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED]: 'New move',
@@ -43,6 +46,10 @@ export const BRANCH_OPTIONS = [
 export const GBLOC = {
   USMC: 'USMC',
 };
+
+export const PAGINATION_PAGE_DEFAULT = 1;
+
+export const PAGINATION_PAGE_SIZE_DEFAULT = 20;
 
 export const SortShape = arrayOf(
   shape({
