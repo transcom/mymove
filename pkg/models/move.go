@@ -167,7 +167,7 @@ func (m *Move) Submit() error {
 // SendToServiceCounseling sends the move to needs service counseling
 func (m *Move) SendToServiceCounseling() error {
 	if m.Status != MoveStatusDRAFT {
-		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to NeedsServiceCounseling state when the Move is not in Draft status: %s", m.Status))
+		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is %s", m.Status))
 	}
 	m.Status = MoveStatusNeedsServiceCounseling
 	submitDate := swag.Time(time.Now())
