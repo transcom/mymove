@@ -15,13 +15,13 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
         <>
           <div className="grid-row grid-gap">
             <div className="grid-col-6">
-              <TextField label="First name" name="first_name" id="firstName" required />
+              <TextField label="First name" name="firstName" id="firstName" required />
             </div>
             <div className="grid-col-6">
-              <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
+              <TextField label="Middle name" name="middleName" id="middleName" labelHint="Optional" />
             </div>
             <div className="grid-col-6">
-              <TextField label="Last name" name="last_name" id="lastName" required />
+              <TextField label="Last name" name="lastName" id="lastName" required />
             </div>
             <div className="grid-col-6">
               <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
@@ -31,8 +31,8 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
             <div className="mobile-lg:grid-col-7">
               <MaskedTextField
                 label="Phone"
-                id={`customer_telephone_${CustomerAltContactInfoFieldsUUID.current}`}
-                name="customer_telephone"
+                id={`customerTelephone_${CustomerAltContactInfoFieldsUUID.current}`}
+                name="customerTelephone"
                 type="tel"
                 minimum="12"
                 mask="000{-}000{-}0000"
@@ -43,8 +43,8 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
 
           <TextField
             label="Email"
-            id={`customer_email_${CustomerAltContactInfoFieldsUUID.current}`}
-            name="customer_email"
+            id={`customerEmail_${CustomerAltContactInfoFieldsUUID.current}`}
+            name="customerEmail"
             required
           />
         </>,

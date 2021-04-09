@@ -14,23 +14,22 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { requiredAddressSchema } from 'utils/validation';
+import { ResidentialAddressShape } from 'types/address';
 
 const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const validationSchema = Yup.object().shape({
-    first_name: Yup.string().required('Required'),
-    last_name: Yup.string().required('Required'),
-    middle_name: Yup.string(),
+    firstName: Yup.string().required('Required'),
+    lastName: Yup.string().required('Required'),
+    middleName: Yup.string(),
     suffix: Yup.string(),
-    customer_email: Yup.string()
+    customerEmail: Yup.string()
       .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
       .required('Required'),
-    customer_telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
-    customer_address: requiredAddressSchema.required(),
-    name: Yup.string().required('Required'),
-    email: Yup.string()
-      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
-      .required('Required'),
-    telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
+    customerTelephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
+    customerAddress: requiredAddressSchema.required(),
+    name: Yup.string(),
+    email: Yup.string().matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address'),
+    telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code'), // min 12 includes hyphens
   });
 
   return (
@@ -54,9 +53,9 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                 )}
               />
               <h3 className={styles.sectionHeader}>Current Address</h3>
-              <AddressFields name="customer_address" />
+              <AddressFields name="customerAddress" />
             </SectionWrapper>
-            <SectionWrapper className={formStyles.formSection}>
+            <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
               <h2 className={styles.sectionHeader}>
                 Backup contact <span className={styles.optional}>Optional</span>
               </h2>
@@ -80,9 +79,16 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
 
 CustomerContactInfoForm.propTypes = {
   initialValues: PropTypes.shape({
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    middleName: PropTypes.string,
+    suffix: PropTypes.string,
+    customerTelephone: PropTypes.string,
+    customerEmail: PropTypes.string,
     name: PropTypes.string,
     telephone: PropTypes.string,
     email: PropTypes.string,
+    customerAddress: ResidentialAddressShape,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,

@@ -58,11 +58,8 @@ describe('CustomerContactInfoForm Component', () => {
       expect(screen.getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByLabelText('Name')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('Name')).toBeRequired();
       expect(screen.getAllByLabelText('Phone')[1]).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getAllByLabelText('Phone')[1]).toBeRequired();
       expect(screen.getAllByLabelText('Email')[1]).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getAllByLabelText('Email')[1]).toBeRequired();
     });
   });
 });
