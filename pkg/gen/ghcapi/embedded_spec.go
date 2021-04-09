@@ -1610,13 +1610,13 @@ func init() {
         "parameters": [
           {
             "type": "integer",
-            "description": "requested page of results",
+            "description": "requested page number of paginated move results",
             "name": "page",
             "in": "query"
           },
           {
             "type": "integer",
-            "description": "results per page",
+            "description": "maximum number of moves to show on each page of paginated results",
             "name": "perPage",
             "in": "query"
           },
@@ -1649,41 +1649,49 @@ func init() {
           },
           {
             "type": "string",
+            "description": "filters by the branch of the move's service member",
             "name": "branch",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters to match the unique move code locator",
             "name": "locator",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
             "name": "dodID",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
             "name": "requestedMoveDate",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters the date of when the service member submitted their move",
             "name": "submittedAt",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty station",
             "name": "originGBLOC",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters the name of the destination duty station on the orders",
             "name": "destinationDutyStation",
             "in": "query"
           },
@@ -1697,7 +1705,7 @@ func init() {
               ],
               "type": "string"
             },
-            "description": "Filtering for the status.",
+            "description": "filters the status of the move",
             "name": "status",
             "in": "query"
           }
@@ -5871,13 +5879,13 @@ func init() {
         "parameters": [
           {
             "type": "integer",
-            "description": "requested page of results",
+            "description": "requested page number of paginated move results",
             "name": "page",
             "in": "query"
           },
           {
             "type": "integer",
-            "description": "results per page",
+            "description": "maximum number of moves to show on each page of paginated results",
             "name": "perPage",
             "in": "query"
           },
@@ -5910,41 +5918,49 @@ func init() {
           },
           {
             "type": "string",
+            "description": "filters by the branch of the move's service member",
             "name": "branch",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters to match the unique move code locator",
             "name": "locator",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
             "name": "dodID",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
             "name": "requestedMoveDate",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters the date of when the service member submitted their move",
             "name": "submittedAt",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty station",
             "name": "originGBLOC",
             "in": "query"
           },
           {
             "type": "string",
+            "description": "filters the name of the destination duty station on the orders",
             "name": "destinationDutyStation",
             "in": "query"
           },
@@ -5958,7 +5974,7 @@ func init() {
               ],
               "type": "string"
             },
-            "description": "Filtering for the status.",
+            "description": "filters the status of the move",
             "name": "status",
             "in": "query"
           }

@@ -33,23 +33,23 @@ type GetServicesCounselingQueueParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*
+	/*filters by the branch of the move's service member
 	  In: query
 	*/
 	Branch *string
-	/*
+	/*filters the name of the destination duty station on the orders
 	  In: query
 	*/
 	DestinationDutyStation *string
-	/*
+	/*filters to match the unique service member's DoD ID
 	  In: query
 	*/
 	DodID *string
-	/*
+	/*filters using a prefix match on the service member's last name
 	  In: query
 	*/
 	LastName *string
-	/*
+	/*filters to match the unique move code locator
 	  In: query
 	*/
 	Locator *string
@@ -57,19 +57,19 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	Order *string
-	/*
+	/*filters the GBLOC of the service member's origin duty station
 	  In: query
 	*/
 	OriginGBLOC *string
-	/*requested page of results
+	/*requested page number of paginated move results
 	  In: query
 	*/
 	Page *int64
-	/*results per page
+	/*maximum number of moves to show on each page of paginated results
 	  In: query
 	*/
 	PerPage *int64
-	/*
+	/*filters the requested pickup date of a shipment on the move
 	  In: query
 	*/
 	RequestedMoveDate *string
@@ -77,12 +77,12 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	Sort *string
-	/*Filtering for the status.
+	/*filters the status of the move
 	  Unique: true
 	  In: query
 	*/
 	Status []string
-	/*
+	/*filters the date of when the service member submitted their move
 	  In: query
 	*/
 	SubmittedAt *string
