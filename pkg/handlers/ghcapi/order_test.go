@@ -343,7 +343,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	err := move.Submit(time.Now())
+	err := move.Submit()
 	if err != nil {
 		suite.T().Fatal("Should transition.")
 	}
@@ -447,7 +447,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 
 	suite.Run("When Move is no longer in draft status, TAC must be present", func() {
 		// Submit the move to change its status
-		err := move.Submit(time.Now())
+		err := move.Submit()
 		if err != nil {
 			suite.T().Fatal("Should transition.")
 		}

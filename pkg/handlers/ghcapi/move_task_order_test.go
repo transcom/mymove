@@ -179,7 +179,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	order := move.Orders
 	order.TAC = nil
 	suite.MustSave(&order)
-	err := move.Submit(time.Now())
+	err := move.Submit()
 	if err != nil {
 		suite.T().Fatal("Should transition.")
 	}

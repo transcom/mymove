@@ -1977,6 +1977,7 @@ definitions:
       - SUBMITTED
       - APPROVED
       - CANCELED
+      - 'NEEDS SERVICE COUNSELING'
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
