@@ -1098,11 +1098,11 @@ paths:
         - in: query
           name: page
           type: integer
-          description: requested page of results
+          description: requested page number of paginated move results
         - in: query
           name: perPage
           type: integer
-          description: results per page
+          description: maximum number of moves to show on each page of paginated results
         - in: query
           name: sort
           type: string
@@ -1127,31 +1127,39 @@ paths:
         - in: query
           name: branch
           type: string
+          description: filters by the branch of the move's service member
         - in: query
           name: locator
           type: string
+          description: filters to match the unique move code locator
         - in: query
           name: lastName
           type: string
+          description: filters using a prefix match on the service member's last name
         - in: query
           name: dodID
           type: string
+          description: filters to match the unique service member's DoD ID
         - in: query
           name: requestedMoveDate
           type: string
+          description: filters the requested pickup date of a shipment on the move
         - in: query
           name: submittedAt
           type: string
+          description: filters the date of when the service member submitted their move
         - in: query
           name: originGBLOC
           type: string
+          description: filters the GBLOC of the service member's origin duty station
         - in: query
           name: destinationDutyStation
           type: string
+          description: filters the name of the destination duty station on the orders
         - in: query
           name: status
           type: array
-          description: Filtering for the status.
+          description: filters the status of the move
           uniqueItems: true
           items:
             type: string
