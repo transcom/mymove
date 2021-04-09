@@ -111,7 +111,7 @@ const ServicesCounselingQueue = () => {
   const isMarineCorpsUser = office_user?.transportation_office?.gbloc === GBLOC.USMC;
 
   const handleClick = (values) => {
-    history.push(`/moves/${values.locator}/details`);
+    history.push(`/counseling/moves/${values.locator}/details`);
   };
 
   if (isLoading) return <LoadingPlaceholder />;
