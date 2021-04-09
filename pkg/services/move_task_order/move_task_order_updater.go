@@ -45,14 +45,6 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(moveTaskOrd
 		return &models.Move{}, err
 	}
 
-	// TODO - might be a way to just do model validation instead of calling update
-	// Fail early if the Order is invalid due to missing required fields
-	order := move.Orders
-	o.db.Load(&order, "Moves")
-	if verrs, err = o.db.ValidateAndUpdate(&order); verrs.HasAny() || err != nil {
-		return &models.Move{}, services.NewInvalidInputError(move.ID, nil, verrs, "")
-	}
-
 	// check if status is in the right state
 	// needs to be in MoveStatusNeedsServiceCounseling
 	if move.Status != models.MoveStatusNeedsServiceCounseling {
