@@ -29,7 +29,7 @@ const ServicesCounselingMoveDetails = () => {
       queryCache.setQueryData([MOVES, data.locator], data);
       queryCache.invalidateQueries([MOVES, data.locator]);
 
-      setAlertMessage('Your changes were saved.');
+      setAlertMessage('Move submitted.');
       setAlertType('success');
     },
     onError: () => {
@@ -53,7 +53,9 @@ const ServicesCounselingMoveDetails = () => {
           <Grid row>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-                <Alert type={alertType}>{alertMessage}</Alert>
+                <Alert slim type={alertType}>
+                  {alertMessage}
+                </Alert>
               </Grid>
             )}
             <Grid col={6}>
