@@ -2,6 +2,7 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -52,6 +53,7 @@ func (p domesticLinehaulPricer) Price(isShortHaul bool, contractCode string, req
 	var contractYear models.ReContractYear
 	var domesticLinehaulRatePriceMillicents *unit.Millicents
 	var domesticShortHaulRatePriceCents *unit.Cents
+	var totalPriceCents unit.Cents
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 
@@ -69,8 +71,10 @@ func (p domesticLinehaulPricer) Price(isShortHaul bool, contractCode string, req
 			return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 		}
 
+		// shorthaul price is in cents
 		baseTotalPrice = domServiceAreaPrice.PriceCents.Float64() * distance.Float64() * weight.ToCWTFloat64()
 		escalatedTotalPrice = contractYear.EscalationCompounded * baseTotalPrice
+		totalPriceCents = unit.Cents(math.Round(escalatedTotalPrice))
 	} else {
 		domesticLinehaulPrice, err := fetchDomesticLinehaulPrice(p.db, contractCode, isPeakPeriod, distance, weight, serviceArea)
 		if err != nil {
@@ -84,12 +88,12 @@ func (p domesticLinehaulPricer) Price(isShortHaul bool, contractCode string, req
 			return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 		}
 
+		// linehaul price is in millicents
 		baseTotalPrice = weight.ToCWTFloat64() * distance.Float64() * domesticLinehaulPrice.PriceMillicents.Float64()
 		escalatedTotalPrice = contractYear.EscalationCompounded * baseTotalPrice
+		totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
+		totalPriceCents = totalPriceMillicents.ToCents()
 	}
-
-	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
-	totalPriceCents := totalPriceMillicents.ToCents()
 
 	params := services.PricingDisplayParams{
 		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
@@ -120,12 +124,6 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 		return unit.Cents(0), nil, err
 	}
 
-	// TODO: change to distanceZip (get rid of distanceZip3 vs distanceZip5 -- this is simply the mileage)
-	distanceZip3, err := getParamInt(params, models.ServiceItemParamNameDistanceZip3)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
-
 	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -147,8 +145,20 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 	}
 
 	isShortHaul := isSameZip3(zipPickup, zipDestination)
+	var distanceZip int
+	if isShortHaul == true {
+		distanceZip, err = getParamInt(params, models.ServiceItemParamNameDistanceZip5)
+		if err != nil {
+			return unit.Cents(0), nil, err
+		}
+	} else {
+		distanceZip, err = getParamInt(params, models.ServiceItemParamNameDistanceZip3)
+		if err != nil {
+			return unit.Cents(0), nil, err
+		}
+	}
 
-	return p.Price(isShortHaul, contractCode, requestedPickupDate, unit.Miles(distanceZip3), unit.Pound(weightBilledActual), serviceAreaOrigin)
+	return p.Price(isShortHaul, contractCode, requestedPickupDate, unit.Miles(distanceZip), unit.Pound(weightBilledActual), serviceAreaOrigin)
 }
 
 func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {

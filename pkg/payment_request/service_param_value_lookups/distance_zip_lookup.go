@@ -2,7 +2,9 @@ package serviceparamvaluelookups
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gofrs/uuid"
 
@@ -50,6 +52,11 @@ func (r DistanceZipLookup) lookup(keyData *ServiceItemParamKeyData) (string, err
 	// Now calculate the distance between zips
 	pickupZip := r.PickupAddress.PostalCode
 	destinationZip := r.DestinationAddress.PostalCode
+
+	if len(strings.TrimSpace(pickupZip)) != 5 && len(strings.TrimSpace(destinationZip)) != 5 {
+		return "", services.NewBadDataError(
+			fmt.Sprintf("Both ZIPs are not of length 5 pickupZIP %s and destinationZIP %s", pickupZip, destinationZip))
+	}
 	distanceMiles, err := distanceZip(planner, pickupZip, destinationZip)
 	if err != nil {
 		return "", err

@@ -766,6 +766,26 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 	// called for domestic linehaul service item
 	planner.On("Zip3TransitDistance", "94535", "94535").Return(348, nil).Once()
 
+	/*
+		  Getting an error messag:
+		mock: Unexpected Method Call
+		-----------------------------
+
+		Zip5TransitDistance(string,string)
+				0: "94535"
+				1: "94535"
+
+
+		 "94535" -> "94535" should have been calling Zip5TransitDistance,
+		due to recent changes in this PR, which are removing the check for < 50 miles and
+		calling the correct ZIP distance function based on same ZIP3 is causing this error.
+		Now that I've corrected is there are more errors with the devseed file that need fixing
+		and I'm not sure what those are yet.
+
+	*/
+	// called for domestic shorthaul service item
+	planner.On("Zip5TransitDistance", "94535", "94535").Return(48, nil).Once()
+
 	// called for domestic shorthaul service item
 	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Once()
 

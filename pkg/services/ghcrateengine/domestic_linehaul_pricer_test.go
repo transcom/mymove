@@ -89,12 +89,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		// No distance
 		_, _, err = linehaulServicePricer.Price(isShortHaul, testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(0), dlhTestWeight, dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("Distance must be at least 50", err.Error())
-
-		// Short haul distance
-		_, _, err = linehaulServicePricer.Price(isShortHaul, testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(49), dlhTestWeight, dlhTestServiceArea)
-		suite.Error(err)
-		suite.Equal("Distance must be at least 50", err.Error())
+		suite.Equal("Distance must be greater than 0", err.Error())
 
 		// No weight
 		_, _, err = linehaulServicePricer.Price(isShortHaul, testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(0), dlhTestServiceArea)
