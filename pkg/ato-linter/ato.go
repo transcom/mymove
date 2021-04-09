@@ -57,7 +57,6 @@ func containsNosec(comments []*ast.Comment) bool {
 	for _, comment := range comments {
 		if strings.Contains(comment.Text, disableNoSec) {
 			individualCommentArr := strings.Split(comment.Text, " ")
-
 			for _, str := range individualCommentArr {
 				if str == disableNoSec {
 					return true
@@ -97,7 +96,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	inspector.Preorder(nodeFilter, func(node ast.Node) {
 		comments := node.(*ast.CommentGroup)
-
 		commentsContainNosec := containsNosec(comments.List)
 
 		if !commentsContainNosec {
