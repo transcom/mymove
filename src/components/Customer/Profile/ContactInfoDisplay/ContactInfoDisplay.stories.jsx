@@ -2,8 +2,6 @@ import React from 'react';
 
 import ContactInfoDisplay from './ContactInfoDisplay';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
-
 export default {
   title: 'Customer Components / Profile / ContactInfoDisplay',
   component: ContactInfoDisplay,
@@ -37,14 +35,8 @@ const baseProps = {
   },
 };
 
-export const DefaultState = (argTypes) => (
-  <SectionWrapper>
-    <ContactInfoDisplay {...baseProps} onEditClick={argTypes.onEditClick} />
-  </SectionWrapper>
-);
+export const DefaultState = (argTypes) => <ContactInfoDisplay {...baseProps} onEditClick={argTypes.onEditClick} />;
 
 export const WithAltPhone = (argTypes) => (
-  <SectionWrapper>
-    <ContactInfoDisplay {...baseProps} secondaryTelephone="619-555-3000" onEditClick={argTypes.onEditClick} />
-  </SectionWrapper>
+  <ContactInfoDisplay {...baseProps} secondaryTelephone="619-555-3000" onEditClick={argTypes.onEditClick} />
 );
