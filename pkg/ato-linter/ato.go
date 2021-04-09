@@ -21,12 +21,12 @@ const disableNoSec = "#nosec"
 const validatorStatusLabel = "RA Validator Status:"
 
 var validatorStatuses = map[string]bool{
-	"RA Accepted":         true,
-	"Return to Developer": true,
-	"Known Issue":         true,
-	"Mitigated":           true,
-	"False Positive":      true,
-	"Bad Practice":        true,
+	"RA ACCEPTED":         true,
+	"RETURN TO DEVELOPER": true,
+	"KNOWN ISSUE":         true,
+	"MITIGATED":           true,
+	"FALSE POSITIVE":      true,
+	"BAD PRACTICE":        true,
 }
 
 // check if comment group has disabling of gosec in it but it doesn't have a specific rule it is disabling
@@ -78,7 +78,7 @@ func containsAnnotationNotApproved(comments []*ast.Comment) bool {
 			}
 			for index, str := range individualCommentArr {
 				str = strings.Trim(str, " ")
-				if index > 0 && !validatorStatuses[str] {
+				if index > 0 && !validatorStatuses[strings.ToUpper(str)] {
 					return true
 				}
 			}
