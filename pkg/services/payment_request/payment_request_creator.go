@@ -420,6 +420,11 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 }
 
 func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connection, paramLookup *serviceparamlookups.ServiceItemParamKeyData, serviceParam models.ServiceParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, error) {
+	// Pricing/pricer functions will create the params originating from pricers. Nothing to do here.
+	if serviceParam.ServiceItemParamKey.Origin == models.ServiceItemParamOriginPricer {
+		return &models.PaymentServiceItemParam{}, nil
+	}
+
 	// key not found in map
 	// Did not find service item param needed for pricing, add it to the list
 	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key)
@@ -438,9 +443,6 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 		Value:                 value,
 	}
 
-	if paymentServiceItemParam.ServiceItemParamKey.Origin == models.ServiceItemParamOriginPricer {
-		return &paymentServiceItemParam, nil
-	}
 	var verrs *validate.Errors
 	verrs, err = tx.ValidateAndCreate(&paymentServiceItemParam)
 	if verrs.HasAny() {
