@@ -44,23 +44,11 @@ describe('ContactInfoDisplay component', () => {
 
     expect(phoneTerm.nextElementSibling.textContent).toBe(testProps.telephone);
 
-    const altPhoneTerm = screen.getByText('Alt. phone');
-
-    expect(altPhoneTerm).toBeInTheDocument();
-
-    expect(altPhoneTerm.nextElementSibling.textContent).toBe('–');
-
     const emailTerm = screen.getByText('Personal email');
 
     expect(emailTerm).toBeInTheDocument();
 
     expect(emailTerm.nextElementSibling.textContent).toBe(testProps.personalEmail);
-
-    const contactMethodTerm = screen.getByText('Preferred contact method');
-
-    expect(contactMethodTerm).toBeInTheDocument();
-
-    expect(contactMethodTerm.nextElementSibling.textContent).toBe('Email');
 
     const addressTerm = screen.getByText('Current mailing address');
 
@@ -100,6 +88,40 @@ describe('ContactInfoDisplay component', () => {
 
     expect(backupPhoneTerm.nextElementSibling.textContent).toBe(testProps.backupContact.telephone);
   });
+
+  it.each([
+    ['', '–'],
+    ['703-555-9999', '703-555-9999'],
+  ])('Shows alt phone (%s) as expected (%s)', async (secondaryTelephone, expectedDisplay) => {
+    const contactProps = { ...testProps, secondaryTelephone };
+
+    render(<ContactInfoDisplay {...contactProps} />);
+
+    const altPhoneTerm = await screen.findByText('Alt. phone');
+
+    expect(altPhoneTerm).toBeInTheDocument();
+
+    expect(altPhoneTerm.nextElementSibling.textContent).toBe(expectedDisplay);
+  });
+
+  it.each([
+    [true, false, 'Phone'],
+    [false, true, 'Email'],
+    [true, true, 'Phone, Email'],
+  ])(
+    'Shows preferred contact (Phone: %s | Email: %s) as expected: %s',
+    async (phoneIsPreferred, emailIsPreferred, expectedDisplay) => {
+      const contactProps = { ...testProps, phoneIsPreferred, emailIsPreferred };
+
+      render(<ContactInfoDisplay {...contactProps} />);
+
+      const contactMethodTerm = await screen.findByText('Preferred contact method');
+
+      expect(contactMethodTerm).toBeInTheDocument();
+
+      expect(contactMethodTerm.nextElementSibling.textContent).toBe(expectedDisplay);
+    },
+  );
 
   it('Calls the onEditClick function when the edit button is clicked', async () => {
     render(<ContactInfoDisplay {...testProps} />);
