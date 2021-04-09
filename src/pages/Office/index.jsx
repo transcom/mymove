@@ -128,10 +128,11 @@ export class OfficeApp extends Component {
       />,
     ];
 
+    // TODO - Services counseling routes not finalized, revisit
     const txoRoutes = [
       <PrivateRoute
         key="txoMoveInfoRoute"
-        path="/moves/:moveCode"
+        path={['/moves/:moveCode', '/counseling/moves/:moveCode']}
         component={TXOMoveInfo}
         requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
       />,
