@@ -133,6 +133,18 @@ export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServ
   );
 }
 
+export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, ifMatchETag, normalize = false }) {
+  const operationPath = 'moveTaskOrder.updateMTOStatusServiceCounselingCompleted';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      'If-Match': ifMatchETag,
+    },
+    { normalize },
+  );
+}
+
 export function updateMTOShipmentStatus({
   moveTaskOrderID,
   shipmentID,
