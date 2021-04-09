@@ -1,8 +1,6 @@
 package ghcapi
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/swag"
 
 	"github.com/gobuffalo/pop/v5"
@@ -159,8 +157,8 @@ type GetServicesCounselingQueueHandler struct {
 func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	logger.Info(fmt.Sprintf("%v", session.Roles))
-	if !session.IsOfficeUser() {
+	// TODO add Services Counselor role authorization check when it becomes available
+	if !session.IsOfficeUser() || !(session.Roles.HasRole(roles.RoleTypeTOO) || session.Roles.HasRole(roles.RoleTypeTIO)) {
 		logger.Error("user is not authenticated with an office role")
 		return queues.NewGetServicesCounselingQueueForbidden()
 	}

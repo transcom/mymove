@@ -256,6 +256,7 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"branch":                 "service_members.affiliation",
 		"locator":                "moves.locator",
 		"status":                 "moves.status",
+		"submittedAt":            "moves.submitted_at",
 		"destinationDutyStation": "dest_ds.name",
 	}
 

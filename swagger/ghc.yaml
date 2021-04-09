@@ -1164,7 +1164,18 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, dodID, branch, locator, status, submittedAt, originGBLOC, destinationDutyStation]
+          enum:
+            [
+              lastName,
+              dodID,
+              branch,
+              locator,
+              status,
+              requestedMoveDate,
+              submittedAt,
+              originGBLOC,
+              destinationDutyStation,
+            ]
           description: field that results should be sorted by
         - in: query
           name: order
