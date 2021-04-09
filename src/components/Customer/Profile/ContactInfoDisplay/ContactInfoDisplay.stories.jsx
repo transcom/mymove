@@ -2,12 +2,18 @@ import React from 'react';
 
 import ContactInfoDisplay from './ContactInfoDisplay';
 
+import { MockProviders } from 'testUtils';
+
 export default {
   title: 'Customer Components / Profile / ContactInfoDisplay',
   component: ContactInfoDisplay,
-  argTypes: {
-    onEditClick: 'go to edit page',
-  },
+  decorators: [
+    (Story) => (
+      <MockProviders>
+        <Story />
+      </MockProviders>
+    ),
+  ],
 };
 
 const baseProps = {
@@ -33,6 +39,7 @@ const baseProps = {
     telephone: '206-555-8989',
     email: 'gsp@example.com',
   },
+  editURL: '/moves/review/edit-profile',
 };
 
 export const DefaultState = (argTypes) => <ContactInfoDisplay {...baseProps} onEditClick={argTypes.onEditClick} />;
