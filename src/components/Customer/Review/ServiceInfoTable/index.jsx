@@ -7,8 +7,6 @@ import reviewStyles from '../Review.module.scss';
 
 import serviceInfoTableStyles from './ServiceInfoTable.module.scss';
 
-import { customerRoutes } from 'constants/routes';
-
 const ServiceInfoTable = ({
   affiliation,
   currentDutyStationName,
@@ -31,12 +29,7 @@ const ServiceInfoTable = ({
       <div className={classnames(reviewStyles['review-header'], serviceInfoTableStyles.ReviewHeader)}>
         <h2>Service info</h2>
         {isEditable && (
-          <Button
-            unstyled
-            className={reviewStyles['edit-btn']}
-            data-testid="edit-profile-table"
-            onClick={() => onEditClick(customerRoutes.EDIT_PROFILE_PATH)}
-          >
+          <Button unstyled className={reviewStyles['edit-btn']} data-testid="edit-profile-table" onClick={onEditClick}>
             Edit
           </Button>
         )}

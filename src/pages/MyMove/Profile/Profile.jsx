@@ -1,8 +1,7 @@
 import React from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
-import { arrayOf } from 'prop-types';
+import { push as pushAction } from 'connected-react-router';
+import { arrayOf, func } from 'prop-types';
 
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
@@ -14,8 +13,9 @@ import {
 } from 'store/entities/selectors';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoTable from 'components/Customer/Review/ServiceInfoTable';
+import { customerRoutes } from 'constants/routes';
 
-const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
+const Profile = ({ serviceMember, currentOrders, currentBackupContacts, push }) => {
   const rank = currentOrders ? currentOrders.grade : serviceMember.rank;
   const currentStation = currentOrders ? currentOrders.origin_duty_station : serviceMember.current_station;
   const backupContact = {
@@ -24,12 +24,12 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
     email: currentBackupContacts[0]?.email || '',
   };
 
-  const handleServiceInfoEditClick = (path) => {
-    push(path);
+  const handleServiceInfoEditClick = () => {
+    push(customerRoutes.EDIT_PROFILE_PATH);
   };
 
-  const handleContactInfoEditClick = (path) => {
-    push(path);
+  const handleContactInfoEditClick = () => {
+    push(customerRoutes.EDIT_PROFILE_PATH);
   };
 
   return (
@@ -70,6 +70,7 @@ Profile.propTypes = {
   serviceMember: ServiceMemberShape.isRequired,
   currentOrders: OrdersShape.isRequired,
   currentBackupContacts: arrayOf(BackupContactShape).isRequired,
+  push: func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -81,13 +82,8 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push: pushAction,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);
