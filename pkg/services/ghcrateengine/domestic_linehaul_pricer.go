@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	dlhPricerMinimumWeight   = unit.Pound(500)
-	dlhPricerMinimumDistance = unit.Miles(50)
+	dlhPricerMinimumWeight = unit.Pound(500)
 )
 
 type domesticLinehaulPricer struct {
@@ -38,10 +37,8 @@ func (p domesticLinehaulPricer) Price(isShortHaul bool, contractCode string, req
 	if requestedPickupDate.IsZero() {
 		return 0, nil, errors.New("RequestedPickupDate is required")
 	}
-	// TODO: need to verify this, but I don't think we have a minimum distance requirement anymore. I think for domestic linehaul & shorthaul
-	//       it is determined by ZIP3 being the same, not a discriminator of 50 miles.
-	if distance < dlhPricerMinimumDistance {
-		return 0, nil, fmt.Errorf("Distance must be at least %d", dlhPricerMinimumDistance)
+	if distance <= 0 {
+		return 0, nil, errors.New("Distance must be greater than 0")
 	}
 	if weight < dlhPricerMinimumWeight {
 		return 0, nil, fmt.Errorf("Weight must be at least %d", dlhPricerMinimumWeight)
@@ -50,12 +47,13 @@ func (p domesticLinehaulPricer) Price(isShortHaul bool, contractCode string, req
 		return 0, nil, errors.New("ServiceArea is required")
 	}
 
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 	var escalatedTotalPrice float64
 	var baseTotalPrice float64
 	var contractYear models.ReContractYear
 	var domesticLinehaulRatePriceMillicents *unit.Millicents
 	var domesticShortHaulRatePriceCents *unit.Cents
+
+	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 
 	if isShortHaul {
 		// look up rate for shorthaul

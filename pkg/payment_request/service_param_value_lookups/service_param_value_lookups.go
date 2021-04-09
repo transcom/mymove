@@ -166,7 +166,7 @@ func ServiceParamLookupInitialize(
 	}
 
 	paramKey = models.ServiceItemParamNameDistanceZip5
-	err = s.setLookup(serviceItemCode, paramKey, DistanceZip5Lookup{
+	err = s.setLookup(serviceItemCode, paramKey, DistanceZipLookup{
 		PickupAddress:      pickupAddress,
 		DestinationAddress: destinationAddress,
 	})
@@ -174,7 +174,7 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 	paramKey = models.ServiceItemParamNameDistanceZip3
-	err = s.setLookup(serviceItemCode, paramKey, DistanceZip3Lookup{
+	err = s.setLookup(serviceItemCode, paramKey, DistanceZipLookup{
 		PickupAddress:      pickupAddress,
 		DestinationAddress: destinationAddress,
 	})

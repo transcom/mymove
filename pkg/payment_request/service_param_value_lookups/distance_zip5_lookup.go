@@ -50,20 +50,16 @@ func (r DistanceZip5Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 	// Now calculate the distance between zip5s
 	pickupZip := r.PickupAddress.PostalCode
 	destinationZip := r.DestinationAddress.PostalCode
-	distanceMiles, err := planner.Zip5TransitDistance(pickupZip, destinationZip)
+	distanceMiles, err := distanceZip(planner, pickupZip, destinationZip)
 	if err != nil {
 		return "", err
 	}
 
-	// TODO: need to verify this, but I don't think we have a minimum distance requirement anymore. I think for domestic linehaul & shorthaul
-	//       it is determined by ZIP3 being the same, not a discriminator of 50 miles.
-	if distanceMiles < 50 {
-		miles := unit.Miles(distanceMiles)
-		mtoShipment.Distance = &miles
-		err := db.Save(&mtoShipment)
-		if err != nil {
-			return "", err
-		}
+	miles := unit.Miles(distanceMiles)
+	mtoShipment.Distance = &miles
+	err = db.Save(&mtoShipment)
+	if err != nil {
+		return "", err
 	}
 
 	return strconv.Itoa(distanceMiles), nil

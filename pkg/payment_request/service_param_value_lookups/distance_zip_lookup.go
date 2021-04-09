@@ -11,13 +11,13 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// DistanceZip3Lookup contains zip3 lookup
-type DistanceZip3Lookup struct {
+// DistanceZipLookup contains zip lookup
+type DistanceZipLookup struct {
 	PickupAddress      models.Address
 	DestinationAddress models.Address
 }
 
-func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (r DistanceZipLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
 	planner := keyData.planner
 	db := keyData.db
 
@@ -47,23 +47,19 @@ func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 		return strconv.Itoa(mtoShipment.Distance.Int()), nil
 	}
 
-	// Now calculate the distance between zip3s
+	// Now calculate the distance between zips
 	pickupZip := r.PickupAddress.PostalCode
 	destinationZip := r.DestinationAddress.PostalCode
-	distanceMiles, err := planner.Zip3TransitDistance(pickupZip, destinationZip)
+	distanceMiles, err := distanceZip(planner, pickupZip, destinationZip)
 	if err != nil {
 		return "", err
 	}
 
-	// TODO: need to verify this, but I don't think we have a minimum distance requirement anymore. I think for domestic linehaul & shorthaul
-	//       it is determined by ZIP3 being the same, not a discriminator of 50 miles.
-	if distanceMiles >= 50 {
-		miles := unit.Miles(distanceMiles)
-		mtoShipment.Distance = &miles
-		err = db.Save(&mtoShipment)
-		if err != nil {
-			return "", err
-		}
+	miles := unit.Miles(distanceMiles)
+	mtoShipment.Distance = &miles
+	err = db.Save(&mtoShipment)
+	if err != nil {
+		return "", err
 	}
 
 	return strconv.Itoa(distanceMiles), nil
