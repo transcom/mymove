@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, GridContainer, Grid } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './ContactInfoDisplay.module.scss';
 
 import { ResidentialAddressShape } from 'types/address';
 import { BackupContactShape } from 'types/customerShapes';
+import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const ContactInfoDisplay = ({
   telephone,
@@ -28,64 +29,74 @@ const ContactInfoDisplay = ({
   }
 
   return (
-    <GridContainer className={styles['contact-info-container']}>
-      <Grid row>
-        <Grid col className={styles['contact-info-header']}>
-          <h2>Contact info</h2>
-          <Button unstyled className={styles['edit-btn']} data-testid="edit-contact-info" onClick={onEditClick}>
-            Edit
-          </Button>
-        </Grid>
-      </Grid>
+    <div className={styles.contactInfoContainer}>
+      <div className={styles.contactInfoHeader}>
+        <h2>Contact info</h2>
+        <Button unstyled className={styles.editBtn} data-testid="edit-contact-info" onClick={onEditClick}>
+          Edit
+        </Button>
+      </div>
 
-      <Grid row>
-        <Grid col className={styles['contact-info-section']}>
-          <dl>
+      <div className={styles.contactInfoSection}>
+        <dl className={descriptionListStyles.descriptionList}>
+          <div className={descriptionListStyles.row}>
             <dt>Best contact phone</dt>
             <dd>{telephone}</dd>
+          </div>
 
+          <div className={descriptionListStyles.row}>
             <dt>Alt. phone</dt>
             <dd>{secondaryTelephone || '–'}</dd>
+          </div>
 
+          <div className={descriptionListStyles.row}>
             <dt>Personal email</dt>
             <dd>{personalEmail}</dd>
+          </div>
 
+          <div className={descriptionListStyles.row}>
             <dt>Preferred contact method</dt>
             <dd>{preferredContactMethod}</dd>
+          </div>
 
+          <div className={descriptionListStyles.row}>
             <dt>Current mailing address</dt>
             <dd>
               {residentialAddress.street_address_1} {residentialAddress.street_address_2}
               <br />
               {residentialAddress.city}, {residentialAddress.state} {residentialAddress.postal_code}
             </dd>
+          </div>
 
+          <div className={descriptionListStyles.row}>
             <dt>Backup mailing address</dt>
             <dd>
               {backupMailingAddress.street_address_1} {backupMailingAddress.street_address_2}
               <br />
               {backupMailingAddress.city}, {backupMailingAddress.state} {backupMailingAddress.postal_code}
             </dd>
-          </dl>
-        </Grid>
-      </Grid>
+          </div>
+        </dl>
+      </div>
 
-      <Grid row>
-        <Grid col className={styles['contact-info-section']}>
-          <h3>Backup contact</h3>
-          <dl>
+      <div className={styles.contactInfoSection}>
+        <h3>Backup contact</h3>
+        <dl className={descriptionListStyles.descriptionList}>
+          <div className={descriptionListStyles.row}>
             <dt>Name</dt>
             <dd>{backupContact.name}</dd>
-
+          </div>
+          <div className={descriptionListStyles.row}>
             <dt>Email</dt>
             <dd>{backupContact.email}</dd>
-
+          </div>
+          <div className={descriptionListStyles.row}>
             <dt>Phone</dt>
             <dd>{backupContact.telephone}</dd>
-          </dl>
-        </Grid>
-      </Grid>
-    </GridContainer>
+          </div>
+        </dl>
+      </div>
+    </div>
   );
 };
 

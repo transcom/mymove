@@ -1,0 +1,34 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+.descriptionList {
+  .row {
+    display: flex;
+    @include u-font('body', 'xs');
+    @include u-line-height('body', 2);
+
+    .noborder {
+      @include u-border(0);
+    }
+  }
+
+  dt,
+  dd {
+    @include u-border-top('1px');
+    @include u-border-top('base-lighter');
+
+    @include u-padding-x(1);
+    @include u-padding-y(1.5);
+  }
+
+  dt {
+    @include u-text('bold');
+    @include u-text('base-darker');
+  }
+
+  dd {
+    @include u-margin(0);
+  }
+}
