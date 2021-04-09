@@ -1,4 +1,4 @@
-package analyzer
+package atolinter
 
 import (
 	"go/ast"
@@ -7,10 +7,10 @@ import (
 	"golang.org/x/tools/go/analysis"
 )
 
-// Analyzer describes an analysis function and its options.
-var Analyzer = &analysis.Analyzer{
-	Name: "goprintffuncname",
-	Doc:  "Checks that printf-like functions are named with `f` at the end.",
+// ATOAnalyzer describes an analysis function and its options.
+var ATOAnalyzer = &analysis.Analyzer{
+	Name: "atolint",
+	Doc:  "Checks that disabling of gosec is accompanied by annotations",
 	Run:  run,
 }
 
@@ -26,7 +26,7 @@ var validatorStatuses = map[string]bool{
 	"Bad Practice":        true,
 }
 
-// check if comment group has #nosec in it but it doesn't have a specific rule it is disabling
+// check if comment group has disabling of gosec in it but it doesn't have a specific rule it is disabling
 func containsGosecDisableNoReason(comments []*ast.Comment) bool {
 	for _, comment := range comments {
 		if strings.Contains(comment.Text, disableNoSec) {
@@ -42,14 +42,21 @@ func containsGosecDisableNoReason(comments []*ast.Comment) bool {
 }
 
 func containsGosecNoAnnotation(comments []*ast.Comment) bool {
-	hasAnnotation := false
 	for _, comment := range comments {
 		if strings.Contains(comment.Text, validatorStatusLabel) {
-			hasAnnotation = true
-		} else if strings.Contains(comment.Text, disableNoSec) {
+			return false
+		}
+	}
+	return true
+}
+
+func containsNosec(comments []*ast.Comment) bool {
+	for _, comment := range comments {
+		if strings.Contains(comment.Text, disableNoSec) {
 			individualCommentArr := strings.Split(comment.Text, " ")
+
 			for _, str := range individualCommentArr {
-				if str == disableNoSec && !hasAnnotation {
+				if str == disableNoSec {
 					return true
 				}
 			}
@@ -85,6 +92,12 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			return true
 		}
 
+		commentsContainNosec := containsNosec(comments.List)
+
+		if !commentsContainNosec {
+			return true
+		}
+
 		containsDisablingGosecWithNoReason := containsGosecDisableNoReason(comments.List)
 
 		if containsDisablingGosecWithNoReason {
@@ -94,7 +107,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 		containsDisablingGosecNoAnnotation := containsGosecNoAnnotation(comments.List)
 		if containsDisablingGosecNoAnnotation {
-			pass.Reportf(node.Pos(), "Disabling of gosec must have an annotation associated with it. Please visit doclink")
+			pass.Reportf(node.Pos(), "Disabling of gosec must have an annotation associated with it. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi")
 			return true
 		}
 
