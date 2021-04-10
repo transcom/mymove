@@ -14,6 +14,8 @@ import {
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoTable from 'components/Customer/Review/ServiceInfoTable';
 import { customerRoutes } from 'constants/routes';
+import { profileStates } from 'constants/customerStates';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, push }) => {
   const rank = currentOrders ? currentOrders.grade : serviceMember.rank;
@@ -35,24 +37,24 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, push }) 
           <h1>Profile</h1>
           <SectionWrapper>
             <ContactInfoDisplay
-              telephone={serviceMember.telephone}
-              personalEmail={serviceMember.personal_email}
-              emailIsPreferred={serviceMember.email_is_preferred}
-              phoneIsPreferred={serviceMember.phone_is_preferred}
-              residentialAddress={serviceMember.residential_address}
-              backupMailingAddress={serviceMember.backup_mailing_address}
+              telephone={serviceMember?.telephone || ''}
+              personalEmail={serviceMember?.personal_email || ''}
+              emailIsPreferred={serviceMember?.email_is_preferred || ''}
+              phoneIsPreferred={serviceMember?.phone_is_preferred || ''}
+              residentialAddress={serviceMember?.residential_address || ''}
+              backupMailingAddress={serviceMember?.backup_mailing_address || ''}
               backupContact={backupContact}
               onEditClick={handleContactInfoEditClick}
             />
           </SectionWrapper>
           <SectionWrapper>
             <ServiceInfoTable
-              firstName={serviceMember.first_name}
-              lastName={serviceMember.last_name}
-              currentDutyStationName={currentStation.name}
-              affiliation={serviceMember.affiliation}
-              rank={rank}
-              edipi={serviceMember.edipi}
+              firstName={serviceMember?.first_name || ''}
+              lastName={serviceMember?.last_name || ''}
+              currentDutyStationName={currentStation?.name || ''}
+              affiliation={serviceMember?.affiliation || ''}
+              rank={rank || ''}
+              edipi={serviceMember?.edipi || ''}
               editLink={customerRoutes.EDIT_PROFILE_PATH}
             />
           </SectionWrapper>
@@ -82,4 +84,7 @@ const mapDispatchToProps = {
   push: pushAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(requireCustomerState(Profile, profileStates.BACKUP_ADDRESS_COMPLETE));
