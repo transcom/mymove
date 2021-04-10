@@ -14,7 +14,7 @@ const ServiceInfoTable = ({
   firstName,
   isEditable,
   lastName,
-  editLink,
+  editURL,
   rank,
 }) => {
   const containerClassNames = classnames(
@@ -27,7 +27,7 @@ const ServiceInfoTable = ({
     <div className={containerClassNames}>
       <div className={classnames(reviewStyles['review-header'], serviceInfoTableStyles.ReviewHeader)}>
         <h2>Service info</h2>
-        {isEditable && <a href={editLink}>Edit</a>}
+        {isEditable && <a href={editURL}>Edit</a>}
       </div>
       {!isEditable && (
         <div>
@@ -81,13 +81,13 @@ ServiceInfoTable.propTypes = {
   firstName: string.isRequired,
   isEditable: bool,
   lastName: string.isRequired,
-  editLink: string,
+  editURL: string,
   rank: string.isRequired,
 };
 
 ServiceInfoTable.defaultProps = {
   currentDutyStationPhone: '',
-  editLink: '',
+  editURL: '',
   isEditable: true,
 };
 

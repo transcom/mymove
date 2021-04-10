@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { push as pushAction } from 'connected-react-router';
-import { arrayOf, func } from 'prop-types';
+import { arrayOf } from 'prop-types';
 
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
@@ -14,20 +13,14 @@ import {
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoTable from 'components/Customer/Review/ServiceInfoTable';
 import { customerRoutes } from 'constants/routes';
-import { profileStates } from 'constants/customerStates';
-import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 
-const Profile = ({ serviceMember, currentOrders, currentBackupContacts, push }) => {
+const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
   const rank = currentOrders ? currentOrders.grade : serviceMember.rank;
   const currentStation = currentOrders ? currentOrders.origin_duty_station : serviceMember.current_station;
   const backupContact = {
     name: currentBackupContacts[0]?.name || '',
     telephone: currentBackupContacts[0]?.telephone || '',
     email: currentBackupContacts[0]?.email || '',
-  };
-
-  const handleContactInfoEditClick = () => {
-    push(customerRoutes.EDIT_PROFILE_PATH);
   };
 
   return (
@@ -39,12 +32,12 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, push }) 
             <ContactInfoDisplay
               telephone={serviceMember?.telephone || ''}
               personalEmail={serviceMember?.personal_email || ''}
-              emailIsPreferred={serviceMember?.email_is_preferred || ''}
-              phoneIsPreferred={serviceMember?.phone_is_preferred || ''}
+              emailIsPreferred={serviceMember?.email_is_preferred}
+              phoneIsPreferred={serviceMember?.phone_is_preferred}
               residentialAddress={serviceMember?.residential_address || ''}
               backupMailingAddress={serviceMember?.backup_mailing_address || ''}
               backupContact={backupContact}
-              onEditClick={handleContactInfoEditClick}
+              editURL={customerRoutes.EDIT_PROFILE_PATH}
             />
           </SectionWrapper>
           <SectionWrapper>
@@ -55,7 +48,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, push }) 
               affiliation={serviceMember?.affiliation || ''}
               rank={rank || ''}
               edipi={serviceMember?.edipi || ''}
-              editLink={customerRoutes.EDIT_PROFILE_PATH}
+              editURL={customerRoutes.EDIT_PROFILE_PATH}
             />
           </SectionWrapper>
         </div>
@@ -68,7 +61,6 @@ Profile.propTypes = {
   serviceMember: ServiceMemberShape.isRequired,
   currentOrders: OrdersShape.isRequired,
   currentBackupContacts: arrayOf(BackupContactShape).isRequired,
-  push: func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -80,11 +72,4 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = {
-  push: pushAction,
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(requireCustomerState(Profile, profileStates.BACKUP_ADDRESS_COMPLETE));
+export default connect(mapStateToProps)(Profile);
