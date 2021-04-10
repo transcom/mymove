@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/certs"
-	"github.com/transcom/mymove/pkg/services"
+	moveservice "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
@@ -155,7 +155,6 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 // SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
 type SubmitMoveHandler struct {
 	handlers.HandlerContext
-	services.MoveStatusRouter
 }
 
 // Handle ... submit a move to TOO for approval
@@ -171,7 +170,8 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 	logger = logger.With(zap.String("moveLocator", move.Locator))
 
-	err = h.MoveStatusRouter.RouteMove(move)
+	moveRouter := moveservice.NewMoveRouter(h.DB(), move)
+	err = moveRouter.Submit()
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

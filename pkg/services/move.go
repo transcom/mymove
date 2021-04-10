@@ -23,8 +23,9 @@ type MoveFetcherParams struct {
 	IncludeHidden bool // indicates if a hidden/disabled move can be returned
 }
 
-// MoveStatusRouter is the exported interface for routing moves after customer submission
-//go:generate mockery -name MoveStatusRouter
-type MoveStatusRouter interface {
-	RouteMove(move *models.Move) error
+// MoveRouter is the exported interface for routing moves after customer submission
+//go:generate mockery -name MoveRouter
+type MoveRouter interface {
+	Submit() error
+	Approve() error
 }
