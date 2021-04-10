@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Link } from 'react-router-dom';
 
 import styles from './ContactInfoDisplay.module.scss';
 
@@ -17,7 +17,7 @@ const ContactInfoDisplay = ({
   residentialAddress,
   backupMailingAddress,
   backupContact,
-  onEditClick,
+  editURL,
 }) => {
   let preferredContactMethod = 'Unknown';
   if (phoneIsPreferred && emailIsPreferred) {
@@ -32,9 +32,7 @@ const ContactInfoDisplay = ({
     <div className={styles.contactInfoContainer}>
       <div className={styles.contactInfoHeader}>
         <h2>Contact info</h2>
-        <Button unstyled className={styles.editBtn} data-testid="edit-contact-info" onClick={onEditClick}>
-          Edit
-        </Button>
+        <Link to={editURL}>Edit</Link>
       </div>
 
       <div className={styles.contactInfoSection}>
@@ -109,7 +107,7 @@ ContactInfoDisplay.propTypes = {
   residentialAddress: ResidentialAddressShape.isRequired,
   backupMailingAddress: ResidentialAddressShape.isRequired,
   backupContact: BackupContactShape.isRequired,
-  onEditClick: PropTypes.func.isRequired,
+  editURL: PropTypes.string.isRequired,
 };
 
 ContactInfoDisplay.defaultProps = {

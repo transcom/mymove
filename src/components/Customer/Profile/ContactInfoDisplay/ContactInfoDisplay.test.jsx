@@ -1,8 +1,10 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ContactInfoDisplay from './ContactInfoDisplay';
+
+import { renderWithRouter } from 'testUtils';
 
 describe('ContactInfoDisplay component', () => {
   const testProps = {
@@ -28,11 +30,11 @@ describe('ContactInfoDisplay component', () => {
       telephone: '206-555-8989',
       email: 'gsp@example.com',
     },
-    onEditClick: jest.fn(),
+    editURL: '/moves/review/edit-profile',
   };
 
   it('renders the data', async () => {
-    render(<ContactInfoDisplay {...testProps} />);
+    renderWithRouter(<ContactInfoDisplay {...testProps} />);
 
     const mainHeader = await screen.findByRole('heading', { name: 'Contact info', level: 2 });
 
@@ -95,7 +97,7 @@ describe('ContactInfoDisplay component', () => {
   ])('Shows alt phone (%s) as expected (%s)', async (secondaryTelephone, expectedDisplay) => {
     const contactProps = { ...testProps, secondaryTelephone };
 
-    render(<ContactInfoDisplay {...contactProps} />);
+    renderWithRouter(<ContactInfoDisplay {...contactProps} />);
 
     const altPhoneTerm = await screen.findByText('Alt. phone');
 
@@ -113,7 +115,7 @@ describe('ContactInfoDisplay component', () => {
     async (phoneIsPreferred, emailIsPreferred, expectedDisplay) => {
       const contactProps = { ...testProps, phoneIsPreferred, emailIsPreferred };
 
-      render(<ContactInfoDisplay {...contactProps} />);
+      renderWithRouter(<ContactInfoDisplay {...contactProps} />);
 
       const contactMethodTerm = await screen.findByText('Preferred contact method');
 
@@ -123,17 +125,17 @@ describe('ContactInfoDisplay component', () => {
     },
   );
 
-  it('Calls the onEditClick function when the edit button is clicked', async () => {
-    render(<ContactInfoDisplay {...testProps} />);
+  it('Goes to editURL when Edit link is clicked', async () => {
+    const { history } = renderWithRouter(<ContactInfoDisplay {...testProps} />);
 
-    const editButton = await screen.findByRole('button', { name: 'Edit' });
+    const editLink = await screen.findByRole('link');
 
-    expect(editButton).toBeInTheDocument();
+    expect(editLink).toBeInTheDocument();
 
-    userEvent.click(editButton);
+    userEvent.click(editLink);
 
     await waitFor(() => {
-      expect(testProps.onEditClick).toBeCalled();
+      expect(history.location.pathname).toEqual(testProps.editURL);
     });
   });
 });
