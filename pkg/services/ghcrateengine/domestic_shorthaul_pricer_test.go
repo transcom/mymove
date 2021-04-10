@@ -15,6 +15,7 @@ const (
 	dshTestServiceArea = "006"
 	dshTestWeight      = 3600
 	dshTestMileage     = 1200
+	dshIsShortHaul     = true
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceItemParamsBadData() {
@@ -48,15 +49,25 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   dshTestServiceArea,
 			},
+			{
+				Key:     models.ServiceItemParamNameZipPickupAddress,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   "30907",
+			},
+			{
+				Key:     models.ServiceItemParamNameZipDestAddress,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   "30901",
+			},
 		},
 	)
 
-	pricer := NewDomesticShorthaulPricer(suite.DB())
+	pricer := NewDomesticLinehaulPricer(suite.DB())
 
 	suite.T().Run("failure during pricing bubbles up", func(t *testing.T) {
 		_, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
-		suite.Equal("Weight must be a minimum of 500", err.Error())
+		suite.Equal("Weight must be at least 500", err.Error())
 	})
 }
 
@@ -64,7 +75,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 	suite.setUpDomesticShorthaulData()
 	paymentServiceItem := suite.setupDomesticShorthaulServiceItems()
 
-	pricer := NewDomesticShorthaulPricer(suite.DB())
+	pricer := NewDomesticLinehaulPricer(suite.DB())
 
 	suite.T().Run("success all params for shorthaul available", func(t *testing.T) {
 		cost, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
@@ -108,10 +119,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 	suite.setUpDomesticShorthaulData()
 
-	pricer := NewDomesticShorthaulPricer(suite.DB())
+	pricer := NewDomesticLinehaulPricer(suite.DB())
 
 	suite.T().Run("success shorthaul cost within peak period", func(t *testing.T) {
 		cost, _, err := pricer.Price(
+			dshIsShortHaul,
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dshTestMileage,
@@ -126,6 +138,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 	suite.T().Run("success shorthaul cost within non-peak period", func(t *testing.T) {
 		nonPeakDate := peakStart.addDate(0, -1)
 		cost, _, err := pricer.Price(
+			dshIsShortHaul,
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
 			dshTestMileage,
@@ -139,6 +152,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 
 	suite.T().Run("failure if contract code bogus", func(t *testing.T) {
 		_, _, err := pricer.Price(
+			dshIsShortHaul,
 			"bogus_code",
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dshTestMileage,
@@ -152,6 +166,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 
 	suite.T().Run("failure if move date is outside of contract year", func(t *testing.T) {
 		_, _, err := pricer.Price(
+			dshIsShortHaul,
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dshTestMileage,
@@ -165,6 +180,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 
 	suite.T().Run("weight below minimum", func(t *testing.T) {
 		cost, _, err := pricer.Price(
+			dshIsShortHaul,
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			dshTestMileage,
@@ -173,34 +189,34 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		)
 		suite.Equal(unit.Cents(0), cost)
 		suite.Error(err)
-		suite.Equal("Weight must be a minimum of 500", err.Error())
+		suite.Equal("Weight must be at least 500", err.Error())
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code
-		_, _, err := pricer.Price("", requestedPickupDate, dshTestMileage, dshTestWeight, dshTestServiceArea)
+		_, _, err := pricer.Price(dshIsShortHaul, "", requestedPickupDate, dshTestMileage, dshTestWeight, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
 		// No requested pickup date
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, time.Time{}, dshTestMileage, dshTestWeight, dshTestServiceArea)
+		_, _, err = pricer.Price(dshIsShortHaul, testdatagen.DefaultContractCode, time.Time{}, dshTestMileage, dshTestWeight, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("RequestedPickupDate is required", err.Error())
 
 		// No distance
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, 0, dshTestWeight, dshTestServiceArea)
+		_, _, err = pricer.Price(dshIsShortHaul, testdatagen.DefaultContractCode, requestedPickupDate, 0, dshTestWeight, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("Distance must be greater than 0", err.Error())
 
 		// No weight
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, 0, dshTestServiceArea)
+		_, _, err = pricer.Price(dshIsShortHaul, testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, 0, dshTestServiceArea)
 		suite.Error(err)
-		suite.Equal("Weight must be a minimum of 500", err.Error())
+		suite.Equal("Weight must be at least 500", err.Error())
 
 		// No service area
-		_, _, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, dshTestWeight, "")
+		_, _, err = pricer.Price(dshIsShortHaul, testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, dshTestWeight, "")
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
 	})
@@ -235,6 +251,16 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems() mod
 				Key:     models.ServiceItemParamNameServiceAreaOrigin,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   dshTestServiceArea,
+			},
+			{
+				Key:     models.ServiceItemParamNameZipPickupAddress,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   "30907",
+			},
+			{
+				Key:     models.ServiceItemParamNameZipDestAddress,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   "30901",
 			},
 		},
 	)
