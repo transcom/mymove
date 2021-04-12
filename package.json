@@ -110,7 +110,6 @@
   "version": "0.1.0",
   "devDependencies": {
     "@babel/core": "~7.13.14",
-    "@babel/helper-builder-react-jsx": "^7.12.13",
     "@dump247/storybook-state": "^1.6.1",
     "@stoplight/spectral": "^5.9.0",
     "@storybook/addon-a11y": "^6.2.3",
