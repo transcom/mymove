@@ -10,6 +10,11 @@ describe('LoginButton tests', () => {
     auth: {
       isLoggedIn: false,
     },
+    entities: {
+      user: {
+        user1: { id: 'user1' },
+      },
+    },
   };
 
   it('shows the EULA when the signin button is clicked and hides the EULA when cancel is clicked', () => {
