@@ -20,7 +20,7 @@ func FormatDate(value time.Time) string {
 
 // FormatCents returns a formatted dollar value, without a $, to display to the TXO
 func FormatCents(value unit.Cents) string {
-	valueFloat := value.ToDollarFloat()
+	valueFloat := value.ToDollarFloatNoRound()
 	return fmt.Sprintf("%.2f", valueFloat)
 }
 

@@ -74,7 +74,7 @@ func (p domesticShorthaulPricer) Price(contractCode string,
 		},
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: domServiceAreaPrice.PriceCents.String(),
+			Value: FormatFloat(domServiceAreaPrice.PriceCents.ToDollarFloatNoRound(), 3),
 		},
 		{
 			Key:   models.ServiceItemParamNameIsPeak,
@@ -82,7 +82,7 @@ func (p domesticShorthaulPricer) Price(contractCode string,
 		},
 		{
 			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: fmt.Sprintf("%.4f", contractYear.EscalationCompounded),
+			Value: FormatFloat(contractYear.EscalationCompounded, 5),
 		},
 	}
 	return totalCost, pricingRateEngineParams, nil

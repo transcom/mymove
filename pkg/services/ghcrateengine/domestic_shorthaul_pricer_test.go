@@ -1,7 +1,6 @@
 package ghcrateengine
 
 import (
-	"fmt"
 	"strconv"
 	"testing"
 	"time"
@@ -170,7 +169,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 
 		suite.Error(err)
 		suite.Equal("Could not lookup Domestic Service Area Price: "+models.RecordNotFoundErrorString, err.Error())
-		suite.validatePricerCreatedParams(nil, rateEngineParams)
+		suite.Nil(rateEngineParams)
 	})
 
 	suite.T().Run("failure if move date is outside of contract year", func(t *testing.T) {
@@ -184,7 +183,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 
 		suite.Error(err)
 		suite.Equal("Could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
-		suite.validatePricerCreatedParams(nil, rateEngineParams)
+		suite.Nil(rateEngineParams)
 	})
 
 	suite.T().Run("weight below minimum", func(t *testing.T) {
@@ -198,7 +197,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		suite.Equal(unit.Cents(0), cost)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
-		suite.validatePricerCreatedParams(nil, rateEngineParams)
+		suite.Nil(rateEngineParams)
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
@@ -208,31 +207,31 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		_, rateEngineParams, err := pricer.Price("", requestedPickupDate, dshTestMileage, dshTestWeight, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
-		suite.validatePricerCreatedParams(nil, rateEngineParams)
+		suite.Nil(rateEngineParams)
 
 		// No requested pickup date
 		_, rateEngineParams, err = pricer.Price(testdatagen.DefaultContractCode, time.Time{}, dshTestMileage, dshTestWeight, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("RequestedPickupDate is required", err.Error())
-		suite.validatePricerCreatedParams(nil, rateEngineParams)
+		suite.Nil(rateEngineParams)
 
 		// No distance
 		_, rateEngineParams, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, 0, dshTestWeight, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("Distance must be greater than 0", err.Error())
-		suite.validatePricerCreatedParams(nil, rateEngineParams)
+		suite.Nil(rateEngineParams)
 
 		// No weight
 		_, rateEngineParams, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, 0, dshTestServiceArea)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
-		suite.validatePricerCreatedParams(nil, rateEngineParams)
+		suite.Nil(rateEngineParams)
 
 		// No service area
 		_, rateEngineParams, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, dshTestWeight, "")
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
-		suite.validatePricerCreatedParams(nil, rateEngineParams)
+		suite.Nil(rateEngineParams)
 	})
 }
 
@@ -346,7 +345,7 @@ func (suite *GHCRateEngineServiceSuite) getExpectedDSHPricerCreatedParamsFromDBG
 		},
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: domServiceAreaPrice.PriceCents.String(),
+			Value: FormatFloat(domServiceAreaPrice.PriceCents.ToDollarFloatNoRound(), 3),
 		},
 		{
 			Key:   models.ServiceItemParamNameIsPeak,
@@ -354,7 +353,7 @@ func (suite *GHCRateEngineServiceSuite) getExpectedDSHPricerCreatedParamsFromDBG
 		},
 		{
 			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: fmt.Sprintf("%.4f", contractYear.EscalationCompounded),
+			Value: FormatFloat(contractYear.EscalationCompounded, 5),
 		},
 	}
 
