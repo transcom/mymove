@@ -2,17 +2,27 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/colors';
 
-.ServiceInfoTable {
-  :global(.table--stacked) {
-    border: none;
+.serviceInfoContainer {
+  .reviewHeader {
+    h2 {
+      flex-shrink: 0;
+      @include u-margin(0);
+    }
+
+    display: flex;
+    justify-content: space-between;
   }
-}
 
-.ReviewHeader {
-  @include u-margin-top(3);
+  .serviceInfoSection {
+    dl {
+      dt {
+        @include u-width(33%);
+      }
 
-  h2 {
-    flex-shrink: 0;
+      dd {
+        @include u-width(67%);
+      }
+    }
   }
 
   a {

@@ -1,10 +1,9 @@
 import React from 'react';
-import classnames from 'classnames';
 import { string, bool } from 'prop-types';
 
-import reviewStyles from '../Review.module.scss';
-
 import serviceInfoTableStyles from './ServiceInfoTable.module.scss';
+
+import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const ServiceInfoTable = ({
   affiliation,
@@ -17,15 +16,9 @@ const ServiceInfoTable = ({
   editURL,
   rank,
 }) => {
-  const containerClassNames = classnames(
-    reviewStyles['review-container'],
-    reviewStyles['profile-container'],
-    serviceInfoTableStyles.ServiceInfoTable,
-  );
-  const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
   return (
-    <div className={containerClassNames}>
-      <div className={classnames(reviewStyles['review-header'], serviceInfoTableStyles.ReviewHeader)}>
+    <div className={serviceInfoTableStyles.serviceInfoContainer}>
+      <div className={serviceInfoTableStyles.reviewHeader}>
         <h2>Service info</h2>
         {isEditable && <a href={editURL}>Edit</a>}
       </div>
@@ -35,40 +28,36 @@ const ServiceInfoTable = ({
           {currentDutyStationPhone ? ` at ${currentDutyStationPhone}.` : '.'}
         </div>
       )}
-      <table className={tableClassNames}>
-        <colgroup>
-          <col />
-          <col />
-        </colgroup>
-        <tbody>
-          <tr>
-            <th scope="row">Name</th>
-            <td>
+      <div className={serviceInfoTableStyles.serviceInfoSection}>
+        <dl className={descriptionListStyles.descriptionList}>
+          <div className={descriptionListStyles.row}>
+            <dt>Name</dt>
+            <dd>
               {firstName} {lastName}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">Branch</th>
-            <td>{affiliation}</td>
-          </tr>
-          <tr>
-            <th scope="row">Rank</th>
-            <td>{rank}</td>
-          </tr>
-          <tr>
-            <th scope="row">DOD ID#</th>
-            <td>{edipi}</td>
-          </tr>
-          <tr>
-            <th className={reviewStyles['table-divider-top']} scope="row" style={{ borderBottom: 'none' }}>
-              Current duty station
-            </th>
-            <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
-              {currentDutyStationName}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </dd>
+          </div>
+
+          <div className={descriptionListStyles.row}>
+            <dt>Branch</dt>
+            <dd>{affiliation}</dd>
+          </div>
+
+          <div className={descriptionListStyles.row}>
+            <dt>Rank</dt>
+            <dd>{rank}</dd>
+          </div>
+
+          <div className={descriptionListStyles.row}>
+            <dt>DOD ID#</dt>
+            <dd>{edipi}</dd>
+          </div>
+
+          <div className={descriptionListStyles.row}>
+            <dt>Current duty station</dt>
+            <dd>{currentDutyStationName}</dd>
+          </div>
+        </dl>
+      </div>
     </div>
   );
 };
