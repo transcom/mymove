@@ -54,9 +54,10 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	moveStatusQuery := moveStatusFilter(params.Status)
+	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [8]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
+	options := [9]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, requestedMoveDateQuery, gblocQuery, sortOrderQuery}
 
 	query := f.db.Q().EagerPreload(
 		"Orders.ServiceMember",
@@ -234,6 +235,12 @@ func moveStatusFilter(statuses []string) QueryOption {
 		if len(statuses) <= 0 {
 			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED, models.MoveStatusNeedsServiceCounseling)
 		}
+	}
+}
+
+func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
+	return func(query *pop.Query) {
+		query.Where("mto_shipments.requested_pickup_date = ?", requestedMoveDate)
 	}
 }
 
