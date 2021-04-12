@@ -1,0 +1,31 @@
+@import 'shared/styles/_variables';
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.contactInfoContainer {
+  .contactInfoHeader {
+    h2 {
+      flex-shrink: 0;
+      @include u-margin(0);
+    }
+
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .contactInfoSection {
+    h3 {
+      @include u-margin-top(4);
+    }
+
+    dl {
+      dt {
+        @include u-width(33%);
+      }
+
+      dd {
+        @include u-width(67%);
+      }
+    }
+  }
+}
