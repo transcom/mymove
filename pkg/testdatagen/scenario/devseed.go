@@ -58,6 +58,11 @@ var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 
+const defaultZipPickup30907 = "90210"
+const defaultZipDestination30901 = "30901"
+
+// const defaultZip5Distance30907to30901 = unit.Miles(48)
+
 func mustSave(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
@@ -696,6 +701,17 @@ func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *up
 // service item pricing params for displaying cost calculations
 func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
 
+	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			PostalCode: defaultZipPickup30907,
+		},
+	})
+	destinationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			PostalCode: defaultZipDestination30901,
+		},
+	})
+
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := issueDate.Add(31 * 24 * time.Hour)
@@ -706,6 +722,10 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ActualPickupDate:     &actualPickupDate,
+			PickupAddressID:      &pickupAddress.ID,
+			PickupAddress:        &pickupAddress,
+			DestinationAddressID: &destinationAddress.ID,
+			DestinationAddress:   &destinationAddress,
 		},
 		Move: models.Move{
 			Locator: "PARAMS",
