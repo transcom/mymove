@@ -218,10 +218,11 @@ IEA*1*00000005
 `
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 
-		edi824Processor.ProcessFile("", sample824EDIString)
+		err := edi824Processor.ProcessFile("", sample824EDIString)
+		suite.NoError(err)
 
 		var updatedPR models.PaymentRequest
-		err := suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
+		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
 		suite.NoError(err)
 		suite.Equal(models.PaymentRequestStatusPending, updatedPR.Status)
 	})

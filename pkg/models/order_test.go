@@ -36,7 +36,8 @@ func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
 		suite.T().Fatal("Should transition.")
 	}
 	suite.MustSave(&move)
-	suite.DB().Load(&order, "Moves")
+	err = suite.DB().Load(&order, "Moves")
+	suite.NoError(err)
 
 	expErrors := map[string][]string{
 		"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
@@ -62,7 +63,8 @@ func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 			suite.T().Fatal("Should transition.")
 		}
 		suite.MustSave(&move)
-		suite.DB().Load(&order, "Moves")
+		err = suite.DB().Load(&order, "Moves")
+		suite.NoError(err)
 
 		expErrors := map[string][]string{
 			"orders_number": {"OrdersNumber cannot be blank."},
@@ -92,7 +94,8 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 			suite.T().Fatal("Should transition.")
 		}
 		suite.MustSave(&move)
-		suite.DB().Load(&order, "Moves")
+		err = suite.DB().Load(&order, "Moves")
+		suite.NoError(err)
 
 		expErrors := map[string][]string{
 			"orders_type_detail": {"OrdersTypeDetail cannot be blank."},
@@ -111,7 +114,8 @@ func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
 		suite.T().Fatal("Should transition.")
 	}
 	suite.MustSave(&move)
-	suite.DB().Load(&order, "Moves")
+	err = suite.DB().Load(&order, "Moves")
+	suite.NoError(err)
 
 	expErrors := map[string][]string{
 		"department_indicator": {"DepartmentIndicator cannot be blank."},
