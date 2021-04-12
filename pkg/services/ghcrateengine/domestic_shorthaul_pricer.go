@@ -74,7 +74,7 @@ func (p domesticShorthaulPricer) Price(contractCode string,
 		},
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatFloat(domServiceAreaPrice.PriceCents.ToDollarFloatNoRound(), 3),
+			Value: FormatCents(domServiceAreaPrice.PriceCents),
 		},
 		{
 			Key:   models.ServiceItemParamNameIsPeak,
