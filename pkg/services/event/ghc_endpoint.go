@@ -55,6 +55,9 @@ const GhcUpdateMTOServiceItemStatusEndpointKey = "Ghc.UpdateMTOServiceItemStatus
 // GhcUpdateMoveTaskOrderStatusEndpointKey is the key for the updateMoveTaskOrderStatus endpoint in ghc
 const GhcUpdateMoveTaskOrderStatusEndpointKey = "Ghc.UpdateMoveTaskOrderStatus"
 
+// GhcUpdateMTOStatusServiceCounselingCompletedEndpointKey is the key for the updateMTOStatusServiceCounselingCompleted endpoint in ghc
+const GhcUpdateMTOStatusServiceCounselingCompletedEndpointKey = "Ghc.UpdateMTOStatusServiceCounselingCompleted"
+
 // GhcUpdatePaymentServiceItemStatusEndpointKey is the key for the updatePaymentServiceItemStatus endpoint in ghc
 const GhcUpdatePaymentServiceItemStatusEndpointKey = "Ghc.UpdatePaymentServiceItemStatus"
 
@@ -138,6 +141,10 @@ var ghcEndpoints = EndpointMapType{
 	GhcUpdateMoveTaskOrderStatusEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "updateMoveTaskOrderStatus",
+	},
+	GhcUpdateMTOStatusServiceCounselingCompletedEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "updateMTOStatusServiceCounselingCompleted",
 	},
 	GhcUpdatePaymentServiceItemStatusEndpointKey: {
 		APIName:     GhcAPIName,

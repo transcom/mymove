@@ -3,6 +3,7 @@ package order
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
@@ -219,11 +220,19 @@ func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have statuses let's use them
 		if len(statuses) > 0 {
-			query.Where("moves.status IN (?)", statuses)
+			var translatedStatuses []string
+			for _, status := range statuses {
+				if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
+					translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
+				} else {
+					translatedStatuses = append(translatedStatuses, status)
+				}
+			}
+			query.Where("moves.status IN (?)", translatedStatuses)
 		}
-		// If we don't have statuses let's just filter out cancelled and draft moves (they should not be in the queue)
+		// The TOO should never see moves that are in the following statuses: Draft, Canceled, Needs Service Counseling
 		if len(statuses) <= 0 {
-			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED)
+			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED, models.MoveStatusNeedsServiceCounseling)
 		}
 	}
 }
@@ -241,6 +250,7 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"branch":                 "service_members.affiliation",
 		"locator":                "moves.locator",
 		"status":                 "moves.status",
+		"submittedAt":            "moves.submitted_at",
 		"destinationDutyStation": "dest_ds.name",
 	}
 

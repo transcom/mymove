@@ -17,6 +17,10 @@ import (
 // swagger:model ProcessReviewedPaymentRequests
 type ProcessReviewedPaymentRequests struct {
 
+	// delete from syncada
+	// Required: true
+	DeleteFromSyncada *bool `json:"deleteFromSyncada"`
+
 	// payment request ID
 	// Read Only: true
 	// Format: uuid
@@ -38,6 +42,10 @@ type ProcessReviewedPaymentRequests struct {
 func (m *ProcessReviewedPaymentRequests) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateDeleteFromSyncada(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validatePaymentRequestID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -57,6 +65,15 @@ func (m *ProcessReviewedPaymentRequests) Validate(formats strfmt.Registry) error
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ProcessReviewedPaymentRequests) validateDeleteFromSyncada(formats strfmt.Registry) error {
+
+	if err := validate.Required("deleteFromSyncada", "body", m.DeleteFromSyncada); err != nil {
+		return err
+	}
+
 	return nil
 }
 

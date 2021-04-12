@@ -133,6 +133,18 @@ export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServ
   );
 }
 
+export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, ifMatchETag, normalize = false }) {
+  const operationPath = 'moveTaskOrder.updateMTOStatusServiceCounselingCompleted';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      'If-Match': ifMatchETag,
+    },
+    { normalize },
+  );
+}
+
 export function updateMTOShipmentStatus({
   moveTaskOrderID,
   shipmentID,
@@ -157,6 +169,22 @@ export function updateMTOShipmentStatus({
 
 export async function getMovesQueue(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
   const operationPath = 'queues.getMovesQueue';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    operationPath,
+    { sort, order, page: currentPage, perPage: currentPageSize, ...paramFilters },
+    { schemaKey: 'queueMovesResult', normalize: false },
+  );
+}
+
+export async function getServicesCounselingQueue(
+  key,
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20 },
+) {
+  const operationPath = 'queues.getServicesCounselingQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
     paramFilters[`${filter.id}`] = filter.value;

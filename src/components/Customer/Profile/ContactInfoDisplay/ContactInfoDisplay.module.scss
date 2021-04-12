@@ -14,6 +14,10 @@
   }
 
   .contactInfoSection {
+    h3 {
+      @include u-margin-top(4);
+    }
+
     dl {
       dt {
         @include u-width(33%);
