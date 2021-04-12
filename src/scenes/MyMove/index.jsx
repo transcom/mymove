@@ -59,6 +59,7 @@ import Home from 'pages/MyMove/Home';
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const AccessCode = lazy(() => import('shared/User/AccessCode'));
 const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
+const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -142,6 +143,11 @@ export class CustomerApp extends Component {
                   <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} component={MovingInfo} />
                   <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <CustomerPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                  <CustomerPrivateRoute
+                    exact
+                    path={customerRoutes.SERVICE_INFO_EDIT_PATH}
+                    component={EditServiceInfo}
+                  />
                   <CustomerPrivateRoute
                     path={customerRoutes.SHIPMENT_CREATE_PATH}
                     component={ConnectedCreateOrEditMtoShipment}
