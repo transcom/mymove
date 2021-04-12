@@ -89,7 +89,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 				Code:                       &code,
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
-				InterchangeControlNumberID: prToICN.ID,
+				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType997,
 			}
 			err = tx.Save(&ediError)
