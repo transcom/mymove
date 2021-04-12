@@ -280,7 +280,10 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		// In case other service items have been created at the same time on this
 		// same move, we fetch the move from the DB and check if it has any
 		// submitted service items.
-		tx.Reload(&move)
+		err = tx.Reload(&move)
+		if err != nil {
+			return fmt.Errorf("%e", err)
+		}
 		for _, serviceItem := range move.MTOServiceItems {
 			if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
 				moveShouldBeApproved = false

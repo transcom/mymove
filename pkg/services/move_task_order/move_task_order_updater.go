@@ -98,7 +98,10 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 
 	// Fail early if the Order is invalid due to missing required fields
 	order := move.Orders
-	o.db.Load(&order, "Moves")
+	err = o.db.Load(&order, "Moves")
+	if err != nil {
+		return &models.Move{}, err
+	}
 	if verrs, err = o.db.ValidateAndUpdate(&order); verrs.HasAny() || err != nil {
 		return &models.Move{}, services.NewInvalidInputError(move.ID, nil, verrs, "")
 	}
