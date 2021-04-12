@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -371,5 +372,54 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 	suite.Equal(2, len(moves))
 	suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
 	suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
+
+}
+
+func (suite *OrderServiceSuite) TestListMovesWithFilter() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	// Default New Duty Station name is Fort Gordon
+	requestedPickupDate := testdatagen.NextValidMoveDate
+	_ = testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status:  models.MoveStatusAPPROVED,
+			Locator: "AA1234",
+		},
+		MTOShipment: models.MTOShipment{
+			RequestedPickupDate: &requestedPickupDate,
+		},
+	})
+
+	serviceMemberLastName := "Zephyer"
+	affiliation := models.AffiliationNAVY
+	edipi := "9999999999"
+	newDutyStationName := "Ze Duty Station"
+	newDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: newDutyStationName,
+		},
+	})
+
+	_ = testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Locator: "TTZ123",
+		},
+		ServiceMember: models.ServiceMember{Affiliation: &affiliation, LastName: &serviceMemberLastName, Edipi: &edipi},
+		Order: models.Order{
+			NewDutyStation:   newDutyStation2,
+			NewDutyStationID: newDutyStation2.ID,
+		},
+	})
+
+	orderFetcher := NewOrderFetcher(suite.DB())
+	// Filter by requested pickup date
+	fmt.Println("🍑🍑🍑🍑🍑🍑")
+	fmt.Println(requestedPickupDate.String())
+	params := services.ListOrderParams{RequestedMoveDate: swag.String(requestedPickupDate.String())}
+	// params := services.ListOrderParams{}
+	moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+
+	suite.NoError(err)
+	suite.Equal(1, len(moves))
+	suite.Equal(requestedPickupDate.String(), moves[0].MTOShipments[0].RequestedPickupDate.String())
 
 }
