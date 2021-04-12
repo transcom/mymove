@@ -7,6 +7,7 @@ import styles from './Review.module.scss';
 
 import ScrollToTop from 'components/ScrollToTop';
 import { hasShortHaulError } from 'utils/incentives';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ConnectedSummary from 'components/Customer/Review/Summary/index';
 import 'scenes/Review/Review.css';
 import formStyles from 'styles/form.module.scss';
@@ -27,6 +28,7 @@ const Review = ({ push, canMoveNext }) => {
   return (
     <GridContainer>
       <ScrollToTop />
+      <ConnectedFlashMessage />
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <div className={styles.reviewMoveContainer}>

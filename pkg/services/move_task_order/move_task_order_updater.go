@@ -1,9 +1,12 @@
 package movetaskorder
 
 import (
-	"errors"
 	"fmt"
 	"time"
+
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
@@ -27,6 +30,56 @@ type moveTaskOrderUpdater struct {
 // NewMoveTaskOrderUpdater creates a new struct with the service dependencies
 func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator) services.MoveTaskOrderUpdater {
 	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}, builder, serviceItemCreator}
+}
+
+// UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
+func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
+	var err error
+	var verrs *validate.Errors
+
+	searchParams := services.FetchMoveTaskOrderParams{
+		IncludeHidden: false,
+	}
+	move, err := o.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
+	if err != nil {
+		return &models.Move{}, err
+	}
+
+	// check if status is in the right state
+	// needs to be in MoveStatusNeedsServiceCounseling
+	if move.Status != models.MoveStatusNeedsServiceCounseling {
+		err = errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Cannot move to Service Counseling Completed state when the Move is not in a Needs Service Counseling state for status: %s", move.Status))
+
+		return &models.Move{}, services.NewConflictError(move.ID, err.Error())
+	}
+
+	// update field for move
+	now := time.Now()
+	move.ServiceCounselingCompletedAt = &now
+	// set status to service counseling completed
+	move.Status = models.MoveStatusServiceCounselingCompleted
+
+	// Check the If-Match header against existing eTag before updating
+	encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
+	if encodedUpdatedAt != eTag {
+		return nil, services.NewPreconditionFailedError(move.ID, err)
+	}
+
+	verrs, err = o.db.ValidateAndSave(move)
+	if verrs != nil && verrs.HasAny() {
+		return &models.Move{}, services.NewInvalidInputError(move.ID, nil, verrs, "")
+	}
+	if err != nil {
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return nil, services.NewPreconditionFailedError(move.ID, err)
+		default:
+			return &models.Move{}, err
+		}
+	}
+
+	return move, nil
 }
 
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
@@ -136,6 +189,7 @@ type UpdateMoveTaskOrderQueryBuilder interface {
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
+// UpdatePostCounselingInfo updates the counseling info
 func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	var moveTaskOrder models.Move
 

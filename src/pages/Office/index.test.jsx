@@ -345,6 +345,18 @@ describe('Office App', () => {
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
       });
+
+      it('handles the ServicesCounselingMoveInfo URL', () => {
+        const app = mount(
+          <MockProviders initialState={loggedInTOOState} initialEntries={['/counseling/moves/AU67C6']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/counseling/moves/:moveCode');
+      });
     });
 
     describe('TIO routes', () => {
@@ -386,6 +398,18 @@ describe('Office App', () => {
         const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
+      });
+
+      it('handles the ServicesCounselingMoveInfo URL', () => {
+        const app = mount(
+          <MockProviders initialState={loggedInTIOState} initialEntries={['/counseling/moves/AU67C6']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/counseling/moves/:moveCode');
       });
     });
   });

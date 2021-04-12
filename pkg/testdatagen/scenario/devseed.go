@@ -146,7 +146,7 @@ func createPPMWithAdvance(db *pop.Connection, userUploader *uploader.UserUploade
 			ServiceMember:   ppm0.Move.Orders.ServiceMember,
 		},
 	})
-	ppm0.Move.Submit(time.Now())
+	ppm0.Move.Submit()
 	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -186,7 +186,7 @@ func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploa
 		},
 		UserUploader: userUploader,
 	})
-	ppmNoAdvance.Move.Submit(time.Now())
+	ppmNoAdvance.Move.Submit()
 	verrs, err := models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -235,7 +235,7 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 		},
 		UserUploader: userUploader,
 	})
-	ppm2.Move.Submit(time.Now())
+	ppm2.Move.Submit()
 	ppm2.Move.Approve()
 
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
@@ -281,7 +281,7 @@ func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader) 
 		},
 		UserUploader: userUploader,
 	})
-	ppmCanceled.Move.Submit(time.Now())
+	ppmCanceled.Move.Submit()
 	verrs, err := models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -446,7 +446,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 	})
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
-	move.Submit(time.Now())
+	move.Submit()
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -467,7 +467,7 @@ func createMoveWithHHGMissingOrdersInfo(db *pop.Connection, userUploader *upload
 	order.OrdersTypeDetail = nil
 	mustSave(db, &order)
 
-	move.Submit(time.Now())
+	move.Submit()
 	mustSave(db, &move)
 }
 
@@ -677,7 +677,7 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 		},
 		UserUploader: userUploader,
 	})
-	ppm6.Move.Submit(time.Now())
+	ppm6.Move.Submit()
 	ppm6.Move.Approve()
 
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -735,7 +735,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 		Move: move,
 	})
 
-	submissionErr := move.Submit(time.Now())
+	submissionErr := move.Submit()
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
 	}
@@ -3286,6 +3286,115 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 	})
 }
 
+func createHHGNeedsServicesCounseling(db *pop.Connection) {
+	submittedAt := time.Now()
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{})
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "SRVCSL",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: orders,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
+func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uploader.UserUploader) {
+	marineCorps := models.AffiliationMARINES
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			Affiliation: &marineCorps,
+		},
+	})
+
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+		},
+		UserUploader: userUploader,
+	})
+
+	submittedAt := time.Now()
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "USMCSC",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: orders,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
+func createHHGServicesCounselingCompleted(db *pop.Connection) {
+	servicesCounselingCompletedAt := time.Now()
+	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:                      "CSLCMP",
+			Status:                       models.MoveStatusServiceCounselingCompleted,
+			SubmittedAt:                  &submittedAt,
+			ServiceCounselingCompletedAt: &servicesCounselingCompletedAt,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeHHG,
+			Status:       models.MTOShipmentStatusSubmitted,
+		},
+	})
+}
+
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
 	// PPM Office Queue
@@ -3301,6 +3410,11 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createUnsubmittedMoveWithNTSAndNTSR(db)
 	createServiceMemberWithOrdersButNoMoveType(db)
 	createServiceMemberWithNoUploadedOrders(db)
+
+	// Services Counseling
+	createHHGNeedsServicesCounseling(db)
+	createHHGNeedsServicesCounselingUSMC(db, userUploader)
+	createHHGServicesCounselingCompleted(db)
 
 	// TXO Queues
 	createTOO(db)

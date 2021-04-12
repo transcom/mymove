@@ -12,7 +12,7 @@ import (
 // ServiceItemPricer prices a generic payment service item for a GHC move
 //go:generate mockery -name ServiceItemPricer
 type ServiceItemPricer interface {
-	PriceServiceItem(item models.PaymentServiceItem) (unit.Cents, error)
+	PriceServiceItem(item models.PaymentServiceItem) (unit.Cents, models.PaymentServiceItemParams, error)
 	UsingConnection(db *pop.Connection) ServiceItemPricer
 }
 

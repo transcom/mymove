@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http/httptest"
+	"os"
 	"time"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -30,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -217,20 +219,34 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// When: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveStatusRouter(suite.DB())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
 		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
 		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+		updatedMove, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
+		suite.NoError(err)
 
-		// And: Returned query to have an submitted status
+		// And: Returned query to have a submitted status
 		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 		// And: Expect move's PPM's advance to have "Requested" status
 		suite.Assertions.Equal(
 			internalmessages.ReimbursementStatusREQUESTED,
 			*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
 		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
+
+		actualSubmittedAt := updatedMove.SubmittedAt
+		currentTime := time.Now()
+		diff := currentTime.Sub(*actualSubmittedAt)
+		diffInSeconds := diff.Seconds()
+		var oneSecond float64
+		oneSecond = 1.000000
+
+		// Test that the move was submitted within a few seconds of the current time.
+		// This is better than asserting that it's not Nil, and avoids trying to mock
+		// time.Now() or having to pass in a date to move.Submit just to be able to test it.
+		suite.Assertions.LessOrEqual(diffInSeconds, oneSecond)
 	})
 	suite.Run("Submits hhg shipment success", func() {
 		// Given: a set of orders, a move, user and servicemember
@@ -258,7 +274,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// And: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveStatusRouter(suite.DB())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -269,6 +285,63 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 	})
 
+}
+
+func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
+	suite.Run("Routes to service counseling when feature flag is true", func() {
+		os.Setenv("FEATURE_FLAG_SERVICE_COUNSELING", "true")
+		// Given: a set of orders, a move, user and servicemember
+		move := testdatagen.MakeDefaultMove(suite.DB())
+
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
+		signingDate := strfmt.DateTime(time.Now())
+		certificate := internalmessages.CreateSignedCertificationPayload{
+			CertificationText: swag.String("This is your legal message"),
+			CertificationType: &certType,
+			Date:              &signingDate,
+			Signature:         swag.String("Jane Doe"),
+		}
+		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
+
+		params := moveop.SubmitMoveForApprovalParams{
+			HTTPRequest:                  req,
+			MoveID:                       strfmt.UUID(move.ID.String()),
+			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
+		}
+		// When: a move is submitted
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		handler := SubmitMoveHandler{context, moverouter.NewMoveStatusRouter(suite.DB())}
+		response := handler.Handle(params)
+
+		// Then: expect a 200 status code
+		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
+		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+
+		updatedMove, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
+		suite.NoError(err)
+
+		actualSubmittedAt := updatedMove.SubmittedAt
+		currentTime := time.Now()
+		diff := currentTime.Sub(*actualSubmittedAt)
+		diffInSeconds := diff.Seconds()
+		var oneSecond float64
+		oneSecond = 1.000000
+
+		// Test that the move was submitted within a few seconds of the current time.
+		// This is better than asserting that it's not Nil, and avoids trying to mock
+		// time.Now() or having to pass in a date to move.SendToServiceCounseling just
+		// to be able to test it.
+		suite.Assertions.LessOrEqual(diffInSeconds, oneSecond)
+
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, updatedMove.Status)
+		// And: Returned query to have a needs service counseling status
+		suite.Equal(internalmessages.MoveStatusNEEDSSERVICECOUNSELING, okResponse.Payload.Status)
+		suite.NotNil(okResponse.Payload.SubmittedAt)
+	})
 }
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
