@@ -15,18 +15,19 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
 
-import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
 import { getOrdersForServiceMember, patchOrders, createUploadForDocument, deleteUpload } from 'services/internalApi';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
   selectMoveIsApproved,
   selectUploadsForCurrentOrders,
   selectHasCurrentPPM,
+  selectEntitlementsForLoggedInUser,
 } from 'store/entities/selectors';
 
 import './Review.css';
@@ -146,34 +147,42 @@ class EditOrders extends Component {
   };
 
   submitOrders = (fieldValues) => {
+    const { setFlashMessage, entitlement } = this.props;
+
+    let entitlementCouldChange = false;
+
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
     fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     if (
       fieldValues.has_dependents !== this.props.currentOrders.has_dependents ||
       fieldValues.spouse_has_pro_gear !== this.props.spouse_has_pro_gear
     ) {
-      this.props.entitlementChanged();
+      entitlementCouldChange = true;
     }
 
-    return patchOrders(fieldValues).then((response) => {
-      this.props.updateOrders(response);
-      // This promise resolves regardless of error.
-      if (!this.props.hasSubmitError) {
-        this.props.editSuccessful();
-        this.props.history.goBack();
-        if (this.props.isPpm) {
-          this.props.checkEntitlement(this.props.match.params.moveId);
+    return patchOrders(fieldValues)
+      .then((response) => {
+        this.props.updateOrders(response);
+
+        if (entitlementCouldChange) {
+          setFlashMessage(
+            'EDIT_ORDERS_SUCCESS',
+            'info',
+            `Your weight entitlement is now ${entitlement.sum.toLocaleString()} lbs.`,
+            'Your changes have been saved. Note that the entitlement has also changed.',
+          );
+        } else {
+          setFlashMessage('EDIT_ORDERS_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
-      } else {
+
+        this.props.history.goBack();
+      })
+      .catch((e) => {
         scrollToTop();
-      }
-    });
+      });
   };
 
   componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
-
     const { serviceMemberId, updateOrders } = this.props;
     getOrdersForServiceMember(serviceMemberId).then((response) => {
       updateOrders(response);
@@ -224,7 +233,7 @@ function mapStateToProps(state) {
   const currentOrders = selectCurrentOrders(state) || {};
   const uploads = selectUploadsForCurrentOrders(state);
 
-  const props = {
+  return {
     currentOrders,
     serviceMemberId,
     existingUploads: uploads,
@@ -234,18 +243,14 @@ function mapStateToProps(state) {
     moveIsApproved: selectMoveIsApproved(state),
     isPpm: selectHasCurrentPPM(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
+    entitlement: selectEntitlementsForLoggedInUser(state),
   };
-  return props;
 }
 
 const mapDispatchToProps = {
   push,
   updateOrders: updateOrdersAction,
-  editBegin,
-  entitlementChangeBegin,
-  editSuccessful,
-  entitlementChanged,
-  checkEntitlement,
+  setFlashMessage: setFlashMessageAction,
 };
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(EditOrders));
