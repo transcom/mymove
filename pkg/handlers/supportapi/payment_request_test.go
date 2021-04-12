@@ -3,7 +3,7 @@
 //RA: Functions with unchecked return values in the file are used set up environment variables
 //RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Validator Status: Mitigated
 //RA Modified Severity: N/A
 // nolint:errcheck
 package supportapi
@@ -573,13 +573,15 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		sendToSyncada := false
 		readFromSyncada := false
+		deleteFromSyncada := false
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada:   &sendToSyncada,
-				ReadFromSyncada: &readFromSyncada,
-				Status:          "SENT_TO_GEX",
+				SendToSyncada:     &sendToSyncada,
+				ReadFromSyncada:   &readFromSyncada,
+				DeleteFromSyncada: &deleteFromSyncada,
+				Status:            "SENT_TO_GEX",
 			},
 		}
 
@@ -598,12 +600,14 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		sendToSyncada := false
 		readFromSyncada := false
+		deleteFromSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada:   &sendToSyncada,
-				ReadFromSyncada: &readFromSyncada,
-				Status:          "SENT_TO_GEX",
+				SendToSyncada:     &sendToSyncada,
+				ReadFromSyncada:   &readFromSyncada,
+				DeleteFromSyncada: &deleteFromSyncada,
+				Status:            "SENT_TO_GEX",
 			},
 		}
 
@@ -628,9 +632,10 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		sendToSyncada := false
 		readFromSyncada := false
+		deleteFromSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
-			Body:        &supportmessages.ProcessReviewedPaymentRequests{ReadFromSyncada: &readFromSyncada, SendToSyncada: &sendToSyncada},
+			Body:        &supportmessages.ProcessReviewedPaymentRequests{ReadFromSyncada: &readFromSyncada, SendToSyncada: &sendToSyncada, DeleteFromSyncada: &deleteFromSyncada},
 		}
 
 		response := handler.Handle(params)
@@ -653,12 +658,14 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		sendToSyncada := false
 		readFromSyncada := false
+		deleteFromSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada:    &sendToSyncada,
-				ReadFromSyncada:  &readFromSyncada,
-				PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+				SendToSyncada:     &sendToSyncada,
+				ReadFromSyncada:   &readFromSyncada,
+				DeleteFromSyncada: &deleteFromSyncada,
+				PaymentRequestID:  strfmt.UUID(paymentRequestID.String()),
 			},
 		}
 
@@ -712,13 +719,15 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		prID := reviewedPRs[0].ID
 		sendToSyncada := false
 		readFromSyncada := false
+		deleteFromSyncada := false
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada:    &sendToSyncada,
-				ReadFromSyncada:  &readFromSyncada,
-				PaymentRequestID: strfmt.UUID(prID.String()),
+				SendToSyncada:     &sendToSyncada,
+				ReadFromSyncada:   &readFromSyncada,
+				DeleteFromSyncada: &deleteFromSyncada,
+				PaymentRequestID:  strfmt.UUID(prID.String()),
 			},
 		}
 
@@ -748,12 +757,14 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 		sendToSyncada := false
 		readFromSyncada := false
+		deleteFromSyncada := false
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada:   &sendToSyncada,
-				ReadFromSyncada: &readFromSyncada,
+				SendToSyncada:     &sendToSyncada,
+				ReadFromSyncada:   &readFromSyncada,
+				DeleteFromSyncada: &deleteFromSyncada,
 			},
 		}
 

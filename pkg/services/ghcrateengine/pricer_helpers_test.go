@@ -136,7 +136,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Plu
 	dlhDistance := unit.Miles(305) // > 50 miles
 
 	suite.T().Run("destination golden path for > 50 miles with different zip3s", func(t *testing.T) {
-		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dddsitTestEscalationCompounded)
+		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 		priceCents, _, err := priceDomesticPickupDeliverySIT(suite.DB(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dlhZipDest, dlhZipSITDest, dlhDistance)
 		suite.NoError(err)
 		expectedPriceMillicents := unit.Millicents(45944438) // dddsitTestDomesticLinehaulBasePriceMillicents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
@@ -236,7 +236,7 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 	suite.T().Run("payment service item params created for the pricer", func(t *testing.T) {
 		paymentServiceItemParams, err := createPricerGeneratedParams(suite.DB(), paymentServiceItem.ID, params)
 		suite.NoError(err)
-		expectedValues := [4]string{"40000.9", "1.06", "true", "TRUSS_TEST"}
+		expectedValues := [4]string{"4000.90", "1.06", "True", "TRUSS_TEST"}
 		for _, paymentServiceItemParam := range paymentServiceItemParams {
 			switch paymentServiceItemParam.ServiceItemParamKey.Key {
 			case models.ServiceItemParamNamePriceRateOrFactor:

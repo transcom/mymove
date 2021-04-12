@@ -2060,9 +2060,15 @@ func init() {
       "type": "object",
       "required": [
         "sendToSyncada",
-        "readFromSyncada"
+        "readFromSyncada",
+        "deleteFromSyncada"
       ],
       "properties": {
+        "deleteFromSyncada": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "paymentRequestID": {
           "type": "string",
           "format": "uuid",
@@ -4743,9 +4749,15 @@ func init() {
       "type": "object",
       "required": [
         "sendToSyncada",
-        "readFromSyncada"
+        "readFromSyncada",
+        "deleteFromSyncada"
       ],
       "properties": {
+        "deleteFromSyncada": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "paymentRequestID": {
           "type": "string",
           "format": "uuid",

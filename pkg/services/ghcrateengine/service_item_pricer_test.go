@@ -17,7 +17,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 	serviceItemPricer := NewServiceItemPricer(suite.DB())
 
 	suite.T().Run("golden path", func(t *testing.T) {
-		priceCents, err := serviceItemPricer.PriceServiceItem(paymentServiceItem)
+		priceCents, _, err := serviceItemPricer.PriceServiceItem(paymentServiceItem)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
@@ -29,7 +29,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 			},
 		})
 
-		_, err := serviceItemPricer.PriceServiceItem(badPaymentServiceItem)
+		_, _, err := serviceItemPricer.PriceServiceItem(badPaymentServiceItem)
 		suite.Error(err)
 	})
 }
@@ -110,6 +110,14 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItemData() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentServiceItem {
+	// This ParamKey doesn't need to be connected to the PaymentServiceItem yet, so we'll create it separately
+	testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:    models.ServiceItemParamNamePriceRateOrFactor,
+			Type:   models.ServiceItemParamTypeDecimal,
+			Origin: models.ServiceItemParamOriginPricer,
+		},
+	})
 	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeMS,

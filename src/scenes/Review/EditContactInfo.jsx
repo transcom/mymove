@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import scrollToTop from 'shared/scrollToTop';
@@ -13,8 +12,8 @@ import Alert from 'shared/Alert';
 import AddressForm from 'shared/AddressForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
-import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import './Review.css';
 import SaveCancelButtons from './SaveCancelButtons';
 
@@ -94,6 +93,8 @@ class EditContact extends Component {
   }
 
   updateContact = (fieldValues) => {
+    const { setFlashMessage } = this.props;
+
     let serviceMember = fieldValues.serviceMember;
     serviceMember.id = this.props.serviceMember.id;
     serviceMember.residential_address = fieldValues.resAddress;
@@ -103,8 +104,7 @@ class EditContact extends Component {
       .then((response) => {
         // Update Redux with new data
         this.props.updateServiceMember(response);
-
-        this.props.editSuccessful();
+        setFlashMessage('EDIT_CONTACT_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
         this.props.history.goBack();
       })
       .catch((e) => {
@@ -119,11 +119,6 @@ class EditContact extends Component {
         scrollToTop();
       });
   };
-
-  componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
-  }
 
   render() {
     const { serviceMemberSchema, addressSchema, serviceMember } = this.props;
@@ -169,17 +164,10 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-      updateServiceMember: updateServiceMemberAction,
-      editBegin,
-      editSuccessful,
-      entitlementChangeBegin,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  updateServiceMember: updateServiceMemberAction,
+  setFlashMessage: setFlashMessageAction,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditContact);

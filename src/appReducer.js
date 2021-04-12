@@ -12,13 +12,11 @@ import flashReducer from 'store/flash/reducer';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
 import { requestsReducer } from 'shared/Swagger/requestsReducer';
 import { entitiesReducer } from 'shared/Entities/reducer';
-import uiReducer from 'shared/UI/ducks';
 import { moveReducer } from 'scenes/Moves/ducks';
 import { ppmReducer } from 'scenes/Moves/Ppm/ducks';
 import { serviceMemberReducer } from 'scenes/ServiceMembers/ducks';
 import { ordersReducer } from 'scenes/Orders/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
-import { reviewReducer } from 'scenes/Review/ducks';
 import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
 
@@ -37,7 +35,6 @@ const defaultReducers = {
   form: formReducer,
   swaggerPublic: swaggerReducerPublic,
   requests: requestsReducer,
-  ui: uiReducer,
   entities: entitiesReducer,
 };
 
@@ -52,7 +49,6 @@ export const appReducer = (history) =>
     serviceMember: serviceMemberReducer,
     orders: ordersReducer,
     signedCertification: signedCertificationReducer,
-    review: reviewReducer,
     flashMessages: officeFlashMessagesReducer,
     ppmIncentive: officePpmReducer,
   });

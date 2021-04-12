@@ -34,6 +34,10 @@ const (
 	MoveStatusCANCELED MoveStatus = "CANCELED"
 	// MoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS REQUESTED"
 	MoveStatusAPPROVALSREQUESTED MoveStatus = "APPROVALS REQUESTED"
+	// MoveStatusNeedsServiceCounseling captures enum value "NEEDS SERVICE COUNSELING"
+	MoveStatusNeedsServiceCounseling MoveStatus = "NEEDS SERVICE COUNSELING"
+	// MoveStatusServiceCounselingCompleted captures enum value "SERVICE COUNSELING COMPLETED"
+	MoveStatusServiceCounselingCompleted MoveStatus = "SERVICE COUNSELING COMPLETED"
 )
 
 // SelectedMoveType represents the type of move being represented
@@ -71,29 +75,30 @@ var locatorLetters = []rune("346789BCDFGHJKMPQRTVWXY")
 
 // Move is an object representing a move
 type Move struct {
-	ID                      uuid.UUID               `json:"id" db:"id"`
-	Locator                 string                  `json:"locator" db:"locator"`
-	CreatedAt               time.Time               `json:"created_at" db:"created_at"`
-	UpdatedAt               time.Time               `json:"updated_at" db:"updated_at"`
-	SubmittedAt             *time.Time              `json:"submitted_at" db:"submitted_at"`
-	OrdersID                uuid.UUID               `json:"orders_id" db:"orders_id"`
-	Orders                  Order                   `belongs_to:"orders"`
-	SelectedMoveType        *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
-	PersonallyProcuredMoves PersonallyProcuredMoves `has_many:"personally_procured_moves" order_by:"created_at desc"`
-	MoveDocuments           MoveDocuments           `has_many:"move_documents" order_by:"created_at desc"`
-	Status                  MoveStatus              `json:"status" db:"status"`
-	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
-	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
-	Show                    *bool                   `json:"show" db:"show"`
-	AvailableToPrimeAt      *time.Time              `db:"available_to_prime_at"`
-	ContractorID            *uuid.UUID              `db:"contractor_id"`
-	Contractor              *Contractor             `belongs_to:"contractors"`
-	PPMEstimatedWeight      *unit.Pound             `db:"ppm_estimated_weight"`
-	PPMType                 *string                 `db:"ppm_type"`
-	MTOServiceItems         MTOServiceItems         `has_many:"mto_service_items"`
-	PaymentRequests         PaymentRequests         `has_many:"payment_requests"`
-	MTOShipments            MTOShipments            `has_many:"mto_shipments"`
-	ReferenceID             *string                 `db:"reference_id"`
+	ID                           uuid.UUID               `json:"id" db:"id"`
+	Locator                      string                  `json:"locator" db:"locator"`
+	CreatedAt                    time.Time               `json:"created_at" db:"created_at"`
+	UpdatedAt                    time.Time               `json:"updated_at" db:"updated_at"`
+	SubmittedAt                  *time.Time              `json:"submitted_at" db:"submitted_at"`
+	OrdersID                     uuid.UUID               `json:"orders_id" db:"orders_id"`
+	Orders                       Order                   `belongs_to:"orders"`
+	SelectedMoveType             *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
+	PersonallyProcuredMoves      PersonallyProcuredMoves `has_many:"personally_procured_moves" order_by:"created_at desc"`
+	MoveDocuments                MoveDocuments           `has_many:"move_documents" order_by:"created_at desc"`
+	Status                       MoveStatus              `json:"status" db:"status"`
+	SignedCertifications         SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
+	CancelReason                 *string                 `json:"cancel_reason" db:"cancel_reason"`
+	Show                         *bool                   `json:"show" db:"show"`
+	AvailableToPrimeAt           *time.Time              `db:"available_to_prime_at"`
+	ContractorID                 *uuid.UUID              `db:"contractor_id"`
+	Contractor                   *Contractor             `belongs_to:"contractors"`
+	PPMEstimatedWeight           *unit.Pound             `db:"ppm_estimated_weight"`
+	PPMType                      *string                 `db:"ppm_type"`
+	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items"`
+	PaymentRequests              PaymentRequests         `has_many:"payment_requests"`
+	MTOShipments                 MTOShipments            `has_many:"mto_shipments"`
+	ReferenceID                  *string                 `db:"reference_id"`
+	ServiceCounselingCompletedAt *time.Time              `db:"service_counseling_completed_at"`
 }
 
 // MoveOptions is used when creating new moves based on parameters
@@ -131,12 +136,12 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // Avoid calling Move.Status = ... ever. Use these methods to change the state.
 
 // Submit submits the Move
-func (m *Move) Submit(submittedDate time.Time) error {
+func (m *Move) Submit() error {
 	if m.Status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 	m.Status = MoveStatusSUBMITTED
-	submitDate := swag.Time(submittedDate)
+	submitDate := swag.Time(time.Now())
 	m.SubmittedAt = submitDate
 
 	// Update PPM status too
@@ -159,16 +164,56 @@ func (m *Move) Submit(submittedDate time.Time) error {
 	return nil
 }
 
+// SendToServiceCounseling sends the move to needs service counseling
+func (m *Move) SendToServiceCounseling() error {
+	if m.Status != MoveStatusDRAFT {
+		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is %s", m.Status))
+	}
+	m.Status = MoveStatusNeedsServiceCounseling
+	submitDate := swag.Time(time.Now())
+	m.SubmittedAt = submitDate
+
+	return nil
+}
+
+var validStatusesBeforeApproval = []MoveStatus{
+	MoveStatusSUBMITTED,
+	MoveStatusAPPROVALSREQUESTED,
+	MoveStatusServiceCounselingCompleted,
+}
+
+func statusSliceContains(statusSlice []MoveStatus, status MoveStatus) bool {
+	for _, validStatus := range statusSlice {
+		if status == validStatus {
+			return true
+		}
+	}
+	return false
+}
+
 // Approve approves the Move
 func (m *Move) Approve() error {
-	if m.Status == MoveStatusSUBMITTED || m.Status == MoveStatusAPPROVALSREQUESTED {
+	if m.approvable() {
 		m.Status = MoveStatusAPPROVED
 		return nil
 	}
-	if m.Status == MoveStatusAPPROVED {
+	if m.alreadyApproved() {
 		return nil
 	}
-	return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to Approved state when the Move is not either in a Submitted or Approvals Requested state for status: %s", m.Status))
+	return errors.Wrap(
+		ErrInvalidTransition, fmt.Sprintf(
+			"A move can only be approved if it's in one of these states: %q. However, its current status is: %s",
+			validStatusesBeforeApproval, m.Status,
+		),
+	)
+}
+
+func (m *Move) alreadyApproved() bool {
+	return m.Status == MoveStatusAPPROVED
+}
+
+func (m *Move) approvable() bool {
+	return statusSliceContains(validStatusesBeforeApproval, m.Status)
 }
 
 // SetApprovalsRequested sets the move to approvals requested

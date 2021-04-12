@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import scrollToTop from 'shared/scrollToTop';
@@ -14,8 +13,8 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import SaveCancelButtons from './SaveCancelButtons';
 import './Review.css';
 import profileImage from './images/profile.png';
-import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import { selectBackupContacts } from 'store/entities/selectors';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 const editBackupContactFormName = 'edit_backup_contact';
 
@@ -64,13 +63,11 @@ class EditBackupContact extends Component {
   }
 
   componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
     scrollToTop();
   }
 
   updateContact = (fieldValues) => {
-    const { updateBackupContact } = this.props;
+    const { updateBackupContact, setFlashMessage } = this.props;
 
     if (fieldValues.telephone === '') {
       fieldValues.telephone = null;
@@ -81,7 +78,7 @@ class EditBackupContact extends Component {
         // Update in Redux
         updateBackupContact(response);
 
-        this.props.editSuccessful();
+        setFlashMessage('EDIT_BACKUP_CONTACT_SUCCESS', 'success', '', 'Your changes have been saved.');
         this.props.history.goBack();
       })
       .catch((e) => {
@@ -130,17 +127,10 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-      updateBackupContact: updateBackupContactAction,
-      editBegin,
-      editSuccessful,
-      entitlementChangeBegin,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  updateBackupContact: updateBackupContactAction,
+  setFlashMessage: setFlashMessageAction,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditBackupContact);
