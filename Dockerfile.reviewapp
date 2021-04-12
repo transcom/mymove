@@ -6,6 +6,7 @@
 FROM milmove/circleci-docker:milmove-app-eaef02734833321cab72652613f07651fc7c99f0 as builder
 ENV CIRCLECI=docker
 ENV REACT_APP_NODE_ENV=development
+# hadolint ignore=DL3002
 USER root
 WORKDIR /build
 COPY Makefile /build/
@@ -65,6 +66,7 @@ COPY migrations/app/secure /migrate/secure
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 
 # Install tools needed in container
+# hadolint ignore=DL3018
 RUN apk update && apk add ca-certificates --no-cache
 
 WORKDIR /
@@ -87,6 +89,7 @@ RUN set -x \
 # FINAL #
 #########
 
+# hadolint ignore=DL3007
 FROM gcr.io/distroless/base:latest as milmove
 
 COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem

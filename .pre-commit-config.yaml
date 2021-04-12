@@ -129,10 +129,10 @@ repos:
             docs/adr/index.md
           )$
 
-  - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
-    rev: v0.1.0
+  - repo: https://github.com/IamTheFij/docker-pre-commit
+    rev: 9a22a204
     hooks:
-      - id: dockerfilelint
+      - id: hadolint
 
   - repo: local
     hooks:
