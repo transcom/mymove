@@ -187,6 +187,7 @@ func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.U
 		newParam := models.PaymentServiceItemParam{
 			PaymentServiceItemID:  paymentServiceItemID,
 			ServiceItemParamKeyID: serviceItemParamKey.ID,
+			ServiceItemParamKey:   serviceItemParamKey,
 			Value:                 param.Value,
 		}
 

@@ -126,6 +126,48 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		return nil
 	})
 	if transactionError != nil {
+		errDescription := transactionError.Error()
+
+		errToSave := models.EdiError{
+			PaymentRequestID:           pr.ID,
+			InterchangeControlNumberID: nil,
+			Code:                       nil,
+			Description:                &errDescription,
+			EDIType:                    models.EDIType858,
+		}
+		verrs, err := p.db.ValidateAndCreate(&errToSave)
+
+		// We are just logging these errors instead of returning them to avoid obscuring the original error
+		if err != nil {
+			p.logger.Error(
+				"failed to save EDI 858 error",
+				zap.String("PaymentRequestID", pr.ID.String()),
+				zap.Error(err),
+			)
+		} else if verrs != nil && verrs.HasAny() {
+			p.logger.Error(
+				"failed to save EDI 858 error due to validation errors",
+				zap.String("PaymentRequestID", pr.ID.String()),
+				zap.Error(verrs),
+			)
+		}
+
+		pr.Status = models.PaymentRequestStatusEDIError
+		verrs, err = p.db.ValidateAndUpdate(&pr)
+		if err != nil {
+			p.logger.Error(
+				"error while updating payment request status",
+				zap.String("PaymentRequestID", pr.ID.String()),
+				zap.Error(err),
+			)
+		} else if verrs != nil && verrs.HasAny() {
+			p.logger.Error(
+				"failed to update payment request status due to validation errors",
+				zap.String("PaymentRequestID", pr.ID.String()),
+				zap.Error(verrs),
+			)
+		}
+
 		return transactionError
 	}
 	return nil

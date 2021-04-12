@@ -31,7 +31,7 @@ func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	order.TAC = nil
-	err := move.Submit(time.Now())
+	err := move.Submit()
 	if err != nil {
 		suite.T().Fatal("Should transition.")
 	}
@@ -58,7 +58,7 @@ func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		order := move.Orders
 		order.OrdersNumber = invalidCase.value
-		err := move.Submit(time.Now())
+		err := move.Submit()
 		if err != nil {
 			suite.T().Fatal("Should transition.")
 		}
@@ -89,7 +89,7 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 		order := move.Orders
 
 		order.OrdersTypeDetail = invalidCase.value
-		err := move.Submit(time.Now())
+		err := move.Submit()
 		if err != nil {
 			suite.T().Fatal("Should transition.")
 		}
@@ -109,7 +109,7 @@ func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	order.DepartmentIndicator = nil
-	err := move.Submit(time.Now())
+	err := move.Submit()
 	if err != nil {
 		suite.T().Fatal("Should transition.")
 	}
@@ -343,7 +343,7 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	move.Orders = orders
 	suite.MustSave(move)
 
-	err = move.Submit(time.Now())
+	err = move.Submit()
 	suite.NoError(err)
 
 	reason := "Mistaken identity"

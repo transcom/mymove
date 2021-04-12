@@ -24,7 +24,6 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
                 type="tel"
                 minimum="12"
                 mask="000{-}000{-}0000"
-                useMaskedValue
                 required
               />
             </div>

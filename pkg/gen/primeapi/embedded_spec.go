@@ -2120,6 +2120,7 @@ func init() {
         "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
+        "ContractYearName",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -2127,7 +2128,9 @@ func init() {
         "DistanceZipSITDest",
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
+        "EscalationCompounded",
         "FSCWeightBasedDistanceMultiplier",
+        "IsPeak",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -2136,6 +2139,7 @@ func init() {
         "PriceAreaIntlDest",
         "PriceAreaIntlOrigin",
         "PriceAreaOrigin",
+        "PriceRateOrFactor",
         "PSI_LinehaulDom",
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
@@ -2175,7 +2179,8 @@ func init() {
       "type": "string",
       "enum": [
         "PRIME",
-        "SYSTEM"
+        "SYSTEM",
+        "PRICER"
       ]
     },
     "ServiceItemParamType": {
@@ -4681,6 +4686,7 @@ func init() {
         "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
+        "ContractYearName",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -4688,7 +4694,9 @@ func init() {
         "DistanceZipSITDest",
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
+        "EscalationCompounded",
         "FSCWeightBasedDistanceMultiplier",
+        "IsPeak",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -4697,6 +4705,7 @@ func init() {
         "PriceAreaIntlDest",
         "PriceAreaIntlOrigin",
         "PriceAreaOrigin",
+        "PriceRateOrFactor",
         "PSI_LinehaulDom",
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
@@ -4736,7 +4745,8 @@ func init() {
       "type": "string",
       "enum": [
         "PRIME",
-        "SYSTEM"
+        "SYSTEM",
+        "PRICER"
       ]
     },
     "ServiceItemParamType": {
