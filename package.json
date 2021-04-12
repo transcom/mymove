@@ -111,7 +111,7 @@
   "devDependencies": {
     "@babel/core": "~7.13.14",
     "@dump247/storybook-state": "^1.6.1",
-    "@stoplight/spectral": "^5.9.0",
+    "@stoplight/spectral": "^5.9.1",
     "@storybook/addon-a11y": "^6.2.7",
     "@storybook/addon-essentials": "^6.2.7",
     "@storybook/addon-knobs": "^6.2.7",
