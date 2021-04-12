@@ -31,6 +31,9 @@ const (
 
 	// MoveStatusCANCELED captures enum value "CANCELED"
 	MoveStatusCANCELED MoveStatus = "CANCELED"
+
+	// MoveStatusNEEDSSERVICECOUNSELING captures enum value "NEEDS SERVICE COUNSELING"
+	MoveStatusNEEDSSERVICECOUNSELING MoveStatus = "NEEDS SERVICE COUNSELING"
 )
 
 // for schema
@@ -38,7 +41,7 @@ var moveStatusEnum []interface{}
 
 func init() {
 	var res []MoveStatus
-	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","APPROVED","CANCELED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","APPROVED","CANCELED","NEEDS SERVICE COUNSELING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
