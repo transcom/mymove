@@ -56,6 +56,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticPackAndUnpackData(code mode
 			ReContractYear: models.ReContractYear{
 				Escalation:           1.0197,
 				EscalationCompounded: 1.0407,
+				Name:                 "Base Period Year 1",
 			},
 		})
 
@@ -177,9 +178,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 func (suite *GHCRateEngineServiceSuite) HasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, value string) bool {
 	for _, displayParam := range displayParams {
 		if displayParam.Key == key {
-			if displayParam.Value == value {
-				return true
-			}
+			return suite.Equal(value, displayParam.Value, "%s param actual value did not match expected", key.String())
 		}
 	}
 

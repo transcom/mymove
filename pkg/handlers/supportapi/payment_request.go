@@ -263,6 +263,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	paymentRequestID := uuid.FromStringOrNil(params.Body.PaymentRequestID.String())
 	sendToSyncada := params.Body.SendToSyncada
 	readFromSyncada := params.Body.ReadFromSyncada
+	deleteFromSyncada := params.Body.DeleteFromSyncada
 	paymentRequestStatus := params.Body.Status
 	var paymentRequests models.PaymentRequests
 	var updatedPaymentRequests models.PaymentRequests
@@ -272,6 +273,9 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	}
 	if readFromSyncada == nil {
 		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, readFromSyncada flag required", h.GetTraceID()))
+	}
+	if deleteFromSyncada == nil {
+		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, deleteFromSyncada flag required", h.GetTraceID()))
 	}
 
 	if *sendToSyncada {
@@ -383,7 +387,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		}()
 
 		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, h.DB(), logger, false)
+		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, h.DB(), logger, *deleteFromSyncada)
 
 		// TODO GEX will put different response types in different directories, but
 		// Syncada puts everything in the same directory. When we have access to GEX in staging

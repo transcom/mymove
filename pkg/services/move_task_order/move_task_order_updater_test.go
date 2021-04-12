@@ -20,6 +20,58 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusServiceCounselingCompleted() {
+	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
+	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusNeedsServiceCounseling,
+		},
+		Order: expectedOrder,
+	})
+
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+
+	suite.T().Run("MTO status is updated succesfully", func(t *testing.T) {
+		eTag := base64.StdEncoding.EncodeToString([]byte(expectedMTO.UpdatedAt.Format(time.RFC3339Nano)))
+
+		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(expectedMTO.ID, eTag)
+
+		suite.NoError(err)
+		suite.NotZero(actualMTO.ID)
+		suite.NotNil(actualMTO.ServiceCounselingCompletedAt)
+		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
+	})
+
+	suite.T().Run("MTO status is in a conflicted state", func(t *testing.T) {
+		expectedMTO = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusDRAFT,
+			},
+			Order: expectedOrder,
+		})
+		eTag := base64.StdEncoding.EncodeToString([]byte(expectedMTO.UpdatedAt.Format(time.RFC3339Nano)))
+
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(expectedMTO.ID, eTag)
+
+		suite.IsType(services.ConflictError{}, err)
+	})
+
+	suite.T().Run("Etag is stale", func(t *testing.T) {
+		expectedMTO = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+			Order: expectedOrder,
+		})
+		eTag := etag.GenerateEtag(time.Now())
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(expectedMTO.ID, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.PreconditionFailedError{}, err)
+	})
+}
+
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCounselingInfo() {
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{

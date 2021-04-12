@@ -136,12 +136,12 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // Avoid calling Move.Status = ... ever. Use these methods to change the state.
 
 // Submit submits the Move
-func (m *Move) Submit(submittedDate time.Time) error {
+func (m *Move) Submit() error {
 	if m.Status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 	m.Status = MoveStatusSUBMITTED
-	submitDate := swag.Time(submittedDate)
+	submitDate := swag.Time(time.Now())
 	m.SubmittedAt = submitDate
 
 	// Update PPM status too
@@ -164,16 +164,56 @@ func (m *Move) Submit(submittedDate time.Time) error {
 	return nil
 }
 
+// SendToServiceCounseling sends the move to needs service counseling
+func (m *Move) SendToServiceCounseling() error {
+	if m.Status != MoveStatusDRAFT {
+		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is %s", m.Status))
+	}
+	m.Status = MoveStatusNeedsServiceCounseling
+	submitDate := swag.Time(time.Now())
+	m.SubmittedAt = submitDate
+
+	return nil
+}
+
+var validStatusesBeforeApproval = []MoveStatus{
+	MoveStatusSUBMITTED,
+	MoveStatusAPPROVALSREQUESTED,
+	MoveStatusServiceCounselingCompleted,
+}
+
+func statusSliceContains(statusSlice []MoveStatus, status MoveStatus) bool {
+	for _, validStatus := range statusSlice {
+		if status == validStatus {
+			return true
+		}
+	}
+	return false
+}
+
 // Approve approves the Move
 func (m *Move) Approve() error {
-	if m.Status == MoveStatusSUBMITTED || m.Status == MoveStatusAPPROVALSREQUESTED {
+	if m.approvable() {
 		m.Status = MoveStatusAPPROVED
 		return nil
 	}
-	if m.Status == MoveStatusAPPROVED {
+	if m.alreadyApproved() {
 		return nil
 	}
-	return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to Approved state when the Move is not either in a Submitted or Approvals Requested state for status: %s", m.Status))
+	return errors.Wrap(
+		ErrInvalidTransition, fmt.Sprintf(
+			"A move can only be approved if it's in one of these states: %q. However, its current status is: %s",
+			validStatusesBeforeApproval, m.Status,
+		),
+	)
+}
+
+func (m *Move) alreadyApproved() bool {
+	return m.Status == MoveStatusAPPROVED
+}
+
+func (m *Move) approvable() bool {
+	return statusSliceContains(validStatusesBeforeApproval, m.Status)
 }
 
 // SetApprovalsRequested sets the move to approvals requested
@@ -651,7 +691,11 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 		}
 
 		order := &move.Orders
-		db.Load(&order, "Moves")
+		err := db.Load(order, "Moves")
+		if err != nil {
+			responseError = errors.Wrap(err, "Error Loading Order")
+			return transactionError
+		}
 		if verrs, err := db.ValidateAndSave(order); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error Saving Orders")

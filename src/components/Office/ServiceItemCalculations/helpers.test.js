@@ -75,7 +75,7 @@ describe('makeCalculations', () => {
       {
         value: '1.71',
         label: 'Origin price',
-        details: ['Service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: ['Origin service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
       {
         value: '1.033',
@@ -101,7 +101,7 @@ describe('makeCalculations', () => {
       {
         value: '1.71',
         label: 'Destination price',
-        details: ['Service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: ['Destination service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
       {
         value: '1.033',
@@ -127,7 +127,7 @@ describe('makeCalculations', () => {
       {
         value: '1.71',
         label: 'Origin price',
-        details: ['Service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: ['Origin service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
       {
         value: '1.033',
@@ -153,7 +153,7 @@ describe('makeCalculations', () => {
       {
         value: '1.71',
         label: 'Destination price',
-        details: ['Service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: ['Destination service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
       },
       {
         value: '1.033',
@@ -182,7 +182,7 @@ describe('makeCalculations', () => {
         value: '2',
       },
       {
-        details: ['Service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: ['Origin service area: 176', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
         label: 'Additional day SIT price',
         value: '1.71',
       },
@@ -213,7 +213,7 @@ describe('makeCalculations', () => {
         value: '2',
       },
       {
-        details: ['Service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
+        details: ['Destination service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic non-peak'],
         label: 'Additional day SIT price',
         value: '1.71',
       },

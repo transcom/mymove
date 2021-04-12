@@ -1,0 +1,19 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.ServicesCounselingMoveDetails {
+  .alertContainer {
+    @include u-margin-bottom(4);
+  }
+
+  .submitMoveDetailsContainer {
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+      @include u-margin-right(0);
+      align-self: center;
+    }
+  }
+}

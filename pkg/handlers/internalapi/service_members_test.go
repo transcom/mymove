@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -373,7 +372,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 			ServiceMemberID: newServiceMember.ID,
 		},
 	})
-	move.Submit(time.Now())
+	move.Submit()
 	suite.MustSave(&move)
 
 	resAddress := fakeAddressPayload()

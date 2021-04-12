@@ -222,7 +222,7 @@ func filteredAndLimitedStackTrace(ent zapcore.Entry, stacktraceLength int) zapco
 }
 
 func registerCustomZapEncoders(stacktraceLength int) {
-	zap.RegisterEncoder("filtered-console", func(cfg zapcore.EncoderConfig) (zapcore.Encoder, error) {
+	_ = zap.RegisterEncoder("filtered-console", func(cfg zapcore.EncoderConfig) (zapcore.Encoder, error) {
 		fce := filteredConsoleEncoder{
 			EncoderConfig:    &cfg,
 			Encoder:          zapcore.NewConsoleEncoder(cfg),
@@ -233,7 +233,7 @@ func registerCustomZapEncoders(stacktraceLength int) {
 		return &fce, nil
 	})
 
-	zap.RegisterEncoder("filtered-json", func(cfg zapcore.EncoderConfig) (zapcore.Encoder, error) {
+	_ = zap.RegisterEncoder("filtered-json", func(cfg zapcore.EncoderConfig) (zapcore.Encoder, error) {
 		fje := filteredJSONEncoder{
 			EncoderConfig:    &cfg,
 			Encoder:          zapcore.NewJSONEncoder(cfg),

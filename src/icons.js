@@ -1,5 +1,11 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faQuestionCircle, faCheckCircle, faTimesCircle, faCalendar } from '@fortawesome/free-regular-svg-icons';
+import {
+  faQuestionCircle,
+  faCheckCircle,
+  faTimesCircle,
+  faCalendar,
+  faUser,
+} from '@fortawesome/free-regular-svg-icons';
 import {
   faQuestionCircle as fasFaQuestionCircle,
   faFile,
@@ -82,4 +88,5 @@ library.add(
   faCalendar,
   faCopy,
   faEquals,
+  faUser,
 );

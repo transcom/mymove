@@ -61,10 +61,17 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPackWithServiceItemPara
 	pricer := NewDomesticPackPricer(suite.DB())
 
 	suite.T().Run("success all params for domestic pack available", func(t *testing.T) {
-		cost, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		cost, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
+
+		if suite.Len(displayParams, 4) {
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, "Base Period Year 1")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, "1.04070")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, "true")
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, "1.46")
+		}
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
