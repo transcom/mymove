@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
-import ServiceInfoTable from '.';
+import ServiceInfoDisplay from './ServiceInfoDisplay';
 
 const defaultProps = {
   firstName: 'Jason',
@@ -14,17 +14,17 @@ const defaultProps = {
 };
 
 export default {
-  title: 'Customer Components / ServiceInfoTable',
+  title: 'Customer Components / ServiceInfoDisplay',
 };
 
 export const Editable = () => (
   <div style={{ padding: 40 }}>
-    <ServiceInfoTable {...defaultProps} />
+    <ServiceInfoDisplay {...defaultProps} />
   </div>
 );
 
 export const NonEditable = () => (
   <div style={{ padding: 40 }}>
-    <ServiceInfoTable {...defaultProps} isEditable={false} />
+    <ServiceInfoDisplay {...defaultProps} isEditable={false} />
   </div>
 );

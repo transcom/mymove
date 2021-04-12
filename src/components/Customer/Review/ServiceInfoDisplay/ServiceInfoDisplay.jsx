@@ -1,11 +1,11 @@
 import React from 'react';
 import { string, bool } from 'prop-types';
 
-import serviceInfoTableStyles from './ServiceInfoTable.module.scss';
+import serviceInfoDisplayStyles from './ServiceInfoDisplay.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
-const ServiceInfoTable = ({
+const ServiceInfoDisplay = ({
   affiliation,
   currentDutyStationName,
   currentDutyStationPhone,
@@ -17,18 +17,18 @@ const ServiceInfoTable = ({
   rank,
 }) => {
   return (
-    <div className={serviceInfoTableStyles.serviceInfoContainer}>
-      <div className={serviceInfoTableStyles.reviewHeader}>
+    <div className={serviceInfoDisplayStyles.serviceInfoContainer}>
+      <div className={serviceInfoDisplayStyles.header}>
         <h2>Service info</h2>
         {isEditable && <a href={editURL}>Edit</a>}
       </div>
       {!isEditable && (
-        <div>
+        <div className={serviceInfoDisplayStyles.whoToContactContainer}>
           To change information in this section, contact the {currentDutyStationName} transportation office{' '}
           {currentDutyStationPhone ? ` at ${currentDutyStationPhone}.` : '.'}
         </div>
       )}
-      <div className={serviceInfoTableStyles.serviceInfoSection}>
+      <div className={serviceInfoDisplayStyles.serviceInfoSection}>
         <dl className={descriptionListStyles.descriptionList}>
           <div className={descriptionListStyles.row}>
             <dt>Name</dt>
@@ -62,7 +62,7 @@ const ServiceInfoTable = ({
   );
 };
 
-ServiceInfoTable.propTypes = {
+ServiceInfoDisplay.propTypes = {
   affiliation: string.isRequired,
   currentDutyStationName: string.isRequired,
   currentDutyStationPhone: string,
@@ -74,10 +74,10 @@ ServiceInfoTable.propTypes = {
   rank: string.isRequired,
 };
 
-ServiceInfoTable.defaultProps = {
+ServiceInfoDisplay.defaultProps = {
   currentDutyStationPhone: '',
   editURL: '',
   isEditable: true,
 };
 
-export default ServiceInfoTable;
+export default ServiceInfoDisplay;

@@ -11,7 +11,7 @@ import {
   selectBackupContacts,
 } from 'store/entities/selectors';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import ServiceInfoTable from 'components/Customer/Review/ServiceInfoTable';
+import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
 import { customerRoutes } from 'constants/routes';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
@@ -41,7 +41,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
             />
           </SectionWrapper>
           <SectionWrapper>
-            <ServiceInfoTable
+            <ServiceInfoDisplay
               firstName={serviceMember?.first_name || ''}
               lastName={serviceMember?.last_name || ''}
               currentDutyStationName={currentStation?.name || ''}

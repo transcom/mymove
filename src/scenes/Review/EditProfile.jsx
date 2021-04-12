@@ -26,7 +26,7 @@ import {
 import './Review.css';
 import profileImage from './images/profile.png';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import ServiceInfoTable from 'components/Customer/Review/ServiceInfoTable';
+import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
 
 const editProfileFormName = 'edit_profile';
 
@@ -66,7 +66,7 @@ let EditProfileForm = (props) => {
                 </>
               )}
               {!moveIsInDraft && (
-                <ServiceInfoTable
+                <ServiceInfoDisplay
                   firstName={initialValues.first_name}
                   lastName={initialValues.last_name}
                   currentDutyStationName={currentStation.name}

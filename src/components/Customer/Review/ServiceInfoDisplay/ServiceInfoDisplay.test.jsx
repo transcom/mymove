@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import ServiceInfoTable from './index';
+import ServiceInfoDisplay from './ServiceInfoDisplay';
 
-describe('ServiceInfoTable component', () => {
+describe('ServiceInfoDisplay component', () => {
   const testProps = {
     firstName: 'Jason',
     lastName: 'Ash',
@@ -15,7 +15,7 @@ describe('ServiceInfoTable component', () => {
   };
 
   it('renders the data', async () => {
-    render(<ServiceInfoTable {...testProps} />);
+    render(<ServiceInfoDisplay {...testProps} />);
 
     const mainHeader = await screen.findByRole('heading', { name: 'Service info', level: 2 });
 
@@ -57,7 +57,7 @@ describe('ServiceInfoTable component', () => {
   });
 
   it('renders who to contact when the service info is no longer editable', async () => {
-    render(<ServiceInfoTable {...testProps} isEditable={false} />);
+    render(<ServiceInfoDisplay {...testProps} isEditable={false} />);
 
     expect(screen.queryByText('Edit')).toBeNull();
 
