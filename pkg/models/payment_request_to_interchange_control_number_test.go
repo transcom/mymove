@@ -1,10 +1,7 @@
 package models_test
 
 import (
-	"log"
 	"testing"
-
-	"go.uber.org/zap"
 
 	"github.com/gofrs/uuid"
 
@@ -19,9 +16,7 @@ func (suite *ModelSuite) TestPaymentRequestToInterchangeControlNumber() {
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{PaymentRequestID: paymentRequest.ID}})
 		suite.Equal(paymentRequest.ID, validPR2ICN.PaymentRequestID)
 		err := suite.DB().Load(&validPR2ICN, "PaymentRequest")
-		if err != nil {
-			log.Fatal("could not fetch payment request", zap.Error(err))
-		}
+		suite.NoError(err)
 		suite.Equal(paymentRequest.ID, validPR2ICN.PaymentRequest.ID)
 	})
 

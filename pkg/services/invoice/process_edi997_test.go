@@ -135,9 +135,7 @@ IEA*1*000000022
 			},
 		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
-		if err != nil {
-			suite.Error(err)
-		}
+		suite.Error(err)
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
 		suite.NoError(err)
