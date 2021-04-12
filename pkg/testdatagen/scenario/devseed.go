@@ -3286,6 +3286,115 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 	})
 }
 
+func createHHGNeedsServicesCounseling(db *pop.Connection) {
+	submittedAt := time.Now()
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{})
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "SRVCSL",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: orders,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
+func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uploader.UserUploader) {
+	marineCorps := models.AffiliationMARINES
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			Affiliation: &marineCorps,
+		},
+	})
+
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+		},
+		UserUploader: userUploader,
+	})
+
+	submittedAt := time.Now()
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "USMCSC",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: orders,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
+func createHHGServicesCounselingCompleted(db *pop.Connection) {
+	servicesCounselingCompletedAt := time.Now()
+	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:                      "CSLCMP",
+			Status:                       models.MoveStatusServiceCounselingCompleted,
+			SubmittedAt:                  &submittedAt,
+			ServiceCounselingCompletedAt: &servicesCounselingCompletedAt,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeHHG,
+			Status:       models.MTOShipmentStatusSubmitted,
+		},
+	})
+}
+
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
 	// PPM Office Queue
@@ -3301,6 +3410,11 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createUnsubmittedMoveWithNTSAndNTSR(db)
 	createServiceMemberWithOrdersButNoMoveType(db)
 	createServiceMemberWithNoUploadedOrders(db)
+
+	// Services Counseling
+	createHHGNeedsServicesCounseling(db)
+	createHHGNeedsServicesCounselingUSMC(db, userUploader)
+	createHHGServicesCounselingCompleted(db)
 
 	// TXO Queues
 	createTOO(db)

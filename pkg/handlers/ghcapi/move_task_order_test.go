@@ -11,6 +11,7 @@ package ghcapi
 
 import (
 	"net/http/httptest"
+	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -208,4 +209,90 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	errorDetail := invalidResponse.Detail
 
 	suite.Contains(*errorDetail, "TransportationAccountingCode cannot be blank.")
+}
+
+func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
+	order := testdatagen.MakeDefaultOrder(suite.DB())
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusNeedsServiceCounseling,
+		},
+		Order: order,
+	})
+
+	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	request = suite.AuthenticateUserRequest(request, requestUser)
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+	}
+
+	params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+		HTTPRequest:     request,
+		MoveTaskOrderID: moveTaskOrder.ID.String(),
+		IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+	}
+
+	suite.T().Run("Successful move status update to Service Counseling Completed - Integration", func(t *testing.T) {
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		moveTaskOrderResponse := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedOK)
+		moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
+		suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
+		suite.Nil(moveTaskOrderPayload.ServiceCounselingCompletedAt)
+		suite.EqualValues(models.MoveStatusServiceCounselingCompleted, moveTaskOrderPayload.Status)
+	})
+
+	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, not found - Integration", func(t *testing.T) {
+		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: uuid.FromStringOrNil("").String(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedNotFound{}, response)
+	})
+
+	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, eTag does not match - Integration", func(t *testing.T) {
+		moveTaskOrder = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+			Order: order,
+		})
+		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: moveTaskOrder.ID.String(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("Unsuccessful move status update to Service Counseling Completed, state conflict - Integration", func(t *testing.T) {
+		moveTaskOrder = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusDRAFT,
+			},
+			Order: order,
+		})
+
+		params = move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: moveTaskOrder.ID.String(),
+			IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedConflict{}, response)
+	})
 }

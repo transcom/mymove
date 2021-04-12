@@ -11,6 +11,7 @@ import {
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
+  getServicesCounselingQueue,
   getMovePaymentRequests,
   getCustomer,
 } from 'services/ghcApi';
@@ -29,7 +30,9 @@ import {
   PAYMENT_REQUESTS_QUEUE,
   USER,
   CUSTOMER,
+  SERVICES_COUNSELING_QUEUE,
 } from 'constants/queryKeys';
+import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
 export const useUserQueries = () => {
   const { data = {}, ...userQuery } = useQuery([USER, false], getLoggedInUserQueries);
@@ -185,7 +188,13 @@ export const useOrdersDocumentQueries = (moveCode) => {
   };
 };
 
-export const useMovesQueueQueries = ({ sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) => {
+export const useMovesQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
   const { data = {}, ...movesQueueQuery } = useQuery(
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
     getMovesQueue,
@@ -200,7 +209,34 @@ export const useMovesQueueQueries = ({ sort, order, filters = [], currentPage = 
   };
 };
 
-export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) => {
+export const useServicesCounselingQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
+  const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
+    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
+    getServicesCounselingQueue,
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
+  const { queueMoves, ...dataProps } = data;
+  return {
+    queueResult: { data: queueMoves, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const usePaymentRequestQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
     [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
     getPaymentRequestsQueue,

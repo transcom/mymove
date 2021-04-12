@@ -6,10 +6,10 @@ import styles from './MoveQueue.module.scss';
 import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
 import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
-import { serviceMemberAgencyLabel, moveStatusLabel } from 'shared/formatters';
+import { serviceMemberAgencyLabel } from 'shared/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS, GBLOC } from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -33,7 +33,7 @@ const columns = (showBranchFilter = true) => [
   createHeader(
     'Status',
     (row) => {
-      return moveStatusLabel(row.status);
+      return MOVE_STATUS_LABELS[`${row.status}`];
     },
     {
       id: 'status',
@@ -42,7 +42,7 @@ const columns = (showBranchFilter = true) => [
       Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
     },
   ),
-  createHeader('Move Code', 'locator', {
+  createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: true,
   }),

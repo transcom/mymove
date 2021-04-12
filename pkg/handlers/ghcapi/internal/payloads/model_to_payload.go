@@ -573,8 +573,14 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		customer := move.Orders.ServiceMember
 
 		var validMTOShipments []models.MTOShipment
+		var earliestRequestedPickup *time.Time
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
+				if earliestRequestedPickup == nil {
+					earliestRequestedPickup = shipment.RequestedPickupDate
+				} else if shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
+					earliestRequestedPickup = shipment.RequestedPickupDate
+				}
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
 		}
@@ -589,6 +595,8 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
 			ID:                     *handlers.FmtUUID(move.Orders.ID),
 			Locator:                move.Locator,
+			SubmittedAt:            handlers.FmtDateTimePtr(move.SubmittedAt),
+			RequestedMoveDate:      handlers.FmtDateTimePtr(earliestRequestedPickup),
 			DepartmentIndicator:    &deptIndicator,
 			ShipmentsCount:         int64(len(validMTOShipments)),
 			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
