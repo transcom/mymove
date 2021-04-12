@@ -353,7 +353,7 @@ func (suite *GHCRateEngineServiceSuite) getExpectedDSHPricerCreatedParamsFromDBG
 		},
 		{
 			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: FormatFloat(contractYear.EscalationCompounded, 5),
+			Value: FormatEscalation(contractYear.EscalationCompounded),
 		},
 	}
 

@@ -33,3 +33,8 @@ func FormatBool(value bool) string {
 func FormatFloat(value float64, precision int) string {
 	return strconv.FormatFloat(value, 'f', precision, 64)
 }
+
+// FormatEscalation returns a formatted pricing escalation value to display to the TXO
+func FormatEscalation(value float64) string {
+	return strconv.FormatFloat(value, 'f', 5, 64)
+}
