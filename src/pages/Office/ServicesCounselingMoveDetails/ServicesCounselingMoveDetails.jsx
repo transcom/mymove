@@ -15,13 +15,14 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MOVES } from 'constants/queryKeys';
 import { MOVE_STATUSES } from 'shared/constants';
+import AllowancesTable from 'components/Office/AllowancesTable/AllowancesTable';
 
 const ServicesCounselingMoveDetails = () => {
   const { moveCode } = useParams();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
 
-  const { move, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { move, order, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
   // use mutation calls
   const [mutateMoveStatus] = useMutation(updateMoveStatusServiceCounselingCompleted, {
@@ -40,6 +41,21 @@ const ServicesCounselingMoveDetails = () => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const { customer, entitlement: allowances } = order;
+
+  const allowancesInfo = {
+    branch: customer.agency,
+    rank: order.grade,
+    weightAllowance: allowances.totalWeight,
+    authorizedWeight: allowances.authorizedWeight,
+    progear: allowances.proGearWeight,
+    spouseProgear: allowances.proGearWeightSpouse,
+    storageInTransit: allowances.storageInTransit,
+    dependents: allowances.dependentsAuthorized,
+    requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
+    organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
+  };
 
   return (
     <div className={styles.tabContent}>
@@ -77,6 +93,15 @@ const ServicesCounselingMoveDetails = () => {
           </Grid>
 
           {/* additional work here */}
+          <div className={styles.section} id="allowances">
+            <GridContainer>
+              <Grid row gap>
+                <Grid col>
+                  <AllowancesTable info={allowancesInfo} />
+                </Grid>
+              </Grid>
+            </GridContainer>
+          </div>
         </GridContainer>
       </div>
     </div>
