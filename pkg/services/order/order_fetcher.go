@@ -240,6 +240,8 @@ func moveStatusFilter(statuses []string) QueryOption {
 
 func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
+		fmt.Println("🍑🍑🍑🍑🍑")
+		fmt.Println(requestedMoveDate)
 		query.Where("mto_shipments.requested_pickup_date = ?", requestedMoveDate)
 	}
 }
