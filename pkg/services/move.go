@@ -28,4 +28,6 @@ type MoveFetcherParams struct {
 type MoveRouter interface {
 	Submit() error
 	Approve() error
+	SendToOfficeUserToReviewNewServiceItems() error
+	Cancel(reason string) error
 }

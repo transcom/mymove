@@ -38,7 +38,7 @@ func (router moveRouter) Submit() error {
 	if router.needsServiceCounseling() {
 		err = router.sendToServiceCounselor()
 	} else {
-		err = router.sendToOfficeUser()
+		err = router.sendNewMoveToOfficeUser()
 	}
 	if err != nil {
 		return err
@@ -86,9 +86,9 @@ func (router moveRouter) sendToServiceCounselor() error {
 }
 
 // Avoid calling Move.Status = ... ever. Use these methods to change the state.
-// sendToOfficeUser makes the move available for a TOO to review
+// sendNewMoveToOfficeUser makes the move available for a TOO to review
 // The Submitted status indicates to the TOO that this is a new move.
-func (router moveRouter) sendToOfficeUser() error {
+func (router moveRouter) sendNewMoveToOfficeUser() error {
 	move := router.move
 
 	if move.Status != models.MoveStatusDRAFT {
@@ -162,8 +162,10 @@ var validStatusesBeforeApproval = []models.MoveStatus{
 	models.MoveStatusServiceCounselingCompleted,
 }
 
-// SetApprovalsRequested sets the move to approvals requested
-func (router moveRouter) SetApprovalsRequested() error {
+// SendToOfficeUserToReviewNewServiceItems sets the moves status to
+// "Approvals Requested", which indicates to the TOO that they have new
+// service items to review
+func (router moveRouter) SendToOfficeUserToReviewNewServiceItems() error {
 	move := router.move
 	// Do nothing if it's already in the desired state
 	if move.Status == models.MoveStatusAPPROVALSREQUESTED {
