@@ -891,6 +891,93 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed": {
+      "patch": {
+        "description": "Changes move (move task order) status to service counseling completed",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Changes move (move task order) status to service counseling completed",
+        "operationId": "updateMTOStatusServiceCounselingCompleted",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order status",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/move/{locator}": {
       "get": {
         "description": "Returns a given move for a unique alphanumeric locator string",
@@ -1585,6 +1672,142 @@ func init() {
             "description": "Validation error",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
+    "/queues/counseling": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing services counseling by GBLOC origin",
+        "operationId": "getServicesCounselingQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "locator",
+              "status",
+              "requestedMoveDate",
+              "submittedAt",
+              "originGBLOC",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's last name",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the date of when the service member submitted their move",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty station",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the destination duty station on the orders",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING",
+                "SERVICE COUNSELING COMPLETED"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
             }
           },
           "500": {
@@ -2867,6 +3090,11 @@ func init() {
           "x-nullable": true,
           "example": "1001-3456"
         },
+        "serviceCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -2885,6 +3113,8 @@ func init() {
       "type": "string",
       "enum": [
         "DRAFT",
+        "NEEDS SERVICE COUNSELING",
+        "SEVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -2892,6 +3122,7 @@ func init() {
       ]
     },
     "MoveTaskOrder": {
+      "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
         "availableToPrimeAt": {
@@ -2950,6 +3181,11 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "serviceCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "updatedAt": {
           "type": "string",
@@ -3377,11 +3613,21 @@ func init() {
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
+        "requestedMoveDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "shipmentsCount": {
           "type": "integer"
         },
         "status": {
           "$ref": "#/definitions/QueueMoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },
@@ -4883,6 +5129,114 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed": {
+      "patch": {
+        "description": "Changes move (move task order) status to service counseling completed",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Changes move (move task order) status to service counseling completed",
+        "operationId": "updateMTOStatusServiceCounselingCompleted",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order status",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "description": "Conflict error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/move/{locator}": {
       "get": {
         "description": "Returns a given move for a unique alphanumeric locator string",
@@ -5703,6 +6057,148 @@ func init() {
             "description": "Validation error",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queues/counseling": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves needing services counseling by GBLOC origin",
+        "operationId": "getServicesCounselingQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page number of paginated move results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "maximum number of moves to show on each page of paginated results",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "locator",
+              "status",
+              "requestedMoveDate",
+              "submittedAt",
+              "originGBLOC",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters by the branch of the move's service member",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique move code locator",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a prefix match on the service member's last name",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's DoD ID",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the date of when the service member submitted their move",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the GBLOC of the service member's origin duty station",
+            "name": "originGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the name of the destination duty station on the orders",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "NEEDS SERVICE COUNSELING",
+                "SERVICE COUNSELING COMPLETED"
+              ],
+              "type": "string"
+            },
+            "description": "filters the status of the move",
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           },
           "500": {
@@ -7015,6 +7511,11 @@ func init() {
           "x-nullable": true,
           "example": "1001-3456"
         },
+        "serviceCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -7033,6 +7534,8 @@ func init() {
       "type": "string",
       "enum": [
         "DRAFT",
+        "NEEDS SERVICE COUNSELING",
+        "SEVICE COUNSELING COMPLETED",
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
@@ -7040,6 +7543,7 @@ func init() {
       ]
     },
     "MoveTaskOrder": {
+      "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
         "availableToPrimeAt": {
@@ -7098,6 +7602,11 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "serviceCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "updatedAt": {
           "type": "string",
@@ -7525,11 +8034,21 @@ func init() {
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
+        "requestedMoveDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "shipmentsCount": {
           "type": "integer"
         },
         "status": {
           "$ref": "#/definitions/QueueMoveStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },

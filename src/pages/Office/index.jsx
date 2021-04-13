@@ -46,6 +46,11 @@ const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
 const MoveQueue = lazy(() => import('pages/Office/MoveQueue/MoveQueue'));
 // TIO pages
 const PaymentRequestQueue = lazy(() => import('pages/Office/PaymentRequestQueue/PaymentRequestQueue'));
+// Services Counselor pages
+const ServicesCounselingMoveInfo = lazy(() =>
+  import('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo'),
+);
+const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounselingQueue/ServicesCounselingQueue'));
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -126,11 +131,18 @@ export class OfficeApp extends Component {
       />,
     ];
 
+    // TODO - Services counseling routes not finalized, revisit
     const txoRoutes = [
       <PrivateRoute
         key="txoMoveInfoRoute"
         path="/moves/:moveCode"
         component={TXOMoveInfo}
+        requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
+      />,
+      <PrivateRoute
+        key="servicesCounselingMoveInfoRoute"
+        path="/counseling/moves/:moveCode"
+        component={ServicesCounselingMoveInfo}
         requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
       />,
     ];
@@ -204,6 +216,12 @@ export class OfficeApp extends Component {
                       path="/invoicing/queue"
                       component={PaymentRequestQueue}
                       requiredRoles={[roleTypes.TIO]}
+                    />
+                    <PrivateRoute
+                      path="/counseling/queue"
+                      exact
+                      component={ServicesCounselingQueue}
+                      requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
                     />
 
                     {/* PPM & TXO conflicting routes - select based on user role */}

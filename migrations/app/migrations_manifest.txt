@@ -622,3 +622,4 @@
 20210405214216_update_move_status_comment_with_miro_link.up.sql
 20210405224456_add_service_counseling_completed_at_to_moves.up.sql
 20210407223734_add_service_counselor_role.up.sql
+20210409170358_make_icn_column_nullable.up.sql

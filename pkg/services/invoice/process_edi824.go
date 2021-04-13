@@ -95,7 +95,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				Code:                       &code,
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
-				InterchangeControlNumberID: prToICN.ID,
+				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType824,
 			}
 			err = tx.Save(&ediError)
@@ -136,7 +136,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				Code:                       &code,
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
-				InterchangeControlNumberID: prToICN.ID,
+				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType824,
 			}
 			err = tx.Save(&ediError)

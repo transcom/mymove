@@ -29,7 +29,13 @@ func (p counselingServicesPricer) Price(contractCode string, mtoAvailableToPrime
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch task order fee: %w", err)
 	}
 
-	return taskOrderFee.PriceCents, nil, nil
+	displayPriceParams := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(taskOrderFee.PriceCents),
+		},
+	}
+	return taskOrderFee.PriceCents, displayPriceParams, nil
 }
 
 // PriceUsingParams determines the price for a counseling service given PaymentServiceItemParams

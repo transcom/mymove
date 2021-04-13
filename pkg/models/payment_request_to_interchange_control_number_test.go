@@ -15,7 +15,8 @@ func (suite *ModelSuite) TestPaymentRequestToInterchangeControlNumber() {
 		validPR2ICN := testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{PaymentRequestID: paymentRequest.ID}})
 		suite.Equal(paymentRequest.ID, validPR2ICN.PaymentRequestID)
-		suite.DB().Load(&validPR2ICN, "PaymentRequest")
+		err := suite.DB().Load(&validPR2ICN, "PaymentRequest")
+		suite.NoError(err)
 		suite.Equal(paymentRequest.ID, validPR2ICN.PaymentRequest.ID)
 	})
 

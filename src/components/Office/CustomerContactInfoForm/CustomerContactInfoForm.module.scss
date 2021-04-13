@@ -1,0 +1,18 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+@import 'shared/styles/_custom';
+
+.formSectionHeader {
+  .sectionHeader {
+    margin-bottom: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    .optional {
+      font-size: 13px;
+      color: $base;
+      font-weight: normal;
+    }
+  }
+}
