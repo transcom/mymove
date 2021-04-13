@@ -195,18 +195,24 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.TotalDependents != nil {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
+	var requiredMedicalEquipmentWeight int64
+	if entitlement.RequiredMedicalEquipmentWeight != nil {
+		requiredMedicalEquipmentWeight = int64(*entitlement.RequiredMedicalEquipmentWeight)
+	}
 	return &ghcmessages.Entitlements{
-		ID:                    strfmt.UUID(entitlement.ID.String()),
-		AuthorizedWeight:      authorizedWeight,
-		DependentsAuthorized:  entitlement.DependentsAuthorized,
-		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
-		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
-		ProGearWeight:         proGearWeight,
-		ProGearWeightSpouse:   proGearWeightSpouse,
-		StorageInTransit:      &sit,
-		TotalDependents:       totalDependents,
-		TotalWeight:           totalWeight,
-		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),
+		ID:                             strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:               authorizedWeight,
+		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
+		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
+		ProGearWeight:                  proGearWeight,
+		ProGearWeightSpouse:            proGearWeightSpouse,
+		StorageInTransit:               &sit,
+		TotalDependents:                totalDependents,
+		TotalWeight:                    totalWeight,
+		RequiredMedicalEquipmentWeight: &requiredMedicalEquipmentWeight,
+		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
+		ETag: etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
