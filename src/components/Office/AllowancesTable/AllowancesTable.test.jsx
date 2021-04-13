@@ -12,6 +12,8 @@ const info = {
   spouseProgear: 500,
   storageInTransit: 90,
   dependents: true,
+  requiredMedicalEquipmentWeight: 1000,
+  organizationalClothingAndIndividualEquipment: true,
 };
 
 describe('Allowances Table', () => {
@@ -24,6 +26,8 @@ describe('Allowances Table', () => {
     expect(wrapper.find({ 'data-testid': 'spouseProgear' }).text()).toMatch('500 lbs');
     expect(wrapper.find({ 'data-testid': 'storageInTransit' }).text()).toMatch('90 days');
     expect(wrapper.find({ 'data-testid': 'dependents' }).text()).toMatch('Authorized');
+    expect(wrapper.find({ 'data-testid': 'rme' }).text()).toMatch('1,000 lbs');
+    expect(wrapper.find({ 'data-testid': 'ocie' }).text()).toMatch('Yes');
   });
 
   it('should be able to show edit btn', () => {
