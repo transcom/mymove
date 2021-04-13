@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/spf13/pflag"
@@ -29,9 +28,10 @@ func NewMoveRouter(db *pop.Connection, move *models.Move) services.MoveRouter {
 	return &moveRouter{db, move}
 }
 
-// Submit is called when the customer submits their move
-// It determines whether to send the move to Service Counseling or
-// directly to the TOO.
+// Submit is called when the customer submits their move. It determines whether
+// to send the move to Service Counseling or directly to the TOO. If it goes to
+// Service Counseling, its status becomes "Needs Service Counseling", otherwise,
+// "Submitted".
 func (router moveRouter) Submit() error {
 	var err error
 
@@ -79,13 +79,12 @@ func (router moveRouter) sendToServiceCounselor() error {
 		)
 	}
 	move.Status = models.MoveStatusNeedsServiceCounseling
-	submitDate := swag.Time(time.Now())
-	move.SubmittedAt = submitDate
+	now := time.Now()
+	move.SubmittedAt = &now
 
 	return nil
 }
 
-// Avoid calling Move.Status = ... ever. Use these methods to change the state.
 // sendNewMoveToOfficeUser makes the move available for a TOO to review
 // The Submitted status indicates to the TOO that this is a new move.
 func (router moveRouter) sendNewMoveToOfficeUser() error {
@@ -95,13 +94,13 @@ func (router moveRouter) sendNewMoveToOfficeUser() error {
 		return errors.Wrap(models.ErrInvalidTransition, "Submit")
 	}
 	move.Status = models.MoveStatusSUBMITTED
-	submitDate := swag.Time(time.Now())
-	move.SubmittedAt = submitDate
+	now := time.Now()
+	move.SubmittedAt = &now
 
 	// Update PPM status too
 	for i := range move.PersonallyProcuredMoves {
 		ppm := &move.PersonallyProcuredMoves[i]
-		err := ppm.Submit(*submitDate)
+		err := ppm.Submit(now)
 		if err != nil {
 			return err
 		}
@@ -118,7 +117,8 @@ func (router moveRouter) sendNewMoveToOfficeUser() error {
 	return nil
 }
 
-// Approve approves the Move
+// Approve makes the Move available to the Prime. The Prime cannot create
+// Service Items unless the Move is approved.
 func (router moveRouter) Approve() error {
 	move := router.move
 
@@ -164,7 +164,7 @@ var validStatusesBeforeApproval = []models.MoveStatus{
 
 // SendToOfficeUserToReviewNewServiceItems sets the moves status to
 // "Approvals Requested", which indicates to the TOO that they have new
-// service items to review
+// service items to review.
 func (router moveRouter) SendToOfficeUserToReviewNewServiceItems() error {
 	move := router.move
 	// Do nothing if it's already in the desired state
@@ -210,4 +210,26 @@ func (router moveRouter) Cancel(reason string) error {
 
 	return nil
 
+}
+
+// CompleteServiceCounseling sets the move status to "Service Counseling Completed",
+// which makes the move available to the TOO. This gets called when the Service
+// Counselor is done reviewing the move and submits it.
+func (router moveRouter) CompleteServiceCounseling() error {
+	move := router.move
+
+	if move.Status != models.MoveStatusNeedsServiceCounseling {
+		return errors.Wrap(
+			models.ErrInvalidTransition,
+			fmt.Sprintf("The status for the Move with ID %s can only be set to 'Service Counseling Completed' from the 'Needs Service Counseling' status, but its current status is %s.",
+				move.ID, move.Status,
+			),
+		)
+	}
+
+	now := time.Now()
+	move.ServiceCounselingCompletedAt = &now
+	move.Status = models.MoveStatusServiceCounselingCompleted
+
+	return nil
 }

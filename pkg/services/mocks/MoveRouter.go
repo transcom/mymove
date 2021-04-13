@@ -37,6 +37,20 @@ func (_m *MoveRouter) Cancel(reason string) error {
 	return r0
 }
 
+// CompleteServiceCounseling provides a mock function with given fields:
+func (_m *MoveRouter) CompleteServiceCounseling() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // SendToOfficeUserToReviewNewServiceItems provides a mock function with given fields:
 func (_m *MoveRouter) SendToOfficeUserToReviewNewServiceItems() error {
 	ret := _m.Called()
