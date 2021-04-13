@@ -83,6 +83,9 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 		}
 	}
 
+	fmt.Println("🍑🍑🍑🍑🍑🍑🍑")
+	fmt.Println(query)
+
 	// Pass zeros into paginate in this case. Which will give us 1 page and 20 per page respectively
 	if params.Page == nil {
 		params.Page = swag.Int64(0)
@@ -240,9 +243,9 @@ func moveStatusFilter(statuses []string) QueryOption {
 
 func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
-		fmt.Println("🍑🍑🍑🍑🍑")
-		fmt.Println(requestedMoveDate)
-		query.Where("mto_shipments.requested_pickup_date = ?", requestedMoveDate)
+		if requestedMoveDate != nil {
+			query.Where("CAST(mto_shipments.requested_pickup_date AS DATE) = ?", *requestedMoveDate)
+		}
 	}
 }
 
