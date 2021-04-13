@@ -1,5 +1,6 @@
 import React from 'react';
 import { string, bool } from 'prop-types';
+import { Link } from 'react-router-dom';
 
 import serviceInfoDisplayStyles from './ServiceInfoDisplay.module.scss';
 
@@ -20,7 +21,7 @@ const ServiceInfoDisplay = ({
     <div className={serviceInfoDisplayStyles.serviceInfoContainer}>
       <div className={serviceInfoDisplayStyles.header}>
         <h2>Service info</h2>
-        {isEditable && <a href={editURL}>Edit</a>}
+        {isEditable && <Link to={editURL}>Edit</Link>}
       </div>
       {!isEditable && (
         <div className={serviceInfoDisplayStyles.whoToContactContainer}>

@@ -36,7 +36,6 @@ import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import PpmLanding from 'scenes/PpmLanding';
 import Edit from 'scenes/Review/Edit';
-import Profile from 'pages/MyMove/Profile/Profile';
 import EditProfile from 'scenes/Review/EditProfile';
 import EditBackupContact from 'scenes/Review/EditBackupContact';
 import EditContactInfo from 'scenes/Review/EditContactInfo';
@@ -60,6 +59,7 @@ import Home from 'pages/MyMove/Home';
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const AccessCode = lazy(() => import('shared/User/AccessCode'));
 const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
+const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
 
 export class CustomerApp extends Component {
   constructor(props) {
