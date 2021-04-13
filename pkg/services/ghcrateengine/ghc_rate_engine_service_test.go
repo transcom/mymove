@@ -114,9 +114,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				Escalation:           1.0197,
-				EscalationCompounded: 1.0407,
-				Name:                 "Base Period Year 1",
+				EscalationCompounded: escalationCompounded,
 			},
 		})
 
@@ -138,7 +136,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 	serviceAreaPrice := models.ReDomesticServiceAreaPrice{
 		ContractID:            contractYear.Contract.ID,
 		ServiceID:             service.ID,
-		IsPeakPeriod:          true,
+		IsPeakPeriod:          isPeakPeriod,
 		DomesticServiceAreaID: serviceArea.ID,
 		PriceCents:            priceCents,
 	}
@@ -177,12 +175,21 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 	suite.MustSave(&baseLinehaulPrice)
 }
 
-func (suite *GHCRateEngineServiceSuite) HasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, value string) bool {
+func (suite *GHCRateEngineServiceSuite) HasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, expectedValue string) bool {
 	for _, displayParam := range displayParams {
 		if displayParam.Key == key {
-			return suite.Equal(value, displayParam.Value, "%s param actual value did not match expected", key.String())
+			return suite.Equal(expectedValue, displayParam.Value, "%s param actual value did not match expected", key.String())
 		}
 	}
 
-	return suite.Failf("Could not find display param", "key=<%s> value=<%s>", key.String(), value)
+	return suite.Failf("Could not find display param", "key=<%s> value=<%s>", key.String(), expectedValue)
+}
+
+func (suite *GHCRateEngineServiceSuite) validatePricerCreatedParams(expectedValues services.PricingDisplayParams, actualValues services.PricingDisplayParams) {
+
+	suite.Equal(len(expectedValues), len(actualValues))
+
+	for _, eValue := range expectedValues {
+		suite.HasDisplayParam(actualValues, eValue.Key, eValue.Value)
+	}
 }
