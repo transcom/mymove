@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { Grid } from '@trussworks/react-uswds';
 
 import { ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
@@ -45,29 +46,56 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel, newDutyStation }) 
           <Form className={formStyles.form}>
             <h1>Edit service info</h1>
             <SectionWrapper className={formStyles.formSection}>
-              <TextField label="First name" name="first_name" id="firstName" required />
-              <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
-              <TextField label="Last name" name="last_name" id="lastName" required />
-              <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
+              <Grid row gap>
+                <Grid mobileLg={{ col: 6 }}>
+                  <TextField label="First name" name="first_name" id="firstName" required />
+                </Grid>
+                <Grid mobileLg={{ col: 6 }}>
+                  <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
+                </Grid>
+              </Grid>
 
-              <DropdownInput
-                label="Branch of service"
-                name="affiliation"
-                id="affiliation"
-                required
-                options={branchOptions}
-              />
-              <DropdownInput label="Rank" name="rank" id="rank" required options={rankOptions} />
+              <Grid row gap>
+                <Grid mobileLg={{ col: 6 }}>
+                  <TextField label="Last name" name="last_name" id="lastName" required />
+                </Grid>
+                <Grid mobileLg={{ col: 6 }}>
+                  <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
+                </Grid>
+              </Grid>
 
-              <TextField
-                label="DoD ID number"
-                name="edipi"
-                id="edipi"
-                required
-                maxLength="10"
-                inputMode="numeric"
-                pattern="[0-9]{10}"
-              />
+              <Grid row gap>
+                <Grid mobileLg={{ col: 6 }}>
+                  <DropdownInput
+                    label="Branch of service"
+                    name="affiliation"
+                    id="affiliation"
+                    required
+                    options={branchOptions}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid row gap>
+                <Grid mobileLg={{ col: 6 }}>
+                  <DropdownInput label="Rank" name="rank" id="rank" required options={rankOptions} />
+                </Grid>
+              </Grid>
+
+              <Grid row gap>
+                <Grid mobileLg={{ col: 6 }}>
+                  <TextField
+                    label="DoD ID number"
+                    name="edipi"
+                    id="edipi"
+                    required
+                    maxLength="10"
+                    inputMode="numeric"
+                    pattern="[0-9]{10}"
+                  />
+                </Grid>
+              </Grid>
+
               <DutyStationInput label="Current duty station" name="current_station" id="current_station" required />
             </SectionWrapper>
 

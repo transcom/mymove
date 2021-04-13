@@ -99,7 +99,7 @@
     @include u-margin-bottom(6);
   }
 
-  :global(.usa-form-group:first-of-type .usa-label) {
+  > :global(.usa-form-group:first-of-type .usa-label) {
     @include u-margin-top('105');
   }
 
