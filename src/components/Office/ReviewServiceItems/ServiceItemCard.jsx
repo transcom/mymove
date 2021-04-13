@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Radio, Textarea, FormGroup, Fieldset, Label, Button, Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -28,6 +28,8 @@ const ServiceItemCard = ({
   requestComplete,
   paymentServiceItemParams,
 }) => {
+  const [calculationsVisible, setCalulationsVisible] = useState(false);
+
   const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   if (requestComplete) {
@@ -42,14 +44,29 @@ const ServiceItemCard = ({
             <dt>Amount</dt>
             <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
           </dl>
-
-          {paymentServiceItemParams.length > 0 && (
-            <ServiceItemCalculations
-              totalAmountRequested={amount * 100}
-              serviceItemParams={paymentServiceItemParams}
-              itemCode={mtoServiceItemCode}
-              tableSize="small"
-            />
+          <Button
+            className={styles.toggleCalculations}
+            type="button"
+            data-testid="toggleCalculations"
+            aria-expanded={calculationsVisible}
+            unstyled
+            onClick={() => {
+              setCalulationsVisible((isVisible) => {
+                return !isVisible;
+              });
+            }}
+          >
+            {calculationsVisible ? 'Hide calculations' : 'Show calculations'}
+          </Button>
+          {paymentServiceItemParams.length > 0 && calculationsVisible && (
+            <div className={styles.calculationsContainer}>
+              <ServiceItemCalculations
+                totalAmountRequested={amount * 100}
+                serviceItemParams={paymentServiceItemParams}
+                itemCode={mtoServiceItemCode}
+                tableSize="small"
+              />
+            </div>
           )}
 
           <div data-testid="completeSummary" className={styles.completeContainer}>
@@ -110,6 +127,34 @@ const ServiceItemCard = ({
                   <dt>Amount</dt>
                   <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
                 </dl>
+                {paymentServiceItemParams.length > 0 && (
+                  <>
+                    <Button
+                      className={styles.toggleCalculations}
+                      type="button"
+                      data-testid="toggleCalculations"
+                      aria-expanded={calculationsVisible}
+                      unstyled
+                      onClick={() => {
+                        setCalulationsVisible((isVisible) => {
+                          return !isVisible;
+                        });
+                      }}
+                    >
+                      {calculationsVisible ? 'Hide calculations' : 'Show calculations'}
+                    </Button>
+                    {calculationsVisible && (
+                      <div className={styles.calculationsContainer}>
+                        <ServiceItemCalculations
+                          totalAmountRequested={amount * 100}
+                          serviceItemParams={paymentServiceItemParams}
+                          itemCode={mtoServiceItemCode}
+                          tableSize="small"
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
                 <Fieldset>
                   <div className={styles.statusOption}>
                     <Radio
