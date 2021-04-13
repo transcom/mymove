@@ -111,11 +111,9 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 		now := time.Now()
 		move.AvailableToPrimeAt = &now
 
-		if move.Status == models.MoveStatusSUBMITTED {
-			err = move.Approve()
-			if err != nil {
-				return &models.Move{}, services.NewConflictError(move.ID, err.Error())
-			}
+		err = move.Approve()
+		if err != nil {
+			return &models.Move{}, services.NewConflictError(move.ID, err.Error())
 		}
 
 		verrs, err = o.builder.UpdateOne(move, &eTag)
