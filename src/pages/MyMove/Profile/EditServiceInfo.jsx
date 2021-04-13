@@ -96,7 +96,7 @@ export const EditServiceInfo = ({
       )}
       <ServiceInfoForm
         initialValues={initialValues}
-        newDutyStation={currentOrders?.newDutyStation}
+        newDutyStation={currentOrders?.new_duty_station}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
       />
