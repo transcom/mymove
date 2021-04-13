@@ -30,3 +30,21 @@ export const requiredAddressSchema = Yup.object().shape({
   state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
   postal_code: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
+
+const validatePreferredContactMethod = (value, testContext) => {
+  return !!(testContext.parent.phone_is_preferred || testContext.parent.email_is_preferred);
+};
+
+export const validateContactInfoSchema = Yup.object().shape({
+  telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
+  secondary_telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code'), // min 12 includes hyphens
+  personal_email: Yup.string()
+    .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
+    .required('Required'),
+  phone_is_preferred: Yup.bool().test(
+    'contactMethodRequired',
+    'Please select a preferred method of contact.',
+    validatePreferredContactMethod,
+  ),
+  email_is_preferred: Yup.bool().test('contactMethodRequired', validatePreferredContactMethod),
+});
