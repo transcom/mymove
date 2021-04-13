@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
@@ -16,6 +17,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/certs"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -188,7 +191,24 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
 	}
 
-	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer)
+	certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	if err != nil {
+		logger.Fatal("Failed to initialize Zap loggingv", zap.Error(err))
+	}
+	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+	if certificates == nil || rootCAs == nil || err != nil {
+		logger.Fatal("Error in getting tls certs", zap.Error(err))
+	}
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+	gexSender := invoice.NewGexSenderHTTP(
+		gexURL,
+		true,
+		tlsConfig,
+		v.GetString("gex-basic-auth-username"),
+		v.GetString("gex-basic-auth-password"),
+	)
+
+	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, gexSender, logger, sendToSyncada, icnSequencer)
 	if err != nil {
 		logger.Fatal("InitNewPaymentRequestReviewedProcessor failed", zap.Error(err))
 	}
