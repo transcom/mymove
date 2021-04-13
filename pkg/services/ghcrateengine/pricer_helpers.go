@@ -82,6 +82,7 @@ func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode mod
 
 func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType, sitModifier, zipOriginalName, zipActualName string
+
 	if pickupDeliverySITCode == models.ReServiceCodeDDDSIT {
 		sitType = "destination"
 		sitModifier = "delivery"
@@ -116,12 +117,12 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	if zip3Original == zip3Actual {
 		// Do a normal shorthaul calculation
 		shorthaulPricer := NewDomesticShorthaulPricer(db)
-		totalPriceCents, _, err := shorthaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := shorthaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
 		}
 
-		return totalPriceCents, nil, nil
+		return totalPriceCents, displayParams, nil
 	}
 
 	// Zip3s must be different at this point.  Now examine distance.
@@ -130,12 +131,12 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	if distance > 50 {
 		// Do a normal linehaul calculation
 		linehaulPricer := NewDomesticLinehaulPricer(db)
-		totalPriceCents, _, err := linehaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := linehaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}
 
-		return totalPriceCents, nil, nil
+		return totalPriceCents, displayParams, nil
 	}
 
 	// Zip3s must be different at this point and distance is <= 50.
@@ -157,7 +158,25 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	escalatedTotalPrice := baseTotalPrice * contractYear.EscalationCompounded
 	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
-	return totalPriceCents, nil, nil
+	displayParams := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(totalPriceCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+	return totalPriceCents, displayParams, nil
 }
 
 // createPricerGeneratedParams stores PaymentServiceItemParams, whose origin is the PRICER, into the database
