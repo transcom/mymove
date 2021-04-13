@@ -14,6 +14,7 @@ const (
 	ddfsitTestServiceArea          = "456"
 	ddfsitTestIsPeakPeriod         = false
 	ddfsitTestBasePriceCents       = unit.Cents(525)
+	ddfsitTestContractYearName     = "DDFSIT Test Year"
 	ddfsitTestEscalationCompounded = 1.052
 	ddfsitTestWeight               = unit.Pound(3300)
 	ddfsitTestPriceCents           = unit.Cents(18226) // ddfsitTestBasePriceCents * (ddfsitTestWeight / 100) * ddfsitTestEscalationCompounded
@@ -22,14 +23,22 @@ const (
 var ddfsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationFirstDaySITPricer() {
-	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDFSIT, ddfsitTestServiceArea, ddfsitTestIsPeakPeriod, ddfsitTestBasePriceCents, ddfsitTestEscalationCompounded)
+	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDFSIT, ddfsitTestServiceArea, ddfsitTestIsPeakPeriod, ddfsitTestBasePriceCents, ddfsitTestContractYearName, ddfsitTestEscalationCompounded)
 	paymentServiceItem := suite.setupDomesticDestinationFirstDaySITServiceItem()
 	pricer := NewDomesticDestinationFirstDaySITPricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(ddfsitTestPriceCents, priceCents)
+
+		// TODO: Change to Jacquie's helper function?
+		if suite.Len(displayParams, 4) {
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, ddfsitTestContractYearName)
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, FormatFloat(ddfsitTestEscalationCompounded, 5)) // TODO: Change to FormatEscalation when that lands
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, FormatBool(ddfsitTestIsPeakPeriod))
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, FormatCents(ddfsitTestBasePriceCents))
+		}
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {

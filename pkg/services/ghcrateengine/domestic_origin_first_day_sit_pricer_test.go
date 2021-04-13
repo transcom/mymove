@@ -14,6 +14,7 @@ const (
 	dofsitTestServiceArea          = "123"
 	dofsitTestIsPeakPeriod         = true
 	dofsitTestBasePriceCents       = unit.Cents(353)
+	dofsitTestContractYearName     = "DOFSIT Test Year"
 	dofsitTestEscalationCompounded = 1.125
 	dofsitTestWeight               = unit.Pound(4000)
 	dofsitTestPriceCents           = unit.Cents(15885) // dofsitTestBasePriceCents * (dofsitTestWeight / 100) * dofsitTestEscalationCompounded
@@ -22,14 +23,22 @@ const (
 var dofsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
-	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, dofsitTestServiceArea, dofsitTestIsPeakPeriod, dofsitTestBasePriceCents, dofsitTestEscalationCompounded)
+	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, dofsitTestServiceArea, dofsitTestIsPeakPeriod, dofsitTestBasePriceCents, dofsitTestContractYearName, dofsitTestEscalationCompounded)
 	paymentServiceItem := suite.setupDomesticOriginFirstDaySITServiceItem()
 	pricer := NewDomesticOriginFirstDaySITPricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dofsitTestPriceCents, priceCents)
+
+		// TODO: Change to Jacquie's helper function?
+		if suite.Len(displayParams, 4) {
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, dofsitTestContractYearName)
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, FormatFloat(dofsitTestEscalationCompounded, 5)) // TODO: Change to FormatEscalation when that lands
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, FormatBool(dofsitTestIsPeakPeriod))
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, FormatCents(dofsitTestBasePriceCents))
+		}
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
