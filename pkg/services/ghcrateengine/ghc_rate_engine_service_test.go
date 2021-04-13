@@ -114,7 +114,9 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				EscalationCompounded: escalationCompounded,
+				Escalation:           1.0197,
+				EscalationCompounded: 1.0407,
+				Name:                 "Base Period Year 1",
 			},
 		})
 
@@ -136,7 +138,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 	serviceAreaPrice := models.ReDomesticServiceAreaPrice{
 		ContractID:            contractYear.Contract.ID,
 		ServiceID:             service.ID,
-		IsPeakPeriod:          isPeakPeriod,
+		IsPeakPeriod:          true,
 		DomesticServiceAreaID: serviceArea.ID,
 		PriceCents:            priceCents,
 	}

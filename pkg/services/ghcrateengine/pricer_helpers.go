@@ -77,7 +77,25 @@ func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode mod
 
 	totalPriceCents := unit.Cents(math.Round(totalForNumberOfDaysPrice))
 
-	return totalPriceCents, nil, nil
+	displayParams := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(serviceAreaPrice.PriceCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatFloat(contractYear.EscalationCompounded, 5),
+		},
+	}
+	return totalPriceCents, displayParams, nil
 }
 
 func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
