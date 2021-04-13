@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 
 import ScrollToTop from 'components/ScrollToTop';
 import ServiceInfoForm from 'components/Customer/ServiceInfoForm/ServiceInfoForm';
@@ -18,7 +18,13 @@ import { generalRoutes } from 'constants/routes';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import { EntitlementShape } from 'types';
 
-const EditServiceInfo = ({ serviceMember, currentOrders, entitlement, updateServiceMember, setFlashMessage }) => {
+export const EditServiceInfo = ({
+  serviceMember,
+  currentOrders,
+  entitlement,
+  updateServiceMember,
+  setFlashMessage,
+}) => {
   const history = useHistory();
   const [serverError, setServerError] = useState(null);
 

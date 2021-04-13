@@ -1,0 +1,241 @@
+import React from 'react';
+import { render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+import { EditServiceInfo } from './EditServiceInfo';
+
+import { patchServiceMember } from 'services/internalApi';
+
+const mockPush = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: () => ({
+    pathname: 'localhost:3000/',
+  }),
+  useHistory: () => ({
+    push: mockPush,
+  }),
+}));
+
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  patchServiceMember: jest.fn(),
+}));
+
+describe('EditServiceInfo page', () => {
+  const testProps = {
+    updateServiceMember: jest.fn(),
+    setFlashMessage: jest.fn(),
+    serviceMember: {
+      id: 'testServiceMemberId',
+    },
+    currentOrders: {},
+    entitlement: {},
+  };
+
+  it('renders the EditServiceInfo form', async () => {
+    const { queryByRole } = render(<EditServiceInfo {...testProps} />);
+
+    await waitFor(() => {
+      expect(queryByRole('heading', { name: 'Edit service info', level: 1 })).toBeInTheDocument();
+    });
+  });
+
+  it('the cancel button goes back to the home page', async () => {
+    const { queryByText } = render(<EditServiceInfo {...testProps} />);
+
+    const cancelButton = queryByText('Cancel');
+    await waitFor(() => {
+      expect(cancelButton).toBeInTheDocument();
+    });
+
+    userEvent.click(cancelButton);
+    expect(mockPush).toHaveBeenCalledWith('/');
+  });
+
+  it('save button submits the form and goes to the home page', async () => {
+    const testServiceMemberValues = {
+      id: 'testServiceMemberId',
+      first_name: 'Leo',
+      last_name: 'Spaceman',
+      affiliation: 'NAVY',
+      edipi: '1234567890',
+      rank: 'E_5',
+      current_station: {
+        address: {
+          city: 'Test City',
+          id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+          postal_code: '12345',
+          state: 'NY',
+          street_address_1: '123 Main St',
+        },
+        address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+        name: 'Luke AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      },
+    };
+
+    patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
+
+    // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
+    const { queryByText } = render(
+      <EditServiceInfo
+        {...testProps}
+        serviceMember={testServiceMemberValues}
+        currentOrders={{
+          grade: testServiceMemberValues.rank,
+          origin_duty_station: testServiceMemberValues.current_station,
+        }}
+      />,
+    );
+
+    const submitButton = queryByText('Save');
+    expect(submitButton).toBeInTheDocument();
+    userEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(patchServiceMember).toHaveBeenCalled();
+    });
+
+    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
+    expect(testProps.setFlashMessage).toHaveBeenCalledWith(
+      'EDIT_SERVICE_INFO_SUCCESS',
+      'success',
+      '',
+      'Your changes have been saved.',
+    );
+
+    expect(mockPush).toHaveBeenCalledWith('/');
+  });
+
+  it('displays a flash message about entitlement when the rank changes', async () => {
+    const testServiceMemberValues = {
+      id: 'testServiceMemberId',
+      first_name: 'Leo',
+      last_name: 'Spaceman',
+      affiliation: 'NAVY',
+      edipi: '1234567890',
+      rank: 'E_5',
+      current_station: {
+        address: {
+          city: 'Test City',
+          id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+          postal_code: '12345',
+          state: 'NY',
+          street_address_1: '123 Main St',
+        },
+        address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+        name: 'Luke AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      },
+    };
+
+    patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
+
+    // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
+    const { queryByText, getByLabelText } = render(
+      <EditServiceInfo
+        {...testProps}
+        serviceMember={testServiceMemberValues}
+        currentOrders={{
+          grade: testServiceMemberValues.rank,
+          origin_duty_station: testServiceMemberValues.current_station,
+        }}
+        entitlement={{ sum: 15000 }}
+      />,
+    );
+
+    userEvent.selectOptions(getByLabelText('Rank'), ['E_2']);
+
+    const submitButton = queryByText('Save');
+    expect(submitButton).toBeInTheDocument();
+    userEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(patchServiceMember).toHaveBeenCalled();
+    });
+
+    expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
+    expect(testProps.setFlashMessage).toHaveBeenCalledWith(
+      'EDIT_SERVICE_INFO_SUCCESS',
+      'info',
+      `Your weight entitlement is now 15,000 lbs.`,
+      'Your changes have been saved. Note that the entitlement has also changed.',
+    );
+
+    expect(mockPush).toHaveBeenCalledWith('/');
+  });
+
+  it('shows an error if the API returns an error', async () => {
+    const testServiceMemberValues = {
+      id: 'testServiceMemberId',
+      first_name: 'Leo',
+      last_name: 'Spaceman',
+      affiliation: 'NAVY',
+      edipi: '1234567890',
+      rank: 'E_5',
+      current_station: {
+        address: {
+          city: 'Test City',
+          id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+          postal_code: '12345',
+          state: 'NY',
+          street_address_1: '123 Main St',
+        },
+        address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+        name: 'Luke AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      },
+    };
+
+    patchServiceMember.mockImplementation(() =>
+      // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
+      // eslint-disable-next-line prefer-promise-reject-errors
+      Promise.reject({
+        message: 'A server error occurred saving the service member',
+        response: {
+          body: {
+            detail: 'A server error occurred saving the service member',
+          },
+        },
+      }),
+    );
+
+    // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
+    const { queryByText } = render(
+      <EditServiceInfo
+        {...testProps}
+        serviceMember={testServiceMemberValues}
+        currentOrders={{
+          grade: testServiceMemberValues.rank,
+          origin_duty_station: testServiceMemberValues.current_station,
+        }}
+      />,
+    );
+
+    const submitButton = queryByText('Save');
+    expect(submitButton).toBeInTheDocument();
+    userEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(patchServiceMember).toHaveBeenCalled();
+    });
+
+    expect(queryByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(testProps.updateServiceMember).not.toHaveBeenCalled();
+    expect(testProps.setFlashMessage).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  afterEach(jest.resetAllMocks);
+});
