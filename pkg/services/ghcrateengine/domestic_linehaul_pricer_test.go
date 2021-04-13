@@ -39,7 +39,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 
 		if suite.Len(displayParams, 4) {
 			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, dlhTestContractYearName)
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, FormatFloat(dlhTestEscalationCompounded, 5))
+			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, FormatEscalation(dlhTestEscalationCompounded))
 			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, FormatBool(dlhTestIsPeakPeriod))
 			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, FormatFloat(dlhTestBasePriceMillicents.ToDollarFloatNoRound(), 3))
 		}

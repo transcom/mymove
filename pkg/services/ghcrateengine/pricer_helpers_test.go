@@ -20,13 +20,13 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticFirstDaySIT() {
 		suite.NoError(err)
 		suite.Equal(ddfsitTestPriceCents, priceCents)
 
-		// TODO: Change to Jacquie's helper function?
-		if suite.Len(displayParams, 4) {
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, ddfsitTestContractYearName)
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, FormatFloat(ddfsitTestEscalationCompounded, 5)) // TODO: Change to FormatEscalation when that lands
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, FormatBool(ddfsitTestIsPeakPeriod))
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, FormatCents(ddfsitTestBasePriceCents))
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: ddfsitTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ddfsitTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(ddfsitTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ddfsitTestBasePriceCents)},
 		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.T().Run("invalid service code", func(t *testing.T) {

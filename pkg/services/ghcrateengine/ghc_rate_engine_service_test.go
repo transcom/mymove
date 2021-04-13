@@ -187,7 +187,6 @@ func (suite *GHCRateEngineServiceSuite) HasDisplayParam(displayParams services.P
 }
 
 func (suite *GHCRateEngineServiceSuite) validatePricerCreatedParams(expectedValues services.PricingDisplayParams, actualValues services.PricingDisplayParams) {
-
 	suite.Equal(len(expectedValues), len(actualValues))
 
 	for _, eValue := range expectedValues {

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -32,13 +33,13 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
 		suite.NoError(err)
 		suite.Equal(dofsitTestPriceCents, priceCents)
 
-		// TODO: Change to Jacquie's helper function?
-		if suite.Len(displayParams, 4) {
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, dofsitTestContractYearName)
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, FormatFloat(dofsitTestEscalationCompounded, 5)) // TODO: Change to FormatEscalation when that lands
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, FormatBool(dofsitTestIsPeakPeriod))
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, FormatCents(dofsitTestBasePriceCents))
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dofsitTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dofsitTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dofsitTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dofsitTestBasePriceCents)},
 		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
