@@ -19,12 +19,13 @@ const (
 	ddasitTestWeight               = unit.Pound(4200)
 	ddasitTestNumberOfDaysInSIT    = 29
 	ddasitTestPriceCents           = unit.Cents(948060) // ddasitTestBasePriceCents * (ddasitTestWeight / 100) * ddasitTestEscalationCompounded * ddasitTestNumberOfDaysInSIT
+	ddasitTestContractYearName     = "DDASIT Test Year"
 )
 
 var ddasitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSITPricer() {
-	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDASIT, ddasitTestServiceArea, ddasitTestIsPeakPeriod, ddasitTestBasePriceCents, ddasitTestEscalationCompounded)
+	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDASIT, ddasitTestServiceArea, ddasitTestIsPeakPeriod, ddasitTestBasePriceCents, ddasitTestContractYearName, ddasitTestEscalationCompounded)
 	paymentServiceItem := suite.setupDomesticDestinationAdditionalDaysSITServiceItem()
 	pricer := NewDomesticDestinationAdditionalDaysSITPricer(suite.DB())
 

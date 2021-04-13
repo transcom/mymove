@@ -17,12 +17,13 @@ const (
 	dofsitTestEscalationCompounded = 1.125
 	dofsitTestWeight               = unit.Pound(4000)
 	dofsitTestPriceCents           = unit.Cents(15885) // dofsitTestBasePriceCents * (dofsitTestWeight / 100) * dofsitTestEscalationCompounded
+	dofsitTestContractYearName     = "DOFSIT Test Year"
 )
 
 var dofsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
-	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, dofsitTestServiceArea, dofsitTestIsPeakPeriod, dofsitTestBasePriceCents, dofsitTestEscalationCompounded)
+	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, dofsitTestServiceArea, dofsitTestIsPeakPeriod, dofsitTestBasePriceCents, dofsitTestContractYearName, dofsitTestEscalationCompounded)
 	paymentServiceItem := suite.setupDomesticOriginFirstDaySITServiceItem()
 	pricer := NewDomesticOriginFirstDaySITPricer(suite.DB())
 

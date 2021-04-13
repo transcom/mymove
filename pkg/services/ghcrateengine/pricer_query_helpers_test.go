@@ -57,7 +57,9 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomServiceAreaPrice() {
 	testServiceArea := "123"
 	testIsPeakPeriod := true
 	testCents := unit.Cents(353)
-	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod, testCents, 1.125)
+	testContractName := "Test Year 1"
+
+	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod, testCents, testContractName, 1.125)
 
 	suite.T().Run("golden path", func(t *testing.T) {
 		domServiceAreaPrice, err := fetchDomServiceAreaPrice(suite.DB(), testdatagen.DefaultContractCode, models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod)
