@@ -31,20 +31,31 @@ export const requiredAddressSchema = Yup.object().shape({
   postal_code: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
 
+export const phoneSchema = Yup.string().min(12, 'Number must have 10 digits and a valid area code'); // min 12 includes hyphens
+
+export const emailSchema = Yup.string().matches(
+  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/,
+  'Must be a valid email address',
+);
+
 const validatePreferredContactMethod = (value, testContext) => {
   return !!(testContext.parent.phone_is_preferred || testContext.parent.email_is_preferred);
 };
 
 export const validateContactInfoSchema = Yup.object().shape({
-  telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
-  secondary_telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code'), // min 12 includes hyphens
-  personal_email: Yup.string()
-    .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
-    .required('Required'),
+  telephone: phoneSchema.required('Required'),
+  secondary_telephone: phoneSchema,
+  personal_email: emailSchema.required('Required'),
   phone_is_preferred: Yup.bool().test(
     'contactMethodRequired',
     'Please select a preferred method of contact.',
     validatePreferredContactMethod,
   ),
   email_is_preferred: Yup.bool().test('contactMethodRequired', validatePreferredContactMethod),
+});
+
+export const backupContactInfoSchema = Yup.object().shape({
+  name: Yup.string().required('Required'),
+  email: emailSchema.required('Required'),
+  telephone: phoneSchema.required('Required'),
 });
