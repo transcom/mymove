@@ -1,11 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { arrayOf } from 'prop-types';
+import { arrayOf, bool } from 'prop-types';
+import { Alert } from '@trussworks/react-uswds';
 
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import {
   selectServiceMemberFromLoggedInUser,
+  selectMoveIsInDraft,
   selectCurrentOrders,
   selectCurrentMove,
   selectBackupContacts,
@@ -14,9 +16,11 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
 import { customerRoutes } from 'constants/routes';
 
-const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
+const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
   const rank = currentOrders ? currentOrders.grade : serviceMember.rank;
-  const currentStation = currentOrders ? currentOrders.origin_duty_station : serviceMember.current_station;
+  const currentStation = serviceMember.current_station;
+  const stationPhoneLines = currentStation?.transportation_office?.phone_lines;
+  const stationPhone = stationPhoneLines ? stationPhoneLines[0] : '';
   const backupContact = {
     name: currentBackupContacts[0]?.name || '',
     telephone: currentBackupContacts[0]?.telephone || '',
@@ -28,6 +32,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
       <div className="grid-row">
         <div className="grid-col-12">
           <h1>Profile</h1>
+          {!moveIsInDraft && <Alert type="info">Contact your movers if you need to make changes to your move.</Alert>}
           <SectionWrapper>
             <ContactInfoDisplay
               telephone={serviceMember?.telephone || ''}
@@ -45,10 +50,12 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
               firstName={serviceMember?.first_name || ''}
               lastName={serviceMember?.last_name || ''}
               currentDutyStationName={currentStation?.name || ''}
+              currentDutyStationPhone={stationPhone}
               affiliation={serviceMember?.affiliation || ''}
               rank={rank || ''}
               edipi={serviceMember?.edipi || ''}
               editURL={customerRoutes.EDIT_PROFILE_PATH}
+              isEditable={moveIsInDraft}
             />
           </SectionWrapper>
         </div>
@@ -61,13 +68,16 @@ Profile.propTypes = {
   serviceMember: ServiceMemberShape.isRequired,
   currentOrders: OrdersShape.isRequired,
   currentBackupContacts: arrayOf(BackupContactShape).isRequired,
+  moveIsInDraft: bool.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     move: selectCurrentMove(state) || {},
-    currentOrders: selectCurrentOrders(state),
+    // The move still counts as in draft if there are no orders.
+    moveIsInDraft: selectMoveIsInDraft(state) || !selectCurrentOrders(state),
+    currentOrders: selectCurrentOrders(state) || {},
     currentBackupContacts: selectBackupContacts(state),
   };
 }

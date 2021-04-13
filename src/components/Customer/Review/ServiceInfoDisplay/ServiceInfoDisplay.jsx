@@ -24,7 +24,7 @@ const ServiceInfoDisplay = ({
       </div>
       {!isEditable && (
         <div className={serviceInfoDisplayStyles.whoToContactContainer}>
-          To change information in this section, contact the {currentDutyStationName} transportation office{' '}
+          To change information in this section, contact the {currentDutyStationName} transportation office
           {currentDutyStationPhone ? ` at ${currentDutyStationPhone}.` : '.'}
         </div>
       )}

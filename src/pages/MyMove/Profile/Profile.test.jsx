@@ -24,6 +24,19 @@ describe('Profile component', () => {
             new_duty_station: {
               name: 'Test Duty Station',
             },
+            status: 'DRAFT',
+            moves: ['testMove'],
+          },
+        },
+        moves: {
+          testMove: {
+            created_at: '2020-12-17T15:54:48.873Z',
+            id: 'testMove',
+            locator: 'test',
+            orders_id: 'test',
+            selected_move_type: '',
+            service_member_id: 'testServiceMemberId',
+            status: 'DRAFT',
           },
         },
         serviceMembers: {
@@ -86,6 +99,10 @@ describe('Profile component', () => {
     const serviceInfoHeader = await screen.findByRole('heading', { name: 'Service info', level: 2 });
 
     expect(serviceInfoHeader).toBeInTheDocument();
+
+    const editLinks = screen.getAllByText('Edit');
+
+    expect(editLinks.length).toBe(2);
   });
 
   it('renders the Profile Page when there are no orders', async () => {
@@ -98,8 +115,100 @@ describe('Profile component', () => {
             service_member: 'testServiceMemberId',
           },
         },
+        serviceMembers: {
+          testServiceMemberId: {
+            id: 'testServiceMemberId',
+            rank: 'test rank',
+            edipi: '1234567890',
+            affiliation: 'ARMY',
+            first_name: 'Tester',
+            last_name: 'Testperson',
+            telephone: '1234567890',
+            personal_email: 'test@example.com',
+            email_is_preferred: true,
+            residential_address: {
+              city: 'San Diego',
+              state: 'CA',
+              postal_code: '92131',
+              street_address_1: 'Some Street',
+              country: 'USA',
+            },
+            backup_mailing_address: {
+              city: 'San Diego',
+              state: 'CA',
+              postal_code: '92131',
+              street_address_1: 'Some Backup Street',
+              country: 'USA',
+            },
+            current_station: {
+              origin_duty_station: {
+                name: 'Current Station',
+              },
+              grade: 'E-5',
+            },
+            backup_contacts: [
+              {
+                name: 'Backup Contact',
+                telephone: '555-555-5555',
+                email: 'backup@test.com',
+              },
+            ],
+          },
+        },
+      },
+    };
+    render(
+      <MockProviders initialState={mockState}>
+        <ConnectedProfile {...testProps} />
+      </MockProviders>,
+    );
+
+    const mainHeader = await screen.findByRole('heading', { name: 'Profile', level: 1 });
+
+    expect(mainHeader).toBeInTheDocument();
+
+    const contactInfoHeader = await screen.findByRole('heading', { name: 'Contact info', level: 2 });
+
+    expect(contactInfoHeader).toBeInTheDocument();
+
+    const serviceInfoHeader = await screen.findByRole('heading', { name: 'Service info', level: 2 });
+
+    expect(serviceInfoHeader).toBeInTheDocument();
+
+    const editLinks = screen.getAllByText('Edit');
+
+    expect(editLinks.length).toBe(2);
+  });
+
+  it('does not allow the user to edit the service info information after a move has been submitted', async () => {
+    const mockState = {
+      entities: {
+        user: {
+          testUserId: {
+            id: 'testUserId',
+            email: 'testuser@example.com',
+            service_member: 'testServiceMemberId',
+          },
+        },
         orders: {
-          test: {},
+          test: {
+            new_duty_station: {
+              name: 'Test Duty Station',
+            },
+            status: 'DRAFT',
+            moves: ['testMove'],
+          },
+        },
+        moves: {
+          testMove: {
+            created_at: '2020-12-17T15:54:48.873Z',
+            id: 'testMove',
+            locator: 'test',
+            orders_id: 'test',
+            selected_move_type: '',
+            service_member_id: 'testServiceMemberId',
+            status: 'SUBMITTED',
+          },
         },
         serviceMembers: {
           testServiceMemberId: {
@@ -150,16 +259,12 @@ describe('Profile component', () => {
       </MockProviders>,
     );
 
-    const mainHeader = await screen.findByRole('heading', { name: 'Profile', level: 1 });
+    const whoToContact = screen.getByText(/To change information in this section, contact the/);
 
-    expect(mainHeader).toBeInTheDocument();
+    expect(whoToContact).toBeInTheDocument();
 
-    const contactInfoHeader = await screen.findByRole('heading', { name: 'Contact info', level: 2 });
+    const editLinks = screen.getAllByText('Edit');
 
-    expect(contactInfoHeader).toBeInTheDocument();
-
-    const serviceInfoHeader = await screen.findByRole('heading', { name: 'Service info', level: 2 });
-
-    expect(serviceInfoHeader).toBeInTheDocument();
+    expect(editLinks.length).toBe(1);
   });
 });
