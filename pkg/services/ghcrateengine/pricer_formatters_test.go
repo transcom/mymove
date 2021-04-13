@@ -60,3 +60,18 @@ func (suite *GHCRateEngineServiceSuite) TestFormatFloat() {
 		suite.Equal(tc.expected, FormatFloat(tc.inputFloat, tc.precision))
 	}
 }
+
+func (suite *GHCRateEngineServiceSuite) TestFormatEscalation() {
+	testCases := []struct {
+		inputFloat float64
+		expected   string
+	}{
+		{1.234, "1.23400"},
+		{1.234567, "1.23457"},
+		{1.23456789, "1.23457"},
+	}
+
+	for _, tc := range testCases {
+		suite.Equal(tc.expected, FormatEscalation(tc.inputFloat))
+	}
+}
