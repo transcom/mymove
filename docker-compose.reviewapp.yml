@@ -39,9 +39,10 @@ services:
       - ENVIRONMENT=review
       - MIGRATION_PATH=file:///migrate/schema;file:///migrate/secure
       - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
-    entrypoint:
-      - '/bin/milmove'
-      - 'migrate'
+      - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+      - MOVE_MIL_DOD_CA_CERT
+      - MOVE_MIL_DOD_TLS_CERT
+      - MOVE_MIL_DOD_TLS_KEY
 
   milmove_review:
     depends_on:

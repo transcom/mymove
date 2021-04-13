@@ -53,17 +53,29 @@ RUN set -x \
   && make bin/rds-ca-2019-root.pem \
   && rm -f pkg/assets/assets.go && make pkg/assets/assets.go \
   && make server_generate \
-  && rm -f bin/milmove && make bin/milmove
+  && rm -f bin/milmove && make bin/milmove \
+  && make bin/generate-test-data
 
 # define migrations before client build since it doesn't need client
 FROM alpine:3.12.3 as migrate
 
 COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=server_builder /build/bin/milmove /bin/milmove
+COPY --from=server_builder /build/bin/generate-test-data /bin/generate-test-data
 
 COPY migrations/app/schema /migrate/schema
 COPY migrations/app/secure /migrate/secure
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
+
+COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
+
+# While it's ok to have these certs copied locally, they should never be copied into Dockerfile.
+COPY config/tls/devlocal-ca.key /config/tls/devlocal-ca.key
+COPY config/tls/devlocal-ca.pem /config/tls/devlocal-ca.pem
+
+# test data for generate-test-data
+COPY pkg/testdatagen/testdata /pkg/testdatagen/testdata
 
 # Install tools needed in container
 # hadolint ignore=DL3018
@@ -73,7 +85,9 @@ WORKDIR /
 
 USER nobody
 
-ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]
+ENTRYPOINT ["/bin/sh", "-c", \
+  "/bin/milmove migrate && /bin/generate-test-data --named-scenario='dev_seed' --db-env='development'" \
+]
 
 # build client after migrate since migrations don't need client
 FROM client_deps as client_builder
