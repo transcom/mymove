@@ -182,22 +182,22 @@ type Obligation struct {
 
 // GCC100 calculates the 100% GCC on shipment summary worksheet
 func (obligation Obligation) GCC100() float64 {
-	return obligation.Gcc.ToDollarFloat()
+	return obligation.Gcc.ToDollarFloatNoRound()
 }
 
 // GCC95 calculates the 95% GCC on shipment summary worksheet
 func (obligation Obligation) GCC95() float64 {
-	return obligation.Gcc.MultiplyFloat64(.95).ToDollarFloat()
+	return obligation.Gcc.MultiplyFloat64(.95).ToDollarFloatNoRound()
 }
 
 // FormatSIT formats the SIT Cost into a dollar float for the shipment summary worksheet
 func (obligation Obligation) FormatSIT() float64 {
-	return obligation.SIT.ToDollarFloat()
+	return obligation.SIT.ToDollarFloatNoRound()
 }
 
 // MaxAdvance calculates the Max Advance on the shipment summary worksheet
 func (obligation Obligation) MaxAdvance() float64 {
-	return obligation.Gcc.MultiplyFloat64(.60).ToDollarFloat()
+	return obligation.Gcc.MultiplyFloat64(.60).ToDollarFloatNoRound()
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
@@ -414,7 +414,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 
 func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
 	if len(data.PersonallyProcuredMoves) > 0 && data.PersonallyProcuredMoves[0].Advance != nil {
-		advance := data.PersonallyProcuredMoves[0].Advance.RequestedAmount.ToDollarFloat()
+		advance := data.PersonallyProcuredMoves[0].Advance.RequestedAmount.ToDollarFloatNoRound()
 		return FormatDollars(advance)
 	}
 	return FormatDollars(0)
@@ -493,7 +493,7 @@ func FormatOtherExpenses(docs MovingExpenseDocuments) FormattedOtherExpenses {
 	for _, doc := range docs {
 		if doc.MovingExpenseType == MovingExpenseTypeOTHER {
 			expenseDescriptions = append(expenseDescriptions, doc.MoveDocument.Title)
-			expenseAmounts = append(expenseAmounts, FormatDollars(float64(doc.RequestedAmountCents.ToDollarFloat())))
+			expenseAmounts = append(expenseAmounts, FormatDollars(float64(doc.RequestedAmountCents.ToDollarFloatNoRound())))
 		}
 	}
 	return FormattedOtherExpenses{
@@ -603,7 +603,7 @@ func SubTotalExpenses(expenseDocuments MovingExpenseDocuments) map[string]float6
 	totals := make(map[string]float64)
 	for _, expense := range expenseDocuments {
 		expenseType = getExpenseType(expense)
-		expenseDollarAmt := expense.RequestedAmountCents.ToDollarFloat()
+		expenseDollarAmt := expense.RequestedAmountCents.ToDollarFloatNoRound()
 		totals[expenseType] += expenseDollarAmt
 		addToGrandTotal(totals, expenseType, expenseDollarAmt)
 	}

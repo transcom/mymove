@@ -20,7 +20,7 @@ func FormatDate(value time.Time) string {
 
 // FormatCents returns a formatted dollar value, without a $, to display to the TXO
 func FormatCents(value unit.Cents) string {
-	valueFloat := value.ToDollarFloat()
+	valueFloat := value.ToDollarFloatNoRound()
 	return fmt.Sprintf("%.2f", valueFloat)
 }
 
@@ -32,4 +32,9 @@ func FormatBool(value bool) string {
 // FormatFloat returns a formatted float value to display to the TXO
 func FormatFloat(value float64, precision int) string {
 	return strconv.FormatFloat(value, 'f', precision, 64)
+}
+
+// FormatEscalation returns a formatted pricing escalation value to display to the TXO
+func FormatEscalation(value float64) string {
+	return strconv.FormatFloat(value, 'f', 5, 64)
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -37,12 +38,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.NoError(err)
 		suite.Equal(dlhPriceCents, priceCents)
 
-		if suite.Len(displayParams, 4) {
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, dlhTestContractYearName)
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, FormatFloat(dlhTestEscalationCompounded, 5))
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, FormatBool(dlhTestIsPeakPeriod))
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, FormatFloat(dlhTestBasePriceMillicents.ToDollarFloatNoRound(), 3))
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dlhTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dlhTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dlhTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(dlhTestBasePriceMillicents.ToDollarFloatNoRound(), 3)},
 		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {

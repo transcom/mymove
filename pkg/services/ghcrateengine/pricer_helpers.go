@@ -43,7 +43,14 @@ func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServi
 
 	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
-	return totalPriceCents, nil, nil
+	params := services.PricingDisplayParams{
+		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
+		{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
+		{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
+		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(serviceAreaPrice.PriceCents)},
+	}
+
+	return totalPriceCents, params, nil
 }
 
 func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {

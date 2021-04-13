@@ -13,12 +13,20 @@ import (
 )
 
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticFirstDaySIT() {
-	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDFSIT, ddfsitTestServiceArea, ddfsitTestIsPeakPeriod, ddfsitTestBasePriceCents, ddfsitTestEscalationCompounded)
+	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDFSIT, ddfsitTestServiceArea, ddfsitTestIsPeakPeriod, ddfsitTestBasePriceCents, ddfsitTestContractYearName, ddfsitTestEscalationCompounded)
 
 	suite.T().Run("destination golden path", func(t *testing.T) {
-		priceCents, _, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeDDFSIT, DefaultContractCode, ddfsitTestRequestedPickupDate, ddfsitTestWeight, ddfsitTestServiceArea)
+		priceCents, displayParams, err := priceDomesticFirstDaySIT(suite.DB(), models.ReServiceCodeDDFSIT, DefaultContractCode, ddfsitTestRequestedPickupDate, ddfsitTestWeight, ddfsitTestServiceArea)
 		suite.NoError(err)
 		suite.Equal(ddfsitTestPriceCents, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: ddfsitTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ddfsitTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(ddfsitTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ddfsitTestBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.T().Run("invalid service code", func(t *testing.T) {
@@ -49,19 +57,12 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticFirstDaySIT() {
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticAdditionalDaysSIT() {
-	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDASIT, ddasitTestServiceArea, ddasitTestIsPeakPeriod, ddasitTestBasePriceCents, ddasitTestEscalationCompounded)
+	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDASIT, ddasitTestServiceArea, ddasitTestIsPeakPeriod, ddasitTestBasePriceCents, ddasitTestContractYearName, ddasitTestEscalationCompounded)
 
 	suite.T().Run("destination golden path", func(t *testing.T) {
-		priceCents, displayParams, err := priceDomesticAdditionalDaysSIT(suite.DB(), models.ReServiceCodeDDASIT, DefaultContractCode, ddasitTestRequestedPickupDate, ddasitTestWeight, ddasitTestServiceArea, ddasitTestNumberOfDaysInSIT)
+		priceCents, _, err := priceDomesticAdditionalDaysSIT(suite.DB(), models.ReServiceCodeDDASIT, DefaultContractCode, ddasitTestRequestedPickupDate, ddasitTestWeight, ddasitTestServiceArea, ddasitTestNumberOfDaysInSIT)
 		suite.NoError(err)
 		suite.Equal(ddasitTestPriceCents, priceCents)
-
-		if suite.Len(displayParams, 4) {
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, "Base Period Year 1")
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, "1.04070")
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, "true")
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, "1.46")
-		}
 	})
 
 	suite.T().Run("invalid service code", func(t *testing.T) {
@@ -97,7 +98,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySITSameZ
 	dshDistance := unit.Miles(15)
 
 	suite.T().Run("destination golden path for same zip3s", func(t *testing.T) {
-		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestEscalationCompounded)
+		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 		priceCents, _, err := priceDomesticPickupDeliverySIT(suite.DB(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dshZipDest, dshZipSITDest, dshDistance)
 		suite.NoError(err)
 		expectedPrice := unit.Cents(53187) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
