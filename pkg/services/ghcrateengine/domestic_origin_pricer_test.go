@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -67,10 +68,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, "Test Contract Year")
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, "1.04070")
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, "true")
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, "1.46")
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
+			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
@@ -115,10 +119,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, "Test Contract Year")
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, "1.04070")
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, "true")
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, "1.46")
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
+			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.T().Run("success domestic origin cost within non-peak period", func(t *testing.T) {
@@ -134,10 +141,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, "Test Contract Year")
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, "1.04070")
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, "false")
-		suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, "1.27")
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
+			{Key: models.ServiceItemParamNameIsPeak, Value: "false"},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.27"},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.T().Run("failure if contract code bogus", func(t *testing.T) {
