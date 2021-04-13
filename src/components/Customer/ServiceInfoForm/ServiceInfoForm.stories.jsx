@@ -12,7 +12,20 @@ export default {
 };
 
 export const DefaultState = (argTypes) => (
-  <ServiceInfoForm initialValues={{}} onSubmit={argTypes.onSubmit} onCancel={argTypes.onCancel} />
+  <ServiceInfoForm
+    initialValues={{
+      first_name: '',
+      middle_name: '',
+      last_name: '',
+      suffix: '',
+      affiliation: '',
+      edipi: '',
+      rank: '',
+      current_station: {},
+    }}
+    onSubmit={argTypes.onSubmit}
+    onCancel={argTypes.onCancel}
+  />
 );
 
 export const WithInitialValues = (argTypes) => (
