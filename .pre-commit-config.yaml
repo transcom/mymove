@@ -115,7 +115,7 @@ repos:
         pass_filenames: false
 
   - repo: git://github.com/trussworks/pre-commit-hooks
-    rev: v1.0.1
+    rev: v1.1.0
     hooks:
       - id: gen-docs
         args: ['docs/adr']
@@ -128,10 +128,6 @@ repos:
             vendor/|
             docs/adr/index.md
           )$
-
-  - repo: https://github.com/IamTheFij/docker-pre-commit
-    rev: 9a22a204
-    hooks:
       - id: hadolint
 
   - repo: local
