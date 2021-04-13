@@ -61,7 +61,7 @@ func (p domesticDestinationPricer) Price(contractCode string, requestedPickupDat
 		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(domServiceAreaPrice.PriceCents)},
 		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
 		{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
-		{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatFloat(contractYear.EscalationCompounded, 5)},
+		{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
 	}
 
 	return totalCost, pricingParams, nil
