@@ -11,7 +11,7 @@ const CustomerInfoTable = ({ customerInfo }) => {
     <div className={styles.OrdersTable}>
       <div className="stackedtable-header">
         <div>
-          <h4>Customer info</h4>
+          <h2>Customer info</h2>
         </div>
       </div>
       <table className="table--stacked">

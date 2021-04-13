@@ -4,6 +4,7 @@ import { GridContainer, Grid, Button, Alert } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import classnames from 'classnames';
 
+import CustomerInfoTable from '../../../components/Office/CustomerInfoTable';
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
@@ -21,7 +22,16 @@ const ServicesCounselingMoveDetails = () => {
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
 
-  const { move, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { order, move, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { customer } = order;
+  const customerInfo = {
+    name: `${customer.last_name}, ${customer.first_name}`,
+    dodId: customer.dodID,
+    phone: `+1 ${customer.phone}`,
+    email: customer.email,
+    currentAddress: customer.current_address,
+    backupContact: customer.backup_contact,
+  };
 
   // use mutation calls
   const [mutateMoveStatus] = useMutation(updateMoveStatusServiceCounselingCompleted, {
@@ -76,7 +86,15 @@ const ServicesCounselingMoveDetails = () => {
             </Grid>
           </Grid>
 
-          {/* additional work here */}
+          <div className={styles.section} id="customer-info">
+            <GridContainer>
+              <Grid row gap>
+                <Grid col>
+                  <CustomerInfoTable customerInfo={customerInfo} />
+                </Grid>
+              </Grid>
+            </GridContainer>
+          </div>
         </GridContainer>
       </div>
     </div>
