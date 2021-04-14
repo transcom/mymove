@@ -1,18 +1,26 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 
 import styles from './OrdersTable/OrdersTable.module.scss';
 
 import { BackupContactShape } from 'types/backupContact';
 
-const CustomerInfoTable = ({ customerInfo }) => {
+const CustomerInfoTable = ({ customerInfo, editable }) => {
   return (
     <div className={styles.OrdersTable}>
       <div className="stackedtable-header">
         <div>
           <h2>Customer info</h2>
         </div>
+        {editable && (
+          <div>
+            <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="#">
+              Edit customer info
+            </Link>
+          </div>
+        )}
       </div>
       <table className="table--stacked">
         <colgroup>
@@ -95,6 +103,11 @@ CustomerInfoTable.propTypes = {
     }),
     backupContact: BackupContactShape,
   }).isRequired,
+  editable: PropTypes.bool,
+};
+
+CustomerInfoTable.defaultProps = {
+  editable: false,
 };
 
 export default CustomerInfoTable;

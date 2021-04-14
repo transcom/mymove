@@ -85,12 +85,11 @@ const ServicesCounselingMoveDetails = () => {
               )}
             </Grid>
           </Grid>
-
           <div className={styles.section} id="customer-info">
             <GridContainer>
               <Grid row gap>
                 <Grid col>
-                  <CustomerInfoTable customerInfo={customerInfo} />
+                  <CustomerInfoTable customerInfo={customerInfo} editable />
                 </Grid>
               </Grid>
             </GridContainer>
