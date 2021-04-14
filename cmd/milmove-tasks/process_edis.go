@@ -1,11 +1,14 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/transcom/mymove/pkg/certs"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -188,7 +191,25 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
 	}
 
-	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer, nil)
+	// TODO I don't know why we need a separate logger for cert stuff
+	certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	if err != nil {
+		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
+	}
+	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+	if certificates == nil || rootCAs == nil || err != nil {
+		logger.Fatal("Error in getting tls certs", zap.Error(err))
+	}
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+
+	gexSender := invoice.NewGexSenderHTTP(
+		v.GetString("gex-url"),
+		true,
+		tlsConfig,
+		v.GetString("gex-basic-auth-username"),
+		v.GetString("gex-basic-auth-password"))
+
+	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer, gexSender)
 	if err != nil {
 		logger.Fatal("InitNewPaymentRequestReviewedProcessor failed", zap.Error(err))
 	}
