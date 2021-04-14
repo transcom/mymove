@@ -1,16 +1,16 @@
 import React from 'react';
-import Marked from 'marked';
+import ReactMarkdown from 'react-markdown';
 import './CertificationText.css';
 
 function CertificationText({ certificationText }) {
   let certificationMarkup;
   if (certificationText) {
-    certificationMarkup = Marked(certificationText);
+    certificationMarkup = <ReactMarkdown>{certificationText}</ReactMarkdown>;
   }
 
   return (
     <div className="certification_text_box">
-      {certificationMarkup ? <div dangerouslySetInnerHTML={{ __html: certificationMarkup }} /> : 'Loading...'}
+      {certificationMarkup ? <div>{certificationMarkup}</div> : 'Loading...'}
     </div>
   );
 }
