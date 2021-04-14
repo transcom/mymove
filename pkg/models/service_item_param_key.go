@@ -38,6 +38,12 @@ const (
 	ServiceItemParamNameDistanceZipSITOrigin ServiceItemParamName = "DistanceZipSITOrigin"
 	// ServiceItemParamNameEIAFuelPrice is the param key name EIAFuelPrice
 	ServiceItemParamNameEIAFuelPrice ServiceItemParamName = "EIAFuelPrice"
+	// ServiceItemParamNameFSCMultiplier is the param key name FSCMultipilier
+	ServiceItemParamNameFSCMultiplier ServiceItemParamName = "FSCMultiplier"
+	// ServiceItemParamNameFSCPriceDifferenceInCents is the param key name FSCPriceDifferenceInCents
+	ServiceItemParamNameFSCPriceDifferenceInCents ServiceItemParamName = "FSCPriceDifferenceInCents"
+	// ServiceItemParamNameFSCWeightBasedDistanceMultiplier is the param key name FSCWeightBasedDistanceMultiplier
+	ServiceItemParamNameFSCWeightBasedDistanceMultiplier ServiceItemParamName = "FSCWeightBasedDistanceMultiplier"
 	// ServiceItemParamNameMarketDest is the param key name MarketDest
 	ServiceItemParamNameMarketDest ServiceItemParamName = "MarketDest"
 	// ServiceItemParamNameMarketOrigin is the param key name MarketOrigin
@@ -110,8 +116,6 @@ const (
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
 	// ServiceItemParamNameWeightActual is the param key name WeightActual
 	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
-	// ServiceItemParamNameFSCWeightBasedDistanceMultiplier is the param key name WeightBasedDistanceMultiplier
-	ServiceItemParamNameFSCWeightBasedDistanceMultiplier ServiceItemParamName = "FSCWeightBasedDistanceMultiplier"
 	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
 	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
 	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
