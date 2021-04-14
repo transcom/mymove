@@ -33,7 +33,7 @@ describe('EditContactInfoForm component', () => {
       },
     },
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
-    onBack: jest.fn(),
+    onCancel: jest.fn(),
   };
 
   it('renders the form inputs', async () => {
@@ -161,9 +161,9 @@ describe('EditContactInfoForm component', () => {
   it('shows an error message if trying to submit an invalid form', async () => {
     render(<EditContactInfoForm {...testProps} />);
 
-    const submitBtn = await screen.findByRole('button', { name: 'Next' });
+    const saveButton = await screen.findByRole('button', { name: 'Save' });
 
-    expect(submitBtn).toBeEnabled();
+    expect(saveButton).toBeEnabled();
 
     const emailInput = await screen.findByLabelText('Personal email');
 
@@ -176,15 +176,15 @@ describe('EditContactInfoForm component', () => {
 
     expect(alert).toHaveTextContent('Required');
 
-    expect(submitBtn).toBeDisabled();
+    expect(saveButton).toBeDisabled();
   });
 
   it('submits the form when its valid', async () => {
     render(<EditContactInfoForm {...testProps} />);
 
-    const submitBtn = screen.getByRole('button', { name: 'Next' });
+    const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    userEvent.click(submitBtn);
+    userEvent.click(saveButton);
 
     const expectedParams = {
       ...testProps.initialValues,
@@ -198,12 +198,12 @@ describe('EditContactInfoForm component', () => {
   it('implements the onBack handler when the Back button is clicked', async () => {
     render(<EditContactInfoForm {...testProps} />);
 
-    const backBtn = screen.getByRole('button', { name: 'Back' });
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
-    userEvent.click(backBtn);
+    userEvent.click(cancelButton);
 
     await waitFor(() => {
-      expect(testProps.onBack).toHaveBeenCalled();
+      expect(testProps.onCancel).toHaveBeenCalled();
     });
   });
 

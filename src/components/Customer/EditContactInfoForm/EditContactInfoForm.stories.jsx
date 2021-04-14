@@ -7,10 +7,10 @@ export default {
   component: EditContactInfoForm,
   argTypes: {
     onSubmit: {
-      action: 'submit form',
+      action: 'save form',
     },
-    onBack: {
-      action: 'go back',
+    onCancel: {
+      action: 'cancel',
     },
   },
 };
@@ -46,7 +46,7 @@ export const DefaultState = (argTypes) => (
   <EditContactInfoForm
     formFieldsName="residential_address"
     initialValues={fakeData}
-    onBack={argTypes.onBack}
+    onCancel={argTypes.onCancel}
     onSubmit={argTypes.onSubmit}
   />
 );

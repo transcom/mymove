@@ -18,7 +18,7 @@ const residentialAddressName = 'residential_address';
 const backupAddressName = 'backup_mailing_address';
 const backupContactName = 'backup_contact';
 
-const EditContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
+const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const validationSchema = Yup.object().shape({
     ...contactInfoSchema.fields,
     [residentialAddressName]: requiredAddressSchema.required(),
@@ -67,9 +67,10 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
 
             <div className={formStyles.formActions}>
               <WizardNavigation
-                onBackClick={onBack}
+                editMode
                 disableNext={!isValid || isSubmitting}
                 onNextClick={handleSubmit}
+                onCancelClick={onCancel}
               />
             </div>
           </Form>
@@ -90,7 +91,7 @@ EditContactInfoForm.propTypes = {
     [backupAddressName]: ResidentialAddressShape.isRequired,
     [backupContactName]: BackupContactShape.isRequired,
   }),
-  onBack: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
 
