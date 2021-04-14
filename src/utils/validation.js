@@ -39,10 +39,10 @@ export const emailSchema = Yup.string().matches(
 );
 
 const validatePreferredContactMethod = (value, testContext) => {
-  return !!(testContext.parent.phone_is_preferred || testContext.parent.email_is_preferred);
+  return testContext.parent.phone_is_preferred || testContext.parent.email_is_preferred;
 };
 
-export const validateContactInfoSchema = Yup.object().shape({
+export const contactInfoSchema = Yup.object().shape({
   telephone: phoneSchema.required('Required'),
   secondary_telephone: phoneSchema,
   personal_email: emailSchema.required('Required'),
@@ -51,7 +51,11 @@ export const validateContactInfoSchema = Yup.object().shape({
     'Please select a preferred method of contact.',
     validatePreferredContactMethod,
   ),
-  email_is_preferred: Yup.bool().test('contactMethodRequired', validatePreferredContactMethod),
+  email_is_preferred: Yup.bool().test(
+    'contactMethodRequired',
+    'Please select a preferred method of contact.',
+    validatePreferredContactMethod,
+  ),
 });
 
 export const backupContactInfoSchema = Yup.object().shape({

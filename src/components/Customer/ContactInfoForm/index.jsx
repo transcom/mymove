@@ -7,16 +7,11 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
-import { validateContactInfoSchema } from 'utils/validation';
+import { contactInfoSchema } from 'utils/validation';
 
 const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   return (
-    <Formik
-      initialValues={initialValues}
-      onSubmit={onSubmit}
-      validationSchema={validateContactInfoSchema}
-      validateOnMount
-    >
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={contactInfoSchema} validateOnMount>
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
