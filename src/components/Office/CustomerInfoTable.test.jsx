@@ -35,4 +35,14 @@ describe('Customer Info Table', () => {
     expect(wrapper.find({ 'data-testid': 'backupContactPhone' }).text()).toMatch(info.backupContact.phone);
     expect(wrapper.find({ 'data-testid': 'backupContactEmail' }).text()).toMatch(info.backupContact.email);
   });
+
+  it('should render edit button when editable prop is true', () => {
+    const wrapper = shallow(<CustomerInfoTable customerInfo={info} editable />);
+    expect(wrapper.find({ 'data-testid': 'edit-customer-info' }).text()).toBe('Edit customer info');
+  });
+
+  it('should not render edit button by default', () => {
+    const wrapper = shallow(<CustomerInfoTable customerInfo={info} />);
+    expect(wrapper.find({ 'data-testid': 'edit-customer-info' }).length).toBe(0);
+  });
 });
