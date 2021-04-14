@@ -9,6 +9,7 @@
 package paymentrequest
 
 import (
+	"net/http"
 	"os"
 	"testing"
 	"time"
@@ -174,6 +175,14 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 	// generated fake host key to pass parser used following command and only saved the pub key
 	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
 	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+
+	var responseSuccess = http.Response{}
+	responseSuccess.StatusCode = 200
+	responseSuccess.Status = "200 Success"
+
+	var responseFailure = http.Response{}
+	responseFailure.StatusCode = 500
+	responseFailure.Status = "500 Internal Server Error"
 
 	suite.T().Run("process reviewed payment request successfully (0 Payments to review)", func(t *testing.T) {
 		var ediProcessingBefore models.EDIProcessing
@@ -516,8 +525,142 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
 		suite.NoError(err, "Get number of processed files")
-		// TODO: Adding in UT for edi processing not sure why we have 16 processed here
+		// This test creates 4 payment requests, and there are 10 PRs from previous tests that didn't get statuses changed
 		suite.Equal(14, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
+
+	})
+
+	suite.T().Run("process reviewed payment request, fail POST to GEX", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
+
+		pr := suite.createPaymentRequest(1)[0]
+
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+		var sftpSender services.SyncadaSFTPSender
+		sftpSender = nil
+		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
+
+		gexSender := &mocks.GexSender{}
+		gexSender.
+			On("SendToGex", mock.Anything, mock.Anything).Return(nil, errors.New("test error"))
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			ediGenerator,
+			sendToSyncada,
+			gexSender,
+			sftpSender)
+
+		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.Contains(err.Error(), "error sending the following EDI")
+
+		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+		suite.Nil(paymentRequest.SentToGexAt)
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		suite.Equal(0, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
+	})
+
+	suite.T().Run("process reviewed payment request, non-200 response from GEX", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
+
+		pr := suite.createPaymentRequest(1)[0]
+
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+		var sftpSender services.SyncadaSFTPSender
+		sftpSender = nil
+		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
+
+		gexSender := &mocks.GexSender{}
+		gexSender.
+			On("SendToGex", mock.Anything, mock.Anything).Return(&responseFailure, nil)
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			ediGenerator,
+			sendToSyncada,
+			gexSender,
+			sftpSender)
+
+		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.Contains(err.Error(), "error sending the following EDI")
+
+		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+		suite.Nil(paymentRequest.SentToGexAt)
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		suite.Equal(0, ediProcessing.NumEDIsProcessed)
+
+		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessing)
+		suite.NoError(err, "Get count of EDIProcessing")
+		suite.Greater(newCount, countProcessingRecordsBefore)
+		suite.Equal(countProcessingRecordsBefore+1, newCount)
+	})
+	suite.T().Run("process reviewed payment request, successful POST to GEX", func(t *testing.T) {
+		var ediProcessingBefore models.EDIProcessing
+		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
+		suite.NoError(err, "Get count of EDIProcessing")
+
+		numPrs := 4
+		_ = suite.createPaymentRequest(numPrs)
+
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+		var sftpSender services.SyncadaSFTPSender
+		sftpSender = nil
+		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
+
+		gexSender := &mocks.GexSender{}
+		gexSender.
+			On("SendToGex", mock.Anything, mock.Anything).Return(&responseSuccess, nil)
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			ediGenerator,
+			sendToSyncada,
+			gexSender,
+			sftpSender)
+
+		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.NoError(err)
+
+		var ediProcessing models.EDIProcessing
+		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
+		suite.NoError(err, "Get number of processed files")
+		suite.Equal(4, ediProcessing.NumEDIsProcessed)
 
 		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessing)
 		suite.NoError(err, "Get count of EDIProcessing")
