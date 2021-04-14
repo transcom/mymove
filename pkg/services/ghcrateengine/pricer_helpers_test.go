@@ -92,7 +92,6 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticAdditionalDaysSIT() {
 	})
 }
 
-// #TODO Update test
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySITSameZip3s() {
 	dshZipDest := "30907"
 	dshZipSITDest := "30901" // same zip3
@@ -148,7 +147,6 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySITSameZ
 	})
 }
 
-// #TODO Update Test
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50PlusMilesDiffZip3s() {
 	dlhZipDest := "30907"
 	dlhZipSITDest := "36106"       // different zip3
@@ -162,16 +160,13 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Plu
 		expectedPriceMillicents := unit.Millicents(45944438) // dddsitTestDomesticLinehaulBasePriceMillicents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
 		expectedPrice := expectedPriceMillicents.ToCents()
 
-		expectedPriceRateOrFactor := dddsitTestDomesticLinehaulBasePriceMillicents.ToDollarFloatNoRound()
-
-		fmt.Println("🍐what is expected price rate or factor", expectedPriceRateOrFactor)
 		suite.Equal(expectedPrice, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: dlhContractName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dddsitTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dddsitTestIsPeakPeriod)},
-			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: fmt.Sprintf("%g", expectedPriceRateOrFactor)}, //#TODO Should this be a new helper
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(dddsitTestDomesticLinehaulBasePriceMillicents.ToDollarFloatNoRound(), 3)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
@@ -183,7 +178,6 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Plu
 	})
 }
 
-// #TODO Update Test
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50MilesOrLessDiffZip3s() {
 	domOtherZipDest := "30907"
 	domOtherZipSITDest := "29801"      // different zip3
