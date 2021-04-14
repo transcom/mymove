@@ -99,7 +99,7 @@ func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode mod
 		},
 		{
 			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: FormatFloat(contractYear.EscalationCompounded, 5),
+			Value: FormatEscalation(contractYear.EscalationCompounded),
 		},
 	}
 	return totalPriceCents, displayParams, nil
