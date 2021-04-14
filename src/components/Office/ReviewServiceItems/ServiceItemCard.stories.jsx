@@ -28,7 +28,10 @@ export const Basic = (args) => (
 export const HHG = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG}
+    mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
     amount={999.99}
     patchPaymentServiceItem={args.patchPaymentServiceItem}
   />
@@ -37,7 +40,10 @@ export const HHG = (args) => (
 export const NTS = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.NTS}
+    mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
     amount={999.99}
     patchPaymentServiceItem={args.patchPaymentServiceItem}
   />
@@ -46,7 +52,10 @@ export const NTS = (args) => (
 export const NTSR = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.NTSR}
+    mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
     amount={999.99}
     patchPaymentServiceItem={args.patchPaymentServiceItem}
   />
@@ -55,7 +64,10 @@ export const NTSR = (args) => (
 export const HHGLonghaulDomestic = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
     amount={999.99}
     patchPaymentServiceItem={args.patchPaymentServiceItem}
   />
@@ -64,7 +76,10 @@ export const HHGLonghaulDomestic = (args) => (
 export const HHGShorthaulDomestic = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC}
+    mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
     amount={999.99}
     patchPaymentServiceItem={args.patchPaymentServiceItem}
   />
