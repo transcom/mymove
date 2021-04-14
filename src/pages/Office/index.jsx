@@ -23,6 +23,7 @@ import PrivateRoute from 'containers/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { QueueHeader } from 'shared/Header/Office';
 import MilmoveHeader from 'components/MilMoveHeader';
+import OfficeUserInfo from 'components/MilMoveHeader/OfficeUserInfo';
 import FOUOHeader from 'components/FOUOHeader';
 import BypassBlock from 'components/BypassBlock';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
@@ -173,19 +174,24 @@ export class OfficeApp extends Component {
                 {!userIsLoggedIn || (activeRole !== roleTypes.TOO && activeRole !== roleTypes.TIO) ? (
                   <QueueHeader />
                 ) : (
-                  <MilmoveHeader
-                    lastName={officeUser.last_name}
-                    firstName={officeUser.first_name}
-                    handleLogout={() => {
-                      logOut();
-                      LogoutUser();
-                    }}
-                  >
+                  <MilmoveHeader>
                     {officeUser.transportation_office && (
-                      <Link to="/">
-                        {officeUser.transportation_office.gbloc} {queueText}
-                      </Link>
+                      <ul className="usa-nav__primary">
+                        <li className="usa-nav__primary-item">
+                          <Link to="/">
+                            {officeUser.transportation_office.gbloc} {queueText}
+                          </Link>
+                        </li>
+                      </ul>
                     )}
+                    <OfficeUserInfo
+                      lastName={officeUser.last_name}
+                      firstName={officeUser.first_name}
+                      handleLogout={() => {
+                        logOut();
+                        LogoutUser();
+                      }}
+                    />
                   </MilmoveHeader>
                 )}
               </>

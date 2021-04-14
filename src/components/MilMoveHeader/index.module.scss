@@ -4,40 +4,19 @@
 
 .mmHeader {
   background: $mm-blue;
-  width: 100%;
-  @include u-padding-x(4);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 50px;
-  flex-shrink: 0;
+  color: $bg-white;
 
-  .links {
-    color: $base-lightest;
-    @include u-font-size('body', 'xs');
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    align-self: stretch;
-
-    > * {
-      @include u-margin-right(3);
-    }
-
-    > * + * {
-      @include u-margin-left(3);
-    }
-
-    > :last-child {
-      @include u-margin-right(0);
-    }
+  // Override USWDS
+  + .usa-section,
+  + main {
+    border-top: none;
   }
 
+  // Style header links & buttons
   a,
-  .signOut {
-    @include u-text('bold');
+  :global(.usa-link),
+  :global(.usa-button.usa-button--unstyled) {
     color: $link-light;
-    text-decoration: none;
 
     &:visited {
       color: $link-light;
@@ -46,20 +25,24 @@
     &:hover,
     &:focus {
       color: $link-light-hover;
-      @include u-text('no-underline');
     }
   }
 
-  .signOut {
-    padding: 0;
-    line-height: inherit;
-  }
+  :global(.usa-nav-container) {
+    // Override USWDS mobile styles, which assume the nav is collapsed in an accordion
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    @include u-padding-left(1);
+    @include u-padding-right(0);
+    min-height: 58px;
+    max-width: none;
 
-  .verticalLine {
-    margin: 0px;
-    background: $base-dark;
-    width: 1px;
-    align-self: stretch;
+    @include at-media(tablet) {
+      @include u-padding-x(4);
+      @include u-padding-right(0);
+      min-height: 50px;
+    }
   }
 
   :global(.usa-logo) {
@@ -67,11 +50,80 @@
     padding-top: 5px;
   }
 
-  :global(.usa-button.usa-button--unstyled) {
-    color: $link-light;
-    &:hover,
-    &:focus {
-      color: $link-light-hover;
+  :global(.usa-navbar) {
+    border: none;
+    display: flex;
+    align-self: stretch;
+    align-items: center;
+    height: auto;
+  }
+
+  .contents {
+    display: flex;
+    flex-grow: 1;
+    align-self: stretch;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  :global(.usa-nav__primary) {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-self: stretch;
+    order: inherit;
+    color: $bg-white;
+
+    > :global(.usa-nav__primary-item) {
+      border: none;
+      display: flex;
+      align-items: center;
+
+      > a,
+      > :global(.usa-link),
+      > :global(.usa-button.usa-button--unstyled) {
+        display: flex;
+        align-items: center;
+        align-self: stretch;
+        color: $link-light;
+        font-weight: normal;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        @include u-padding-y(1);
+
+        &:visited {
+          color: $link-light;
+        }
+
+        &:hover,
+        &:focus {
+          color: $link-light-hover;
+          background-color: transparent;
+          border-bottom: 4px solid $link-light-hover;
+        }
+      }
+    }
+  }
+
+  // Static text in a nav item that is not a link or button
+  .navText {
+    @include u-padding-x(2);
+  }
+
+  .userInfo {
+    display: flex;
+    align-self: stretch;
+
+    @include at-media(tablet) {
+      border-left: 1px solid $base-dark;
+
+      :global(.usa-nav__primary-item) {
+        @include u-margin-left(2);
+      }
+
+      :global(.usa-nav__primary-item):last-child {
+        @include u-margin-right(2);
+      }
     }
   }
 }
