@@ -7,7 +7,6 @@ import { push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'styles/customer.scss';
 

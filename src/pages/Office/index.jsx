@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import classnames from 'classnames';
 
-import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
