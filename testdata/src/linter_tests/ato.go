@@ -12,4 +12,4 @@ func nosecShouldHaveAnnotation() {}
 //RA Validator: jneuner@mitre.org
 //RA Modified Severity:
 // #nosec G100
-func whatHappens() {}
+func nosecAnnotationNotApproved() {}

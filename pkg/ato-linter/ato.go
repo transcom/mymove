@@ -30,15 +30,10 @@ var validatorStatuses = map[string]bool{
 }
 
 // check if comment group has disabling of gosec in it but it doesn't have a specific rule it is disabling
-func containsGosecDisableNoReason(comments []*ast.Comment) bool {
+func containsGosecDisableNoRule(comments []*ast.Comment) bool {
 	for _, comment := range comments {
 		if strings.Contains(comment.Text, disableNoSec) {
-			individualCommentArr := strings.Split(comment.Text, " ")
-			for index, str := range individualCommentArr {
-				if str == disableNoSec && index == len(individualCommentArr)-1 {
-					return true
-				}
-			}
+			return true
 		}
 	}
 	return false
@@ -102,7 +97,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			return
 		}
 
-		containsDisablingGosecWithNoReason := containsGosecDisableNoReason(comments.List)
+		containsDisablingGosecWithNoReason := containsGosecDisableNoRule(comments.List)
 
 		if containsDisablingGosecWithNoReason {
 			pass.Reportf(node.Pos(), "Please provide the gosec rule that is being disabled")
