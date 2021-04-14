@@ -47,8 +47,8 @@ type QueueMove struct {
 	Status QueueMoveStatus `json:"status,omitempty"`
 
 	// submitted at
-	// Format: date
-	SubmittedAt *strfmt.Date `json:"submittedAt,omitempty"`
+	// Format: date-time
+	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 }
 
 // Validate validates this queue move
@@ -211,7 +211,7 @@ func (m *QueueMove) validateSubmittedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("submittedAt", "body", "date", m.SubmittedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("submittedAt", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
 		return err
 	}
 

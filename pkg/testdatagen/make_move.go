@@ -179,7 +179,8 @@ func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 	shipment := MakeMTOShipment(db, Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:              models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate: assertions.MTOShipment.RequestedPickupDate,
 		},
 		Stub: assertions.Stub,
 	})

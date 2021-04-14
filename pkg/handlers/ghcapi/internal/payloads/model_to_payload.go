@@ -595,7 +595,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
 			ID:                     *handlers.FmtUUID(move.Orders.ID),
 			Locator:                move.Locator,
-			SubmittedAt:            handlers.FmtDatePtr(move.SubmittedAt),
+			SubmittedAt:            handlers.FmtDateTimePtr(move.SubmittedAt),
 			RequestedMoveDate:      handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator:    &deptIndicator,
 			ShipmentsCount:         int64(len(validMTOShipments)),

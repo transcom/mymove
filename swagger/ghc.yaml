@@ -2775,7 +2775,7 @@ definitions:
       locator:
         type: string
       submittedAt:
-        format: date
+        format: date-time
         type: string
         x-nullable: true
       requestedMoveDate:

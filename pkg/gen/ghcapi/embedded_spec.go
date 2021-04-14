@@ -3626,7 +3626,7 @@ func init() {
         },
         "submittedAt": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "x-nullable": true
         }
       }
@@ -8047,7 +8047,7 @@ func init() {
         },
         "submittedAt": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "x-nullable": true
         }
       }

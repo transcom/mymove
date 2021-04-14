@@ -170,7 +170,7 @@ func (suite *OrderServiceSuite) TestListMoves() {
 		})
 
 		suite.FatalNoError(err)
-		suite.Equal(4, len(moves))
+		suite.Equal(1, len(moves))
 	})
 }
 
