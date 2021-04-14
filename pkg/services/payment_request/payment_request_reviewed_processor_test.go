@@ -9,6 +9,7 @@
 package paymentrequest
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -397,6 +398,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		type prStatuses []prStatus
 		for _, pr := range prs {
 			suite.NotEqual(models.PaymentRequestStatusEDIError, pr.Status, "There are no EDI_ERRORs before processing")
+			fmt.Printf("before processing PR ID: %s\n", pr.ID.String())
+			fmt.Printf("before processing PR Status: %s\n", pr.Status.String())
 		}
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
@@ -433,9 +436,13 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		afterProcessingStatus := prStatuses{}
 		fetcher := NewPaymentRequestFetcher(suite.DB())
 		for _, pr := range prs {
-			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			var paymentRequest models.PaymentRequest
+			paymentRequest, err = fetcher.FetchPaymentRequest(pr.ID)
+			suite.NoError(err)
 			suite.Nil(paymentRequest.SentToGexAt)
 			afterProcessingStatus = append(afterProcessingStatus, prStatus{id: paymentRequest.ID, status: paymentRequest.Status})
+			fmt.Printf("AFTER processing PR ID: %s\n", paymentRequest.ID.String())
+			fmt.Printf("AFTER processing PR Status: %s\n", paymentRequest.Status.String())
 		}
 
 		var ediProcessing models.EDIProcessing
@@ -458,14 +465,19 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Contains(*(ediError.Description), "test error")
 		paymentRequest, _ := fetcher.FetchPaymentRequest(ediError.PaymentRequestID)
 		suite.Equal(ediError.PaymentRequestID, paymentRequest.ID)
+		fmt.Printf("EDI ERROR PR ID: %s\n", paymentRequest.ID.String())
+		fmt.Printf("EDI ERROR PR Status: %s\n", paymentRequest.Status.String())
 
 		countUpdated := 0
 		foundUpdatedPR := false
 		foundEDIERRORPR := false
+		foundPR := false
 
 		for _, pr := range prs {
+			foundPR = false
 			for _, uPR := range afterProcessingStatus {
 				if pr.ID == uPR.id {
+					foundPR = true
 					if pr.Status != uPR.status {
 						suite.Equal(ediError.PaymentRequestID, paymentRequest.ID)
 						suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
@@ -481,6 +493,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 					foundEDIERRORPR = true
 				}
 			}
+			suite.True(foundPR, "Found pr.ID in updated PRs list")
 		}
 		suite.True(foundUpdatedPR, "Found expected PR with EDI_ERROR")
 		suite.Equal(1, countUpdated, "Expected 1 update to PR status")
