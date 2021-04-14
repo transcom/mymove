@@ -9,7 +9,7 @@ import (
 
 func (suite *MoveServiceSuite) TestMoveApproval() {
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-	moveRouter := NewMoveRouter(suite.DB(), &move)
+	moveRouter := NewMoveRouter(suite.DB())
 
 	suite.Run("from valid statuses", func() {
 		validStatuses := []struct {
@@ -24,7 +24,7 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 		for _, validStatus := range validStatuses {
 			move.Status = validStatus.status
 
-			err := moveRouter.Approve()
+			err := moveRouter.Approve(&move)
 
 			suite.NoError(err)
 			suite.Equal(models.MoveStatusAPPROVED, move.Status)
@@ -43,7 +43,7 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 		for _, invalidStatus := range invalidStatuses {
 			move.Status = invalidStatus.status
 
-			err := moveRouter.Approve()
+			err := moveRouter.Approve(&move)
 
 			suite.Error(err)
 			suite.Contains(err.Error(), "A move can only be approved if it's in one of these states")

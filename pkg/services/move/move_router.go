@@ -19,26 +19,25 @@ import (
 )
 
 type moveRouter struct {
-	db   *pop.Connection
-	move *models.Move
+	db *pop.Connection
 }
 
 // NewMoveRouter creates a new moveRouter service
-func NewMoveRouter(db *pop.Connection, move *models.Move) services.MoveRouter {
-	return &moveRouter{db, move}
+func NewMoveRouter(db *pop.Connection) services.MoveRouter {
+	return &moveRouter{db}
 }
 
 // Submit is called when the customer submits their move. It determines whether
 // to send the move to Service Counseling or directly to the TOO. If it goes to
 // Service Counseling, its status becomes "Needs Service Counseling", otherwise,
 // "Submitted".
-func (router moveRouter) Submit() error {
+func (router moveRouter) Submit(move *models.Move) error {
 	var err error
 
 	if router.needsServiceCounseling() {
-		err = router.sendToServiceCounselor()
+		err = router.sendToServiceCounselor(move)
 	} else {
-		err = router.sendNewMoveToOfficeUser()
+		err = router.sendNewMoveToOfficeUser(move)
 	}
 	if err != nil {
 		return err
@@ -68,8 +67,7 @@ func (router moveRouter) needsServiceCounseling() bool {
 }
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
-func (router moveRouter) sendToServiceCounselor() error {
-	move := router.move
+func (router moveRouter) sendToServiceCounselor(move *models.Move) error {
 	if move.Status != models.MoveStatusDRAFT {
 		return errors.Wrap(
 			models.ErrInvalidTransition, fmt.Sprintf(
@@ -87,9 +85,7 @@ func (router moveRouter) sendToServiceCounselor() error {
 
 // sendNewMoveToOfficeUser makes the move available for a TOO to review
 // The Submitted status indicates to the TOO that this is a new move.
-func (router moveRouter) sendNewMoveToOfficeUser() error {
-	move := router.move
-
+func (router moveRouter) sendNewMoveToOfficeUser(move *models.Move) error {
 	if move.Status != models.MoveStatusDRAFT {
 		return errors.Wrap(models.ErrInvalidTransition, "Submit")
 	}
@@ -119,14 +115,12 @@ func (router moveRouter) sendNewMoveToOfficeUser() error {
 
 // Approve makes the Move available to the Prime. The Prime cannot create
 // Service Items unless the Move is approved.
-func (router moveRouter) Approve() error {
-	move := router.move
-
-	if router.approvable() {
+func (router moveRouter) Approve(move *models.Move) error {
+	if router.approvable(move) {
 		move.Status = models.MoveStatusAPPROVED
 		return nil
 	}
-	if router.alreadyApproved() {
+	if router.alreadyApproved(move) {
 		return nil
 	}
 	return errors.Wrap(
@@ -137,13 +131,11 @@ func (router moveRouter) Approve() error {
 	)
 }
 
-func (router moveRouter) alreadyApproved() bool {
-	move := router.move
+func (router moveRouter) alreadyApproved(move *models.Move) bool {
 	return move.Status == models.MoveStatusAPPROVED
 }
 
-func (router moveRouter) approvable() bool {
-	move := router.move
+func (router moveRouter) approvable(move *models.Move) bool {
 	return statusSliceContains(validStatusesBeforeApproval, move.Status)
 }
 
@@ -165,8 +157,7 @@ var validStatusesBeforeApproval = []models.MoveStatus{
 // SendToOfficeUserToReviewNewServiceItems sets the moves status to
 // "Approvals Requested", which indicates to the TOO that they have new
 // service items to review.
-func (router moveRouter) SendToOfficeUserToReviewNewServiceItems() error {
-	move := router.move
+func (router moveRouter) SendToOfficeUserToReviewNewServiceItems(move *models.Move) error {
 	// Do nothing if it's already in the desired state
 	if move.Status == models.MoveStatusAPPROVALSREQUESTED {
 		return nil
@@ -179,8 +170,7 @@ func (router moveRouter) SendToOfficeUserToReviewNewServiceItems() error {
 }
 
 // Cancel cancels the Move and its associated PPMs
-func (router moveRouter) Cancel(reason string) error {
-	move := router.move
+func (router moveRouter) Cancel(reason string, move *models.Move) error {
 	// We can cancel any move that isn't already complete.
 	if move.Status == models.MoveStatusCANCELED {
 		return errors.Wrap(models.ErrInvalidTransition, "Cancel")
@@ -215,9 +205,7 @@ func (router moveRouter) Cancel(reason string) error {
 // CompleteServiceCounseling sets the move status to "Service Counseling Completed",
 // which makes the move available to the TOO. This gets called when the Service
 // Counselor is done reviewing the move and submits it.
-func (router moveRouter) CompleteServiceCounseling() error {
-	move := router.move
-
+func (router moveRouter) CompleteServiceCounseling(move *models.Move) error {
 	if move.Status != models.MoveStatusNeedsServiceCounseling {
 		return errors.Wrap(
 			models.ErrInvalidTransition,

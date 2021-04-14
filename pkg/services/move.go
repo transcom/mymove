@@ -26,9 +26,9 @@ type MoveFetcherParams struct {
 // MoveRouter is the exported interface for routing moves at different stages
 //go:generate mockery -name MoveRouter
 type MoveRouter interface {
-	Approve() error
-	Cancel(reason string) error
-	CompleteServiceCounseling() error
-	SendToOfficeUserToReviewNewServiceItems() error
-	Submit() error
+	Approve(move *models.Move) error
+	Cancel(reason string, move *models.Move) error
+	CompleteServiceCounseling(move *models.Move) error
+	SendToOfficeUserToReviewNewServiceItems(move *models.Move) error
+	Submit(move *models.Move) error
 }
