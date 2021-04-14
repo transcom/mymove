@@ -30,7 +30,7 @@ func NewEDI824Processor(db *pop.Connection,
 
 //ProcessFile parses an EDI 824 response and updates the payment request status
 func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
-	fmt.Printf(path)
+	fmt.Print(path)
 
 	edi824 := ediResponse824.EDI{}
 	err := edi824.Parse(stringEDI824)
