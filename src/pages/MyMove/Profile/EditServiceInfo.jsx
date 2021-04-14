@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
@@ -13,6 +13,7 @@ import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
   selectEntitlementsForLoggedInUser,
+  selectMoveIsInDraft,
 } from 'store/entities/selectors';
 import { generalRoutes } from 'constants/routes';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
@@ -24,9 +25,18 @@ export const EditServiceInfo = ({
   entitlement,
   updateServiceMember,
   setFlashMessage,
+  moveIsInDraft,
 }) => {
   const history = useHistory();
   const [serverError, setServerError] = useState(null);
+
+  useEffect(() => {
+    if (!moveIsInDraft) {
+      // Redirect to the home page
+      // TODO - change this to profile path?
+      history.push(generalRoutes.HOME_PATH);
+    }
+  }, [moveIsInDraft, history]);
 
   const initialValues = {
     first_name: serviceMember?.first_name || '',
@@ -110,6 +120,11 @@ EditServiceInfo.propTypes = {
   serviceMember: ServiceMemberShape.isRequired,
   currentOrders: OrdersShape.isRequired,
   entitlement: EntitlementShape.isRequired,
+  moveIsInDraft: PropTypes.bool,
+};
+
+EditServiceInfo.defaultProps = {
+  moveIsInDraft: false,
 };
 
 const mapDispatchToProps = {
@@ -121,6 +136,7 @@ const mapStateToProps = (state) => ({
   serviceMember: selectServiceMemberFromLoggedInUser(state),
   currentOrders: selectCurrentOrders(state),
   entitlement: selectEntitlementsForLoggedInUser(state),
+  moveIsInDraft: selectMoveIsInDraft(state),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditServiceInfo);

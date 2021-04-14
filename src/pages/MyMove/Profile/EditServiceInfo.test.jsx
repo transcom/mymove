@@ -32,6 +32,7 @@ describe('EditServiceInfo page', () => {
     },
     currentOrders: {},
     entitlement: {},
+    moveIsInDraft: true,
   };
 
   it('renders the EditServiceInfo form', async () => {
@@ -235,6 +236,16 @@ describe('EditServiceInfo page', () => {
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.setFlashMessage).not.toHaveBeenCalled();
     expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  describe('if the current move has been submitted', () => {
+    it('redirects to the home page', async () => {
+      render(<EditServiceInfo {...testProps} moveIsInDraft={false} />);
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/');
+      });
+    });
   });
 
   afterEach(jest.resetAllMocks);
