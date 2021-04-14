@@ -561,7 +561,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 	suite.T().Run("process reviewed payment request, successfully test init function", func(t *testing.T) {
 		// Run init with no issues
-		_, err := InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false, suite.icnSequencer)
+		_, err := InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false, suite.icnSequencer, nil)
 		suite.NoError(err)
 	})
 }

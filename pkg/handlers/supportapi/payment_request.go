@@ -279,7 +279,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	}
 
 	if *sendToSyncada {
-		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, h.ICNSequencer())
+		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, h.ICNSequencer(), nil)
 		if err != nil {
 			msg := fmt.Sprintf("failed to initialize InitNewPaymentRequestReviewedProcessor")
 			logger.Error(msg, zap.Error(err))

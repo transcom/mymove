@@ -48,18 +48,19 @@ func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 }
 
 // InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
-func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, sendToSyncada bool, icnSequencer sequence.Sequencer) (services.PaymentRequestReviewedProcessor, error) {
+func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, sendToSyncada bool, icnSequencer sequence.Sequencer, gexSender services.GexSender) (services.PaymentRequestReviewedProcessor, error) {
 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(db)
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(db, icnSequencer, clock.New())
 	var sftpSession services.SyncadaSFTPSender
-	sftpSession, err := invoice.InitNewSyncadaSFTPSession()
-	if err != nil {
-		// just log the error, sftpSession is set to nil if there is an error
-		logger.Error(fmt.Errorf("configuration of SyncadaSFTPSession failed: %w", err).Error())
-		return nil, err
+	if gexSender == nil {
+		var err error
+		sftpSession, err = invoice.InitNewSyncadaSFTPSession()
+		if err != nil {
+			// just log the error, sftpSession is set to nil if there is an error
+			logger.Error(fmt.Errorf("configuration of SyncadaSFTPSession failed: %w", err).Error())
+			return nil, err
+		}
 	}
-	var gexSender services.GexSender
-	gexSender = nil
 
 	return NewPaymentRequestReviewedProcessor(
 		db,
@@ -92,6 +93,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		// generate EDI file
 		var edi858c ediinvoice.Invoice858C
 		edi858c, err = p.ediGenerator.Generate(lockedPR, false)
+		icn := edi858c.ISA.InterchangeControlNumber
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
 		}
@@ -110,7 +112,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		)
 		// Send EDI string to Syncada
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
-		err = paymentrequesthelper.SendToSyncada(edi858cString, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
+		err = paymentrequesthelper.SendToSyncada(edi858cString, icn, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
 		if err != nil {
 			return fmt.Errorf("error sending the following EDI (PaymentRequest.ID: %s, error string) to Syncada: %s", lockedPR.ID, err)
 		}

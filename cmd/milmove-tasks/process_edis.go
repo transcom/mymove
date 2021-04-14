@@ -188,7 +188,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
 	}
 
-	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer)
+	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer, nil)
 	if err != nil {
 		logger.Fatal("InitNewPaymentRequestReviewedProcessor failed", zap.Error(err))
 	}
