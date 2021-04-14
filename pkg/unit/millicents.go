@@ -33,6 +33,11 @@ func (m Millicents) ToCents() Cents {
 	return Cents(math.Round(float64(m) / 1000))
 }
 
+// ToCentsNoRound returns a Cents representation of this value (no rounding)
+func (m Millicents) ToCentsNoRound() Cents {
+	return Cents(float64(m) / 1000.0)
+}
+
 // ToDollarString returns a dollar string representation of this value
 func (m Millicents) ToDollarString() string {
 	d := float64(m) / 100000.0

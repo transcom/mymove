@@ -115,7 +115,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50PlusM
 }
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50MilesOrLessDiffZip3s() {
-	suite.setupDomesticOtherPrice(models.ReServiceCodeDOPSIT, dopsitTestSchedule, dopsitTestIsPeakPeriod, dopsitTestDomesticOtherBasePriceCents, dopsitTestEscalationCompounded)
+	suite.setupDomesticOtherPrice(models.ReServiceCodeDOPSIT, dopsitTestSchedule, dopsitTestIsPeakPeriod, dopsitTestDomesticOtherBasePriceCents, "Test Year 1", dopsitTestEscalationCompounded)
 
 	zipOriginal := "29201"
 	zipActual := "29123"       // different zip3
