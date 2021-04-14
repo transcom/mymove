@@ -1,9 +1,15 @@
 package supportapi
 
 import (
+	"crypto/tls"
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/transcom/mymove/pkg/certs"
+	"github.com/transcom/mymove/pkg/db/sequence"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/logging"
 
 	"github.com/spf13/viper"
 
@@ -279,7 +285,40 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	}
 
 	if *sendToSyncada {
-		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, h.ICNSequencer(), nil)
+		// Set up viper to read environment variables
+		v := viper.New()
+		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+		v.AutomaticEnv()
+		gexURL := v.GetString(cli.GEXURLFlag)
+
+		// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
+		// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
+		// test ICNs in Syncada.
+		var icnSequencer sequence.Sequencer
+		// ICNs are 9-digit numbers; reserve the ones in an upper range for development/testing.
+		icnSequencer, err := sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
+		if err != nil {
+			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
+		}
+
+		// TODO not sure what purpose of this is
+		certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+		if err != nil {
+			logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
+		}
+		certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+		if certificates == nil || rootCAs == nil || err != nil {
+			logger.Fatal("Error in getting tls certs", zap.Error(err))
+		}
+		tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+
+		gexSender := invoice.NewGexSenderHTTP(
+			gexURL,
+			true,
+			tlsConfig,
+			v.GetString("gex-basic-auth-username"),
+			v.GetString("gex-basic-auth-password"))
+		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, icnSequencer, gexSender)
 		if err != nil {
 			msg := fmt.Sprintf("failed to initialize InitNewPaymentRequestReviewedProcessor")
 			logger.Error(msg, zap.Error(err))
