@@ -30,7 +30,7 @@ const AllowancesTable = ({ showEditBtn, info }) => {
     <div className={styles.OrdersTable}>
       <div className="stackedtable-header">
         <div>
-          <h4>Allowances</h4>
+          <h2>Allowances</h2>
         </div>
         {showEditBtn && (
           <div>
