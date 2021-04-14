@@ -116,24 +116,6 @@ func (suite *OrderServiceSuite) TestListMoves() {
 		suite.Equal(1, len(moves))
 	})
 
-	suite.T().Run("returns moves filtered by requested pickup date", func(t *testing.T) {
-		// This move is outside of the office user's GBLOC, so it should not be returned
-		requestedPickupDate := time.Date(2021, 04, 01, 0, 0, 0, 0, time.UTC)
-		_ = testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedPickupDate,
-				Status:              models.MTOShipmentStatusSubmitted,
-			},
-		})
-
-		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &services.ListOrderParams{
-			RequestedMoveDate: swag.String(requestedPickupDate.String()),
-		})
-
-		suite.FatalNoError(err)
-		suite.Equal(1, len(moves))
-	})
-
 	suite.T().Run("only returns visible moves (where show = True)", func(t *testing.T) {
 		params := services.ListOrderParams{}
 		testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
@@ -173,6 +155,22 @@ func (suite *OrderServiceSuite) TestListMoves() {
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
+	})
+
+	suite.T().Run("returns moves filtered by requested pickup date", func(t *testing.T) {
+		requestedPickupDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		createdMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedPickupDate,
+			},
+		})
+		requestedMoveDateString := createdMove.MTOShipments[0].RequestedPickupDate.Format(time.RFC3339Nano)
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &services.ListOrderParams{
+			RequestedMoveDate: &requestedMoveDateString,
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(4, len(moves))
 	})
 }
 
