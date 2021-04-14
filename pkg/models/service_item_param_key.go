@@ -24,6 +24,8 @@ const (
 	ServiceItemParamNameCanStandAlone ServiceItemParamName = "CanStandAlone"
 	// ServiceItemParamNameContractCode is the param key name ContractCode
 	ServiceItemParamNameContractCode ServiceItemParamName = "ContractCode"
+	// ServiceItemParamNameContractYearName is the param key name ContractYearName
+	ServiceItemParamNameContractYearName ServiceItemParamName = "ContractYearName"
 	// ServiceItemParamNameCubicFeetBilled is the param key name CubicFeetBilled
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
 	// ServiceItemParamNameCubicFeetCrating is the param key name CubicFeetCrating
@@ -38,12 +40,16 @@ const (
 	ServiceItemParamNameDistanceZipSITOrigin ServiceItemParamName = "DistanceZipSITOrigin"
 	// ServiceItemParamNameEIAFuelPrice is the param key name EIAFuelPrice
 	ServiceItemParamNameEIAFuelPrice ServiceItemParamName = "EIAFuelPrice"
+	// ServiceItemParamNameEscalationCompounded is the param key name EscalationCompounded
+	ServiceItemParamNameEscalationCompounded ServiceItemParamName = "EscalationCompounded"
 	// ServiceItemParamNameFSCMultiplier is the param key name FSCMultipilier
 	ServiceItemParamNameFSCMultiplier ServiceItemParamName = "FSCMultiplier"
 	// ServiceItemParamNameFSCPriceDifferenceInCents is the param key name FSCPriceDifferenceInCents
 	ServiceItemParamNameFSCPriceDifferenceInCents ServiceItemParamName = "FSCPriceDifferenceInCents"
 	// ServiceItemParamNameFSCWeightBasedDistanceMultiplier is the param key name FSCWeightBasedDistanceMultiplier
 	ServiceItemParamNameFSCWeightBasedDistanceMultiplier ServiceItemParamName = "FSCWeightBasedDistanceMultiplier"
+	// ServiceItemParamNameIsPeak is the param key name IsPeak
+	ServiceItemParamNameIsPeak ServiceItemParamName = "IsPeak"
 	// ServiceItemParamNameMarketDest is the param key name MarketDest
 	ServiceItemParamNameMarketDest ServiceItemParamName = "MarketDest"
 	// ServiceItemParamNameMarketOrigin is the param key name MarketOrigin
@@ -60,6 +66,8 @@ const (
 	ServiceItemParamNamePriceAreaIntlOrigin ServiceItemParamName = "PriceAreaIntlOrigin"
 	// ServiceItemParamNamePriceAreaOrigin is the param key name PriceAreaOrigin
 	ServiceItemParamNamePriceAreaOrigin ServiceItemParamName = "PriceAreaOrigin"
+	// ServiceItemParamNamePriceRateOrFactor is the param key name PriceRateOrFactor
+	ServiceItemParamNamePriceRateOrFactor ServiceItemParamName = "PriceRateOrFactor"
 	// ServiceItemParamNamePSILinehaulDom is the param key name PSI_LinehaulDom
 	ServiceItemParamNamePSILinehaulDom ServiceItemParamName = "PSI_LinehaulDom"
 	// ServiceItemParamNamePSILinehaulDomPrice is the param key name PSI_LinehaulDomPrice
@@ -132,14 +140,6 @@ const (
 	ServiceItemParamNameZipSITOriginHHGOriginalAddress ServiceItemParamName = "ZipSITOriginHHGOriginalAddress"
 	// ServiceItemParamNameZipSITOriginHHGActualAddress is the param key name ZipSITOriginHHGActualAddress
 	ServiceItemParamNameZipSITOriginHHGActualAddress ServiceItemParamName = "ZipSITOriginHHGActualAddress"
-	// ServiceItemParamNamePriceRateOrFactor is the param key name PriceRateOrFactor
-	ServiceItemParamNamePriceRateOrFactor ServiceItemParamName = "PriceRateOrFactor"
-	// ServiceItemParamNameEscalationCompounded is the param key name EscalationCompounded
-	ServiceItemParamNameEscalationCompounded ServiceItemParamName = "EscalationCompounded"
-	// ServiceItemParamNameIsPeak is the param key name IsPeak
-	ServiceItemParamNameIsPeak ServiceItemParamName = "IsPeak"
-	// ServiceItemParamNameContractYearName is the param key name ContractYearName
-	ServiceItemParamNameContractYearName ServiceItemParamName = "ContractYearName"
 )
 
 // ServiceItemParamType is a type of service item parameter
