@@ -1,0 +1,1 @@
+CREATE INDEX ON mto_shipments (requested_pickup_date);

@@ -242,7 +242,7 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	return func(query *pop.Query) {
 		if requestedMoveDate != nil {
 			fmt.Println(*requestedMoveDate)
-			query.Where("CAST(mto_shipments.requested_pickup_date AS DATE) = ?", *requestedMoveDate)
+			query.Where("mto_shipments.requested_pickup_date = ?", *requestedMoveDate)
 		}
 	}
 }
