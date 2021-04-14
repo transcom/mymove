@@ -3615,7 +3615,7 @@ func init() {
         },
         "requestedMoveDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -3626,7 +3626,7 @@ func init() {
         },
         "submittedAt": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         }
       }
@@ -8036,7 +8036,7 @@ func init() {
         },
         "requestedMoveDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -8047,7 +8047,7 @@ func init() {
         },
         "submittedAt": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         }
       }

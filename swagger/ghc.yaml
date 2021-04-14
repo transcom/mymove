@@ -2775,11 +2775,11 @@ definitions:
       locator:
         type: string
       submittedAt:
-        format: date-time
+        format: date
         type: string
         x-nullable: true
       requestedMoveDate:
-        format: date-time
+        format: date
         type: string
         x-nullable: true
       departmentIndicator:
