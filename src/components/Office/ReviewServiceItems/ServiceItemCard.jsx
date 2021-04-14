@@ -14,6 +14,7 @@ import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { mtoShipmentTypes } from 'constants/shipments';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 import { PaymentServiceItemParam } from 'types/order';
+import { allowedServiceItemCalculations } from 'constants/serviceItems';
 
 /** This component represents a Payment Request Service Item */
 const ServiceItemCard = ({
@@ -44,31 +45,34 @@ const ServiceItemCard = ({
             <dt>Amount</dt>
             <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
           </dl>
-          <Button
-            className={styles.toggleCalculations}
-            type="button"
-            data-testid="toggleCalculations"
-            aria-expanded={calculationsVisible}
-            unstyled
-            onClick={() => {
-              setCalulationsVisible((isVisible) => {
-                return !isVisible;
-              });
-            }}
-          >
-            {calculationsVisible ? 'Hide calculations' : 'Show calculations'}
-          </Button>
-          {paymentServiceItemParams.length > 0 && calculationsVisible && (
-            <div className={styles.calculationsContainer}>
-              <ServiceItemCalculations
-                totalAmountRequested={amount * 100}
-                serviceItemParams={paymentServiceItemParams}
-                itemCode={mtoServiceItemCode}
-                tableSize="small"
-              />
-            </div>
+          {allowedServiceItemCalculations.includes(mtoServiceItemCode) && paymentServiceItemParams.length > 0 && (
+            <>
+              <Button
+                className={styles.toggleCalculations}
+                type="button"
+                data-testid="toggleCalculations"
+                aria-expanded={calculationsVisible}
+                unstyled
+                onClick={() => {
+                  setCalulationsVisible((isVisible) => {
+                    return !isVisible;
+                  });
+                }}
+              >
+                {calculationsVisible ? 'Hide calculations' : 'Show calculations'}
+              </Button>
+              {calculationsVisible && (
+                <div className={styles.calculationsContainer}>
+                  <ServiceItemCalculations
+                    totalAmountRequested={amount * 100}
+                    serviceItemParams={paymentServiceItemParams}
+                    itemCode={mtoServiceItemCode}
+                    tableSize="small"
+                  />
+                </div>
+              )}
+            </>
           )}
-
           <div data-testid="completeSummary" className={styles.completeContainer}>
             {status === APPROVED ? (
               <div data-testid="statusHeading" className={classnames(styles.statusHeading, styles.statusApproved)}>
@@ -127,7 +131,7 @@ const ServiceItemCard = ({
                   <dt>Amount</dt>
                   <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
                 </dl>
-                {paymentServiceItemParams.length > 0 && (
+                {allowedServiceItemCalculations.includes(mtoServiceItemCode) && paymentServiceItemParams.length > 0 && (
                   <>
                     <Button
                       className={styles.toggleCalculations}

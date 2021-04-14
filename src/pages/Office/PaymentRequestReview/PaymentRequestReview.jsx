@@ -48,6 +48,7 @@ export const PaymentRequestReview = ({ history, match }) => {
       newPaymentServiceItem.mtoShipmentType = oldPaymentServiceItem.mtoShipmentType;
       newPaymentServiceItem.mtoShipmentID = oldPaymentServiceItem.mtoShipmentID;
       newPaymentServiceItem.mtoServiceItemCode = oldPaymentServiceItem.mtoServiceItemCode;
+      newPaymentServiceItem.paymentServiceItemParams = oldPaymentServiceItem.paymentServiceItemParams;
 
       queryCache.setQueryData([PAYMENT_REQUESTS, paymentRequestId], {
         paymentRequests,

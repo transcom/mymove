@@ -10,6 +10,21 @@ import ServiceItemCard from './ServiceItemCard';
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
 
+const basicServiceItemCard = {
+  id: '1',
+  mtoServiceItemName: serviceItemCodes.CS,
+  mtoServiceItemCode: 'CS',
+  amount: 1000,
+  createdAt: '2020-01-01T00:02:00.999Z',
+  status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
+  patchPaymentServiceItem: jest.fn(),
+};
+
+const reviewedBasicServiceItemCard = {
+  ...basicServiceItemCard,
+  requestComplete: true,
+};
+
 const needsReviewServiceItemCard = {
   id: '1',
   mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
@@ -51,6 +66,11 @@ describe('ServiceItemCard component', () => {
       expect(toggleButton.text()).toEqual('Show calculations');
       expect(wrapper.find('ServiceItemCalculations').exists()).toBe(false);
     });
+
+    it('does not render calculations toggle when the service item calculations are not implemented', () => {
+      const component = mount(<ServiceItemCard {...basicServiceItemCard} />);
+      expect(component.find('button[data-testid="toggleCalculations"]').exists()).toBe(false);
+    });
   });
 
   describe('when payment request has been reviewed', () => {
@@ -74,6 +94,11 @@ describe('ServiceItemCard component', () => {
 
       expect(toggleButton.text()).toEqual('Show calculations');
       expect(wrapper.find('ServiceItemCalculations').exists()).toBe(false);
+    });
+
+    it('does not render calculations toggle when the service item calculations are not implemented', () => {
+      const component = mount(<ServiceItemCard {...reviewedBasicServiceItemCard} />);
+      expect(component.find('button[data-testid="toggleCalculations"]').exists()).toBe(false);
     });
   });
 });
