@@ -1,0 +1,105 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import SectionWrapper from 'components/Customer/SectionWrapper';
+import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import { Form } from 'components/form/Form';
+import formStyles from 'styles/form.module.scss';
+import { backupContactInfoSchema, contactInfoSchema, requiredAddressSchema } from 'utils/validation';
+import { ResidentialAddressShape } from 'types/address';
+import { CustomerContactInfoFields } from 'components/form/CustomerContactInfoFields';
+import { BackupContactInfoFields } from 'components/form/BackupContactInfoFields';
+import { BackupContactShape } from 'types/customerShapes';
+
+const residentialAddressName = 'residential_address';
+const backupAddressName = 'backup_mailing_address';
+const backupContactName = 'backup_contact';
+
+const EditContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
+  const validationSchema = Yup.object().shape({
+    ...contactInfoSchema.fields,
+    [residentialAddressName]: requiredAddressSchema.required(),
+    [backupAddressName]: requiredAddressSchema.required(),
+    [backupContactName]: backupContactInfoSchema.required(),
+  });
+
+  return (
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={validationSchema}>
+      {({ isValid, isSubmitting, handleSubmit }) => {
+        return (
+          <Form className={formStyles.form}>
+            <h1>Edit contact info</h1>
+
+            <SectionWrapper className={formStyles.formSection}>
+              <h2>Your conatct info</h2>
+
+              <CustomerContactInfoFields />
+            </SectionWrapper>
+
+            <SectionWrapper className={formStyles.formSection}>
+              <h2>Current mailing address</h2>
+
+              <AddressFields name={residentialAddressName} />
+            </SectionWrapper>
+
+            <SectionWrapper className={formStyles.formSection}>
+              <h2>Backup mailing address</h2>
+              <p>
+                Where should we send mail if if we can&apos;t reach you at your primary address? You might use a
+                parent&apos;s or friend&apos;s address, or a post office box.
+              </p>
+
+              <AddressFields name={backupAddressName} />
+            </SectionWrapper>
+
+            <SectionWrapper className={formStyles.formSection}>
+              <h2>Backup contact</h2>
+              <p>
+                If we can‘t reach you, who can we contact? Any person you assign as a backup contact must be 18 years of
+                age or older.
+              </p>
+
+              <BackupContactInfoFields name={backupContactName} />
+            </SectionWrapper>
+
+            <div className={formStyles.formActions}>
+              <WizardNavigation
+                onBackClick={onBack}
+                disableNext={!isValid || isSubmitting}
+                onNextClick={handleSubmit}
+              />
+            </div>
+          </Form>
+        );
+      }}
+    </Formik>
+  );
+};
+
+EditContactInfoForm.propTypes = {
+  initialValues: PropTypes.shape({
+    telephone: PropTypes.string.isRequired,
+    secondary_telephone: PropTypes.string,
+    personal_email: PropTypes.string.isRequired,
+    phone_is_preferred: PropTypes.bool,
+    email_is_preferred: PropTypes.bool,
+    [residentialAddressName]: ResidentialAddressShape.isRequired,
+    [backupAddressName]: ResidentialAddressShape.isRequired,
+    [backupContactName]: BackupContactShape.isRequired,
+  }),
+  onBack: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+};
+
+EditContactInfoForm.defaultProps = {
+  initialValues: {
+    secondaryTelephone: '',
+    phoneIsPreferred: false,
+    emailIsPreferred: false,
+  },
+};
+
+export default EditContactInfoForm;
