@@ -520,7 +520,7 @@ db_dev_fresh: db_dev_reset db_dev_migrate
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
 .PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
+db_dev_e2e_populate: db_dev_run db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_DEV} database..."

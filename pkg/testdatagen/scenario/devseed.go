@@ -3328,6 +3328,8 @@ func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uplo
 	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			Affiliation: &marineCorps,
+			FirstName:   models.StringPointer("USMC"),
+			LastName:    models.StringPointer("ServiceCounseling"),
 		},
 	})
 
@@ -3342,7 +3344,6 @@ func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uplo
 	submittedAt := time.Now()
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Locator:     "USMCSC",
 			Status:      models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt: &submittedAt,
 		},
@@ -3414,6 +3415,9 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// Services Counseling
 	createHHGNeedsServicesCounseling(db)
 	createHHGNeedsServicesCounselingUSMC(db, userUploader)
+	createHHGNeedsServicesCounselingUSMC(db, userUploader)
+	createHHGNeedsServicesCounselingUSMC(db, userUploader)
+
 	createHHGServicesCounselingCompleted(db)
 
 	// TXO Queues

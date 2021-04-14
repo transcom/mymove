@@ -95,6 +95,9 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 	if params.Sort != nil && *params.Sort == "destinationDutyStation" {
 		groupByColumms = append(groupByColumms, "dest_ds.name")
 	}
+	if params.Sort != nil && *params.Sort == "originGBLOC" {
+		groupByColumms = append(groupByColumms, "origin_to.id")
+	}
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
@@ -252,6 +255,7 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"status":                 "moves.status",
 		"submittedAt":            "moves.submitted_at",
 		"destinationDutyStation": "dest_ds.name",
+		"originGBLOC":            "origin_to.gbloc",
 		"requestedMoveDate":      "min(mto_shipments.requested_pickup_date)",
 	}
 
