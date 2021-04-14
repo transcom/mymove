@@ -44,9 +44,35 @@ const fakeData = {
 
 export const DefaultState = (argTypes) => (
   <EditContactInfoForm
-    formFieldsName="residential_address"
-    initialValues={fakeData}
+    initialValues={{
+      telephone: '',
+      secondary_telephone: '',
+      personal_email: '',
+      residential_address: {
+        street_address_1: '',
+        street_address_2: '',
+        city: '',
+        state: '',
+        postal_code: '',
+      },
+      backup_mailing_address: {
+        street_address_1: '',
+        street_address_2: '',
+        city: '',
+        state: '',
+        postal_code: '',
+      },
+      backup_contact: {
+        name: '',
+        email: '',
+        telephone: '',
+      },
+    }}
     onCancel={argTypes.onCancel}
     onSubmit={argTypes.onSubmit}
   />
+);
+
+export const WithInitialValues = (argTypes) => (
+  <EditContactInfoForm initialValues={fakeData} onCancel={argTypes.onCancel} onSubmit={argTypes.onSubmit} />
 );
