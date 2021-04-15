@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -39,6 +40,7 @@ func fetchDomOtherPrice(db *pop.Connection, contractCode string, serviceCode mod
 		First(&domOtherPrice)
 
 	if err != nil {
+		fmt.Printf("err in fetchDomOtherPrice")
 		return models.ReDomesticOtherPrice{}, err
 	}
 
