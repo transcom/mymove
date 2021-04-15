@@ -4,7 +4,6 @@ import { render, waitFor } from '@testing-library/react';
 
 import ConnectedCustomerApp, { CustomerApp } from './index';
 
-import Header from 'shared/Header/MyMove';
 import Footer from 'shared/Footer';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MockProviders } from 'testUtils';
@@ -131,8 +130,8 @@ describe('CustomerApp tests', () => {
     expect(wrapper.find(SomethingWentWrong)).toHaveLength(0);
   });
 
-  it('renders Header component', () => {
-    expect(wrapper.find(Header)).toHaveLength(1);
+  it('renders LoggedOutHeader component by default', () => {
+    expect(wrapper.find('LoggedOutHeader')).toHaveLength(1);
   });
 
   it('renders Footer component', () => {
