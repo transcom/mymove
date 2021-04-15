@@ -43,7 +43,7 @@ export async function getMTOShipmentsForMove(moveTaskOrderID, normalize = true) 
   );
 }
 
-/** BELOW API CALLS ARE STILL USING DUCKS, NOT NORMALIZED BY DEFAULT */
+/** BELOW API CALLS ARE NOT NORMALIZED BY DEFAULT */
 
 /** SERVICE MEMBERS */
 export async function createServiceMember(serviceMember = {}) {

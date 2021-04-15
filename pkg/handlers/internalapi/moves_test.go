@@ -191,6 +191,8 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 }
 
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
+	os.Setenv("FEATURE_FLAG_SERVICE_COUNSELING", "false")
+
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
 		ppm := testdatagen.MakeDefaultPPM(suite.DB())
@@ -219,7 +221,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// When: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context, moverouter.NewMoveStatusRouter(suite.DB())}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter(suite.DB())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -274,7 +276,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// And: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context, moverouter.NewMoveStatusRouter(suite.DB())}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter(suite.DB())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -314,7 +316,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		// When: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context, moverouter.NewMoveStatusRouter(suite.DB())}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter(suite.DB())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code

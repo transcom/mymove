@@ -9,4 +9,9 @@ This must be included in the top of any .module.scss file that uses USWDS SCSS
 @import '~uswds/src/stylesheets/theme/_uswds-theme-utilities.scss';
 // Custom theme settings/USWDS overrides go here
 @import '../../shared/styles/settings';
+
+// Set these to true to view USWDS CSS compile warnings
+$theme-show-compile-warnings: false;
+$theme-show-notifications: false;
+
 @import '~uswds/src/stylesheets/packages/_required.scss';

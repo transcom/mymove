@@ -33,7 +33,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
 
 	suite.T().Run("MTO status is updated succesfully", func(t *testing.T) {
-		eTag := base64.StdEncoding.EncodeToString([]byte(expectedMTO.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
 		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(expectedMTO.ID, eTag)
 
@@ -50,7 +50,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 			},
 			Order: expectedOrder,
 		})
-		eTag := base64.StdEncoding.EncodeToString([]byte(expectedMTO.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
 		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(expectedMTO.ID, eTag)
 
@@ -201,5 +201,35 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 		suite.Nil(updatedMove)
 		suite.Error(err)
 		suite.IsType(services.QueryError{}, err)
+	})
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableToPrime() {
+	mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator)
+
+	suite.T().Run("Service item creator is not called if move fails to get approved", func(t *testing.T) {
+		// Create move in DRAFT status, which should fail to get approved
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+		_, err := mtoUpdater.MakeAvailableToPrime(move.ID, eTag, true, true)
+
+		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
+		suite.Error(err)
+	})
+
+	suite.T().Run("When ETag is stale", func(t *testing.T) {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+		})
+
+		eTag := etag.GenerateEtag(time.Now())
+		_, err := mtoUpdater.MakeAvailableToPrime(move.ID, eTag, false, false)
+
+		suite.Error(err)
+		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 }
