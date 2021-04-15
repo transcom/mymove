@@ -1,0 +1,47 @@
+@import 'shared/styles/_variables';
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.serviceInfoContainer {
+  .header {
+    h2 {
+      flex-shrink: 0;
+      @include u-margin(0);
+    }
+
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .whoToContactContainer {
+    @include u-margin-top(3);
+    @include u-margin-bottom(3);
+  }
+
+  .serviceInfoSection {
+    dl {
+      dt {
+        @include u-width(33%);
+      }
+
+      dd {
+        @include u-width(67%);
+      }
+    }
+  }
+
+  a {
+    color: $link;
+    text-decoration: none;
+
+    &:visited {
+      color: $link;
+    }
+
+    &:hover,
+    &:focus {
+      color: $link;
+      @include u-text('no-underline');
+    }
+  }
+}
