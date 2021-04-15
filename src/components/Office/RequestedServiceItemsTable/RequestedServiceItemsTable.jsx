@@ -31,12 +31,12 @@ const RequestedServiceItemsTable = ({
 
   return (
     <div className={styles.RequestedServiceItemsTable} data-testid={`${statusTitleText}ServiceItemsTable`}>
-      <h2>
+      <h3>
         {statusTitleText} service items&nbsp;
         <span>
           ({serviceItems.length} {serviceItems.length === 1 ? 'item' : 'items'})
         </span>
-      </h2>
+      </h3>
       <ServiceItemTableHasImg
         serviceItems={serviceItems}
         handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}

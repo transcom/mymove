@@ -193,7 +193,7 @@ const RequestedShipments = ({
 
       {shipmentsStatus === 'APPROVED' && (
         <>
-          <h2>Approved Shipments</h2>
+          <h2>Approved shipments</h2>
           <div className={styles.shipmentCards}>
             {mtoShipments &&
               mtoShipments.map((shipment) => (
@@ -216,7 +216,7 @@ const RequestedShipments = ({
 
       {shipmentsStatus === 'APPROVED' && (
         <div className={styles.serviceItems}>
-          <h2>Service Items</h2>
+          <h3>Service items</h3>
 
           <table className="table--stacked">
             <colgroup>
