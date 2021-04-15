@@ -6,8 +6,6 @@ import {
   fetchCustomerData,
   createServiceMember,
   initializeOnboarding,
-  watchUpdateServiceMember,
-  updateServiceMember,
 } from './onboarding';
 
 import {
@@ -23,9 +21,6 @@ import {
   getMTOShipmentsForMove,
 } from 'services/internalApi';
 import { addEntities } from 'shared/Entities/actions';
-import { CREATE_SERVICE_MEMBER } from 'scenes/ServiceMembers/ducks';
-import sampleLoggedInUserPayload from 'shared/User/sampleLoggedInUserPayload';
-import { normalizeResponse } from 'services/swaggerRequest';
 
 describe('watchInitializeOnboarding', () => {
   const generator = watchInitializeOnboarding();
@@ -171,7 +166,7 @@ describe('initializeOnboarding', () => {
     });
 
     it('starts the watch saga', () => {
-      expect(generator.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
+      expect(generator.next().value).toEqual(all([call(watchFetchCustomerData)]));
     });
 
     it('is done', () => {
@@ -206,7 +201,7 @@ describe('initializeOnboarding', () => {
     });
 
     it('starts the watch saga', () => {
-      expect(generator.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
+      expect(generator.next().value).toEqual(all([call(watchFetchCustomerData)]));
     });
 
     it('is done', () => {
@@ -218,31 +213,9 @@ describe('initializeOnboarding', () => {
 describe('createServiceMember saga', () => {
   describe('successful', () => {
     const generator = createServiceMember();
-    const mockServiceMember = {
-      id: 'testServiceMemberId',
-      user_id: 'testUserId',
-      is_profile_complete: false,
-    };
-
-    it('puts the CREATE_SERVICE_MEMBER.start action', () => {
-      expect(generator.next().value).toEqual(
-        put({
-          type: CREATE_SERVICE_MEMBER.start,
-        }),
-      );
-    });
 
     it('makes API call to createServiceMember', () => {
       expect(generator.next().value).toEqual(call(createServiceMemberApi));
-    });
-
-    it('puts the CREATE_SERVICE_MEMBER.success action', () => {
-      expect(generator.next(mockServiceMember).value).toEqual(
-        put({
-          type: CREATE_SERVICE_MEMBER.success,
-          payload: mockServiceMember,
-        }),
-      );
     });
 
     it('refetches user data', () => {
@@ -253,30 +226,13 @@ describe('createServiceMember saga', () => {
   describe('failure', () => {
     const generator = createServiceMember();
 
-    it('puts the CREATE_SERVICE_MEMBER.start action', () => {
-      expect(generator.next().value).toEqual(
-        put({
-          type: CREATE_SERVICE_MEMBER.start,
-        }),
-      );
-    });
-
     it('makes API call to createServiceMember', () => {
       expect(generator.next().value).toEqual(call(createServiceMemberApi));
     });
 
-    it('puts the CREATE_SERVICE_MEMBER.failure action', () => {
+    it('sets the error flash message', () => {
       const error = new Error('Service member already exists');
       expect(generator.throw(error).value).toEqual(
-        put({
-          type: CREATE_SERVICE_MEMBER.failure,
-          error,
-        }),
-      );
-    });
-
-    it('sets the error flash message', () => {
-      expect(generator.next().value).toEqual(
         put(
           setFlashMessage(
             'SERVICE_MEMBER_CREATE_ERROR',
@@ -291,27 +247,5 @@ describe('createServiceMember saga', () => {
     it('is done', () => {
       expect(generator.next().done).toEqual(true);
     });
-  });
-});
-
-describe('watchUpdateServiceMember', () => {
-  const generator = watchUpdateServiceMember();
-
-  it('takes a UPDATE_SERVICE_MEMBER_SUCCESS action and calls updateServiceMember', () => {
-    expect(generator.next().value).toEqual(takeLatest('UPDATE_SERVICE_MEMBER_SUCCESS', updateServiceMember));
-  });
-});
-
-describe('updateServiceMember', () => {
-  const action = {
-    type: 'UPDATE_SERVICE_MEMBER_SUCCESS',
-    payload: sampleLoggedInUserPayload.payload.service_member,
-  };
-
-  const generator = updateServiceMember(action);
-
-  it('normalizes the data and puts it in entities', () => {
-    const normalizedData = normalizeResponse(action.payload, 'serviceMember');
-    expect(generator.next().value).toEqual(put(addEntities(normalizedData)));
   });
 });
