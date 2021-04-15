@@ -214,6 +214,13 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		logger.Fatal("InitNewPaymentRequestReviewedProcessor failed", zap.Error(err))
 	}
 
+	// Process 858s
+	err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
+	if err != nil {
+		logger.Fatal("Could not process reviewed payment request(s)", zap.Error(err))
+	}
+	logger.Info("Successfully sent 858 files")
+
 	// SSH and SFTP Connection Setup
 	sshClient, err := cli.InitSyncadaSSH(v, logger)
 	if err != nil {
@@ -253,12 +260,6 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		}
 	}
 	logger.Info("lastRead", zap.String("lastReadTime", lastReadTime.String()))
-
-	// Process 858s
-	err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
-	if err != nil {
-		logger.Fatal("Could not process reviewed payment request(s)", zap.Error(err))
-	}
 
 	// Process 997s
 	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, lastReadTime, invoice.NewEDI997Processor(dbConnection, logger))
