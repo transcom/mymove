@@ -81,7 +81,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 			SELECT * FROM payment_requests
 			WHERE id = $1 FOR UPDATE SKIP LOCKED;
 		`
-		err := p.db.RawQuery(query, pr.ID).First(&lockedPR)
+		err := tx.RawQuery(query, pr.ID).First(&lockedPR)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil
@@ -117,7 +117,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		sentToGexAt := time.Now()
 		lockedPR.SentToGexAt = &sentToGexAt
 		lockedPR.Status = models.PaymentRequestStatusSentToGex
-		err = p.db.Update(&lockedPR)
+		err = tx.Update(&lockedPR)
 
 		if err != nil {
 			return fmt.Errorf("failure updating payment request status: %w", err)
