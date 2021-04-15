@@ -1,0 +1,1 @@
+CREATE INDEX ON moves (submitted_at);
