@@ -19,8 +19,8 @@ import formStyles from 'styles/form.module.scss';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
   const rank = currentOrders ? currentOrders.grade : serviceMember.rank;
-  const currentStation = currentOrders.origin_duty_station;
-  const transportationOfficePhoneLines = currentStation?.transportation_office?.phone_lines;
+  const originStation = currentOrders.origin_duty_station;
+  const transportationOfficePhoneLines = originStation?.transportation_office?.phone_lines;
   const transportationOfficePhone = transportationOfficePhoneLines ? transportationOfficePhoneLines[0] : '';
   const backupContact = {
     name: currentBackupContacts[0]?.name || '',
@@ -50,8 +50,8 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
             <ServiceInfoDisplay
               firstName={serviceMember?.first_name || ''}
               lastName={serviceMember?.last_name || ''}
-              currentDutyStationName={currentStation?.transportation_office?.name || ''}
-              currentDutyStationPhone={transportationOfficePhone}
+              originTransportationOfficeName={originStation?.transportation_office?.name || ''}
+              originTransportationOfficePhone={transportationOfficePhone}
               affiliation={serviceMember?.affiliation || ''}
               rank={rank || ''}
               edipi={serviceMember?.edipi || ''}
