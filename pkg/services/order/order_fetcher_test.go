@@ -432,3 +432,99 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 		suite.Equal("Spacemen, Lea", *moves[2].Orders.ServiceMember.LastName+", "+*moves[2].Orders.ServiceMember.FirstName)
 	})
 }
+
+func (suite *OrderServiceSuite) TestListUSMCMovesWithGBLOCSortOrder() {
+
+	// TESTCASE SCENARIO
+	// Under test: OrderFetcher.ListOrders function
+	// Mocked:     None
+	// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
+	//             We create an office user with the USMC GBLOC
+	//             Then we request a list of moves sorted by GBLOC, first ascending then descending
+	// Expected outcome:
+	//             We expect both moves to be returned
+	//             In asc mode, we should get the ACME move, then the ZANY move
+	//             In desc mode, we should get the ZANY move, then the ACME move
+
+	// Create an office user at the USMC GBLOC transportation office
+	officeUser := testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
+
+	// Create a dutystation with ACME GBLOC
+	acmeDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: "ACME Island Arsenal",
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ACME",
+		},
+	})
+	// Create a dutystation with ZANY GBLOC
+	zanyDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: "Camp Zany",
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ZANY",
+		},
+	})
+
+	// Create a move from the ACME gbloc
+	affiliation := models.AffiliationMARINES
+	acmeMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status:  models.MoveStatusNeedsServiceCounseling,
+			Locator: "AA1234",
+		},
+		ServiceMember: models.ServiceMember{
+			Affiliation: &affiliation,
+			LastName:    models.StringPointer("Clark-Nuñez"),
+			Edipi:       models.StringPointer("0123456789"),
+		},
+		Order: models.Order{
+			OriginDutyStation:   &acmeDutyStation,
+			OriginDutyStationID: &acmeDutyStation.ID,
+		},
+	})
+
+	// Create a second move from the ZANY gbloc
+	zanyMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status:  models.MoveStatusNeedsServiceCounseling,
+			Locator: "ZZ1234",
+		},
+		ServiceMember: models.ServiceMember{
+			Affiliation: &affiliation,
+			LastName:    models.StringPointer("Ocampo"),
+			Edipi:       models.StringPointer("9876543210"),
+		},
+		Order: models.Order{
+			OriginDutyStation:   &zanyDutyStation,
+			OriginDutyStationID: &zanyDutyStation.ID,
+		},
+	})
+	gblocACME := acmeMove.Orders.OriginDutyStation.TransportationOffice.Gbloc
+	gblocZANY := zanyMove.Orders.OriginDutyStation.TransportationOffice.Gbloc
+
+	// Setup and run the function under test sorting GBLOC with ascending mode
+	orderFetcher := NewOrderFetcher(suite.DB())
+	statuses := []string{"NEEDS SERVICE COUNSELING"}
+	// Sort by service member name
+	params := services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("asc"), Status: statuses}
+	moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+
+	// Check the results
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(gblocACME, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+	suite.Equal(gblocZANY, moves[1].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+
+	// Setup and run the function under test sorting GBLOC with descending mode
+	params = services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("desc"), Status: statuses}
+	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+
+	// Check the results
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(gblocZANY, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+	suite.Equal(gblocACME, moves[1].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+}
