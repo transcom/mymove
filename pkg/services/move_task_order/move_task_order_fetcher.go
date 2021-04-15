@@ -106,7 +106,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 		"MTOShipments.MTOAgents",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
-		"Orders.OriginDutyStation.Address",
 		"Orders.NewDutyStation.Address").Where("id = $1", moveTaskOrderID)
 
 	if searchParams == nil || !searchParams.IncludeHidden {

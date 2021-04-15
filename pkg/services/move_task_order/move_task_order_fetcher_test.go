@@ -1,6 +1,7 @@
 package movetaskorder_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -27,7 +28,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	suite.NotZero(expectedMTO.ID, actualMTO.ID)
 	suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
 	suite.NotZero(actualMTO.Orders)
-	suite.NotNil(actualMTO.Orders.OriginDutyStation)
 	suite.NotNil(expectedMTO.ReferenceID)
 	suite.NotNil(expectedMTO.Locator)
 	suite.Nil(expectedMTO.AvailableToPrimeAt)
@@ -59,15 +59,14 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 		}
 
 		actualMTO := moveTaskOrders[0]
-
+		fmt.Println(actualMTO.Orders.OriginDutyStation)
 		suite.NotZero(expectedMTO.ID, actualMTO.ID)
 		suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
 		suite.NotZero(actualMTO.Orders)
-		suite.NotNil(actualMTO.Orders.OriginDutyStation)
-		suite.NotNil(expectedMTO.Locator)
-		suite.NotNil(expectedMTO.ReferenceID)
-		suite.Nil(expectedMTO.AvailableToPrimeAt)
-		suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
+		suite.NotNil(actualMTO.Locator)
+		suite.NotNil(actualMTO.ReferenceID)
+		suite.Nil(actualMTO.AvailableToPrimeAt)
+		suite.NotEqual(actualMTO.Status, models.MoveStatusCANCELED)
 	})
 
 	suite.T().Run("include hidden move task orders", func(t *testing.T) {
