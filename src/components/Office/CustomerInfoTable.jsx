@@ -11,15 +11,11 @@ const CustomerInfoTable = ({ customerInfo, editable }) => {
   return (
     <div className={styles.OrdersTable}>
       <div className="stackedtable-header">
-        <div>
-          <h2>Customer info</h2>
-        </div>
+        <h2>Customer info</h2>
         {editable && (
-          <div>
-            <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="#">
-              Edit customer info
-            </Link>
-          </div>
+          <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="#">
+            Edit customer info
+          </Link>
         )}
       </div>
       <table className="table--stacked">
