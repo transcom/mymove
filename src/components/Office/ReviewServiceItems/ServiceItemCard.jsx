@@ -33,6 +33,36 @@ const ServiceItemCard = ({
 
   const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
 
+  const toggleCalculations =
+    allowedServiceItemCalculations.includes(mtoServiceItemCode) && paymentServiceItemParams.length > 0 ? (
+      <>
+        <Button
+          className={styles.toggleCalculations}
+          type="button"
+          data-testid="toggleCalculations"
+          aria-expanded={calculationsVisible}
+          unstyled
+          onClick={() => {
+            setCalulationsVisible((isVisible) => {
+              return !isVisible;
+            });
+          }}
+        >
+          {calculationsVisible ? 'Hide calculations' : 'Show calculations'}
+        </Button>
+        {calculationsVisible && (
+          <div className={styles.calculationsContainer}>
+            <ServiceItemCalculations
+              totalAmountRequested={amount * 100}
+              serviceItemParams={paymentServiceItemParams}
+              itemCode={mtoServiceItemCode}
+              tableSize="small"
+            />
+          </div>
+        )}
+      </>
+    ) : null;
+
   if (requestComplete) {
     return (
       <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
@@ -45,34 +75,7 @@ const ServiceItemCard = ({
             <dt>Amount</dt>
             <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
           </dl>
-          {allowedServiceItemCalculations.includes(mtoServiceItemCode) && paymentServiceItemParams.length > 0 && (
-            <>
-              <Button
-                className={styles.toggleCalculations}
-                type="button"
-                data-testid="toggleCalculations"
-                aria-expanded={calculationsVisible}
-                unstyled
-                onClick={() => {
-                  setCalulationsVisible((isVisible) => {
-                    return !isVisible;
-                  });
-                }}
-              >
-                {calculationsVisible ? 'Hide calculations' : 'Show calculations'}
-              </Button>
-              {calculationsVisible && (
-                <div className={styles.calculationsContainer}>
-                  <ServiceItemCalculations
-                    totalAmountRequested={amount * 100}
-                    serviceItemParams={paymentServiceItemParams}
-                    itemCode={mtoServiceItemCode}
-                    tableSize="small"
-                  />
-                </div>
-              )}
-            </>
-          )}
+          {toggleCalculations}
           <div data-testid="completeSummary" className={styles.completeContainer}>
             {status === APPROVED ? (
               <div data-testid="statusHeading" className={classnames(styles.statusHeading, styles.statusApproved)}>
@@ -131,34 +134,7 @@ const ServiceItemCard = ({
                   <dt>Amount</dt>
                   <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
                 </dl>
-                {allowedServiceItemCalculations.includes(mtoServiceItemCode) && paymentServiceItemParams.length > 0 && (
-                  <>
-                    <Button
-                      className={styles.toggleCalculations}
-                      type="button"
-                      data-testid="toggleCalculations"
-                      aria-expanded={calculationsVisible}
-                      unstyled
-                      onClick={() => {
-                        setCalulationsVisible((isVisible) => {
-                          return !isVisible;
-                        });
-                      }}
-                    >
-                      {calculationsVisible ? 'Hide calculations' : 'Show calculations'}
-                    </Button>
-                    {calculationsVisible && (
-                      <div className={styles.calculationsContainer}>
-                        <ServiceItemCalculations
-                          totalAmountRequested={amount * 100}
-                          serviceItemParams={paymentServiceItemParams}
-                          itemCode={mtoServiceItemCode}
-                          tableSize="small"
-                        />
-                      </div>
-                    )}
-                  </>
-                )}
+                {toggleCalculations}
                 <Fieldset>
                   <div className={styles.statusOption}>
                     <Radio
