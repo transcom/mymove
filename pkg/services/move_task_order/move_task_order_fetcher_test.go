@@ -1,7 +1,6 @@
 package movetaskorder_test
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -59,7 +58,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 		}
 
 		actualMTO := moveTaskOrders[0]
-		fmt.Println(actualMTO.Orders.OriginDutyStation)
+
 		suite.NotZero(expectedMTO.ID, actualMTO.ID)
 		suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
 		suite.NotZero(actualMTO.Orders)
@@ -125,6 +124,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)
 		suite.NoError(err)
 
+		move := moveTaskOrders[0]
+
 		// The hidden move be in this output list since we weren't excluding hidden MTOs:
 		found := false
 		for _, move := range moveTaskOrders {
@@ -135,6 +136,9 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		}
 		suite.True(found)
 		suite.Equal(len(moveTaskOrders), 4)
+		suite.NotNil(move.Orders)
+		suite.NotNil(move.Orders.OriginDutyStation)
+		suite.NotNil(move.Orders.NewDutyStation)
 	})
 
 	suite.T().Run("default search - excludes hidden move task orders", func(t *testing.T) {
