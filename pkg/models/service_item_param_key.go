@@ -245,6 +245,8 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameEscalationCompounded,
 	ServiceItemParamNameIsPeak,
 	ServiceItemParamNameContractYearName,
+	ServiceItemParamNameFSCMultiplier,
+	ServiceItemParamNameFSCPriceDifferenceInCents,
 }
 
 // ValidServiceItemParamNameStrings lists all valid service item param key names
@@ -308,6 +310,8 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameEscalationCompounded),
 	string(ServiceItemParamNameIsPeak),
 	string(ServiceItemParamNameContractYearName),
+	string(ServiceItemParamNameFSCMultiplier),
+	string(ServiceItemParamNameFSCPriceDifferenceInCents),
 }
 
 // ValidServiceItemParamTypes lists all valid service item param types
