@@ -13,9 +13,11 @@ const CustomerInfoTable = ({ customerInfo, editable }) => {
       <div className="stackedtable-header">
         <h2>Customer info</h2>
         {editable && (
-          <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="#">
-            Edit customer info
-          </Link>
+          <div>
+            <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="#">
+              Edit customer info
+            </Link>
+          </div>
         )}
       </div>
       <table className="table--stacked">

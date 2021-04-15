@@ -13,9 +13,11 @@ function OrdersTable({ ordersInfo }) {
     <div className={styles.OrdersTable}>
       <div className="stackedtable-header">
         <h2>Orders</h2>
-        <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
-          Edit orders
-        </Link>
+        <div>
+          <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+            Edit orders
+          </Link>
+        </div>
       </div>
       <table className="table--stacked">
         <colgroup>
