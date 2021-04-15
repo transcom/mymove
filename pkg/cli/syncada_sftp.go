@@ -22,6 +22,7 @@ const (
 	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	//RA: This line was flagged because of use of the word "password"
 	//RA: This line is used to identify the name of the flag. SyncadaSFTPPasswordFlag is the Syncada SFTP Password Flag.
+	//RA: See MB-7727 and MB-7728 for tracking future work to resolve this issue
 	//RA: App should implement public-key authentication; issue remains open while interface control is negotiated for this connection.
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Known Issue
