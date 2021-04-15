@@ -26,8 +26,8 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 		NonTemporaryStorage:                          &truePtr,
 		PrivatelyOwnedVehicle:                        &truePtr,
 		StorageInTransit:                             &storageInTransit,
-		RequiredMedicalEquipmentWeight:               &rmeWeight,
-		OrganizationalClothingAndIndividualEquipment: &ocie,
+		RequiredMedicalEquipmentWeight:               rmeWeight,
+		OrganizationalClothingAndIndividualEquipment: ocie,
 	}
 	entitlement.SetWeightAllotment(*grade)
 	dBAuthorizedWeight := entitlement.AuthorizedWeight()

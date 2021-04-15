@@ -2519,7 +2519,6 @@ func init() {
         },
         "organizationalClothingAndIndividualEquipment": {
           "type": "boolean",
-          "x-nullable": true,
           "example": true
         },
         "privatelyOwnedVehicle": {
@@ -2540,7 +2539,6 @@ func init() {
         "requiredMedicalEquipmentWeight": {
           "type": "integer",
           "x-formatting": "weight",
-          "x-nullable": true,
           "example": 500
         },
         "storageInTransit": {
@@ -6951,7 +6949,6 @@ func init() {
         },
         "organizationalClothingAndIndividualEquipment": {
           "type": "boolean",
-          "x-nullable": true,
           "example": true
         },
         "privatelyOwnedVehicle": {
@@ -6972,7 +6969,6 @@ func init() {
         "requiredMedicalEquipmentWeight": {
           "type": "integer",
           "x-formatting": "weight",
-          "x-nullable": true,
           "example": 500
         },
         "storageInTransit": {

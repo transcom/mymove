@@ -17,8 +17,8 @@ type Entitlement struct {
 	DBAuthorizedWeight                           *int             `db:"authorized_weight"`
 	weightAllotment                              *WeightAllotment `db:"-"`
 	StorageInTransit                             *int             `db:"storage_in_transit"`
-	RequiredMedicalEquipmentWeight               *int             `db:"required_medical_equipment_weight"`
-	OrganizationalClothingAndIndividualEquipment *bool            `db:"organizational_clothing_and_individual_equipment"`
+	RequiredMedicalEquipmentWeight               int              `db:"required_medical_equipment_weight"`
+	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
 	CreatedAt                                    time.Time        `db:"created_at"`
 	UpdatedAt                                    time.Time        `db:"updated_at"`
 }

@@ -1725,12 +1725,10 @@ definitions:
       requiredMedicalEquipmentWeight:
         example: 500
         type: integer
-        x-nullable: true
         x-formatting: weight
       organizationalClothingAndIndividualEquipment:
         example: true
         type: boolean
-        x-nullable: true
       eTag:
         type: string
     type: object
