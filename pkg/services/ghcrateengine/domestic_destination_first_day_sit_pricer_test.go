@@ -110,7 +110,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationFirstDaySITServi
 				Value:   "2500",
 			},
 			{
-				Key:     models.ServiceItemParamNameZipSITDestHHGFinalAddress,
+				Key:     models.ServiceItemParamNameZipDestAddress,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   "30907",
 			},
