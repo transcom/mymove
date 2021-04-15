@@ -8,7 +8,7 @@
       flex-shrink: 0;
       @include u-margin(0);
       @include at-media('desktop') {
-        @include u-margin-bottom(3);
+        @include u-padding-bottom(1);
       }
     }
 
@@ -18,7 +18,7 @@
 
   .contactInfoSection {
     h3 {
-      @include u-margin-top(4);
+      @include u-margin-top(3);
     }
 
     dl {
