@@ -15,7 +15,7 @@ import {
   selectEntitlementsForLoggedInUser,
   selectMoveIsInDraft,
 } from 'store/entities/selectors';
-import { generalRoutes } from 'constants/routes';
+import { generalRoutes, customerRoutes } from 'constants/routes';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import { EntitlementShape } from 'types';
 
@@ -33,7 +33,6 @@ export const EditServiceInfo = ({
   useEffect(() => {
     if (!moveIsInDraft) {
       // Redirect to the home page
-      // TODO - change this to profile path?
       history.push(generalRoutes.HOME_PATH);
     }
   }, [moveIsInDraft, history]);
@@ -79,8 +78,7 @@ export const EditServiceInfo = ({
           setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
 
-        // TODO - change this to profile path?
-        history.push(generalRoutes.HOME_PATH);
+        history.push(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -92,8 +90,7 @@ export const EditServiceInfo = ({
   };
 
   const handleCancel = () => {
-    // TODO - change this to profile path?
-    history.push(generalRoutes.HOME_PATH);
+    history.push(customerRoutes.PROFILE_PATH);
   };
 
   return (

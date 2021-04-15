@@ -41,7 +41,7 @@ describe('EditServiceInfo page', () => {
     expect(await screen.findByRole('heading', { name: 'Edit service info', level: 1 })).toBeInTheDocument();
   });
 
-  it('the cancel button goes back to the home page', async () => {
+  it('the cancel button goes back to the profile page', async () => {
     render(<EditServiceInfo {...testProps} />);
 
     const cancelButton = await screen.findByText('Cancel');
@@ -50,10 +50,10 @@ describe('EditServiceInfo page', () => {
     });
 
     userEvent.click(cancelButton);
-    expect(mockPush).toHaveBeenCalledWith('/');
+    expect(mockPush).toHaveBeenCalledWith('/service-member/profile');
   });
 
-  it('save button submits the form and goes to the home page', async () => {
+  it('save button submits the form and goes to the profile page', async () => {
     const testServiceMemberValues = {
       id: 'testServiceMemberId',
       first_name: 'Leo',
@@ -108,7 +108,7 @@ describe('EditServiceInfo page', () => {
       'Your changes have been saved.',
     );
 
-    expect(mockPush).toHaveBeenCalledWith('/');
+    expect(mockPush).toHaveBeenCalledWith('/service-member/profile');
   });
 
   it('displays a flash message about entitlement when the rank changes', async () => {
@@ -170,7 +170,7 @@ describe('EditServiceInfo page', () => {
       'Your changes have been saved. Note that the entitlement has also changed.',
     );
 
-    expect(mockPush).toHaveBeenCalledWith('/');
+    expect(mockPush).toHaveBeenCalledWith('/service-member/profile');
   });
 
   it('shows an error if the API returns an error', async () => {
