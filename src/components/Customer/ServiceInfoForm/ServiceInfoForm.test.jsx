@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 
@@ -144,45 +144,48 @@ describe('ServiceInfoForm', () => {
   };
 
   it('renders the form inputs', async () => {
-    const { getByLabelText } = render(<ServiceInfoForm {...testProps} />);
-    await waitFor(() => {
-      expect(getByLabelText('First name')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('First name')).toBeRequired();
+    render(<ServiceInfoForm {...testProps} />);
 
-      expect(getByLabelText(/Middle name/)).toBeInstanceOf(HTMLInputElement);
+    const firstNameInput = await screen.findByLabelText('First name');
+    expect(firstNameInput).toBeInstanceOf(HTMLInputElement);
+    expect(firstNameInput).toBeRequired();
 
-      expect(getByLabelText('Last name')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Last name')).toBeRequired();
+    expect(await screen.findByLabelText(/Middle name/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
+    const lastNameInput = await screen.findByLabelText('Last name');
+    expect(lastNameInput).toBeInstanceOf(HTMLInputElement);
+    expect(lastNameInput).toBeRequired();
 
-      expect(getByLabelText('Branch of service')).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText('Branch of service')).toBeRequired();
+    expect(await screen.findByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('DoD ID number')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('DoD ID number')).toBeRequired();
+    const branchInput = await screen.findByLabelText('Branch of service');
+    expect(branchInput).toBeInstanceOf(HTMLSelectElement);
+    expect(branchInput).toBeRequired();
 
-      expect(getByLabelText('Rank')).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText('Rank')).toBeRequired();
+    const dodInput = await screen.findByLabelText('DoD ID number');
+    expect(dodInput).toBeInstanceOf(HTMLInputElement);
+    expect(dodInput).toBeRequired();
 
-      expect(getByLabelText('Current duty station')).toBeInstanceOf(HTMLInputElement);
-    });
+    const rankInput = await screen.findByLabelText('Rank');
+    expect(rankInput).toBeInstanceOf(HTMLSelectElement);
+    expect(rankInput).toBeRequired();
+
+    expect(await screen.findByLabelText('Current duty station')).toBeInstanceOf(HTMLInputElement);
   });
 
   it('validates the DOD ID number on blur', async () => {
-    const { getByLabelText, getByText } = render(<ServiceInfoForm {...testProps} />);
+    render(<ServiceInfoForm {...testProps} />);
 
-    userEvent.type(getByLabelText('DoD ID number'), 'not a valid ID number');
+    const dodInput = await screen.findByLabelText('DoD ID number');
+    userEvent.type(dodInput, 'not a valid ID number');
     userEvent.tab();
 
-    await waitFor(() => {
-      expect(getByLabelText('DoD ID number')).not.toBeValid();
-      expect(getByText('Enter a 10-digit DOD ID number')).toBeInTheDocument();
-    });
+    expect(dodInput).not.toBeValid();
+    expect(await screen.findByText('Enter a 10-digit DOD ID number')).toBeInTheDocument();
   });
 
   it('validates the new duty station against the current duty station', async () => {
-    const { queryByText, getByRole, getByLabelText } = render(
+    render(
       <ServiceInfoForm
         {...testProps}
         newDutyStation={{ name: 'Luke AFB', id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a' }}
@@ -190,46 +193,47 @@ describe('ServiceInfoForm', () => {
     );
 
     // Test Duty Station Search Box interaction
-    fireEvent.change(getByLabelText('Current duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(getByLabelText('Current duty station'), /Luke/);
+    const dutyStationInput = await screen.getByLabelText('Current duty station');
+    fireEvent.change(dutyStationInput, { target: { value: 'AFB' } });
+    await selectEvent.select(dutyStationInput, /Luke/);
 
-    expect(getByRole('form')).toHaveFormValues({
+    expect(await screen.findByRole('form')).toHaveFormValues({
       current_station: 'Luke AFB',
     });
 
-    await waitFor(() => {
-      expect(getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
-      expect(
-        queryByText('You entered the same duty station for your origin and destination. Please change one of them.'),
-      ).toBeInTheDocument();
-    });
+    expect(await screen.findByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
+    expect(
+      await screen.findByText(
+        'You entered the same duty station for your origin and destination. Please change one of them.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, getAllByText } = render(<ServiceInfoForm {...testProps} />);
-    const submitBtn = getByRole('button', { name: 'Save' });
+    render(<ServiceInfoForm {...testProps} />);
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(5);
+      expect(screen.getAllByText('Required').length).toBe(5);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
 
   it('submits the form when its valid', async () => {
-    const { getByRole, getByLabelText } = render(<ServiceInfoForm {...testProps} />);
-    const submitBtn = getByRole('button', { name: 'Save' });
+    render(<ServiceInfoForm {...testProps} />);
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    userEvent.type(getByLabelText('First name'), 'Leo');
-    userEvent.type(getByLabelText('Last name'), 'Spaceman');
-    userEvent.selectOptions(getByLabelText('Branch of service'), ['NAVY']);
-    userEvent.type(getByLabelText('DoD ID number'), '1234567890');
-    userEvent.selectOptions(getByLabelText('Rank'), ['E_5']);
-    fireEvent.change(getByLabelText('Current duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(getByLabelText('Current duty station'), /Luke/);
+    userEvent.type(screen.getByLabelText('First name'), 'Leo');
+    userEvent.type(screen.getByLabelText('Last name'), 'Spaceman');
+    userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
+    userEvent.type(screen.getByLabelText('DoD ID number'), '1234567890');
+    userEvent.selectOptions(screen.getByLabelText('Rank'), ['E_5']);
+    fireEvent.change(screen.getByLabelText('Current duty station'), { target: { value: 'AFB' } });
+    await selectEvent.select(screen.getByLabelText('Current duty station'), /Luke/);
 
-    expect(getByRole('form')).toHaveFormValues({
+    expect(screen.getByRole('form')).toHaveFormValues({
       current_station: 'Luke AFB',
     });
 
@@ -266,8 +270,8 @@ describe('ServiceInfoForm', () => {
 
   it('uses the onCancel handler when the cancel button is clicked', async () => {
     const onCancel = jest.fn();
-    const { getByRole } = render(<ServiceInfoForm {...testProps} onCancel={onCancel} />);
-    const cancelBtn = getByRole('button', { name: 'Cancel' });
+    render(<ServiceInfoForm {...testProps} onCancel={onCancel} />);
+    const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
 
     userEvent.click(cancelBtn);
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { EditServiceInfo } from './EditServiceInfo';
@@ -36,17 +36,15 @@ describe('EditServiceInfo page', () => {
   };
 
   it('renders the EditServiceInfo form', async () => {
-    const { queryByRole } = render(<EditServiceInfo {...testProps} />);
+    render(<EditServiceInfo {...testProps} />);
 
-    await waitFor(() => {
-      expect(queryByRole('heading', { name: 'Edit service info', level: 1 })).toBeInTheDocument();
-    });
+    expect(await screen.findByRole('heading', { name: 'Edit service info', level: 1 })).toBeInTheDocument();
   });
 
   it('the cancel button goes back to the home page', async () => {
-    const { queryByText } = render(<EditServiceInfo {...testProps} />);
+    render(<EditServiceInfo {...testProps} />);
 
-    const cancelButton = queryByText('Cancel');
+    const cancelButton = await screen.findByText('Cancel');
     await waitFor(() => {
       expect(cancelButton).toBeInTheDocument();
     });
@@ -83,7 +81,7 @@ describe('EditServiceInfo page', () => {
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(
+    render(
       <EditServiceInfo
         {...testProps}
         serviceMember={testServiceMemberValues}
@@ -94,7 +92,7 @@ describe('EditServiceInfo page', () => {
       />,
     );
 
-    const submitButton = queryByText('Save');
+    const submitButton = await screen.findByText('Save');
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -141,7 +139,7 @@ describe('EditServiceInfo page', () => {
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText, getByLabelText } = render(
+    render(
       <EditServiceInfo
         {...testProps}
         serviceMember={testServiceMemberValues}
@@ -153,9 +151,10 @@ describe('EditServiceInfo page', () => {
       />,
     );
 
-    userEvent.selectOptions(getByLabelText('Rank'), ['E_2']);
+    const rankInput = await screen.findByLabelText('Rank');
+    userEvent.selectOptions(rankInput, ['E_2']);
 
-    const submitButton = queryByText('Save');
+    const submitButton = await screen.findByText('Save');
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -213,7 +212,7 @@ describe('EditServiceInfo page', () => {
     );
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(
+    render(
       <EditServiceInfo
         {...testProps}
         serviceMember={testServiceMemberValues}
@@ -224,7 +223,7 @@ describe('EditServiceInfo page', () => {
       />,
     );
 
-    const submitButton = queryByText('Save');
+    const submitButton = await screen.findByText('Save');
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -232,7 +231,7 @@ describe('EditServiceInfo page', () => {
       expect(patchServiceMember).toHaveBeenCalled();
     });
 
-    expect(queryByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(await screen.findByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.setFlashMessage).not.toHaveBeenCalled();
     expect(mockPush).not.toHaveBeenCalled();
