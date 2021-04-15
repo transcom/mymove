@@ -146,13 +146,7 @@ func MakeHiddenHHGMoveWithShipment(db *pop.Connection, assertions Assertions) mo
 		},
 	})
 
-	MakeMTOShipment(db, Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-		Stub: assertions.Stub,
-	})
+	MakeSubmittedMTOShipmentWithMove(db, &move, assertions)
 
 	return move
 }
@@ -176,15 +170,7 @@ func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 		mustSave(db, &move)
 	}
 
-	shipment := MakeMTOShipment(db, Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-		Stub: assertions.Stub,
-	})
-
-	move.MTOShipments = models.MTOShipments{shipment}
+	MakeSubmittedMTOShipmentWithMove(db, &move, assertions)
 
 	return move
 }
@@ -200,13 +186,7 @@ func MakeHHGPPMMoveWithShipment(db *pop.Connection, assertions Assertions) model
 		Stub: assertions.Stub,
 	})
 
-	MakeMTOShipment(db, Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-		Stub: assertions.Stub,
-	})
+	MakeSubmittedMTOShipmentWithMove(db, &move, assertions)
 
 	return move
 }
@@ -223,14 +203,8 @@ func MakeNTSMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 		Stub:          assertions.Stub,
 	})
 
-	MakeMTOShipment(db, Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
-			Status:       models.MTOShipmentStatusSubmitted,
-		},
-		Stub: assertions.Stub,
-	})
+	assertions.MTOShipment.ShipmentType = models.MTOShipmentTypeHHGIntoNTSDom
+	MakeSubmittedMTOShipmentWithMove(db, &move, assertions)
 
 	return move
 }
@@ -247,14 +221,8 @@ func MakeNTSRMoveWithShipment(db *pop.Connection, assertions Assertions) models.
 		Stub:          assertions.Stub,
 	})
 
-	MakeMTOShipment(db, Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
-			Status:       models.MTOShipmentStatusSubmitted,
-		},
-		Stub: assertions.Stub,
-	})
+	assertions.MTOShipment.ShipmentType = models.MTOShipmentTypeHHGOutOfNTSDom
+	MakeSubmittedMTOShipmentWithMove(db, &move, assertions)
 
 	return move
 }
