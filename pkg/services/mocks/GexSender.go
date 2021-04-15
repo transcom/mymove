@@ -13,13 +13,13 @@ type GexSender struct {
 	mock.Mock
 }
 
-// SendToGex provides a mock function with given fields: edi, transactionName
-func (_m *GexSender) SendToGex(edi string, transactionName string) (*http.Response, error) {
-	ret := _m.Called(edi, transactionName)
+// SendToGex provides a mock function with given fields: edi, filename
+func (_m *GexSender) SendToGex(edi string, filename string) (*http.Response, error) {
+	ret := _m.Called(edi, filename)
 
 	var r0 *http.Response
 	if rf, ok := ret.Get(0).(func(string, string) *http.Response); ok {
-		r0 = rf(edi, transactionName)
+		r0 = rf(edi, filename)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*http.Response)
@@ -28,7 +28,7 @@ func (_m *GexSender) SendToGex(edi string, transactionName string) (*http.Respon
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(edi, transactionName)
+		r1 = rf(edi, filename)
 	} else {
 		r1 = ret.Error(1)
 	}
