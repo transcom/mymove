@@ -11,6 +11,7 @@ const defaultProps = {
   edipi: '9999999999',
   currentDutyStationName: 'Buckley AFB',
   currentDutyStationPhone: '555-555-5555',
+  editURL: '/',
 };
 
 export default {

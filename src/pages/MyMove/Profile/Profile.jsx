@@ -15,6 +15,7 @@ import {
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
 import { customerRoutes } from 'constants/routes';
+import formStyles from 'styles/form.module.scss';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
   const rank = currentOrders ? currentOrders.grade : serviceMember.rank;
@@ -33,7 +34,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
         <div className="grid-col-12">
           <h1>Profile</h1>
           {!moveIsInDraft && <Alert type="info">Contact your movers if you need to make changes to your move.</Alert>}
-          <SectionWrapper>
+          <SectionWrapper className={formStyles.formSection}>
             <ContactInfoDisplay
               telephone={serviceMember?.telephone || ''}
               personalEmail={serviceMember?.personal_email || ''}
@@ -45,7 +46,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               editURL={customerRoutes.EDIT_PROFILE_PATH}
             />
           </SectionWrapper>
-          <SectionWrapper>
+          <SectionWrapper className={formStyles.formSection}>
             <ServiceInfoDisplay
               firstName={serviceMember?.first_name || ''}
               lastName={serviceMember?.last_name || ''}
