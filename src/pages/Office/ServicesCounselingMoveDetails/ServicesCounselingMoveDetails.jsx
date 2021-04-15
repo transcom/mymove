@@ -4,7 +4,8 @@ import { GridContainer, Grid, Button, Alert } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import classnames from 'classnames';
 
-import CustomerInfoTable from '../../../components/Office/CustomerInfoTable';
+import DetailsTable from '../../../components/Office/DetailsTable/DetailsTable';
+import CustomerInfo from '../../../components/Office/CustomerInfo';
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
@@ -86,13 +87,15 @@ const ServicesCounselingMoveDetails = () => {
             </Grid>
           </Grid>
           <div className={styles.section} id="customer-info">
-            <GridContainer>
-              <Grid row gap>
-                <Grid col>
-                  <CustomerInfoTable customerInfo={customerInfo} editable />
-                </Grid>
-              </Grid>
-            </GridContainer>
+            <DetailsTable
+              title="Customer info"
+              editable
+              editTitle="Edit customer info"
+              editTestLabel="edit-customer-info"
+              editLinkLocation="#"
+            >
+              <CustomerInfo customerInfo={customerInfo} />
+            </DetailsTable>
           </div>
         </GridContainer>
       </div>
