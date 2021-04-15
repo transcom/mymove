@@ -169,6 +169,7 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 		DodID:                  params.DodID,
 		LastName:               params.LastName,
 		DestinationDutyStation: params.DestinationDutyStation,
+		SubmittedAt:            params.SubmittedAt,
 		Page:                   params.Page,
 		PerPage:                params.PerPage,
 		Sort:                   params.Sort,

@@ -54,9 +54,10 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	moveStatusQuery := moveStatusFilter(params.Status)
+	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [8]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
+	options := [9]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, sortOrderQuery}
 
 	query := f.db.Q().EagerPreload(
 		"Orders.ServiceMember",
@@ -233,6 +234,14 @@ func moveStatusFilter(statuses []string) QueryOption {
 		// The TOO should never see moves that are in the following statuses: Draft, Canceled, Needs Service Counseling
 		if len(statuses) <= 0 {
 			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED, models.MoveStatusNeedsServiceCounseling)
+		}
+	}
+}
+
+func submittedAtFilter(submittedAt *string) QueryOption {
+	return func(query *pop.Query) {
+		if submittedAt != nil {
+			query.Where("CAST(moves.submitted_at AS DATE) = ?", *submittedAt)
 		}
 	}
 }

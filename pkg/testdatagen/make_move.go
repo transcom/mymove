@@ -158,6 +158,7 @@ func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusSUBMITTED,
+			SubmittedAt:      assertions.Move.SubmittedAt,
 		},
 		ServiceMember:        assertions.ServiceMember,
 		TransportationOffice: assertions.TransportationOffice,

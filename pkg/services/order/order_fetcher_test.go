@@ -156,6 +156,23 @@ func (suite *OrderServiceSuite) TestListMoves() {
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 	})
+
+	suite.T().Run("returns moves filtered submitted at", func(t *testing.T) {
+
+		submittedAt := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &submittedAt,
+			},
+		})
+		createdSubmittedDate := submittedAt.Format(time.RFC3339Nano)
+		params := services.ListOrderParams{SubmittedAt: &createdSubmittedDate}
+
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+	})
 }
 
 func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
