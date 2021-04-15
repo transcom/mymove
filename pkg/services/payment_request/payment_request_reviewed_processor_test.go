@@ -570,7 +570,7 @@ func (suite *PaymentRequestServiceSuite) lockPR(prID uuid.UUID) {
 	query := `
 		BEGIN;
 		SELECT * FROM payment_requests
-		WHERE id = $1 FOR UPDATE SKIP LOCKED;
+		WHERE id = $1 FOR NO KEY UPDATE SKIP LOCKED;
 		UPDATE payment_requests
 		SET
 			status = $2,

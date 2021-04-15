@@ -79,7 +79,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 
 		query := `
 			SELECT * FROM payment_requests
-			WHERE id = $1 FOR UPDATE SKIP LOCKED;
+			WHERE id = $1 FOR NO KEY UPDATE SKIP LOCKED;
 		`
 		err := tx.RawQuery(query, pr.ID).First(&lockedPR)
 		if err != nil {
