@@ -7,6 +7,9 @@
     h2 {
       flex-shrink: 0;
       @include u-margin(0);
+      @include at-media('desktop') {
+        @include u-margin-bottom(3);
+      }
     }
 
     display: flex;

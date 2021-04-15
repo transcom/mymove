@@ -49,7 +49,7 @@ const ServiceInfoDisplay = ({
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>DOD ID#</dt>
+            <dt>DoD ID#</dt>
             <dd>{edipi}</dd>
           </div>
 
