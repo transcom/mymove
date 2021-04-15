@@ -50,6 +50,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
             <ServiceInfoDisplay
               firstName={serviceMember?.first_name || ''}
               lastName={serviceMember?.last_name || ''}
+              originDutyStationName={originStation?.name || ''}
               originTransportationOfficeName={originStation?.transportation_office?.name || ''}
               originTransportationOfficePhone={transportationOfficePhone}
               affiliation={serviceMember?.affiliation || ''}
