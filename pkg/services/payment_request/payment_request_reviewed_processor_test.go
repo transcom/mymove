@@ -596,7 +596,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
 		var sftpSender services.SyncadaSFTPSender
 		sftpSender = nil
-		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
+		sendToSyncada := true
 
 		gexSender := &mocks.GexSender{}
 		gexSender.
