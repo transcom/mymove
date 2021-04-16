@@ -37,8 +37,8 @@ type QueueMove struct {
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
 
 	// requested move date
-	// Format: date-time
-	RequestedMoveDate *strfmt.DateTime `json:"requestedMoveDate,omitempty"`
+	// Format: date
+	RequestedMoveDate *strfmt.Date `json:"requestedMoveDate,omitempty"`
 
 	// shipments count
 	ShipmentsCount int64 `json:"shipmentsCount,omitempty"`
@@ -182,7 +182,7 @@ func (m *QueueMove) validateRequestedMoveDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("requestedMoveDate", "body", "date-time", m.RequestedMoveDate.String(), formats); err != nil {
+	if err := validate.FormatOf("requestedMoveDate", "body", "date", m.RequestedMoveDate.String(), formats); err != nil {
 		return err
 	}
 

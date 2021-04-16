@@ -234,7 +234,11 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 		Certificates: certificates,
 		ClientCAs:    caCertPool,
 	})
-	defer srv.Close()
+	defer func() {
+		if srvCloseErr := srv.Close(); srvCloseErr != nil {
+			suite.logger.Error("Failed to close named server", zap.Error(srvCloseErr))
+		}
+	}()
 	suite.NoError(err)
 
 	// Start the Server
@@ -267,7 +271,13 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 
 	// Check the TLS connection directly
 	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &clientTLSConfig)
-	defer conn.Close()
+
+	defer func() {
+		if connCloseErr := conn.Close(); connCloseErr != nil {
+			suite.logger.Error("Failed to close TLS connection", zap.Error(connCloseErr))
+		}
+	}()
+
 	suite.NoError(err)
 }
 
@@ -308,7 +318,11 @@ func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
 		Certificates: certificates,
 		ClientCAs:    caCertPool,
 	})
-	defer srv.Close()
+	defer func() {
+		if srvCloseErr := srv.Close(); srvCloseErr != nil {
+			suite.logger.Error("Failed to close named server", zap.Error(srvCloseErr))
+		}
+	}()
 	suite.NoError(err)
 
 	// Start the Server
@@ -360,7 +374,12 @@ func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
 		Certificates: certificates,
 		ClientCAs:    caCertPool,
 	})
-	defer srv.Close()
+	defer func() {
+		if srvCloseErr := srv.Close(); srvCloseErr != nil {
+			suite.logger.Error("Failed to close named server", zap.Error(srvCloseErr))
+		}
+	}()
+
 	suite.NoError(err)
 
 	// Start the Server
