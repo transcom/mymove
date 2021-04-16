@@ -1113,6 +1113,9 @@ reviewapp_docker_build:
 	rm -rf ./bin
 	docker-compose -f docker-compose.reviewapp.yml build
 
+reviewapp_docker_destroy:
+	docker-compose -f docker-compose.reviewapp.yml down
+
 #
 # ----- END RANDOM TARGETS -----
 #
