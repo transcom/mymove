@@ -26,6 +26,8 @@ type paymentRequestReviewedProcessor struct {
 	runSendToSyncada              bool // if false, do not send to Syncada, e.g. UT shouldn't send to Syncada
 	gexSender                     services.GexSender
 	sftpSender                    services.SyncadaSFTPSender
+	numProcessed                  int
+	startedAt                     time.Time
 }
 
 // NewPaymentRequestReviewedProcessor returns a new payment request reviewed processor
@@ -73,14 +75,13 @@ func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, s
 
 func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.PaymentRequest) error {
 	var transactionError error
-
 	transactionError = p.db.Transaction(func(tx *pop.Connection) error {
 		var lockedPR models.PaymentRequest
 
 		query := `
-			SELECT * FROM payment_requests
-			WHERE id = $1 FOR UPDATE SKIP LOCKED;
-		`
+      		SELECT * FROM payment_requests
+      		WHERE id = $1 FOR UPDATE SKIP LOCKED;
+    	`
 		err := p.db.RawQuery(query, pr.ID).First(&lockedPR)
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -174,28 +175,41 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
+	// fail early if both senders are nil
+	if (p.gexSender == nil) && (p.sftpSender == nil) {
+		return fmt.Errorf("cannot send to Syncada, SendToSyncada() senders are nil")
+	}
+
+	p.numProcessed = 0
+	p.startedAt = time.Now()
+
 	// Store/log metrics about EDI processing upon exiting this method.
-	numProcessed := 0
-	start := time.Now()
-	defer func() {
-		ediProcessing := models.EDIProcessing{
-			EDIType:          models.EDIType858,
-			ProcessStartedAt: start,
-			ProcessEndedAt:   time.Now(),
-			NumEDIsProcessed: numProcessed,
-		}
-		p.logger.Info("EDIs processed", zap.Object("EDIs processed", &ediProcessing))
+	defer p.saveEDIProcessing()
 
-		verrs, err := p.db.ValidateAndCreate(&ediProcessing)
-		if err != nil {
-			p.logger.Error("failed to create EDIProcessing record", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			p.logger.Error("failed to validate EDIProcessing record", zap.Error(err))
-		}
-	}()
+	return p.ProcessAllReviewedPaymentRequests()
+}
 
-	// Fetch all payment request that have been reviewed
+func (p *paymentRequestReviewedProcessor) saveEDIProcessing() {
+	ediProcessing := models.EDIProcessing{
+		EDIType:          models.EDIType858,
+		ProcessStartedAt: p.startedAt,
+		ProcessEndedAt:   time.Now(),
+		NumEDIsProcessed: p.numProcessed,
+	}
+
+	p.logger.Info("EDIs processed", zap.Object("EDIs processed", &ediProcessing))
+
+	verrs, err := p.db.ValidateAndCreate(&ediProcessing)
+	if err != nil {
+		p.logger.Error("failed to create EDIProcessing record", zap.Error(err))
+	}
+	if verrs.HasAny() {
+		p.logger.Error("failed to validate EDIProcessing record", zap.Error(err))
+	}
+}
+
+func (p *paymentRequestReviewedProcessor) ProcessAllReviewedPaymentRequests() error {
+	// Fetch all payment requests that have been reviewed
 	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
 	if err != nil {
 		return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest: %w", err)
@@ -212,8 +226,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 		if err != nil {
 			return err
 		}
-		numProcessed++
+		p.numProcessed++
 	}
-
 	return nil
 }
