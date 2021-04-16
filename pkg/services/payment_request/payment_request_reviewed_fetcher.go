@@ -18,7 +18,7 @@ func NewPaymentRequestReviewedFetcher(db *pop.Connection) services.PaymentReques
 	return &paymentRequestReviewedFetcher{db}
 }
 
-//FetchReviewedPaymentRequest finds all payment request with status 'reviewed'
+// FetchReviewedPaymentRequest finds all payment requests with status 'reviewed'
 func (p *paymentRequestReviewedFetcher) FetchReviewedPaymentRequest() (models.PaymentRequests, error) {
 	var reviewedPaymentRequests models.PaymentRequests
 	err := p.db.Q().
