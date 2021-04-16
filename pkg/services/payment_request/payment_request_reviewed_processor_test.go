@@ -569,6 +569,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		fetcher := NewPaymentRequestFetcher(suite.DB())
 		paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
 		suite.Nil(paymentRequest.SentToGexAt)
+		suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -615,6 +616,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		fetcher := NewPaymentRequestFetcher(suite.DB())
 		paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
 		suite.Nil(paymentRequest.SentToGexAt)
+		// Failed send should not change payment request status
+		suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -632,7 +635,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(err, "Get count of EDIProcessing")
 
 		numPrs := 4
-		_ = suite.createPaymentRequest(numPrs)
+		prs := suite.createPaymentRequest(numPrs)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
@@ -667,6 +670,12 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Greater(newCount, countProcessingRecordsBefore)
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 
+		// Ensure that status is updated to SENT_TO_GEX when PRs are sent successfully
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
+		}
 	})
 
 	suite.T().Run("process reviewed payment request, failed due to both senders being nil", func(t *testing.T) {
