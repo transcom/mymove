@@ -167,7 +167,7 @@ describe('MoveDetails page', () => {
     });
 
     it('renders the Allowances Table', () => {
-      expect(wrapper.find('#allowances h4').text()).toEqual('Allowances');
+      expect(wrapper.find('#allowances h2').text()).toEqual('Allowances');
     });
   });
 
