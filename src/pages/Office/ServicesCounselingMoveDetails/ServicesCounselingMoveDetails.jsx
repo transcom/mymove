@@ -4,7 +4,9 @@ import { GridContainer, Grid, Button, Alert } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import classnames from 'classnames';
 
-import styles from '../TXOMoveInfo/TXOTab.module.scss';
+import DetailsTable from '../../../components/Office/DetailsTable/DetailsTable';
+import CustomerInfo from '../../../components/Office/CustomerInfo';
+import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
@@ -15,13 +17,36 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MOVES } from 'constants/queryKeys';
 import { MOVE_STATUSES } from 'shared/constants';
+import AllowancesTable from 'components/Office/AllowancesTable/AllowancesTable';
 
 const ServicesCounselingMoveDetails = () => {
   const { moveCode } = useParams();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
 
-  const { move, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { order, move, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { customer, entitlement: allowances } = order;
+  const customerInfo = {
+    name: `${customer.last_name}, ${customer.first_name}`,
+    dodId: customer.dodID,
+    phone: `+1 ${customer.phone}`,
+    email: customer.email,
+    currentAddress: customer.current_address,
+    backupContact: customer.backup_contact,
+  };
+
+  const allowancesInfo = {
+    branch: customer.agency,
+    rank: order.grade,
+    weightAllowance: allowances.totalWeight,
+    authorizedWeight: allowances.authorizedWeight,
+    progear: allowances.proGearWeight,
+    spouseProgear: allowances.proGearWeightSpouse,
+    storageInTransit: allowances.storageInTransit,
+    dependents: allowances.dependentsAuthorized,
+    requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
+    organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
+  };
 
   // use mutation calls
   const [mutateMoveStatus] = useMutation(updateMoveStatusServiceCounselingCompleted, {
@@ -50,7 +75,7 @@ const ServicesCounselingMoveDetails = () => {
           className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}
           data-testid="sc-move-details"
         >
-          <Grid row>
+          <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
                 <Alert slim type={alertType}>
@@ -58,7 +83,7 @@ const ServicesCounselingMoveDetails = () => {
                 </Alert>
               </Grid>
             )}
-            <Grid col={6}>
+            <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
@@ -75,8 +100,26 @@ const ServicesCounselingMoveDetails = () => {
               )}
             </Grid>
           </Grid>
-
-          {/* additional work here */}
+          <div className={styles.section} id="allowances">
+            <GridContainer>
+              <Grid row gap>
+                <Grid col>
+                  <AllowancesTable info={allowancesInfo} />
+                </Grid>
+              </Grid>
+            </GridContainer>
+          </div>
+          <div className={styles.section} id="customer-info">
+            <DetailsTable
+              title="Customer info"
+              editable
+              editTitle="Edit customer info"
+              editTestLabel="edit-customer-info"
+              editLinkLocation="#"
+            >
+              <CustomerInfo customerInfo={customerInfo} />
+            </DetailsTable>
+          </div>
         </GridContainer>
       </div>
     </div>

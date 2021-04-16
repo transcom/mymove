@@ -21,7 +21,7 @@ function formatDestinationAddress(address) {
 function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
-      <h3 data-testid="office-shipment-heading-h3">{shipmentInfo.shipmentType}</h3>
+      <h2 data-testid="office-shipment-heading-h2">{shipmentInfo.shipmentType}</h2>
       <div className={styles.row}>
         <small>
           {`${shipmentInfo.originCity}, ${shipmentInfo.originState} ${shipmentInfo.originPostalCode} to

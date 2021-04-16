@@ -136,7 +136,7 @@ const RequestedShipments = ({
           </div>
 
           <form onSubmit={formik.handleSubmit}>
-            <h4>Requested shipments</h4>
+            <h2>Requested shipments</h2>
             <div className={styles.shipmentCards}>
               {mtoShipments &&
                 mtoShipments.map((shipment) => (
@@ -160,7 +160,7 @@ const RequestedShipments = ({
             <div className={styles.serviceItems}>
               {!moveTaskOrder.availableToPrimeAt && (
                 <>
-                  <h4>Add service items to this move</h4>
+                  <h2>Add service items to this move</h2>
                   <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
                     <Checkbox
                       id="shipmentManagementFee"
@@ -193,7 +193,7 @@ const RequestedShipments = ({
 
       {shipmentsStatus === 'APPROVED' && (
         <>
-          <h4>Approved Shipments</h4>
+          <h2>Approved shipments</h2>
           <div className={styles.shipmentCards}>
             {mtoShipments &&
               mtoShipments.map((shipment) => (
@@ -216,7 +216,7 @@ const RequestedShipments = ({
 
       {shipmentsStatus === 'APPROVED' && (
         <div className={styles.serviceItems}>
-          <h4>Service Items</h4>
+          <h3>Service items</h3>
 
           <table className="table--stacked">
             <colgroup>

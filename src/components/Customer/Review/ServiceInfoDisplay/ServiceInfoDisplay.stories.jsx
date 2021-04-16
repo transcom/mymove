@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
-import ServiceInfoTable from '.';
+import ServiceInfoDisplay from './ServiceInfoDisplay';
 
 const defaultProps = {
   firstName: 'Jason',
@@ -11,14 +11,21 @@ const defaultProps = {
   edipi: '9999999999',
   currentDutyStationName: 'Buckley AFB',
   currentDutyStationPhone: '555-555-5555',
+  editURL: '/',
 };
 
 export default {
-  title: 'Customer Components / ServiceInfoTable',
+  title: 'Customer Components / ServiceInfoDisplay',
 };
 
-export const Basic = () => (
+export const Editable = () => (
   <div style={{ padding: 40 }}>
-    <ServiceInfoTable {...defaultProps} />
+    <ServiceInfoDisplay {...defaultProps} />
+  </div>
+);
+
+export const NonEditable = () => (
+  <div style={{ padding: 40 }}>
+    <ServiceInfoDisplay {...defaultProps} isEditable={false} />
   </div>
 );
