@@ -569,6 +569,9 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		fetcher := NewPaymentRequestFetcher(suite.DB())
 		paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
 		suite.Nil(paymentRequest.SentToGexAt)
+		// TODO: bug, when GEX is the reason for the failure or even SFTP we shouldn't
+		// TODO: mark the EDI status as failed, it should be marked as REVIEWED so that it can be retried.
+		// TODO: created bug to fix this https://dp3.atlassian.net/browse/MB-7736
 		suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
 
 		var ediProcessing models.EDIProcessing
@@ -616,7 +619,9 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		fetcher := NewPaymentRequestFetcher(suite.DB())
 		paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
 		suite.Nil(paymentRequest.SentToGexAt)
-		// Failed send should not change payment request status
+		// TODO: bug, when GEX is the reason for the failure or even SFTP we shouldn't
+		// TODO: mark the EDI status as failed, it should be marked as REVIEWED so that it can be retried.
+		// TODO: created bug to fix this https://dp3.atlassian.net/browse/MB-7736
 		suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
 
 		var ediProcessing models.EDIProcessing
