@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/benbjohnson/clock"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -181,7 +182,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.NoError(err, "Get count of EDIProcessing")
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
@@ -226,7 +227,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		})
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
@@ -276,7 +277,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		})
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
 
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
@@ -331,6 +332,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		// ediinvoice.Invoice858C, error
 		ediGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
+		ediGenerator.On("InitDB", mock.IsType(&pop.Connection{}))
 		ediGenerator.
 			On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
 
@@ -387,7 +389,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		prs := suite.createPaymentRequest(4)
 
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
 		var gexSender services.GexSender
@@ -438,7 +440,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		prs := suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
@@ -489,7 +491,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		_ = suite.createPaymentRequest(numPrs)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
 		var gexSender services.GexSender
 		gexSender = nil
 		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
@@ -531,7 +533,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		prs := suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
 		var sftpSender services.SyncadaSFTPSender
 		sftpSender = nil
 		var gexSender services.GexSender
@@ -570,7 +572,7 @@ func (suite *PaymentRequestServiceSuite) lockPR(prID uuid.UUID) {
 	query := `
 		BEGIN;
 		SELECT * FROM payment_requests
-		WHERE id = $1 FOR UPDATE SKIP LOCKED;
+		WHERE id = $1 FOR NO KEY UPDATE SKIP LOCKED;
 		UPDATE payment_requests
 		SET
 			status = $2,
@@ -592,7 +594,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest
 	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
 
 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
 	SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 	suite.NoError(SFTPSessionError)
 	var gexSender services.GexSender

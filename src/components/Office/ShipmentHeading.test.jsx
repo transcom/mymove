@@ -28,7 +28,7 @@ const headingInfo = {
 describe('Shipment Heading with full destination address', () => {
   it('should render the data passed to it within the heading', () => {
     const wrapper = shallow(<ShipmentHeading shipmentInfo={headingInfo} handleUpdateMTOShipmentStatus={jest.fn()} />);
-    expect(wrapper.find('h3').text()).toEqual('Household Goods');
+    expect(wrapper.find('h2').text()).toEqual('Household Goods');
     expect(wrapper.find('small').text()).toContain('San Antonio, TX 98421');
     expect(wrapper.find('small').text()).toContain('Tacoma, WA 98421');
     expect(wrapper.find('small').text()).toContain('27 Mar 2020');
@@ -39,7 +39,7 @@ describe('Shipment Heading with missing destination address', () => {
   it("only renders the postal_code of the order's new duty station", () => {
     headingInfo.destinationAddress = shipmentDestinationAddressWithPostalOnly;
     const wrapper = shallow(<ShipmentHeading shipmentInfo={headingInfo} handleUpdateMTOShipmentStatus={jest.fn()} />);
-    expect(wrapper.find('h3').text()).toEqual('Household Goods');
+    expect(wrapper.find('h2').text()).toEqual('Household Goods');
     expect(wrapper.find('small').text()).toContain('San Antonio, TX 98421');
     expect(wrapper.find('small').text()).toContain('98421');
     expect(wrapper.find('small').text()).toContain('27 Mar 2020');
