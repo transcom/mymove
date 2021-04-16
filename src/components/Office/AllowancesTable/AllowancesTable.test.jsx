@@ -30,6 +30,12 @@ describe('Allowances Table', () => {
     expect(wrapper.find({ 'data-testid': 'ocie' }).text()).toMatch('Authorized');
   });
 
+  it('renders the OCIE as unauthorized passed to its props', () => {
+    const testInfo = { ...info, organizationalClothingAndIndividualEquipment: false };
+    const wrapper = shallow(<AllowancesTable info={testInfo} />);
+    expect(wrapper.find({ 'data-testid': 'ocie' }).text()).toMatch('Unauthorized');
+  });
+
   it('should be able to show edit btn', () => {
     const wrapper = shallow(<AllowancesTable info={info} showEditBtn />);
     expect(wrapper.find('Link').text()).toMatch('Edit Allowances');
