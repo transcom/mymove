@@ -5,6 +5,7 @@ import PaymentRequestDetails from './PaymentRequestDetails';
 
 import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
+import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 
 const basicServiceItems = [
   {
@@ -165,7 +166,11 @@ describe('PaymentRequestDetails', () => {
   describe('When given basic service items', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestDetails serviceItems={basicServiceItems} shipmentAddress={shipmentAddressBasic} />
+        <PaymentRequestDetails
+          serviceItems={basicServiceItems}
+          shipmentAddress={shipmentAddressBasic}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
+        />
       </MockProviders>,
     );
 
@@ -203,7 +208,10 @@ describe('PaymentRequestDetails', () => {
   describe('When given a single basic service item', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestDetails serviceItems={oneBasicServiceItem} />
+        <PaymentRequestDetails
+          serviceItems={oneBasicServiceItem}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+        />
       </MockProviders>,
     );
 
@@ -219,7 +227,11 @@ describe('PaymentRequestDetails', () => {
   describe('When given a hhg shipment service items', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestDetails serviceItems={hhgServiceItems} shipmentAddress={shipmentAddressHHG} />
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipmentAddress={shipmentAddressHHG}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+        />
       </MockProviders>,
     );
 
@@ -268,7 +280,11 @@ describe('PaymentRequestDetails', () => {
   describe('When given a ntsr shipment service items', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestDetails serviceItems={ntsrServiceItems} shipmentAddress={shipmentAddressNTS} />
+        <PaymentRequestDetails
+          serviceItems={ntsrServiceItems}
+          shipmentAddress={shipmentAddressNTS}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+        />
       </MockProviders>,
     );
 
@@ -308,6 +324,36 @@ describe('PaymentRequestDetails', () => {
       expect(serviceItemStatuses.at(2).text().includes('Accepted')).toBeTruthy();
       expect(serviceItemStatuses.at(3).text().includes('Accepted')).toBeTruthy();
       expect(serviceItemStatuses.at(4).text().includes('Rejected')).toBeTruthy();
+    });
+  });
+
+  describe('When a payment request is in the pending status', () => {
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipmentAddress={shipmentAddressHHG}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+        />
+      </MockProviders>,
+    );
+    it('disables expanding the service item pricer calculations', () => {
+      expect(wrapper.find('ExpandableServiceItemRow').at(0).prop('disableExpansion')).toBe(true);
+    });
+  });
+
+  describe('When a payment request is in a reviewed status', () => {
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipmentAddress={shipmentAddressHHG}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
+        />
+      </MockProviders>,
+    );
+    it('disables expanding the service item pricer calculations', () => {
+      expect(wrapper.find('ExpandableServiceItemRow').at(0).prop('disableExpansion')).toBe(false);
     });
   });
 });

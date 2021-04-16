@@ -106,11 +106,11 @@ const ReviewServiceItems = ({
 
   // Similar to component lifecycle methods
   useEffect(() => {
-    if (currentCard) {
+    if (!disableScrollIntoView && currentCard && isBasicServiceItem) {
       const { id } = sortedCards[parseInt(curCardIndex, 10)];
       const element = document.querySelector(`#card-${id}`);
       // scroll into element view
-      if (element && !disableScrollIntoView) {
+      if (element) {
         element.scrollIntoView();
       }
     }

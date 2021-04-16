@@ -599,7 +599,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			ID:                     *handlers.FmtUUID(move.Orders.ID),
 			Locator:                move.Locator,
 			SubmittedAt:            handlers.FmtDateTimePtr(move.SubmittedAt),
-			RequestedMoveDate:      handlers.FmtDateTimePtr(earliestRequestedPickup),
+			RequestedMoveDate:      handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator:    &deptIndicator,
 			ShipmentsCount:         int64(len(validMTOShipments)),
 			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
