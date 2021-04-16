@@ -1782,7 +1782,10 @@ definitions:
       - WeightEstimated
       - ZipDestAddress
       - ZipPickupAddress
+      - ZipSITAddress
       - ZipSITDestHHGFinalAddress
+      - ZipSITOriginHHGOriginalAddress
+      - ZipSITOriginHHGActualAddress
   ServiceItemParamOrigin:
     type: string
     enum:
