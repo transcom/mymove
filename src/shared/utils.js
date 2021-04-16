@@ -3,7 +3,6 @@ import { get, includes, find, mapValues, capitalize } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { formatDateForSwagger } from './dates';
-import './shared.css';
 
 export const no_op = () => undefined;
 export const no_op_action = () => {

@@ -15,6 +15,8 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,9 +25,12 @@ func TestSplitStatementsCopyFromStdin(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdin.sql"
 	f, err := os.Open(fixture)
-	defer f.Close()
+	defer func() {
+		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
+			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+		}
+	}()
 	require.Nil(t, err)
-
 	lines := make(chan string, 1000)
 	dropComments := true
 	dropSearchPath := true
@@ -69,8 +74,11 @@ func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdinMultiple.sql"
 	f, err := os.Open(fixture)
-
-	defer f.Close() //lint:ignore SA5001
+	defer func() {
+		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
+			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+		}
+	}()
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)
@@ -114,8 +122,12 @@ func TestSplitStatementsLoop(t *testing.T) {
 	fixture := "./fixtures/loop.sql"
 	f, err := os.Open(fixture)
 
-	// TODO
-	defer f.Close() // #nosec G307
+	defer func() {
+		// TODO
+		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil { // #nosec G307
+			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+		}
+	}()
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)

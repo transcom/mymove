@@ -54,9 +54,10 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	moveStatusQuery := moveStatusFilter(params.Status)
+	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [8]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
+	options := [9]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, requestedMoveDateQuery, gblocQuery, sortOrderQuery}
 
 	query := f.db.Q().EagerPreload(
 		"Orders.ServiceMember",
@@ -237,6 +238,14 @@ func moveStatusFilter(statuses []string) QueryOption {
 	}
 }
 
+func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
+	return func(query *pop.Query) {
+		if requestedMoveDate != nil {
+			query.Where("mto_shipments.requested_pickup_date = ?", *requestedMoveDate)
+		}
+	}
+}
+
 func gblocFilter(gbloc string) QueryOption {
 	return func(query *pop.Query) {
 		query.Where("origin_to.gbloc = ?", gbloc)
@@ -252,13 +261,14 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"status":                 "moves.status",
 		"submittedAt":            "moves.submitted_at",
 		"destinationDutyStation": "dest_ds.name",
+		"requestedMoveDate":      "min(mto_shipments.requested_pickup_date)",
 	}
 
 	return func(query *pop.Query) {
 		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
 		if sort != nil && order != nil {
 			if sortTerm, ok := parameters[*sort]; ok {
-				if sortTerm == "lastName" {
+				if *sort == "lastName" {
 					query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 				} else {
 					query.Order(fmt.Sprintf("%s %s", sortTerm, *order))

@@ -3,6 +3,7 @@ package ghcrateengine
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -17,19 +18,21 @@ import (
 // DomesticShorthaulPricer is a service object to price domestic shorthaul
 type domesticShorthaulPricer struct {
 	db *pop.Connection
-	//logger       Logger
 }
 
 // NewDomesticShorthaulPricer is the public constructor for a DomesticRateAreaPricer using Pop
 func NewDomesticShorthaulPricer(db *pop.Connection) services.DomesticShorthaulPricer {
 	return &domesticShorthaulPricer{
 		db: db,
-		//logger:       logger,
 	}
 }
 
 // Price determines the price for a counseling service
-func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (totalCost unit.Cents, params services.PricingDisplayParams, err error) {
+func (p domesticShorthaulPricer) Price(contractCode string,
+	requestedPickupDate time.Time,
+	distance unit.Miles,
+	weight unit.Pound,
+	serviceArea string) (totalCost unit.Cents, params services.PricingDisplayParams, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -64,24 +67,25 @@ func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate 
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
 	totalCost = unit.Cents(math.Round(escalatedPrice))
 
-	// To be fixed under this story: https://dp3.atlassian.net/browse/MB-2352
-	// unable to get logger to pass in for instantiation at the pkg/handler/primeapi/api.go
-	//p.logger.Info(fmt.Sprintf("%s calculated", shorthaulServiceCode), // May change to use ServiceName
-	//zap.String("contractCode:", contractCode),
-	//zap.String("serviceCode:", shorthaulServiceCode),
-	//zap.Time("requestedPickupDate:", requestedPickupDate),
-	//zap.String("serviceArea:", serviceArea),
-	//zap.Int("distance (mi):", distance.Int()),
-	//zap.Int("weight (lb):", weight.Int()),
-	//zap.Int("effectiveWeight (lb):", effectiveWeight.Int()),
-	//zap.Bool("isPeakPeriod: ", isPeakPeriod),
-	//zap.Int("Dom. Service Area PriceCents: ", domServiceAreaPrice.PriceCents),
-	//zap.Int("Contract Year Escalation: ", contractYear.EscalationCompounded),
-	//zap.Float64("baseCost (cents):", basePrice),
-	//zap.Float64("escalatedCost (cents):", escalatedPrice),
-	//zap.Int("totalCost (cents):", totalCost.Int()),
-	//)
-	return totalCost, nil, nil
+	var pricingRateEngineParams = services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(domServiceAreaPrice.PriceCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: strconv.FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+	return totalCost, pricingRateEngineParams, nil
 }
 
 func (p domesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {

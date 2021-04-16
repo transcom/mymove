@@ -1,7 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import ServiceInfoDisplay from './ServiceInfoDisplay';
+
+import { renderWithRouter } from 'testUtils';
 
 describe('ServiceInfoDisplay component', () => {
   const testProps = {
@@ -15,7 +17,7 @@ describe('ServiceInfoDisplay component', () => {
   };
 
   it('renders the data', async () => {
-    render(<ServiceInfoDisplay {...testProps} />);
+    renderWithRouter(<ServiceInfoDisplay {...testProps} />);
 
     const mainHeader = await screen.findByRole('heading', { name: 'Service info', level: 2 });
 
@@ -39,7 +41,7 @@ describe('ServiceInfoDisplay component', () => {
 
     expect(rank.nextElementSibling.textContent).toBe(testProps.rank);
 
-    const dodId = screen.getByText('DOD ID#');
+    const dodId = screen.getByText('DoD ID#');
 
     expect(dodId).toBeInTheDocument();
 
@@ -57,7 +59,7 @@ describe('ServiceInfoDisplay component', () => {
   });
 
   it('renders who to contact when the service info is no longer editable', async () => {
-    render(<ServiceInfoDisplay {...testProps} isEditable={false} />);
+    renderWithRouter(<ServiceInfoDisplay {...testProps} isEditable={false} />);
 
     expect(screen.queryByText('Edit')).toBeNull();
 

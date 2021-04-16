@@ -26,6 +26,8 @@ const (
 	RoleTypeContractingOfficer RoleType = "contracting_officer"
 	// RoleTypePPMOfficeUsers is the PPM Office User Role
 	RoleTypePPMOfficeUsers RoleType = "ppm_office_users"
+	// RoleTypeServicesCounselor is the Services Counselor Role
+	RoleTypeServicesCounselor RoleType = "services_counselor"
 )
 
 // Role represents a Role for users
