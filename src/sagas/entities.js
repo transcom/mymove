@@ -19,10 +19,6 @@ export function* updateServiceMember(action) {
 
   const normalizedData = yield call(normalizeResponse, payload, 'serviceMember');
   yield put(addEntities(normalizedData));
-  yield put({
-    type: 'UPDATE_SERVICE_MEMBER_SUCCESS',
-    payload,
-  });
 }
 
 export function* updateBackupContact(action) {
@@ -30,10 +26,6 @@ export function* updateBackupContact(action) {
 
   const normalizedData = yield call(normalizeResponse, payload, 'backupContact');
   yield put(addEntities(normalizedData));
-  yield put({
-    type: 'UPDATE_BACKUP_CONTACT_SUCCESS',
-    payload,
-  });
 }
 
 export function* updateOrders(action) {
@@ -47,10 +39,6 @@ export function* updateMove(action) {
 
   const normalizedData = yield call(normalizeResponse, payload, 'move');
   yield put(addEntities(normalizedData));
-  yield put({
-    type: 'CREATE_OR_UPDATE_MOVE_SUCCESS',
-    payload,
-  });
 }
 
 export function* updateMTOShipment(action) {
@@ -69,10 +57,6 @@ export function* updatePPM(action) {
   const { payload } = action;
   const normalizedData = yield call(normalizeResponse, payload, 'personallyProcuredMove');
   yield put(addEntities(normalizedData));
-  yield put({
-    type: 'CREATE_OR_UPDATE_PPM_SUCCESS',
-    payload,
-  });
 }
 
 export function* updatePPMEstimate(action) {

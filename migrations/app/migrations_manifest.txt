@@ -623,3 +623,4 @@
 20210405224456_add_service_counseling_completed_at_to_moves.up.sql
 20210409170358_make_icn_column_nullable.up.sql
 20210414170143_add_FSC_service_item_param_keys.up.sql
+20210414214012_add_index_to_requested_pickup_date_on_mto_shipments_table.up.sql
