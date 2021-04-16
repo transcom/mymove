@@ -29,7 +29,7 @@
       dd {
         @include u-width(67%);
       }
+      @include u-margin-bottom(0);
     }
-    @include u-margin-bottom(0);
   }
 }
