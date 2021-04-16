@@ -3,6 +3,20 @@ import React from 'react';
 
 import ServiceInfoDisplay from './ServiceInfoDisplay';
 
+import { MockProviders } from 'testUtils';
+
+export default {
+  title: 'Customer Components / ServiceInfoDisplay',
+  component: ServiceInfoDisplay,
+  decorators: [
+    (Story) => (
+      <MockProviders>
+        <Story />
+      </MockProviders>
+    ),
+  ],
+};
+
 const defaultProps = {
   firstName: 'Jason',
   lastName: 'Ash',
@@ -12,10 +26,6 @@ const defaultProps = {
   currentDutyStationName: 'Buckley AFB',
   currentDutyStationPhone: '555-555-5555',
   editURL: '/',
-};
-
-export default {
-  title: 'Customer Components / ServiceInfoDisplay',
 };
 
 export const Editable = () => (
