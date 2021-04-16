@@ -29,7 +29,7 @@ const (
 var dddsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.December, 10, 10, 22, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricerSameZip3s() {
-	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestEscalationCompounded)
+	suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
 
 	zipDest := "30907"
 	zipSITDest := "30901" // same zip3
@@ -115,7 +115,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 }
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer50MilesOrLessDiffZip3s() {
-	suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestEscalationCompounded)
+	suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, "Test Year 1", dddsitTestEscalationCompounded)
 
 	zipDest := "30907"
 	zipSITDest := "29801"      // different zip3

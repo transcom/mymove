@@ -14,6 +14,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
+
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -75,102 +80,120 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
-
-	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	request = suite.AuthenticateUserRequest(request, requestUser)
-
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			ID:   uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"),
 			Code: "MS",
 		},
 	})
 
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			ID:   uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
 			Code: "CS",
 		},
 	})
 
-	serviceItemCodes := ghcmessages.MTOApprovalServiceItemCodes{
-		ServiceCodeMS: true,
-		ServiceCodeCS: true,
+	validStatuses := []struct {
+		desc   string
+		status models.MoveStatus
+	}{
+		{"Submitted", models.MoveStatusSUBMITTED},
+		{"Service Counseling Completed", models.MoveStatusServiceCounselingCompleted},
 	}
-	params := move_task_order.UpdateMoveTaskOrderStatusParams{
-		HTTPRequest:      request,
-		MoveTaskOrderID:  moveTaskOrder.ID.String(),
-		IfMatch:          etag.GenerateEtag(moveTaskOrder.UpdatedAt),
-		ServiceItemCodes: &serviceItemCodes,
-	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	for _, validStatus := range validStatuses {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: validStatus.status}})
 
-	// setup the handler
-	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
-	}
-	traceID, err := uuid.NewV4()
-	suite.FatalNoError(err, "Error creating a new trace ID.")
-	handler.SetTraceID(traceID)
+		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveID}/status", nil)
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		request = suite.AuthenticateUserRequest(request, requestUser)
 
-	// make the request
-	response := handler.Handle(params)
+		serviceItemCodes := ghcmessages.MTOApprovalServiceItemCodes{
+			ServiceCodeMS: true,
+			ServiceCodeCS: true,
+		}
+		params := move_task_order.UpdateMoveTaskOrderStatusParams{
+			HTTPRequest:      request,
+			MoveTaskOrderID:  move.ID.String(),
+			IfMatch:          etag.GenerateEtag(move.UpdatedAt),
+			ServiceItemCodes: &serviceItemCodes,
+		}
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
 
-	suite.IsNotErrResponse(response)
-	moveTaskOrdersResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
-	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+		// setup the handler
+		handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
+			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		}
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		handler.SetTraceID(traceID)
 
-	updatedMove := models.Move{}
-	suite.DB().Find(&updatedMove, moveTaskOrdersPayload.ID)
-	suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
+		// make the request
+		response := handler.Handle(params)
 
-	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
-	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
-	suite.HasWebhookNotification(moveTaskOrder.ID, traceID) // this action always creates a notification for the Prime
+		suite.IsNotErrResponse(response)
+		moveResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
+		movePayload := moveResponse.Payload
 
-	// also check MTO level service items are properly created
-	var serviceItems models.MTOServiceItems
-	suite.DB().Eager("ReService").Where("move_id = ?", moveTaskOrder.ID).All(&serviceItems)
-	suite.Len(serviceItems, 2, "Expected to find at most 2 service items")
+		updatedMove := models.Move{}
+		suite.DB().Find(&updatedMove, movePayload.ID)
+		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
 
-	containsServiceCode := func(items models.MTOServiceItems, target models.ReServiceCode) bool {
-		for _, si := range items {
-			if si.ReService.Code == target {
-				return true
+		suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
+		suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
+		suite.NotNil(movePayload.AvailableToPrimeAt)
+		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
+
+		// also check MTO level service items are properly created
+		var serviceItems models.MTOServiceItems
+		suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
+		suite.Len(serviceItems, 2, "Expected to find at most 2 service items")
+
+		containsServiceCode := func(items models.MTOServiceItems, target models.ReServiceCode) bool {
+			for _, si := range items {
+				if si.ReService.Code == target {
+					return true
+				}
 			}
+
+			return false
 		}
 
-		return false
+		suite.True(containsServiceCode(serviceItems, models.ReServiceCodeMS), "Expected to find reServiceCode, MS, in array.")
+		suite.True(containsServiceCode(serviceItems, models.ReServiceCodeCS), "Expected to find reServiceCode, CS, in array.")
 	}
-
-	suite.True(containsServiceCode(serviceItems, models.ReServiceCodeMS), "Expected to find reServiceCode, MS, in array.")
-	suite.True(containsServiceCode(serviceItems, models.ReServiceCodeCS), "Expected to find reServiceCode, CS, in array.")
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEtag() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Stub: true,
+		Move: models.Move{
+			Status: models.MoveStatusSUBMITTED,
+		},
+	})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
-		MoveTaskOrderID: moveTaskOrder.ID.String(),
+		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(time.Now()),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+
+	// Stale ETags are already unit tested in the move_task_order_updater_test,
+	// so we can mock this here to speed up the test and avoid hitting the DB
+	moveUpdater := &mocks.MoveTaskOrderUpdater{}
+	moveUpdater.On("MakeAvailableToPrime",
+		mock.Anything,
+		mock.Anything,
+		false,
+		false,
+	).Return(nil, services.PreconditionFailedError{})
 
 	// make the request
-	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
-	}
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, moveUpdater}
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)
 }

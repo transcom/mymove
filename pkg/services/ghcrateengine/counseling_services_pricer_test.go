@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -21,9 +22,15 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	counselingServicesPricer := NewCounselingServicesPricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
+
+		// Check that PricingDisplayParams have been set and are returned
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(csPriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
