@@ -192,7 +192,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 
 	// TODO I don't know why we need a separate logger for cert stuff
-	certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	certLogger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
 		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
 	}
@@ -203,11 +203,11 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
 
 	gexSender := invoice.NewGexSenderHTTP(
-		v.GetString("gex-url"),
+		gexURL,
 		true,
 		tlsConfig,
-		v.GetString("gex-basic-auth-username"),
-		v.GetString("gex-basic-auth-password"))
+		v.GetString(cli.GEXBasicAuthUsernameFlag),
+		v.GetString(cli.GEXBasicAuthPasswordFlag))
 
 	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer, gexSender)
 	if err != nil {
