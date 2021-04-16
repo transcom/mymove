@@ -2174,10 +2174,9 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITAddress",
         "ZipSITDestHHGFinalAddress",
-        "ZipSITOriginHHGOriginalAddress",
-        "ZipSITOriginHHGActualAddress"
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -4745,10 +4744,9 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITAddress",
         "ZipSITDestHHGFinalAddress",
-        "ZipSITOriginHHGOriginalAddress",
-        "ZipSITOriginHHGActualAddress"
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {

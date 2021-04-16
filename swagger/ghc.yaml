@@ -2362,10 +2362,9 @@ definitions:
       - WeightEstimated
       - ZipDestAddress
       - ZipPickupAddress
-      - ZipSITAddress
       - ZipSITDestHHGFinalAddress
-      - ZipSITOriginHHGOriginalAddress
       - ZipSITOriginHHGActualAddress
+      - ZipSITOriginHHGOriginalAddress
   ServiceItemParamOrigin:
     type: string
     enum:
