@@ -59,14 +59,6 @@ const AllowancesTable = ({ showEditBtn, info }) => {
             <td data-testid="authorizedWeight">{formatWeight(info.authorizedWeight)}</td>
           </tr>
           <tr>
-            <th scope="row">Pro-gear</th>
-            <td data-testid="progear">{formatWeight(info.progear)}</td>
-          </tr>
-          <tr>
-            <th scope="row">Spouse pro-gear</th>
-            <td data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</td>
-          </tr>
-          <tr>
             <th scope="row">Storage in transit</th>
             <td data-testid="storageInTransit">
               {info.storageInTransit ? formatDaysInTransit(info.storageInTransit) : ''}
@@ -75,6 +67,24 @@ const AllowancesTable = ({ showEditBtn, info }) => {
           <tr>
             <th scope="row">Dependents</th>
             <td data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</td>
+          </tr>
+          <tr>
+            <th scope="row">Pro-gear</th>
+            <td data-testid="progear">{formatWeight(info.progear)}</td>
+          </tr>
+          <tr>
+            <th scope="row">Spouse pro-gear</th>
+            <td data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</td>
+          </tr>
+          <tr>
+            <th scope="row">RME</th>
+            <td data-testid="rme">{formatWeight(info.requiredMedicalEquipmentWeight)}</td>
+          </tr>
+          <tr>
+            <th scope="row">OCIE</th>
+            <td data-testid="ocie">
+              {info.organizationalClothingAndIndividualEquipment ? 'Authorized' : 'Unauthorized'}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -93,6 +103,8 @@ AllowancesTable.propTypes = {
     spouseProgear: PropTypes.number,
     storageInTransit: PropTypes.number,
     dependents: PropTypes.bool,
+    requiredMedicalEquipmentWeight: PropTypes.number,
+    organizationalClothingAndIndividualEquipment: PropTypes.bool,
   }).isRequired,
 };
 

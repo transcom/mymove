@@ -14,6 +14,8 @@ const info = {
   spouseProgear: 500,
   storageInTransit: 90,
   dependents: true,
+  requiredMedicalEquipmentWeight: 1000,
+  organizationalClothingAndIndividualEquipment: true,
 };
 
 export default {
