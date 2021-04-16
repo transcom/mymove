@@ -26,6 +26,8 @@ type ListOrderParams struct {
 	DodID                  *string
 	LastName               *string
 	DestinationDutyStation *string
+	SubmittedAt            *string
+	RequestedMoveDate      *string
 	Status                 []string
 	Page                   *int64
 	PerPage                *int64

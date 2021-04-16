@@ -185,7 +185,7 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	displayParams := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(totalPriceCents),
+			Value: FormatCents(domOtherPrice.PriceCents),
 		},
 		{
 			Key:   models.ServiceItemParamNameContractYearName,

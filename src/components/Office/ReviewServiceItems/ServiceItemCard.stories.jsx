@@ -1,5 +1,7 @@
 import React from 'react';
 
+import testParams from '../ServiceItemCalculations/serviceItemTestParams';
+
 import ServiceItemCard from './ServiceItemCard';
 
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
@@ -8,39 +10,100 @@ import { serviceItemCodes } from 'content/serviceItems';
 export default {
   title: 'Office Components/ReviewServiceItems/ServiceItemCards',
   component: ServiceItemCard,
+  argTypes: {
+    patchPaymentServiceItem: {
+      action: 'update status',
+    },
+  },
 };
 
-export const Basic = () => <ServiceItemCard mtoServiceItemName={serviceItemCodes.CS} amount={999.99} />;
-
-export const HHG = () => (
-  <ServiceItemCard mtoShipmentType={SHIPMENT_OPTIONS.HHG} mtoServiceItemName={serviceItemCodes.CS} amount={999.99} />
-);
-
-export const NTS = () => (
-  <ServiceItemCard mtoShipmentType={SHIPMENT_OPTIONS.NTS} mtoServiceItemName={serviceItemCodes.CS} amount={999.99} />
-);
-
-export const HHGLonghaulDomestic = () => (
+export const Basic = (args) => (
   <ServiceItemCard
-    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
     mtoServiceItemName={serviceItemCodes.CS}
     amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
   />
 );
 
-export const HHGShorthaulDomestic = () => (
+export const HHG = (args) => (
+  <ServiceItemCard
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
+    mtoServiceItemCode="FSC"
+    mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
+    amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
+  />
+);
+
+export const NTS = (args) => (
+  <ServiceItemCard
+    mtoShipmentType={SHIPMENT_OPTIONS.NTS}
+    mtoServiceItemCode="FSC"
+    mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
+    amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
+  />
+);
+
+export const NTSR = (args) => (
+  <ServiceItemCard
+    mtoShipmentType={SHIPMENT_OPTIONS.NTSR}
+    mtoServiceItemCode="FSC"
+    mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
+    amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
+  />
+);
+
+export const HHGLonghaulDomestic = (args) => (
+  <ServiceItemCard
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoServiceItemCode="FSC"
+    mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
+    amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
+  />
+);
+
+export const HHGShorthaulDomestic = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC}
-    mtoServiceItemName={serviceItemCodes.CS}
+    mtoServiceItemCode="FSC"
+    mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
     amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
+  />
+);
+
+export const NeedsReviewRequestCalculations = (args) => (
+  <ServiceItemCard
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoServiceItemCode="FSC"
+    mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
+    amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
   />
 );
 
 export const AcceptedRequestComplete = () => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
-    mtoServiceItemName={serviceItemCodes.CS}
+    mtoServiceItemCode="FSC"
+    mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.APPROVED}
+    paymentServiceItemParams={testParams.FuelSurchage}
     amount={999.99}
     requestComplete
   />
@@ -49,8 +112,10 @@ export const AcceptedRequestComplete = () => (
 export const RejectedRequestComplete = () => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
-    mtoServiceItemName={serviceItemCodes.CS}
+    mtoServiceItemCode="FSC"
+    mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.DENIED}
+    paymentServiceItemParams={testParams.FuelSurchage}
     rejectionReason="Services were provided by the government"
     amount={999.99}
     requestComplete

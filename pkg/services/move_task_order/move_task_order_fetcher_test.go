@@ -62,10 +62,10 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 		suite.NotZero(expectedMTO.ID, actualMTO.ID)
 		suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
 		suite.NotZero(actualMTO.Orders)
-		suite.NotNil(expectedMTO.Locator)
-		suite.NotNil(expectedMTO.ReferenceID)
-		suite.Nil(expectedMTO.AvailableToPrimeAt)
-		suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
+		suite.NotNil(actualMTO.Locator)
+		suite.NotNil(actualMTO.ReferenceID)
+		suite.Nil(actualMTO.AvailableToPrimeAt)
+		suite.NotEqual(actualMTO.Status, models.MoveStatusCANCELED)
 	})
 
 	suite.T().Run("include hidden move task orders", func(t *testing.T) {
@@ -124,6 +124,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)
 		suite.NoError(err)
 
+		move := moveTaskOrders[0]
+
 		// The hidden move be in this output list since we weren't excluding hidden MTOs:
 		found := false
 		for _, move := range moveTaskOrders {
@@ -134,6 +136,9 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		}
 		suite.True(found)
 		suite.Equal(len(moveTaskOrders), 4)
+		suite.NotNil(move.Orders)
+		suite.NotNil(move.Orders.OriginDutyStation)
+		suite.NotNil(move.Orders.NewDutyStation)
 	})
 
 	suite.T().Run("default search - excludes hidden move task orders", func(t *testing.T) {

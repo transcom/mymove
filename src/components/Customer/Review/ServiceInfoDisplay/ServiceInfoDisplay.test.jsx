@@ -41,7 +41,7 @@ describe('ServiceInfoDisplay component', () => {
 
     expect(rank.nextElementSibling.textContent).toBe(testProps.rank);
 
-    const dodId = screen.getByText('DOD ID#');
+    const dodId = screen.getByText('DoD ID#');
 
     expect(dodId).toBeInTheDocument();
 
