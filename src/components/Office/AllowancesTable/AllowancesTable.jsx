@@ -29,9 +29,7 @@ const AllowancesTable = ({ showEditBtn, info }) => {
   return (
     <div className={styles.OrdersTable}>
       <div className="stackedtable-header">
-        <div>
-          <h4>Allowances</h4>
-        </div>
+        <h2>Allowances</h2>
         {showEditBtn && (
           <div>
             <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">

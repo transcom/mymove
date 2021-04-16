@@ -71,7 +71,7 @@ describe('TOO user', () => {
     cy.url().should('include', `/moves/${moveLocator}/mto`);
     cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="ShipmentContainer"]');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] h4').contains('Approved service items (6 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] h3').contains('Approved service items (6 items)');
 
     // Navigate back to Move Details
     cy.get('[data-testid="MoveDetails-Tab"]').click();
