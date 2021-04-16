@@ -314,6 +314,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 
 		gexSender := invoice.NewGexSenderHTTP(
 			gexURL,
+			cli.GEXChannelInvoice,
 			true,
 			tlsConfig,
 			v.GetString(cli.GEXBasicAuthUsernameFlag),

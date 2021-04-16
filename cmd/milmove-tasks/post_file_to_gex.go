@@ -122,6 +122,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 
 	resp, err := invoice.NewGexSenderHTTP(
 		v.GetString(cli.GEXURLFlag),
+		cli.GEXChannelInvoice,
 		true,
 		tlsConfig,
 		v.GetString(cli.GEXBasicAuthUsernameFlag),

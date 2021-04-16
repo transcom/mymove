@@ -17,9 +17,10 @@ import (
 const gexRequestTimeout = time.Duration(30) * time.Second
 
 // NewGexSenderHTTP creates a new GexSender service object
-func NewGexSenderHTTP(url string, isTrueGexURL bool, tlsConfig *tls.Config, gexBasicAuthUsername string, gexBasicAuthPassword string) services.GexSender {
+func NewGexSenderHTTP(url string, channel string, isTrueGexURL bool, tlsConfig *tls.Config, gexBasicAuthUsername string, gexBasicAuthPassword string) services.GexSender {
 	return &gexSenderHTTP{
 		url,
+		channel,
 		isTrueGexURL,
 		tlsConfig,
 		gexBasicAuthUsername,
@@ -30,6 +31,7 @@ func NewGexSenderHTTP(url string, isTrueGexURL bool, tlsConfig *tls.Config, gexB
 // gexSenderHTTP represents a struct to contain an actual gex request function
 type gexSenderHTTP struct {
 	url                  string
+	channel              string
 	isTrueGexURL         bool
 	tlsConfig            *tls.Config
 	gexBasicAuthUsername string
@@ -63,6 +65,7 @@ func (s *gexSenderHTTP) SendToGex(edi string, filename string) (resp *http.Respo
 
 	q := request.URL.Query()
 	q.Add("fname", filename)
+	q.Add("channel", s.channel)
 	request.URL.RawQuery = q.Encode()
 
 	// We need to provide basic auth credentials for the GEX server, as well as
