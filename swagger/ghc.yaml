@@ -1722,6 +1722,13 @@ definitions:
       totalDependents:
         example: 2
         type: integer
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        example: true
+        type: boolean
       eTag:
         type: string
     type: object
@@ -2779,7 +2786,7 @@ definitions:
         type: string
         x-nullable: true
       requestedMoveDate:
-        format: date-time
+        format: date
         type: string
         x-nullable: true
       departmentIndicator:
