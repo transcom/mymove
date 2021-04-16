@@ -2129,6 +2129,8 @@ func init() {
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "EscalationCompounded",
+        "FSCMultiplier",
+        "FSCPriceDifferenceInCents",
         "FSCWeightBasedDistanceMultiplier",
         "IsPeak",
         "MarketDest",
@@ -2172,7 +2174,9 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress"
+        "ZipSITDestHHGFinalAddress",
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -4695,6 +4699,8 @@ func init() {
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
         "EscalationCompounded",
+        "FSCMultiplier",
+        "FSCPriceDifferenceInCents",
         "FSCWeightBasedDistanceMultiplier",
         "IsPeak",
         "MarketDest",
@@ -4738,7 +4744,9 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress"
+        "ZipSITDestHHGFinalAddress",
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {

@@ -382,15 +382,15 @@ describe('MoveDetails page', () => {
     });
 
     it('renders the Orders Table', () => {
-      expect(wrapper.find('#orders h4').text()).toEqual('Orders');
+      expect(wrapper.find('#orders h2').text()).toEqual('Orders');
     });
 
     it('renders the Allowances Table', () => {
-      expect(wrapper.find('#allowances h4').text()).toEqual('Allowances');
+      expect(wrapper.find('#allowances h2').text()).toEqual('Allowances');
     });
 
     it('renders the Customer Info Table', () => {
-      expect(wrapper.find('#customer-info h4').text()).toEqual('Customer info');
+      expect(wrapper.find('#customer-info h2').text()).toEqual('Customer info');
     });
 
     it('renders the requested shipments tag', () => {
