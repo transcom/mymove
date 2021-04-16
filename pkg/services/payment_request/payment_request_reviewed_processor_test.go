@@ -177,11 +177,11 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
 
 	var responseSuccess = http.Response{}
-	responseSuccess.StatusCode = 200
+	responseSuccess.StatusCode = http.StatusOK
 	responseSuccess.Status = "200 Success"
 
 	var responseFailure = http.Response{}
-	responseFailure.StatusCode = 500
+	responseFailure.StatusCode = http.StatusInternalServerError
 	responseFailure.Status = "500 Internal Server Error"
 
 	suite.T().Run("process reviewed payment request successfully (0 Payments to review)", func(t *testing.T) {
