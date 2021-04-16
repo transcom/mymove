@@ -1722,6 +1722,13 @@ definitions:
       totalDependents:
         example: 2
         type: integer
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        example: true
+        type: boolean
       eTag:
         type: string
     type: object

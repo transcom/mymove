@@ -49,6 +49,8 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.Equal((*order.EntitlementID).String(), payloadEntitlement.ID.String())
 	orderEntitlement := order.Entitlement
 	suite.NotNil(orderEntitlement)
+	suite.EqualValues(orderEntitlement.RequiredMedicalEquipmentWeight, payloadEntitlement.RequiredMedicalEquipmentWeight)
+	suite.EqualValues(orderEntitlement.OrganizationalClothingAndIndividualEquipment, payloadEntitlement.OrganizationalClothingAndIndividualEquipment)
 	suite.Equal(order.OriginDutyStation.ID.String(), ordersPayload.OriginDutyStation.ID.String())
 	suite.NotZero(order.OriginDutyStation)
 	suite.NotZero(ordersPayload.DateIssued)
