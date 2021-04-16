@@ -4,7 +4,7 @@ import { GridContainer, Grid, Button, Alert } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import classnames from 'classnames';
 
-import styles from '../TXOMoveInfo/TXOTab.module.scss';
+import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
@@ -66,7 +66,7 @@ const ServicesCounselingMoveDetails = () => {
           className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}
           data-testid="sc-move-details"
         >
-          <Grid row>
+          <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
                 <Alert slim type={alertType}>

@@ -3,6 +3,16 @@
 @import 'shared/styles/colors';
 
 .ServicesCounselingMoveDetails {
+  .pageHeader {
+    @include u-margin-bottom(4);
+
+    h1 {
+      // overriding the h1 defaults
+      @include u-margin-bottom(0);
+      line-height: 0;
+    }
+  }
+
   .alertContainer {
     @include u-margin-bottom(4);
   }
