@@ -15,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// syncadaReaderSFTPSession contains information to create a new Syncada SFTP session
+// syncadaReaderSFTPSession contains information to create a new SFTP session
 type syncadaReaderSFTPSession struct {
 	client                     services.SFTPClient
 	db                         *pop.Connection
@@ -34,7 +34,7 @@ func NewSyncadaSFTPReaderSession(client services.SFTPClient, db *pop.Connection,
 }
 
 // FetchAndProcessSyncadaFiles downloads Syncada files with SFTP, processes them using the provided processor, and deletes them from the SFTP server if they were successfully processed
-func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
+func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(pickupPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
 	// Store/log metrics about EDI processing upon exiting this method.
 	numProcessed := 0
 	start := time.Now()
@@ -56,9 +56,9 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath strin
 		}
 	}()
 
-	fileList, err := s.client.ReadDir(syncadaPath)
+	fileList, err := s.client.ReadDir(pickupPath)
 	if err != nil {
-		s.logger.Error("Error reading SFTP directory", zap.String("directory", syncadaPath))
+		s.logger.Error("Error reading SFTP directory", zap.String("directory", pickupPath))
 		return time.Time{}, err
 	}
 
@@ -82,7 +82,7 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(syncadaPath strin
 			if fileInfo.ModTime().After(mostRecentFileModTime) {
 				mostRecentFileModTime = fileInfo.ModTime()
 			}
-			filePath := sftp.Join(syncadaPath, fileInfo.Name())
+			filePath := sftp.Join(pickupPath, fileInfo.Name())
 
 			fileText, err := s.downloadFile(filePath)
 			if err != nil {
