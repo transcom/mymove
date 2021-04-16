@@ -1737,6 +1737,8 @@ definitions:
       - DistanceZipSITOrigin
       - EIAFuelPrice
       - EscalationCompounded
+      - FSCMultiplier
+      - FSCPriceDifferenceInCents
       - FSCWeightBasedDistanceMultiplier
       - IsPeak
       - MarketDest

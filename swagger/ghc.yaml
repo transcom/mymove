@@ -2315,6 +2315,8 @@ definitions:
       - DistanceZipSITDest
       - DistanceZipSITOrigin
       - EIAFuelPrice
+      - FSCMultiplier
+      - FSCPriceDifferenceInCents
       - FSCWeightBasedDistanceMultiplier
       - MarketDest
       - MarketOrigin
