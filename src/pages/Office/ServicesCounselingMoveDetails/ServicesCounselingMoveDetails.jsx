@@ -74,7 +74,7 @@ const ServicesCounselingMoveDetails = () => {
                 </Alert>
               </Grid>
             )}
-            <Grid col={6}>
+            <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
