@@ -2517,6 +2517,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": true
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -2528,6 +2532,11 @@ func init() {
           "example": 2000
         },
         "proGearWeightSpouse": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
@@ -3615,7 +3624,7 @@ func init() {
         },
         "requestedMoveDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -6938,6 +6947,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": true
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -6949,6 +6962,11 @@ func init() {
           "example": 2000
         },
         "proGearWeightSpouse": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
@@ -8036,7 +8054,7 @@ func init() {
         },
         "requestedMoveDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "shipmentsCount": {
