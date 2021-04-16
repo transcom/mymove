@@ -290,6 +290,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 		v.AutomaticEnv()
 		gexURL := v.GetString(cli.GEXURLFlag)
+		dbEnv := v.GetString(cli.DbEnvFlag)
 
 		// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 		// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
@@ -301,8 +302,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
 		}
 
-		// TODO not sure what purpose of this is
-		certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+		certLogger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 		if err != nil {
 			logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
 		}
@@ -316,8 +316,8 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			gexURL,
 			true,
 			tlsConfig,
-			v.GetString("gex-basic-auth-username"),
-			v.GetString("gex-basic-auth-password"))
+			v.GetString(cli.GEXBasicAuthUsernameFlag),
+			v.GetString(cli.GEXBasicAuthPasswordFlag))
 		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, icnSequencer, gexSender)
 		if err != nil {
 			msg := fmt.Sprintf("failed to initialize InitNewPaymentRequestReviewedProcessor")
