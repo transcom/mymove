@@ -51,7 +51,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
               affiliation={serviceMember?.affiliation || ''}
               rank={rank || ''}
               edipi={serviceMember?.edipi || ''}
-              editURL={customerRoutes.EDIT_PROFILE_PATH}
+              editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
             />
           </SectionWrapper>
         </div>
