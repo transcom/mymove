@@ -157,6 +157,23 @@ func (suite *OrderServiceSuite) TestListMoves() {
 		suite.Equal(1, len(moves))
 	})
 
+	suite.T().Run("returns moves filtered submitted at", func(t *testing.T) {
+
+		submittedAt := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &submittedAt,
+			},
+		})
+		createdSubmittedDate := submittedAt.Format(time.RFC3339Nano)
+		params := services.ListOrderParams{SubmittedAt: &createdSubmittedDate}
+
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+	})
+
 	suite.T().Run("returns moves filtered by requested pickup date", func(t *testing.T) {
 		requestedPickupDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
 		createdMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -164,7 +181,7 @@ func (suite *OrderServiceSuite) TestListMoves() {
 				RequestedPickupDate: &requestedPickupDate,
 			},
 		})
-		requestedMoveDateString := createdMove.MTOShipments[0].RequestedPickupDate.Format(time.RFC3339Nano)
+		requestedMoveDateString := createdMove.MTOShipments[0].RequestedPickupDate.Format("2006-01-02")
 		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &services.ListOrderParams{
 			RequestedMoveDate: &requestedMoveDateString,
 		})
