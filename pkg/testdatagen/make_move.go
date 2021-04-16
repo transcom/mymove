@@ -171,7 +171,13 @@ func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 		mustSave(db, &move)
 	}
 
-	MakeSubmittedMTOShipmentWithMove(db, &move, assertions)
+	MakeSubmittedMTOShipmentWithMove(db, &move, Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			RequestedPickupDate: assertions.MTOShipment.RequestedPickupDate,
+		},
+		Stub: assertions.Stub,
+	})
 
 	return move
 }

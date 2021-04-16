@@ -7,6 +7,7 @@ import styles from './PaymentRequestDetails.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
+import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 
 const shipmentHeadingAndStyle = (mtoShipmentType) => {
   switch (mtoShipmentType) {
@@ -26,7 +27,7 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
+const PaymentRequestDetails = ({ serviceItems, shipmentAddress, paymentRequestStatus }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
   return (
@@ -56,7 +57,14 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
           </thead>
           <tbody>
             {serviceItems.map((item, index) => {
-              return <ExpandableServiceItemRow serviceItem={item} key={item.id} index={index} />;
+              return (
+                <ExpandableServiceItemRow
+                  serviceItem={item}
+                  key={item.id}
+                  index={index}
+                  disableExpansion={paymentRequestStatus === PAYMENT_REQUEST_STATUSES.PENDING}
+                />
+              );
             })}
           </tbody>
         </table>
@@ -68,6 +76,7 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
   shipmentAddress: PropTypes.string,
+  paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
 };
 
 PaymentRequestDetails.defaultProps = {

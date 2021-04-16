@@ -42,8 +42,8 @@ linters:
     - varcheck
     - gomodguard
     - errcheck
+    - staticcheck
   disable:
-    - staticcheck # 30+files need to be patched
     - gosimple #deprecated https://github.com/golangci/golangci-lint/issues/357
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
   fast: false
