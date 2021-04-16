@@ -22,7 +22,7 @@ const info = {
 };
 
 describe('Customer Info Table', () => {
-  it('should render the data passed to its props', () => {
+  it('renders the data passed to its props', () => {
     const wrapper = shallow(<CustomerInfoTable customerInfo={info} />);
     expect(wrapper.find({ 'data-testid': 'name' }).text()).toMatch(info.name);
     expect(wrapper.find({ 'data-testid': 'dodId' }).text()).toMatch(info.dodId);
@@ -34,5 +34,15 @@ describe('Customer Info Table', () => {
     expect(wrapper.find({ 'data-testid': 'backupContactName' }).text()).toMatch(info.backupContact.name);
     expect(wrapper.find({ 'data-testid': 'backupContactPhone' }).text()).toMatch(info.backupContact.phone);
     expect(wrapper.find({ 'data-testid': 'backupContactEmail' }).text()).toMatch(info.backupContact.email);
+  });
+
+  it('renders edit button when editable prop is true', () => {
+    const wrapper = shallow(<CustomerInfoTable customerInfo={info} editable />);
+    expect(wrapper.find({ 'data-testid': 'edit-customer-info' }).text()).toBe('Edit customer info');
+  });
+
+  it('does not render edit button by default', () => {
+    const wrapper = shallow(<CustomerInfoTable customerInfo={info} />);
+    expect(wrapper.find({ 'data-testid': 'edit-customer-info' }).length).toBe(0);
   });
 });

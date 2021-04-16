@@ -1,18 +1,25 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 
 import styles from './OrdersTable/OrdersTable.module.scss';
 
 import { BackupContactShape } from 'types/backupContact';
+import { ResidentialAddressShape } from 'types/address';
 
-const CustomerInfoTable = ({ customerInfo }) => {
+const CustomerInfoTable = ({ customerInfo, editable }) => {
   return (
     <div className={styles.OrdersTable}>
       <div className="stackedtable-header">
-        <div>
-          <h4>Customer info</h4>
-        </div>
+        <h2>Customer info</h2>
+        {editable && (
+          <div>
+            <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="#">
+              Edit customer info
+            </Link>
+          </div>
+        )}
       </div>
       <table className="table--stacked">
         <colgroup>
@@ -87,14 +94,14 @@ CustomerInfoTable.propTypes = {
     dodId: PropTypes.string,
     phone: PropTypes.string,
     email: PropTypes.string,
-    currentAddress: PropTypes.shape({
-      street_address_1: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      postal_code: PropTypes.string,
-    }),
+    currentAddress: ResidentialAddressShape,
     backupContact: BackupContactShape,
   }).isRequired,
+  editable: PropTypes.bool,
+};
+
+CustomerInfoTable.defaultProps = {
+  editable: false,
 };
 
 export default CustomerInfoTable;
