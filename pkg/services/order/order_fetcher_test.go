@@ -156,6 +156,22 @@ func (suite *OrderServiceSuite) TestListMoves() {
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 	})
+
+	suite.T().Run("returns moves filtered by requested pickup date", func(t *testing.T) {
+		requestedPickupDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		createdMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedPickupDate,
+			},
+		})
+		requestedMoveDateString := createdMove.MTOShipments[0].RequestedPickupDate.Format(time.RFC3339Nano)
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &services.ListOrderParams{
+			RequestedMoveDate: &requestedMoveDateString,
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+	})
 }
 
 func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
