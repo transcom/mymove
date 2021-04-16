@@ -6,6 +6,7 @@ import { get } from 'lodash';
 import styles from './OrdersTable/OrdersTable.module.scss';
 
 import { BackupContactShape } from 'types/backupContact';
+import { ResidentialAddressShape } from 'types/address';
 
 const CustomerInfoTable = ({ customerInfo, editable }) => {
   return (
@@ -93,12 +94,7 @@ CustomerInfoTable.propTypes = {
     dodId: PropTypes.string,
     phone: PropTypes.string,
     email: PropTypes.string,
-    currentAddress: PropTypes.shape({
-      street_address_1: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      postal_code: PropTypes.string,
-    }),
+    currentAddress: ResidentialAddressShape,
     backupContact: BackupContactShape,
   }).isRequired,
   editable: PropTypes.bool,
