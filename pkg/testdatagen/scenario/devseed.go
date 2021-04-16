@@ -3324,29 +3324,22 @@ func createHHGNeedsServicesCounseling(db *pop.Connection) {
 }
 
 func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uploader.UserUploader) {
+
 	marineCorps := models.AffiliationMARINES
-	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			Affiliation: &marineCorps,
-		},
-	})
-
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-		},
-		UserUploader: userUploader,
-	})
-
 	submittedAt := time.Now()
+
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Locator:     "USMCSC",
+			Locator:     "USMCSS",
 			Status:      models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt: &submittedAt,
 		},
-		Order: orders,
+		ServiceMember: models.ServiceMember{
+			Affiliation: &marineCorps,
+			LastName:    swag.String("Marine"),
+			FirstName:   swag.String("Ted"),
+		},
+		UserUploader: userUploader,
 	})
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
@@ -3372,6 +3365,43 @@ func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uplo
 			RequestedDeliveryDate: &requestedDeliveryDate,
 		},
 	})
+}
+
+func createHHGNeedsServicesCounselingUSMC2(db *pop.Connection, userUploader *uploader.UserUploader) {
+
+	marineCorps := models.AffiliationMARINES
+	submittedAt := time.Now()
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "USMCSC",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: models.Order{},
+		ServiceMember: models.ServiceMember{
+			Affiliation: &marineCorps,
+			LastName:    swag.String("Marine"),
+			FirstName:   swag.String("Barbara"),
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ZANY",
+		},
+		UserUploader: userUploader,
+	})
+
+	requestedPickupDate := submittedAt.Add(20 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(14 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
 }
 
 func createHHGServicesCounselingCompleted(db *pop.Connection) {
@@ -3414,6 +3444,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// Services Counseling
 	createHHGNeedsServicesCounseling(db)
 	createHHGNeedsServicesCounselingUSMC(db, userUploader)
+	createHHGNeedsServicesCounselingUSMC2(db, userUploader)
 	createHHGServicesCounselingCompleted(db)
 
 	// TXO Queues
