@@ -177,6 +177,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
                 className={styles.paymentRequestDetails}
                 serviceItems={serviceItems}
                 shipmentAddress={shipmentAddress}
+                paymentRequestStatus={paymentRequest.status}
               />
             );
           })}
