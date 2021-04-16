@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -15,6 +14,11 @@ import (
 func SendToSyncada(edi string, icn int64, gexSender services.GexSender, sftpSender services.SyncadaSFTPSender, sendEDIFile bool, logger Logger) error {
 	syncadaFileName := fmt.Sprintf("%s_%d_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"), icn)
 
+	if !sendEDIFile {
+		logger.Info("SendToSyncada() is in do not send mode, syncadaFileName: " + syncadaFileName + "")
+		return nil
+	}
+
 	if (gexSender == nil) && (sftpSender == nil) {
 		return fmt.Errorf("cannot send to Syncada, SendToSyncada() senders are nil")
 	}
@@ -22,7 +26,7 @@ func SendToSyncada(edi string, icn int64, gexSender services.GexSender, sftpSend
 		resp, err := gexSender.SendToGex(edi, syncadaFileName)
 		if err != nil {
 			logger.Error("GEX Sender encountered an error", zap.Error(err))
-			return errors.Wrap(err, "GEX sender encountered an error")
+			return fmt.Errorf("GEX sender encountered an error: %w", err)
 		}
 		if resp == nil {
 			return fmt.Errorf("no response when sending EDI to GEX")
@@ -38,16 +42,12 @@ func SendToSyncada(edi string, icn int64, gexSender services.GexSender, sftpSend
 		// Send to Syncada via SFTP
 		edi858String := strings.NewReader(edi)
 
-		if sendEDIFile == true {
-			logger.Info("SendToSyncada() is in send mode, sending syncadaFileName: " + syncadaFileName + "")
-			_, err := sftpSender.SendToSyncadaViaSFTP(edi858String, syncadaFileName)
-			if err != nil {
-				return err
-			}
-			logger.Info("SUCCESS: 858 Processor sent new file to syncada for Payment Request", zap.String("syncadaFileName", syncadaFileName))
-		} else {
-			logger.Info("SendToSyncada() is in do not send mode, syncadaFileName: " + syncadaFileName + "")
+		logger.Info("SendToSyncada() is in send mode, sending syncadaFileName: " + syncadaFileName + "")
+		_, err := sftpSender.SendToSyncadaViaSFTP(edi858String, syncadaFileName)
+		if err != nil {
+			return err
 		}
+		logger.Info("SUCCESS: 858 Processor sent new file to syncada for Payment Request", zap.String("syncadaFileName", syncadaFileName))
 	}
 	return nil
 }
