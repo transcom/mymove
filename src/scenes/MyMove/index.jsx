@@ -57,6 +57,7 @@ import Home from 'pages/MyMove/Home';
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const AccessCode = lazy(() => import('shared/User/AccessCode'));
 const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
+const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
 const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'));
 
 export class CustomerApp extends Component {
@@ -140,11 +141,12 @@ export class CustomerApp extends Component {
                   {getWorkflowRoutes(props)}
                   <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} component={MovingInfo} />
                   <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
-                  <CustomerPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                  <CustomerPrivateRoute exact path={customerRoutes.EDIT_PROFILE_PATH} component={EditProfile} />
                   <CustomerPrivateRoute
                     path={customerRoutes.SHIPMENT_CREATE_PATH}
                     component={ConnectedCreateOrEditMtoShipment}
                   />
+                  <CustomerPrivateRoute exact path={customerRoutes.PROFILE_PATH} component={Profile} />
                   <CustomerPrivateRoute
                     exact
                     path={customerRoutes.SHIPMENT_EDIT_PATH}
