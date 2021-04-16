@@ -261,13 +261,14 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"status":                 "moves.status",
 		"submittedAt":            "moves.submitted_at",
 		"destinationDutyStation": "dest_ds.name",
+		"requestedMoveDate":      "min(mto_shipments.requested_pickup_date)",
 	}
 
 	return func(query *pop.Query) {
 		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
 		if sort != nil && order != nil {
 			if sortTerm, ok := parameters[*sort]; ok {
-				if sortTerm == "lastName" {
+				if *sort == "lastName" {
 					query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 				} else {
 					query.Order(fmt.Sprintf("%s %s", sortTerm, *order))

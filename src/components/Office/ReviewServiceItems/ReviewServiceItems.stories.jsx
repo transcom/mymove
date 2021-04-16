@@ -1,6 +1,8 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 
+import testParams from '../ServiceItemCalculations/serviceItemTestParams';
+
 import ReviewServiceItems from './ReviewServiceItems';
 
 import {
@@ -74,6 +76,8 @@ export const HHG = () => (
         mtoShipmentID: '10',
         mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 5678.05,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
@@ -93,6 +97,8 @@ export const NonTemporaryStorage = () => (
         mtoShipmentID: '10',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 6423.51,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
@@ -118,6 +124,8 @@ export const MultipleShipmentsGroups = () => (
         mtoShipmentID: '20',
         mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 5678.05,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
@@ -126,6 +134,8 @@ export const MultipleShipmentsGroups = () => (
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 6423.51,
         createdAt: '2020-01-01T00:07:30.999Z',
       },
@@ -134,6 +144,8 @@ export const MultipleShipmentsGroups = () => (
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
         mtoServiceItemName: serviceItemCodes.FSC,
+        mtoServiceItemCode: 'FSC',
+        paymentServiceItemParams: testParams.FuelSurchage,
         amount: 100000000000000,
         createdAt: '2020-01-01T00:07:00.999Z',
       },
@@ -168,6 +180,8 @@ export const WithStatusAndReason = () => (
         mtoShipmentID: '20',
         mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 5678.05,
         status: SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:08:00.999Z',
@@ -177,6 +191,8 @@ export const WithStatusAndReason = () => (
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 6423.51,
         status: SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:07:30.999Z',
@@ -186,6 +202,8 @@ export const WithStatusAndReason = () => (
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
         mtoServiceItemName: serviceItemCodes.FSC,
+        mtoServiceItemCode: 'FSC',
+        paymentServiceItemParams: testParams.FuelSurchage,
         amount: 100000000000000,
         createdAt: '2020-01-01T00:07:00.999Z',
       },
