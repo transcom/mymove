@@ -27,7 +27,7 @@ describe('Allowances Table', () => {
     expect(wrapper.find({ 'data-testid': 'storageInTransit' }).text()).toMatch('90 days');
     expect(wrapper.find({ 'data-testid': 'dependents' }).text()).toMatch('Authorized');
     expect(wrapper.find({ 'data-testid': 'rme' }).text()).toMatch('1,000 lbs');
-    expect(wrapper.find({ 'data-testid': 'ocie' }).text()).toMatch('Yes');
+    expect(wrapper.find({ 'data-testid': 'ocie' }).text()).toMatch('Authorized');
   });
 
   it('should be able to show edit btn', () => {

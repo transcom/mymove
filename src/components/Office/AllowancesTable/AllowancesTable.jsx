@@ -82,7 +82,9 @@ const AllowancesTable = ({ showEditBtn, info }) => {
           </tr>
           <tr>
             <th scope="row">OCIE</th>
-            <td data-testid="ocie">{info.organizationalClothingAndIndividualEquipment ? 'Yes' : 'No'}</td>
+            <td data-testid="ocie">
+              {info.organizationalClothingAndIndividualEquipment ? 'Authorized' : 'Unauthorized'}
+            </td>
           </tr>
         </tbody>
       </table>
