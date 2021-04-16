@@ -181,7 +181,7 @@ func (suite *OrderServiceSuite) TestListMoves() {
 				RequestedPickupDate: &requestedPickupDate,
 			},
 		})
-		requestedMoveDateString := createdMove.MTOShipments[0].RequestedPickupDate.Format(time.RFC3339Nano)
+		requestedMoveDateString := createdMove.MTOShipments[0].RequestedPickupDate.Format("2006-01-02")
 		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &services.ListOrderParams{
 			RequestedMoveDate: &requestedMoveDateString,
 		})
