@@ -14,9 +14,9 @@ import { CustomerContactInfoFields } from 'components/form/CustomerContactInfoFi
 import { BackupContactInfoFields } from 'components/form/BackupContactInfoFields';
 import { BackupContactShape } from 'types/customerShapes';
 
-const residentialAddressName = 'residential_address';
-const backupAddressName = 'backup_mailing_address';
-const backupContactName = 'backup_contact';
+export const residentialAddressName = 'residential_address';
+export const backupAddressName = 'backup_mailing_address';
+export const backupContactName = 'backup_contact';
 
 const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const validationSchema = Yup.object().shape({
