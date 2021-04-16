@@ -29,7 +29,7 @@ func NewFuelSurchargePricer(db *pop.Connection) services.FuelSurchargePricer {
 }
 
 // Price determines the price for a counseling service
-func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier float64, fuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -43,20 +43,16 @@ func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Ti
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
-	if fscWeightBasedDistanceMultiplier == 0 {
-		return 0, nil, errors.New("FSCWeightBasedDistanceMultiplier is required")
+	if weightBasedDistanceMultiplier == 0 {
+		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
 	}
 
-	fscPriceDifferenceInCents := (eiaFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.00
-	fscMultipilier := fscWeightBasedDistanceMultiplier * distance.Float64()
-	fscPrice := fscMultipilier * fscPriceDifferenceInCents * 100
-	finalFSCPrice := unit.Cents(math.Round(fscPrice))
+	priceDifference := (fuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.00
+	surchargeMultiplier := weightBasedDistanceMultiplier * distance.Float64()
+	fscPrice := surchargeMultiplier * priceDifference * 100
+	totalCost := unit.Cents(math.Round(fscPrice))
 
-	displayParams := services.PricingDisplayParams{
-		{Key: models.ServiceItemParamNameFSCMultiplier, Value: FormatFloat(fscMultipilier, 7)},
-		{Key: models.ServiceItemParamNameFSCPriceDifferenceInCents, Value: FormatCents(unit.Cents(fscPriceDifferenceInCents))},
-	}
-	return finalFSCPrice, displayParams, nil
+	return totalCost, nil, nil
 }
 
 func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
@@ -84,15 +80,15 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 		return unit.Cents(0), nil, err
 	}
 
-	fscWeightBasedDistanceMultiplier, err := getParamFloat(params, models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier)
+	weightBasedDistanceMultiplier, err := getParamFloat(params, models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
 
-	eiaFuelPrice, err := getParamInt(params, models.ServiceItemParamNameEIAFuelPrice)
+	fuelPrice, err := getParamInt(params, models.ServiceItemParamNameEIAFuelPrice)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(contractCode, actualPickupDate, distance, unit.Pound(weightBilledActual), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
+	return p.Price(contractCode, actualPickupDate, distance, unit.Pound(weightBilledActual), weightBasedDistanceMultiplier, unit.Millicents(fuelPrice))
 }
