@@ -110,10 +110,11 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReSe
 	suite.MustSave(&otherPrice)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code models.ReServiceCode, serviceAreaCode string, isPeakPeriod bool, priceCents unit.Cents, escalationCompounded float64) {
+func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code models.ReServiceCode, serviceAreaCode string, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64) {
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
+				Name:                 contractYearName,
 				EscalationCompounded: escalationCompounded,
 			},
 		})
@@ -175,12 +176,20 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 	suite.MustSave(&baseLinehaulPrice)
 }
 
-func (suite *GHCRateEngineServiceSuite) HasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, value string) bool {
+func (suite *GHCRateEngineServiceSuite) hasDisplayParam(displayParams services.PricingDisplayParams, key models.ServiceItemParamName, expectedValue string) bool {
 	for _, displayParam := range displayParams {
 		if displayParam.Key == key {
-			return suite.Equal(value, displayParam.Value, "%s param actual value did not match expected", key.String())
+			return suite.Equal(expectedValue, displayParam.Value, "%s param actual value did not match expected", key.String())
 		}
 	}
 
-	return suite.Failf("Could not find display param", "key=<%s> value=<%s>", key.String(), value)
+	return suite.Failf("Could not find display param", "key=<%s> value=<%s>", key.String(), expectedValue)
+}
+
+func (suite *GHCRateEngineServiceSuite) validatePricerCreatedParams(expectedValues services.PricingDisplayParams, actualValues services.PricingDisplayParams) {
+	suite.Equal(len(expectedValues), len(actualValues))
+
+	for _, eValue := range expectedValues {
+		suite.hasDisplayParam(actualValues, eValue.Key, eValue.Value)
+	}
 }

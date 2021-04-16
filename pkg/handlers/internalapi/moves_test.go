@@ -191,6 +191,8 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 }
 
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
+	os.Setenv("FEATURE_FLAG_SERVICE_COUNSELING", "false")
+
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
 		ppm := testdatagen.MakeDefaultPPM(suite.DB())

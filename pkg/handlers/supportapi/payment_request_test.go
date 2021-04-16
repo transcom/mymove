@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/benbjohnson/clock"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -322,7 +323,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	handler := GetPaymentRequestEDIHandler{
 		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), icnSequencer, clock.NewMock()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock()),
 	}
 
 	urlFormat := "/payment-requests/%s/edi"
@@ -374,6 +375,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		}
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
+		mockGenerator.On("InitDB", mock.IsType(&pop.Connection{}))
 		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequestID, nil, validate.NewErrors(), ""))
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
@@ -396,6 +398,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		}
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
+		mockGenerator.On("InitDB", mock.IsType(&pop.Connection{}))
 		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, services.NewConflictError(paymentRequestID, "conflict error"))
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
@@ -433,6 +436,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
 		errStr := "some error"
+		mockGenerator.On("InitDB", mock.IsType(&pop.Connection{}))
 		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New(errStr)).Once()
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{

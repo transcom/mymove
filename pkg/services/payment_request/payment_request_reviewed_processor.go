@@ -50,7 +50,7 @@ func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 // InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
 func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, gexSender services.GexSender, logger Logger, sendToSyncada bool, icnSequencer sequence.Sequencer) (services.PaymentRequestReviewedProcessor, error) {
 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(db)
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(db, icnSequencer, clock.New())
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New())
 	var sftpSession services.SyncadaSFTPSender
 	sftpSession, err := invoice.InitNewSyncadaSFTPSession()
 	if err != nil {
@@ -77,9 +77,9 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 
 		query := `
 			SELECT * FROM payment_requests
-			WHERE id = $1 FOR UPDATE SKIP LOCKED;
+			WHERE id = $1 FOR NO KEY UPDATE SKIP LOCKED;
 		`
-		err := p.db.RawQuery(query, pr.ID).First(&lockedPR)
+		err := tx.RawQuery(query, pr.ID).First(&lockedPR)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil
@@ -89,6 +89,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 
 		// generate EDI file
 		var edi858c ediinvoice.Invoice858C
+		p.ediGenerator.InitDB(tx)
 		edi858c, err = p.ediGenerator.Generate(lockedPR, false)
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
@@ -115,7 +116,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		sentToGexAt := time.Now()
 		lockedPR.SentToGexAt = &sentToGexAt
 		lockedPR.Status = models.PaymentRequestStatusSentToGex
-		err = p.db.Update(&lockedPR)
+		err = tx.Update(&lockedPR)
 
 		if err != nil {
 			return fmt.Errorf("failure updating payment request status: %w", err)
