@@ -203,7 +203,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 			{Key: models.ServiceItemParamNameContractYearName, Value: domContractName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dddsitTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dddsitTestIsPeakPeriod)},
-			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(expectedPrice)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dddsitTestDomesticOtherBasePriceCents)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})

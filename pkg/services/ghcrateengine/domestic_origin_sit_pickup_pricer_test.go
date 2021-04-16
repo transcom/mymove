@@ -151,9 +151,17 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50Miles
 	expectedPrice := unit.Cents(133691) // dopsitTestDomesticOtherBasePriceCents * (dopsitTestWeight / 100) * dopsitTestEscalationCompounded
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(expectedPrice, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dopsitTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dopsitTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dopsitTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dopsitTestDomesticOtherBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {

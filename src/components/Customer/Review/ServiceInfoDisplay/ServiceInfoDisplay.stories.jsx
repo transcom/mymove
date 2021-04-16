@@ -9,9 +9,8 @@ const defaultProps = {
   affiliation: 'Air Force',
   rank: 'E-5',
   edipi: '9999999999',
-  originDutyStationName: 'Buckley AFB',
-  originTransportationOfficeName: 'Buckley AFB',
-  originTransportationOfficePhone: '555-555-5555',
+  currentDutyStationName: 'Buckley AFB',
+  currentDutyStationPhone: '555-555-5555',
   editURL: '/',
 };
 

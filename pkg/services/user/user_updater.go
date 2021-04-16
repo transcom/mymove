@@ -43,9 +43,7 @@ func (o *userUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User,
 	}
 
 	// Update user's new status for Active
-	if &user.Active != nil {
-		foundUser.Active = user.Active
-	}
+	foundUser.Active = user.Active
 
 	verrs, err := o.builder.UpdateOne(&foundUser, nil)
 	if verrs != nil || err != nil {
