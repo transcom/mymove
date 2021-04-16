@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { arrayOf } from 'prop-types';
 
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import {
@@ -26,6 +27,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
 
   return (
     <div className="grid-container usa-prose">
+      <ConnectedFlashMessage />
       <div className="grid-row">
         <div className="grid-col-12">
           <h1>Profile</h1>
@@ -38,7 +40,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
               residentialAddress={serviceMember?.residential_address || ''}
               backupMailingAddress={serviceMember?.backup_mailing_address || ''}
               backupContact={backupContact}
-              editURL={customerRoutes.EDIT_PROFILE_PATH}
+              editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
             />
           </SectionWrapper>
           <SectionWrapper className={formStyles.formSection}>
