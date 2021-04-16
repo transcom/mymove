@@ -34,7 +34,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             <h1>Edit contact info</h1>
 
             <SectionWrapper className={formStyles.formSection}>
-              <h2>Your conatct info</h2>
+              <h2>Your contact info</h2>
 
               <CustomerContactInfoFields />
             </SectionWrapper>
