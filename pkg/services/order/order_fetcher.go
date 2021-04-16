@@ -45,7 +45,6 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	var gblocQuery QueryOption
 	if gbloc == "USMC" {
-		fmt.Println("gbloc is usmc")
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
 	} else {
 		gblocQuery = gblocFilter(gbloc)
@@ -256,6 +255,7 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"status":                 "moves.status",
 		"submittedAt":            "moves.submitted_at",
 		"destinationDutyStation": "dest_ds.name",
+		"requestedMoveDate":      "min(mto_shipments.requested_pickup_date)",
 		"originGBLOC":            "origin_to.gbloc",
 	}
 
