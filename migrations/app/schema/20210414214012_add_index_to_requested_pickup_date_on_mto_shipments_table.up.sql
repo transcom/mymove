@@ -1,1 +1,1 @@
-CREATE INDEX ON mto_shipments (requested_pickup_date);
+CREATE INDEX mto_shipments_requested_pickup_date_idx ON mto_shipments (requested_pickup_date);
