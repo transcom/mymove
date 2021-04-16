@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/gobuffalo/pop/v5"
+
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -18,6 +20,7 @@ type GexSender interface {
 // GHCPaymentRequestInvoiceGenerator is the exported interface for generating an invoice
 //go:generate mockery -name GHCPaymentRequestInvoiceGenerator
 type GHCPaymentRequestInvoiceGenerator interface {
+	InitDB(db *pop.Connection)
 	Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error)
 }
 

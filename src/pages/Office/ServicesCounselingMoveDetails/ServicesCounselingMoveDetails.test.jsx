@@ -156,6 +156,10 @@ describe('MoveDetails page', () => {
     it('submit move details button is on page', () => {
       expect(wrapper.find('button[data-testid="submitMoveDetailsBtn"]').length).toBe(1);
     });
+
+    it('renders the Allowances Table', () => {
+      expect(wrapper.find('#allowances h4').text()).toEqual('Allowances');
+    });
   });
 
   describe('service counseling completed', () => {

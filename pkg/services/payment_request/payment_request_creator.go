@@ -73,7 +73,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 		// Service Item Param Cache
 		serviceParamCache := serviceparamlookups.ServiceParamsCache{}
-		serviceParamCache.Initialize(p.db)
+		serviceParamCache.Initialize(tx)
 
 		// Run the pricer within this transactional context
 		txPricer := p.pricer.UsingConnection(tx)
