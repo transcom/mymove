@@ -198,6 +198,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 	var payload supportmessages.PaymentRequestEDI
 	payload.ID = *handlers.FmtUUID(paymentRequestID)
 
+	h.GHCPaymentRequestInvoiceGenerator.InitDB(h.DB())
 	edi858c, err := h.GHCPaymentRequestInvoiceGenerator.Generate(paymentRequest, false)
 	if err == nil {
 		payload.Edi, err = edi858c.EDIString(logger)

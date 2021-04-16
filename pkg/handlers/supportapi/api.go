@@ -81,7 +81,7 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
 		HandlerContext:                    context,
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(context.DB()),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(context.DB(), context.ICNSequencer(), clock.New()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(context.ICNSequencer(), clock.New()),
 	}
 
 	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
