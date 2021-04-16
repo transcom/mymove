@@ -106,7 +106,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 
 	certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
-		logger.Fatal("Failed to initialize Zap loggingv", zap.Error(err))
+		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
 	}
 	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
 	if certificates == nil || rootCAs == nil || err != nil {
@@ -118,14 +118,14 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	logger.Info(
 		"Sending to GEX",
 		zap.String("filename", v.GetString("filename")),
-		zap.String("url", v.GetString("gex-url")))
+		zap.String("url", v.GetString(cli.GEXURLFlag)))
 
 	resp, err := invoice.NewGexSenderHTTP(
-		v.GetString("gex-url"),
+		v.GetString(cli.GEXURLFlag),
 		true,
 		tlsConfig,
-		v.GetString("gex-basic-auth-username"),
-		v.GetString("gex-basic-auth-password"),
+		v.GetString(cli.GEXBasicAuthUsernameFlag),
+		v.GetString(cli.GEXBasicAuthPasswordFlag),
 	).SendToGex(ediString, v.GetString("filename"))
 
 	if err != nil {
