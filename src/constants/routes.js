@@ -25,4 +25,5 @@ export const customerRoutes = {
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
   EDIT_PROFILE_PATH: '/moves/review/edit-profile',
   PROFILE_PATH: '/service-member/profile',
+  SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
 };

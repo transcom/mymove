@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
 import { Alert } from '@trussworks/react-uswds';
 
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import {
@@ -30,6 +31,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
 
   return (
     <div className="grid-container usa-prose">
+      <ConnectedFlashMessage />
       <div className="grid-row">
         <div className="grid-col-12">
           <h1>Profile</h1>
@@ -56,7 +58,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               affiliation={serviceMember?.affiliation || ''}
               rank={rank || ''}
               edipi={serviceMember?.edipi || ''}
-              editURL={customerRoutes.EDIT_PROFILE_PATH}
+              editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
               isEditable={moveIsInDraft}
             />
           </SectionWrapper>

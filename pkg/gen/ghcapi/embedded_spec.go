@@ -3737,6 +3737,7 @@ func init() {
         "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
+        "ContractYearName",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -3744,7 +3745,11 @@ func init() {
         "DistanceZipSITDest",
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
+        "EscalationCompounded",
+        "FSCMultiplier",
+        "FSCPriceDifferenceInCents",
         "FSCWeightBasedDistanceMultiplier",
+        "IsPeak",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -3753,6 +3758,7 @@ func init() {
         "PriceAreaIntlDest",
         "PriceAreaIntlOrigin",
         "PriceAreaOrigin",
+        "PriceRateOrFactor",
         "PSI_LinehaulDom",
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
@@ -3785,7 +3791,9 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress"
+        "ZipSITDestHHGFinalAddress",
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -8167,6 +8175,7 @@ func init() {
         "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
+        "ContractYearName",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -8174,7 +8183,11 @@ func init() {
         "DistanceZipSITDest",
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
+        "EscalationCompounded",
+        "FSCMultiplier",
+        "FSCPriceDifferenceInCents",
         "FSCWeightBasedDistanceMultiplier",
+        "IsPeak",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -8183,6 +8196,7 @@ func init() {
         "PriceAreaIntlDest",
         "PriceAreaIntlOrigin",
         "PriceAreaOrigin",
+        "PriceRateOrFactor",
         "PSI_LinehaulDom",
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
@@ -8215,7 +8229,9 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress"
+        "ZipSITDestHHGFinalAddress",
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
