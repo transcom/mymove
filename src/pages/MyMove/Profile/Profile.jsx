@@ -10,7 +10,6 @@ import {
   selectServiceMemberFromLoggedInUser,
   selectMoveIsInDraft,
   selectCurrentOrders,
-  selectCurrentMove,
   selectBackupContacts,
 } from 'store/entities/selectors';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -19,8 +18,8 @@ import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
-  const rank = currentOrders ? currentOrders.grade : serviceMember.rank;
-  const originStation = currentOrders.origin_duty_station;
+  const rank = currentOrders.grade ?? serviceMember.rank;
+  const originStation = currentOrders.origin_duty_station ?? serviceMember.current_station;
   const transportationOfficePhoneLines = originStation?.transportation_office?.phone_lines;
   const transportationOfficePhone = transportationOfficePhoneLines ? transportationOfficePhoneLines[0] : '';
   const backupContact = {
@@ -78,7 +77,6 @@ Profile.propTypes = {
 function mapStateToProps(state) {
   return {
     serviceMember: selectServiceMemberFromLoggedInUser(state),
-    move: selectCurrentMove(state) || {},
     // The move still counts as in draft if there are no orders.
     moveIsInDraft: selectMoveIsInDraft(state) || !selectCurrentOrders(state),
     currentOrders: selectCurrentOrders(state) || {},
