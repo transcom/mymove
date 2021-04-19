@@ -1,6 +1,6 @@
 package linter_tests
 
-// #nosec // want "Disabling of gosec must have an annotation associated with it. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi"
+// #nosec // want "Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi"
 func nosecShouldHaveAnnotation() {}
 
 //RA Summary: [linter] - [linter type code] - [Linter summary] // want "Annotation needs approval from an ISSO"

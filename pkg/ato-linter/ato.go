@@ -33,7 +33,12 @@ var validatorStatuses = map[string]bool{
 func containsGosecDisableNoRule(comments []*ast.Comment) bool {
 	for _, comment := range comments {
 		if strings.Contains(comment.Text, disableNoSec) {
-			return true
+			individualCommentArr := strings.Split(comment.Text, " ")
+			for index, str := range individualCommentArr {
+				if str == disableNoSec && index == len(individualCommentArr)-1 {
+					return true
+				}
+			}
 		}
 	}
 	return false
@@ -51,12 +56,7 @@ func containsGosecNoAnnotation(comments []*ast.Comment) bool {
 func containsNosec(comments []*ast.Comment) bool {
 	for _, comment := range comments {
 		if strings.Contains(comment.Text, disableNoSec) {
-			individualCommentArr := strings.Split(comment.Text, " ")
-			for _, str := range individualCommentArr {
-				if str == disableNoSec {
-					return true
-				}
-			}
+			return true
 		}
 	}
 	return false
