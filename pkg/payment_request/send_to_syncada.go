@@ -2,7 +2,6 @@ package paymentrequest
 
 import (
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -12,44 +11,30 @@ import (
 )
 
 // SendToSyncada send EDI file to Syncada for processing
-func SendToSyncada(edi string, icn int64, gexSender services.GexSender, sftpSender services.SyncadaSFTPSender, sendEDIFile bool, logger Logger) error {
-	syncadaFileName := fmt.Sprintf("%s_%d_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"), icn)
-
-	if !sendEDIFile {
-		logger.Info("SendToSyncada() is in do not send mode, syncadaFileName: " + syncadaFileName + "")
-		return nil
-	}
+func SendToSyncada(edi string, gexSender services.GexSender, sftpSender services.SyncadaSFTPSender, sendEDIFile bool, logger Logger) error {
+	var err error
 
 	if (gexSender == nil) && (sftpSender == nil) {
 		return fmt.Errorf("cannot send to Syncada, SendToSyncada() senders are nil")
 	}
 	if gexSender != nil {
-		logger.Info("SendToSyncada() is in send mode using GEX, sending syncadaFileName: " + syncadaFileName)
-		resp, err := gexSender.SendToGex(edi, syncadaFileName)
-		if err != nil {
-			logger.Error("GEX Sender encountered an error", zap.Error(err))
-			return fmt.Errorf("GEX sender encountered an error: %w", err)
-		}
-		if resp == nil {
-			return fmt.Errorf("no response when sending EDI to GEX")
-		}
-		if resp.StatusCode != http.StatusOK {
-			logger.Error("func SendToSyncada() failed send to GEX with", zap.Int("StatusCode", resp.StatusCode), zap.String("Status", resp.Status))
-			return fmt.Errorf("received error response when sending EDI to GEX %v", resp)
-		}
-		logger.Info(
-			"SUCCESS: 858 Processor sent new file to syncada for Payment Request, using GEX",
-			zap.String("filename", syncadaFileName))
+		//TODO: Send to Syncada via GEX needs to be implemented
+		logger.Warn("func SendToSyncada() -- GEX Sender NOT IMPLEMENTED")
 	} else if sftpSender != nil {
 		// Send to Syncada via SFTP
 		edi858String := strings.NewReader(edi)
+		syncadaFileName := fmt.Sprintf("%s_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"))
 
-		logger.Info("SendToSyncada() is in send mode, sending syncadaFileName: " + syncadaFileName + "")
-		_, err := sftpSender.SendToSyncadaViaSFTP(edi858String, syncadaFileName)
-		if err != nil {
-			return err
+		if sendEDIFile == true {
+			logger.Info("SendToSyncada() is in send mode, sending syncadaFileName: " + syncadaFileName + "")
+			_, err = sftpSender.SendToSyncadaViaSFTP(edi858String, syncadaFileName)
+			if err != nil {
+				return err
+			}
+			logger.Info("SUCCESS: 858 Processor sent new file to syncada for Payment Request", zap.String("syncadaFileName", syncadaFileName))
+		} else {
+			logger.Info("SendToSyncada() is in do not send mode, syncadaFileName: " + syncadaFileName + "")
 		}
-		logger.Info("SUCCESS: 858 Processor sent new file to syncada for Payment Request", zap.String("syncadaFileName", syncadaFileName))
 	}
-	return nil
+	return err
 }

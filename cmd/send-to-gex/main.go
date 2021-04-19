@@ -129,7 +129,6 @@ func main() {
 	logger.Println("Sending to GEX ...")
 	resp, err := invoice.NewGexSenderHTTP(
 		v.GetString("gex-url"),
-		cli.GEXChannelInvoice,
 		true,
 		tlsConfig,
 		v.GetString("gex-basic-auth-username"),

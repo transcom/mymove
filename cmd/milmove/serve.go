@@ -602,7 +602,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}))
 		gexRequester = invoice.NewGexSenderHTTP(
 			server.URL,
-			"",
 			false,
 			&tls.Config{MinVersion: tls.VersionTLS12},
 			"",
@@ -611,7 +610,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	} else {
 		gexRequester = invoice.NewGexSenderHTTP(
 			gexURL,
-			cli.GEXChannelInvoice,
 			true,
 			gexTLSConfig,
 			v.GetString(cli.GEXBasicAuthUsernameFlag),
