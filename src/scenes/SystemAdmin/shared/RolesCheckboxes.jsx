@@ -7,6 +7,7 @@ const choices = [
   { roleType: 'transportation_invoicing_officer', name: 'Transportation Invoicing Officer' },
   { roleType: 'contracting_officer', name: 'Contracting Officer' },
   { roleType: 'ppm_office_users', name: 'PPM Office Users' },
+  { roleType: 'services_counselor', name: 'Services Counselor' },
 ];
 
 const makeRoleTypeArray = (roles) => {
