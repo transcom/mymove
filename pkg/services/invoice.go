@@ -38,7 +38,7 @@ type SFTPFiler interface {
 	WriteTo(w io.Writer) (int64, error)
 }
 
-// SFTPClient is the exported interface for an SFTP client created for reading from Syncada
+// SFTPClient is the exported interface for an SFTP client created for reading from and SFTP connection
 //go:generate mockery --name SFTPClient
 type SFTPClient interface {
 	ReadDir(p string) ([]os.FileInfo, error)
@@ -46,10 +46,10 @@ type SFTPClient interface {
 	Remove(path string) error
 }
 
-// SyncadaSFTPReader is the exported interface for reading files from Syncada
+// SyncadaSFTPReader is the exported interface for reading files from an SFTP connection
 //go:generate mockery -name SyncadaSFTPReader
 type SyncadaSFTPReader interface {
-	FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor SyncadaFileProcessor) (time.Time, error)
+	FetchAndProcessSyncadaFiles(pickupPath string, lastRead time.Time, processor SyncadaFileProcessor) (time.Time, error)
 }
 
 // SyncadaFileProcessor is the exported interface for processing EDI files from Syncada

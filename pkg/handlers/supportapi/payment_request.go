@@ -407,7 +407,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 		v.AutomaticEnv()
 
-		sshClient, err := cli.InitSyncadaSSH(v, logger)
+		sshClient, err := cli.InitGEXSSH(v, logger)
 		if err != nil {
 			logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 		}
@@ -417,7 +417,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			}
 		}()
 
-		sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+		sftpClient, err := cli.InitGEXSFTP(sshClient, logger)
 		if err != nil {
 			logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
 		}
@@ -430,18 +430,15 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
 		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, h.DB(), logger, *deleteFromSyncada)
 
-		// TODO GEX will put different response types in different directories, but
-		// Syncada puts everything in the same directory. When we have access to GEX in staging
-		// we will have to change this to use separate paths for different response types.
-		path := "/" + v.GetString(cli.SyncadaSFTPUserIDFlag) + v.GetString(cli.SyncadaSFTPOutboundDirectory)
-
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
+		path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path997, time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
 		if err != nil {
 			logger.Error("Error reading 997 responses", zap.Error(err))
 		} else {
 			logger.Info("Successfully processed 997 responses")
 		}
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, invoice.NewEDI824Processor(h.DB(), logger))
+		path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path824, time.Time{}, invoice.NewEDI824Processor(h.DB(), logger))
 		if err != nil {
 			logger.Error("Error reading 824 responses", zap.Error(err))
 		} else {
