@@ -28,10 +28,6 @@ const (
 	GEXURLFlag string = "gex-url"
 	// SendToSyncada is the flag to control if we try sending files to syncada or not
 	SendToSyncada string = "send-to-syncada"
-	// GEXChannelDataWarehouse is the URL query parameter that we use when sending to USBank's data warehouse
-	GEXChannelDataWarehouse string = "TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM"
-	// GEXChannelInvoice is the URL query parameter that we use when sending EDI invoices to GEX
-	GEXChannelInvoice string = "TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM"
 )
 
 var gexHostnames = []string{
@@ -46,8 +42,8 @@ var gexPaths = []string{
 
 var gexChannels = []string{
 	"",
-	GEXChannelInvoice,
-	GEXChannelDataWarehouse,
+	"TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM",
+	"TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM",
 }
 
 // InitGEXFlags initializes GEX command line flags
