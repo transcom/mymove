@@ -18,9 +18,6 @@
 
   .whoToContactContainer {
     @include u-margin-top(1);
-    @include at-media('desktop') {
-      @include u-margin-top(2);
-    }
     @include u-margin-bottom(3);
   }
 
