@@ -46,7 +46,7 @@ func checkProcessEDIsConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
-	err = cli.CheckSyncadaSFTP(v)
+	err = cli.CheckGEXSFTP(v)
 	if err != nil {
 		return err
 	}
@@ -82,8 +82,8 @@ func initProcessEDIsFlags(flag *pflag.FlagSet) {
 	// Entrust Certificates
 	cli.InitEntrustCertFlags(flag)
 
-	// Syncada SFTP Config
-	cli.InitSyncadaSFTPFlags(flag)
+	// GEX SFTP Config
+	cli.InitGEXSFTPFlags(flag)
 
 	flag.String(ProcessEDILastReadTimeFlag, "", "Files older than this RFC3339 time will not be fetched.")
 	flag.Bool(ProcessEDIDeleteFilesFlag, false, "If present, delete files on SFTP server that have been processed successfully")
@@ -194,7 +194,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 
 	// SSH and SFTP Connection Setup
-	sshClient, err := cli.InitSyncadaSSH(v, logger)
+	sshClient, err := cli.InitGEXSSH(v, logger)
 	if err != nil {
 		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 	}
@@ -204,7 +204,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
-	sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+	sftpClient, err := cli.InitGEXSFTP(sshClient, logger)
 	if err != nil {
 		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
 	}
@@ -216,11 +216,6 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 
 	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
 	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, dbConnection, logger, v.GetBool(ProcessEDIDeleteFilesFlag))
-
-	// TODO GEX will put different response types in different directories, but
-	// Syncada puts everything in the same directory. When we have access to GEX in staging
-	// we will have to change this to use separate paths for different response types.
-	path := "/" + v.GetString(cli.SyncadaSFTPUserIDFlag) + v.GetString(cli.SyncadaSFTPOutboundDirectory)
 
 	// Sample expected format: 2021-03-16T18:25:36Z
 	lastReadTimeFlag := v.GetString(ProcessEDILastReadTimeFlag)
@@ -240,7 +235,8 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 
 	// Process 997s
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, lastReadTime, invoice.NewEDI997Processor(dbConnection, logger))
+	path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path997, lastReadTime, invoice.NewEDI997Processor(dbConnection, logger))
 	if err != nil {
 		logger.Error("Error reading 997 responses", zap.Error(err))
 	} else {
@@ -248,7 +244,8 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 
 	// Process 824s
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, lastReadTime, invoice.NewEDI824Processor(dbConnection, logger))
+	path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path824, lastReadTime, invoice.NewEDI824Processor(dbConnection, logger))
 	if err != nil {
 		logger.Error("Error reading 824 responses", zap.Error(err))
 	} else {
