@@ -7,6 +7,9 @@
     h2 {
       flex-shrink: 0;
       @include u-margin(0);
+      @include at-media('desktop') {
+        @include u-padding-bottom(1);
+      }
     }
 
     display: flex;
@@ -15,7 +18,7 @@
 
   .contactInfoSection {
     h3 {
-      @include u-margin-top(4);
+      @include u-margin-top(3);
     }
 
     dl {
@@ -26,6 +29,7 @@
       dd {
         @include u-width(67%);
       }
+      @include u-margin-bottom(0);
     }
   }
 }

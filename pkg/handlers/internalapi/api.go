@@ -68,7 +68,7 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{context}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
 		context,
-		move.NewMoveStatusRouter(context.DB()),
+		move.NewMoveRouter(context.DB()),
 	}
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{context}
 

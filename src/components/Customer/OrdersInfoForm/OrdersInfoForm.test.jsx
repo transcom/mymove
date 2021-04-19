@@ -299,5 +299,5 @@ describe('OrdersInfoForm component', () => {
     });
   });
 
-  afterEach(jest.clearAllMocks);
+  afterEach(jest.restoreAllMocks);
 });

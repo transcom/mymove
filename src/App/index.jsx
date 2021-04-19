@@ -12,6 +12,7 @@ import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminCon
 import { detectFlags } from 'shared/featureFlags';
 
 import '../icons';
+import 'shared/shared.css';
 import './index.css';
 
 const Office = lazy(() => import('pages/Office'));
