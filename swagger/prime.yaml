@@ -1728,6 +1728,7 @@ definitions:
       - ActualPickupDate
       - CanStandAlone
       - ContractCode
+      - ContractYearName
       - CubicFeetBilled
       - CubicFeetCrating
       - DistanceZip3
@@ -1735,7 +1736,11 @@ definitions:
       - DistanceZipSITDest
       - DistanceZipSITOrigin
       - EIAFuelPrice
+      - EscalationCompounded
+      - FSCMultiplier
+      - FSCPriceDifferenceInCents
       - FSCWeightBasedDistanceMultiplier
+      - IsPeak
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
@@ -1744,6 +1749,7 @@ definitions:
       - PriceAreaIntlDest
       - PriceAreaIntlOrigin
       - PriceAreaOrigin
+      - PriceRateOrFactor
       - PSI_LinehaulDom
       - PSI_LinehaulDomPrice
       - PSI_LinehaulShort
@@ -1777,11 +1783,14 @@ definitions:
       - ZipDestAddress
       - ZipPickupAddress
       - ZipSITDestHHGFinalAddress
+      - ZipSITOriginHHGActualAddress
+      - ZipSITOriginHHGOriginalAddress
   ServiceItemParamOrigin:
     type: string
     enum:
       - PRIME
       - SYSTEM
+      - PRICER
   ServiceItemParamType:
     type: string
     enum:

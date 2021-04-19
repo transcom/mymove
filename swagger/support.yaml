@@ -1635,8 +1635,18 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      readFromSyncada:
+        example: true
+        type: boolean
+        x-nullable: true
+      deleteFromSyncada:
+        example: true
+        type: boolean
+        x-nullable: true
     required:
       - sendToSyncada
+      - readFromSyncada
+      - deleteFromSyncada
   ProofOfServicePackage:
     properties:
       id:

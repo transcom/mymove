@@ -85,18 +85,51 @@ func (suite *SyncadaSftpReaderSuite) TestReadToSyncadaSftp() {
 	multipleFileTestData := []FileTestData{
 		{
 			fileInfo: FakeFileInfo{"file0", time.Date(2020, 1, 1, 1, 0, 0, 0, time.UTC)},
-			file:     FakeFile{"contents0"},
-			path:     pickupDir + "/" + "file0",
+			file: FakeFile{
+				`ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210329*0902*U*00401*000000030*0*T*:
+GS*FA*8004171844*MILMOVE*20210329*090144*300001*X*004010
+ST*997*0001
+AK1*SI*75
+AK2*858*0001
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*300001
+IEA*1*000000030`,
+			},
+			path: pickupDir + "/" + "file0",
 		},
 		{
 			fileInfo: FakeFileInfo{"file1", time.Date(2020, 1, 1, 1, 1, 0, 0, time.UTC)},
-			file:     FakeFile{"contents1"},
-			path:     pickupDir + "/" + "file1",
+			file: FakeFile{
+				`ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210329*0958*U*00401*000000034*0*T*:
+GS*FA*8004171844*MILMOVE*20210329*095725*340001*X*004010
+ST*997*0001
+AK1*SI*79
+AK2*858*0001
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*340001
+IEA*1*000000034`,
+			},
+			path: pickupDir + "/" + "file1",
 		},
 		{
 			fileInfo: FakeFileInfo{"file2", time.Date(2020, 1, 1, 1, 1, 1, 0, time.UTC)},
-			file:     FakeFile{"contents2"},
-			path:     pickupDir + "/" + "file2",
+			file: FakeFile{
+				`ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210326*1606*U*00401*000000029*0*T*:
+GS*FA*8004171844*MILMOVE*20210326*155424*290001*X*004010
+ST*997*0001
+AK1*SI*1
+AK2*858*0001
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*290001
+IEA*1*000000029`,
+			},
+			path: pickupDir + "/" + "file2",
 		},
 	}
 	infoForMultipleFiles := make([]os.FileInfo, len(multipleFileTestData))

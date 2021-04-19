@@ -60,7 +60,26 @@ func (p domesticUnpackPricer) Price(contractCode string, requestedPickupDate tim
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 
-	return totalCost, nil, nil
+	displayParams := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(domOtherPrice.PriceCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+
+	return totalCost, displayParams, nil
 }
 
 // PriceUsingParams determines the price for a domestic pack given PaymentServiceItemParams

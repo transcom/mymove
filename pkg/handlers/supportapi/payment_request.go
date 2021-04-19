@@ -2,7 +2,13 @@ package supportapi
 
 import (
 	"fmt"
+	"strings"
 	"time"
+
+	"github.com/spf13/viper"
+
+	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/services/invoice"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -192,6 +198,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 	var payload supportmessages.PaymentRequestEDI
 	payload.ID = *handlers.FmtUUID(paymentRequestID)
 
+	h.GHCPaymentRequestInvoiceGenerator.InitDB(h.DB())
 	edi858c, err := h.GHCPaymentRequestInvoiceGenerator.Generate(paymentRequest, false)
 	if err == nil {
 		payload.Edi, err = edi858c.EDIString(logger)
@@ -256,6 +263,8 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 
 	paymentRequestID := uuid.FromStringOrNil(params.Body.PaymentRequestID.String())
 	sendToSyncada := params.Body.SendToSyncada
+	readFromSyncada := params.Body.ReadFromSyncada
+	deleteFromSyncada := params.Body.DeleteFromSyncada
 	paymentRequestStatus := params.Body.Status
 	var paymentRequests models.PaymentRequests
 	var updatedPaymentRequests models.PaymentRequests
@@ -263,6 +272,13 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	if sendToSyncada == nil {
 		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, sendToSyncada flag required", h.GetTraceID()))
 	}
+	if readFromSyncada == nil {
+		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, readFromSyncada flag required", h.GetTraceID()))
+	}
+	if deleteFromSyncada == nil {
+		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, deleteFromSyncada flag required", h.GetTraceID()))
+	}
+
 	if *sendToSyncada {
 		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, h.ICNSequencer())
 		if err != nil {
@@ -343,6 +359,56 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			}
 			updatedPaymentRequests = append(updatedPaymentRequests, *updatedPaymentRequest)
 		}
+	}
+
+	if *readFromSyncada {
+		// Set up viper to read environment variables
+		v := viper.New()
+		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+		v.AutomaticEnv()
+
+		sshClient, err := cli.InitSyncadaSSH(v, logger)
+		if err != nil {
+			logger.Fatal("couldn't initialize SSH client", zap.Error(err))
+		}
+		defer func() {
+			if closeErr := sshClient.Close(); closeErr != nil {
+				logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			}
+		}()
+
+		sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+		if err != nil {
+			logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
+		}
+		defer func() {
+			if closeErr := sftpClient.Close(); closeErr != nil {
+				logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			}
+		}()
+
+		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
+		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, h.DB(), logger, *deleteFromSyncada)
+
+		// TODO GEX will put different response types in different directories, but
+		// Syncada puts everything in the same directory. When we have access to GEX in staging
+		// we will have to change this to use separate paths for different response types.
+		path := "/" + v.GetString(cli.SyncadaSFTPUserIDFlag) + v.GetString(cli.SyncadaSFTPOutboundDirectory)
+
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
+		if err != nil {
+			logger.Error("Error reading 997 responses", zap.Error(err))
+		} else {
+			logger.Info("Successfully processed 997 responses")
+		}
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, invoice.NewEDI824Processor(h.DB(), logger))
+		if err != nil {
+			logger.Error("Error reading 824 responses", zap.Error(err))
+		} else {
+			logger.Info("Successfully processed 824 responses")
+		}
+	} else {
+		logger.Info("Skipping reading from Syncada")
 	}
 	payload := payloads.PaymentRequests(&updatedPaymentRequests)
 

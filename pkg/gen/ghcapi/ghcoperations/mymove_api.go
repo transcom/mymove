@@ -96,6 +96,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesGetPaymentRequestsQueueHandler: queues.GetPaymentRequestsQueueHandlerFunc(func(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetPaymentRequestsQueue has not yet been implemented")
 		}),
+		QueuesGetServicesCounselingQueueHandler: queues.GetServicesCounselingQueueHandlerFunc(func(params queues.GetServicesCounselingQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetServicesCounselingQueue has not yet been implemented")
+		}),
 		MtoServiceItemListMTOServiceItemsHandler: mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
 		}),
@@ -116,6 +119,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoServiceItemUpdateMTOServiceItemStatusHandler: mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
+		}),
+		MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler: move_task_order.UpdateMTOStatusServiceCounselingCompletedHandlerFunc(func(params move_task_order.UpdateMTOStatusServiceCounselingCompletedParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMTOStatusServiceCounselingCompleted has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderHandler: move_task_order.UpdateMoveTaskOrderHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrder has not yet been implemented")
@@ -193,6 +199,8 @@ type MymoveAPI struct {
 	PaymentRequestsGetPaymentRequestsForMoveHandler payment_requests.GetPaymentRequestsForMoveHandler
 	// QueuesGetPaymentRequestsQueueHandler sets the operation handler for the get payment requests queue operation
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
+	// QueuesGetServicesCounselingQueueHandler sets the operation handler for the get services counseling queue operation
+	QueuesGetServicesCounselingQueueHandler queues.GetServicesCounselingQueueHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
@@ -207,6 +215,8 @@ type MymoveAPI struct {
 	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
 	MtoServiceItemUpdateMTOServiceItemStatusHandler mto_service_item.UpdateMTOServiceItemStatusHandler
+	// MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler sets the operation handler for the update m t o status service counseling completed operation
+	MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler move_task_order.UpdateMTOStatusServiceCounselingCompletedHandler
 	// MoveTaskOrderUpdateMoveTaskOrderHandler sets the operation handler for the update move task order operation
 	MoveTaskOrderUpdateMoveTaskOrderHandler move_task_order.UpdateMoveTaskOrderHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
@@ -325,6 +335,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.QueuesGetPaymentRequestsQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetPaymentRequestsQueueHandler")
 	}
+	if o.QueuesGetServicesCounselingQueueHandler == nil {
+		unregistered = append(unregistered, "queues.GetServicesCounselingQueueHandler")
+	}
 	if o.MtoServiceItemListMTOServiceItemsHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.ListMTOServiceItemsHandler")
 	}
@@ -345,6 +358,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemStatusHandler")
+	}
+	if o.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateMTOStatusServiceCounselingCompletedHandler")
 	}
 	if o.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderHandler")
@@ -508,6 +524,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/queues/counseling"] = queues.NewGetServicesCounselingQueue(o.context, o.QueuesGetServicesCounselingQueueHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_service_items"] = mto_service_item.NewListMTOServiceItems(o.context, o.MtoServiceItemListMTOServiceItemsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -533,6 +553,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status"] = mto_service_item.NewUpdateMTOServiceItemStatus(o.context, o.MtoServiceItemUpdateMTOServiceItemStatusHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed"] = move_task_order.NewUpdateMTOStatusServiceCounselingCompleted(o.context, o.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

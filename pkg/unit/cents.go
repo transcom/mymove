@@ -60,8 +60,8 @@ func (c Cents) ToDollarString() string {
 	return s
 }
 
-// ToDollarFloat returns a dollar float representation of this value
-func (c Cents) ToDollarFloat() float64 {
+// ToDollarFloatNoRound returns a dollar float representation of this value
+func (c Cents) ToDollarFloatNoRound() float64 {
 	d := float64(c) / 100.0
 	return d
 }

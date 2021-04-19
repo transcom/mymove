@@ -253,7 +253,7 @@ const SITScheduleOrigin = {
   key: 'SITScheduleOrigin',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'STRING',
+  type: 'INTEGER',
   value: '3',
 };
 const SITScheduleDest = {
@@ -457,12 +457,15 @@ const testParams = {
     ContractYearName,
   ],
   DomesticDestination1stSIT: [
-    RequestedPickupDate,
-    ServiceAreaDest,
     WeightActual,
     WeightBilledActual,
     WeightEstimated,
+    PriceRateOrFactor,
+    ServiceAreaDest,
+    RequestedPickupDate,
     ZipDestAddress,
+    EscalationCompounded,
+    ContractYearName,
   ],
   DomesticOriginAdditionalSIT: [
     NumberDaysSIT,
@@ -486,6 +489,10 @@ const testParams = {
     WeightBilledActual,
     WeightEstimated,
     ZipDestAddress,
+    PriceRateOrFactor,
+    IsPeak,
+    NumberDaysSIT,
+    EscalationCompounded,
     ContractYearName,
   ],
   DomesticOriginSITPickup: [

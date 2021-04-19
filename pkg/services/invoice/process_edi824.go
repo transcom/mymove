@@ -30,7 +30,7 @@ func NewEDI824Processor(db *pop.Connection,
 
 //ProcessFile parses an EDI 824 response and updates the payment request status
 func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
-	fmt.Printf(path)
+	fmt.Print(path)
 
 	edi824 := ediResponse824.EDI{}
 	err := edi824.Parse(stringEDI824)
@@ -38,6 +38,9 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		e.logger.Error("unable to parse EDI824", zap.Error(err))
 		return fmt.Errorf("unable to parse EDI824")
 	}
+
+	e.logger.Info("RECEIVED: 824 Processor received a 824")
+	e.logEDI(edi824)
 
 	var transactionError error
 	var otiGCN int64
@@ -92,7 +95,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				Code:                       &code,
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
-				InterchangeControlNumberID: prToICN.ID,
+				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType824,
 			}
 			err = tx.Save(&ediError)
@@ -111,17 +114,13 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 			return fmt.Errorf("unable to find move with associated payment request: %w", err)
 		}
 
-		// The BGN02 Reference Identification field from the 824 stores the reference identification used in the 858.
-		// For MilMove we use the MTO Reference ID in the 858 (which used to the field for the GBLOC, but is not relevant for GHC MilMove).
+		// The BGN02 Reference Identification field from the 824 stores the payment request number used in the 858.
+		// For MilMove we use the Payment Request Number in the 858
 		bgnRefIdentification := bgn.ReferenceIdentification
-		mtoRefID := move.ReferenceID
-		if mtoRefID == nil {
-			e.logger.Error(fmt.Sprintf("An associated move with mto.ReferenceID: %s was not found", *mtoRefID), zap.Error(err))
-			return fmt.Errorf("An associated move with mto.ReferenceID: %s was not found", *mtoRefID)
-		}
-		if bgnRefIdentification != *mtoRefID {
-			e.logger.Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID), zap.Error(err))
-			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %v of the associated move", bgnRefIdentification, *mtoRefID)
+		paymentRequestNumber := paymentRequest.PaymentRequestNumber
+		if bgnRefIdentification != paymentRequestNumber {
+			e.logger.Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %s of the associated payment request", bgnRefIdentification, paymentRequestNumber), zap.Error(err))
+			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %v of the associated payment request", bgnRefIdentification, paymentRequestNumber)
 		}
 
 		teds := fetchTEDSegments(edi824)
@@ -133,7 +132,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				Code:                       &code,
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
-				InterchangeControlNumberID: prToICN.ID,
+				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType824,
 			}
 			err = tx.Save(&ediError)
@@ -149,6 +148,8 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 			e.logger.Error("failure updating payment request status:", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
+		e.logger.Info("SUCCESS: 824 Processor updated Payment Request to new status")
+		e.logEDIWithPaymentRequest(edi824, paymentRequest)
 		return nil
 	})
 
@@ -172,4 +173,58 @@ func fetchTEDSegments(edi ediResponse824.EDI) []edisegment.TED {
 
 func (e *edi824Processor) EDIType() models.EDIType {
 	return models.EDIType824
+}
+
+func (e *edi824Processor) logEDI(edi ediResponse824.EDI) {
+	var transactionSet0 ediResponse824.TransactionSet
+	var bgn edisegment.BGN
+	var otiGCN int64
+	icn := edi.InterchangeControlEnvelope.ISA.InterchangeControlNumber
+	if len(edi.InterchangeControlEnvelope.FunctionalGroups) > 0 && len(edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets) > 0 {
+		transactionSet0 = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0]
+		bgn = transactionSet0.BGN
+		if len(transactionSet0.OTIs) > 0 {
+			otiGCN = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].OTIs[0].GroupControlNumber
+		} else {
+			e.logger.Warn("unable to log EDI 824, failed OTI index check")
+			return
+		}
+	} else {
+		e.logger.Warn("unable to log EDI 824, failed functional group or transaction sets index check")
+		return
+	}
+
+	e.logger.Info("EDI 824 log",
+		zap.Int64("824 ICN", icn),
+		zap.String("BGN.ReferenceIdentification", bgn.ReferenceIdentification),
+		zap.Int64("858 GCN", otiGCN),
+	)
+}
+
+func (e *edi824Processor) logEDIWithPaymentRequest(edi ediResponse824.EDI, paymentRequest models.PaymentRequest) {
+	var transactionSet0 ediResponse824.TransactionSet
+	var bgn edisegment.BGN
+	var otiGCN int64
+	icn := edi.InterchangeControlEnvelope.ISA.InterchangeControlNumber
+	if len(edi.InterchangeControlEnvelope.FunctionalGroups) > 0 && len(edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets) > 0 {
+		transactionSet0 = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0]
+		bgn = transactionSet0.BGN
+		if len(transactionSet0.OTIs) > 0 {
+			otiGCN = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].OTIs[0].GroupControlNumber
+		} else {
+			e.logger.Warn("unable to log EDI 824, failed OTI index check")
+			return
+		}
+	} else {
+		e.logger.Warn("unable to log EDI 824, failed functional group or transaction sets index check")
+		return
+	}
+
+	e.logger.Info("EDI 824 log",
+		zap.Int64("824 ICN", icn),
+		zap.String("BGN.ReferenceIdentification", bgn.ReferenceIdentification),
+		zap.Int64("858 GCN", otiGCN),
+		zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
+		zap.String("PaymentRequest.Status", string(paymentRequest.Status)),
+	)
 }

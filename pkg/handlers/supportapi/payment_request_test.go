@@ -3,7 +3,7 @@
 //RA: Functions with unchecked return values in the file are used set up environment variables
 //RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Validator Status: Mitigated
 //RA Modified Severity: N/A
 // nolint:errcheck
 package supportapi
@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/benbjohnson/clock"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -322,7 +323,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	handler := GetPaymentRequestEDIHandler{
 		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB(), icnSequencer, clock.NewMock()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock()),
 	}
 
 	urlFormat := "/payment-requests/%s/edi"
@@ -374,6 +375,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		}
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
+		mockGenerator.On("InitDB", mock.IsType(&pop.Connection{}))
 		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequestID, nil, validate.NewErrors(), ""))
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
@@ -396,6 +398,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		}
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
+		mockGenerator.On("InitDB", mock.IsType(&pop.Connection{}))
 		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, services.NewConflictError(paymentRequestID, "conflict error"))
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
@@ -433,6 +436,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
 		errStr := "some error"
+		mockGenerator.On("InitDB", mock.IsType(&pop.Connection{}))
 		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New(errStr)).Once()
 
 		mockGeneratorHandler := GetPaymentRequestEDIHandler{
@@ -572,11 +576,16 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
+		readFromSyncada := false
+		deleteFromSyncada := false
+
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada: &sendToSyncada,
-				Status:        "SENT_TO_GEX",
+				SendToSyncada:     &sendToSyncada,
+				ReadFromSyncada:   &readFromSyncada,
+				DeleteFromSyncada: &deleteFromSyncada,
+				Status:            "SENT_TO_GEX",
 			},
 		}
 
@@ -594,11 +603,15 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
+		readFromSyncada := false
+		deleteFromSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada: &sendToSyncada,
-				Status:        "SENT_TO_GEX",
+				SendToSyncada:     &sendToSyncada,
+				ReadFromSyncada:   &readFromSyncada,
+				DeleteFromSyncada: &deleteFromSyncada,
+				Status:            "SENT_TO_GEX",
 			},
 		}
 
@@ -622,9 +635,11 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
+		readFromSyncada := false
+		deleteFromSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
-			Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada},
+			Body:        &supportmessages.ProcessReviewedPaymentRequests{ReadFromSyncada: &readFromSyncada, SendToSyncada: &sendToSyncada, DeleteFromSyncada: &deleteFromSyncada},
 		}
 
 		response := handler.Handle(params)
@@ -646,11 +661,15 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
+		readFromSyncada := false
+		deleteFromSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada:    &sendToSyncada,
-				PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+				SendToSyncada:     &sendToSyncada,
+				ReadFromSyncada:   &readFromSyncada,
+				DeleteFromSyncada: &deleteFromSyncada,
+				PaymentRequestID:  strfmt.UUID(paymentRequestID.String()),
 			},
 		}
 
@@ -703,12 +722,16 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 		prID := reviewedPRs[0].ID
 		sendToSyncada := false
+		readFromSyncada := false
+		deleteFromSyncada := false
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada:    &sendToSyncada,
-				PaymentRequestID: strfmt.UUID(prID.String()),
+				SendToSyncada:     &sendToSyncada,
+				ReadFromSyncada:   &readFromSyncada,
+				DeleteFromSyncada: &deleteFromSyncada,
+				PaymentRequestID:  strfmt.UUID(prID.String()),
 			},
 		}
 
@@ -737,11 +760,15 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
 		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
 		sendToSyncada := false
+		readFromSyncada := false
+		deleteFromSyncada := false
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
-				SendToSyncada: &sendToSyncada,
+				SendToSyncada:     &sendToSyncada,
+				ReadFromSyncada:   &readFromSyncada,
+				DeleteFromSyncada: &deleteFromSyncada,
 			},
 		}
 

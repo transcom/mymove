@@ -63,8 +63,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
 	}
-	// set re service for service item
+	// set re service fields for service item
 	serviceItem.ReServiceID = reService.ID
+	serviceItem.ReService.Name = reService.Name
 
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
@@ -279,7 +280,10 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		// In case other service items have been created at the same time on this
 		// same move, we fetch the move from the DB and check if it has any
 		// submitted service items.
-		tx.Reload(&move)
+		err = tx.Reload(&move)
+		if err != nil {
+			return fmt.Errorf("%e", err)
+		}
 		for _, serviceItem := range move.MTOServiceItems {
 			if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
 				moveShouldBeApproved = false

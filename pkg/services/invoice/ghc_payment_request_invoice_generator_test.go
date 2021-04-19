@@ -3,7 +3,7 @@
 //RA: Functions with unchecked return values in the file are used set up environment variables
 //RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Validator Status: Mitigated
 //RA Modified Severity: N/A
 // nolint:errcheck
 package invoice
@@ -61,7 +61,8 @@ const testTimeFormat = "1504"
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
+	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -597,7 +598,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 }
 
 func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -665,7 +667,8 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		},
 	}
 
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
+	generator.InitDB(suite.DB())
 	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -766,7 +769,8 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 }
 
 func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -845,4 +849,48 @@ func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
 	suite.Equal("A...", truncateStr("ABCDEFGHI", 4))
 	suite.Equal("ABC...", truncateStr("ABCDEFGHI", 6))
 	suite.Equal("Too short", truncateStr("Too short", 200))
+}
+
+func (suite *GHCInvoiceSuite) TestGeneratorFailedToInitDB() {
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+	}
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+		PaymentRequest: models.PaymentRequest{
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+	})
+
+	assertions := testdatagen.Assertions{
+		Move:           mto,
+		PaymentRequest: paymentRequest,
+		PaymentServiceItem: models.PaymentServiceItem{
+			Status: models.PaymentServiceItemStatusApproved,
+		},
+	}
+
+	testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeMS,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+	testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeCS,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+
+	_, err := generator.Generate(paymentRequest, false)
+	suite.Error(err, "DB pointer is nil")
 }

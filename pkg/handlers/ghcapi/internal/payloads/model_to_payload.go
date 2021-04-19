@@ -195,18 +195,21 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.TotalDependents != nil {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
+	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
 	return &ghcmessages.Entitlements{
-		ID:                    strfmt.UUID(entitlement.ID.String()),
-		AuthorizedWeight:      authorizedWeight,
-		DependentsAuthorized:  entitlement.DependentsAuthorized,
-		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
-		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
-		ProGearWeight:         proGearWeight,
-		ProGearWeightSpouse:   proGearWeightSpouse,
-		StorageInTransit:      &sit,
-		TotalDependents:       totalDependents,
-		TotalWeight:           totalWeight,
-		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),
+		ID:                             strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:               authorizedWeight,
+		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
+		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
+		ProGearWeight:                  proGearWeight,
+		ProGearWeightSpouse:            proGearWeightSpouse,
+		StorageInTransit:               &sit,
+		TotalDependents:                totalDependents,
+		TotalWeight:                    totalWeight,
+		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
+		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
+		ETag: etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -573,8 +576,14 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		customer := move.Orders.ServiceMember
 
 		var validMTOShipments []models.MTOShipment
+		var earliestRequestedPickup *time.Time
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
+				if earliestRequestedPickup == nil {
+					earliestRequestedPickup = shipment.RequestedPickupDate
+				} else if shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
+					earliestRequestedPickup = shipment.RequestedPickupDate
+				}
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
 		}
@@ -589,6 +598,8 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
 			ID:                     *handlers.FmtUUID(move.Orders.ID),
 			Locator:                move.Locator,
+			SubmittedAt:            handlers.FmtDateTimePtr(move.SubmittedAt),
+			RequestedMoveDate:      handlers.FmtDatePtr(earliestRequestedPickup),
 			DepartmentIndicator:    &deptIndicator,
 			ShipmentsCount:         int64(len(validMTOShipments)),
 			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),

@@ -330,7 +330,7 @@ func (eng *Engine) Start() error {
 			eng.Logger.Info("Interrupt signal recieved...")
 			eng.DoneChannel <- true
 		default:
-			eng.run()
+			err = eng.run()
 			if err != nil {
 				return err
 			}
