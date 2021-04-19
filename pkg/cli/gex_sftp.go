@@ -19,7 +19,7 @@ const (
 	// GEXSFTPIPAddressFlag is the ENV var for the GEX SFTP IP address
 	GEXSFTPIPAddressFlag string = "gex-sftp-ip-address"
 	// GEXSFTPPasswordFlag is the ENV var for the GEX SFTP password
-	GEXSFTPPasswordFlag string = "gex-sftp-password" // #nosec G101
+	GEXSFTPPasswordFlag string = "gex-sftp-password" // #nosec G101 https://dp3.atlassian.net/browse/MB-7728
 	// GEXSFTPHostKeyFlag is the ENV var for the GEX SFTP host key
 	GEXSFTPHostKeyFlag string = "gex-sftp-host-key"
 	// GEXSFTP997PickupDirectory is the ENV var for the directory where GEX delivers responses
