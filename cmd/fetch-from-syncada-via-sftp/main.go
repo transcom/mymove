@@ -21,8 +21,10 @@ import (
 const (
 	// LastReadTimeFlag is the ENV var for the last read time
 	LastReadTimeFlag string = "last-read-time"
-	// DirectoryFlag is the ENV var for the directory
-	DirectoryFlag string = "directory"
+	// Directory997Flag is the ENV var for the directory
+	Directory997Flag string = "directory"
+	// Directory824Flag is the ENV var for the directory
+	Directory824Flag string = "directory"
 	// DeleteFilesFlag is the ENV var for deleting SFTP files after they've been processed
 	DeleteFilesFlag string = "delete-files-after-processing"
 )
@@ -40,7 +42,7 @@ func checkConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
-	err = cli.CheckSyncadaSFTP(v)
+	err = cli.CheckGEXSFTP(v)
 	if err != nil {
 		return err
 	}
@@ -56,10 +58,11 @@ func initFlags(flag *pflag.FlagSet) {
 	cli.InitLoggingFlags(flag)
 
 	// Syncada SFTP Config
-	cli.InitSyncadaSFTPFlags(flag)
+	cli.InitGEXSFTPFlags(flag)
 
 	flag.String(LastReadTimeFlag, "", "Files older than this RFC3339 time will not be fetched.")
-	flag.String(DirectoryFlag, "", "syncada path")
+	flag.String(Directory997Flag, "", "GEX syncada 997 pickup path")
+	flag.String(Directory824Flag, "", "GEX syncada 824 pickup path")
 	flag.Bool(DeleteFilesFlag, false, "If present, delete files on SFTP server that have been processed successfully")
 
 	// Don't sort flags
@@ -103,7 +106,7 @@ func main() {
 		}
 	}()
 
-	sshClient, err := cli.InitSyncadaSSH(v, logger)
+	sshClient, err := cli.InitGEXSSH(v, logger)
 	if err != nil {
 		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 	}
@@ -113,7 +116,7 @@ func main() {
 		}
 	}()
 
-	sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+	sftpClient, err := cli.InitGEXSFTP(sshClient, logger)
 	if err != nil {
 		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
 	}
@@ -137,14 +140,14 @@ func main() {
 	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
 	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, db, logger, v.GetBool(DeleteFilesFlag))
 
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, invoice.NewEDI997Processor(db, logger))
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(Directory997Flag), t, invoice.NewEDI997Processor(db, logger))
 	if err != nil {
 		logger.Error("Error reading 997 responses", zap.Error(err))
 	} else {
 		logger.Info("Successfully processed 997 responses")
 	}
 
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(DirectoryFlag), t, invoice.NewEDI824Processor(db, logger))
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(v.GetString(Directory824Flag), t, invoice.NewEDI824Processor(db, logger))
 	if err != nil {
 		logger.Error("Error reading 824 responses", zap.Error(err))
 	} else {
