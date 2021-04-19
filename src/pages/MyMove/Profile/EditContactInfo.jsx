@@ -1,4 +1,4 @@
-import PropTypes, { bool, string } from 'prop-types';
+import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -18,8 +18,7 @@ import {
 } from 'store/entities/actions';
 import { selectBackupContacts, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { ResidentialAddressShape } from 'types/address';
-import { BackupContactShape } from 'types/customerShapes';
+import { BackupContactShape, ServiceMemberShape } from 'types/customerShapes';
 
 export const EditContactInfo = ({
   currentBackupContacts,
@@ -155,16 +154,7 @@ export const EditContactInfo = ({
 
 EditContactInfo.propTypes = {
   currentBackupContacts: PropTypes.arrayOf(BackupContactShape).isRequired,
-  serviceMember: PropTypes.shape({
-    id: string.isRequired,
-    telephone: string.isRequired,
-    secondary_telephone: string,
-    personal_email: string.isRequired,
-    email_is_preferred: bool,
-    phone_is_preferred: bool,
-    residential_address: ResidentialAddressShape.isRequired,
-    backup_mailing_address: ResidentialAddressShape.isRequired,
-  }).isRequired,
+  serviceMember: ServiceMemberShape.isRequired,
   setFlashMessage: PropTypes.func.isRequired,
   updateBackupContact: PropTypes.func.isRequired,
   updateServiceMember: PropTypes.func.isRequired,

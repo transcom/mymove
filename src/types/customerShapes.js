@@ -17,6 +17,8 @@ export const ServiceMemberShape = shape({
   personal_email: string,
   email_is_preferred: bool,
   phone_is_preferred: bool,
+  residential_address: AddressShape,
+  backup_mailing_address: AddressShape,
 });
 
 export const MoveShape = shape({
