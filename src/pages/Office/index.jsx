@@ -143,7 +143,7 @@ export class OfficeApp extends Component {
         key="servicesCounselingMoveInfoRoute"
         path="/counseling/moves/:moveCode"
         component={ServicesCounselingMoveInfo}
-        requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
+        requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
       />,
     ];
 
@@ -171,7 +171,10 @@ export class OfficeApp extends Component {
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
             {!hideHeaderPPM && (
               <>
-                {!userIsLoggedIn || (activeRole !== roleTypes.TOO && activeRole !== roleTypes.TIO) ? (
+                {!userIsLoggedIn ||
+                (activeRole !== roleTypes.TOO &&
+                  activeRole !== roleTypes.TIO &&
+                  activeRole !== roleTypes.SERVICES_COUNSELOR) ? (
                   <QueueHeader />
                 ) : (
                   <MilmoveHeader
@@ -217,11 +220,13 @@ export class OfficeApp extends Component {
                       component={PaymentRequestQueue}
                       requiredRoles={[roleTypes.TIO]}
                     />
+
+                    {/* SERVICES_COUNSELOR */}
                     <PrivateRoute
                       path="/counseling/queue"
                       exact
                       component={ServicesCounselingQueue}
-                      requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 
                     {/* PPM & TXO conflicting routes - select based on user role */}
