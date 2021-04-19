@@ -23,9 +23,9 @@ const (
 	// GEXSFTPHostKeyFlag is the ENV var for the GEX SFTP host key
 	GEXSFTPHostKeyFlag string = "gex-sftp-host-key"
 	// GEXSFTP997PickupDirectory is the ENV var for the directory where GEX delivers responses
-	GEXSFTP997PickupDirectory string = "gex_sftp_997_pickup_directory"
+	GEXSFTP997PickupDirectory string = "gex-sftp-997-pickup-directory"
 	// GEXSFTP824PickupDirectory is the ENV var for the directory where GEX delivers responses
-	GEXSFTP824PickupDirectory string = "gex_sftp_824_pickup_directory"
+	GEXSFTP824PickupDirectory string = "gex-sftp-824-pickup-directory"
 )
 
 // InitGEXSFTPFlags initializes GEX SFTP command line flags
