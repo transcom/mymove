@@ -13,8 +13,9 @@ import (
 )
 
 // GexSender is an interface for sending and receiving a request
+//go:generate mockery -name GexSender
 type GexSender interface {
-	SendToGex(edi string, transactionName string) (resp *http.Response, err error)
+	SendToGex(edi string, filename string) (resp *http.Response, err error)
 }
 
 // GHCPaymentRequestInvoiceGenerator is the exported interface for generating an invoice
