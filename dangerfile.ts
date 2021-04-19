@@ -1,5 +1,14 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { danger, warn, fail } from 'danger';
+//RA Summary: eslint-plugin-security - detect-child-process -
+//RA Executing commands from an untrusted source or in an untrusted environment can cause an application to execute malicious commands on behalf of an attacker.
+//RA: Locates usages of child process.
+//RA: This usage checks for any critical or high vulnerabilities and upgrades in our dependencies to alert the Github user.
+//RA: This usage does not utilize any user input and there is no opening for command injection.
+//RA Developer Status: Mitigated
+//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Validator:
+//RA Modified Severity:
 // eslint-disable-next-line security/detect-child-process
 const child = require('child_process');
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -161,7 +170,9 @@ function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
 }
 
 const bypassingLinterChecks = async () => {
-  const allFiles = danger.git.modified_files.concat(danger.git.created_files).filter(file => file.includes('src/') || file.includes('pkg/'));
+  const allFiles = danger.git.modified_files
+    .concat(danger.git.created_files)
+    .filter((file) => file.includes('src/') || file.includes('pkg/'));
   const diffsByFile = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
   const dangerMsgSegment = checkPRHasProhibitedLinterOverride(diffsByFile);
   if (dangerMsgSegment) {
