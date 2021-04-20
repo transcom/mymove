@@ -139,12 +139,6 @@ export class OfficeApp extends Component {
         component={TXOMoveInfo}
         requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
       />,
-      <PrivateRoute
-        key="servicesCounselingMoveInfoRoute"
-        path="/counseling/moves/:moveCode"
-        component={ServicesCounselingMoveInfo}
-        requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
-      />,
     ];
 
     const isFullscreenPage = matchPath(pathname, {
@@ -228,6 +222,12 @@ export class OfficeApp extends Component {
                       component={ServicesCounselingQueue}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
+                    <PrivateRoute
+                      key="servicesCounselingMoveInfoRoute"
+                      path="/counseling/moves/:moveCode"
+                      component={ServicesCounselingMoveInfo}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
 
                     {/* PPM & TXO conflicting routes - select based on user role */}
                     {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
@@ -245,6 +245,8 @@ export class OfficeApp extends Component {
                             return <PaymentRequestQueue {...routeProps} />;
                           case roleTypes.TOO:
                             return <MoveQueue {...routeProps} />;
+                          case roleTypes.SERVICES_COUNSELOR:
+                            return <ServicesCounselingQueue {...routeProps} />;
                           default:
                             // User has unknown role or shouldn't have access
                             return <div />;
