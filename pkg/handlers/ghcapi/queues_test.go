@@ -990,7 +990,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTOO,
+		RoleType: roles.RoleTypeServicesCounselor,
 	})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
