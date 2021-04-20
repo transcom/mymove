@@ -8,4 +8,4 @@ export const roleTypes = {
   SERVICES_COUNSELOR: 'services_counselor',
 };
 
-export const officeRoles = [roleTypes.PPM, roleTypes.TOO, roleTypes.TIO];
+export const officeRoles = [roleTypes.PPM, roleTypes.TOO, roleTypes.TIO, roleTypes.SERVICES_COUNSELOR];
