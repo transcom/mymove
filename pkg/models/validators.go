@@ -223,6 +223,22 @@ func (v *MustBeBothNilOrBothHaveValue) IsValid(errors *validate.Errors) {
 	}
 }
 
+// AtLeastOneNotNil validates that at least one of two fields are not nil
+type AtLeastOneNotNil struct {
+	FieldName1  string
+	FieldValue1 *string
+	FieldName2  string
+	FieldValue2 *string
+}
+
+// IsValid adds an error if fieldValue1 and fieldValue2 are nil
+func (v *AtLeastOneNotNil) IsValid(errors *validate.Errors) {
+	if v.FieldValue1 == nil && v.FieldValue2 == nil {
+		errors.Add(validators.GenerateKey(v.FieldName1), fmt.Sprintf("Both %s and %s cannot be nil, one must be valid", v.FieldName1, v.FieldName2))
+		errors.Add(validators.GenerateKey(v.FieldName2), fmt.Sprintf("Both %s and %s cannot be nil, one must be valid", v.FieldName2, v.FieldName1))
+	}
+}
+
 // DateIsWorkday validates that field is on a workday
 type DateIsWorkday struct {
 	Name     string

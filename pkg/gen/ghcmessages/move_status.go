@@ -23,6 +23,12 @@ const (
 	// MoveStatusDRAFT captures enum value "DRAFT"
 	MoveStatusDRAFT MoveStatus = "DRAFT"
 
+	// MoveStatusNEEDSSERVICECOUNSELING captures enum value "NEEDS SERVICE COUNSELING"
+	MoveStatusNEEDSSERVICECOUNSELING MoveStatus = "NEEDS SERVICE COUNSELING"
+
+	// MoveStatusSEVICECOUNSELINGCOMPLETED captures enum value "SEVICE COUNSELING COMPLETED"
+	MoveStatusSEVICECOUNSELINGCOMPLETED MoveStatus = "SEVICE COUNSELING COMPLETED"
+
 	// MoveStatusSUBMITTED captures enum value "SUBMITTED"
 	MoveStatusSUBMITTED MoveStatus = "SUBMITTED"
 
@@ -41,7 +47,7 @@ var moveStatusEnum []interface{}
 
 func init() {
 	var res []MoveStatus
-	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","APPROVALS REQUESTED","APPROVED","CANCELED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DRAFT","NEEDS SERVICE COUNSELING","SEVICE COUNSELING COMPLETED","SUBMITTED","APPROVALS REQUESTED","APPROVED","CANCELED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

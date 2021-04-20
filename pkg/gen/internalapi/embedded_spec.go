@@ -4789,7 +4789,8 @@ func init() {
         "DRAFT",
         "SUBMITTED",
         "APPROVED",
-        "CANCELED"
+        "CANCELED",
+        "NEEDS SERVICE COUNSELING"
       ],
       "x-display-value": {
         "APPROVED": "Approved",
@@ -11296,7 +11297,8 @@ func init() {
         "DRAFT",
         "SUBMITTED",
         "APPROVED",
-        "CANCELED"
+        "CANCELED",
+        "NEEDS SERVICE COUNSELING"
       ],
       "x-display-value": {
         "APPROVED": "Approved",

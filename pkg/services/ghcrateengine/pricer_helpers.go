@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingParams, error) {
+func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if firstDaySITCode == models.ReServiceCodeDDFSIT {
 		sitType = "destination"
@@ -43,10 +43,17 @@ func priceDomesticFirstDaySIT(db *pop.Connection, firstDaySITCode models.ReServi
 
 	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
-	return totalPriceCents, nil, nil
+	params := services.PricingDisplayParams{
+		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
+		{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
+		{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
+		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(serviceAreaPrice.PriceCents)},
+	}
+
+	return totalPriceCents, params, nil
 }
 
-func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingParams, error) {
+func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if additionalDaySITCode == models.ReServiceCodeDDASIT {
 		sitType = "destination"
@@ -77,10 +84,28 @@ func priceDomesticAdditionalDaysSIT(db *pop.Connection, additionalDaySITCode mod
 
 	totalPriceCents := unit.Cents(math.Round(totalForNumberOfDaysPrice))
 
-	return totalPriceCents, nil, nil
+	displayParams := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(serviceAreaPrice.PriceCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+	return totalPriceCents, displayParams, nil
 }
 
-func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingParams, error) {
+func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType, sitModifier, zipOriginalName, zipActualName string
 	if pickupDeliverySITCode == models.ReServiceCodeDDDSIT {
 		sitType = "destination"
@@ -116,12 +141,12 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	if zip3Original == zip3Actual {
 		// Do a normal shorthaul calculation
 		shorthaulPricer := NewDomesticShorthaulPricer(db)
-		totalPriceCents, _, err := shorthaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := shorthaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
 		}
 
-		return totalPriceCents, nil, nil
+		return totalPriceCents, displayParams, nil
 	}
 
 	// Zip3s must be different at this point.  Now examine distance.
@@ -130,12 +155,12 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	if distance > 50 {
 		// Do a normal linehaul calculation
 		linehaulPricer := NewDomesticLinehaulPricer(db)
-		totalPriceCents, _, err := linehaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := linehaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}
 
-		return totalPriceCents, nil, nil
+		return totalPriceCents, displayParams, nil
 	}
 
 	// Zip3s must be different at this point and distance is <= 50.
@@ -157,48 +182,57 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	escalatedTotalPrice := baseTotalPrice * contractYear.EscalationCompounded
 	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
-	return totalPriceCents, nil, nil
+	displayParams := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(domOtherPrice.PriceCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+
+	return totalPriceCents, displayParams, nil
 }
 
-func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params services.PricingParams) (models.PaymentServiceItemParams, error) {
+// createPricerGeneratedParams stores PaymentServiceItemParams, whose origin is the PRICER, into the database
+// It also returns the newly created PaymentServiceItemParams.
+func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params services.PricingDisplayParams) (models.PaymentServiceItemParams, error) {
 	var paymentServiceItemParams models.PaymentServiceItemParams
 
 	if len(params) == 0 {
-		return paymentServiceItemParams, fmt.Errorf("PricingParams must not be empty")
+		return paymentServiceItemParams, fmt.Errorf("PricingDisplayParams must not be empty")
 	}
 
 	for _, param := range params {
+
+		// Find the paymentServiceItemParam associated with this PricingDisplayParam
 		var serviceItemParamKey models.ServiceItemParamKey
 		err := db.Q().
 			Where("key = ?", param.Key).
 			First(&serviceItemParamKey)
 		if err != nil {
-			return paymentServiceItemParams, fmt.Errorf("Unable to find service item param key for %v", serviceItemParamKey.Key)
+			return paymentServiceItemParams, fmt.Errorf("Unable to find service item param key for %v", param.Key)
 		}
 		if serviceItemParamKey.Origin != models.ServiceItemParamOriginPricer {
 			return paymentServiceItemParams, fmt.Errorf("Service item param key is not a pricer param. Param key: %v", serviceItemParamKey.Key)
 		}
 
-		value := param.Value
-		switch serviceItemParamKey.Type {
-		case models.ServiceItemParamTypeTimestamp:
-			if timestampValue, ok := param.Value.(time.Time); ok {
-				value = timestampValue.Format(TimestampParamFormat)
-			} else {
-				return paymentServiceItemParams, fmt.Errorf("Pricing param value is invalid timestamp time.Time type for key: %v", serviceItemParamKey.Key)
-			}
-		case models.ServiceItemParamTypeDate:
-			if dateValue, ok := param.Value.(time.Time); ok {
-				value = dateValue.Format(DateParamFormat)
-			} else {
-				return paymentServiceItemParams, fmt.Errorf("Pricing param value is invalid date time.Time type for key: %v", serviceItemParamKey.Key)
-			}
-		}
-
+		// Create the PaymentServiceItemParam from the PricingDisplayParam and store it in the DB
 		newParam := models.PaymentServiceItemParam{
 			PaymentServiceItemID:  paymentServiceItemID,
 			ServiceItemParamKeyID: serviceItemParamKey.ID,
-			Value:                 fmt.Sprintf("%v", value),
+			ServiceItemParamKey:   serviceItemParamKey,
+			Value:                 param.Value,
 		}
 
 		verrs, err := db.ValidateAndCreate(&newParam)
@@ -207,6 +241,7 @@ func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.U
 		} else if verrs.HasAny() {
 			return paymentServiceItemParams, services.NewInvalidCreateInputError(verrs, "validation error with creating payment service item param")
 		} else {
+			// Append it to a slice of PaymentServiceItemParams to return
 			paymentServiceItemParams = append(paymentServiceItemParams, newParam)
 		}
 	}

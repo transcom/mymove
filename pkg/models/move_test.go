@@ -10,11 +10,11 @@
 package models_test
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -148,7 +148,7 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 	reason := "SM's orders revoked"
 
 	// Check to ensure move shows SUBMITTED before Cancel()
-	err = move.Submit(time.Now())
+	err = move.Submit()
 	suite.NoError(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
@@ -192,7 +192,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
 	// Once submitted
-	err = move.Submit(time.Now())
+	err = move.Submit()
 	suite.MustSave(move)
 	suite.DB().Reload(move)
 	suite.NoError(err)
@@ -231,7 +231,7 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 
 	// Associate PPM with the move it's on.
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
-	err = move.Submit(time.Now())
+	err = move.Submit()
 	suite.NoError(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
@@ -258,6 +258,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
+
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
@@ -322,4 +323,48 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 		}
 		suite.Equal(move.ID, ts.resultID, "Wrong moveID: %s", ts.lookupID)
 	}
+}
+
+func (suite *ModelSuite) TestMoveApproval() {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+
+	suite.Run("from valid statuses", func() {
+		validStatuses := []struct {
+			desc   string
+			status MoveStatus
+		}{
+			{"Submitted", MoveStatusSUBMITTED},
+			{"Approvals Requested", MoveStatusAPPROVALSREQUESTED},
+			{"Service Counseling Completed", MoveStatusServiceCounselingCompleted},
+			{"Approved", MoveStatusAPPROVED},
+		}
+		for _, validStatus := range validStatuses {
+			move.Status = validStatus.status
+
+			err := move.Approve()
+
+			suite.NoError(err)
+			suite.Equal(MoveStatusAPPROVED, move.Status)
+		}
+	})
+
+	suite.Run("from invalid statuses", func() {
+		invalidStatuses := []struct {
+			desc   string
+			status MoveStatus
+		}{
+			{"Draft", MoveStatusDRAFT},
+			{"Canceled", MoveStatusCANCELED},
+			{"Needs Service Counseling", MoveStatusNeedsServiceCounseling},
+		}
+		for _, invalidStatus := range invalidStatuses {
+			move.Status = invalidStatus.status
+
+			err := move.Approve()
+
+			suite.Error(err)
+			suite.Contains(err.Error(), "A move can only be approved if it's in one of these states")
+			suite.Contains(err.Error(), fmt.Sprintf("However, its current status is: %s", invalidStatus.status))
+		}
+	})
 }

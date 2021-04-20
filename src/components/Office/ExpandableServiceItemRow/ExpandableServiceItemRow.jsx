@@ -11,12 +11,13 @@ import { PaymentServiceItemShape } from 'types';
 import { formatCents, toDollarString } from 'shared/formatters';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 
-const ExpandableServiceItemRow = ({ serviceItem, index }) => {
+const ExpandableServiceItemRow = ({ serviceItem, index, disableExpansion }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const canClickToExpandContent = (canShowExpandableContent, item) => {
     return canShowExpandableContent && item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED;
   };
-  const canShowExpandableContent = allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode);
+  const canShowExpandableContent =
+    !disableExpansion && allowedServiceItemCalculations.includes(serviceItem.mtoServiceItemCode);
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
@@ -40,6 +41,7 @@ const ExpandableServiceItemRow = ({ serviceItem, index }) => {
         data-groupid={index}
         className={tableRowClasses}
         onClick={canClickToExpandContent(canShowExpandableContent, serviceItem) ? handleExpandClick : undefined}
+        aria-expanded={isExpanded}
       >
         <td data-testid="serviceItemName">
           {canShowExpandableContent && serviceItem.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
@@ -87,6 +89,11 @@ const ExpandableServiceItemRow = ({ serviceItem, index }) => {
 ExpandableServiceItemRow.propTypes = {
   serviceItem: PaymentServiceItemShape.isRequired,
   index: PropTypes.number.isRequired,
+  disableExpansion: PropTypes.bool,
+};
+
+ExpandableServiceItemRow.defaultProps = {
+  disableExpansion: false,
 };
 
 export default ExpandableServiceItemRow;

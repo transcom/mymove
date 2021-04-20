@@ -57,10 +57,10 @@ func (e *EDI) Parse(ediString string) error {
 			counter.fg = append(counter.fg, functionalGroupCounter{})
 		case "ST":
 			// bump up counter for tsCounter
-			// create new transactionSet
+			// create new TransactionSet
 			// inside functional group > transaction set
 			fgIndex := counter.fgCounter - 1
-			ts := transactionSet{}
+			ts := TransactionSet{}
 			err = ts.ST.Parse(record[1:])
 			if err != nil {
 				return fmt.Errorf("824 failed to parse %w", err)

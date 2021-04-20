@@ -26,6 +26,12 @@ const (
 	GEXSendProdInvoiceFlag string = "gex-send-prod-invoice"
 	// GEXURLFlag is the GEX URL FLag
 	GEXURLFlag string = "gex-url"
+	// SendToSyncada is the flag to control if we try sending files to syncada or not
+	SendToSyncada string = "send-to-syncada"
+	// GEXChannelDataWarehouse is the URL query parameter that we use when sending to USBank's data warehouse
+	GEXChannelDataWarehouse string = "TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM"
+	// GEXChannelInvoice is the URL query parameter that we use when sending EDI invoices to GEX
+	GEXChannelInvoice string = "TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM"
 )
 
 var gexHostnames = []string{
@@ -40,8 +46,8 @@ var gexPaths = []string{
 
 var gexChannels = []string{
 	"",
-	"TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM",
-	"TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM",
+	GEXChannelInvoice,
+	GEXChannelDataWarehouse,
 }
 
 // InitGEXFlags initializes GEX command line flags
@@ -49,6 +55,8 @@ func InitGEXFlags(flag *pflag.FlagSet) {
 	flag.String(GEXBasicAuthUsernameFlag, "", "GEX api auth username")
 	flag.String(GEXBasicAuthPasswordFlag, "", "GEX api auth password")
 	flag.Bool(GEXSendProdInvoiceFlag, false, "Flag (bool) for EDI Invoices to signify if they should be sent with Production or Test indicator")
+	flag.Bool(SendToSyncada, false, "Flag (bool) for turning on or off sending EDI 858s to syncada, default false")
+
 	flag.String(GEXURLFlag, "", "URL for sending an HTTP POST request to GEX")
 }
 

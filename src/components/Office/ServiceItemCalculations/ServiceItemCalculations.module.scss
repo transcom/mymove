@@ -1,7 +1,5 @@
 @import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
-@import 'shared/styles/_custom';
 
 .ServiceItemCalculations {
   @include u-padding(2);
@@ -38,6 +36,7 @@
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: flex-start;
+    overflow: auto;
 
     .col {
       flex-shrink: 0;

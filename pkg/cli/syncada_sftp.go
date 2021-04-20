@@ -32,6 +32,8 @@ const (
 	SyncadaSFTPPasswordFlag string = "syncada-sftp-password" // #nosec G101
 	// SyncadaSFTPHostKeyFlag is the ENV var for the Syncada SFTP host key
 	SyncadaSFTPHostKeyFlag string = "syncada-sftp-host-key"
+	// SyncadaSFTPOutboundDirectory is the ENV var for the directory where Syncada uploads responses
+	SyncadaSFTPOutboundDirectory string = "syncada-sftp-outbound-directory"
 )
 
 // InitSyncadaSFTPFlags initializes Syncada SFTP command line flags

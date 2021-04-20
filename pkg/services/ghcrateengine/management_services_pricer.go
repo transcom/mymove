@@ -23,17 +23,23 @@ func NewManagementServicesPricer(db *pop.Connection) services.ManagementServices
 }
 
 // Price determines the price for a management service
-func (p managementServicesPricer) Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingParams, error) {
+func (p managementServicesPricer) Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingDisplayParams, error) {
 	taskOrderFee, err := fetchTaskOrderFee(p.db, contractCode, models.ReServiceCodeMS, mtoAvailableToPrimeAt)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch task order fee: %w", err)
 	}
+	params := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(taskOrderFee.PriceCents),
+		},
+	}
 
-	return taskOrderFee.PriceCents, nil, nil
+	return taskOrderFee.PriceCents, params, nil
 }
 
 // PriceUsingParams determines the price for a management service given PaymentServiceItemParams
-func (p managementServicesPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
+func (p managementServicesPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
