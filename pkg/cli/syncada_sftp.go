@@ -10,7 +10,6 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// TODO: Figure out what to do in terms of static analysis on the false positive for G101
 const (
 	// SyncadaSFTPPortFlag is the ENV var for the Syncada SFTP port
 	SyncadaSFTPPortFlag string = "syncada-sftp-port"
@@ -18,6 +17,17 @@ const (
 	SyncadaSFTPUserIDFlag string = "syncada-sftp-user-id"
 	// SyncadaSFTPIPAddressFlag is the ENV var for the Syncada SFTP IP address
 	SyncadaSFTPIPAddressFlag string = "syncada-sftp-ip-address"
+
+	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	//RA: This line was flagged because of use of the word "password"
+	//RA: This line is used to identify the name of the flag. SyncadaSFTPPasswordFlag is the Syncada SFTP Password Flag.
+	//RA: See MB-7727 and MB-7728 for tracking future work to resolve this issue
+	//RA: App should implement public-key authentication; issue remains open while interface control is negotiated for this connection.
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Known Issue
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity: CAT III
+
 	// SyncadaSFTPPasswordFlag is the ENV var for the Syncada SFTP password
 	SyncadaSFTPPasswordFlag string = "syncada-sftp-password" // #nosec G101
 	// SyncadaSFTPHostKeyFlag is the ENV var for the Syncada SFTP host key
