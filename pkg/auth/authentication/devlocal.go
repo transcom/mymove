@@ -649,6 +649,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+			Gbloc:     "LKNQ",
 		}
 
 		verrs, err = h.db.ValidateAndSave(&office)
