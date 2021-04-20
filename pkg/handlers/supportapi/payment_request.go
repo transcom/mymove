@@ -87,6 +87,8 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	case "PAID":
 		status = models.PaymentRequestStatusPaid
 		paidAtDate = time.Now()
+	case "EDI_ERROR":
+		status = models.PaymentRequestStatusEDIError
 	}
 
 	// If we got a rejection reason let's use it
@@ -334,6 +336,8 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				paidAt := time.Now()
 				pr.Status = models.PaymentRequestStatusPaid
 				pr.PaidAt = &paidAt
+			case "EDI_ERROR":
+				pr.Status = models.PaymentRequestStatusEDIError
 			case "":
 				sentToGex := time.Now()
 				pr.Status = models.PaymentRequestStatusSentToGex
