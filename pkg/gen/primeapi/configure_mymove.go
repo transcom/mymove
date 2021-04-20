@@ -68,6 +68,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdates has not yet been implemented")
 		})
 	}
+	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
+		api.MoveTaskOrderGetMoveTaskOrderHandler = move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
+		})
+	}
 	if api.MtoShipmentUpdateMTOAgentHandler == nil {
 		api.MtoShipmentUpdateMTOAgentHandler = mto_shipment.UpdateMTOAgentHandlerFunc(func(params mto_shipment.UpdateMTOAgentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOAgent has not yet been implemented")
