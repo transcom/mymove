@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Set of flags used for GEX
 const (
 	// GEXBasicAuthUsernameFlag is the GEX Basic Auth Username Flag
 	GEXBasicAuthUsernameFlag string = "gex-basic-auth-username"
@@ -19,8 +20,8 @@ const (
 	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
-
-	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag #nosec G101
+	// #nosec G101
+	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag
 	GEXBasicAuthPasswordFlag string = "gex-basic-auth-password"
 	// GEXSendProdInvoiceFlag is the GEX Send Prod Invoice Flag
 	GEXSendProdInvoiceFlag string = "gex-send-prod-invoice"

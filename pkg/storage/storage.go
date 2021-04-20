@@ -10,7 +10,8 @@ import (
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: CAT III
-	"crypto/md5" // #nosec G501
+	// #nosec G501
+	"crypto/md5"
 	"encoding/base64"
 	"io"
 	"net/http"
