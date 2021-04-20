@@ -89,7 +89,7 @@ type DomesticUnpackPricer interface {
 // FuelSurchargePricer prices the fuel surcharge price for a GHC Move
 //go:generate mockery -name FuelSurchargePricer
 type FuelSurchargePricer interface {
-	Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier float64, fuelPrice unit.Millicents) (unit.Cents, PricingDisplayParams, error)
+	Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
