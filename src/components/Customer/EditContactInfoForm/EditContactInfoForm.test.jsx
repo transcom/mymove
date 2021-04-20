@@ -195,7 +195,7 @@ describe('EditContactInfoForm component', () => {
     });
   });
 
-  it('implements the onBack handler when the Back button is clicked', async () => {
+  it('implements the onCancel handler when the Cancel button is clicked', async () => {
     render(<EditContactInfoForm {...testProps} />);
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
