@@ -10,7 +10,6 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// TODO: Figure out what to do in terms of static analysis on the false positive for G101
 const (
 	// SyncadaSFTPPortFlag is the ENV var for the Syncada SFTP port
 	SyncadaSFTPPortFlag string = "syncada-sftp-port"
@@ -28,6 +27,7 @@ const (
 	//RA Validator Status: Known Issue
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
+
 	// SyncadaSFTPPasswordFlag is the ENV var for the Syncada SFTP password
 	SyncadaSFTPPasswordFlag string = "syncada-sftp-password" // #nosec G101
 	// SyncadaSFTPHostKeyFlag is the ENV var for the Syncada SFTP host key
