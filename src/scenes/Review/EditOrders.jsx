@@ -239,7 +239,6 @@ function mapStateToProps(state) {
     existingUploads: uploads,
     error: get(state, 'orders.error'),
     formValues: getFormValues(editOrdersFormName)(state),
-    hasSubmitError: get(state, 'orders.hasSubmitError'),
     moveIsApproved: selectMoveIsApproved(state),
     isPpm: selectHasCurrentPPM(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),

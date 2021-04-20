@@ -2517,6 +2517,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": true
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -2528,6 +2532,11 @@ func init() {
           "example": 2000
         },
         "proGearWeightSpouse": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
@@ -3615,7 +3624,7 @@ func init() {
         },
         "requestedMoveDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -3728,6 +3737,7 @@ func init() {
         "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
+        "ContractYearName",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -3735,7 +3745,11 @@ func init() {
         "DistanceZipSITDest",
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
+        "EscalationCompounded",
+        "FSCMultiplier",
+        "FSCPriceDifferenceInCents",
         "FSCWeightBasedDistanceMultiplier",
+        "IsPeak",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -3744,6 +3758,7 @@ func init() {
         "PriceAreaIntlDest",
         "PriceAreaIntlOrigin",
         "PriceAreaOrigin",
+        "PriceRateOrFactor",
         "PSI_LinehaulDom",
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
@@ -3776,7 +3791,9 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress"
+        "ZipSITDestHHGFinalAddress",
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -6938,6 +6955,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": true
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -6949,6 +6970,11 @@ func init() {
           "example": 2000
         },
         "proGearWeightSpouse": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
@@ -8036,7 +8062,7 @@ func init() {
         },
         "requestedMoveDate": {
           "type": "string",
-          "format": "date-time",
+          "format": "date",
           "x-nullable": true
         },
         "shipmentsCount": {
@@ -8149,6 +8175,7 @@ func init() {
         "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
+        "ContractYearName",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -8156,7 +8183,11 @@ func init() {
         "DistanceZipSITDest",
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
+        "EscalationCompounded",
+        "FSCMultiplier",
+        "FSCPriceDifferenceInCents",
         "FSCWeightBasedDistanceMultiplier",
+        "IsPeak",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -8165,6 +8196,7 @@ func init() {
         "PriceAreaIntlDest",
         "PriceAreaIntlOrigin",
         "PriceAreaOrigin",
+        "PriceRateOrFactor",
         "PSI_LinehaulDom",
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
@@ -8197,7 +8229,9 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress"
+        "ZipSITDestHHGFinalAddress",
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {

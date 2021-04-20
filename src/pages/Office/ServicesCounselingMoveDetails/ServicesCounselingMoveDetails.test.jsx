@@ -144,6 +144,15 @@ describe('MoveDetails page', () => {
     expect(wrapper.containsMatchingElement(<h1>Move details</h1>)).toBe(true);
   });
 
+  it('renders customer info', () => {
+    const wrapper = mount(
+      <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
+        <ServicesCounselingMoveDetails />
+      </MockProviders>,
+    );
+    expect(wrapper.containsMatchingElement(<h2>Customer info</h2>)).toBe(true);
+  });
+
   describe('new move - needs service counseling', () => {
     useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
 
@@ -155,6 +164,10 @@ describe('MoveDetails page', () => {
 
     it('submit move details button is on page', () => {
       expect(wrapper.find('button[data-testid="submitMoveDetailsBtn"]').length).toBe(1);
+    });
+
+    it('renders the Allowances Table', () => {
+      expect(wrapper.find('#allowances h2').text()).toEqual('Allowances');
     });
   });
 

@@ -1,11 +1,14 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/transcom/mymove/pkg/certs"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -46,7 +49,7 @@ func checkProcessEDIsConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
-	err = cli.CheckSyncadaSFTP(v)
+	err = cli.CheckGEXSFTP(v)
 	if err != nil {
 		return err
 	}
@@ -82,8 +85,8 @@ func initProcessEDIsFlags(flag *pflag.FlagSet) {
 	// Entrust Certificates
 	cli.InitEntrustCertFlags(flag)
 
-	// Syncada SFTP Config
-	cli.InitSyncadaSFTPFlags(flag)
+	// GEX SFTP Config
+	cli.InitGEXSFTPFlags(flag)
 
 	flag.String(ProcessEDILastReadTimeFlag, "", "Files older than this RFC3339 time will not be fetched.")
 	flag.Bool(ProcessEDIDeleteFilesFlag, false, "If present, delete files on SFTP server that have been processed successfully")
@@ -188,13 +191,39 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
 	}
 
-	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer)
+	// TODO I don't know why we need a separate logger for cert stuff
+	certLogger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	if err != nil {
+		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
+	}
+	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+	if certificates == nil || rootCAs == nil || err != nil {
+		logger.Fatal("Error in getting tls certs", zap.Error(err))
+	}
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+
+	gexSender := invoice.NewGexSenderHTTP(
+		gexURL,
+		cli.GEXChannelInvoice,
+		true,
+		tlsConfig,
+		v.GetString(cli.GEXBasicAuthUsernameFlag),
+		v.GetString(cli.GEXBasicAuthPasswordFlag))
+
+	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer, gexSender)
 	if err != nil {
 		logger.Fatal("InitNewPaymentRequestReviewedProcessor failed", zap.Error(err))
 	}
 
+	// Process 858s
+	err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
+	if err != nil {
+		logger.Fatal("Could not process reviewed payment request(s)", zap.Error(err))
+	}
+	logger.Info("Successfully sent 858 files")
+
 	// SSH and SFTP Connection Setup
-	sshClient, err := cli.InitSyncadaSSH(v, logger)
+	sshClient, err := cli.InitGEXSSH(v, logger)
 	if err != nil {
 		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 	}
@@ -204,7 +233,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
-	sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+	sftpClient, err := cli.InitGEXSFTP(sshClient, logger)
 	if err != nil {
 		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
 	}
@@ -217,11 +246,6 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
 	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, dbConnection, logger, v.GetBool(ProcessEDIDeleteFilesFlag))
 
-	// TODO GEX will put different response types in different directories, but
-	// Syncada puts everything in the same directory. When we have access to GEX in staging
-	// we will have to change this to use separate paths for different response types.
-	path := "/" + v.GetString(cli.SyncadaSFTPUserIDFlag) + v.GetString(cli.SyncadaSFTPOutboundDirectory)
-
 	// Sample expected format: 2021-03-16T18:25:36Z
 	lastReadTimeFlag := v.GetString(ProcessEDILastReadTimeFlag)
 	var lastReadTime time.Time
@@ -233,14 +257,9 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 	logger.Info("lastRead", zap.String("lastReadTime", lastReadTime.String()))
 
-	// Process 858s
-	err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
-	if err != nil {
-		logger.Fatal("Could not process reviewed payment request(s)", zap.Error(err))
-	}
-
 	// Process 997s
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, lastReadTime, invoice.NewEDI997Processor(dbConnection, logger))
+	path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path997, lastReadTime, invoice.NewEDI997Processor(dbConnection, logger))
 	if err != nil {
 		logger.Error("Error reading 997 responses", zap.Error(err))
 	} else {
@@ -248,7 +267,8 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 
 	// Process 824s
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, lastReadTime, invoice.NewEDI824Processor(dbConnection, logger))
+	path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path824, lastReadTime, invoice.NewEDI824Processor(dbConnection, logger))
 	if err != nil {
 		logger.Error("Error reading 824 responses", zap.Error(err))
 	} else {

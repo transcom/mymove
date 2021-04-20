@@ -14,6 +14,8 @@ import (
 	"os"
 	"testing"
 
+	"go.uber.org/zap"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,7 +25,11 @@ func TestReadInSQLLine(t *testing.T) {
 	fixture := "./fixtures/copyFromStdin.sql"
 	f, err := os.Open(fixture)
 
-	defer f.Close()
+	defer func() {
+		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
+			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+		}
+	}()
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)

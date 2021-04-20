@@ -1,9 +1,15 @@
 package supportapi
 
 import (
+	"crypto/tls"
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/transcom/mymove/pkg/certs"
+	"github.com/transcom/mymove/pkg/db/sequence"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/logging"
 
 	"github.com/spf13/viper"
 
@@ -198,6 +204,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 	var payload supportmessages.PaymentRequestEDI
 	payload.ID = *handlers.FmtUUID(paymentRequestID)
 
+	h.GHCPaymentRequestInvoiceGenerator.InitDB(h.DB())
 	edi858c, err := h.GHCPaymentRequestInvoiceGenerator.Generate(paymentRequest, false)
 	if err == nil {
 		payload.Edi, err = edi858c.EDIString(logger)
@@ -279,7 +286,41 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	}
 
 	if *sendToSyncada {
-		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, h.ICNSequencer())
+		// Set up viper to read environment variables
+		v := viper.New()
+		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+		v.AutomaticEnv()
+		gexURL := v.GetString(cli.GEXURLFlag)
+		dbEnv := v.GetString(cli.DbEnvFlag)
+
+		// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
+		// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
+		// test ICNs in Syncada.
+		var icnSequencer sequence.Sequencer
+		// ICNs are 9-digit numbers; reserve the ones in an upper range for development/testing.
+		icnSequencer, err := sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
+		if err != nil {
+			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
+		}
+
+		certLogger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+		if err != nil {
+			logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
+		}
+		certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+		if certificates == nil || rootCAs == nil || err != nil {
+			logger.Fatal("Error in getting tls certs", zap.Error(err))
+		}
+		tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+
+		gexSender := invoice.NewGexSenderHTTP(
+			gexURL,
+			cli.GEXChannelInvoice,
+			true,
+			tlsConfig,
+			v.GetString(cli.GEXBasicAuthUsernameFlag),
+			v.GetString(cli.GEXBasicAuthPasswordFlag))
+		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, icnSequencer, gexSender)
 		if err != nil {
 			msg := fmt.Sprintf("failed to initialize InitNewPaymentRequestReviewedProcessor")
 			logger.Error(msg, zap.Error(err))
@@ -366,7 +407,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 		v.AutomaticEnv()
 
-		sshClient, err := cli.InitSyncadaSSH(v, logger)
+		sshClient, err := cli.InitGEXSSH(v, logger)
 		if err != nil {
 			logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 		}
@@ -376,7 +417,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			}
 		}()
 
-		sftpClient, err := cli.InitSyncadaSFTP(sshClient, logger)
+		sftpClient, err := cli.InitGEXSFTP(sshClient, logger)
 		if err != nil {
 			logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
 		}
@@ -389,18 +430,15 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
 		syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, h.DB(), logger, *deleteFromSyncada)
 
-		// TODO GEX will put different response types in different directories, but
-		// Syncada puts everything in the same directory. When we have access to GEX in staging
-		// we will have to change this to use separate paths for different response types.
-		path := "/" + v.GetString(cli.SyncadaSFTPUserIDFlag) + v.GetString(cli.SyncadaSFTPOutboundDirectory)
-
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
+		path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path997, time.Time{}, invoice.NewEDI997Processor(h.DB(), logger))
 		if err != nil {
 			logger.Error("Error reading 997 responses", zap.Error(err))
 		} else {
 			logger.Info("Successfully processed 997 responses")
 		}
-		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path, time.Time{}, invoice.NewEDI824Processor(h.DB(), logger))
+		path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
+		_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path824, time.Time{}, invoice.NewEDI824Processor(h.DB(), logger))
 		if err != nil {
 			logger.Error("Error reading 824 responses", zap.Error(err))
 		} else {
