@@ -35,16 +35,19 @@ func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Ti
 		return 0, nil, errors.New("ContractCode is required")
 	}
 	if actualPickupDate.IsZero() {
-		return 0, nil, errors.New("RequestedPickupDate is required")
-	}
-	if weight < minDomesticWeight {
-		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+		return 0, nil, errors.New("ActualPickupDate is required")
 	}
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
+	if weight < minDomesticWeight {
+		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+	}
 	if fscWeightBasedDistanceMultiplier == 0 {
 		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
+	}
+	if eiaFuelPrice == 0 {
+		return 0, nil, errors.New("EIAFuelPrice is required")
 	}
 
 	fscPriceDifferenceInCents := (eiaFuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.0
