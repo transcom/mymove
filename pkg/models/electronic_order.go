@@ -110,7 +110,7 @@ func CreateElectronicOrderWithRevision(dbConnection *pop.Connection, order *Elec
 		}
 		firstRevision.ElectronicOrderID = order.ID
 		firstRevision.ElectronicOrder = *order
-		if verrs, err := CreateElectronicOrdersRevision(dbConnection, firstRevision); verrs.HasAny() || err != nil {
+		if verrs, err := dbConnection.ValidateAndCreate(firstRevision); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = err
 			return transactionError

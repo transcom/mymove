@@ -24,6 +24,7 @@ import (
 	_ "github.com/namsral/flag"
 	_ "github.com/stretchr/objx"
 	_ "github.com/tealeg/xlsx"
+	_ "gotest.tools/gotestsum"
 
 	// Install go-junit-report for CirclCI test result report generation
 	_ "github.com/jstemmer/go-junit-report"
