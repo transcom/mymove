@@ -988,10 +988,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 }
 
 func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeServicesCounselor,
-	})
+	officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
@@ -1200,9 +1197,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 	})
 
 	suite.Run("returns move only from marine corps service member for USMC office user", func() {
-		marineCorpsOfficeUser := testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
-		fmt.Printf("USMC ID %s\n", marineCorpsOfficeUser.ID)
-		fmt.Printf("marine corps office user %v", marineCorpsOfficeUser.TransportationOffice.Gbloc)
+		marineCorpsOfficeUser := testdatagen.MakeServicesCounselorOfficeUserWithUSMCGBLOC(suite.DB())
 
 		usmcRequest := httptest.NewRequest("GET", "/queues/counseling", nil)
 		usmcRequest = suite.AuthenticateOfficeRequest(usmcRequest, marineCorpsOfficeUser)
