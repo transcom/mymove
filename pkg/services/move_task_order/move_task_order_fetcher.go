@@ -95,7 +95,8 @@ func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
 func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *services.FetchMoveTaskOrderParams) (*models.Move, error) {
 	mto := &models.Move{}
 
-	query := f.db.Eager("PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+	query := f.db.EagerPreload(
+		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.CustomerContacts",
@@ -106,7 +107,9 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 		"MTOShipments.MTOAgents",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
-		"Orders.NewDutyStation.Address").Where("id = $1", moveTaskOrderID)
+		"Orders.NewDutyStation.Address",
+		"Orders.OriginDutyStation.Address", // this line breaks Eager, but works with EagerPreload
+	).Where("id = $1", moveTaskOrderID)
 
 	if searchParams == nil || !searchParams.IncludeHidden {
 		query.Where("show = TRUE")
