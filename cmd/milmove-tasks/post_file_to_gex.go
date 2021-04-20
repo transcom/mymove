@@ -2,10 +2,8 @@ package main
 
 import (
 	"crypto/tls"
-	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -38,8 +36,8 @@ func checkPostFileToGEXConfig(v *viper.Viper) error {
 		return errors.New("must have file to send")
 	}
 
-	if transactionName := v.GetString("transaction-name"); transactionName == "" {
-		return errors.New("transaction-name is missing")
+	if filename := v.GetString("filename"); filename == "" {
+		return errors.New("filename is missing")
 	}
 
 	return nil
@@ -59,22 +57,13 @@ func initPostFileToGEXFlags(flag *pflag.FlagSet) {
 	cli.InitEntrustCertFlags(flag)
 
 	flag.String("gex-helloworld-file", "", "GEX file to post")
-	flag.String("transaction-name", "test", "The required name sent in the url of the gex api request")
+	flag.String("filename", "test", "The required name sent in the url of the gex api request")
 
 	// Don't sort flags
 	flag.SortFlags = false
 }
 
-func foramtFilename(filename string) string {
-	dt := time.Now()
-	dtFormatted := fmt.Sprintf("%d%02d%02d_%02d%02d%02d",
-		dt.Year(), dt.Month(), dt.Day(),
-		dt.Hour(), dt.Minute(), dt.Second())
-
-	return fmt.Sprintf("%s_%s_%04d", filename, dtFormatted, 0001)
-}
-
-// go run ./cmd/milmove-tasks post-file-to-gex --edi filepath --transaction-name transactionName --gex-url 'url'
+// go run ./cmd/milmove-tasks post-file-to-gex --edi filepath --filename filename --gex-url 'url'
 func postFileToGEX(cmd *cobra.Command, args []string) error {
 	// Create the logger
 	v := viper.New()
@@ -117,7 +106,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 
 	certLogger, err := logging.Config(logging.WithEnvironment("development"), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
-		logger.Fatal("Failed to initialize Zap loggingv", zap.Error(err))
+		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
 	}
 	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
 	if certificates == nil || rootCAs == nil || err != nil {
@@ -126,21 +115,19 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
 
-	filename := foramtFilename("filename")
-	urlWithFilename := fmt.Sprintf("%s&fname=%s", v.GetString("gex-url"), filename)
-
 	logger.Info(
 		"Sending to GEX",
-		zap.String("filename", filename),
-		zap.String("url", urlWithFilename))
+		zap.String("filename", v.GetString("filename")),
+		zap.String("url", v.GetString(cli.GEXURLFlag)))
 
 	resp, err := invoice.NewGexSenderHTTP(
-		urlWithFilename,
+		v.GetString(cli.GEXURLFlag),
+		cli.GEXChannelInvoice,
 		true,
 		tlsConfig,
-		v.GetString("gex-basic-auth-username"),
-		v.GetString("gex-basic-auth-password"),
-	).SendToGex(ediString, v.GetString("transaction-name"))
+		v.GetString(cli.GEXBasicAuthUsernameFlag),
+		v.GetString(cli.GEXBasicAuthPasswordFlag),
+	).SendToGex(ediString, v.GetString("filename"))
 
 	if err != nil {
 		logger.Fatal("Gex Sender encountered an error", zap.Error(err))
@@ -151,7 +138,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	} else {
 		logger.Info(
 			"Posted to GEX",
-			zap.String("filename", filename),
+			zap.String("filename", v.GetString("filename")),
 			zap.Int("statusCode", resp.StatusCode),
 			zap.Error(err))
 	}

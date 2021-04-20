@@ -1,14 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { arrayOf } from 'prop-types';
+import { arrayOf, bool } from 'prop-types';
+import { Alert } from '@trussworks/react-uswds';
 
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
 import { BackupContactShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import {
   selectServiceMemberFromLoggedInUser,
+  selectMoveIsInDraft,
   selectCurrentOrders,
-  selectCurrentMove,
   selectBackupContacts,
 } from 'store/entities/selectors';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -16,9 +17,11 @@ import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/Se
 import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 
-const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
-  const rank = currentOrders ? currentOrders.grade : serviceMember.rank;
-  const currentStation = currentOrders ? currentOrders.origin_duty_station : serviceMember.current_station;
+const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
+  const rank = currentOrders.grade ?? serviceMember.rank;
+  const originStation = currentOrders.origin_duty_station ?? serviceMember.current_station;
+  const transportationOfficePhoneLines = originStation?.transportation_office?.phone_lines;
+  const transportationOfficePhone = transportationOfficePhoneLines ? transportationOfficePhoneLines[0] : '';
   const backupContact = {
     name: currentBackupContacts[0]?.name || '',
     telephone: currentBackupContacts[0]?.telephone || '',
@@ -31,6 +34,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
       <div className="grid-row">
         <div className="grid-col-12">
           <h1>Profile</h1>
+          {!moveIsInDraft && <Alert type="info">Contact your movers if you need to make changes to your move.</Alert>}
           <SectionWrapper className={formStyles.formSection}>
             <ContactInfoDisplay
               telephone={serviceMember?.telephone || ''}
@@ -47,11 +51,14 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts }) => {
             <ServiceInfoDisplay
               firstName={serviceMember?.first_name || ''}
               lastName={serviceMember?.last_name || ''}
-              currentDutyStationName={currentStation?.name || ''}
+              originDutyStationName={originStation?.name || ''}
+              originTransportationOfficeName={originStation?.transportation_office?.name || ''}
+              originTransportationOfficePhone={transportationOfficePhone}
               affiliation={serviceMember?.affiliation || ''}
               rank={rank || ''}
               edipi={serviceMember?.edipi || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
+              isEditable={moveIsInDraft}
             />
           </SectionWrapper>
         </div>
@@ -64,13 +71,15 @@ Profile.propTypes = {
   serviceMember: ServiceMemberShape.isRequired,
   currentOrders: OrdersShape.isRequired,
   currentBackupContacts: arrayOf(BackupContactShape).isRequired,
+  moveIsInDraft: bool.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     serviceMember: selectServiceMemberFromLoggedInUser(state),
-    move: selectCurrentMove(state) || {},
-    currentOrders: selectCurrentOrders(state),
+    // The move still counts as in draft if there are no orders.
+    moveIsInDraft: selectMoveIsInDraft(state) || !selectCurrentOrders(state),
+    currentOrders: selectCurrentOrders(state) || {},
     currentBackupContacts: selectBackupContacts(state),
   };
 }
