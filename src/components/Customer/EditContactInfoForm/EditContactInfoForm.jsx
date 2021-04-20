@@ -1,7 +1,10 @@
+import classnames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+
+import editContactInfoFormStyle from './EditContactInfoForm.module.scss';
 
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -26,26 +29,28 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
     [backupContactName]: backupContactInfoSchema.required(),
   });
 
+  const sectionStyles = classnames(formStyles.formSection, editContactInfoFormStyle.formSection);
+
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={validationSchema}>
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
-          <Form className={formStyles.form}>
+          <Form className={classnames(formStyles.form, editContactInfoFormStyle.form)}>
             <h1>Edit contact info</h1>
 
-            <SectionWrapper className={formStyles.formSection}>
+            <SectionWrapper className={sectionStyles}>
               <h2>Your contact info</h2>
 
               <CustomerContactInfoFields />
             </SectionWrapper>
 
-            <SectionWrapper className={formStyles.formSection}>
+            <SectionWrapper className={sectionStyles}>
               <h2>Current mailing address</h2>
 
               <AddressFields name={residentialAddressName} />
             </SectionWrapper>
 
-            <SectionWrapper className={formStyles.formSection}>
+            <SectionWrapper className={sectionStyles}>
               <h2>Backup mailing address</h2>
               <p>
                 Where should we send mail if if we can&apos;t reach you at your primary address? You might use a
@@ -55,7 +60,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
               <AddressFields name={backupAddressName} />
             </SectionWrapper>
 
-            <SectionWrapper className={formStyles.formSection}>
+            <SectionWrapper className={sectionStyles}>
               <h2>Backup contact</h2>
               <p>
                 If we can&apos;t reach you, who can we contact? Any person you assign as a backup contact must be 18
