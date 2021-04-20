@@ -61,6 +61,10 @@ type UpdateOrderPayload struct {
 	// Format: uuid
 	OriginDutyStationID *strfmt.UUID `json:"originDutyStationId"`
 
+	// unit is in lbs
+	// Minimum: 0
+	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
+
 	// Report-by date
 	//
 	// Report By Date
@@ -70,6 +74,10 @@ type UpdateOrderPayload struct {
 
 	// SAC
 	Sac *string `json:"sac,omitempty"`
+
+	// unit is in lbs
+	// Minimum: 0
+	SpouseProGearWeight *int64 `json:"spouseProGearWeight,omitempty"`
 
 	// TAC
 	Tac *string `json:"tac,omitempty"`
@@ -115,7 +123,15 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateProGearWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSpouseProGearWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -255,6 +271,19 @@ func (m *UpdateOrderPayload) validateOriginDutyStationID(formats strfmt.Registry
 	return nil
 }
 
+func (m *UpdateOrderPayload) validateProGearWeight(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ProGearWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("proGearWeight", "body", int64(*m.ProGearWeight), 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("reportByDate", "body", m.ReportByDate); err != nil {
@@ -262,6 +291,19 @@ func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) validateSpouseProGearWeight(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SpouseProGearWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("spouseProGearWeight", "body", int64(*m.SpouseProGearWeight), 0, false); err != nil {
 		return err
 	}
 

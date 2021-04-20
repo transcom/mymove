@@ -3889,6 +3889,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -3901,6 +3908,13 @@ func init() {
           "title": "SAC",
           "x-nullable": true,
           "example": "N002214CSW32Y9"
+        },
+        "spouseProGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
         },
         "tac": {
           "type": "string",
@@ -8327,6 +8341,14 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "reportByDate": {
           "description": "Report By Date",
           "type": "string",
@@ -8339,6 +8361,14 @@ func init() {
           "title": "SAC",
           "x-nullable": true,
           "example": "N002214CSW32Y9"
+        },
+        "spouseProGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
         },
         "tac": {
           "type": "string",

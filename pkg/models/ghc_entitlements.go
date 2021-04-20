@@ -19,6 +19,8 @@ type Entitlement struct {
 	StorageInTransit                             *int             `db:"storage_in_transit"`
 	RequiredMedicalEquipmentWeight               int              `db:"required_medical_equipment_weight"`
 	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
+	ProGearWeight                                int              `db:"pro_gear_weight"`
+	SpouseProGearWeight                          int              `db:"spouse_pro_gear_weight"`
 	CreatedAt                                    time.Time        `db:"created_at"`
 	UpdatedAt                                    time.Time        `db:"updated_at"`
 }
@@ -53,3 +55,37 @@ func (e *Entitlement) AuthorizedWeight() *int {
 		return nil
 	}
 }
+
+//// ProGearWeight returns authorized weight. If authorized weight has not been
+//// stored in DBAuthorizedWeight use either TotalWeightSelf with no dependents or TotalWeightSelfPlusDependents
+//// with dependents.
+//func (e *Entitlement) ProGearWeight() *int {
+//	switch {
+//	case e.DBAuthorizedWeight != nil:
+//		return e.DBAuthorizedWeight
+//	case e.WeightAllotment() != nil:
+//		if e.DependentsAuthorized != nil && *e.DependentsAuthorized == true {
+//			return &e.WeightAllotment().TotalWeightSelfPlusDependents
+//		}
+//		return &e.WeightAllotment().TotalWeightSelf
+//	default:
+//		return nil
+//	}
+//}
+//
+//// SpouseProGearWeight returns authorized weight. If authorized weight has not been
+//// stored in DBAuthorizedWeight use either TotalWeightSelf with no dependents or TotalWeightSelfPlusDependents
+//// with dependents.
+//func (e *Entitlement) SpouseProGearWeight() *int {
+//	switch {
+//	case e.DBAuthorizedWeight != nil:
+//		return e.DBAuthorizedWeight
+//	case e.WeightAllotment() != nil:
+//		if e.DependentsAuthorized != nil && *e.DependentsAuthorized == true {
+//			return &e.WeightAllotment().TotalWeightSelfPlusDependents
+//		}
+//		return &e.WeightAllotment().TotalWeightSelf
+//	default:
+//		return nil
+//	}
+//}
