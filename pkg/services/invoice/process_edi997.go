@@ -72,6 +72,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	prToICN := models.PaymentRequestToInterchangeControlNumber{
 		InterchangeControlNumber: int(icn),
 		PaymentRequestID:         paymentRequest.ID,
+		EDIType:                  models.EDIType997,
 	}
 
 	var transactionError error

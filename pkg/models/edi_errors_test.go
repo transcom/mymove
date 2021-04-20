@@ -17,6 +17,7 @@ func (suite *ModelSuite) TestEdiErrors() {
 		ID:                       uuid.Must(uuid.NewV4()),
 		PaymentRequestID:         pr.ID,
 		InterchangeControlNumber: 5,
+		EDIType:                  models.EDIType997,
 	}
 	suite.MustCreate(suite.DB(), &prICN)
 	testCases := map[string]struct {

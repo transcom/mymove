@@ -12,6 +12,7 @@ type PaymentRequestToInterchangeControlNumber struct {
 	ID                       uuid.UUID `db:"id"`
 	PaymentRequestID         uuid.UUID `db:"payment_request_id"`
 	InterchangeControlNumber int       `db:"interchange_control_number"`
+	EDIType                  EDIType   `db:"edi_type"`
 
 	// Associations
 	PaymentRequest PaymentRequest `belongs_to:"payment_requests"`
@@ -20,6 +21,7 @@ type PaymentRequestToInterchangeControlNumber struct {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (p *PaymentRequestToInterchangeControlNumber) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		&validators.StringInclusion{Field: string(p.EDIType), Name: "EDIType", List: allowedEDITypes},
 		&validators.UUIDIsPresent{Field: p.PaymentRequestID, Name: "PaymentRequestID"},
 		// minimum interchange control number must be greater than 0
 		&validators.IntIsGreaterThan{Field: p.InterchangeControlNumber, Name: "InterchangeControlNumber", Compared: 0},
