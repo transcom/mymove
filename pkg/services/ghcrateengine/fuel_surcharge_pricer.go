@@ -29,11 +29,8 @@ func NewFuelSurchargePricer(db *pop.Connection) services.FuelSurchargePricer {
 }
 
 // Price determines the price for a counseling service
-func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+func (p fuelSurchargePricer) Price(actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
-	if len(contractCode) == 0 {
-		return 0, nil, errors.New("ContractCode is required")
-	}
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
 	}
@@ -64,11 +61,6 @@ func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Ti
 }
 
 func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
-	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
-
 	actualPickupDate, err := getParamTime(params, models.ServiceItemParamNameActualPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -98,5 +90,5 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(contractCode, actualPickupDate, distance, unit.Pound(weightBilledActual), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
+	return p.Price(actualPickupDate, distance, unit.Pound(weightBilledActual), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
 }
