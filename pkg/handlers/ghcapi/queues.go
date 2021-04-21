@@ -157,7 +157,6 @@ type GetServicesCounselingQueueHandler struct {
 func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	// TODO add Services Counselor role authorization check when it becomes available
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		logger.Error("user is not authenticated with an office role")
 		return queues.NewGetServicesCounselingQueueForbidden()

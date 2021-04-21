@@ -2757,7 +2757,7 @@ func createTIO(db *pop.Connection) {
 }
 
 func createServicesCounselor(db *pop.Connection) {
-	/* A user with tio role */
+	/* A user with services counselor role */
 	servicesCounselorRole := roles.Role{}
 	err := db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
 	if err != nil {
@@ -2879,27 +2879,25 @@ func createTXOServicesCounselor(db *pop.Connection) {
 
 	tooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
-	user := testdatagen.MakeUser(db, testdatagen.Assertions{
+
+	// Make a user
+	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tooTioServicesUUID,
 			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
-			Roles:         []roles.Role{tooRole, tioRole},
+			Roles:         []roles.Role{tooRole, tioRole, servicesRole},
 		},
 	})
+
+	// Make and office user associated with the previously created user
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
 			Email:  email,
 			Active: true,
 			UserID: &tooTioServicesUUID,
-		},
-	})
-	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			User:   user,
-			UserID: user.ID,
 		},
 	})
 
@@ -2912,6 +2910,8 @@ func createTXOServicesCounselor(db *pop.Connection) {
 	emailUSMC := "too_tio_services_counselor_role_usmc@office.mil"
 	tooTioServicesWithUsmcUUID := uuid.Must(uuid.FromString("9aae1a83-6515-4c1d-84e8-f7b53dc3d5fc"))
 	loginGovWithUsmcUUID := uuid.Must(uuid.NewV4())
+
+	// Makes a user with all office roles that is associated with USMC
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tooTioServicesWithUsmcUUID,
@@ -2921,6 +2921,8 @@ func createTXOServicesCounselor(db *pop.Connection) {
 			Roles:         []roles.Role{tooRole, tioRole, servicesRole},
 		},
 	})
+
+	// Makes an office user with the previously created user
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			ID:                   uuid.FromStringOrNil("b23005d6-60ea-469f-91ab-a7daf4c686f5"),

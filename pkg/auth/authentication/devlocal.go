@@ -772,7 +772,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || userType == PPMOfficeUserType || userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType) {
+	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || isOfficeUser(userType)) {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 	}
 
@@ -825,4 +825,11 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 		return nil, err
 	}
 	return session, nil
+}
+
+func isOfficeUser(userType string) bool {
+	if userType == PPMOfficeUserType || userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType {
+		return true
+	}
+	return false
 }

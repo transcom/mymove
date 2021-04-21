@@ -2075,12 +2075,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			UserID: &ttooTioServicesUUID,
 		},
 	})
-	testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			User:   user,
-			UserID: user.ID,
-		},
-	})
 
 	// A more recent MTO for demonstrating the since parameter
 	customer6 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
