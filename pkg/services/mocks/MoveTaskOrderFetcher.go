@@ -17,11 +17,11 @@ type MoveTaskOrderFetcher struct {
 }
 
 // FetchMoveTaskOrder provides a mock function with given fields: moveTaskOrderID, searchParams
-func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *services.FetchMoveTaskOrderParams) (*models.Move, error) {
+func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	ret := _m.Called(moveTaskOrderID, searchParams)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(uuid.UUID, *services.FetchMoveTaskOrderParams) *models.Move); ok {
+	if rf, ok := ret.Get(0).(func(uuid.UUID, *services.MoveTaskOrderFetcherParams) *models.Move); ok {
 		r0 = rf(moveTaskOrderID, searchParams)
 	} else {
 		if ret.Get(0) != nil {
@@ -30,7 +30,7 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, se
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, *services.FetchMoveTaskOrderParams) error); ok {
+	if rf, ok := ret.Get(1).(func(uuid.UUID, *services.MoveTaskOrderFetcherParams) error); ok {
 		r1 = rf(moveTaskOrderID, searchParams)
 	} else {
 		r1 = ret.Error(1)

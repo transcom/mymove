@@ -107,7 +107,7 @@ type GetMoveTaskOrderHandlerFunc struct {
 // Handle fetches an MTO from the database using its UUID
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	searchParams := services.FetchMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true,
 	}
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)

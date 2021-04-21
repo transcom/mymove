@@ -17,7 +17,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		Order: expectedOrder,
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
-	searchParams := services.FetchMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: false,
 	}
 
