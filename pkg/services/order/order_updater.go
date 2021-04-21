@@ -42,7 +42,7 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 			}
 		}
 
-		if entitlement := order.Entitlement; entitlement != nil && (entitlement.DBAuthorizedWeight != nil || entitlement.DependentsAuthorized != nil) {
+		if entitlement := order.Entitlement; entitlement != nil {
 
 			if entitlement.DBAuthorizedWeight != nil {
 				existingOrder.Entitlement.DBAuthorizedWeight = entitlement.DBAuthorizedWeight
@@ -51,6 +51,20 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 			if entitlement.DependentsAuthorized != nil {
 				existingOrder.Entitlement.DependentsAuthorized = entitlement.DependentsAuthorized
 			}
+
+			// TODO - Make sure value for (spouse) pro-gear is between min 0 and max of what is defined in weight allotment
+			if entitlement.ProGearWeight != nil {
+				existingOrder.Entitlement.ProGearWeight = entitlement.ProGearWeight
+			}
+
+			if entitlement.SpouseProGearWeight != nil {
+				existingOrder.Entitlement.SpouseProGearWeight = entitlement.SpouseProGearWeight
+			}
+
+			// TODO - Should we always update? Seems like we should consider fields that are not passed in for this Patch operation...
+			// TODO - Make these fields required since they're not nullable?
+			existingOrder.Entitlement.RequiredMedicalEquipmentWeight = entitlement.RequiredMedicalEquipmentWeight
+			existingOrder.Entitlement.OrganizationalClothingAndIndividualEquipment = entitlement.OrganizationalClothingAndIndividualEquipment
 
 			err = tx.Save(existingOrder.Entitlement)
 			if err != nil {
