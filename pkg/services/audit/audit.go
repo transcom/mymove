@@ -36,26 +36,26 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	}
 
 	t, err := validateInterface(model)
-	if err == nil && reflect.ValueOf(model).IsValid() == true && reflect.ValueOf(model).IsNil() == false && reflect.ValueOf(model).IsZero() == false {
+	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
 		recordType := parseRecordType(t.String())
 		elem := reflect.ValueOf(model).Elem()
 
 		var createdAt string
-		if elem.FieldByName("CreatedAt").IsValid() == true {
+		if elem.FieldByName("CreatedAt").IsValid() {
 			createdAt = elem.FieldByName("CreatedAt").Interface().(time.Time).String()
 		} else {
 			createdAt = time.Now().String()
 		}
 
 		var updatedAt string
-		if elem.FieldByName("updatedAt").IsValid() == true {
+		if elem.FieldByName("updatedAt").IsValid() {
 			updatedAt = elem.FieldByName("updatedAt").Interface().(time.Time).String()
 		} else {
 			updatedAt = time.Now().String()
 		}
 
 		var id string
-		if elem.FieldByName("ID").IsValid() == true {
+		if elem.FieldByName("ID").IsValid() {
 			id = elem.FieldByName("ID").Interface().(uuid.UUID).String()
 		} else {
 			id = ""

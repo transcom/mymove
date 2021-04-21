@@ -134,7 +134,7 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 				foundAgent := false
 				// make sure there is an existing record in the db
 				for i, dbAgent := range dbShipment.MTOAgents {
-					if foundAgent == true {
+					if foundAgent {
 						break
 					}
 					if dbAgent.ID == newAgentInfo.ID {

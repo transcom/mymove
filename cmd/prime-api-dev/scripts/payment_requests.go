@@ -345,7 +345,7 @@ func (pr *paymentRequestsData) displayMTOS() {
 	// fill in new list of mtos
 	for _, mto := range pr.mtos {
 
-		if pr.printMTO(mto) == true {
+		if pr.printMTO(mto) {
 
 			description := fmt.Sprintf("%s|\t%s|\t%s,%s\n", mto.AvailableToPrimeAt.String(),
 				*mto.Order.DestinationDutyStation.Address.City,
@@ -466,7 +466,7 @@ func (pr *paymentRequestsData) updateShipmentsJSONToFile(f *os.File, shipmentUpd
 		counter++
 		var fieldUpdate string
 		//		"<field>": "<value>"
-		if value.isString == true {
+		if value.isString {
 			fieldUpdate = fmt.Sprintf("\"%s\": \"%s\"", key, value.value)
 		} else {
 			fieldUpdate = fmt.Sprintf("\"%s\": %s", key, value.value)

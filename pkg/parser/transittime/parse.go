@@ -122,7 +122,7 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 	err := db.Transaction(func(tx *pop.Connection) error {
 		tableFromSliceCreator := dbtools.NewTableFromSliceCreator(tx, logger, params.UseTempTables, params.DropIfExists)
 
-		if params.ProcessAll == true {
+		if params.ProcessAll {
 			for i, x := range xlsxDataSheets {
 				if len(x.ProcessMethods) >= 1 {
 					dbErr := process(xlsxDataSheets, params, i, tableFromSliceCreator, logger)
@@ -180,7 +180,7 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 	}
 
 	// Call verify function
-	if params.RunVerify == true {
+	if params.RunVerify {
 		if xlsxInfo.verify != nil {
 			callFunc := *xlsxInfo.verify
 			err := callFunc(params, sheetIndex, logger)

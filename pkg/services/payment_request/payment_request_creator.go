@@ -173,7 +173,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			// the payment request
 			//
 			validParamList, validateMessage := paymentHelper.ValidServiceParamList(mtoServiceItem, reServiceParams, paymentServiceItem.PaymentServiceItemParams)
-			if validParamList == false {
+			if !validParamList {
 				errMessage := "service item param list is not valid (will not be able to price the item) " + validateMessage + " for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)
 			}

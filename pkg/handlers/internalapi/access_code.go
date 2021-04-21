@@ -43,7 +43,7 @@ type FetchAccessCodeHandler struct {
 // Handle fetches the access code for a service member
 func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams) middleware.Responder {
 	accessCodeRequired := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
-	if accessCodeRequired == false {
+	if !accessCodeRequired {
 		return accesscodeop.NewFetchAccessCodeOK().WithPayload(&internalmessages.AccessCode{})
 	}
 

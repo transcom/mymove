@@ -109,7 +109,7 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if ok == false {
+		if !ok {
 			return false, nil
 		}
 	}
@@ -119,7 +119,7 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if ok == false {
+		if !ok {
 			return false, nil
 		}
 	}
@@ -129,7 +129,7 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if ok == false {
+		if !ok {
 			return false, nil
 		}
 	}
@@ -260,7 +260,7 @@ func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, invalidReason
 	phone := sm.Telephone
 	if phone != nil {
 		isValidFakePhone, _ := fakedata.IsValidFakeDataPhone(*phone)
-		if isValidFakePhone == false {
+		if !isValidFakePhone {
 			invalidReasons["servicemember.phone"] = *phone
 			return false, invalidReasons, nil
 		}
@@ -295,7 +295,7 @@ func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, invalidReason
 	lName := sm.LastName
 	if fName != nil && lName != nil {
 		isValidFakeName, _ := fakedata.IsValidFakeDataFullName(*fName, *lName)
-		if isValidFakeName == false {
+		if !isValidFakeName {
 			invalidReasons["servicemember.fullname"] = *fName + " " + *lName
 			return false, invalidReasons, nil
 		}
