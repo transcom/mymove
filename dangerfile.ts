@@ -6,9 +6,9 @@ import { danger, warn, fail } from 'danger';
 //RA: This usage checks for any critical or high vulnerabilities and upgrades in our dependencies to alert the Github user.
 //RA: This usage does not utilize any user input and there is no opening for command injection.
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-//RA Validator:
-//RA Modified Severity:
+//RA Validator Status: Mitigated
+//RA Validator: leodis.f.scott.civ@mail.mil
+//RA Modified Severity: CAT III
 // eslint-disable-next-line security/detect-child-process
 const child = require('child_process');
 // eslint-disable-next-line import/no-extraneous-dependencies
