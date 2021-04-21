@@ -69,29 +69,31 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	})
 
 	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
-		queryFilter := mocks.QueryFilter{}
-		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-
+		//queryFilter := mocks.QueryFilter{}
+		//newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
+		newQueryFilter := query.NewQueryFilter
 		params := officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: req,
 		}
 		expectedError := models.ErrFetchNotFound
-		officeUserListFetcher := &mocks.ListFetcher{}
-		officeUserListFetcher.On("FetchRecordList",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(nil, expectedError).Once()
-		officeUserListFetcher.On("FetchRecordCount",
-			mock.Anything,
-			mock.Anything,
-		).Return(0, expectedError).Once()
+		//officeUserListFetcher := &mocks.ListFetcher{}
+		//officeUserListFetcher.On("FetchRecordList",
+		//	mock.Anything,
+		//	mock.Anything,
+		//	mock.Anything,
+		//	mock.Anything,
+		//	mock.Anything,
+		//).Return(nil, expectedError).Once()
+		//officeUserListFetcher.On("FetchRecordCount",
+		//	mock.Anything,
+		//	mock.Anything,
+		//).Return(0, expectedError).Once()
+
+		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := IndexOfficeUsersHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: newQueryFilter,
-			ListFetcher:    officeUserListFetcher,
+			ListFetcher:    fetch.NewListFetcher(queryBuilder),
 			NewPagination:  pagination.NewPagination,
 		}
 
