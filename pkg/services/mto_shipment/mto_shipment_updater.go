@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/getlantern/deepcopy"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -746,6 +747,7 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 			MTOShipmentID:   &shipmentID,
 			ReService:       models.ReService{Code: reServiceCode},
 			Status:          "APPROVED",
+			ApprovedAt:      swag.Time(time.Now()),
 		}
 		serviceItems[i] = serviceItem
 	}
