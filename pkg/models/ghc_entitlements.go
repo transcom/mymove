@@ -19,8 +19,8 @@ type Entitlement struct {
 	StorageInTransit                             *int             `db:"storage_in_transit"`
 	RequiredMedicalEquipmentWeight               int              `db:"required_medical_equipment_weight"`
 	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
-	ProGearWeight                                int              `db:"pro_gear_weight"`
-	SpouseProGearWeight                          int              `db:"spouse_pro_gear_weight"`
+	ProGearWeight                                *int             `db:"pro_gear_weight"`
+	SpouseProGearWeight                          *int             `db:"spouse_pro_gear_weight"`
 	CreatedAt                                    time.Time        `db:"created_at"`
 	UpdatedAt                                    time.Time        `db:"updated_at"`
 }
