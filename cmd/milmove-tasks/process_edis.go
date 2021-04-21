@@ -222,6 +222,11 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 	logger.Info("Finished processing reviewed payment requests")
 
+	if sendToSyncada == false {
+		logger.Info("Skipping processing of response files EDI997 acknowledgement and EDI824 application advice responses")
+		return nil
+	}
+
 	// SSH and SFTP Connection Setup
 	sshClient, err := cli.InitGEXSSH(v, logger)
 	if err != nil {
