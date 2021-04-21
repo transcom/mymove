@@ -25,10 +25,7 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(orderID uuid.UUID, searchParams
 	var moveTaskOrders []models.Move
 	query := f.db.Where("orders_id = $1", orderID)
 
-	// The default behavior of this query is to exclude any disabled moves:
-	if searchParams == nil || !searchParams.IncludeHidden {
-		query.Where("show = TRUE")
-	}
+	setMTOQueryFilters(query, searchParams)
 
 	err := query.Eager().All(&moveTaskOrders)
 	if err != nil {
@@ -62,24 +59,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.MoveT
 		"Orders.OriginDutyStation.Address",
 	)
 
-	// Always exclude hidden moves by default:
-	if searchParams == nil {
-		query.Where("show = TRUE")
-	} else {
-		if searchParams.IsAvailableToPrime {
-			query.Where("available_to_prime_at IS NOT NULL")
-		}
-
-		// This value defaults to false - we want to make sure including hidden moves needs to be explicitly requested.
-		if !searchParams.IncludeHidden {
-			query.Where("show = TRUE")
-		}
-
-		if searchParams.Since != nil {
-			since := time.Unix(*searchParams.Since, 0)
-			query.Where("updated_at > ?", since)
-		}
-	}
+	setMTOQueryFilters(query, searchParams)
 
 	err = query.All(&moveTaskOrders)
 
@@ -126,4 +106,26 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 	}
 
 	return mto, nil
+}
+
+func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFetcherParams) {
+	// Always exclude hidden moves by default:
+	if searchParams == nil {
+		query.Where("show = TRUE")
+	} else {
+		if searchParams.IsAvailableToPrime {
+			query.Where("available_to_prime_at IS NOT NULL")
+		}
+
+		// This value defaults to false - we want to make sure including hidden moves needs to be explicitly requested.
+		if !searchParams.IncludeHidden {
+			query.Where("show = TRUE")
+		}
+
+		if searchParams.Since != nil {
+			since := time.Unix(*searchParams.Since, 0)
+			query.Where("updated_at > ?", since)
+		}
+	}
+	// No return since this function uses pointers to modify the referenced query directly
 }
