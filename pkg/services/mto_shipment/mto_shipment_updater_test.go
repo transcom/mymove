@@ -486,6 +486,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
+			// TODO: actually assert this in a better way?
+			suite.NotNil(serviceItems[i].ApprovedAt)
 		}
 
 		err = suite.DB().Find(&fetchedMove, mto.ID)
