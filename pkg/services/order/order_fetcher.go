@@ -34,7 +34,7 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 		return []models.Move{}, 0, err
 	}
 
-	gbloc := transportationOffice.Gbloc
+	officeUserGbloc := transportationOffice.Gbloc
 
 	// Alright let's build our query based on the filters we got from the handler. These use the FilterOption type above.
 	// Essentially these are private functions that return query objects that we can mash together to form a complete
@@ -44,10 +44,11 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	var gblocQuery QueryOption
-	if gbloc == "USMC" {
+	if officeUserGbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+		gblocQuery = gblocFilter(params.OriginGBLOC)
 	} else {
-		gblocQuery = gblocFilter(gbloc)
+		gblocQuery = gblocFilter(&officeUserGbloc)
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
@@ -258,9 +259,11 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	}
 }
 
-func gblocFilter(gbloc string) QueryOption {
+func gblocFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
-		query.Where("origin_to.gbloc = ?", gbloc)
+		if gbloc != nil {
+			query.Where("origin_to.gbloc ILIKE ?", *gbloc)
+		}
 	}
 }
 
