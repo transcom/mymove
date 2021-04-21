@@ -1039,7 +1039,7 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	})
 
 	// using handler to create service item params
-	req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+	req := httptest.NewRequest("POST", "/payment_requests", nil)
 
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",

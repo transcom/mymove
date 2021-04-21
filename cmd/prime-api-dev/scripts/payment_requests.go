@@ -235,7 +235,7 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 		var sstrs []string
 		sstrs = append(sstrs, fmt.Sprintf("TOO approval date: %s\n", s.ApprovedDate.String()))
 		if s.PickupAddress == nil {
-			sstrs = append(sstrs, fmt.Sprint("Pickup address: <missing>\n"))
+			sstrs = append(sstrs, "Pickup address: <missing>\n")
 		} else {
 			sstrs = append(sstrs, fmt.Sprintf("Pickup address: %s, %s, %s\n", *s.PickupAddress.City,
 				*s.PickupAddress.State, *s.PickupAddress.PostalCode))
