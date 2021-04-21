@@ -242,7 +242,7 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 		}
 
 		if s.DestinationAddress == nil {
-			sstrs = append(sstrs, fmt.Sprint("Dest. address: <missing>\n"))
+			sstrs = append(sstrs, "Dest. address: <missing>\n")
 		} else {
 			sstrs = append(sstrs, fmt.Sprintf("Dest. address: %s, %s, %s\n", *s.DestinationAddress.City,
 				*s.DestinationAddress.State, *s.DestinationAddress.PostalCode))
@@ -453,7 +453,7 @@ func (pr *paymentRequestsData) updateShipmentsJSONToFile(f *os.File, shipmentUpd
 	***************************************************/
 
 	// {
-	strs = append(strs, fmt.Sprint("{\n"))
+	strs = append(strs, "{\n")
 	//		"mtoShipment": "ca9aeb58-e5a9-44b0-abe8-81d233dbdebf",
 	strs = append(strs, fmt.Sprintf("\"mtoShipmentID\": \"%s\",\n", pr.mtoShipmentDisplayList[shipmentIndex].mtoShipmentID))
 	//		"ifMatch": "MjAyMC0wOS0yOFQxNTo1OTozOC4zOTA0MjFa",

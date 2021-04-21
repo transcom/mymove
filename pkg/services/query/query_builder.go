@@ -146,7 +146,7 @@ func validateOrder(s services.QueryOrder, t reflect.Type) string {
 
 	_, ok := getDBColumn(t, *s.Column())
 	if !ok {
-		invalidField = fmt.Sprintf("%s", *s.Column())
+		invalidField = *s.Column()
 	}
 
 	return invalidField
