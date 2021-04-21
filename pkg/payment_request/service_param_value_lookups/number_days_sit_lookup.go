@@ -162,11 +162,7 @@ func calculateBillableMTOServiceItemSITDays(mtoShipmentSITPaymentServiceItems mo
 }
 
 func notEnoughRemainingMoveTaskOrderSITDays(remainingMoveTaskOrderSITDays int, mtoServiceItemSITDays int) bool {
-	if remainingMoveTaskOrderSITDays < mtoServiceItemSITDays {
-		return true
-	}
-
-	return false
+	return remainingMoveTaskOrderSITDays < mtoServiceItemSITDays
 }
 
 func fetchAndVerifyMTOShipmentSITDates(mtoShipmentSITPaymentServiceItems models.PaymentServiceItems, mtoServiceItem models.MTOServiceItem) (time.Time, time.Time, error) {
@@ -288,19 +284,11 @@ func isNotFullBillingPeriod(mtoShipmentEntryDate time.Time, submittedMTOShipment
 }
 
 func isDOFSIT(mtoServiceItem models.MTOServiceItem) bool {
-	if mtoServiceItem.ReService.Code == models.ReServiceCodeDOFSIT {
-		return true
-	}
-
-	return false
+	return mtoServiceItem.ReService.Code == models.ReServiceCodeDOFSIT
 }
 
 func isDOASIT(mtoServiceItem models.MTOServiceItem) bool {
-	if mtoServiceItem.ReService.Code == models.ReServiceCodeDOASIT {
-		return true
-	}
-
-	return false
+	return mtoServiceItem.ReService.Code == models.ReServiceCodeDOASIT
 }
 
 func isDDFSIT(mtoServiceItem models.MTOServiceItem) bool {
@@ -312,41 +300,21 @@ func isDDFSIT(mtoServiceItem models.MTOServiceItem) bool {
 }
 
 func isDDASIT(mtoServiceItem models.MTOServiceItem) bool {
-	if mtoServiceItem.ReService.Code == models.ReServiceCodeDDASIT {
-		return true
-	}
-
-	return false
+	return mtoServiceItem.ReService.Code == models.ReServiceCodeDDASIT
 }
 
 func isDomesticOrigin(mtoServiceItem models.MTOServiceItem) bool {
-	if isDOFSIT(mtoServiceItem) || isDOASIT(mtoServiceItem) {
-		return true
-	}
-
-	return false
+	return isDOFSIT(mtoServiceItem) || isDOASIT(mtoServiceItem)
 }
 
 func isDomesticDestination(mtoServiceItem models.MTOServiceItem) bool {
-	if isDDFSIT(mtoServiceItem) || isDDASIT(mtoServiceItem) {
-		return true
-	}
-
-	return false
+	return isDDFSIT(mtoServiceItem) || isDDASIT(mtoServiceItem)
 }
 
 func isFirstDaySIT(mtoServiceItem models.MTOServiceItem) bool {
-	if isDOFSIT(mtoServiceItem) || isDDFSIT(mtoServiceItem) {
-		return true
-	}
-
-	return false
+	return isDOFSIT(mtoServiceItem) || isDDFSIT(mtoServiceItem)
 }
 
 func isAdditionalDaysSIT(mtoServiceItem models.MTOServiceItem) bool {
-	if isDOASIT(mtoServiceItem) || isDDASIT(mtoServiceItem) {
-		return true
-	}
-
-	return false
+	return isDOASIT(mtoServiceItem) || isDDASIT(mtoServiceItem)
 }
