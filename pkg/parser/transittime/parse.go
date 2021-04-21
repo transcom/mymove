@@ -95,7 +95,7 @@ type ParamConfig struct {
 // The index MUST match the sheet that is being processed. Refer to file comments or XLSX to
 // determine the correct index to add.
 func InitDataSheetInfo() []XlsxDataSheetInfo {
-	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
+	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax)
 
 	// Tab Index
 	// 1: 	Domestic Transit Times
