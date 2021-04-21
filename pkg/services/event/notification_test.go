@@ -120,7 +120,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		suite.Nil(unmarshalErr)
 		suite.Equal(mtoServiceItemDOFSIT.ID.String(), data.ID().String())
 		suite.Equal(mtoServiceItemDOFSIT.MTOShipmentID.String(), data.MtoShipmentID().String())
-		suite.Equal(fmt.Sprintf("%s", mtoServiceItemDOFSIT.ReService.Code), *data.ReServiceCode)
+		suite.Equal(mtoServiceItemDOFSIT.ReService.Code, *data.ReServiceCode)
 		suite.Equal(mtoServiceItemDOFSIT.Reason, data.Reason)
 	})
 
@@ -135,7 +135,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		suite.Nil(unmarshalErr)
 		suite.Equal(mtoServiceItemDDFSIT.ID.String(), data.ID().String())
 		suite.Equal(mtoServiceItemDDFSIT.MTOShipmentID.String(), data.MtoShipmentID().String())
-		suite.Equal(fmt.Sprintf("%s", mtoServiceItemDDFSIT.ReService.Code), *data.ReServiceCode)
+		suite.Equal(mtoServiceItemDDFSIT.ReService.Code, *data.ReServiceCode)
 		suite.Equal(customerContact1.FirstAvailableDeliveryDate.Format("2006-01-02"), data.FirstAvailableDeliveryDate1.String())
 		suite.Equal(customerContact2.FirstAvailableDeliveryDate.Format("2006-01-02"), data.FirstAvailableDeliveryDate2.String())
 
@@ -152,7 +152,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		suite.Nil(unmarshalErr)
 		suite.Equal(mtoServiceItemDCRT.ID.String(), data.ID().String())
 		suite.Equal(mtoServiceItemDCRT.MTOShipmentID.String(), data.MtoShipmentID().String())
-		suite.Equal(fmt.Sprintf("%s", mtoServiceItemDCRT.ReService.Code), *data.ReServiceCode)
+		suite.Equal(mtoServiceItemDCRT.ReService.Code, *data.ReServiceCode)
 		suite.Equal(float32(itemDimension1.Length), float32(*data.Item.Length))
 		suite.Equal(float32(crateDimension1.Length), float32(*data.Crate.Length))
 
