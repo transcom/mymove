@@ -147,7 +147,7 @@ func isValidFakeModelMTOShipments(shipments models.MTOShipments) (bool, invalidR
 		if err != nil {
 			return false, invalidReasons, err
 		}
-		if ok == false {
+		if !ok {
 			return false, invalidReasons, nil
 		}
 	}
@@ -161,7 +161,7 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType
 		if err != nil {
 			return false, invalidReasons, err
 		}
-		if ok == false {
+		if !ok {
 			invalidReasons["mtoshipment.pickupaddress"] = s.PickupAddress.StreetAddress1
 			return false, invalidReasons, nil
 		}
@@ -172,7 +172,7 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType
 		if err != nil {
 			return false, invalidReasons, err
 		}
-		if ok == false {
+		if !ok {
 			invalidReasons["mtoshipment.secondarypickupaddress"] = s.SecondaryPickupAddress.StreetAddress1
 			return false, invalidReasons, nil
 		}
