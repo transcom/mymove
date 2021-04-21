@@ -91,9 +91,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 		"Orders.OriginDutyStation.Address", // this line breaks Eager, but works with EagerPreload
 	).Where("id = $1", moveTaskOrderID)
 
-	if searchParams == nil || !searchParams.IncludeHidden {
-		query.Where("show = TRUE")
-	}
+	setMTOQueryFilters(query, searchParams)
 
 	err := query.First(mto)
 	if err != nil {
