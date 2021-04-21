@@ -25,7 +25,7 @@ type ListMTOsHandler struct {
 func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	searchParams := services.ListMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true,
 		Since:         params.Since,
 	}

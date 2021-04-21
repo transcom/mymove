@@ -24,7 +24,7 @@ type FetchMTOUpdatesHandler struct {
 func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	searchParams := services.ListMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IsAvailableToPrime: true,
 		Since:              params.Since,
 	}
