@@ -15,6 +15,11 @@ type moveTaskOrderFetcher struct {
 	db *pop.Connection
 }
 
+// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
+func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
+	return &moveTaskOrderFetcher{db}
+}
+
 // ListMoveTaskOrders retrieves all MTOs for a specific Order. Can filter out hidden MTOs (show=False)
 func (f moveTaskOrderFetcher) ListMoveTaskOrders(orderID uuid.UUID, searchParams *services.ListMoveTaskOrderParams) ([]models.Move, error) {
 	var moveTaskOrders []models.Move
@@ -84,11 +89,6 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.ListM
 
 	return moveTaskOrders, nil
 
-}
-
-// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
-func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
-	return &moveTaskOrderFetcher{db}
 }
 
 // FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
