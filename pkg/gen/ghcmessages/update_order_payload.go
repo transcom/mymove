@@ -17,6 +17,9 @@ import (
 // swagger:model UpdateOrderPayload
 type UpdateOrderPayload struct {
 
+	// only for Army
+	OrganizationalClothingAndIndividualEquipment bool `json:"OrganizationalClothingAndIndividualEquipment,omitempty"`
+
 	// the branch that the service member belongs to
 	// Required: true
 	Agency Branch `json:"agency"`
@@ -71,6 +74,10 @@ type UpdateOrderPayload struct {
 	// Required: true
 	// Format: date
 	ReportByDate *strfmt.Date `json:"reportByDate"`
+
+	// unit is in lbs
+	// Minimum: 0
+	RequiredMedicalEquipmentWeight *int64 `json:"requiredMedicalEquipmentWeight,omitempty"`
 
 	// SAC
 	Sac *string `json:"sac,omitempty"`
@@ -128,6 +135,10 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRequiredMedicalEquipmentWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -291,6 +302,19 @@ func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) validateRequiredMedicalEquipmentWeight(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RequiredMedicalEquipmentWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("requiredMedicalEquipmentWeight", "body", int64(*m.RequiredMedicalEquipmentWeight), 0, false); err != nil {
 		return err
 	}
 

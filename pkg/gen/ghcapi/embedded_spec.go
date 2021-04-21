@@ -3837,6 +3837,10 @@ func init() {
         "agency"
       ],
       "properties": {
+        "OrganizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean"
+        },
         "agency": {
           "description": "the branch that the service member belongs to",
           "$ref": "#/definitions/Branch"
@@ -3902,6 +3906,12 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 2000
         },
         "sac": {
           "type": "string",
@@ -8289,6 +8299,10 @@ func init() {
         "agency"
       ],
       "properties": {
+        "OrganizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean"
+        },
         "agency": {
           "description": "the branch that the service member belongs to",
           "$ref": "#/definitions/Branch"
@@ -8355,6 +8369,13 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "example": 2000
         },
         "sac": {
           "type": "string",
