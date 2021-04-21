@@ -45,7 +45,6 @@ linters:
     - staticcheck
   disable:
     - gosimple #deprecated https://github.com/golangci/golangci-lint/issues/357
-    - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
   fast: false
 
 issues:
