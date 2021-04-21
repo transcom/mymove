@@ -44,7 +44,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               residentialAddress={serviceMember?.residential_address || ''}
               backupMailingAddress={serviceMember?.backup_mailing_address || ''}
               backupContact={backupContact}
-              editURL={customerRoutes.EDIT_PROFILE_PATH}
+              editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
             />
           </SectionWrapper>
           <SectionWrapper className={formStyles.formSection}>
