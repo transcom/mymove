@@ -3839,7 +3839,8 @@ func init() {
       "properties": {
         "OrganizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "agency": {
           "description": "the branch that the service member belongs to",
@@ -8301,7 +8302,8 @@ func init() {
       "properties": {
         "OrganizationalClothingAndIndividualEquipment": {
           "description": "only for Army",
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "agency": {
           "description": "the branch that the service member belongs to",

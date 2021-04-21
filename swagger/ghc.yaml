@@ -2086,6 +2086,7 @@ definitions:
       OrganizationalClothingAndIndividualEquipment:
         description: only for Army
         type: boolean
+        x-nullable: true
     required:
       - issueDate
       - reportByDate

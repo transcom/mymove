@@ -18,7 +18,7 @@ import (
 type UpdateOrderPayload struct {
 
 	// only for Army
-	OrganizationalClothingAndIndividualEquipment bool `json:"OrganizationalClothingAndIndividualEquipment,omitempty"`
+	OrganizationalClothingAndIndividualEquipment *bool `json:"OrganizationalClothingAndIndividualEquipment,omitempty"`
 
 	// the branch that the service member belongs to
 	// Required: true
