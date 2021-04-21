@@ -57,8 +57,8 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 				existingOrder.Entitlement.ProGearWeight = entitlement.ProGearWeight
 			}
 
-			if entitlement.SpouseProGearWeight != nil {
-				existingOrder.Entitlement.SpouseProGearWeight = entitlement.SpouseProGearWeight
+			if entitlement.ProGearWeightSpouse != nil {
+				existingOrder.Entitlement.ProGearWeightSpouse = entitlement.ProGearWeightSpouse
 			}
 
 			// TODO - Should we always update? Seems like we should consider fields that are not passed in for this Patch operation...

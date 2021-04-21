@@ -20,7 +20,7 @@ type Entitlement struct {
 	RequiredMedicalEquipmentWeight               int              `db:"required_medical_equipment_weight"`
 	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
 	ProGearWeight                                *int             `db:"pro_gear_weight"`
-	SpouseProGearWeight                          *int             `db:"spouse_pro_gear_weight"`
+	ProGearWeightSpouse                          *int             `db:"pro_gear_weight_spouse"`
 	CreatedAt                                    time.Time        `db:"created_at"`
 	UpdatedAt                                    time.Time        `db:"updated_at"`
 }

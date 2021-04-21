@@ -3837,11 +3837,6 @@ func init() {
         "agency"
       ],
       "properties": {
-        "OrganizationalClothingAndIndividualEquipment": {
-          "description": "only for Army",
-          "type": "boolean",
-          "x-nullable": true
-        },
         "agency": {
           "description": "the branch that the service member belongs to",
           "$ref": "#/definitions/Branch"
@@ -3889,12 +3884,24 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "originDutyStationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
           "description": "unit is in lbs",
           "type": "integer",
           "x-formatting": "weight",
@@ -3919,13 +3926,6 @@ func init() {
           "title": "SAC",
           "x-nullable": true,
           "example": "N002214CSW32Y9"
-        },
-        "spouseProGearWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
         },
         "tac": {
           "type": "string",
@@ -8300,11 +8300,6 @@ func init() {
         "agency"
       ],
       "properties": {
-        "OrganizationalClothingAndIndividualEquipment": {
-          "description": "only for Army",
-          "type": "boolean",
-          "x-nullable": true
-        },
         "agency": {
           "description": "the branch that the service member belongs to",
           "$ref": "#/definitions/Branch"
@@ -8352,12 +8347,25 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "originDutyStationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
           "description": "unit is in lbs",
           "type": "integer",
           "minimum": 0,
@@ -8384,14 +8392,6 @@ func init() {
           "title": "SAC",
           "x-nullable": true,
           "example": "N002214CSW32Y9"
-        },
-        "spouseProGearWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
         },
         "tac": {
           "type": "string",

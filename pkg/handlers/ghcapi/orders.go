@@ -183,8 +183,8 @@ func Order(payload ghcmessages.UpdateOrderPayload) (models.Order, error) {
 		entitlement.ProGearWeight = swag.Int(int(*payload.ProGearWeight))
 	}
 
-	if payload.SpouseProGearWeight != nil {
-		entitlement.SpouseProGearWeight = swag.Int(int(*payload.SpouseProGearWeight))
+	if payload.ProGearWeightSpouse != nil {
+		entitlement.ProGearWeightSpouse = swag.Int(int(*payload.ProGearWeightSpouse))
 	}
 
 	if payload.RequiredMedicalEquipmentWeight != nil {
