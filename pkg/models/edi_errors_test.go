@@ -19,7 +19,6 @@ func (suite *ModelSuite) TestEdiErrors() {
 		InterchangeControlNumber: 5,
 		EDIType:                  models.EDIType997,
 	}
-	suite.MustCreate(suite.DB(), &prICN)
 	testCases := map[string]struct {
 		ediError     models.EdiError
 		expectedErrs map[string][]string

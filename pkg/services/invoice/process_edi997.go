@@ -42,7 +42,6 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	e.logEDI(edi997)
 
 	// Find the PaymentRequestID that matches the GCN
-	icn := edi997.InterchangeControlEnvelope.ISA.InterchangeControlNumber
 	var gcn int64
 	if edi997.InterchangeControlEnvelope.FunctionalGroups != nil {
 		if edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets != nil {
@@ -69,6 +68,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 		return fmt.Errorf("unable to find PaymentRequest with GCN: %s, %d", err.Error(), int(gcn))
 	}
 
+	icn := edi997.InterchangeControlEnvelope.ISA.InterchangeControlNumber
 	prToICN := models.PaymentRequestToInterchangeControlNumber{
 		InterchangeControlNumber: int(icn),
 		PaymentRequestID:         paymentRequest.ID,

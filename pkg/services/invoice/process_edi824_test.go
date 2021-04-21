@@ -60,7 +60,7 @@ IEA*1*000000995
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001251,
 				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType824,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi824Processor.ProcessFile("", sample824EDIString)
@@ -129,7 +129,7 @@ IEA*1*000000995
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001253,
 				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType824,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi824Processor.ProcessFile("", sample824EDIString)
@@ -173,7 +173,7 @@ IEA*1*000000996
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001255,
 				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType824,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi824Processor.ProcessFile("", sample824EDIString)
@@ -228,7 +228,7 @@ IEA*1*000000997
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001252,
 				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType824,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi824Processor.ProcessFile("", sample824EDIString)
@@ -272,7 +272,7 @@ IEA*1*000000001
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001252,
 				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType824,
+				EDIType:                  models.EDIType858,
 			},
 		})
 
