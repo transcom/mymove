@@ -2900,7 +2900,28 @@ func createTXOServicesCounselor(db *pop.Connection) {
 			UserID: &tooTioServicesUUID,
 		},
 	})
+}
 
+func createTXOServicesUSMCCounselor(db *pop.Connection) {
+
+	/* A user with both too, tio, and services counselor roles */
+	tooRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
+	tioRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+	}
+
+	servicesRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+	}
 	// Makes user with too, tio, services counselor role with USMC gbloc
 	transportationOfficeUSMC := models.TransportationOffice{}
 	err = db.Where("id = $1", "ccf50409-9d03-4cac-a931-580649f1647a").First(&transportationOfficeUSMC)
@@ -3561,6 +3582,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createTXO(db)
 	createServicesCounselor(db)
 	createTXOServicesCounselor(db)
+	createTXOServicesUSMCCounselor(db)
 	createNTSMove(db)
 	createNTSRMove(db)
 
