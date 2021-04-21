@@ -33,7 +33,7 @@ const props = {
 
 export const LoggedOutHeader = () => (
   <MilMoveHeader>
-    <LoggedOutUserInfo />
+    <LoggedOutUserInfo handleLogin={action('clicked')} />
   </MilMoveHeader>
 );
 
