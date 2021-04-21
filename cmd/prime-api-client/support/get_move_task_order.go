@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -30,8 +32,8 @@ func checkGetMTOConfig(v *viper.Viper, args []string, logger *log.Logger) error 
 		logger.Fatal(err)
 	}
 
-	if v.GetString(utils.IDFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
-		logger.Fatal(errors.New("support-get-move-task-order expects an ID to be passed in"))
+	if uuid.FromStringOrNil(v.GetString(utils.IDFlag)) == uuid.Nil {
+		logger.Fatal(errors.New("support-get-move-task-order expects a valid UUID to be passed in"))
 	}
 
 	return nil
