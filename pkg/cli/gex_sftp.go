@@ -24,7 +24,8 @@ const (
 	//RA: See MB-7727 and MB-7728 for tracking future work to resolve this issue
 	//RA: App should implement public-key authentication; issue remains open while interface control is negotiated for this connection.
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator Status: Known Issue
+	//RA Validator: leodis.f.scott.civ@mail.mil
 	//RA Modified Severity: CAT III
 	// #nosec G101
 	// GEXSFTPPasswordFlag is the ENV var for the GEX SFTP password
