@@ -58,7 +58,10 @@ type GetMoveTaskOrderHandlerFunc struct {
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, nil)
+	searchParams := services.MoveTaskOrderFetcherParams{
+		IsAvailableToPrime: true,
+	}
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
 	if err != nil {
 		logger.Error("primeapi.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
