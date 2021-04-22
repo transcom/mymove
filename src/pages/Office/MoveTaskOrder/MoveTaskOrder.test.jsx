@@ -364,12 +364,12 @@ describe('MoveTaskOrder', () => {
       </MockProviders>,
     );
 
-    it('should render the h1', () => {
+    it('renders the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
       expect(wrapper.find('h1').text()).toBe('Move task order');
     });
 
-    it('should display empty state message', () => {
+    it('displays empty state message', () => {
       expect(
         wrapper
           .find('[data-testid="too-shipment-container"] p')
@@ -398,12 +398,12 @@ describe('MoveTaskOrder', () => {
       </MockProviders>,
     );
 
-    it('should render the h1', () => {
+    it('renders the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
       expect(wrapper.find('h1').text()).toBe('Move task order');
     });
 
-    it('should render the left nav with shipments', () => {
+    it('renders the left nav with shipments', () => {
       expect(wrapper.find('LeftNav').exists()).toBe(true);
 
       const navLinks = wrapper.find('LeftNav a');
@@ -412,29 +412,29 @@ describe('MoveTaskOrder', () => {
       expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
     });
 
-    it('should render the ShipmentContainer', () => {
+    it('renders the ShipmentContainer', () => {
       expect(wrapper.find('ShipmentContainer').length).toBe(1);
     });
 
-    it('should render the ShipmentHeading', () => {
+    it('renders the ShipmentHeading', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
-      expect(wrapper.find('h3').at(0).text()).toEqual('Household goods');
+      expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
       expect(wrapper.find('[data-testid="button"]').exists()).toBe(true);
     });
 
-    it('should render the ImportantShipmentDates', () => {
+    it('renders the ImportantShipmentDates', () => {
       expect(wrapper.find('ImportantShipmentDates').exists()).toBe(true);
     });
 
-    it('should render the ShipmentAddresses', () => {
+    it('renders the ShipmentAddresses', () => {
       expect(wrapper.find('ShipmentAddresses').exists()).toBe(true);
     });
 
-    it('should render the ShipmentWeightDetails', () => {
+    it('renders the ShipmentWeightDetails', () => {
       expect(wrapper.find('ShipmentWeightDetails').exists()).toBe(true);
     });
 
-    it('should render the RequestedServiceItemsTable for requested, approved, and rejected service items', () => {
+    it('renders the RequestedServiceItemsTable for requested, approved, and rejected service items', () => {
       const requestedServiceItemsTable = wrapper.find('RequestedServiceItemsTable');
       // There should be 1 of each status table requested, approved, rejected service items
       expect(requestedServiceItemsTable.length).toBe(3);
@@ -464,19 +464,21 @@ describe('MoveTaskOrder', () => {
       </MockProviders>,
     );
 
-    it('should render the h1', () => {
+    it('renders the h1', () => {
       expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
       expect(wrapper.find('h1').text()).toBe('Move task order');
     });
 
-    it('should render the left nav with shipments', () => {
+    it('renders the left nav with shipments', () => {
       expect(wrapper.find('LeftNav').exists()).toBe(true);
 
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
+      expect(navLinks.at(0).contains('1'));
       expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
 
       expect(navLinks.at(1).contains('NTS shipment')).toBe(true);
+      expect(navLinks.at(1).contains('1'));
       expect(navLinks.at(1).prop('href')).toBe('#shipment-4');
 
       expect(navLinks.at(2).contains('NTS-R shipment')).toBe(true);
@@ -489,29 +491,29 @@ describe('MoveTaskOrder', () => {
       expect(navLinks.at(4).prop('href')).toBe('#shipment-7');
     });
 
-    it('should render the ShipmentContainer', () => {
+    it('renders the ShipmentContainer', () => {
       expect(wrapper.find('ShipmentContainer').length).toBe(5);
     });
 
-    it('should render the ShipmentHeading', () => {
+    it('renders the ShipmentHeading', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
-      expect(wrapper.find('h3').at(0).text()).toEqual('Household goods');
-      expect(wrapper.find('h3').at(1).text()).toEqual('Non-temp storage');
+      expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
+      expect(wrapper.find('h2').at(1).text()).toEqual('Non-temp storage');
     });
 
-    it('should render the ImportantShipmentDates', () => {
+    it('renders the ImportantShipmentDates', () => {
       expect(wrapper.find('ImportantShipmentDates').exists()).toBe(true);
     });
 
-    it('should render the ShipmentAddresses', () => {
+    it('renders the ShipmentAddresses', () => {
       expect(wrapper.find('ShipmentAddresses').exists()).toBe(true);
     });
 
-    it('should render the ShipmentWeightDetails', () => {
+    it('renders the ShipmentWeightDetails', () => {
       expect(wrapper.find('ShipmentWeightDetails').exists()).toBe(true);
     });
 
-    it('should render the RequestedServiceItemsTable for SUBMITTED service item', () => {
+    it('renders the RequestedServiceItemsTable for SUBMITTED service item', () => {
       const requestedServiceItemsTable = wrapper.find('RequestedServiceItemsTable');
       // There are no approved or rejected service item tables to display
       expect(requestedServiceItemsTable.length).toBe(2);

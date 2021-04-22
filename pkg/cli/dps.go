@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Set of flags used for DPS system
 const (
 	// HTTPSDDCServerNameFlag is the HTTP SDDC Server Name Flag
 	HTTPSDDCServerNameFlag string = "http-sddc-server-name"
@@ -24,8 +25,8 @@ const (
 	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
-
-	// DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag // #nosec G101
+	// #nosec G101
+	// DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag
 	DPSAuthSecretKeyFlag string = "dps-auth-secret-key"
 	// DPSRedirectURLFlag is the DPS Redirect URL Flag
 	DPSRedirectURLFlag string = "dps-redirect-url"
@@ -42,8 +43,8 @@ const (
 	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
-
-	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Secret Key Flag // #nosec G101
+	// #nosec G101
+	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Secret Key Flag
 	DPSAuthCookieSecretKeyFlag string = "dps-auth-cookie-secret-key"
 	// DPSCookieExpiresInMinutesFlag is the DPS Cookie Expires In Minutes Flag
 	DPSCookieExpiresInMinutesFlag string = "dps-cookie-expires-in-minutes"

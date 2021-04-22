@@ -3,7 +3,7 @@
 //RA: Functions with unchecked return values in the file are used set up environment variables
 //RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Validator Status: Mitigated
 //RA Modified Severity: N/A
 // nolint:errcheck
 package invoice
@@ -61,7 +61,8 @@ const testTimeFormat = "1504"
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
+	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -247,6 +248,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
 	suite.T().Run("the GCN is equal to the ICN", func(t *testing.T) {
 		suite.EqualValues(result.ISA.InterchangeControlNumber, result.IEA.InterchangeControlNumber, result.GS.GroupControlNumber, result.GE.GroupControlNumber)
+	})
+
+	// Test that the Interchange Control Number (ICN) is being saved to the db
+	suite.T().Run("the ICN is saved to the database", func(t *testing.T) {
+		var pr2icn models.PaymentRequestToInterchangeControlNumber
+		err := suite.DB().Where("payment_request_id = ?", paymentRequest.ID).First(&pr2icn)
+		suite.NoError(err)
+		suite.Equal(int(result.ISA.InterchangeControlNumber), pr2icn.InterchangeControlNumber)
 	})
 
 	// Test Invoice Start and End Segments
@@ -589,7 +598,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 }
 
 func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -657,7 +667,8 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		},
 	}
 
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
+	generator.InitDB(suite.DB())
 	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -758,7 +769,8 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 }
 
 func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -837,4 +849,12 @@ func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
 	suite.Equal("A...", truncateStr("ABCDEFGHI", 4))
 	suite.Equal("ABC...", truncateStr("ABCDEFGHI", 6))
 	suite.Equal("Too short", truncateStr("Too short", 200))
+}
+
+func (suite *GHCInvoiceSuite) TestGeneratorFailedToInitDB() {
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+
+	_, err := generator.Generate(paymentRequest, false)
+	suite.Error(err, "DB pointer is nil")
 }

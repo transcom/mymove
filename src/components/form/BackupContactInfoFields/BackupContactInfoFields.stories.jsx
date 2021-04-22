@@ -13,16 +13,30 @@ export default {
 export const Basic = () => (
   <Formik
     initialValues={{
-      backupContact: {
-        phone: '',
-        alternatePhone: '',
-        email: '',
-      },
+      name: '',
+      telephone: '',
+      email: '',
     }}
   >
     {() => (
       <Form className={formStyles.form}>
-        <BackupContactInfoFields name="backupContact" legend="Backup contact" />
+        <BackupContactInfoFields legend="Backup contact" />
+      </Form>
+    )}
+  </Formik>
+);
+
+export const WithInitialValues = () => (
+  <Formik
+    initialValues={{
+      name: 'Peyton Wing',
+      email: 'pw@example.com',
+      telephone: '915-555-8761',
+    }}
+  >
+    {() => (
+      <Form className={formStyles.form}>
+        <BackupContactInfoFields legend="Backup contact" />
       </Form>
     )}
   </Formik>
@@ -31,17 +45,14 @@ export const Basic = () => (
 export const WithAdditionalText = () => (
   <Formik
     initialValues={{
-      backupContact: {
-        phone: '',
-        alternatePhone: '',
-        email: '',
-      },
+      name: '',
+      telephone: '',
+      email: '',
     }}
   >
     {() => (
       <Form className={formStyles.form}>
         <BackupContactInfoFields
-          name="backupContact"
           legend="Backup contact"
           render={(fields) => (
             <>
@@ -57,3 +68,25 @@ export const WithAdditionalText = () => (
     )}
   </Formik>
 );
+
+export const WithNamespacedFields = () => {
+  const namespace = 'backup_contact';
+
+  return (
+    <Formik
+      initialValues={{
+        [namespace]: {
+          name: '',
+          telephone: '',
+          email: '',
+        },
+      }}
+    >
+      {() => (
+        <Form className={formStyles.form}>
+          <BackupContactInfoFields legend="Backup contact" name={namespace} />
+        </Form>
+      )}
+    </Formik>
+  );
+};

@@ -18,3 +18,10 @@ export const LocationShape = shape({
 export const HistoryShape = shape({
   push: func.isRequired,
 });
+
+// Components that are rendered at a route (<Route />) will receive these props automatically
+export const RouteProps = {
+  match: MatchShape.isRequired,
+  location: LocationShape.isRequired,
+  history: HistoryShape.isRequired,
+};

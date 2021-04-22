@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import classnames from 'classnames';
 import { GridContainer, Grid, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
+import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
+import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
+import { shipmentStatuses } from 'constants/shipments';
+import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
+import { useMoveDetailsQueries } from 'hooks/queries';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
 import AllowancesTable from 'components/Office/AllowancesTable/AllowancesTable';
 import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
-import { useMoveDetailsQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
-import { shipmentStatuses } from 'constants/shipments';
-import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -140,6 +140,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
     dependents: allowances.dependentsAuthorized,
+    requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
+    organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
   };
   const customerInfo = {
     name: `${customer.last_name}, ${customer.first_name}`,
@@ -170,6 +172,11 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
                 {s === 'orders' && hasMissingOrdersRequiredInfo && (
                   <Tag className="usa-tag usa-tag--alert">
                     <FontAwesomeIcon icon="exclamation" />
+                  </Tag>
+                )}
+                {s === 'requested-shipments' && (
+                  <Tag className={styles.tag} data-testid="requestedShipmentsTag">
+                    {submittedShipments?.length}
                   </Tag>
                 )}
               </a>

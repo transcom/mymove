@@ -11,7 +11,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
-import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -23,6 +22,7 @@ import { getPPMsForMove, patchPPM, calculatePPMEstimate, persistPPMEstimate } fr
 import { updatePPMs, updatePPM, updatePPMEstimate } from 'store/entities/actions';
 import { setPPMEstimateError } from 'store/onboarding/actions';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
@@ -202,8 +202,6 @@ class EditWeight extends Component {
   }
 
   componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
     getPPMsForMove(this.props.match.params.moveId).then((response) => this.props.updatePPMs(response));
     this.props.fetchLatestOrders(this.props.serviceMemberId);
     const { currentPPM, originDutyStationZip, orders } = this.props;
@@ -246,6 +244,7 @@ class EditWeight extends Component {
   };
 
   updatePpm = (values, dispatch, props) => {
+    const { setFlashMessage } = this.props;
     const moveId = this.props.match.params.moveId;
     return patchPPM(moveId, {
       id: this.props.currentPPM.id,
@@ -258,22 +257,12 @@ class EditWeight extends Component {
       .then((response) => persistPPMEstimate(moveId, response.id))
       .then((response) => this.props.updatePPM(response))
       .then(() => {
-        if (!this.props.hasSubmitError) {
-          this.props.editSuccessful();
-          this.props.history.goBack();
-          this.props.checkEntitlement(moveId);
-        } else {
-          scrollToTop();
-        }
+        setFlashMessage('EDIT_PPM_WEIGHT_SUCCESS', 'success', '', 'Your changes have been saved.');
+
+        this.props.history.goBack();
       })
       .catch(() => {
-        if (!this.props.hasSubmitError) {
-          this.props.editSuccessful();
-          this.props.history.goBack();
-          this.props.checkEntitlement(moveId);
-        } else {
-          scrollToTop();
-        }
+        scrollToTop();
       });
   };
 
@@ -374,12 +363,9 @@ const mapDispatchToProps = {
   fetchLatestOrders,
   updatePPM,
   updatePPMs,
-  editBegin,
-  editSuccessful,
-  entitlementChangeBegin,
-  checkEntitlement,
   updatePPMEstimate,
   setPPMEstimateError,
+  setFlashMessage: setFlashMessageAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditWeight);

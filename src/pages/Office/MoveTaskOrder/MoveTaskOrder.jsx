@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { withRouter } from 'react-router-dom';
-import { GridContainer } from '@trussworks/react-uswds';
+import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
@@ -9,28 +9,28 @@ import classnames from 'classnames';
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
+import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
+import { MOVE_STATUSES } from 'shared/constants';
+import dimensionTypes from 'constants/dimensionTypes';
+import customerContactTypes from 'constants/customerContactTypes';
+import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
+import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
+import { useMoveTaskOrderQueries } from 'hooks/queries';
+import LeftNav from 'components/LeftNav';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
-import { useMoveTaskOrderQueries } from 'hooks/queries';
 import { MatchShape } from 'types/router';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
-import { MOVE_STATUSES } from 'shared/constants';
-import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
-import dimensionTypes from 'constants/dimensionTypes';
-import customerContactTypes from 'constants/customerContactTypes';
-import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
-import LeftNav from 'components/LeftNav';
+import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
 import { shipmentSectionLabels } from 'content/shipments';
-import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { setFlashMessage } from 'store/flash/actions';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
-import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 function formatShipmentDate(shipmentDateString) {
   const dateObj = new Date(shipmentDateString);
@@ -52,6 +52,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
+  const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
 
   const { moveCode } = match.params;
   const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
@@ -179,15 +180,18 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   useEffect(() => {
     let serviceItemCount = 0;
+    const serviceItemsCountForShipment = {};
     mtoShipments?.forEach((mtoShipment) => {
       if (mtoShipment.status === shipmentStatuses.APPROVED) {
         const requestedServiceItemCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
           (serviceItem) => serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED,
         )?.length;
         serviceItemCount += requestedServiceItemCount || 0;
+        serviceItemsCountForShipment[`${mtoShipment.id}`] = requestedServiceItemCount;
       }
     });
     setUnapprovedServiceItemCount(serviceItemCount);
+    setUnapprovedServiceItemsForShipment(serviceItemsCountForShipment);
   }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount]);
 
   useEffect(() => {
@@ -278,7 +282,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             const classes = classnames({ active: s.id === activeSection });
             return (
               <a key={`sidenav_${s.id}`} href={`#shipment-${s.id}`} className={classes}>
-                {s.label}
+                {s.label}{' '}
+                {unapprovedServiceItemsForShipment[`${s.id}`] > 0 && (
+                  <Tag>{unapprovedServiceItemsForShipment[`${s.id}`]}</Tag>
+                )}
               </a>
             );
           })}

@@ -3,18 +3,19 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // ISA represents the ISA EDI segment
 type ISA struct {
 	AuthorizationInformationQualifier string `validate:"eq=00"`
-	AuthorizationInformation          string `validate:"eq=0084182369"`
+	AuthorizationInformation          string `validate:"omitempty,eq=0084182369"`
 	SecurityInformationQualifier      string `validate:"eq=00"`
-	SecurityInformation               string `validate:"eq=0000000000"`
-	InterchangeSenderIDQualifier      string `validate:"eq=ZZ"`
-	InterchangeSenderID               string `validate:"eq=MILMOVE        "`
-	InterchangeReceiverIDQualifier    string `validate:"eq=12"`
-	InterchangeReceiverID             string `validate:"eq=8004171844     "`
+	SecurityInformation               string `validate:"omitempty,eq=0000000000"`
+	InterchangeSenderIDQualifier      string `validate:"oneof=12 ZZ"`
+	InterchangeSenderID               string `validate:"len=15"`
+	InterchangeReceiverIDQualifier    string `validate:"oneof=12 ZZ"`
+	InterchangeReceiverID             string `validate:"len=15"`
 	InterchangeDate                   string `validate:"datetime=060102"`
 	InterchangeTime                   string `validate:"datetime=1504"`
 	InterchangeControlStandards       string `validate:"eq=U"`
@@ -22,7 +23,7 @@ type ISA struct {
 	InterchangeControlNumber          int64  `validate:"min=1,max=999999999"`
 	AcknowledgementRequested          int    `validate:"oneof=0 1"`
 	UsageIndicator                    string `validate:"oneof=P T"`
-	ComponentElementSeparator         string `validate:"eq=0x7C"` // Have to escape pipe symbol
+	ComponentElementSeparator         string `validate:"oneof=0x7C :"` // Have to escape pipe symbol
 }
 
 // StringArray converts ISA to an array of strings
@@ -57,9 +58,9 @@ func (s *ISA) Parse(elements []string) error {
 
 	var err error
 	s.AuthorizationInformationQualifier = elements[0]
-	s.AuthorizationInformation = elements[1]
+	s.AuthorizationInformation = strings.TrimSpace(elements[1])
 	s.SecurityInformationQualifier = elements[2]
-	s.SecurityInformation = elements[3]
+	s.SecurityInformation = strings.TrimSpace(elements[3])
 	s.InterchangeSenderIDQualifier = elements[4]
 	s.InterchangeSenderID = elements[5]
 	s.InterchangeReceiverIDQualifier = elements[6]

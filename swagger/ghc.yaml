@@ -793,6 +793,64 @@ paths:
       description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
       summary: Change the status of a move task order to make it available to prime
+  '/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed':
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: ID of move to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully updated move task order status
+          schema:
+            $ref: '#/definitions/Move'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error
+          schema:
+            $ref: '#/responses/Conflict'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Changes move (move task order) status to service counseling completed
+      operationId: updateMTOStatusServiceCounselingCompleted
+      summary: Changes move (move task order) status to service counseling completed
   '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
     parameters:
       - description: ID of move to use
@@ -1084,6 +1142,101 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
+  /queues/counseling:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all customer moves needing services counseling by GBLOC origin
+      description: >
+        An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.
+      operationId: getServicesCounselingQueue
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: requested page number of paginated move results
+        - in: query
+          name: perPage
+          type: integer
+          description: maximum number of moves to show on each page of paginated results
+        - in: query
+          name: sort
+          type: string
+          enum:
+            [
+              lastName,
+              dodID,
+              branch,
+              locator,
+              status,
+              requestedMoveDate,
+              submittedAt,
+              originGBLOC,
+              destinationDutyStation,
+            ]
+          description: field that results should be sorted by
+        - in: query
+          name: order
+          type: string
+          enum: [asc, desc]
+          description: direction of sort order if applied
+        - in: query
+          name: branch
+          type: string
+          description: filters by the branch of the move's service member
+        - in: query
+          name: locator
+          type: string
+          description: filters to match the unique move code locator
+        - in: query
+          name: lastName
+          type: string
+          description: filters using a prefix match on the service member's last name
+        - in: query
+          name: dodID
+          type: string
+          description: filters to match the unique service member's DoD ID
+        - in: query
+          name: requestedMoveDate
+          type: string
+          description: filters the requested pickup date of a shipment on the move
+        - in: query
+          name: submittedAt
+          type: string
+          description: filters the date of when the service member submitted their move
+        - in: query
+          name: originGBLOC
+          type: string
+          description: filters the GBLOC of the service member's origin duty station
+        - in: query
+          name: destinationDutyStation
+          type: string
+          description: filters the name of the destination duty station on the orders
+        - in: query
+          name: status
+          type: array
+          description: filters the status of the move
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - NEEDS SERVICE COUNSELING
+              - SERVICE COUNSELING COMPLETED
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
   /queues/moves:
     get:
       produces:
@@ -1227,44 +1380,44 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
   '/tac/valid':
-      get:
-        summary: Validation of a TAC value
-        description: Returns a boolean based on whether a tac value is valid or not
-        operationId: tacValidation
-        tags:
-          - tac
-          - order
-        parameters:
-          - in: query
-            name: tac
-            type: string
-            required: true
-            description: The tac value to validate
-        responses:
-          '200':
-            description: Successfully retrieved validation status
-            schema:
-              $ref: '#/definitions/TacValid'
-          '400':
-            description: The request payload is invalid
-            schema:
-              $ref: '#/responses/InvalidRequest'
-          '401':
-            description: The request was denied
-            schema:
-              $ref: '#/responses/PermissionDenied'
-          '403':
-            description: The request was denied
-            schema:
-              $ref: '#/responses/PermissionDenied'
-          '404':
-            description: The requested resource wasn't found
-            schema:
-              $ref: '#/responses/NotFound'
-          '500':
-            description: A server error occurred
-            schema:
-              $ref: '#/responses/ServerError'
+    get:
+      summary: Validation of a TAC value
+      description: Returns a boolean based on whether a tac value is valid or not
+      operationId: tacValidation
+      tags:
+        - tac
+        - order
+      parameters:
+        - in: query
+          name: tac
+          type: string
+          required: true
+          description: The tac value to validate
+      responses:
+        '200':
+          description: Successfully retrieved validation status
+          schema:
+            $ref: '#/definitions/TacValid'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -1569,6 +1722,13 @@ definitions:
       totalDependents:
         example: 2
         type: integer
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        example: true
+        type: boolean
       eTag:
         type: string
     type: object
@@ -1664,6 +1824,10 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      serviceCounselingCompletedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       availableToPrimeAt:
         format: date-time
         type: string
@@ -1705,6 +1869,8 @@ definitions:
     type: string
     enum:
       - DRAFT
+      - NEEDS SERVICE COUNSELING
+      - SEVICE COUNSELING COMPLETED
       - SUBMITTED
       - APPROVALS REQUESTED
       - APPROVED
@@ -1905,6 +2071,7 @@ definitions:
       - originDutyStationId
       - agency
   MoveTaskOrder:
+    description: The Move (MoveTaskOrder)
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -1923,6 +2090,10 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
+      serviceCounselingCompletedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       availableToPrimeAt:
         format: date-time
         type: string
@@ -2108,6 +2279,7 @@ definitions:
       - DENIED
       - SENT_TO_GEX
       - PAID
+      - EDI_ERROR
     title: Payment Service Item Status
     type: string
   PaymentServiceItemParam:
@@ -2143,6 +2315,7 @@ definitions:
       - ActualPickupDate
       - CanStandAlone
       - ContractCode
+      - ContractYearName
       - CubicFeetBilled
       - CubicFeetCrating
       - DistanceZip3
@@ -2150,7 +2323,11 @@ definitions:
       - DistanceZipSITDest
       - DistanceZipSITOrigin
       - EIAFuelPrice
+      - EscalationCompounded
+      - FSCMultiplier
+      - FSCPriceDifferenceInCents
       - FSCWeightBasedDistanceMultiplier
+      - IsPeak
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
@@ -2159,6 +2336,7 @@ definitions:
       - PriceAreaIntlDest
       - PriceAreaIntlOrigin
       - PriceAreaOrigin
+      - PriceRateOrFactor
       - PSI_LinehaulDom
       - PSI_LinehaulDomPrice
       - PSI_LinehaulShort
@@ -2192,6 +2370,8 @@ definitions:
       - ZipDestAddress
       - ZipPickupAddress
       - ZipSITDestHHGFinalAddress
+      - ZipSITOriginHHGActualAddress
+      - ZipSITOriginHHGOriginalAddress
   ServiceItemParamOrigin:
     type: string
     enum:
@@ -2214,6 +2394,7 @@ definitions:
       - SENT_TO_GEX
       - RECEIVED_BY_GEX
       - PAID
+      - EDI_ERROR
     title: Payment Request Status
     type: string
   ProofOfServiceDocs:
@@ -2608,6 +2789,14 @@ definitions:
         $ref: '#/definitions/QueueMoveStatus'
       locator:
         type: string
+      submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      requestedMoveDate:
+        format: date
+        type: string
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:

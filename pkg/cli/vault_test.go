@@ -5,7 +5,8 @@ import (
 )
 
 func (suite *cliTestSuite) TestConfigVault() {
-	os.Setenv("AWS_PROFILE", "mock-env")
+	err := os.Setenv("AWS_PROFILE", "mock-env")
+	suite.NoError(err)
 	suite.Setup(InitVaultFlags, []string{})
 	suite.NoError(CheckVault(suite.viper))
 }

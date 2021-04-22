@@ -1,5 +1,6 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
 import { AddressFields } from './AddressFields';
@@ -41,6 +42,44 @@ describe('AddressFields component', () => {
       expect(getByLabelText('City')).toHaveValue(initialValues.address.city);
       expect(getByLabelText('State')).toHaveValue(initialValues.address.state);
       expect(getByLabelText('ZIP')).toHaveValue(initialValues.address.postal_code);
+    });
+  });
+
+  describe('with validators', () => {
+    it('puts the validator on the expected field', async () => {
+      const initialValues = {
+        address: {
+          street_address_1: '',
+          street_address_2: '',
+          city: '',
+          state: '',
+          postal_code: '',
+        },
+      };
+
+      const postalCodeErrorText = 'ZIP code must be 99999';
+
+      const { getByLabelText, findByRole } = render(
+        <Formik initialValues={initialValues}>
+          {() => (
+            <AddressFields
+              legend="Address Form"
+              name="address"
+              validators={{
+                postalCode: (value) => (value !== '99999' ? postalCodeErrorText : ''),
+              }}
+            />
+          )}
+        </Formik>,
+      );
+
+      const postalCodeInput = getByLabelText('ZIP');
+      userEvent.type(postalCodeInput, '12345');
+      fireEvent.blur(postalCodeInput);
+
+      const postalCodeError = await findByRole('alert');
+
+      expect(postalCodeError).toHaveTextContent(postalCodeErrorText);
     });
   });
 });

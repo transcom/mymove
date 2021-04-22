@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import LoginButton from 'containers/LoginButton/LoginButton';
 import MilMoveLogo from 'shared/images/milmove-logo.svg';
@@ -10,6 +10,7 @@ import usaFlag from 'shared/images/us-flag.png';
 import govIcon from 'shared/images/icon-dot-gov.svg';
 import sslIcon from 'shared/images/icon-https.svg';
 import './index.scss';
+
 function Header() {
   return (
     <div>
@@ -69,14 +70,14 @@ function Header() {
       </div>
       {/* Gov banner END */}
       <header className="usa-header usa-header--basic" role="banner">
-        <div className="my-move-header desktop:padding-bottom-3">
+        <div className="my-move-header">
           <div className="usa-nav-container">
             <div className="usa-navbar">
               <div className="usa-logo" id="basic-logo">
                 <em className="usa-logo__text">
-                  <NavLink to="/" title="my.move.mil" aria-label="my.move.mil">
+                  <Link to="/" title="my.move.mil" aria-label="my.move.mil">
                     <img src={MilMoveLogo} alt="MilMove" />
-                  </NavLink>
+                  </Link>
                 </em>
               </div>
               <button className="usa-menu-btn">Menu</button>

@@ -15,6 +15,7 @@ import {
   selectPPMEstimateRange,
   selectPPMSitEstimate,
   selectReimbursementById,
+  selectEntitlementsForLoggedInUser,
 } from './selectors';
 
 import { profileStates } from 'constants/customerStates';
@@ -1579,5 +1580,141 @@ describe('selectReimbursementById', () => {
     };
 
     expect(selectReimbursementById(testState, 'testReimbursement123')).toEqual(null);
+  });
+});
+
+describe('selectEntitlementsForLoggedInUser', () => {
+  describe('when I have dependents', () => {
+    describe('when my spouse has pro gear', () => {
+      it('should include spouse progear', () => {
+        const testState = {
+          entities: {
+            orders: {
+              orders8910: {
+                id: 'orders8910',
+                service_member_id: 'serviceMemberId456',
+                moves: ['move2938'],
+                status: 'DRAFT',
+                has_dependents: true,
+                spouse_has_pro_gear: true,
+              },
+            },
+            user: {
+              userId123: {
+                id: 'userId123',
+                service_member: 'serviceMemberId456',
+              },
+            },
+            serviceMembers: {
+              serviceMemberId456: {
+                id: 'serviceMemberId456',
+                orders: ['orders8910'],
+                weight_allotment: {
+                  total_weight_self: 5000,
+                  total_weight_self_plus_dependents: 8000,
+                  pro_gear_weight: 2000,
+                  pro_gear_weight_spouse: 500,
+                },
+              },
+            },
+          },
+        };
+
+        expect(selectEntitlementsForLoggedInUser(testState)).toEqual({
+          pro_gear: 2000,
+          pro_gear_spouse: 500,
+          sum: 10500,
+          weight: 8000,
+        });
+      });
+    });
+
+    describe('when my spouse does not have pro gear', () => {
+      it('should not include spouse progear', () => {
+        const testState = {
+          entities: {
+            orders: {
+              orders8910: {
+                id: 'orders8910',
+                service_member_id: 'serviceMemberId456',
+                moves: ['move2938'],
+                status: 'DRAFT',
+                has_dependents: true,
+                spouse_has_pro_gear: false,
+              },
+            },
+            user: {
+              userId123: {
+                id: 'userId123',
+                service_member: 'serviceMemberId456',
+              },
+            },
+            serviceMembers: {
+              serviceMemberId456: {
+                id: 'serviceMemberId456',
+                orders: ['orders8910'],
+                weight_allotment: {
+                  total_weight_self: 5000,
+                  total_weight_self_plus_dependents: 8000,
+                  pro_gear_weight: 2000,
+                  pro_gear_weight_spouse: 500,
+                },
+              },
+            },
+          },
+        };
+
+        expect(selectEntitlementsForLoggedInUser(testState)).toEqual({
+          pro_gear: 2000,
+          pro_gear_spouse: 0,
+          sum: 10000,
+          weight: 8000,
+        });
+      });
+    });
+  });
+
+  describe("when I don't have dependents", () => {
+    it('should exclude spouse progear', () => {
+      const testState = {
+        entities: {
+          orders: {
+            orders8910: {
+              id: 'orders8910',
+              service_member_id: 'serviceMemberId456',
+              moves: ['move2938'],
+              status: 'DRAFT',
+              has_dependents: false,
+              spouse_has_pro_gear: false,
+            },
+          },
+          user: {
+            userId123: {
+              id: 'userId123',
+              service_member: 'serviceMemberId456',
+            },
+          },
+          serviceMembers: {
+            serviceMemberId456: {
+              id: 'serviceMemberId456',
+              orders: ['orders8910'],
+              weight_allotment: {
+                total_weight_self: 5000,
+                total_weight_self_plus_dependents: 8000,
+                pro_gear_weight: 2000,
+                pro_gear_weight_spouse: 500,
+              },
+            },
+          },
+        },
+      };
+
+      expect(selectEntitlementsForLoggedInUser(testState)).toEqual({
+        pro_gear: 2000,
+        pro_gear_spouse: 0,
+        sum: 7000,
+        weight: 5000,
+      });
+    });
   });
 });

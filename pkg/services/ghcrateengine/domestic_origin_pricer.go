@@ -26,7 +26,7 @@ func NewDomesticOriginPricer(db *pop.Connection) services.DomesticOriginPricer {
 }
 
 // Price determines the price for a domestic origin
-func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingParams, error) {
+func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -58,11 +58,29 @@ func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate tim
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 
-	return totalCost, nil, nil
+	params := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(domServiceAreaPrice.PriceCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameIsPeak,
+			Value: FormatBool(isPeakPeriod),
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+	return totalCost, params, nil
 }
 
 // PriceUsingParams determines the price for a domestic origin given PaymentServiceItemParams
-func (p domesticOriginPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
+func (p domesticOriginPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err

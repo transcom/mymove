@@ -34,6 +34,9 @@ const (
 
 	// PaymentServiceItemStatusPAID captures enum value "PAID"
 	PaymentServiceItemStatusPAID PaymentServiceItemStatus = "PAID"
+
+	// PaymentServiceItemStatusEDIERROR captures enum value "EDI_ERROR"
+	PaymentServiceItemStatusEDIERROR PaymentServiceItemStatus = "EDI_ERROR"
 )
 
 // for schema
@@ -41,7 +44,7 @@ var paymentServiceItemStatusEnum []interface{}
 
 func init() {
 	var res []PaymentServiceItemStatus
-	if err := json.Unmarshal([]byte(`["REQUESTED","APPROVED","DENIED","SENT_TO_GEX","PAID"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["REQUESTED","APPROVED","DENIED","SENT_TO_GEX","PAID","EDI_ERROR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

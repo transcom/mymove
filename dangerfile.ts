@@ -1,9 +1,18 @@
-import * as child from 'child_process';
-
-/* eslint-disable import/no-extraneous-dependencies */
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { danger, warn, fail } from 'danger';
-import jiraIssue from 'danger-plugin-jira-issue';
-/* eslint-enable import/no-extraneous-dependencies */
+//RA Summary: eslint-plugin-security - detect-child-process -
+//RA Executing commands from an untrusted source or in an untrusted environment can cause an application to execute malicious commands on behalf of an attacker.
+//RA: Locates usages of child process.
+//RA: This usage checks for any critical or high vulnerabilities and upgrades in our dependencies to alert the Github user.
+//RA: This usage does not utilize any user input and there is no opening for command injection.
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Validator: leodis.f.scott.civ@mail.mil
+//RA Modified Severity: CAT III
+// eslint-disable-next-line security/detect-child-process
+const child = require('child_process');
+// eslint-disable-next-line import/no-extraneous-dependencies
+const jiraIssue = require('danger-plugin-jira-issue').default;
 
 const githubChecks = () => {
   if (danger.github) {
@@ -60,8 +69,7 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
   // Request update of yarn.lock if package.json changed but yarn.lock isn't
   const packageChanged = allFiles.includes('package.json');
   const lockfileChanged = allFiles.includes('yarn.lock');
-  // eslint-disable-next-line no-constant-condition
-  if (false && packageChanged && !lockfileChanged) {
+  if (packageChanged && !lockfileChanged) {
     const message = 'Changes were made to package.json, but not to yarn.lock';
     const idea = 'Perhaps you need to run `yarn install`?';
     warn(`${message} - <i>${idea}</i>`);
@@ -162,7 +170,9 @@ function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
 }
 
 const bypassingLinterChecks = async () => {
-  const allFiles = danger.git.modified_files.concat(danger.git.created_files);
+  const allFiles = danger.git.modified_files
+    .concat(danger.git.created_files)
+    .filter((file) => file.includes('src/') || file.includes('pkg/'));
   const diffsByFile = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
   const dangerMsgSegment = checkPRHasProhibitedLinterOverride(diffsByFile);
   if (dangerMsgSegment) {

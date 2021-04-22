@@ -16,12 +16,12 @@ const MaskedTextField = ({
   mask,
   blocks,
   lazy,
+  warning,
   ...props
 }) => {
   const [field, meta, helpers] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
   const { value } = field;
-  const { warning } = props;
   return (
     <FormGroup className={!!warning && !hasError && `warning`} error={hasError}>
       <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
