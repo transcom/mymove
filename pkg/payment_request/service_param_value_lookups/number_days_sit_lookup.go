@@ -292,11 +292,7 @@ func isDOASIT(mtoServiceItem models.MTOServiceItem) bool {
 }
 
 func isDDFSIT(mtoServiceItem models.MTOServiceItem) bool {
-	if mtoServiceItem.ReService.Code == models.ReServiceCodeDDFSIT {
-		return true
-	}
-
-	return false
+	return mtoServiceItem.ReService.Code == models.ReServiceCodeDDFSIT
 }
 
 func isDDASIT(mtoServiceItem models.MTOServiceItem) bool {

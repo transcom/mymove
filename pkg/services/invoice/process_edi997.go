@@ -74,8 +74,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 		PaymentRequestID:         paymentRequest.ID,
 	}
 
-	var transactionError error
-	transactionError = e.db.Transaction(func(tx *pop.Connection) error {
+	transactionError := e.db.Transaction(func(tx *pop.Connection) error {
 		err = tx.Save(&prToICN)
 		if err != nil {
 			e.logger.Error("failure saving payment request to interchange control number", zap.Error(err))
