@@ -191,10 +191,10 @@ export const selectEntitlementsForLoggedInUser = createSelector(
   (serviceMember, orders) => {
     const entitlement = {
       pro_gear: serviceMember.weight_allotment?.pro_gear_weight,
-      pro_gear_spouse: orders.spouse_has_pro_gear ? serviceMember.weight_allotment?.pro_gear_weight_spouse : 0,
+      pro_gear_spouse: orders?.spouse_has_pro_gear ? serviceMember.weight_allotment?.pro_gear_weight_spouse : 0,
     };
 
-    if (orders.has_dependents) {
+    if (orders?.has_dependents) {
       entitlement.weight = serviceMember.weight_allotment?.total_weight_self_plus_dependents;
     } else {
       entitlement.weight = serviceMember.weight_allotment?.total_weight_self;
