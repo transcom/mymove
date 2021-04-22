@@ -1,25 +1,22 @@
 import React from 'react';
 import { Formik } from 'formik';
-import * as Yup from 'yup';
 import PropTypes from 'prop-types';
 
 import { BackupContactInfoFields } from 'components/form/BackupContactInfoFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import { backupContactInfoSchema } from 'utils/validation';
 import formStyles from 'styles/form.module.scss';
 
 const BackupContactForm = ({ initialValues, onSubmit, onBack }) => {
-  const validationSchema = Yup.object().shape({
-    name: Yup.string().required('Required'),
-    email: Yup.string()
-      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/, 'Must be a valid email address')
-      .required('Required'),
-    telephone: Yup.string().min(12, 'Number must have 10 digits and a valid area code').required('Required'), // min 12 includes hyphens
-  });
-
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
+    <Formik
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      validationSchema={backupContactInfoSchema}
+      validateOnMount
+    >
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>

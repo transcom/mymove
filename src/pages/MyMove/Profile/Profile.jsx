@@ -38,13 +38,14 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           <SectionWrapper className={formStyles.formSection}>
             <ContactInfoDisplay
               telephone={serviceMember?.telephone || ''}
+              secondaryTelephone={serviceMember?.secondary_telephone || ''}
               personalEmail={serviceMember?.personal_email || ''}
               emailIsPreferred={serviceMember?.email_is_preferred}
               phoneIsPreferred={serviceMember?.phone_is_preferred}
               residentialAddress={serviceMember?.residential_address || ''}
               backupMailingAddress={serviceMember?.backup_mailing_address || ''}
               backupContact={backupContact}
-              editURL={customerRoutes.EDIT_PROFILE_PATH}
+              editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
             />
           </SectionWrapper>
           <SectionWrapper className={formStyles.formSection}>

@@ -220,7 +220,12 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("Could not process reviewed payment request(s)", zap.Error(err))
 	}
-	logger.Info("Successfully sent 858 files")
+	logger.Info("Finished processing reviewed payment requests")
+
+	if sendToSyncada == false {
+		logger.Info("Skipping processing of response files EDI997 acknowledgement and EDI824 application advice responses")
+		return nil
+	}
 
 	// SSH and SFTP Connection Setup
 	sshClient, err := cli.InitGEXSSH(v, logger)
@@ -261,18 +266,18 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
 	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path997, lastReadTime, invoice.NewEDI997Processor(dbConnection, logger))
 	if err != nil {
-		logger.Error("Error reading 997 responses", zap.Error(err))
+		logger.Error("Error reading EDI997 acknowledgement responses", zap.Error(err))
 	} else {
-		logger.Info("Successfully processed 997 responses")
+		logger.Info("Successfully processed EDI997 acknowledgement responses")
 	}
 
 	// Process 824s
 	path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
 	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path824, lastReadTime, invoice.NewEDI824Processor(dbConnection, logger))
 	if err != nil {
-		logger.Error("Error reading 824 responses", zap.Error(err))
+		logger.Error("Error reading EDI824 application advice responses", zap.Error(err))
 	} else {
-		logger.Info("Successfully processed 824 responses")
+		logger.Info("Successfully processed EDI824 application advice responses")
 	}
 
 	return nil
