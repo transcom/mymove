@@ -55,37 +55,3 @@ func (e *Entitlement) AuthorizedWeight() *int {
 		return nil
 	}
 }
-
-//// ProGearWeight returns authorized weight. If authorized weight has not been
-//// stored in DBAuthorizedWeight use either TotalWeightSelf with no dependents or TotalWeightSelfPlusDependents
-//// with dependents.
-//func (e *Entitlement) ProGearWeight() *int {
-//	switch {
-//	case e.DBAuthorizedWeight != nil:
-//		return e.DBAuthorizedWeight
-//	case e.WeightAllotment() != nil:
-//		if e.DependentsAuthorized != nil && *e.DependentsAuthorized == true {
-//			return &e.WeightAllotment().TotalWeightSelfPlusDependents
-//		}
-//		return &e.WeightAllotment().TotalWeightSelf
-//	default:
-//		return nil
-//	}
-//}
-//
-//// SpouseProGearWeight returns authorized weight. If authorized weight has not been
-//// stored in DBAuthorizedWeight use either TotalWeightSelf with no dependents or TotalWeightSelfPlusDependents
-//// with dependents.
-//func (e *Entitlement) SpouseProGearWeight() *int {
-//	switch {
-//	case e.DBAuthorizedWeight != nil:
-//		return e.DBAuthorizedWeight
-//	case e.WeightAllotment() != nil:
-//		if e.DependentsAuthorized != nil && *e.DependentsAuthorized == true {
-//			return &e.WeightAllotment().TotalWeightSelfPlusDependents
-//		}
-//		return &e.WeightAllotment().TotalWeightSelf
-//	default:
-//		return nil
-//	}
-//}
