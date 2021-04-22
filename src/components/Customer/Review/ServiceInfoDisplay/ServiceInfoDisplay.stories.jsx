@@ -37,7 +37,7 @@ export const Editable = () => (
 
 export const NonEditableWithMessage = () => (
   <div style={{ padding: 40 }}>
-    <ServiceInfoDisplay {...defaultProps} isEditable={false} shouldNotifyTransportationOffice />
+    <ServiceInfoDisplay {...defaultProps} isEditable={false} showMessage />
   </div>
 );
 

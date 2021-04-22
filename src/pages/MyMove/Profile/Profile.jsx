@@ -60,7 +60,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               edipi={serviceMember?.edipi || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
               isEditable={moveIsInDraft}
-              shouldNotifyTransportationOffice={showMessages}
+              showMessage={showMessages}
             />
           </SectionWrapper>
         </div>

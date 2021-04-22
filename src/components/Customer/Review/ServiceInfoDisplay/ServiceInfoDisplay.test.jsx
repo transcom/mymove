@@ -60,7 +60,7 @@ describe('ServiceInfoDisplay component', () => {
   });
 
   it('renders who to contact when the service info is no longer editable and it should notify the transportation office', async () => {
-    renderWithRouter(<ServiceInfoDisplay {...testProps} isEditable={false} shouldNotifyTransportationOffice />);
+    renderWithRouter(<ServiceInfoDisplay {...testProps} isEditable={false} showMessage />);
 
     expect(screen.queryByText('Edit')).toBeNull();
 
