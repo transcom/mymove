@@ -43,10 +43,7 @@ linters:
     - gomodguard
     - errcheck
     - staticcheck
-  disable:
-    - gosimple #deprecated https://github.com/golangci/golangci-lint/issues/357
   fast: false
-
 issues:
   # Disable defaults for the exclude patterns and instead list them all out
   # TODO: Slowly remove these where they make sense and fix code
