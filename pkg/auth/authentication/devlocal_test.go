@@ -95,7 +95,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		userType string
 		roleType roles.RoleType
 		email    string
-	}{{userType: PPMOfficeUserType, roleType: roles.RoleTypePPMOfficeUsers, email: "ppm_office_user@example.com"}, {userType: TOOOfficeUserType, roleType: roles.RoleTypeTOO, email: "too_office_user@example.com"}, {userType: TIOOfficeUserType, roleType: roles.RoleTypeTIO, email: "tio_office_user@example.com"}} {
+	}{{userType: PPMOfficeUserType, roleType: roles.RoleTypePPMOfficeUsers, email: "ppm_office_user@example.com"}, {userType: TOOOfficeUserType, roleType: roles.RoleTypeTOO, email: "too_office_user@example.com"}, {userType: TIOOfficeUserType, roleType: roles.RoleTypeTIO, email: "tio_office_user@example.com"}, {userType: ServicesCounselorOfficeUserType, roleType: roles.RoleTypeServicesCounselor, email: "services_counselor_office_user@example.com"}} {
 		// Exercise all variables in the office user
 		form := url.Values{}
 		form.Add("userType", newOfficeUser.userType)
