@@ -2859,22 +2859,12 @@ func createTXO(db *pop.Connection) {
 func createTXOServicesCounselor(db *pop.Connection) {
 	/* A user with both too, tio, and services counselor roles */
 	email := "too_tio_services_counselor_role@office.mil"
-	tooRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
-	}
 
-	tioRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	officeUserRoleTypes := []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor}
+	var userRoles roles.Roles
+	err := db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
-	}
-
-	servicesRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+		log.Panic(fmt.Errorf("Failed to find office user RoleType in the DB: %w", err))
 	}
 
 	tooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
@@ -2887,7 +2877,7 @@ func createTXOServicesCounselor(db *pop.Connection) {
 			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
-			Roles:         []roles.Role{tooRole, tioRole, servicesRole},
+			Roles:         userRoles,
 		},
 	})
 
@@ -2905,23 +2895,13 @@ func createTXOServicesCounselor(db *pop.Connection) {
 func createTXOServicesUSMCCounselor(db *pop.Connection) {
 
 	/* A user with both too, tio, and services counselor roles */
-	tooRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	officeUserRoleTypes := []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor}
+	var userRoles roles.Roles
+	err := db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+		log.Panic(fmt.Errorf("Failed to find office user RoleType in the DB: %w", err))
 	}
 
-	tioRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
-	}
-
-	servicesRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesRole)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
-	}
 	// Makes user with too, tio, services counselor role with USMC gbloc
 	transportationOfficeUSMC := models.TransportationOffice{}
 	err = db.Where("id = $1", "ccf50409-9d03-4cac-a931-580649f1647a").First(&transportationOfficeUSMC)
@@ -2939,7 +2919,7 @@ func createTXOServicesUSMCCounselor(db *pop.Connection) {
 			LoginGovUUID:  &loginGovWithUsmcUUID,
 			LoginGovEmail: emailUSMC,
 			Active:        true,
-			Roles:         []roles.Role{tooRole, tioRole, servicesRole},
+			Roles:         userRoles,
 		},
 	})
 
