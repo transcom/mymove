@@ -350,9 +350,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				logger.Error(msg, zap.Error(err))
 				return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 			}
-			for _, pr := range reviewedPaymentRequests {
-				paymentRequests = append(paymentRequests, pr)
-			}
+			paymentRequests = append(paymentRequests, reviewedPaymentRequests...)
 		}
 
 		// Update each payment request to have the given status
