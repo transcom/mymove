@@ -6,19 +6,12 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/gofrs/uuid"
 )
 
 func (suite *ModelSuite) TestEdiErrors() {
-	pr := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	prICN := models.PaymentRequestToInterchangeControlNumber{
-		ID:                       uuid.Must(uuid.NewV4()),
-		PaymentRequestID:         pr.ID,
-		InterchangeControlNumber: 5,
-		EDIType:                  models.EDIType997,
-	}
+	icnID := uuid.Must(uuid.NewV4())
 	testCases := map[string]struct {
 		ediError     models.EdiError
 		expectedErrs map[string][]string
@@ -27,8 +20,8 @@ func (suite *ModelSuite) TestEdiErrors() {
 			ediError: models.EdiError{
 				ID:                         uuid.Must(uuid.NewV4()),
 				EDIType:                    models.EDIType824,
-				PaymentRequestID:           pr.ID,
-				InterchangeControlNumberID: &prICN.ID,
+				PaymentRequestID:           uuid.Must(uuid.NewV4()),
+				InterchangeControlNumberID: &icnID,
 				Code:                       swag.String("B"),
 				Description:                swag.String("EDI Error happened to field 99"),
 			},
@@ -47,8 +40,8 @@ func (suite *ModelSuite) TestEdiErrors() {
 			ediError: models.EdiError{
 				ID:                         uuid.Must(uuid.NewV4()),
 				EDIType:                    "956",
-				PaymentRequestID:           pr.ID,
-				InterchangeControlNumberID: &prICN.ID,
+				PaymentRequestID:           uuid.Must(uuid.NewV4()),
+				InterchangeControlNumberID: &icnID,
 				Code:                       swag.String("C"),
 				Description:                swag.String("EDI Error happened to field 123"),
 			},
@@ -60,8 +53,8 @@ func (suite *ModelSuite) TestEdiErrors() {
 			ediError: models.EdiError{
 				ID:                         uuid.Must(uuid.NewV4()),
 				EDIType:                    models.EDIType824,
-				PaymentRequestID:           pr.ID,
-				InterchangeControlNumberID: &prICN.ID,
+				PaymentRequestID:           uuid.Must(uuid.NewV4()),
+				InterchangeControlNumberID: &icnID,
 				Description:                swag.String("EDI Error happened to field 99"),
 			},
 			expectedErrs: nil,
@@ -70,8 +63,8 @@ func (suite *ModelSuite) TestEdiErrors() {
 			ediError: models.EdiError{
 				ID:                         uuid.Must(uuid.NewV4()),
 				EDIType:                    models.EDIType824,
-				PaymentRequestID:           pr.ID,
-				InterchangeControlNumberID: &prICN.ID,
+				PaymentRequestID:           uuid.Must(uuid.NewV4()),
+				InterchangeControlNumberID: &icnID,
 				Description:                swag.String(""),
 			},
 			expectedErrs: map[string][]string{
