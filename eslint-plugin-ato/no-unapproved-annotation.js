@@ -1,9 +1,11 @@
 const REQUIRES_APPROVAL_MESSAGE_ID = 'no-unapproved-annotation';
 const NO_ANNOTATION_MESSAGE_ID = 'no-annotation';
+const NO_INLINE_DISABLE = 'no-inline-disable';
 const messages = {
   [REQUIRES_APPROVAL_MESSAGE_ID]: 'Requires annotation approval from an ISSO',
   [NO_ANNOTATION_MESSAGE_ID]:
     'Disabling of this rule requires an annotation. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit?usp=sharing',
+  [NO_INLINE_DISABLE]: 'Please use eslint-disable-next-line instead of eslint-disable-line',
 };
 
 // eslint-disable-next-line security/detect-unsafe-regex
@@ -106,7 +108,21 @@ const create = (context) => ({
         result && // It's a eslint-disable comment
         result.groups.ruleId // disabling a specific rule
       ) {
-        const [, rule] = result.input.split(' ');
+        const [disableComment, rule] = result.input.split(' ');
+        if (disableComment === 'eslint-disable-line') {
+          context.report({
+            // Can't set it at the given location as the warning
+            // will be ignored due to the disable comment
+            loc: {
+              start: {
+                ...comment.loc.start,
+                column: -1,
+              },
+              end: comment.loc.end,
+            },
+            messageId: NO_INLINE_DISABLE,
+          });
+        }
         const commentsBefore = context.getCommentsBefore(comment).map(({ value }) => value.trim());
         const validatorStatus = getValidatorStatus(commentsBefore);
         if (!approvedBypassableRules.has(rule) && !hasAnnotation(commentsBefore)) {
