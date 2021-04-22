@@ -426,6 +426,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		movePayload := moveResponse.Payload
 		suite.Equal(movePayload.ID.String(), successMove.ID.String())
 		suite.NotNil(movePayload.AvailableToPrimeAt)
+		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
 	})
 
 	suite.T().Run("Failure 'Not Found' for non-available move", func(t *testing.T) {
