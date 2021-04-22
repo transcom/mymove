@@ -84,3 +84,9 @@ storybook-static
 
 # Certs
 *.srl
+
+# nix
+.nix-hash
+.nix-disable
+.npmglobal
+.gopath
