@@ -1,6 +1,8 @@
 package order
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -43,6 +45,12 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 		}
 
 		if entitlement := order.Entitlement; entitlement != nil {
+			weightAllotment := entitlement.WeightAllotment()
+			if weightAllotment == nil && existingOrder.Grade != nil && existingOrder.Entitlement != nil {
+				// set weight allotment if nil
+				existingOrder.Entitlement.SetWeightAllotment(*existingOrder.Grade)
+				weightAllotment = existingOrder.Entitlement.WeightAllotment()
+			}
 
 			if entitlement.DBAuthorizedWeight != nil {
 				existingOrder.Entitlement.DBAuthorizedWeight = entitlement.DBAuthorizedWeight
@@ -52,12 +60,22 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 				existingOrder.Entitlement.DependentsAuthorized = entitlement.DependentsAuthorized
 			}
 
-			// TODO - Make sure value for (spouse) pro-gear is between min 0 and max of what is defined in weight allotment
 			if entitlement.ProGearWeight != nil {
+				if weightAllotment == nil {
+					return services.NewInvalidInputError(order.ID, nil, nil, "error updating ProGearWeight: missing service member grade on Orders")
+				}
+				if *entitlement.ProGearWeight > weightAllotment.ProGearWeight {
+					return services.NewInvalidInputError(order.ID, nil, nil, fmt.Sprintf("error updating ProGearWeight: value cannot be greater than %d", weightAllotment.ProGearWeight))
+				}
 				existingOrder.Entitlement.ProGearWeight = entitlement.ProGearWeight
 			}
-
 			if entitlement.ProGearWeightSpouse != nil {
+				if weightAllotment == nil {
+					return services.NewInvalidInputError(order.ID, nil, nil, "error updating ProGearWeightSpouse: missing service member grade on Orders")
+				}
+				if *entitlement.ProGearWeightSpouse > weightAllotment.ProGearWeightSpouse {
+					return services.NewInvalidInputError(order.ID, nil, nil, fmt.Sprintf("error updating ProGearWeightSpouse: value cannot be greater than %d", weightAllotment.ProGearWeightSpouse))
+				}
 				existingOrder.Entitlement.ProGearWeightSpouse = entitlement.ProGearWeightSpouse
 			}
 
