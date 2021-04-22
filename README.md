@@ -350,6 +350,9 @@ AWS credentials are managed via `aws-vault`. Once you have received AWS credenti
 NOTE: Nix is an experiment. If you are setting things up with Nix you
 do not need to follow the instructions above about [Setup: Golang](#setup-golang) and [Setup: Quick Initial Setup](#setup-quick-initial-setup).
 
+NOTE: Nix as an experiment means you ask for help in the `#code-nix`
+slack channel. It's not an officially supported development environment.
+
 1. First read the overview in the [Truss Engineering Playbook](https://github.com/trussworks/Engineering-Playbook/tree/adh-nix-devenv/developing/nix).
 1. Follow the [macOS installation instructions](https://nixos.org/manual/nix/stable/#sect-macos-installation).
 1. Ensure you have run `direnv allow` to set up the appropriate nix
