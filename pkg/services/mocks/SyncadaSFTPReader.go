@@ -14,20 +14,20 @@ type SyncadaSFTPReader struct {
 	mock.Mock
 }
 
-// FetchAndProcessSyncadaFiles provides a mock function with given fields: syncadaPath, lastRead, processor
-func (_m *SyncadaSFTPReader) FetchAndProcessSyncadaFiles(syncadaPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
-	ret := _m.Called(syncadaPath, lastRead, processor)
+// FetchAndProcessSyncadaFiles provides a mock function with given fields: pickupPath, lastRead, processor
+func (_m *SyncadaSFTPReader) FetchAndProcessSyncadaFiles(pickupPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
+	ret := _m.Called(pickupPath, lastRead, processor)
 
 	var r0 time.Time
 	if rf, ok := ret.Get(0).(func(string, time.Time, services.SyncadaFileProcessor) time.Time); ok {
-		r0 = rf(syncadaPath, lastRead, processor)
+		r0 = rf(pickupPath, lastRead, processor)
 	} else {
 		r0 = ret.Get(0).(time.Time)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, time.Time, services.SyncadaFileProcessor) error); ok {
-		r1 = rf(syncadaPath, lastRead, processor)
+		r1 = rf(pickupPath, lastRead, processor)
 	} else {
 		r1 = ret.Error(1)
 	}

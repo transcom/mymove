@@ -13,6 +13,8 @@ import (
 	"os"
 	"testing"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
 
@@ -79,7 +81,12 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
 
-		defer testFile.Close() // #nosec G307
+		defer func() {
+			if closeErr := testFile.Close(); closeErr != nil {
+				t.Error("Failed to close file", zap.Error(closeErr))
+			}
+		}()
+
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
 		_, err = uploadCreator.CreateUpload(testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)
@@ -89,7 +96,11 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
 
-		defer testFile.Close() // #nosec G307
+		defer func() {
+			if closeErr := testFile.Close(); closeErr != nil {
+				t.Error("Failed to close file", zap.Error(closeErr))
+			}
+		}()
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
@@ -103,7 +114,11 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
 		suite.NoError(err)
 
-		defer wrongTypeFile.Close() // #nosec G307
+		defer func() {
+			if closeErr := wrongTypeFile.Close(); closeErr != nil {
+				t.Error("Failed to close file", zap.Error(closeErr))
+			}
+		}()
 
 		_, err = uploadCreator.CreateUpload(wrongTypeFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)
