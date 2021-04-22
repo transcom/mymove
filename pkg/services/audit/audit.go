@@ -135,7 +135,7 @@ func validateInterface(thing interface{}) (reflect.Type, error) {
 
 func extractEventType(request *http.Request) string {
 	path := request.URL.Path
-	apiRegex := regexp.MustCompile("\\/[a-zA-Z]+\\/v1")
+	apiRegex := regexp.MustCompile(`\/[a-zA-Z]+\/v1`)
 	uuidRegex := regexp.MustCompile("/([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}){1}") // https://adamscheller.com/regular-expressions/uuid-regex/
 	cleanPath := uuidRegex.ReplaceAllString(apiRegex.ReplaceAllString(path, ""), "")
 	return fmt.Sprintf("audit_%s_%s", strings.ToLower(request.Method), flect.Underscore(cleanPath))
