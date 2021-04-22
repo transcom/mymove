@@ -46,8 +46,7 @@ func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBui
 // setNewShipmentFields validates the updated shipment
 func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) error {
 	verrs := validate.NewErrors()
-	var oldShipmentCopy *models.MTOShipment
-	oldShipmentCopy = dbShipment // make a copy to restore values in case there were errors while setting
+	oldShipmentCopy := dbShipment // make a copy to restore values in case there were errors while setting
 
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate

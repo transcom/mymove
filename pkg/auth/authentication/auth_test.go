@@ -289,8 +289,7 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	req := httptest.NewRequest("GET", "/moves", nil)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
+	sessionManager := scs.New()
 	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.logger)(handler))
 
 	middleware.ServeHTTP(rr, req)
