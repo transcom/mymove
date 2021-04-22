@@ -459,7 +459,7 @@ func (pr *paymentRequestsData) updateShipmentsJSONToFile(f *os.File, shipmentUpd
 	//		"ifMatch": "MjAyMC0wOS0yOFQxNTo1OTozOC4zOTA0MjFa",
 	strs = append(strs, fmt.Sprintf("\"ifMatch\": \"%s\",\n", pr.mtoShipmentDisplayList[shipmentIndex].etag))
 	// 		"body": {
-	strs = append(strs, fmt.Sprint("\"body\": {\n"))
+	strs = append(strs, "\"body\": {\n")
 	last := len(shipmentUpdates)
 	counter := 0
 	for key, value := range shipmentUpdates {
@@ -483,9 +483,9 @@ func (pr *paymentRequestsData) updateShipmentsJSONToFile(f *os.File, shipmentUpd
 	}
 
 	// 		}  # close body{
-	strs = append(strs, fmt.Sprint("}\n"))
+	strs = append(strs, "}\n")
 	// }  # close json
-	strs = append(strs, fmt.Sprint("}\n"))
+	strs = append(strs, "}\n")
 
 	text := []byte(strings.Join(strs, ""))
 
@@ -761,16 +761,16 @@ func (pr *paymentRequestsData) paymentRequestJSONToFile(f *os.File, serviceItems
 	***************************************************/
 
 	// {
-	strs = append(strs, fmt.Sprint("{\n"))
+	strs = append(strs, "{\n")
 	// 		"body": {
-	strs = append(strs, fmt.Sprint("\"body\": {\n"))
+	strs = append(strs, "\"body\": {\n")
 	//		    "isFinal": false,
 	strs = append(strs, fmt.Sprintf("\"isFinal\": %s,\n", serviceItems["isFinal"].value))
 	//		    "moveTaskOrderID": "49abcdbf-d4ed-4c9c-9ce1-677ee7653f77",
 	strs = append(strs, fmt.Sprintf("\"moveTaskOrderID\": \"%s\",\n", pr.currentMTO.ID.String()))
 
 	//"serviceItems": [
-	strs = append(strs, fmt.Sprint("\"serviceItems\": [\n"))
+	strs = append(strs, "\"serviceItems\": [\n")
 	last := len(serviceItems)
 	last-- // need to account for skipping over 'isFinal' key
 	counter := 0
@@ -798,11 +798,11 @@ func (pr *paymentRequestsData) paymentRequestJSONToFile(f *os.File, serviceItems
 	}
 
 	//          ]  # close "serviceItems": [
-	strs = append(strs, fmt.Sprint("]\n"))
+	strs = append(strs, "]\n")
 	// 		}  # close body{
-	strs = append(strs, fmt.Sprint("}\n"))
+	strs = append(strs, "}\n")
 	// }  # close json
-	strs = append(strs, fmt.Sprint("}\n"))
+	strs = append(strs, "}\n")
 
 	text := []byte(strings.Join(strs, ""))
 
