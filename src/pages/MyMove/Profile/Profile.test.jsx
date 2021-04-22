@@ -177,7 +177,11 @@ describe('Profile component', () => {
 
     const editLinks = screen.getAllByText('Edit');
 
-    expect(editLinks.length).toBe(2);
+    expect(editLinks.length).toBe(1);
+
+    expect(screen.queryByText('Contact your movers if you need to make changes to your move.')).not.toBeInTheDocument();
+
+    expect(screen.queryByText(/To change information in this section, contact the/)).not.toBeInTheDocument();
   });
 
   it('does not allow the user to edit the service info information after a move has been submitted', async () => {
@@ -197,6 +201,7 @@ describe('Profile component', () => {
             },
             status: 'DRAFT',
             moves: ['testMove'],
+            id: 'testOrder',
           },
         },
         moves: {
@@ -258,6 +263,10 @@ describe('Profile component', () => {
         <ConnectedProfile {...testProps} />
       </MockProviders>,
     );
+
+    const alert = screen.getByText('Contact your movers if you need to make changes to your move.');
+
+    expect(alert).toBeInTheDocument();
 
     const whoToContact = screen.getByText(/To change information in this section, contact the/);
 
