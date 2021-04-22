@@ -29,17 +29,13 @@ func MakePaymentRequestToInterchangeControlNumber(db *pop.Connection, assertions
 		log.Panic(fmt.Errorf("Errors encountered getting random interchange control number: %v", err))
 	}
 
-	ediType := assertions.PaymentRequestToInterchangeControlNumber.EDIType
-	if len(ediType.String()) == 0 {
-		ediType = models.EDIType858
-	}
-
 	pr2icn := models.PaymentRequestToInterchangeControlNumber{
 		PaymentRequestID:         paymentRequestID,
 		InterchangeControlNumber: int(icn),
-		EDIType:                  ediType,
+		EDIType:                  models.EDIType858,
 	}
 
+	// Overwrite values with those from assertions
 	mergeModels(&pr2icn, assertions.PaymentRequestToInterchangeControlNumber)
 
 	mustCreate(db, &pr2icn, assertions.Stub)
