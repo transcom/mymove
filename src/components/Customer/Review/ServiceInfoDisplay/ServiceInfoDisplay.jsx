@@ -14,6 +14,7 @@ const ServiceInfoDisplay = ({
   edipi,
   firstName,
   isEditable,
+  showMessage,
   lastName,
   editURL,
   rank,
@@ -24,7 +25,7 @@ const ServiceInfoDisplay = ({
         <h2>Service info</h2>
         {isEditable && <Link to={editURL}>Edit</Link>}
       </div>
-      {!isEditable && (
+      {!isEditable && showMessage && (
         <div className={serviceInfoDisplayStyles.whoToContactContainer}>
           To change information in this section, contact the {originTransportationOfficeName} transportation office
           {originTransportationOfficePhone ? ` at ${originTransportationOfficePhone}.` : '.'}
@@ -72,6 +73,7 @@ ServiceInfoDisplay.propTypes = {
   edipi: string.isRequired,
   firstName: string.isRequired,
   isEditable: bool,
+  showMessage: bool,
   lastName: string.isRequired,
   editURL: string,
   rank: string.isRequired,
@@ -81,6 +83,7 @@ ServiceInfoDisplay.defaultProps = {
   originTransportationOfficePhone: '',
   editURL: '',
   isEditable: true,
+  showMessage: false,
 };
 
 export default ServiceInfoDisplay;
