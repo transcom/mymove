@@ -26,7 +26,7 @@ const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
       <h2>Current role: {activeRole || userRoleTypes[0]}</h2>
 
       <ul className="usa-button-group">
-        {[roleTypes.PPM, roleTypes.TOO, roleTypes.TIO]
+        {[roleTypes.PPM, roleTypes.TOO, roleTypes.TIO, roleTypes.SERVICES_COUNSELOR]
           .filter((r) => userRoleTypes.find((role) => r === role))
           .map((r) => (
             <li key={`selectRole_${r}`}>

@@ -146,6 +146,29 @@ func MakeTOOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 	return officeUser
 }
 
+// MakeServicesCounselorOfficeUser makes an OfficeUser with the ServicesCounselor role
+func MakeServicesCounselorOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	servicesRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeServicesCounselor,
+		RoleName: "Services Counselor",
+	}
+
+	servicesUser := models.User{
+		Roles: []roles.Role{servicesRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
+			User: servicesUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
 // MakePPMOfficeUser makes an OfficeUser with the PPM role
 func MakePPMOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
 	ppmRole := roles.Role{
@@ -199,6 +222,35 @@ func MakeOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
 		OfficeUser: models.OfficeUser{
 			ID:                   uuid.Must(uuid.NewV4()),
 			User:                 txoUser,
+			TransportationOffice: transportationOffice,
+		},
+	})
+}
+
+// MakeServicesCounselorOfficeUserWithUSMCGBLOC makes a Services Counselor tied to the USMC GBLOC
+func MakeServicesCounselorOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
+	officeUUID, _ := uuid.NewV4()
+	transportationOffice := MakeTransportationOffice(db, Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "USMC",
+			ID:    officeUUID,
+		},
+	})
+
+	servicesRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeServicesCounselor,
+		RoleName: "Services Counselor",
+	}
+
+	servicesUser := models.User{
+		Roles: []roles.Role{servicesRole},
+	}
+
+	return MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:                   uuid.Must(uuid.NewV4()),
+			User:                 servicesUser,
 			TransportationOffice: transportationOffice,
 		},
 	})
