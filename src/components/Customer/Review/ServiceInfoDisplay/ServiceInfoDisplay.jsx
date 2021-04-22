@@ -8,8 +8,9 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const ServiceInfoDisplay = ({
   affiliation,
-  currentDutyStationName,
-  currentDutyStationPhone,
+  originDutyStationName,
+  originTransportationOfficeName,
+  originTransportationOfficePhone,
   edipi,
   firstName,
   isEditable,
@@ -25,8 +26,8 @@ const ServiceInfoDisplay = ({
       </div>
       {!isEditable && (
         <div className={serviceInfoDisplayStyles.whoToContactContainer}>
-          To change information in this section, contact the {currentDutyStationName} transportation office{' '}
-          {currentDutyStationPhone ? ` at ${currentDutyStationPhone}.` : '.'}
+          To change information in this section, contact the {originTransportationOfficeName} transportation office
+          {originTransportationOfficePhone ? ` at ${originTransportationOfficePhone}.` : '.'}
         </div>
       )}
       <div className={serviceInfoDisplayStyles.serviceInfoSection}>
@@ -55,7 +56,7 @@ const ServiceInfoDisplay = ({
 
           <div className={descriptionListStyles.row}>
             <dt>Current duty station</dt>
-            <dd>{currentDutyStationName}</dd>
+            <dd>{originDutyStationName}</dd>
           </div>
         </dl>
       </div>
@@ -65,8 +66,9 @@ const ServiceInfoDisplay = ({
 
 ServiceInfoDisplay.propTypes = {
   affiliation: string.isRequired,
-  currentDutyStationName: string.isRequired,
-  currentDutyStationPhone: string,
+  originDutyStationName: string.isRequired,
+  originTransportationOfficeName: string.isRequired,
+  originTransportationOfficePhone: string,
   edipi: string.isRequired,
   firstName: string.isRequired,
   isEditable: bool,
@@ -76,7 +78,7 @@ ServiceInfoDisplay.propTypes = {
 };
 
 ServiceInfoDisplay.defaultProps = {
-  currentDutyStationPhone: '',
+  originTransportationOfficePhone: '',
   editURL: '',
   isEditable: true,
 };

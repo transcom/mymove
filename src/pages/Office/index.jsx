@@ -139,12 +139,6 @@ export class OfficeApp extends Component {
         component={TXOMoveInfo}
         requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
       />,
-      <PrivateRoute
-        key="servicesCounselingMoveInfoRoute"
-        path="/counseling/moves/:moveCode"
-        component={ServicesCounselingMoveInfo}
-        requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
-      />,
     ];
 
     const isFullscreenPage = matchPath(pathname, {
@@ -171,7 +165,10 @@ export class OfficeApp extends Component {
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
             {!hideHeaderPPM && (
               <>
-                {!userIsLoggedIn || (activeRole !== roleTypes.TOO && activeRole !== roleTypes.TIO) ? (
+                {!userIsLoggedIn ||
+                (activeRole !== roleTypes.TOO &&
+                  activeRole !== roleTypes.TIO &&
+                  activeRole !== roleTypes.SERVICES_COUNSELOR) ? (
                   <QueueHeader />
                 ) : (
                   <MilmoveHeader
@@ -217,11 +214,19 @@ export class OfficeApp extends Component {
                       component={PaymentRequestQueue}
                       requiredRoles={[roleTypes.TIO]}
                     />
+
+                    {/* SERVICES_COUNSELOR */}
                     <PrivateRoute
                       path="/counseling/queue"
                       exact
                       component={ServicesCounselingQueue}
-                      requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+                    <PrivateRoute
+                      key="servicesCounselingMoveInfoRoute"
+                      path="/counseling/moves/:moveCode"
+                      component={ServicesCounselingMoveInfo}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 
                     {/* PPM & TXO conflicting routes - select based on user role */}
@@ -240,6 +245,8 @@ export class OfficeApp extends Component {
                             return <PaymentRequestQueue {...routeProps} />;
                           case roleTypes.TOO:
                             return <MoveQueue {...routeProps} />;
+                          case roleTypes.SERVICES_COUNSELOR:
+                            return <ServicesCounselingQueue {...routeProps} />;
                           default:
                             // User has unknown role or shouldn't have access
                             return <div />;

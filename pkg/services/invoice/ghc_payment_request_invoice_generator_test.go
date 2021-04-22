@@ -853,43 +853,7 @@ func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
 
 func (suite *GHCInvoiceSuite) TestGeneratorFailedToInitDB() {
 	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameContractCode,
-			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
-		},
-	}
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		PaymentRequest: models.PaymentRequest{
-			IsFinal:         false,
-			Status:          models.PaymentRequestStatusPending,
-			RejectionReason: nil,
-		},
-	})
-
-	assertions := testdatagen.Assertions{
-		Move:           mto,
-		PaymentRequest: paymentRequest,
-		PaymentServiceItem: models.PaymentServiceItem{
-			Status: models.PaymentServiceItemStatusApproved,
-		},
-	}
-
-	testdatagen.MakePaymentServiceItemWithParams(
-		suite.DB(),
-		models.ReServiceCodeMS,
-		basicPaymentServiceItemParams,
-		assertions,
-	)
-	testdatagen.MakePaymentServiceItemWithParams(
-		suite.DB(),
-		models.ReServiceCodeCS,
-		basicPaymentServiceItemParams,
-		assertions,
-	)
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 
 	_, err := generator.Generate(paymentRequest, false)
 	suite.Error(err, "DB pointer is nil")

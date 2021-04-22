@@ -12,8 +12,9 @@ describe('ServiceInfoDisplay component', () => {
     affiliation: 'Air Force',
     rank: 'E-5',
     edipi: '9999999999',
-    currentDutyStationName: 'Buckley AFB',
-    currentDutyStationPhone: '555-555-5555',
+    originDutyStationName: 'Buckley AFB',
+    originTransportationOfficeName: 'Buckley AFB',
+    originTransportationOfficePhone: '555-555-5555',
   };
 
   it('renders the data', async () => {
@@ -51,7 +52,7 @@ describe('ServiceInfoDisplay component', () => {
 
     expect(currentDutyStation).toBeInTheDocument();
 
-    expect(currentDutyStation.nextElementSibling.textContent).toBe(testProps.currentDutyStationName);
+    expect(currentDutyStation.nextElementSibling.textContent).toBe(testProps.originDutyStationName);
 
     const editLink = screen.getByText('Edit');
 
@@ -64,7 +65,7 @@ describe('ServiceInfoDisplay component', () => {
     expect(screen.queryByText('Edit')).toBeNull();
 
     const whoToContact = screen.getByText(
-      `To change information in this section, contact the ${testProps.currentDutyStationName} transportation office at ${testProps.currentDutyStationPhone}.`,
+      `To change information in this section, contact the ${testProps.originTransportationOfficeName} transportation office at ${testProps.originTransportationOfficePhone}.`,
     );
 
     expect(whoToContact).toBeInTheDocument();
