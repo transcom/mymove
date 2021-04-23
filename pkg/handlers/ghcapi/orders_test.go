@@ -69,6 +69,8 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 			Entitlement: models.Entitlement{
 				ID:                   uuid.Must(uuid.NewV4()),
 				DependentsAuthorized: swag.Bool(false),
+				ProGearWeight:        2000,
+				ProGearWeightSpouse:  500,
 			},
 		})
 		request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
