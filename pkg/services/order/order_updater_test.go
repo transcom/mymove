@@ -179,8 +179,8 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			Entitlement: &models.Entitlement{
 				DBAuthorizedWeight:                           swag.Int(20000),
 				DependentsAuthorized:                         swag.Bool(true),
-				ProGearWeight:                                swag.Int(1234),
-				ProGearWeightSpouse:                          swag.Int(321),
+				ProGearWeight:                                1234,
+				ProGearWeightSpouse:                          321,
 				RequiredMedicalEquipmentWeight:               2000,
 				OrganizationalClothingAndIndividualEquipment: true,
 			},
@@ -208,7 +208,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			ReportByDate:        defaultOrder.ReportByDate,
 			OrdersType:          defaultOrder.OrdersType,
 			Entitlement: &models.Entitlement{
-				ProGearWeight: swag.Int(2001),
+				ProGearWeight: 2001,
 			},
 		}
 
@@ -216,6 +216,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 		_, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
 
 		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Entitlement is not updated: error with ProGearWeightSpouse is over max amount", func(t *testing.T) {
@@ -228,7 +229,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			ReportByDate:        defaultOrder.ReportByDate,
 			OrdersType:          defaultOrder.OrdersType,
 			Entitlement: &models.Entitlement{
-				ProGearWeightSpouse: swag.Int(501),
+				ProGearWeightSpouse: 501,
 			},
 		}
 

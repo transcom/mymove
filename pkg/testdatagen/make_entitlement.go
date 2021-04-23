@@ -28,8 +28,8 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 		NonTemporaryStorage:                          &truePtr,
 		PrivatelyOwnedVehicle:                        &truePtr,
 		StorageInTransit:                             &storageInTransit,
-		ProGearWeight:                                &proGearWeight,
-		ProGearWeightSpouse:                          &proGearWeightSpouse,
+		ProGearWeight:                                proGearWeight,
+		ProGearWeightSpouse:                          proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight:               rmeWeight,
 		OrganizationalClothingAndIndividualEquipment: ocie,
 	}

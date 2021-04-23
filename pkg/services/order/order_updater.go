@@ -1,9 +1,8 @@
 package order
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/etag"
 
@@ -45,13 +44,6 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 		}
 
 		if entitlement := order.Entitlement; entitlement != nil {
-			weightAllotment := entitlement.WeightAllotment()
-			if weightAllotment == nil && existingOrder.Grade != nil && existingOrder.Entitlement != nil {
-				// set weight allotment if nil
-				existingOrder.Entitlement.SetWeightAllotment(*existingOrder.Grade)
-				weightAllotment = existingOrder.Entitlement.WeightAllotment()
-			}
-
 			if entitlement.DBAuthorizedWeight != nil {
 				existingOrder.Entitlement.DBAuthorizedWeight = entitlement.DBAuthorizedWeight
 			}
@@ -60,31 +52,18 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 				existingOrder.Entitlement.DependentsAuthorized = entitlement.DependentsAuthorized
 			}
 
-			if entitlement.ProGearWeight != nil {
-				if weightAllotment == nil {
-					return services.NewInvalidInputError(order.ID, nil, nil, "error updating ProGearWeight: missing service member grade on Orders")
-				}
-				if *entitlement.ProGearWeight > weightAllotment.ProGearWeight {
-					return services.NewInvalidInputError(order.ID, nil, nil, fmt.Sprintf("error updating ProGearWeight: value cannot be greater than %d", weightAllotment.ProGearWeight))
-				}
-				existingOrder.Entitlement.ProGearWeight = entitlement.ProGearWeight
-			}
-			if entitlement.ProGearWeightSpouse != nil {
-				if weightAllotment == nil {
-					return services.NewInvalidInputError(order.ID, nil, nil, "error updating ProGearWeightSpouse: missing service member grade on Orders")
-				}
-				if *entitlement.ProGearWeightSpouse > weightAllotment.ProGearWeightSpouse {
-					return services.NewInvalidInputError(order.ID, nil, nil, fmt.Sprintf("error updating ProGearWeightSpouse: value cannot be greater than %d", weightAllotment.ProGearWeightSpouse))
-				}
-				existingOrder.Entitlement.ProGearWeightSpouse = entitlement.ProGearWeightSpouse
-			}
-
 			// TODO - Should we always update? Seems like we should consider fields that are not passed in for this Patch operation...
 			// TODO - Make these fields required since they're not nullable?
+			existingOrder.Entitlement.ProGearWeight = entitlement.ProGearWeight
+			existingOrder.Entitlement.ProGearWeightSpouse = entitlement.ProGearWeightSpouse
 			existingOrder.Entitlement.RequiredMedicalEquipmentWeight = entitlement.RequiredMedicalEquipmentWeight
 			existingOrder.Entitlement.OrganizationalClothingAndIndividualEquipment = entitlement.OrganizationalClothingAndIndividualEquipment
 
-			err = tx.Save(existingOrder.Entitlement)
+			var verrs *validate.Errors
+			verrs, err = tx.ValidateAndUpdate(existingOrder.Entitlement)
+			if verrs != nil && verrs.HasAny() {
+				return services.NewInvalidInputError(order.ID, nil, verrs, "")
+			}
 			if err != nil {
 				return err
 			}
