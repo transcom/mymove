@@ -93,6 +93,8 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	case "PAID":
 		status = models.PaymentRequestStatusPaid
 		paidAtDate = time.Now()
+	case "EDI_ERROR":
+		status = models.PaymentRequestStatusEDIError
 	}
 
 	// If we got a rejection reason let's use it
@@ -322,13 +324,13 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			v.GetString(cli.GEXBasicAuthPasswordFlag))
 		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, icnSequencer, gexSender)
 		if err != nil {
-			msg := fmt.Sprintf("failed to initialize InitNewPaymentRequestReviewedProcessor")
+			msg := "failed to initialize InitNewPaymentRequestReviewedProcessor"
 			logger.Error(msg, zap.Error(err))
 			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 		err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 		if err != nil {
-			msg := fmt.Sprintf("Error processing reviewed payment requests")
+			msg := "Error processing reviewed payment requests"
 			logger.Error(msg, zap.Error(err))
 			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
@@ -344,13 +346,11 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		} else {
 			reviewedPaymentRequests, err := h.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
 			if err != nil {
-				msg := fmt.Sprintf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest")
+				msg := "function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest"
 				logger.Error(msg, zap.Error(err))
 				return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 			}
-			for _, pr := range reviewedPaymentRequests {
-				paymentRequests = append(paymentRequests, pr)
-			}
+			paymentRequests = append(paymentRequests, reviewedPaymentRequests...)
 		}
 
 		// Update each payment request to have the given status
@@ -374,6 +374,8 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				paidAt := time.Now()
 				pr.Status = models.PaymentRequestStatusPaid
 				pr.PaidAt = &paidAt
+			case "EDI_ERROR":
+				pr.Status = models.PaymentRequestStatusEDIError
 			case "":
 				sentToGex := time.Now()
 				pr.Status = models.PaymentRequestStatusSentToGex

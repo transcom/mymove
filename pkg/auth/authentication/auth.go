@@ -551,9 +551,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
-	for _, role := range userIdentity.Roles {
-		session.Roles = append(session.Roles, role)
-	}
+	session.Roles = append(session.Roles, userIdentity.Roles...)
 	session.UserID = userIdentity.ID
 	if session.IsMilApp() && userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
@@ -743,9 +741,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 		session.AdminUserID = adminUser.ID
 	}
 
-	for _, role := range user.Roles {
-		session.Roles = append(session.Roles, role)
-	}
+	session.Roles = append(session.Roles, user.Roles...)
 
 	sessionManager := h.sessionManager(session)
 	authError := authenticateUser(r.Context(), sessionManager, session, h.logger, h.db)

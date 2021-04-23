@@ -61,7 +61,7 @@ func (e *Entitlement) AuthorizedWeight() *int {
 	case e.DBAuthorizedWeight != nil:
 		return e.DBAuthorizedWeight
 	case e.WeightAllotment() != nil:
-		if e.DependentsAuthorized != nil && *e.DependentsAuthorized == true {
+		if e.DependentsAuthorized != nil && *e.DependentsAuthorized {
 			return &e.WeightAllotment().TotalWeightSelfPlusDependents
 		}
 		return &e.WeightAllotment().TotalWeightSelf

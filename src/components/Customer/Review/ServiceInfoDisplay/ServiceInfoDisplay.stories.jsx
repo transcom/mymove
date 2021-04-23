@@ -35,7 +35,13 @@ export const Editable = () => (
   </div>
 );
 
-export const NonEditable = () => (
+export const NonEditableWithMessage = () => (
+  <div style={{ padding: 40 }}>
+    <ServiceInfoDisplay {...defaultProps} isEditable={false} showMessage />
+  </div>
+);
+
+export const NonEditableWithoutMessage = () => (
   <div style={{ padding: 40 }}>
     <ServiceInfoDisplay {...defaultProps} isEditable={false} />
   </div>

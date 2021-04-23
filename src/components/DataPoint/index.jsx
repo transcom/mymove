@@ -15,7 +15,7 @@ const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
     </thead>
     <tbody>
       <tr>
-        {/*
+        {dataRow.map((cell, i) => (
           // RA Summary: eslint:react/no-array-index-key
           // RA: Using the index as an element key in cases where the array is reordered will result in unnecessary renders.
           // RA: The source data is unstructured, with a potential for duplicate values amongst siblings.
@@ -23,10 +23,8 @@ const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
           // RA Developer Status: Mitigated
           // RA Validator Status: Mitigated
           // RA Modified Severity: N/A
-        */}
-        {/* eslint-disable react/no-array-index-key */}
-        {/* no unique identifier that can be used as a key, cell values can be duplicates (e.g. Dates) */}
-        {dataRow.map((cell, i) => (
+          // no unique identifier that can be used as a key, cell values can be duplicates (e.g. Dates)
+          // eslint-disable-next-line react/no-array-index-key
           <td key={i}>
             <div className={classnames({ [`${styles.iconCellContainer}`]: !!icon && i === 0 })}>
               <span>{cell}</span>
@@ -34,7 +32,6 @@ const DataPoint = ({ columnHeaders, dataRow, icon, custClass }) => (
             </div>
           </td>
         ))}
-        {/* eslint-enable react/no-array-index-key */}
       </tr>
     </tbody>
   </table>

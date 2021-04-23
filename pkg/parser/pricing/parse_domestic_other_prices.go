@@ -35,7 +35,7 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 
 		if packPrice.ServicesSchedule != "" {
 			packUnpackPrices = append(packUnpackPrices, packPrice)
-			if params.ShowOutput == true {
+			if params.ShowOutput {
 				logger.Info("", zap.Any("StageDomesticOtherPackPrice", packPrice))
 			}
 		} else {
@@ -73,7 +73,7 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 
 		if sitPrice.SITPickupDeliverySchedule != "" {
 			sitPrices = append(sitPrices, sitPrice)
-			if params.ShowOutput == true {
+			if params.ShowOutput {
 				logger.Info("", zap.Any("StageDomesticOtherSitPrice", sitPrice))
 			}
 		} else {

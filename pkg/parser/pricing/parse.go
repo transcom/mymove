@@ -148,7 +148,7 @@ type ParamConfig struct {
 // The index MUST match the sheet that is being processed. Refer to file comments or XLSX to
 // determine the correct index to add.
 func InitDataSheetInfo() []XlsxDataSheetInfo {
-	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
+	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax)
 
 	// 4: 	1b) Domestic & International Service Areas
 	xlsxDataSheets[4] = XlsxDataSheetInfo{
@@ -326,7 +326,7 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 	err := db.Transaction(func(tx *pop.Connection) error {
 		tableFromSliceCreator := dbtools.NewTableFromSliceCreator(tx, logger, params.UseTempTables, params.DropIfExists)
 
-		if params.ProcessAll == true {
+		if params.ProcessAll {
 			for i, x := range xlsxDataSheets {
 				if len(x.ProcessMethods) >= 1 {
 					dbErr := process(xlsxDataSheets, params, i, tableFromSliceCreator, logger)
@@ -384,7 +384,7 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 	}
 
 	// Call verify function
-	if params.RunVerify == true {
+	if params.RunVerify {
 		if xlsxInfo.verify != nil {
 			callFunc := *xlsxInfo.verify
 			err := callFunc(params, sheetIndex)

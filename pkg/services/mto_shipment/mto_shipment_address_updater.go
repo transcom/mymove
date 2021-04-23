@@ -61,7 +61,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(newAddress *models.A
 		}
 	}
 
-	if mustBeAvailableToPrime == true {
+	if mustBeAvailableToPrime {
 		// Make sure the associated move is available to the prime
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(f.db)
 		mtoAvailableToPrime, _ := mtoChecker.MTOAvailableToPrime(mtoShipment.MoveTaskOrderID)

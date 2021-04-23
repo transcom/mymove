@@ -242,8 +242,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		currentTime := time.Now()
 		diff := currentTime.Sub(*actualSubmittedAt)
 		diffInSeconds := diff.Seconds()
-		var oneSecond float64
-		oneSecond = 1.000000
+		oneSecond := 1.000000
 
 		// Test that the move was submitted within a few seconds of the current time.
 		// This is better than asserting that it's not Nil, and avoids trying to mock
@@ -330,8 +329,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		currentTime := time.Now()
 		diff := currentTime.Sub(*actualSubmittedAt)
 		diffInSeconds := diff.Seconds()
-		var oneSecond float64
-		oneSecond = 1.000000
+		oneSecond := 1.000000
 
 		// Test that the move was submitted within a few seconds of the current time.
 		// This is better than asserting that it's not Nil, and avoids trying to mock

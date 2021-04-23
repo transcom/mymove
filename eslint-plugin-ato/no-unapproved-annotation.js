@@ -19,6 +19,7 @@ const validatorStatusOptions = new Set([
 ]);
 
 const approvedBypassableRules = new Set([
+  'security/detect-object-injection',
   'react/button-has-type',
   'react/destructuring-assignment',
   'react/forbid-prop-types',

@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 	})
 
 	suite.T().Run("successful fetch of payment request", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/:paymentRequestID"), nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s", paymentRequest.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		params := paymentrequestop.GetPaymentRequestParams{
@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/:paymentRequestID"), nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s", paymentRequest.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUserTOO)
 
 		params := paymentrequestop.GetPaymentRequestParams{
@@ -110,7 +110,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(models.PaymentRequest{}, nil).Once()
 
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/:paymentRequestID"), nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/%s", paymentRequest.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		params := paymentrequestop.GetPaymentRequestParams{
