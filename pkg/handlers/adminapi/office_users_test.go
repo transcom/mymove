@@ -39,6 +39,8 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 			ID: id,
 		},
 	}
+	// The commands MakeOfficeUser and MakeDefaultOfficeUser add a new Office User to the DB.
+	// Don't use if writing a failing test for a User that should not be found.
 	testdatagen.MakeOfficeUser(suite.DB(), assertions)
 	testdatagen.MakeDefaultOfficeUser(suite.DB())
 
