@@ -63,7 +63,6 @@ const toCamelCase = (str) => str[0].toLowerCase() + str.slice(1);
 // This key can be used to determine what key to find the object's
 // definition in within our normalizr schema.
 function successfulReturnType(routeDefinition, status) {
-  // eslint-disable-next-line security/detect-object-injection
   const response = routeDefinition.responses[status];
   const schemaKey = response.schema.$$ref.split('/').pop();
   if (!response) {
