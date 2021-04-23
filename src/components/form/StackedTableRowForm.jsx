@@ -19,10 +19,8 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
   const errorCallback = (formErrors) => {
     setErrors(formErrors);
   };
-  /* eslint-disable security/detect-object-injection */
   const errorMsg = errors[name];
   const value = initialValues[name];
-  /* eslint-enable security/detect-object-injection */
 
   /* eslint-disable react/jsx-props-no-spreading */
   const content = show ? (
