@@ -49,6 +49,8 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	suite.Equal((*order.EntitlementID).String(), payloadEntitlement.ID.String())
 	orderEntitlement := order.Entitlement
 	suite.NotNil(orderEntitlement)
+	suite.EqualValues(orderEntitlement.ProGearWeight, payloadEntitlement.ProGearWeight)
+	suite.EqualValues(orderEntitlement.ProGearWeightSpouse, payloadEntitlement.ProGearWeightSpouse)
 	suite.EqualValues(orderEntitlement.RequiredMedicalEquipmentWeight, payloadEntitlement.RequiredMedicalEquipmentWeight)
 	suite.EqualValues(orderEntitlement.OrganizationalClothingAndIndividualEquipment, payloadEntitlement.OrganizationalClothingAndIndividualEquipment)
 	suite.Equal(order.OriginDutyStation.ID.String(), ordersPayload.OriginDutyStation.ID.String())
@@ -67,6 +69,8 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 			Entitlement: models.Entitlement{
 				ID:                   uuid.Must(uuid.NewV4()),
 				DependentsAuthorized: swag.Bool(false),
+				ProGearWeight:        2000,
+				ProGearWeightSpouse:  500,
 			},
 		})
 		request := httptest.NewRequest("GET", "/orders/{orderID}", nil)

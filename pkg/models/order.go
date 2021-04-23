@@ -112,7 +112,7 @@ type StringIsPresentAfterSubmission struct {
 func (v *StringIsPresentAfterSubmission) IsValid(errors *validate.Errors) {
 	order := v.Order
 
-	if len(order.Moves) <= 0 || order.Moves[0].Status == MoveStatusDRAFT {
+	if len(order.Moves) <= 0 || order.Moves[0].Status == MoveStatusDRAFT || order.Moves[0].Status == MoveStatusNeedsServiceCounseling {
 		return
 	}
 
@@ -133,7 +133,7 @@ type OrdersTypeDetailIsPresentAfterSubmission struct {
 func (v *OrdersTypeDetailIsPresentAfterSubmission) IsValid(errors *validate.Errors) {
 	order := v.Order
 
-	if len(order.Moves) <= 0 || order.Moves[0].Status == MoveStatusDRAFT {
+	if len(order.Moves) <= 0 || order.Moves[0].Status == MoveStatusDRAFT || order.Moves[0].Status == MoveStatusNeedsServiceCounseling {
 		return
 	}
 

@@ -31,3 +31,36 @@ func (suite *ModelSuite) TestAuthorizedWeightWhenNotInDBAndHaveWeightAllotment()
 		suite.Equal(entitlement.WeightAllotment().TotalWeightSelfPlusDependents, *entitlement.AuthorizedWeight())
 	})
 }
+
+func (suite *ModelSuite) TestProGearAndProGearSpouseWeight() {
+	suite.T().Run("no validation errors for ProGearWeight and ProGearSpouseWeight", func(t *testing.T) {
+		entitlement := models.Entitlement{
+			ProGearWeight:       2000,
+			ProGearWeightSpouse: 500,
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.False(verrs.HasAny(), "Should not have validation errors")
+	})
+
+	suite.T().Run("validation errors for ProGearWeight and ProGearSpouseWeight over max value", func(t *testing.T) {
+		entitlement := models.Entitlement{
+			ProGearWeight:       2001,
+			ProGearWeightSpouse: 501,
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.True(verrs.HasAny())
+		suite.NotNil(verrs.Get("pro_gear_weight"))
+		suite.NotNil(verrs.Get("pro_gear_weight_spouse"))
+	})
+
+	suite.T().Run("validation errors for ProGearWeight and ProGearSpouseWeight under min value", func(t *testing.T) {
+		entitlement := models.Entitlement{
+			ProGearWeight:       -1,
+			ProGearWeightSpouse: -1,
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.True(verrs.HasAny())
+		suite.NotNil(verrs.Get("pro_gear_weight"))
+		suite.NotNil(verrs.Get("pro_gear_weight_spouse"))
+	})
+}
