@@ -26,7 +26,14 @@ const (
 	putTargetFlag  string = "put-target"
 )
 
-var names = []string{"save-ghc-fuel-price-data", "send-post-move-survey", "send-payment-reminder", "post-file-to-gex"}
+var names = []string{
+	"connect-to-gex-via-sftp",
+	"post-file-to-gex",
+	"process-edis",
+	"save-ghc-fuel-price-data",
+	"send-payment-reminder",
+	"send-post-move-survey",
+}
 
 type errInvalidName struct {
 	Name string

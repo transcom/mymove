@@ -134,7 +134,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm0.Move.Submit(time.Now())
+	ppm0.Move.Submit()
 	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -172,7 +172,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmNoAdvance.Move.Submit(time.Now())
+	ppmNoAdvance.Move.Submit()
 	verrs, err = models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -209,7 +209,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmStorage.Move.Submit(time.Now())
+	ppmStorage.Move.Submit()
 	ppmStorage.Move.Approve()
 	ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -250,7 +250,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmNoStorage.Move.Submit(time.Now())
+	ppmNoStorage.Move.Submit()
 	ppmNoStorage.Move.Approve()
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -292,7 +292,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmToCancel.Move.Submit(time.Now())
+	ppmToCancel.Move.Submit()
 	verrs, err = models.SaveMoveDependencies(db, &ppmToCancel.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -331,7 +331,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm1.Move.Submit(time.Now())
+	ppm1.Move.Submit()
 	ppm1.Move.Approve()
 	verrs, err = models.SaveMoveDependencies(db, &ppm1.Move)
 	if err != nil || verrs.HasAny() {
@@ -379,7 +379,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm2.Move.Submit(time.Now())
+	ppm2.Move.Submit()
 	ppm2.Move.Approve()
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -449,7 +449,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	}
 	testdatagen.MakeMoveDocument(db, docAssertions)
-	ppm3.Move.Submit(time.Now())
+	ppm3.Move.Submit()
 	ppm3.Move.Approve()
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
 	ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -508,7 +508,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	}
 	ppmExcludedCalculations := testdatagen.MakePPM(db, assertions)
 
-	ppmExcludedCalculations.Move.Submit(time.Now())
+	ppmExcludedCalculations.Move.Submit()
 	ppmExcludedCalculations.Move.Approve()
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -572,7 +572,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmCanceled.Move.Submit(time.Now())
+	ppmCanceled.Move.Submit()
 	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -740,7 +740,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
-	move.Submit(time.Now())
+	move.Submit()
 	verrs, err = models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -976,7 +976,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm6.Move.Submit(time.Now())
+	ppm6.Move.Submit()
 	ppm6.Move.Approve()
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1024,7 +1024,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm7.Move.Submit(time.Now())
+	ppm7.Move.Submit()
 	ppm7.Move.Approve()
 	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1072,7 +1072,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm5.Move.Submit(time.Now())
+	ppm5.Move.Submit()
 	ppm5.Move.Approve()
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
 	ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -1123,7 +1123,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmApproved.Move.Submit(time.Now())
+	ppmApproved.Move.Submit()
 	ppmApproved.Move.Approve()
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -1998,6 +1998,34 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	/* A user with services counselor role */
+	servicesCounselorRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+	}
+
+	email = "services_counselor_role@office.mil"
+	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            servicesCounselorUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{servicesCounselorRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
+			Email:  email,
+			Active: true,
+			UserID: &servicesCounselorUUID,
+		},
+	})
+
 	/* A user with both too and tio roles */
 	email = "too_tio_role@office.mil"
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
@@ -2023,6 +2051,28 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		ServiceMember: models.ServiceMember{
 			User:   user,
 			UserID: user.ID,
+		},
+	})
+
+	/* A user with too, tio, and services counselor roles */
+	email = "too_tio_services_counselor_role@office.mil"
+	ttooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
+	loginGovID = uuid.Must(uuid.NewV4())
+	user = testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            ttooTioServicesUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole, servicesCounselorRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
+			Email:  email,
+			Active: true,
+			UserID: &ttooTioServicesUUID,
 		},
 	})
 

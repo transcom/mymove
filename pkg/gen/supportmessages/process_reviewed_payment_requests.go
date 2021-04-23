@@ -17,10 +17,18 @@ import (
 // swagger:model ProcessReviewedPaymentRequests
 type ProcessReviewedPaymentRequests struct {
 
+	// delete from syncada
+	// Required: true
+	DeleteFromSyncada *bool `json:"deleteFromSyncada"`
+
 	// payment request ID
 	// Read Only: true
 	// Format: uuid
 	PaymentRequestID strfmt.UUID `json:"paymentRequestID,omitempty"`
+
+	// read from syncada
+	// Required: true
+	ReadFromSyncada *bool `json:"readFromSyncada"`
 
 	// send to syncada
 	// Required: true
@@ -34,7 +42,15 @@ type ProcessReviewedPaymentRequests struct {
 func (m *ProcessReviewedPaymentRequests) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateDeleteFromSyncada(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validatePaymentRequestID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReadFromSyncada(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -52,6 +68,15 @@ func (m *ProcessReviewedPaymentRequests) Validate(formats strfmt.Registry) error
 	return nil
 }
 
+func (m *ProcessReviewedPaymentRequests) validateDeleteFromSyncada(formats strfmt.Registry) error {
+
+	if err := validate.Required("deleteFromSyncada", "body", m.DeleteFromSyncada); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *ProcessReviewedPaymentRequests) validatePaymentRequestID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.PaymentRequestID) { // not required
@@ -59,6 +84,15 @@ func (m *ProcessReviewedPaymentRequests) validatePaymentRequestID(formats strfmt
 	}
 
 	if err := validate.FormatOf("paymentRequestID", "body", "uuid", m.PaymentRequestID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProcessReviewedPaymentRequests) validateReadFromSyncada(formats strfmt.Registry) error {
+
+	if err := validate.Required("readFromSyncada", "body", m.ReadFromSyncada); err != nil {
 		return err
 	}
 

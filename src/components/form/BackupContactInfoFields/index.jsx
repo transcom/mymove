@@ -4,28 +4,46 @@ import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
 import TextField from 'components/form/fields/TextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField';
 
-export const BackupContactInfoFields = ({ legend, className, name, render }) => {
+export const BackupContactInfoFields = ({ name, legend, className, render }) => {
   const backupContactInfoFieldsUUID = useRef(uuidv4());
+
+  let nameFieldName = 'name';
+  let emailFieldName = 'email';
+  let phoneFieldName = 'telephone';
+
+  if (name !== '') {
+    nameFieldName = `${name}.name`;
+    emailFieldName = `${name}.email`;
+    phoneFieldName = `${name}.telephone`;
+  }
 
   return (
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <TextField label="Name" id={`name_${backupContactInfoFieldsUUID}`} name={`${name}.name`} />
+          <TextField label="Name" id={`name_${backupContactInfoFieldsUUID.current}`} name={nameFieldName} required />
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-7">
-              <TextField label="Email" id={`email_${backupContactInfoFieldsUUID}`} name={`${name}.email`} />
+              <TextField
+                label="Email"
+                id={`email_${backupContactInfoFieldsUUID.current}`}
+                name={emailFieldName}
+                required
+              />
             </div>
           </div>
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-4">
-              <TextField
+              <MaskedTextField
                 label="Phone"
-                id={`phone_${backupContactInfoFieldsUUID}`}
-                name={`${name}.phone`}
+                id={`phone_${backupContactInfoFieldsUUID.current}`}
+                name={phoneFieldName}
                 type="tel"
-                maxLength="10"
+                minimum="12"
+                mask="000{-}000{-}0000"
+                required
               />
             </div>
           </div>
@@ -36,13 +54,14 @@ export const BackupContactInfoFields = ({ legend, className, name, render }) => 
 };
 
 BackupContactInfoFields.propTypes = {
+  name: string,
   legend: node,
   className: string,
-  name: string.isRequired,
   render: func,
 };
 
 BackupContactInfoFields.defaultProps = {
+  name: '',
   legend: '',
   className: '',
   render: (fields) => fields,

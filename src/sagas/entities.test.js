@@ -73,15 +73,6 @@ describe('updateServiceMember', () => {
     expect(generator.next(normalizedServiceMember).value).toEqual(put(addEntities(normalizedServiceMember)));
   });
 
-  it('calls the legacy UPDATE_SERVICE_MEMBER_SUCCESS action with the raw payload', () => {
-    expect(generator.next().value).toEqual(
-      put({
-        type: 'UPDATE_SERVICE_MEMBER_SUCCESS',
-        payload: testAction.payload,
-      }),
-    );
-  });
-
   it('is done', () => {
     expect(generator.next().done).toEqual(true);
   });
@@ -113,15 +104,6 @@ describe('updateBackupContact', () => {
     expect(generator.next(normalizedBackupContact).value).toEqual(put(addEntities(normalizedBackupContact)));
   });
 
-  it('calls the legacy UPDATE_BACKUP_CONTACT_SUCCESS action with the raw payload', () => {
-    expect(generator.next().value).toEqual(
-      put({
-        type: 'UPDATE_BACKUP_CONTACT_SUCCESS',
-        payload: testAction.payload,
-      }),
-    );
-  });
-
   it('is done', () => {
     expect(generator.next().done).toEqual(true);
   });
@@ -151,15 +133,6 @@ describe('updateMove', () => {
 
   it('stores the normalized data in entities', () => {
     expect(generator.next(normalizedMove).value).toEqual(put(addEntities(normalizedMove)));
-  });
-
-  it('calls the legacy CREATE_OR_UPDATE_MOVE_SUCCESS action with the raw payload', () => {
-    expect(generator.next().value).toEqual(
-      put({
-        type: 'CREATE_OR_UPDATE_MOVE_SUCCESS',
-        payload: testAction.payload,
-      }),
-    );
   });
 
   it('is done', () => {
@@ -308,15 +281,6 @@ describe('updatePPM', () => {
 
   it('stores the normalized data in entities', () => {
     expect(generator.next(normalizedPPM).value).toEqual(put(addEntities(normalizedPPM)));
-  });
-
-  it('calls the legacy CREATE_OR_UPDATE_PPM_SUCCESS action with the raw payload', () => {
-    expect(generator.next().value).toEqual(
-      put({
-        type: 'CREATE_OR_UPDATE_PPM_SUCCESS',
-        payload: testAction.payload,
-      }),
-    );
   });
 
   it('is done', () => {

@@ -7,11 +7,11 @@ import (
 
 // GS represents the GS EDI segment
 type GS struct {
-	FunctionalIdentifierCode string `validate:"eq=SI"`
-	ApplicationSendersCode   string `validate:"eq=MILMOVE"`
-	ApplicationReceiversCode string `validate:"eq=8004171844"`
+	FunctionalIdentifierCode string `validate:"oneof=SI AG FA"`
+	ApplicationSendersCode   string `validate:"oneof=MILMOVE 8004171844"`
+	ApplicationReceiversCode string `validate:"oneof=MILMOVE 8004171844"`
 	Date                     string `validate:"datetime=20060102"`
-	Time                     string `validate:"datetime=1504"`
+	Time                     string `validate:"datetime=1504|datetime=150405"`
 	GroupControlNumber       int64  `validate:"min=1,max=999999999"`
 	ResponsibleAgencyCode    string `validate:"eq=X"`
 	Version                  string `validate:"eq=004010"`

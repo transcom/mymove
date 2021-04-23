@@ -1902,7 +1902,8 @@ func init() {
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentRequests": {
@@ -2005,7 +2006,8 @@ func init() {
         "APPROVED",
         "DENIED",
         "SENT_TO_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentServiceItems": {
@@ -2118,6 +2120,7 @@ func init() {
         "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
+        "ContractYearName",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -2125,7 +2128,11 @@ func init() {
         "DistanceZipSITDest",
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
+        "EscalationCompounded",
+        "FSCMultiplier",
+        "FSCPriceDifferenceInCents",
         "FSCWeightBasedDistanceMultiplier",
+        "IsPeak",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -2134,6 +2141,7 @@ func init() {
         "PriceAreaIntlDest",
         "PriceAreaIntlOrigin",
         "PriceAreaOrigin",
+        "PriceRateOrFactor",
         "PSI_LinehaulDom",
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
@@ -2166,14 +2174,17 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress"
+        "ZipSITDestHHGFinalAddress",
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
       "type": "string",
       "enum": [
         "PRIME",
-        "SYSTEM"
+        "SYSTEM",
+        "PRICER"
       ]
     },
     "ServiceItemParamType": {
@@ -4471,7 +4482,8 @@ func init() {
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentRequests": {
@@ -4574,7 +4586,8 @@ func init() {
         "APPROVED",
         "DENIED",
         "SENT_TO_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentServiceItems": {
@@ -4677,6 +4690,7 @@ func init() {
         "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
+        "ContractYearName",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -4684,7 +4698,11 @@ func init() {
         "DistanceZipSITDest",
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
+        "EscalationCompounded",
+        "FSCMultiplier",
+        "FSCPriceDifferenceInCents",
         "FSCWeightBasedDistanceMultiplier",
+        "IsPeak",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -4693,6 +4711,7 @@ func init() {
         "PriceAreaIntlDest",
         "PriceAreaIntlOrigin",
         "PriceAreaOrigin",
+        "PriceRateOrFactor",
         "PSI_LinehaulDom",
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
@@ -4725,14 +4744,17 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress"
+        "ZipSITDestHHGFinalAddress",
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
       "type": "string",
       "enum": [
         "PRIME",
-        "SYSTEM"
+        "SYSTEM",
+        "PRICER"
       ]
     },
     "ServiceItemParamType": {

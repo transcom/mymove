@@ -2,6 +2,7 @@ package order
 
 import (
 	"testing"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -155,6 +156,39 @@ func (suite *OrderServiceSuite) TestListMoves() {
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 	})
+
+	suite.T().Run("returns moves filtered submitted at", func(t *testing.T) {
+
+		submittedAt := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &submittedAt,
+			},
+		})
+		createdSubmittedDate := submittedAt.Format(time.RFC3339Nano)
+		params := services.ListOrderParams{SubmittedAt: &createdSubmittedDate}
+
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+	})
+
+	suite.T().Run("returns moves filtered by requested pickup date", func(t *testing.T) {
+		requestedPickupDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
+		createdMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedPickupDate,
+			},
+		})
+		requestedMoveDateString := createdMove.MTOShipments[0].RequestedPickupDate.Format("2006-01-02")
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &services.ListOrderParams{
+			RequestedMoveDate: &requestedMoveDateString,
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+	})
 }
 
 func (suite *OrderServiceSuite) TestListMovesUSMCGBLOC() {
@@ -265,18 +299,20 @@ func (suite *OrderServiceSuite) TestListMovesWithPagination() {
 }
 
 func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	// Default New Duty Station name is Fort Gordon
-	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status:  models.MoveStatusAPPROVED,
-			Locator: "AA1234",
-		},
-	})
+	// SET UP: Dates for sorting by Requested Move Date
+	// - We want dates 2 and 3 to sandwich requestedMoveDate1 so we can test that the min() query is working
+	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 02, 20, 0, 0, 0, 0, time.UTC)
+	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 03, 03, 0, 0, 0, 0, time.UTC)
+	requestedMoveDate3 := time.Date(testdatagen.GHCTestYear, 01, 15, 0, 0, 0, 0, time.UTC)
 
+	// SET UP: Service Members for sorting by Service Member Last Name and Branch
+	// - We'll need two other service members to test the last name sort, Lea Spacemen and Leo Zephyer
+	serviceMemberFirstName := "Lea"
 	serviceMemberLastName := "Zephyer"
 	affiliation := models.AffiliationNAVY
 	edipi := "9999999999"
+
+	// SET UP: New Duty Station for sorting by destination duty station
 	newDutyStationName := "Ze Duty Station"
 	newDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
@@ -284,92 +320,277 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 		},
 	})
 
+	// CREATE EXPECTED MOVES
+	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		// Default New Duty Station name is Fort Gordon
+		Move: models.Move{
+			Status:  models.MoveStatusAPPROVED,
+			Locator: "AA1234",
+		},
+		MTOShipment: models.MTOShipment{
+			RequestedPickupDate: &requestedMoveDate1,
+		},
+	})
 	expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			Locator: "TTZ123",
 		},
-		ServiceMember: models.ServiceMember{Affiliation: &affiliation, LastName: &serviceMemberLastName, Edipi: &edipi},
+		// Lea Spacemen
+		ServiceMember: models.ServiceMember{Affiliation: &affiliation, FirstName: &serviceMemberFirstName, Edipi: &edipi},
 		Order: models.Order{
 			NewDutyStation:   newDutyStation2,
 			NewDutyStationID: newDutyStation2.ID,
 		},
+		MTOShipment: models.MTOShipment{
+			RequestedPickupDate: &requestedMoveDate2,
+		},
+	})
+	// Create a second shipment so we can test min() sort
+	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &expectedMove2, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			RequestedPickupDate: &requestedMoveDate3,
+		},
 	})
 
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	orderFetcher := NewOrderFetcher(suite.DB())
-	// Sort by service member name
-	params := services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
-	moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
 
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal("Spacemen, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-	suite.Equal("Zephyer, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+	suite.T().Run("Sort by locator code", func(t *testing.T) {
+		params := services.ListOrderParams{Sort: swag.String("locator"), Order: swag.String("asc")}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(expectedMove1.Locator, moves[0].Locator)
+		suite.Equal(expectedMove2.Locator, moves[1].Locator)
 
-	params = services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
-	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal("Zephyer, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-	suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+		params = services.ListOrderParams{Sort: swag.String("locator"), Order: swag.String("desc")}
+		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(expectedMove2.Locator, moves[0].Locator)
+		suite.Equal(expectedMove1.Locator, moves[1].Locator)
+	})
 
-	// Sort by locator
-	params = services.ListOrderParams{Sort: swag.String("locator"), Order: swag.String("asc")}
-	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal(expectedMove1.Locator, moves[0].Locator)
-	suite.Equal(expectedMove2.Locator, moves[1].Locator)
+	suite.T().Run("Sort by move status", func(t *testing.T) {
+		params := services.ListOrderParams{Sort: swag.String("status"), Order: swag.String("asc")}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(expectedMove1.Status, moves[0].Status)
+		suite.Equal(expectedMove2.Status, moves[1].Status)
 
-	params = services.ListOrderParams{Sort: swag.String("locator"), Order: swag.String("desc")}
-	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal(expectedMove2.Locator, moves[0].Locator)
-	suite.Equal(expectedMove1.Locator, moves[1].Locator)
+		params = services.ListOrderParams{Sort: swag.String("status"), Order: swag.String("desc")}
+		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(expectedMove2.Status, moves[0].Status)
+		suite.Equal(expectedMove1.Status, moves[1].Status)
+	})
 
-	// sort by move statuses
-	params = services.ListOrderParams{Sort: swag.String("status"), Order: swag.String("asc")}
-	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal(expectedMove1.Status, moves[0].Status)
-	suite.Equal(expectedMove2.Status, moves[1].Status)
+	suite.T().Run("Sort by service member affiliations", func(t *testing.T) {
+		params := services.ListOrderParams{Sort: swag.String("branch"), Order: swag.String("asc")}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
+		suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
 
-	params = services.ListOrderParams{Sort: swag.String("status"), Order: swag.String("desc")}
-	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal(expectedMove2.Status, moves[0].Status)
-	suite.Equal(expectedMove1.Status, moves[1].Status)
+		params = services.ListOrderParams{Sort: swag.String("branch"), Order: swag.String("desc")}
+		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
+		suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
+	})
 
-	// Sort by service member affiliations
-	params = services.ListOrderParams{Sort: swag.String("branch"), Order: swag.String("asc")}
-	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
-	suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
+	suite.T().Run("Sort by destination duty station", func(t *testing.T) {
+		params := services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("asc")}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
+		suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
 
-	params = services.ListOrderParams{Sort: swag.String("branch"), Order: swag.String("desc")}
-	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
-	suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
+		params = services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("desc")}
+		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
+		suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
+	})
 
-	// Sort by destination duty station
-	params = services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("asc")}
-	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
-	suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
+	suite.T().Run("Sort by request move date", func(t *testing.T) {
+		params := services.ListOrderParams{Sort: swag.String("requestedMoveDate"), Order: swag.String("asc")}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(2, len(moves[0].MTOShipments)) // the move with two shipments has the earlier date
+		suite.Equal(1, len(moves[1].MTOShipments))
+		// NOTE: You have to use Jan 02, 2006 as the example for date/time formatting in Go
+		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[1].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
 
-	params = services.ListOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("desc")}
-	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
-	suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
+		params = services.ListOrderParams{Sort: swag.String("requestedMoveDate"), Order: swag.String("desc")}
+		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(1, len(moves[0].MTOShipments)) // the move with one shipment should be first
+		suite.Equal(2, len(moves[1].MTOShipments))
+		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[0].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
+	})
+
+	// MUST BE LAST, ADDS EXTRA MOVE
+	suite.T().Run("Sort by service member last name", func(t *testing.T) {
+		// Last name sort is the only one that needs 3 moves for a complete test, so add that here at the end
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			// Leo Zephyer
+			ServiceMember: models.ServiceMember{LastName: &serviceMemberLastName},
+		})
+
+		params := services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+
+		suite.NoError(err)
+		suite.Equal(3, len(moves))
+		suite.Equal("Spacemen, Lea", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+		suite.Equal("Zephyer, Leo", *moves[2].Orders.ServiceMember.LastName+", "+*moves[2].Orders.ServiceMember.FirstName)
+
+		params = services.ListOrderParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
+		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+
+		suite.NoError(err)
+		suite.Equal(3, len(moves))
+		suite.Equal("Zephyer, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Lea", *moves[2].Orders.ServiceMember.LastName+", "+*moves[2].Orders.ServiceMember.FirstName)
+	})
+}
+
+func (suite *OrderServiceSuite) TestListUSMCMovesWithGBLOCSortFilter() {
+
+	// TESTCASE SCENARIO
+	// Under test: OrderFetcher.ListOrders function
+	// Mocked:     None
+	// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
+	//             We create an office user with the USMC GBLOC
+
+	// Create an office user at the USMC GBLOC transportation office
+	officeUser := testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
+
+	// Create a dutystation with ACME GBLOC
+	acmeDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: "ACME Island Arsenal",
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ACME",
+		},
+	})
+	// Create a dutystation with ZANY GBLOC
+	zanyDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: "Camp Zany",
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ZANY",
+		},
+	})
+
+	// Create a move from the ACME gbloc
+	affiliation := models.AffiliationMARINES
+	acmeMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status:  models.MoveStatusNeedsServiceCounseling,
+			Locator: "AA1234",
+		},
+		ServiceMember: models.ServiceMember{
+			Affiliation: &affiliation,
+			LastName:    models.StringPointer("Clark-Nuñez"),
+			Edipi:       models.StringPointer("0123456789"),
+		},
+		Order: models.Order{
+			OriginDutyStation:   &acmeDutyStation,
+			OriginDutyStationID: &acmeDutyStation.ID,
+		},
+	})
+
+	// Create a second move from the ZANY gbloc
+	zanyMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status:  models.MoveStatusNeedsServiceCounseling,
+			Locator: "ZZ1234",
+		},
+		ServiceMember: models.ServiceMember{
+			Affiliation: &affiliation,
+			LastName:    models.StringPointer("Ocampo"),
+			Edipi:       models.StringPointer("9876543210"),
+		},
+		Order: models.Order{
+			OriginDutyStation:   &zanyDutyStation,
+			OriginDutyStationID: &zanyDutyStation.ID,
+		},
+	})
+	gblocACME := acmeMove.Orders.OriginDutyStation.TransportationOffice.Gbloc
+	gblocZANY := zanyMove.Orders.OriginDutyStation.TransportationOffice.Gbloc
+
+	suite.T().Run("Sort by origin GBLOC", func(t *testing.T) {
+		// TESTCASE SCENARIO
+		// Under test: OrderFetcher.ListOrders function
+		// Mocked:     None
+		// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
+		//             We create an office user with the USMC GBLOC
+		//             Then we request a list of moves sorted by GBLOC, first ascending then descending
+		// Expected outcome:
+		//             We expect both moves to be returned
+		//             In asc mode, we should get the ACME move, then the ZANY move
+		//             In desc mode, we should get the ZANY move, then the ACME move
+
+		// Setup and run the function under test sorting GBLOC with ascending mode
+		orderFetcher := NewOrderFetcher(suite.DB())
+		statuses := []string{"NEEDS SERVICE COUNSELING"}
+		// Sort by service member name
+		params := services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("asc"), Status: statuses}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+
+		// Check the results
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(gblocACME, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+		suite.Equal(gblocZANY, moves[1].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+
+		// Setup and run the function under test sorting GBLOC with descending mode
+		params = services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("desc"), Status: statuses}
+		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+
+		// Check the results
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(gblocZANY, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+		suite.Equal(gblocACME, moves[1].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+	})
+
+	suite.T().Run("Filter by origin GBLOC", func(t *testing.T) {
+		// TESTCASE SCENARIO
+		// Under test: OrderFetcher.ListOrders function
+		// Mocked:     None
+		// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
+		//             We create an office user with the USMC GBLOC
+		//             Then we request a list of moves filtered by GBLOC ZANY
+		// Expected outcome:
+		//             We expect 1 moves to be returned, the ZANY move
+
+		// Setup and run the function under test filtering GBLOC for ZANY
+		orderFetcher := NewOrderFetcher(suite.DB())
+		statuses := []string{"NEEDS SERVICE COUNSELING"}
+		// Sort by service member name
+		params := services.ListOrderParams{OriginGBLOC: swag.String("ZANY"), Status: statuses}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+
+		// Check the results
+		suite.NoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(gblocZANY, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+
+	})
 
 }

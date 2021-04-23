@@ -382,7 +382,9 @@ cat > ./tmp/pad_update_payment_request_status.json <<-EOM
 {
   "body": {
     "paymentRequestID": "${prID}",
-    "sendToSyncada": false
+    "sendToSyncada": false,
+    "readFromSyncada": false,
+    "deleteFromSyncada": false
   }
 }
 EOM

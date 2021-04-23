@@ -6,6 +6,7 @@
 
 .reviewMoveHeaderContainer {
   @include u-margin-top(4);
+  @include u-margin-bottom(3);
 
   h2 {
     margin: 0;

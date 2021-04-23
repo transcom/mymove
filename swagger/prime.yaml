@@ -1554,6 +1554,7 @@ definitions:
       - SENT_TO_GEX
       - RECEIVED_BY_GEX
       - PAID
+      - EDI_ERROR
     title: Payment Request Status
     type: string
   PaymentServiceItem:
@@ -1631,6 +1632,7 @@ definitions:
       - DENIED
       - SENT_TO_GEX
       - PAID
+      - EDI_ERROR
     title: Payment Service Item Status
     type: string
   ProofOfServiceDocs:
@@ -1726,6 +1728,7 @@ definitions:
       - ActualPickupDate
       - CanStandAlone
       - ContractCode
+      - ContractYearName
       - CubicFeetBilled
       - CubicFeetCrating
       - DistanceZip3
@@ -1733,7 +1736,11 @@ definitions:
       - DistanceZipSITDest
       - DistanceZipSITOrigin
       - EIAFuelPrice
+      - EscalationCompounded
+      - FSCMultiplier
+      - FSCPriceDifferenceInCents
       - FSCWeightBasedDistanceMultiplier
+      - IsPeak
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
@@ -1742,6 +1749,7 @@ definitions:
       - PriceAreaIntlDest
       - PriceAreaIntlOrigin
       - PriceAreaOrigin
+      - PriceRateOrFactor
       - PSI_LinehaulDom
       - PSI_LinehaulDomPrice
       - PSI_LinehaulShort
@@ -1775,11 +1783,14 @@ definitions:
       - ZipDestAddress
       - ZipPickupAddress
       - ZipSITDestHHGFinalAddress
+      - ZipSITOriginHHGActualAddress
+      - ZipSITOriginHHGOriginalAddress
   ServiceItemParamOrigin:
     type: string
     enum:
       - PRIME
       - SYSTEM
+      - PRICER
   ServiceItemParamType:
     type: string
     enum:

@@ -57,10 +57,12 @@ var servicesToEntryPoints = map[string][]string{
 	"app-client-tls": {fmt.Sprintf("%s serve", binMilMove)},
 	"app-migrations": {fmt.Sprintf("%s migrate", binMilMove)},
 	"app-tasks": {
-		fmt.Sprintf("%s save-ghc-fuel-price-data", binMilMoveTasks),
-		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
-		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
+		fmt.Sprintf("%s connect-to-gex-via-sftp", binMilMoveTasks),
 		fmt.Sprintf("%s post-file-to-gex", binMilMoveTasks),
+		fmt.Sprintf("%s process-edis", binMilMoveTasks),
+		fmt.Sprintf("%s save-ghc-fuel-price-data", binMilMoveTasks),
+		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
+		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
 	},
 	"app-webhook-client": {
 		fmt.Sprintf("%s webhook-notify", binWebhookClient),

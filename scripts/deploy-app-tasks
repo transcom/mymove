@@ -41,7 +41,9 @@ CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
 readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}"
-scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${image}" "${APP_ENVIRONMENT}"
-scripts/ecs-deploy-task-container send-post-move-survey "${image}" "${APP_ENVIRONMENT}"
-scripts/ecs-deploy-task-container send-payment-reminder "${image}" "${APP_ENVIRONMENT}"
+scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${image}" "${APP_ENVIRONMENT}"
 scripts/ecs-deploy-task-container post-file-to-gex "${image}" "${APP_ENVIRONMENT}"
+scripts/ecs-deploy-task-container process-edis "${image}" "${APP_ENVIRONMENT}"
+scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${image}" "${APP_ENVIRONMENT}"
+scripts/ecs-deploy-task-container send-payment-reminder "${image}" "${APP_ENVIRONMENT}"
+scripts/ecs-deploy-task-container send-post-move-survey "${image}" "${APP_ENVIRONMENT}"

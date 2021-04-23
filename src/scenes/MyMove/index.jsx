@@ -37,8 +37,6 @@ import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import PpmLanding from 'scenes/PpmLanding';
 import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
-import EditBackupContact from 'scenes/Review/EditBackupContact';
-import EditContactInfo from 'scenes/Review/EditContactInfo';
 import EditOrders from 'scenes/Review/EditOrders';
 import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
 import EditWeight from 'scenes/Review/EditWeight';
@@ -59,6 +57,9 @@ import Home from 'pages/MyMove/Home';
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const AccessCode = lazy(() => import('shared/User/AccessCode'));
 const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
+const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
+const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
+const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -141,18 +142,27 @@ export class CustomerApp extends Component {
                   {getWorkflowRoutes(props)}
                   <CustomerPrivateRoute exact path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} component={MovingInfo} />
                   <CustomerPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
-                  <CustomerPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                  <CustomerPrivateRoute exact path={customerRoutes.EDIT_PROFILE_PATH} component={EditProfile} />
+                  <CustomerPrivateRoute
+                    exact
+                    path={customerRoutes.SERVICE_INFO_EDIT_PATH}
+                    component={EditServiceInfo}
+                  />
                   <CustomerPrivateRoute
                     path={customerRoutes.SHIPMENT_CREATE_PATH}
                     component={ConnectedCreateOrEditMtoShipment}
                   />
+                  <CustomerPrivateRoute exact path={customerRoutes.PROFILE_PATH} component={Profile} />
                   <CustomerPrivateRoute
                     exact
                     path={customerRoutes.SHIPMENT_EDIT_PATH}
                     component={ConnectedCreateOrEditMtoShipment}
                   />
-                  <CustomerPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
-                  <CustomerPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
+                  <CustomerPrivateRoute
+                    exact
+                    path={customerRoutes.CONTACT_INFO_EDIT_PATH}
+                    component={EditContactInfo}
+                  />
                   <CustomerPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
                   <CustomerPrivateRoute
                     path="/moves/:moveId/review/edit-date-and-location"

@@ -6,33 +6,20 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/gofrs/uuid"
-)
-
-// EDIType represents types of EDI Responses
-type EDIType string
-
-const (
-	// EDI810 captures enum value "810"
-	EDI810 EDIType = "810"
-	// EDI824 captures enum value "824"
-	EDI824 EDIType = "824"
-	// EDI858 captures enum value "858"
-	EDI858 EDIType = "858"
-	// EDI997 captures enum value "997"
-	EDI997 EDIType = "997"
 )
 
 // EDIProcessing represents an email sent to a service member
 type EDIProcessing struct {
 	ID               uuid.UUID `db:"id"`
 	EDIType          EDIType   `db:"edi_type"`
+	NumEDIsProcessed int       `db:"num_edis_processed"`
 	ProcessStartedAt time.Time `db:"process_started_at"`
 	ProcessEndedAt   time.Time `db:"process_ended_at"`
 	CreatedAt        time.Time `db:"created_at"`
 	UpdatedAt        time.Time `db:"updated_at"`
-	NumEDIsProcessed int       `db:"num_edis_processed"`
 }
 
 // EDIProcessings is a slice of notification structs
@@ -41,26 +28,23 @@ type EDIProcessings []EDIProcessing
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (e *EDIProcessing) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		&validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: allowedEDITypes},
+		&validators.IntIsGreaterThan{Field: e.NumEDIsProcessed, Name: "NumEDIsProcessed", Compared: -1},
 		&validators.TimeIsPresent{Field: e.ProcessStartedAt, Name: "ProcessStartedAt"},
 		&validators.TimeIsPresent{Field: e.ProcessEndedAt, Name: "ProcessEndedAt"},
-		&validators.IntIsPresent{Field: e.NumEDIsProcessed, Name: "NumEDIsProcessed"},
-		&validators.StringInclusion{Field: string(e.EDIType), Name: "EDIType", List: []string{
-			string(EDI810),
-			string(EDI824),
-			string(EDI858),
-			string(EDI997),
-		}},
 	), nil
 }
 
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (e *EDIProcessing) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+// TableName overrides the table name used by Pop.
+func (e *EDIProcessing) TableName() string {
+	return "edi_processings"
 }
 
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (e *EDIProcessing) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+// MarshalLogObject is required to be able to zap.Object log this model.
+func (e *EDIProcessing) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddString("EDIType", e.EDIType.String())
+	encoder.AddInt("NumEDIsProcessed", e.NumEDIsProcessed)
+	encoder.AddTime("ProcessStartedAt", e.ProcessStartedAt)
+	encoder.AddTime("ProcessEndedAt", e.ProcessEndedAt)
+	return nil
 }

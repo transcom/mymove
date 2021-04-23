@@ -3,6 +3,7 @@ package order
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
@@ -33,7 +34,7 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 		return []models.Move{}, 0, err
 	}
 
-	gbloc := transportationOffice.Gbloc
+	officeUserGbloc := transportationOffice.Gbloc
 
 	// Alright let's build our query based on the filters we got from the handler. These use the FilterOption type above.
 	// Essentially these are private functions that return query objects that we can mash together to form a complete
@@ -43,19 +44,22 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	var gblocQuery QueryOption
-	if gbloc == "USMC" {
+	if officeUserGbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+		gblocQuery = gblocFilter(params.OriginGBLOC)
 	} else {
-		gblocQuery = gblocFilter(gbloc)
+		gblocQuery = gblocFilter(&officeUserGbloc)
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	moveStatusQuery := moveStatusFilter(params.Status)
+	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
+	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [8]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
+	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
 
 	query := f.db.Q().EagerPreload(
 		"Orders.ServiceMember",
@@ -93,6 +97,9 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_ds.id")
 	if params.Sort != nil && *params.Sort == "destinationDutyStation" {
 		groupByColumms = append(groupByColumms, "dest_ds.name")
+	}
+	if params.Sort != nil && *params.Sort == "originGBLOC" {
+		groupByColumms = append(groupByColumms, "origin_to.id")
 	}
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
@@ -219,18 +226,44 @@ func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have statuses let's use them
 		if len(statuses) > 0 {
-			query.Where("moves.status IN (?)", statuses)
+			var translatedStatuses []string
+			for _, status := range statuses {
+				if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
+					translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
+				} else {
+					translatedStatuses = append(translatedStatuses, status)
+				}
+			}
+			query.Where("moves.status IN (?)", translatedStatuses)
 		}
-		// If we don't have statuses let's just filter out cancelled and draft moves (they should not be in the queue)
+		// The TOO should never see moves that are in the following statuses: Draft, Canceled, Needs Service Counseling
 		if len(statuses) <= 0 {
-			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED)
+			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED, models.MoveStatusNeedsServiceCounseling)
 		}
 	}
 }
 
-func gblocFilter(gbloc string) QueryOption {
+func submittedAtFilter(submittedAt *string) QueryOption {
 	return func(query *pop.Query) {
-		query.Where("origin_to.gbloc = ?", gbloc)
+		if submittedAt != nil {
+			query.Where("CAST(moves.submitted_at AS DATE) = ?", *submittedAt)
+		}
+	}
+}
+
+func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
+	return func(query *pop.Query) {
+		if requestedMoveDate != nil {
+			query.Where("mto_shipments.requested_pickup_date = ?", *requestedMoveDate)
+		}
+	}
+}
+
+func gblocFilter(gbloc *string) QueryOption {
+	return func(query *pop.Query) {
+		if gbloc != nil {
+			query.Where("origin_to.gbloc ILIKE ?", *gbloc)
+		}
 	}
 }
 
@@ -241,14 +274,17 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"branch":                 "service_members.affiliation",
 		"locator":                "moves.locator",
 		"status":                 "moves.status",
+		"submittedAt":            "moves.submitted_at",
 		"destinationDutyStation": "dest_ds.name",
+		"requestedMoveDate":      "min(mto_shipments.requested_pickup_date)",
+		"originGBLOC":            "origin_to.gbloc",
 	}
 
 	return func(query *pop.Query) {
 		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
 		if sort != nil && order != nil {
 			if sortTerm, ok := parameters[*sort]; ok {
-				if sortTerm == "lastName" {
+				if *sort == "lastName" {
 					query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 				} else {
 					query.Order(fmt.Sprintf("%s %s", sortTerm, *order))

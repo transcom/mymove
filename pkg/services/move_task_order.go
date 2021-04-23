@@ -43,6 +43,7 @@ type MoveTaskOrderFetcher interface {
 type MoveTaskOrderUpdater interface {
 	MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error)
 	UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error)
+	UpdateStatusServiceCounselingCompleted(moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
 	ShowHide(moveTaskOrderID uuid.UUID, show *bool) (*models.Move, error)
 }
 

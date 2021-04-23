@@ -1,11 +1,14 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/transcom/mymove/pkg/certs"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -21,7 +24,15 @@ import (
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services/invoice"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+)
+
+const (
+	// ProcessEDILastReadTimeFlag is the ENV var for the last read time
+	ProcessEDILastReadTimeFlag string = "process-edi-last-read-time"
+	// ProcessEDIDeleteFilesFlag is the ENV var for deleting SFTP files after they've been processed
+	ProcessEDIDeleteFilesFlag string = "process-edi-delete-files"
 )
 
 // Call this from the command line with go run ./cmd/milmove-tasks process-edis
@@ -29,6 +40,16 @@ func checkProcessEDIsConfig(v *viper.Viper, logger logger) error {
 	logger.Debug("checking config")
 
 	err := cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckLogging(v)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckGEXSFTP(v)
 	if err != nil {
 		return err
 	}
@@ -63,6 +84,12 @@ func initProcessEDIsFlags(flag *pflag.FlagSet) {
 
 	// Entrust Certificates
 	cli.InitEntrustCertFlags(flag)
+
+	// GEX SFTP Config
+	cli.InitGEXSFTPFlags(flag)
+
+	flag.String(ProcessEDILastReadTimeFlag, "", "Files older than this RFC3339 time will not be fetched.")
+	flag.Bool(ProcessEDIDeleteFilesFlag, false, "If present, delete files on SFTP server that have been processed successfully")
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -147,6 +174,9 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
 	}
 
+	sendToSyncada := v.GetBool(cli.SendToSyncada)
+	logger.Info(fmt.Sprintf("SendToSyncada is %v", sendToSyncada))
+
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
 	// test ICNs in Syncada.
@@ -161,14 +191,93 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
 	}
 
-	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, false, icnSequencer)
+	// TODO I don't know why we need a separate logger for cert stuff
+	certLogger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	if err != nil {
+		logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
+	}
+	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+	if certificates == nil || rootCAs == nil || err != nil {
+		logger.Fatal("Error in getting tls certs", zap.Error(err))
+	}
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+
+	gexSender := invoice.NewGexSenderHTTP(
+		gexURL,
+		cli.GEXChannelInvoice,
+		true,
+		tlsConfig,
+		v.GetString(cli.GEXBasicAuthUsernameFlag),
+		v.GetString(cli.GEXBasicAuthPasswordFlag))
+
+	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer, gexSender)
 	if err != nil {
 		logger.Fatal("InitNewPaymentRequestReviewedProcessor failed", zap.Error(err))
 	}
 
+	// Process 858s
 	err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 	if err != nil {
 		logger.Fatal("Could not process reviewed payment request(s)", zap.Error(err))
+	}
+	logger.Info("Finished processing reviewed payment requests")
+
+	if sendToSyncada == false {
+		logger.Info("Skipping processing of response files EDI997 acknowledgement and EDI824 application advice responses")
+		return nil
+	}
+
+	// SSH and SFTP Connection Setup
+	sshClient, err := cli.InitGEXSSH(v, logger)
+	if err != nil {
+		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
+	}
+	defer func() {
+		if closeErr := sshClient.Close(); closeErr != nil {
+			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		}
+	}()
+
+	sftpClient, err := cli.InitGEXSFTP(sshClient, logger)
+	if err != nil {
+		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
+	}
+	defer func() {
+		if closeErr := sftpClient.Close(); closeErr != nil {
+			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+		}
+	}()
+
+	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
+	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, dbConnection, logger, v.GetBool(ProcessEDIDeleteFilesFlag))
+
+	// Sample expected format: 2021-03-16T18:25:36Z
+	lastReadTimeFlag := v.GetString(ProcessEDILastReadTimeFlag)
+	var lastReadTime time.Time
+	if lastReadTimeFlag != "" {
+		lastReadTime, err = time.Parse(time.RFC3339, lastReadTimeFlag)
+		if err != nil {
+			logger.Error("couldn't parse last read time", zap.Error(err))
+		}
+	}
+	logger.Info("lastRead", zap.String("lastReadTime", lastReadTime.String()))
+
+	// Process 997s
+	path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path997, lastReadTime, invoice.NewEDI997Processor(dbConnection, logger))
+	if err != nil {
+		logger.Error("Error reading EDI997 acknowledgement responses", zap.Error(err))
+	} else {
+		logger.Info("Successfully processed EDI997 acknowledgement responses")
+	}
+
+	// Process 824s
+	path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path824, lastReadTime, invoice.NewEDI824Processor(dbConnection, logger))
+	if err != nil {
+		logger.Error("Error reading EDI824 application advice responses", zap.Error(err))
+	} else {
+		logger.Info("Successfully processed EDI824 application advice responses")
 	}
 
 	return nil

@@ -17,7 +17,6 @@
   background-color: transparent;
 }
 
-
 .usa-nav {
   a, a:hover {
     color: black;
@@ -33,10 +32,12 @@
   padding: 0;
 }
 
-@media screen and (min-width: 951px) {
-  .my-move-header .usa-navbar {
-    height: 4rem;
-  }
+.my-move-header .usa-nav__primary {
+  padding: 0;
+  align-items: center;
+}
+.my-move-header .usa-nav-container {
+  align-items: center;
 }
 
 @media print {

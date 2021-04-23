@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -373,7 +372,19 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 			ServiceMemberID: newServiceMember.ID,
 		},
 	})
-	move.Submit(time.Now())
+
+	// The testdatagen sets these values, fails if you try to blank them out via Assertions,
+	// and gives defaults if you pass nil, so we have to set this after the creation.
+	// This more closely resembles what orders would look like pre and post submission, before
+	// a TOO gets to them.
+	move.Orders.TAC = nil
+	move.Orders.DepartmentIndicator = nil
+	move.Orders.OrdersNumber = nil
+	move.Orders.OrdersTypeDetail = nil
+
+	suite.MustSave(&move.Orders)
+
+	move.Submit()
 	suite.MustSave(&move)
 
 	resAddress := fakeAddressPayload()
