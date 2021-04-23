@@ -48,15 +48,6 @@ func (e *errMissingAWSProfile) Error() string {
 	return fmt.Sprintf("missing aws profile '%s'", e.Profile)
 }
 
-type errInvalidVault struct {
-	KeychainName string
-	Profile      string
-}
-
-func (e *errInvalidVault) Error() string {
-	return fmt.Sprintf("invalid keychain name %q or profile %q", e.KeychainName, e.Profile)
-}
-
 // InitVaultFlags initializes Vault command line flags
 func InitVaultFlags(flag *pflag.FlagSet) {
 	// Flags default to empty string to facilitate deploys from CircleCI

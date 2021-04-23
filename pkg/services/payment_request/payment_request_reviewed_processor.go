@@ -73,9 +73,7 @@ func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, s
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.PaymentRequest) error {
-	var transactionError error
-
-	transactionError = p.db.Transaction(func(tx *pop.Connection) error {
+	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
 		var lockedPR models.PaymentRequest
 
 		query := `

@@ -742,7 +742,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		// Log the number of headers, which can be used for finding abnormal requests
 		fields = append(fields, zap.Int("headers", len(r.Header)))
 
-		logger.Info("Request", fields...)
+		logger.Info("Request health", fields...)
 
 	})
 

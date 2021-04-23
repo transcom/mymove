@@ -38,8 +38,6 @@ import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import PpmLanding from 'scenes/PpmLanding';
 import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
-import EditBackupContact from 'scenes/Review/EditBackupContact';
-import EditContactInfo from 'scenes/Review/EditContactInfo';
 import EditOrders from 'scenes/Review/EditOrders';
 import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
 import EditWeight from 'scenes/Review/EditWeight';
@@ -62,6 +60,7 @@ const AccessCode = lazy(() => import('shared/User/AccessCode'));
 const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
 const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
 const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
+const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -164,8 +163,11 @@ export class CustomerApp extends Component {
                     path={customerRoutes.SHIPMENT_EDIT_PATH}
                     component={ConnectedCreateOrEditMtoShipment}
                   />
-                  <CustomerPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
-                  <CustomerPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
+                  <CustomerPrivateRoute
+                    exact
+                    path={customerRoutes.CONTACT_INFO_EDIT_PATH}
+                    component={EditContactInfo}
+                  />
                   <CustomerPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
                   <CustomerPrivateRoute
                     path="/moves/:moveId/review/edit-date-and-location"

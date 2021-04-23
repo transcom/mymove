@@ -96,9 +96,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
 	// check if shipment exists linked by MoveTaskOrderID
 	var mtoShipment models.MTOShipment
-	var mtoShipmentID uuid.UUID
-
-	mtoShipmentID = *serviceItem.MTOShipmentID
+	mtoShipmentID := *serviceItem.MTOShipmentID
 	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("id", "=", mtoShipmentID),
 		query.NewQueryFilter("move_id", "=", moveID),

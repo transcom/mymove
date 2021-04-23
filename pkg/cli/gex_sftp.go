@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// TODO: Figure out what to do in terms of static analysis on the false positive for G101
+// Set of flags used for GEXSFTP
 const (
 	// GEXSFTPPortFlag is the ENV var for the GEX SFTP port
 	GEXSFTPPortFlag string = "gex-sftp-port"
@@ -18,8 +18,18 @@ const (
 	GEXSFTPUserIDFlag string = "gex-sftp-user-id"
 	// GEXSFTPIPAddressFlag is the ENV var for the GEX SFTP IP address
 	GEXSFTPIPAddressFlag string = "gex-sftp-ip-address"
+	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	//RA: This line was flagged because of use of the word "password"
+	//RA: This line is used to identify the name of the flag. GEXSFTPPasswordFlag is the GEX SFTP Password Flag.
+	//RA: See MB-7727 and MB-7728 for tracking future work to resolve this issue
+	//RA: App should implement public-key authentication; issue remains open while interface control is negotiated for this connection.
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Known Issue
+	//RA Validator: leodis.f.scott.civ@mail.mil
+	//RA Modified Severity: CAT III
+	// #nosec G101
 	// GEXSFTPPasswordFlag is the ENV var for the GEX SFTP password
-	GEXSFTPPasswordFlag string = "gex-sftp-password" // #nosec G101 https://dp3.atlassian.net/browse/MB-7728
+	GEXSFTPPasswordFlag string = "gex-sftp-password"
 	// GEXSFTPHostKeyFlag is the ENV var for the GEX SFTP host key
 	GEXSFTPHostKeyFlag string = "gex-sftp-host-key"
 	// GEXSFTP997PickupDirectory is the ENV var for the directory where GEX delivers responses

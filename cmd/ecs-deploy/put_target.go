@@ -61,8 +61,8 @@ func initPutTargetFlags(flag *pflag.FlagSet) {
 
 	// Put Targets Settings
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
-	flag.String(nameFlag, "", fmt.Sprintf("The name of the rule"))
-	flag.String(taskDefARNFlag, "", fmt.Sprintf("The Task Definition ARN"))
+	flag.String(nameFlag, "", "The name of the rule")
+	flag.String(taskDefARNFlag, "", "The Task Definition ARN")
 
 	// Logging Levels
 	cli.InitLoggingFlags(flag)

@@ -18,7 +18,7 @@ func (p *RequestPaymentHelper) ValidServiceParamList(mtoServiceItem models.MTOSe
 				found = true
 			}
 		}
-		if found == false {
+		if !found {
 			hasError = true
 			errorString = fmt.Sprintf("%s Param Key <%s>", errorString, serviceParam.ServiceItemParamKey.Key)
 		}

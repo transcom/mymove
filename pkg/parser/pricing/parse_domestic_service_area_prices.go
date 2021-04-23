@@ -51,7 +51,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, s
 				domPrice.OriginDestinationSITAddlDays = getCell(row.Cells, colIndex)
 				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
 
-				if params.ShowOutput == true {
+				if params.ShowOutput {
 					logger.Info("", zap.Any("StageDomesticServiceAreaPrice", domPrice))
 				}
 				domPrices = append(domPrices, domPrice)

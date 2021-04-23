@@ -66,7 +66,7 @@ var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIn
 				WeightLbsUpper:     getInt(weightsSlice[1]),
 			}
 
-			if params.ShowOutput == true {
+			if params.ShowOutput {
 				logger.Info("", zap.Any("DomesticTransitTime", domTransitTime))
 			}
 			domTransitTimes = append(domTransitTimes, domTransitTime)

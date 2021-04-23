@@ -18,6 +18,7 @@ import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
+  const showMessages = currentOrders.id && !moveIsInDraft;
   const rank = currentOrders.grade ?? serviceMember.rank;
   const originStation = currentOrders.origin_duty_station ?? serviceMember.current_station;
   const transportationOfficePhoneLines = originStation?.transportation_office?.phone_lines;
@@ -34,17 +35,18 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
       <div className="grid-row">
         <div className="grid-col-12">
           <h1>Profile</h1>
-          {!moveIsInDraft && <Alert type="info">Contact your movers if you need to make changes to your move.</Alert>}
+          {showMessages && <Alert type="info">Contact your movers if you need to make changes to your move.</Alert>}
           <SectionWrapper className={formStyles.formSection}>
             <ContactInfoDisplay
               telephone={serviceMember?.telephone || ''}
+              secondaryTelephone={serviceMember?.secondary_telephone || ''}
               personalEmail={serviceMember?.personal_email || ''}
               emailIsPreferred={serviceMember?.email_is_preferred}
               phoneIsPreferred={serviceMember?.phone_is_preferred}
               residentialAddress={serviceMember?.residential_address || ''}
               backupMailingAddress={serviceMember?.backup_mailing_address || ''}
               backupContact={backupContact}
-              editURL={customerRoutes.EDIT_PROFILE_PATH}
+              editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
             />
           </SectionWrapper>
           <SectionWrapper className={formStyles.formSection}>
@@ -59,6 +61,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               edipi={serviceMember?.edipi || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
               isEditable={moveIsInDraft}
+              showMessage={showMessages}
             />
           </SectionWrapper>
         </div>
@@ -77,8 +80,7 @@ Profile.propTypes = {
 function mapStateToProps(state) {
   return {
     serviceMember: selectServiceMemberFromLoggedInUser(state),
-    // The move still counts as in draft if there are no orders.
-    moveIsInDraft: selectMoveIsInDraft(state) || !selectCurrentOrders(state),
+    moveIsInDraft: selectMoveIsInDraft(state),
     currentOrders: selectCurrentOrders(state) || {},
     currentBackupContacts: selectBackupContacts(state),
   };

@@ -51,7 +51,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 							Rate:              getCell(row.Cells, colIndex),
 						}
 						colIndex++
-						if params.ShowOutput == true {
+						if params.ShowOutput {
 							logger.Info("", zap.Any("StageDomesticLinehaulPrice", domPrice))
 						}
 						domPrices = append(domPrices, domPrice)

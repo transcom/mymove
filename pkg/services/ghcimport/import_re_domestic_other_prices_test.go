@@ -59,7 +59,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 	suite.NoError(err)
 
 	suite.T().Run("stage_domestic_other_sit_prices table missing", func(t *testing.T) {
-		renameQuery := fmt.Sprintf("ALTER TABLE stage_domestic_other_sit_prices RENAME TO missing_stage_domestic_other_sit_prices")
+		renameQuery := "ALTER TABLE stage_domestic_other_sit_prices RENAME TO missing_stage_domestic_other_sit_prices"
 		renameErr := suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
 
@@ -68,7 +68,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
 
-		renameQuery = fmt.Sprintf("ALTER TABLE missing_stage_domestic_other_sit_prices RENAME TO stage_domestic_other_sit_prices")
+		renameQuery = "ALTER TABLE missing_stage_domestic_other_sit_prices RENAME TO stage_domestic_other_sit_prices"
 		renameErr = suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
 	})

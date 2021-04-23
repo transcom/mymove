@@ -59,6 +59,7 @@ IEA*1*000000022
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001251,
 				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType997,
 			},
 		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
@@ -101,6 +102,7 @@ IEA*1*000000995
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001252,
 				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType997,
 			},
 		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
@@ -132,6 +134,7 @@ IEA*1*000000022
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 22,
 				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType997,
 			},
 		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
@@ -217,6 +220,7 @@ IEA*1*000000995
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001251,
 				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType997,
 			},
 		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
