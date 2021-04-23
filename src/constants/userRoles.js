@@ -5,6 +5,7 @@ export const roleTypes = {
   TIO: 'transportation_invoicing_officer',
   CUSTOMER: 'customer',
   CONTRACTING_OFFICER: 'contracting_officer',
+  SERVICES_COUNSELOR: 'services_counselor',
 };
 
-export const officeRoles = [roleTypes.PPM, roleTypes.TOO, roleTypes.TIO];
+export const officeRoles = [roleTypes.PPM, roleTypes.TOO, roleTypes.TIO, roleTypes.SERVICES_COUNSELOR];

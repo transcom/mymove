@@ -29,6 +29,8 @@ const (
 	TOOOfficeUserType string = "TOO office"
 	// TIOOfficeUserType is the type of user for an Office user
 	TIOOfficeUserType string = "TIO office"
+	// ServicesCounselorOfficeUserType is the type of user for an Office User
+	ServicesCounselorOfficeUserType string = "Services Counselor office"
 	// DpsUserType is the type of user for a DPS user
 	DpsUserType string = "dps"
 	// AdminUserType is the type of user for an admin user
@@ -64,31 +66,33 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type TemplateData struct {
-		Identities        []models.UserIdentity
-		IsMilApp          bool
-		MilMoveUserType   string
-		IsOfficeApp       bool
-		PPMOfficeUserType string
-		TOOOfficeUserType string
-		TIOOfficeUserType string
-		DpsUserType       string
-		IsAdminApp        bool
-		AdminUserType     string
-		CsrfToken         string
-		QueryLimit        int
+		Identities                      []models.UserIdentity
+		IsMilApp                        bool
+		MilMoveUserType                 string
+		IsOfficeApp                     bool
+		PPMOfficeUserType               string
+		TOOOfficeUserType               string
+		TIOOfficeUserType               string
+		ServicesCounselorOfficeUserType string
+		DpsUserType                     string
+		IsAdminApp                      bool
+		AdminUserType                   string
+		CsrfToken                       string
+		QueryLimit                      int
 	}
 
 	templateData := TemplateData{
-		Identities:        identities,
-		IsMilApp:          auth.MilApp == session.ApplicationName,
-		MilMoveUserType:   MilMoveUserType,
-		IsOfficeApp:       auth.OfficeApp == session.ApplicationName,
-		PPMOfficeUserType: PPMOfficeUserType,
-		TOOOfficeUserType: TOOOfficeUserType,
-		TIOOfficeUserType: TIOOfficeUserType,
-		DpsUserType:       DpsUserType,
-		IsAdminApp:        auth.AdminApp == session.ApplicationName,
-		AdminUserType:     AdminUserType,
+		Identities:                      identities,
+		IsMilApp:                        auth.MilApp == session.ApplicationName,
+		MilMoveUserType:                 MilMoveUserType,
+		IsOfficeApp:                     auth.OfficeApp == session.ApplicationName,
+		PPMOfficeUserType:               PPMOfficeUserType,
+		TOOOfficeUserType:               TOOOfficeUserType,
+		TIOOfficeUserType:               TIOOfficeUserType,
+		ServicesCounselorOfficeUserType: ServicesCounselorOfficeUserType,
+		DpsUserType:                     DpsUserType,
+		IsAdminApp:                      auth.AdminApp == session.ApplicationName,
+		AdminUserType:                   AdminUserType,
 		// Build CSRF token instead of grabbing from middleware. Otherwise throws errors when accessed directly.
 		CsrfToken:  csrf.Token(r),
 		QueryLimit: limit,
@@ -191,6 +195,14 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				  <button type="submit" data-hook="new-user-login-{{.TIOOfficeUserType}}">Create a New {{.TIOOfficeUserType}} User</button>
 				</p>
 			  </form>
+
+			  <form method="post" action="/devlocal-auth/new">
+			  <p>
+				<input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				<input type="hidden" name="userType" value="{{.ServicesCounselorOfficeUserType}}">
+				<button type="submit" data-hook="new-user-login-{{.ServicesCounselorOfficeUserType}}">Create a New {{.ServicesCounselorOfficeUserType}} User</button>
+			  </p>
+			</form>
 			  {{end}}
 			</div>
 		  </div>
@@ -402,7 +414,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", "ppm_office_users").First(&role)
+		err = h.db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&role)
 		if err != nil {
 			h.logger.Error("could not fetch role ppm_office_users", zap.Error(err))
 		}
@@ -426,6 +438,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+			Gbloc:     "LKNQ",
 		}
 
 		verrs, err = h.db.ValidateAndSave(&office)
@@ -473,7 +486,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", "transportation_ordering_officer").First(&role)
+		err = h.db.Where("role_type = $1", roles.RoleTypeTOO).First(&role)
 		if err != nil {
 			h.logger.Error("could not fetch role transportation_ordering_officer", zap.Error(err))
 		}
@@ -497,6 +510,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+			Gbloc:     "LKNQ",
 		}
 
 		verrs, err = h.db.ValidateAndSave(&office)
@@ -544,7 +558,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", "transportation_invoicing_officer").First(&role)
+		err = h.db.Where("role_type = $1", roles.RoleTypeTIO).First(&role)
 		if err != nil {
 			h.logger.Error("could not fetch role transporation_invoicing_officer", zap.Error(err))
 		}
@@ -567,6 +581,78 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+			Gbloc:     "LKNQ",
+		}
+
+		verrs, err = h.db.ValidateAndSave(&office)
+		if err != nil {
+			h.logger.Error("could not create office", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating office", zap.Stringer("errors", verrs))
+		}
+
+		officeUser := models.OfficeUser{
+			FirstName:              firstName,
+			LastName:               lastName,
+			Telephone:              telephone,
+			TransportationOfficeID: office.ID,
+			Email:                  email,
+			Active:                 true,
+		}
+		if user.ID != uuid.Nil {
+			officeUser.UserID = &user.ID
+		}
+
+		verrs, err = h.db.ValidateAndSave(&officeUser)
+		if err != nil {
+			h.logger.Error("could not create office user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating office user", zap.Stringer("errors", verrs))
+		}
+	case ServicesCounselorOfficeUserType:
+		// Now create the Truss JPPSO
+		address := models.Address{
+			StreetAddress1: "1333 Minna St",
+			City:           "San Francisco",
+			State:          "CA",
+			PostalCode:     "94115",
+		}
+
+		verrs, err := h.db.ValidateAndSave(&address)
+		if err != nil {
+			h.logger.Error("could not create address", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating address", zap.Stringer("errors", verrs))
+		}
+
+		role := roles.Role{}
+		err = h.db.Where("role_type = $1", "services_counselor").First(&role)
+		if err != nil {
+			h.logger.Error("could not fetch role services_counselor", zap.Error(err))
+		}
+		usersRole := models.UsersRoles{
+			UserID: user.ID,
+			RoleID: role.ID,
+		}
+
+		verrs, err = h.db.ValidateAndSave(&usersRole)
+		if err != nil {
+			h.logger.Error("could not create user role", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating user role", zap.Stringer("errors", verrs))
+		}
+
+		office := models.TransportationOffice{
+			Name:      "Truss",
+			AddressID: address.ID,
+			Latitude:  37.7678355,
+			Longitude: -122.4199298,
+			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+			Gbloc:     "LKNQ",
 		}
 
 		verrs, err = h.db.ValidateAndSave(&office)
@@ -610,14 +696,13 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			h.logger.Error("validation errors creating dps user", zap.Stringer("errors", verrs))
 		}
 	case AdminUserType:
-		var role models.AdminRole = "SYSTEM_ADMIN"
 
 		adminUser := models.AdminUser{
 			UserID:    &user.ID,
 			Email:     user.LoginGovEmail,
 			FirstName: "Leo",
 			LastName:  "Spaceman",
-			Role:      role,
+			Role:      models.SystemAdminRole,
 		}
 		verrs, err := h.db.ValidateAndSave(&adminUser)
 
@@ -661,7 +746,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
-	case PPMOfficeUserType, TOOOfficeUserType, TIOOfficeUserType:
+	case PPMOfficeUserType, TOOOfficeUserType, TIOOfficeUserType, ServicesCounselorOfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.appnames.OfficeServername
 		active = userIdentity.Active || (userIdentity.OfficeActive != nil && *userIdentity.OfficeActive)
@@ -689,7 +774,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || userType == PPMOfficeUserType || userType == TOOOfficeUserType || userType == TIOOfficeUserType) {
+	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || isOfficeUser(userType)) {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 	}
 
@@ -742,4 +827,11 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 		return nil, err
 	}
 	return session, nil
+}
+
+func isOfficeUser(userType string) bool {
+	if userType == PPMOfficeUserType || userType == TOOOfficeUserType || userType == TIOOfficeUserType || userType == ServicesCounselorOfficeUserType {
+		return true
+	}
+	return false
 }
