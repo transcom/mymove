@@ -132,7 +132,7 @@ type OptionalDateNotBefore struct {
 func (v *OptionalDateNotBefore) IsValid(errors *validate.Errors) {
 	if v.Field != nil {
 		if v.MinDate == nil {
-			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("cannot create this date without a no-earlier-than date"))
+			errors.Add(validators.GenerateKey(v.Name), "cannot create this date without a no-earlier-than date")
 		} else if (*v.Field).Before(*v.MinDate) {
 			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be on or after %s", *v.Field, *v.MinDate))
 		}

@@ -222,7 +222,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 	logger.Info("Finished processing reviewed payment requests")
 
-	if sendToSyncada == false {
+	if !sendToSyncada {
 		logger.Info("Skipping processing of response files EDI997 acknowledgement and EDI824 application advice responses")
 		return nil
 	}

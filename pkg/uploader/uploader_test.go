@@ -188,7 +188,7 @@ func (suite *UploaderSuite) TestStorerCalledWithTags() {
 }
 
 func (suite *UploaderSuite) createFileOfArbitrarySize(size uint64) (afero.File, func(), error) {
-	data := make([]byte, size, size)
+	data := make([]byte, size)
 	tmpFileName := "tmpfile"
 	f, err := suite.fs.Create(tmpFileName)
 	if err != nil {

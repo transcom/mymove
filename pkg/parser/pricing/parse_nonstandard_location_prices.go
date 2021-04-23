@@ -68,7 +68,7 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 				colIndex++
 				nonStandardLocationPrice.UBPrice = getCell(row.Cells, colIndex)
 
-				if params.ShowOutput == true {
+				if params.ShowOutput {
 					logger.Info("", zap.Any("StageNonStandardLocnPrice", nonStandardLocationPrice))
 				}
 				nonStandardLocationPrices = append(nonStandardLocationPrices, nonStandardLocationPrice)

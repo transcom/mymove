@@ -487,8 +487,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		currentTime := time.Now()
 		diff := currentTime.Sub(*actualApprovedAt)
 		diffInSeconds := diff.Seconds()
-		var oneSecond float64
-		oneSecond = 1.000000
+		oneSecond := 1.000000
 		// If we've gotten the shipment updated and fetched it without error then we can inspect the
 		// service items created as a side effect to see if they are approved.
 		for i := range serviceItems {

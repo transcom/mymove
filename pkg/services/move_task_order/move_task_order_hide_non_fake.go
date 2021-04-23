@@ -109,7 +109,7 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if ok == false {
+		if !ok {
 			return false, nil
 		}
 	}
@@ -119,7 +119,7 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if ok == false {
+		if !ok {
 			return false, nil
 		}
 	}
@@ -129,7 +129,7 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if ok == false {
+		if !ok {
 			return false, nil
 		}
 	}
@@ -147,7 +147,7 @@ func isValidFakeModelMTOShipments(shipments models.MTOShipments) (bool, invalidR
 		if err != nil {
 			return false, invalidReasons, err
 		}
-		if ok == false {
+		if !ok {
 			return false, invalidReasons, nil
 		}
 	}
@@ -161,7 +161,7 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType
 		if err != nil {
 			return false, invalidReasons, err
 		}
-		if ok == false {
+		if !ok {
 			invalidReasons["mtoshipment.pickupaddress"] = s.PickupAddress.StreetAddress1
 			return false, invalidReasons, nil
 		}
@@ -172,7 +172,7 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType
 		if err != nil {
 			return false, invalidReasons, err
 		}
-		if ok == false {
+		if !ok {
 			invalidReasons["mtoshipment.secondarypickupaddress"] = s.SecondaryPickupAddress.StreetAddress1
 			return false, invalidReasons, nil
 		}
@@ -183,7 +183,7 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType
 		if err != nil {
 			return false, invalidReasons, err
 		}
-		if ok == false {
+		if !ok {
 			invalidReasons["mtoshipment.destinationaddress"] = s.DestinationAddress.StreetAddress1
 			return false, invalidReasons, nil
 		}
@@ -194,7 +194,7 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType
 		if err != nil {
 			return false, invalidReasons, err
 		}
-		if ok == false {
+		if !ok {
 			invalidReasons["mtoshipment.secondarydeliveryaddress"] = s.SecondaryDeliveryAddress.StreetAddress1
 			return false, invalidReasons, nil
 		}
@@ -206,7 +206,7 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType
 		if err != nil {
 			return false, invalidReasons, err
 		}
-		if ok == false {
+		if !ok {
 			invalidReasons["mtoshipment.agent"] = "agent first name and/or last name is invalid"
 			return false, invalidReasons, nil
 		}
@@ -220,7 +220,7 @@ func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if ok == false {
+	if !ok {
 		return false, nil
 	}
 
@@ -228,7 +228,7 @@ func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if ok == false {
+	if !ok {
 		return false, nil
 	}
 
@@ -237,7 +237,7 @@ func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if ok == false {
+		if !ok {
 			return false, nil
 		}
 	}
@@ -260,7 +260,7 @@ func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, invalidReason
 	phone := sm.Telephone
 	if phone != nil {
 		isValidFakePhone, _ := fakedata.IsValidFakeDataPhone(*phone)
-		if isValidFakePhone == false {
+		if !isValidFakePhone {
 			invalidReasons["servicemember.phone"] = *phone
 			return false, invalidReasons, nil
 		}
@@ -277,7 +277,7 @@ func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, invalidReason
 	if err != nil {
 		return false, invalidReasons, err
 	}
-	if ok == false {
+	if !ok {
 		invalidReasons["servicemember.residentialaddress"] = sm.ResidentialAddress.StreetAddress1
 		return false, invalidReasons, nil
 	}
@@ -286,7 +286,7 @@ func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, invalidReason
 	if err != nil {
 		return false, invalidReasons, err
 	}
-	if ok == false {
+	if !ok {
 		invalidReasons["servicemember.backupmailingaddress"] = sm.BackupMailingAddress.StreetAddress1
 		return false, invalidReasons, nil
 	}
@@ -295,7 +295,7 @@ func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, invalidReason
 	lName := sm.LastName
 	if fName != nil && lName != nil {
 		isValidFakeName, _ := fakedata.IsValidFakeDataFullName(*fName, *lName)
-		if isValidFakeName == false {
+		if !isValidFakeName {
 			invalidReasons["servicemember.fullname"] = *fName + " " + *lName
 			return false, invalidReasons, nil
 		}
@@ -307,7 +307,7 @@ func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, invalidReason
 		if err != nil {
 			return false, invalidReasons, err
 		}
-		if ok == false {
+		if !ok {
 			invalidReasons["servicemember.backupcontact"] = "name, email, or phone found to be invalid"
 			return false, invalidReasons, nil
 		}

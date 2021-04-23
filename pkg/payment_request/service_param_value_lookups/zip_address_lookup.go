@@ -1,8 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"fmt"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -12,6 +10,6 @@ type ZipAddressLookup struct {
 }
 
 func (r ZipAddressLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	value := fmt.Sprintf("%s", r.Address.PostalCode)
+	value := r.Address.PostalCode
 	return value, nil
 }

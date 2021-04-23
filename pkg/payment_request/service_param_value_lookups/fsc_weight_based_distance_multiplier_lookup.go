@@ -18,9 +18,7 @@ type FSCWeightBasedDistanceMultiplierLookup struct {
 }
 
 func (r FSCWeightBasedDistanceMultiplierLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	weight, err := WeightBilledActualLookup{
-		MTOShipment: r.MTOShipment,
-	}.lookup(keyData)
+	weight, err := WeightBilledActualLookup(r).lookup(keyData)
 	if err != nil {
 		return "", err
 	}
