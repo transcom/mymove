@@ -81,6 +81,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		prToICN := models.PaymentRequestToInterchangeControlNumber{
 			InterchangeControlNumber: int(icn),
 			PaymentRequestID:         paymentRequest.ID,
+			EDIType:                  models.EDIType824,
 		}
 		err = tx.Save(&prToICN)
 		if err != nil {

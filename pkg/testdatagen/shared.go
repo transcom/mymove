@@ -9,6 +9,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/gobuffalo/pop/v5"
@@ -72,6 +74,7 @@ type Assertions struct {
 	ReRateArea                               models.ReRateArea
 	ReService                                models.ReService
 	ReZip3                                   models.ReZip3
+	Role                                     roles.Role
 	SecondaryPickupAddress                   models.Address
 	SecondaryDeliveryAddress                 models.Address
 	ServiceItemParamKey                      models.ServiceItemParamKey

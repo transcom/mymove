@@ -131,8 +131,8 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state) => ({
   serviceMember: selectServiceMemberFromLoggedInUser(state),
-  currentOrders: selectCurrentOrders(state),
-  entitlement: selectEntitlementsForLoggedInUser(state),
+  currentOrders: selectCurrentOrders(state) || {},
+  entitlement: selectEntitlementsForLoggedInUser(state) || {},
   moveIsInDraft: selectMoveIsInDraft(state),
 });
 
