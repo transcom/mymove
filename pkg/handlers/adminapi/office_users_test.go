@@ -69,31 +69,31 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	})
 
 	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
-		//queryFilter := mocks.QueryFilter{}
-		//newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-		newQueryFilter := query.NewQueryFilter
+		queryFilter := mocks.QueryFilter{}
+		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
+		//queryBuilder := query.NewQueryBuilder(suite.DB())
+
 		params := officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: req,
 		}
 		expectedError := models.ErrFetchNotFound
-		//officeUserListFetcher := &mocks.ListFetcher{}
-		//officeUserListFetcher.On("FetchRecordList",
-		//	mock.Anything,
-		//	mock.Anything,
-		//	mock.Anything,
-		//	mock.Anything,
-		//	mock.Anything,
-		//).Return(nil, expectedError).Once()
-		//officeUserListFetcher.On("FetchRecordCount",
-		//	mock.Anything,
-		//	mock.Anything,
-		//).Return(0, expectedError).Once()
-
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		officeUserListFetcher := &mocks.ListFetcher{}
+		officeUserListFetcher.On("FetchRecordList",
+			mock.AnythingOfType("*models.OfficeUsers"),
+			mock.AnythingOfType("[]services.QueryFilter"),
+			mock.AnythingOfType("query.queryAssociations"),
+			mock.AnythingOfType("pagination"),
+			mock.AnythingOfType("queryOrder"),
+		).Return(nil, expectedError).Once()
+		officeUserListFetcher.On("FetchRecordCount",
+			mock.AnythingOfType("*models.OfficeUsers"),
+			mock.AnythingOfType("[]services.QueryFilter"),
+		).Return(0, expectedError).Once()
+		//officeUserListFetcher := fetch.NewListFetcher(queryBuilder)
 		handler := IndexOfficeUsersHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: newQueryFilter,
-			ListFetcher:    fetch.NewListFetcher(queryBuilder),
+			ListFetcher:    officeUserListFetcher,
 			NewPagination:  pagination.NewPagination,
 		}
 
@@ -147,14 +147,20 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
 	suite.T().Run("successful response", func(t *testing.T) {
+		// Test:				GetOfficeUserHandler, Fetcher
+		// Set up:				Provide a valid req with the office user ID to the endpoint
+		// Expected Outcome:	The office user is returned and we get a 200 OK.
 		officeUser := models.OfficeUser{ID: id}
 		params := officeuserop.GetOfficeUserParams{
 			HTTPRequest:  req,
 			OfficeUserID: strfmt.UUID(uuidString),
 		}
+		// POTENTIALLY ADD THE CODE BELOW:
+		// queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", id)}
+		// Figure out how to get the mock to assert teh param passed into FetchOfficeUser is teh same as officeUser
 		officeUserFetcher := &mocks.OfficeUserFetcher{}
 		officeUserFetcher.On("FetchOfficeUser",
-			mock.Anything,
+			mock.Anything, //potentially change to mock query filer.
 		).Return(officeUser, nil).Once()
 		handler := GetOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
