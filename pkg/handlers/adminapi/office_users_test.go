@@ -80,6 +80,9 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		}
 		expectedError := models.ErrFetchNotFound
 		officeUserListFetcher := &mocks.ListFetcher{}
+
+		// JUST MAKE A USER WITH AN INCORRECT ID that fails the fetch
+		// DON"T MOCK THE FETCH HERE
 		officeUserListFetcher.On("FetchRecordList",
 			mock.AnythingOfType("*models.OfficeUsers"),
 			mock.AnythingOfType("[]services.QueryFilter"),
