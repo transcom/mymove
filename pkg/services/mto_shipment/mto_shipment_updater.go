@@ -740,14 +740,14 @@ func CalculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pi
 // This private function is used to generically construct service items when shipments are approved.
 func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServiceCodes []models.ReServiceCode) models.MTOServiceItems {
 	serviceItems := make(models.MTOServiceItems, len(reServiceCodes))
-
+	currentTime := swag.Time(time.Now())
 	for i, reServiceCode := range reServiceCodes {
 		serviceItem := models.MTOServiceItem{
 			MoveTaskOrderID: mtoID,
 			MTOShipmentID:   &shipmentID,
 			ReService:       models.ReService{Code: reServiceCode},
 			Status:          "APPROVED",
-			ApprovedAt:      swag.Time(time.Now()),
+			ApprovedAt:      currentTime,
 		}
 		serviceItems[i] = serviceItem
 	}
