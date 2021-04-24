@@ -10,7 +10,7 @@ import MilMoveHeader from './index';
 
 import { MockProviders } from 'testUtils';
 
-describe('MilMoveHeader', () => {
+describe('MilMoveHeader and User Infos', () => {
   it('renders the base header with nothing in it', () => {
     render(<MilMoveHeader />);
 
