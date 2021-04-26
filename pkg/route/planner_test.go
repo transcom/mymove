@@ -129,6 +129,31 @@ func (suite *PlannerFullSuite) TestZip3Distance() {
 	}
 }
 
+func (suite *PlannerFullSuite) TestZip5Distance() {
+	tests := []struct {
+		zip1        string
+		zip2        string
+		distanceMin int
+		distanceMax int
+	}{
+		{zip1: txZip, zip2: caZip, distanceMin: 1000, distanceMax: 2000},
+		{zip1: ca2Zip, zip2: caZip, distanceMin: 30, distanceMax: 49},
+		{zip1: "902101234", zip2: caZip, distanceMin: 30, distanceMax: 49},
+	}
+	for _, ts := range tests {
+		distance, err := suite.planner.Zip5TransitDistance(ts.zip1, ts.zip2)
+		if len(ts.zip1) > 5 {
+			suite.Error(err)
+			suite.Equal(distance, 0)
+		} else {
+			suite.NoError(err)
+			if distance < ts.distanceMin || distance > ts.distanceMax {
+				suite.Fail("Implausible distance", "Implausible distance from %s to %s: %d", ts.zip1, ts.zip2, distance)
+			}
+		}
+	}
+}
+
 func TestHandlerSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
