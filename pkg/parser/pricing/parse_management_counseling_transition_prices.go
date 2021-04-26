@@ -34,7 +34,7 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 			break
 		}
 
-		if params.ShowOutput == true {
+		if params.ShowOutput {
 			logger.Info("", zap.Any("StageShipmentManagementServicesPrice", shipMgmtSrvcPrice))
 		}
 		mgmtPrices = append(mgmtPrices, shipMgmtSrvcPrice)
@@ -68,7 +68,7 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 			break
 		}
 
-		if params.ShowOutput == true {
+		if params.ShowOutput {
 			logger.Info("", zap.Any("StageCounselingServicesPrice", cnslSrvcPrice))
 		}
 		counPrices = append(counPrices, cnslSrvcPrice)
@@ -102,7 +102,7 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 			break
 		}
 
-		if params.ShowOutput == true {
+		if params.ShowOutput {
 			logger.Info("", zap.Any("StageTransitionPrice", tranPrice))
 		}
 		tranPrices = append(tranPrices, tranPrice)

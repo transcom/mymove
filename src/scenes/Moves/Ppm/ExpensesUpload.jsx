@@ -84,7 +84,6 @@ class ExpensesUpload extends Component {
       requested_amount_cents: requestedAmountCents,
     } = formValues;
 
-    // eslint-disable-next-line security/detect-object-injection
     let files = this.uploader.getFiles();
     const uploadIds = map(files, 'id');
     const personallyProcuredMoveId = currentPpm ? currentPpm.id : null;
@@ -117,7 +116,6 @@ class ExpensesUpload extends Component {
 
   cleanup = () => {
     const { reset } = this.props;
-    // eslint-disable-next-line security/detect-object-injection
     this.uploader.clearFiles();
     reset();
     this.setState({ ...this.initialState });

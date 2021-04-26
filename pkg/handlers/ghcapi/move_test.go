@@ -1,7 +1,6 @@
 package ghcapi
 
 import (
-	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -34,7 +33,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 	})
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/move/#{move.locator}"), nil)
+	req := httptest.NewRequest("GET", "/move/#{move.locator}", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 	params := moveops.GetMoveParams{
 		HTTPRequest: req,

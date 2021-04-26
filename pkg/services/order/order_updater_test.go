@@ -167,7 +167,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 		suite.EqualValues(newDutyStation.Name, fetchedSM.DutyStation.Name)
 	})
 
-	suite.T().Run("Entitlement is updated with authorizedWeight or dependentsAuthorized", func(t *testing.T) {
+	suite.T().Run("Entitlement is updated", func(t *testing.T) {
 		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
 		updatedOrder := models.Order{
 			ID:                  defaultOrder.ID,
@@ -177,8 +177,12 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			ReportByDate:        defaultOrder.ReportByDate,
 			OrdersType:          defaultOrder.OrdersType,
 			Entitlement: &models.Entitlement{
-				DBAuthorizedWeight:   swag.Int(20000),
-				DependentsAuthorized: swag.Bool(true),
+				DBAuthorizedWeight:                           swag.Int(20000),
+				DependentsAuthorized:                         swag.Bool(true),
+				ProGearWeight:                                1234,
+				ProGearWeightSpouse:                          321,
+				RequiredMedicalEquipmentWeight:               2000,
+				OrganizationalClothingAndIndividualEquipment: true,
 			},
 		}
 
@@ -188,6 +192,95 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 		suite.NoError(err)
 		suite.Equal(swag.Int(20000), actualOrder.Entitlement.DBAuthorizedWeight)
 		suite.Equal(swag.Bool(true), actualOrder.Entitlement.DependentsAuthorized)
+		suite.Equal(1234, actualOrder.Entitlement.ProGearWeight)
+		suite.Equal(321, actualOrder.Entitlement.ProGearWeightSpouse)
+		suite.Equal(2000, actualOrder.Entitlement.RequiredMedicalEquipmentWeight)
+		suite.Equal(true, actualOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+	})
+
+	suite.T().Run("Entitlement is updated with move status Needs Service Counseling and missing submission fields", func(t *testing.T) {
+		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+			},
+			Order: orderWithoutDefaults,
+		})
+		updatedOrder := models.Order{
+			ID:                  orderWithoutDefaults.ID,
+			OriginDutyStationID: orderWithoutDefaults.OriginDutyStationID,
+			NewDutyStationID:    orderWithoutDefaults.NewDutyStationID,
+			IssueDate:           orderWithoutDefaults.IssueDate,
+			ReportByDate:        orderWithoutDefaults.ReportByDate,
+			OrdersType:          orderWithoutDefaults.OrdersType,
+			Entitlement: &models.Entitlement{
+				DBAuthorizedWeight:                           swag.Int(20000),
+				DependentsAuthorized:                         swag.Bool(true),
+				ProGearWeight:                                1234,
+				ProGearWeightSpouse:                          321,
+				RequiredMedicalEquipmentWeight:               2000,
+				OrganizationalClothingAndIndividualEquipment: true,
+			},
+		}
+
+		expectedETag := etag.GenerateEtag(orderWithoutDefaults.UpdatedAt)
+		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+
+		suite.NoError(err)
+		suite.Equal(swag.Int(20000), actualOrder.Entitlement.DBAuthorizedWeight)
+		suite.Equal(swag.Bool(true), actualOrder.Entitlement.DependentsAuthorized)
+		suite.Equal(1234, actualOrder.Entitlement.ProGearWeight)
+		suite.Equal(321, actualOrder.Entitlement.ProGearWeightSpouse)
+		suite.Equal(2000, actualOrder.Entitlement.RequiredMedicalEquipmentWeight)
+		suite.Equal(true, actualOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+
+		// make sure that there are missing submission fields and move is in correct status
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, actualOrder.Moves[0].Status)
+		suite.Nil(actualOrder.TAC)
+		suite.Nil(actualOrder.SAC)
+		suite.Nil(actualOrder.DepartmentIndicator)
+		suite.Nil(actualOrder.OrdersTypeDetail)
+	})
+
+	suite.T().Run("Entitlement is not updated: error with ProGearWeight is over max amount", func(t *testing.T) {
+		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		updatedOrder := models.Order{
+			ID:                  defaultOrder.ID,
+			OriginDutyStationID: defaultOrder.OriginDutyStationID,
+			NewDutyStationID:    defaultOrder.NewDutyStationID,
+			IssueDate:           defaultOrder.IssueDate,
+			ReportByDate:        defaultOrder.ReportByDate,
+			OrdersType:          defaultOrder.OrdersType,
+			Entitlement: &models.Entitlement{
+				ProGearWeight: 2001,
+			},
+		}
+
+		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
+		_, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
+
+	suite.T().Run("Entitlement is not updated: error with ProGearWeightSpouse is over max amount", func(t *testing.T) {
+		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		updatedOrder := models.Order{
+			ID:                  defaultOrder.ID,
+			OriginDutyStationID: defaultOrder.OriginDutyStationID,
+			NewDutyStationID:    defaultOrder.NewDutyStationID,
+			IssueDate:           defaultOrder.IssueDate,
+			ReportByDate:        defaultOrder.ReportByDate,
+			OrdersType:          defaultOrder.OrdersType,
+			Entitlement: &models.Entitlement{
+				ProGearWeightSpouse: 501,
+			},
+		}
+
+		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
+		_, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+
+		suite.Error(err)
 	})
 
 	suite.T().Run("Transaction rolled back after Order model validation error", func(t *testing.T) {

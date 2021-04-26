@@ -115,8 +115,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			pass.Reportf(node.Pos(), "Annotation needs approval from an ISSO")
 			return
 		}
-
-		return
 	})
 
 	return nil, nil

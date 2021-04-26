@@ -211,7 +211,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	if len(serviceMember.Orders) != 0 {
+	if len(serviceMember.Orders) != 0 && h.isDraftMove(&serviceMember) {
 		// Will have to be refactored once we support multiple moves/orders
 		order, err := models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
 

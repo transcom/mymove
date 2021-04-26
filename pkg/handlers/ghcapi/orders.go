@@ -179,6 +179,22 @@ func Order(payload ghcmessages.UpdateOrderPayload) (models.Order, error) {
 		entitlement.DependentsAuthorized = payload.DependentsAuthorized
 	}
 
+	if payload.ProGearWeight != nil {
+		entitlement.ProGearWeight = int(*payload.ProGearWeight)
+	}
+
+	if payload.ProGearWeightSpouse != nil {
+		entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
+	}
+
+	if payload.RequiredMedicalEquipmentWeight != nil {
+		entitlement.RequiredMedicalEquipmentWeight = int(*payload.RequiredMedicalEquipmentWeight)
+	}
+
+	if payload.OrganizationalClothingAndIndividualEquipment != nil {
+		entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
+	}
+
 	var ordersTypeDetail *internalmessages.OrdersTypeDetail
 	if payload.OrdersTypeDetail != nil {
 		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)

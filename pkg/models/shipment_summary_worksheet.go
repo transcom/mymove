@@ -514,7 +514,7 @@ func FormatSignature(sm ServiceMember) string {
 func FormatSignatureDate(signature SignedCertification) string {
 	dateLayout := "02 Jan 2006 at 3:04pm"
 	dt := signature.Date.Format(dateLayout)
-	return fmt.Sprintf("%s", dt)
+	return dt
 }
 
 //FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet

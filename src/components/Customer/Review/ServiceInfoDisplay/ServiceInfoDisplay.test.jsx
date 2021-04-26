@@ -59,8 +59,8 @@ describe('ServiceInfoDisplay component', () => {
     expect(editLink).toBeInTheDocument();
   });
 
-  it('renders who to contact when the service info is no longer editable', async () => {
-    renderWithRouter(<ServiceInfoDisplay {...testProps} isEditable={false} />);
+  it('renders who to contact when the service info is no longer editable and it should notify the transportation office', async () => {
+    renderWithRouter(<ServiceInfoDisplay {...testProps} isEditable={false} showMessage />);
 
     expect(screen.queryByText('Edit')).toBeNull();
 
@@ -69,5 +69,17 @@ describe('ServiceInfoDisplay component', () => {
     );
 
     expect(whoToContact).toBeInTheDocument();
+  });
+
+  it('renders a non editable service info display wuth no message', () => {
+    renderWithRouter(<ServiceInfoDisplay {...testProps} isEditable={false} />);
+
+    expect(screen.queryByText('Edit')).toBeNull();
+
+    expect(
+      screen.queryByText(
+        `To change information in this section, contact the ${testProps.originTransportationOfficeName} transportation office at ${testProps.originTransportationOfficePhone}.`,
+      ),
+    ).toBeNull();
   });
 });

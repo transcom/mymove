@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/getlantern/deepcopy"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -46,8 +47,7 @@ func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBui
 // setNewShipmentFields validates the updated shipment
 func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) error {
 	verrs := validate.NewErrors()
-	var oldShipmentCopy *models.MTOShipment
-	oldShipmentCopy = dbShipment // make a copy to restore values in case there were errors while setting
+	oldShipmentCopy := dbShipment // make a copy to restore values in case there were errors while setting
 
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
@@ -134,7 +134,7 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 				foundAgent := false
 				// make sure there is an existing record in the db
 				for i, dbAgent := range dbShipment.MTOAgents {
-					if foundAgent == true {
+					if foundAgent {
 						break
 					}
 					if dbAgent.ID == newAgentInfo.ID {
@@ -739,13 +739,14 @@ func CalculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pi
 // This private function is used to generically construct service items when shipments are approved.
 func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServiceCodes []models.ReServiceCode) models.MTOServiceItems {
 	serviceItems := make(models.MTOServiceItems, len(reServiceCodes))
-
+	currentTime := swag.Time(time.Now())
 	for i, reServiceCode := range reServiceCodes {
 		serviceItem := models.MTOServiceItem{
 			MoveTaskOrderID: mtoID,
 			MTOShipmentID:   &shipmentID,
 			ReService:       models.ReService{Code: reServiceCode},
 			Status:          "APPROVED",
+			ApprovedAt:      currentTime,
 		}
 		serviceItems[i] = serviceItem
 	}

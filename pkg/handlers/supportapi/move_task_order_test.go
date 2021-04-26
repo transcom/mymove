@@ -318,8 +318,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		//             New MTO and orders are created. MTO can be approved and marked as available to Prime.
 
 		// Let's copy the default mtoPayload so we don't affect the other tests:
-		var integrationMTO supportmessages.MoveTaskOrder
-		integrationMTO = *mtoPayload
+		integrationMTO := *mtoPayload
 
 		// We have to set the status for the orders to APPROVED and the move to SUBMITTED so that we can try to approve
 		// this move later on. We can't approve a DRAFT move.
