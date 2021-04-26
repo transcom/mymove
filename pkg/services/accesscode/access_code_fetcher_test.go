@@ -22,10 +22,11 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchAccessCode() {
 	suite.Equal(ac.Code, accessCode.Code, "expected CODE12")
 }
 
-func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchEmptyAccessCode() {
+func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchNotFound() {
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMemberID := &user.ID
 	fetchAccessCode := NewAccessCodeFetcher(suite.DB())
-	ac, _ := fetchAccessCode.FetchAccessCode(*serviceMemberID)
-	suite.Equal(ac.Code, "")
+	_, err := fetchAccessCode.FetchAccessCode(*serviceMemberID)
+	suite.Error(err)
+	suite.Equal("sql: no rows in result set", err.Error())
 }
