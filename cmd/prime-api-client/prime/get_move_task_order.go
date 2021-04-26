@@ -1,4 +1,4 @@
-package support
+package prime
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ import (
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 
-	mto "github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
+	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 )
 
 // InitGetMTOFlags declares which flags are enabled
@@ -33,7 +33,7 @@ func checkGetMTOConfig(v *viper.Viper, args []string, logger *log.Logger) error 
 	}
 
 	if uuid.FromStringOrNil(v.GetString(utils.IDFlag)) == uuid.Nil {
-		logger.Fatal(errors.New("support-get-move-task-order expects a valid UUID to be passed in"))
+		logger.Fatal(errors.New("get-move-task-order expects a valid UUID to be passed in"))
 	}
 
 	return nil
@@ -65,7 +65,7 @@ func GetMTO(cmd *cobra.Command, args []string) error {
 	getMTOParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
-	supportGateway, cacStore, errCreateClient := utils.CreateSupportClient(v)
+	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -80,7 +80,7 @@ func GetMTO(cmd *cobra.Command, args []string) error {
 	}
 	getMTOParams.SetTimeout(time.Second * 30)
 
-	resp, err := supportGateway.MoveTaskOrder.GetMoveTaskOrder(&getMTOParams)
+	resp, err := primeGateway.MoveTaskOrder.GetMoveTaskOrder(&getMTOParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}

@@ -379,8 +379,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.RequiredDeliveryDate = strfmt.Date(*mtoShipment.RequiredDeliveryDate)
 	}
 
-	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.PrimeEstimatedWeightRecordedDate != nil {
+	if mtoShipment.PrimeEstimatedWeight != nil {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
+	}
+
+	if mtoShipment.PrimeEstimatedWeightRecordedDate != nil && !mtoShipment.PrimeEstimatedWeightRecordedDate.IsZero() {
 		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
 	}
 
