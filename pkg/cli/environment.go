@@ -11,6 +11,11 @@ const (
 	// EnvironmentFlag is the Environment Flag
 	EnvironmentFlag string = "environment"
 
+	// ReviewBaseDomainFlag is the base domain name for review apps
+	ReviewBaseDomainFlag = "review-base-domain"
+	// ReviewBaseDomainDefault is the default base domain for review apps
+	ReviewBaseDomainDefault = "review.localhost"
+
 	// EnvironmentProd is the Production Environment name
 	EnvironmentProd string = "prod"
 	// EnvironmentStaging is the Staging Environment name
@@ -27,6 +32,8 @@ const (
 	EnvironmentStg string = "stg"
 	// EnvironmentPrd is the GovCloud prd Environment name
 	EnvironmentPrd string = "prd"
+	// EnvironmentReview is a reviewapp
+	EnvironmentReview string = "review"
 )
 
 var environments = []string{
@@ -38,11 +45,21 @@ var environments = []string{
 	EnvironmentExp,
 	EnvironmentStg,
 	EnvironmentPrd,
+	EnvironmentReview,
+}
+
+type errInvalidEnvironment struct {
+	Environment string
+}
+
+func (e *errInvalidEnvironment) Error() string {
+	return fmt.Sprintf("invalid environment %q, expecting one of %q", e.Environment, environments)
 }
 
 // InitEnvironmentFlags initializes the Environment command line flags
 func InitEnvironmentFlags(flag *pflag.FlagSet) {
 	flag.StringP(EnvironmentFlag, "e", EnvironmentDevelopment, fmt.Sprintf("The environment name, one of %v", environments))
+	flag.String(ReviewBaseDomainFlag, ReviewBaseDomainDefault, fmt.Sprintf("The base domain name for review apps, defaults to %s", ReviewBaseDomainDefault))
 }
 
 // CheckEnvironment validates the Environment command line flags
