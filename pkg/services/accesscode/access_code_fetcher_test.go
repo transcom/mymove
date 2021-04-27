@@ -30,5 +30,5 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchNotFound() {
 	fetchAccessCode := NewAccessCodeFetcher(suite.DB())
 	_, err := fetchAccessCode.FetchAccessCode(*serviceMemberID)
 	suite.Error(err)
-	suite.Equal(sql.ErrNoRows, err.Error())
+	suite.Equal(sql.ErrNoRows, err)
 }
