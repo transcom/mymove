@@ -1,6 +1,8 @@
 package accesscode
 
 import (
+	"database/sql"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -28,5 +30,5 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchNotFound() {
 	fetchAccessCode := NewAccessCodeFetcher(suite.DB())
 	_, err := fetchAccessCode.FetchAccessCode(*serviceMemberID)
 	suite.Error(err)
-	suite.Equal("sql: no rows in result set", err.Error())
+	suite.Equal(sql.ErrNoRows, err.Error())
 }
