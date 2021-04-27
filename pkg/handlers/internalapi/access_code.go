@@ -59,8 +59,7 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 
 	if err != nil {
 		logger.Error("Error retrieving access_code for service member", zap.Error(err))
-		fetchAccessCodePayload = &internalmessages.AccessCode{}
-		return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
+		return accesscodeop.NewFetchAccessCodeNotFound()
 	}
 
 	fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
