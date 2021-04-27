@@ -14,7 +14,7 @@ const (
 
 // InitFeatureFlags initializes FeatureFlags command line flags
 func InitFeatureFlags(flag *pflag.FlagSet) {
-	flag.Bool(FeatureFlagAccessCode, true, "Flag (bool) to enable requires-access-code")
+	flag.Bool(FeatureFlagAccessCode, false, "Flag (bool) to enable requires-access-code")
 	flag.Bool(FeatureFlagServiceCounseling, false, "Flag (bool) to enable service counseling")
 }
 
