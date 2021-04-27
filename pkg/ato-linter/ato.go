@@ -112,7 +112,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 		containsAnnotationNotApproved := containsAnnotationNotApproved(comments.List)
 		if containsAnnotationNotApproved {
-			pass.Reportf(node.Pos(), "Annotation needs approval from an ISSO")
+			pass.Reportf(node.Pos(), "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR")
 			return
 		}
 	})
