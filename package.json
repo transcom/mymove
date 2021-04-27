@@ -121,7 +121,7 @@
     "@storybook/react": "^6.2.9",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.6",
-    "@testing-library/react-hooks": "^5.1.1",
+    "@testing-library/react-hooks": "^5.1.2",
     "@testing-library/user-event": "^13.1.5",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.1",
     "commander": "^7.2.0",
