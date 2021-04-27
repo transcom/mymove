@@ -2,7 +2,8 @@ const REQUIRES_APPROVAL_MESSAGE_ID = 'no-unapproved-annotation';
 const NO_ANNOTATION_MESSAGE_ID = 'no-annotation';
 const NO_INLINE_DISABLE = 'no-inline-disable';
 const messages = {
-  [REQUIRES_APPROVAL_MESSAGE_ID]: 'Requires annotation approval from an ISSO',
+  [REQUIRES_APPROVAL_MESSAGE_ID]:
+    'Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack.  Add label ‘needs-is3-review’ to this PR',
   [NO_ANNOTATION_MESSAGE_ID]:
     'Disabling of this rule requires an annotation. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit?usp=sharing',
   [NO_INLINE_DISABLE]: 'Please use eslint-disable-next-line instead of eslint-disable-line',
