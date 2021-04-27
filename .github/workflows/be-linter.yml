@@ -1,6 +1,8 @@
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   run-linters:
@@ -18,7 +20,4 @@ jobs:
         run: go install ./cmd/ato-linter
 
       - name: Run custom go linter on pkg
-        run: ato-linter ./pkg/...
-
-      - name: Run custom go linter on cmd
-        run: ato-linter ./cmd/...
+        run: go run ./cmd/ato-linter/main.go -- ./pkg/...
