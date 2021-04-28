@@ -1,7 +1,9 @@
 package atolinter
 
 import (
+	"fmt"
 	"go/ast"
+	"regexp"
 	"strings"
 
 	"golang.org/x/tools/go/analysis"
@@ -32,13 +34,16 @@ var validatorStatuses = map[string]bool{
 // check if comment group has disabling of gosec in it but it doesn't have a specific rule it is disabling
 func containsGosecDisableNoRule(comments []*ast.Comment) bool {
 	for _, comment := range comments {
-		if strings.Contains(comment.Text, disableNoSec) {
-			individualCommentArr := strings.Split(comment.Text, " ")
-			for index, str := range individualCommentArr {
-				if str == disableNoSec && index == len(individualCommentArr)-1 {
-					return true
-				}
-			}
+		noSecRegex := regexp.MustCompile(fmt.Sprintf("(?P<linter>%v) ?(?P<rule>G\\d{3})?", disableNoSec))
+
+		match := noSecRegex.FindStringSubmatch(comment.Text)
+
+		if match == nil {
+			return false
+		}
+
+		if match[2] == "" {
+			return true
 		}
 	}
 	return false
