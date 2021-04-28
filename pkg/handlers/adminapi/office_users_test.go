@@ -1,7 +1,6 @@
 package adminapi
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -70,45 +69,29 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
 	})
 
-	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
-		queryFilter := mocks.QueryFilter{}
-		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-		//queryBuilder := query.NewQueryBuilder(suite.DB())
+	suite.T().Run("fetch return an empty list", func(t *testing.T) {
+		// TEST:	IndexOfficeUserHandler, Fetcher
+		// Set up:				Provide an invalid search that won't be found
+		// Expected Outcome:	An empty list is returned and we get a 200 OK.
+		fakeFilter := "{\"search\":\"something\"}"
 
 		params := officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: req,
+			Filter:      &fakeFilter,
 		}
-		expectedError := models.ErrFetchNotFound
-		officeUserListFetcher := &mocks.ListFetcher{}
 
-		// JUST MAKE A USER WITH AN INCORRECT ID that fails the fetch
-		// DON"T MOCK THE FETCH HERE
-		officeUserListFetcher.On("FetchRecordList",
-			mock.AnythingOfType("*models.OfficeUsers"),
-			mock.AnythingOfType("[]services.QueryFilter"),
-			mock.AnythingOfType("query.queryAssociations"),
-			mock.AnythingOfType("pagination"),
-			mock.AnythingOfType("queryOrder"),
-		).Return(nil, expectedError).Once()
-		officeUserListFetcher.On("FetchRecordCount",
-			mock.AnythingOfType("*models.OfficeUsers"),
-			mock.AnythingOfType("[]services.QueryFilter"),
-		).Return(0, expectedError).Once()
-		//officeUserListFetcher := fetch.NewListFetcher(queryBuilder)
+		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := IndexOfficeUsersHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			NewQueryFilter: newQueryFilter,
-			ListFetcher:    officeUserListFetcher,
+			ListFetcher:    fetch.NewListFetcher(queryBuilder),
+			NewQueryFilter: query.NewQueryFilter,
 			NewPagination:  pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
+		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
 
-		expectedResponse := &handlers.ErrResponse{
-			Code: http.StatusNotFound,
-			Err:  expectedError,
-		}
-		suite.Equal(expectedResponse, response)
+		suite.Len(okResponse.Payload, 0)
 	})
 }
 
@@ -148,29 +131,21 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 		suite.Equal(uuidString, okResponse.Payload.ID.String())
 	})
 
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-
 	suite.T().Run("successful response", func(t *testing.T) {
 		// Test:				GetOfficeUserHandler, Fetcher
 		// Set up:				Provide a valid req with the office user ID to the endpoint
 		// Expected Outcome:	The office user is returned and we get a 200 OK.
-		officeUser := models.OfficeUser{ID: id}
+
 		params := officeuserop.GetOfficeUserParams{
 			HTTPRequest:  req,
 			OfficeUserID: strfmt.UUID(uuidString),
 		}
-		// POTENTIALLY ADD THE CODE BELOW:
-		// queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", id)}
-		// Figure out how to get the mock to assert teh param passed into FetchOfficeUser is teh same as officeUser
-		officeUserFetcher := &mocks.OfficeUserFetcher{}
-		officeUserFetcher.On("FetchOfficeUser",
-			mock.Anything, //potentially change to mock query filer.
-		).Return(officeUser, nil).Once()
+
+		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := GetOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			officeUserFetcher,
-			newQueryFilter,
+			officeuser.NewOfficeUserFetcher(queryBuilder),
+			query.NewQueryFilter,
 		}
 
 		response := handler.Handle(params)
@@ -180,29 +155,28 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 		suite.Equal(uuidString, okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("unsuccessful response when fetch fails", func(t *testing.T) {
+	suite.T().Run("500 error - Internal Server error. Unsuccessful fetch ", func(t *testing.T) {
+		// Test:				GetOfficeUserHandler, Fetcher
+		// Set up:				Provide a valid req with the fake office user ID to the endpoint
+		// Expected Outcome:	The office user is returned and we get a 404 NotFound.
+		fakeID := "3b9c2975-4e54-40ea-a781-bab7d6e4a502"
 		params := officeuserop.GetOfficeUserParams{
 			HTTPRequest:  req,
-			OfficeUserID: strfmt.UUID(uuidString),
+			OfficeUserID: strfmt.UUID(fakeID),
 		}
-		expectedError := models.ErrFetchNotFound
-		officeUserFetcher := &mocks.OfficeUserFetcher{}
-		officeUserFetcher.On("FetchOfficeUser",
-			mock.Anything,
-		).Return(models.OfficeUser{}, expectedError).Once()
+
+		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := GetOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			officeUserFetcher,
-			newQueryFilter,
+			officeuser.NewOfficeUserFetcher(queryBuilder),
+			query.NewQueryFilter,
 		}
 
 		response := handler.Handle(params)
 
-		expectedResponse := &handlers.ErrResponse{
-			Code: http.StatusNotFound,
-			Err:  expectedError,
-		}
-		suite.Equal(expectedResponse, response)
+		suite.IsType(&handlers.ErrResponse{}, response)
+		errResponse := response.(*handlers.ErrResponse)
+		suite.Equal(http.StatusInternalServerError, errResponse.Code)
 	})
 }
 
@@ -216,8 +190,6 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		UserID:                 &userID,
 		Active:                 true,
 	}
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
 	req := httptest.NewRequest("POST", "/office_users", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -229,42 +201,36 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	tioRoleName := "Transportation Invoicing Officer"
 	tioRoleType := string(roles.RoleTypeTIO)
 
-	params := officeuserop.CreateOfficeUserParams{
-		HTTPRequest: req,
-		OfficeUser: &adminmessages.OfficeUserCreatePayload{
-			FirstName: officeUser.FirstName,
-			LastName:  officeUser.LastName,
-			Telephone: officeUser.Telephone,
-			Roles: []*adminmessages.OfficeUserRole{
-				{
-					Name:     &tooRoleName,
-					RoleType: &tooRoleType,
+	suite.T().Run("200 - Successfully create Office User", func(t *testing.T) {
+		// Test:				CreateOfficeUserHandler, Fetcher
+		// Set up:				Create a new Office User, save new user to the DB
+		// Expected Outcome:	The office user is created and we get a 200 OK.
+
+		params := officeuserop.CreateOfficeUserParams{
+			HTTPRequest: req,
+			OfficeUser: &adminmessages.OfficeUserCreatePayload{
+				FirstName: officeUser.FirstName,
+				LastName:  officeUser.LastName,
+				Telephone: officeUser.Telephone,
+				Roles: []*adminmessages.OfficeUserRole{
+					{
+						Name:     &tooRoleName,
+						RoleType: &tooRoleType,
+					},
+					{
+						Name:     &tioRoleName,
+						RoleType: &tioRoleType,
+					},
 				},
-				{
-					Name:     &tioRoleName,
-					RoleType: &tioRoleType,
-				},
+				TransportationOfficeID: strfmt.UUID(officeUser.TransportationOfficeID.String()),
 			},
-			TransportationOfficeID: strfmt.UUID(officeUser.TransportationOfficeID.String()),
-		},
-	}
+		}
 
-	suite.T().Run("Successful create", func(t *testing.T) {
-		officeUserCreator := &mocks.OfficeUserCreator{}
-		userRolesAssociator := &mocks.UserRoleAssociator{}
-
-		officeUserCreator.On("CreateOfficeUser",
-			mock.Anything,
-			mock.Anything).Return(&officeUser, nil, nil).Once()
-
-		userRolesAssociator.On("UpdateUserRoles",
-			mock.Anything,
-			mock.Anything).Return(nil, nil).Once()
-
+		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := CreateOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			officeUserCreator,
-			newQueryFilter,
+			officeuser.NewOfficeUserCreator(suite.DB(), queryBuilder),
+			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(suite.DB()),
 		}
 
@@ -273,16 +239,35 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	})
 
 	suite.T().Run("Failed create", func(t *testing.T) {
-		officeUserCreator := &mocks.OfficeUserCreator{}
-
-		officeUserCreator.On("CreateOfficeUser",
-			mock.Anything,
-			mock.Anything).Return(&officeUser, nil, errors.New("Could not save user")).Once()
-
+		// Test:				CreateOfficeUserHandler, Fetcher
+		// Set up:				Add new Office User to the DB
+		// Expected Outcome:	The office user is not created and we get a 500 internal server error.
+		fakeTransportationOfficeID := "3b9c2975-4e54-40ea-a781-bab7d6e4a502"
+		params := officeuserop.CreateOfficeUserParams{
+			HTTPRequest: req,
+			OfficeUser: &adminmessages.OfficeUserCreatePayload{
+				FirstName: officeUser.FirstName,
+				LastName:  officeUser.LastName,
+				Telephone: officeUser.Telephone,
+				Roles: []*adminmessages.OfficeUserRole{
+					{
+						Name:     &tooRoleName,
+						RoleType: &tooRoleType,
+					},
+					{
+						Name:     &tioRoleName,
+						RoleType: &tioRoleType,
+					},
+				},
+				TransportationOfficeID: strfmt.UUID(fakeTransportationOfficeID),
+			},
+		}
+		// Find a way to FAIL on the CREATOR
+		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := CreateOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			officeUserCreator,
-			newQueryFilter,
+			officeuser.NewOfficeUserCreator(suite.DB(), queryBuilder),
+			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(suite.DB()),
 		}
 
