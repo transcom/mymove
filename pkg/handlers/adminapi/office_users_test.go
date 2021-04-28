@@ -7,8 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gobuffalo/validate/v3"
-
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/strfmt"
@@ -279,151 +277,87 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
-	officeUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
-	officeUser := models.OfficeUser{ID: officeUserID, FirstName: "Leo", LastName: "Spaceman", Telephone: "206-555-0199"}
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-
-	endpoint := fmt.Sprintf("/office_users/%s", officeUserID)
-	req := httptest.NewRequest("PUT", endpoint, nil)
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req = suite.AuthenticateUserRequest(req, requestUser)
-
-	params := officeuserop.UpdateOfficeUserParams{
-		HTTPRequest: req,
-		OfficeUser: &adminmessages.OfficeUserUpdatePayload{
-			FirstName:      &officeUser.FirstName,
-			MiddleInitials: officeUser.MiddleInitials,
-			LastName:       &officeUser.LastName,
-			Telephone:      &officeUser.Telephone,
-		},
-	}
-	suite.T().Run("If the user is updated successfully it should be returned", func(t *testing.T) {
-		//TODO remove this test and replace w/ test for just update logic (i.e. don't include with handler)
-		ou := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		officeUserUpdater := &mocks.OfficeUserUpdater{}
-		updatedParams := officeuserop.UpdateOfficeUserParams{
-			HTTPRequest: req,
-			OfficeUser: &adminmessages.OfficeUserUpdatePayload{
-				FirstName:      &ou.FirstName,
-				MiddleInitials: ou.MiddleInitials,
-				LastName:       &ou.LastName,
-				Telephone:      &ou.Telephone,
-			},
-		}
-		updatedParams.OfficeUserID = strfmt.UUID(ou.ID.String())
-
-		id1, _ := uuid.NewV4()
-		role1 := roles.Role{
-			ID:       id1,
-			RoleType: "role1",
-		}
-		id2, _ := uuid.NewV4()
-		role2 := roles.Role{
-			ID:       id2,
-			RoleType: "role2",
-		}
-		rs := roles.Roles{role1, role2}
-		err := suite.DB().Create(rs)
-		suite.NoError(err)
-		payloadRoleName1 := "name1"
-		payloadRoleType1 := string(role1.RoleType)
-		payloadRole1 := &adminmessages.OfficeUserRole{
-			Name:     &payloadRoleName1,
-			RoleType: &payloadRoleType1,
-		}
-		payloadRoleName2 := "name2"
-		payloadRoleType2 := string(role2.RoleType)
-		payloadRole2 := &adminmessages.OfficeUserRole{
-			Name:     &payloadRoleName2,
-			RoleType: &payloadRoleType2,
-		}
-
-		payloadRoles := []*adminmessages.OfficeUserRole{payloadRole1, payloadRole2}
-		updatedParams.OfficeUser.Roles = payloadRoles
-
-		officeUserUpdater.On("UpdateOfficeUser",
-			mock.Anything,
-			updatedParams.OfficeUser,
-		).Return(&ou, nil, nil).Once()
-
-		handler := UpdateOfficeUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			officeUserUpdater,
-			newQueryFilter,
-			usersroles.NewUsersRolesCreator(suite.DB()),
-		}
-
-		response := handler.Handle(updatedParams)
-		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
-
-		ur := models.UsersRoles{}
-		n, err := suite.DB().Count(&ur)
-		suite.NoError(err)
-		suite.Equal(2, n)
-
-		user := models.User{}
-		err = suite.DB().Eager("Roles").Find(&user, ou.UserID)
-		suite.NoError(err)
-		suite.Require().Len(user.Roles, 2)
-		suite.Equal(user.Roles[0].ID, role1.ID)
-		suite.Equal(user.Roles[1].ID, role2.ID)
-	})
-
-	suite.T().Run("Successful update", func(t *testing.T) {
-		officeUserUpdater := &mocks.OfficeUserUpdater{}
-
-		officeUserUpdater.On("UpdateOfficeUser",
-			mock.Anything,
-			params.OfficeUser,
-		).Return(&officeUser, nil, nil).Once()
-
-		handler := UpdateOfficeUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			officeUserUpdater,
-			newQueryFilter,
-			usersroles.NewUsersRolesCreator(suite.DB()),
-		}
-
-		response := handler.Handle(params)
-		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
-	})
-
-	suite.T().Run("Failed update", func(t *testing.T) {
-		officeUserUpdater := &mocks.OfficeUserUpdater{}
-
-		officeUserUpdater.On("UpdateOfficeUser",
-			mock.Anything,
-			params.OfficeUser,
-		).Return(&officeUser, nil, nil).Once()
-
-		handler := UpdateOfficeUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			officeUserUpdater,
-			newQueryFilter,
-			usersroles.NewUsersRolesCreator(suite.DB()),
-		}
-
-		response := handler.Handle(params)
-		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
-	})
-
-	officeUserUpdater := &mocks.OfficeUserUpdater{}
-	err := validate.NewErrors()
-
-	officeUserUpdater.On("UpdateOfficeUser",
-		mock.Anything,
-		params.OfficeUser,
-	).Return(nil, err, nil).Once()
-
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	updater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	handler := UpdateOfficeUserHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		officeUserUpdater,
-		newQueryFilter,
+		updater,
+		query.NewQueryFilter,
 		usersroles.NewUsersRolesCreator(suite.DB()),
 	}
 
-	handler.Handle(params)
-	suite.Error(err, "Error saving user")
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			TransportationOffice: models.TransportationOffice{
+				Name: "Random Office",
+			},
+		},
+	})
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
+	endpoint := fmt.Sprintf("/office_users/%s", officeUser.ID)
+	request := suite.AuthenticateUserRequest(httptest.NewRequest("PUT", endpoint, nil), requestUser)
+
+	suite.T().Run("Office user is successfully updated", func(t *testing.T) {
+		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		firstName := "Riley"
+		middleInitials := "RB"
+		telephone := "865-555-5309"
+
+		officeUserUpdates := &adminmessages.OfficeUserUpdatePayload{
+			FirstName:              &firstName,
+			MiddleInitials:         &middleInitials,
+			Telephone:              &telephone,
+			TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+		}
+
+		//var roles []*adminmessages.OfficeUserRole
+		//for _, role := range officeUser.User.Roles {
+		//	roleName := string(role.RoleName)
+		//	roleType := string(role.RoleType)
+		//	userRole := adminmessages.OfficeUserRole{
+		//		Name: &roleName,
+		//		RoleType: &roleType,
+		//	}
+		//
+		//	fmt.Println(roleName)
+		//
+		//	roles = append(roles, &userRole)
+		//}
+
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  request,
+			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
+
+		okResponse := response.(*officeuserop.UpdateOfficeUserOK)
+		// Check updates:
+		suite.Equal(firstName, *okResponse.Payload.FirstName)
+		suite.Equal(middleInitials, *okResponse.Payload.MiddleInitials)
+		suite.Equal(telephone, *okResponse.Payload.Telephone)
+		suite.Equal(transportationOffice.ID.String(), okResponse.Payload.TransportationOfficeID.String())
+		suite.Equal(officeUser.LastName, *okResponse.Payload.LastName) // should not have been updated
+		suite.Equal(officeUser.Email, *okResponse.Payload.Email)       // should not have been updated
+	})
+
+	suite.T().Run("Update failes due to bad Transportation Office", func(t *testing.T) {
+		officeUserUpdates := &adminmessages.OfficeUserUpdatePayload{
+			TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
+		}
+
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  request,
+			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserInternalServerError{}, response)
+	})
 }
