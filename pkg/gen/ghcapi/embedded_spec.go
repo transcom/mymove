@@ -3884,10 +3884,29 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "originDutyStationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -3895,6 +3914,12 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 2000
         },
         "sac": {
           "type": "string",
@@ -8322,10 +8347,31 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "originDutyStationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -8333,6 +8379,13 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "example": 2000
         },
         "sac": {
           "type": "string",

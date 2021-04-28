@@ -25,7 +25,7 @@ type ListMTOsHandler struct {
 func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	searchParams := services.ListMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true,
 		Since:         params.Since,
 	}
@@ -98,16 +98,16 @@ func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.Hid
 	return movetaskorderops.NewHideNonFakeMoveTaskOrdersOK().WithPayload(payload)
 }
 
-// GetMoveTaskOrderHandlerFunc updates the status of a Move Task Order
+// GetMoveTaskOrderHandlerFunc returns the details for a particular Move Task Order
 type GetMoveTaskOrderHandlerFunc struct {
 	handlers.HandlerContext
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
-// Handle updates the status of a MoveTaskOrder
+// Handle fetches an MTO from the database using its UUID
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	searchParams := services.FetchMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true,
 	}
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)

@@ -22,6 +22,8 @@ func initRootFlags(flag *pflag.FlagSet) {
 	flag.String(utils.HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(utils.PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(utils.InsecureFlag, false, "Skip TLS verification and validation")
+	flag.String(utils.FilenameFlag, "", "The name of the file being passed in")
+	flag.String(utils.IDFlag, "", "The UUID of the object being retrieved or updated")
 }
 
 func main() {
@@ -41,6 +43,22 @@ func main() {
 	}
 	prime.InitFetchMTOUpdatesFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
+
+	getMoveTaskOrder := &cobra.Command{
+		Use:   "get-move-task-order",
+		Short: "Get an individual mto",
+		Long: `
+  This command gets a single move by ID.
+  It will only find Prime-available moves.
+  It requires the caller to set a move ID using the --id arg.
+
+  Endpoint path: /move-task-orders/{moveTaskOrderID}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         prime.GetMTO,
+		SilenceUsage: true,
+	}
+	support.InitGetMTOFlags(getMoveTaskOrder.Flags())
+	root.AddCommand(getMoveTaskOrder)
 
 	listMTOsCommand := &cobra.Command{
 		Use:          "support-list-mtos",
@@ -273,26 +291,21 @@ func main() {
 	support.InitUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
 	root.AddCommand(updatePaymentRequestStatusCommand)
 
-	getMoveTaskOrder := &cobra.Command{
+	supportGetMoveTaskOrder := &cobra.Command{
 		Use:   "support-get-move-task-order",
 		Short: "Get an individual mto",
 		Long: `
-  This command gets a single move task order by ID
-  This is a support endpoint and is not available in production.
-  It requires the caller to pass in a file using the --filename arg.
-  The file should contain path parameters and headers.
+  This command gets a single move by ID.
+  This is a support endpoint and is not available in production. It can retrieve hidden and non-Prime available moves.
+  It requires the caller to set a move ID using the --id arg.
 
   Endpoint path: /move-task-orders/{moveTaskOrderID}
-  The file should contain json as follows:
-  	{
-  	"moveTaskOrderID": <uuid string>,
-  	}
   Please see API documentation for full details on the endpoint definition.`,
 		RunE:         support.GetMTO,
 		SilenceUsage: true,
 	}
-	support.InitGetMTOFlags(getMoveTaskOrder.Flags())
-	root.AddCommand(getMoveTaskOrder)
+	support.InitGetMTOFlags(supportGetMoveTaskOrder.Flags())
+	root.AddCommand(supportGetMoveTaskOrder)
 
 	updateMTOServiceItem := &cobra.Command{
 		Use:   "update-mto-service-item",

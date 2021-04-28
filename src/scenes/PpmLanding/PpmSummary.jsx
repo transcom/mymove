@@ -110,7 +110,6 @@ export class PpmSummaryComponent extends React.Component {
     } = this.props;
     const moveStatus = get(move, 'status', 'DRAFT');
     const ppmStatus = getPPMStatus(moveStatus, ppm);
-    // eslint-disable-next-line security/detect-object-injection
     const PPMComponent = genPpmSummaryStatusComponents[ppmStatus];
     return (
       <div>
