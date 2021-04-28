@@ -33,3 +33,10 @@ export function formatDateForSwagger(dateString) {
     return formatDate(dateString, swaggerDateFormat);
   }
 }
+
+export function formatDateTime(dateString) {
+  if (dateString) {
+    const startOfDay = moment(dateString).hour(0);
+    return moment.utc(startOfDay).format();
+  }
+}

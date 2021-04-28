@@ -59,7 +59,8 @@ const columns = (isMarineCorpsUser = false) => [
     {
       id: 'requestedMoveDate',
       isFilterable: true,
-      Filter: DateSelectFilter,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter type="Date" {...props} />,
     },
   ),
   createHeader(
@@ -70,7 +71,8 @@ const columns = (isMarineCorpsUser = false) => [
     {
       id: 'submittedAt',
       isFilterable: true,
-      Filter: DateSelectFilter,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter type="DateTime" {...props} />,
     },
   ),
   createHeader(
