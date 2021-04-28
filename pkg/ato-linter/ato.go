@@ -47,7 +47,7 @@ func containsGosecDisableNoRule(comments []*ast.Comment) bool {
 		match := noSecRegex.FindStringSubmatch(comment.Text)
 
 		if match == nil {
-			return false
+			continue
 		}
 
 		if match[2] == "" {
@@ -65,7 +65,7 @@ func containsStaticcheckDisableNoRule(comments []*ast.Comment) bool {
 		match := noSecRegex.FindStringSubmatch(comment.Text)
 
 		if match == nil {
-			return false
+			continue
 		}
 
 		if match[2] == "" {
