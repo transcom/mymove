@@ -28,7 +28,6 @@ const ServiceItemCard = ({
   patchPaymentServiceItem,
   requestComplete,
   paymentServiceItemParams,
-  checked
 }) => {
   const [calculationsVisible, setCalulationsVisible] = useState(false);
 
@@ -137,7 +136,7 @@ const ServiceItemCard = ({
                 </dl>
                 {toggleCalculations}
                 <Fieldset>
-                  <div className={(styles.statusOption, { [styles.selected]: checked })}>
+                  <div className={styles.statusOption}>
                     <Radio
                       id={`approve-${id}`}
                       checked={values.status === APPROVED}
@@ -146,10 +145,9 @@ const ServiceItemCard = ({
                       label="Approve"
                       onChange={handleApprovalChange}
                       data-testid="approveRadio"
-                      checked={checked}
                     />
                   </div>
-                  <div className={(styles.statusOption, { [styles.selected]: checked })}>
+                  <div className={styles.statusOption}>
                     <Radio
                       id={`reject-${id}`}
                       checked={values.status === DENIED}
@@ -158,7 +156,6 @@ const ServiceItemCard = ({
                       label="Reject"
                       onChange={handleChange}
                       data-testid="rejectRadio"
-                      checked={checked}
                     />
 
                     {values.status === DENIED && (
@@ -224,7 +221,6 @@ ServiceItemCard.propTypes = {
   patchPaymentServiceItem: PropTypes.func.isRequired,
   requestComplete: PropTypes.bool,
   paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
-  checked: bool,
 };
 
 ServiceItemCard.defaultProps = {
@@ -234,7 +230,6 @@ ServiceItemCard.defaultProps = {
   rejectionReason: '',
   requestComplete: false,
   paymentServiceItemParams: [],
-  checked: false,
 };
 
 export default ServiceItemCard;
