@@ -95,7 +95,7 @@ func ValidateUpdateMTOAgent(agentData *updateMTOAgentData, validatorKey string) 
 		err := fmt.Errorf("validator key %s was not found in update MTO Agent validators", validatorKey)
 		return nil, err
 	}
-	err := validator.validate(agentData)
+	err := validator.Validate(agentData)
 	if err != nil {
 		return nil, err
 	}

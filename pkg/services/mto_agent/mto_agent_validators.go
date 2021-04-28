@@ -18,19 +18,21 @@ const UpdateMTOAgentPrimeValidator string = "UpdateMTOAgentPrimeValidator"
 const CreateMTOAgentPrimeValidator = "CreateMTOAgentPrimeValidator"
 
 // UpdateMTOAgentValidators is the map connecting the constant keys to the correct validator
-var UpdateMTOAgentValidators = map[string]updateMTOAgentValidator{
-	UpdateMTOAgentBasicValidator: new(basicUpdateMTOAgentValidator),
-	UpdateMTOAgentPrimeValidator: new(primeUpdateMTOAgentValidator),
+var UpdateMTOAgentValidators = map[string]UpdateMTOAgentValidator{
+	UpdateMTOAgentBasicValidator: new(BasicUpdateMTOAgentValidator),
+	UpdateMTOAgentPrimeValidator: new(PrimeUpdateMTOAgentValidator),
 }
 
-type updateMTOAgentValidator interface {
-	validate(agentData *updateMTOAgentData) error
+// UpdateMTOAgentValidator is the base interface for all MTO Agent validator types
+type UpdateMTOAgentValidator interface {
+	Validate(agentData *updateMTOAgentData) error
 }
 
-// basicUpdateMTOAgentValidator is the type for validation that should happen no matter who uses this service object
-type basicUpdateMTOAgentValidator struct{}
+// BasicUpdateMTOAgentValidator is the type for validation that should happen no matter who uses this service object
+type BasicUpdateMTOAgentValidator struct{}
 
-func (v *basicUpdateMTOAgentValidator) validate(agentData *updateMTOAgentData) error {
+// Validate performs the necessary functions for basic validation
+func (v *BasicUpdateMTOAgentValidator) Validate(agentData *updateMTOAgentData) error {
 	err := agentData.checkShipmentID()
 	if err != nil {
 		return err
@@ -44,10 +46,11 @@ func (v *basicUpdateMTOAgentValidator) validate(agentData *updateMTOAgentData) e
 	return nil
 }
 
-// primeUpdateMTOAgentValidator is the type for validation that is just for updates from the Prime contractor
-type primeUpdateMTOAgentValidator struct{}
+// PrimeUpdateMTOAgentValidator is the type for validation that is just for updates from the Prime contractor
+type PrimeUpdateMTOAgentValidator struct{}
 
-func (v *primeUpdateMTOAgentValidator) validate(agentData *updateMTOAgentData) error {
+// Validate peforms the necessary functions to validate agent data from a Prime user
+func (v *PrimeUpdateMTOAgentValidator) Validate(agentData *updateMTOAgentData) error {
 	err := agentData.checkShipmentID()
 	if err != nil {
 		return err
