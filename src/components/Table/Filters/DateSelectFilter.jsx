@@ -6,7 +6,7 @@ import SingleDatePicker from '../../../shared/JsonSchemaForm/SingleDatePicker';
 import { formatDateForSwagger, formatDateTime } from 'shared/dates';
 
 // Return function with proper type
-const DateSelectFilter = ({ type, column: { filterValue, setFilter } }) => {
+const DateSelectFilter = ({ dateTime, column: { filterValue, setFilter } }) => {
   return (
     <SingleDatePicker
       value={filterValue || ''}
@@ -14,10 +14,15 @@ const DateSelectFilter = ({ type, column: { filterValue, setFilter } }) => {
       data-testid="DateSelectFilter"
       placeholder=""
       onChange={(e) => {
-        setFilter(type === 'DateTime' ? formatDateTime(e) || undefined : formatDateForSwagger(e) || undefined); // Set undefined to remove the filter entirely
+        setFilter(dateTime ? formatDateTime(e) || undefined : formatDateForSwagger(e) || undefined); // Set undefined to remove the filter entirely
       }}
     />
   );
+};
+
+//
+DateSelectFilter.defaultProps = {
+  dateTime: false,
 };
 
 // Values come from react-table
@@ -26,7 +31,7 @@ DateSelectFilter.propTypes = {
     filterValue: PropTypes.string,
     setFilter: PropTypes.func,
   }).isRequired,
-  type: PropTypes.string.isRequired,
+  dateTime: PropTypes.bool,
 };
 
 export default DateSelectFilter;
