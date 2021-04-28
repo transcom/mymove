@@ -1,6 +1,6 @@
 import React from 'react';
 import transcomEmblem from 'shared/images/transcom-emblem.svg';
-import { Link } from 'react-router-dom';
+import { BrowserRouter as Router, Link } from 'react-router-dom';
 
 function Footer() {
   return (
@@ -21,16 +21,18 @@ function Footer() {
                     Help Me
                   </a>
                 </li>
-                <li className="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
-                  <Link className="usa-footer__primary-link" to="/accessibility">
-                    Accessibility
-                  </Link>
-                </li>
-                <li className="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
-                  <Link className="usa-footer__primary-link" to="/privacy-and-security-policy">
-                    Privacy and Security Policy
-                  </Link>
-                </li>
+                <Router>
+                  <li className="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
+                    <Link className="usa-footer__primary-link" to="/accessibility">
+                      Accessibility
+                    </Link>
+                  </li>
+                  <li className="mobile-lg:grid-col-6 desktop:grid-col-auto usa-footer__primary-content">
+                    <Link className="usa-footer__primary-link" to="/privacy-and-security-policy">
+                      Privacy and Security Policy
+                    </Link>
+                  </li>
+                </Router>
               </ul>
             </nav>
           </div>
