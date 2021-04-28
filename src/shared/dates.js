@@ -12,6 +12,7 @@ const allowedDateFormats = [
   'MMM-D-YYYY',
   'DD-MMM-YY',
   'DD MMM YYYY',
+  'YYYY-MM-DDTHH:MM:SSZ',
 ];
 
 export function parseDate(str, _format, locale = 'en') {
@@ -37,6 +38,6 @@ export function formatDateForSwagger(dateString) {
 export function formatDateTime(dateString) {
   if (dateString) {
     const startOfDay = moment(dateString).hour(0);
-    return moment.utc(startOfDay).format();
+    return moment.utc(startOfDay).format('YYYY-MM-DDTHH:MM:SSZ');
   }
 }
