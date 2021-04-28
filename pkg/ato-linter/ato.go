@@ -39,30 +39,38 @@ var validatorStatuses = map[string]bool{
 	"BAD PRACTICE":        true,
 }
 
-// check if comment group has disabling of gosec in it but it doesn't have a specific rule it is disabling
-func containsGosecDisableNoRule(comments []*ast.Comment) bool {
+func findDisabledLinter(comments []*ast.Comment) (bool, string) {
 	for _, comment := range comments {
-		noSecRegex := regexp.MustCompile(fmt.Sprintf("(?P<linter>%v) ?(?P<rule>G\\d{3})?", disableNoSec))
-
-		match := noSecRegex.FindStringSubmatch(comment.Text)
+		match := lintersRegex.FindStringSubmatch(comment.Text)
 
 		if match == nil {
 			continue
 		}
 
-		if match[2] == "" {
-			return true
-		}
+		return true, match[1]
 	}
-	return false
+
+	return false, ""
 }
 
-// check if comment group has disabling of staticcheck in it but it doesn't have a specific rule it is disabling
-func containsStaticcheckDisableNoRule(comments []*ast.Comment) bool {
-	for _, comment := range comments {
-		noSecRegex := regexp.MustCompile(fmt.Sprintf("(?P<linter>%v) ?(?P<rule>S[AT]?\\d{4})?", disableStaticcheck))
+func checkForDisabledRule(linter string, comments []*ast.Comment) bool {
+	var rulePattern string
 
-		match := noSecRegex.FindStringSubmatch(comment.Text)
+	switch linter {
+	case disableNoSec:
+		rulePattern = "G\\d{3}"
+	case disableStaticcheck:
+		rulePattern = "S[AT]?\\d{4}"
+	}
+
+	return containsDisableWithoutRule(linter, rulePattern, comments)
+}
+
+func containsDisableWithoutRule(linter string, rulePattern string, comments []*ast.Comment) bool {
+	for _, comment := range comments {
+		regex := regexp.MustCompile(fmt.Sprintf("(?P<linter>%v) ?(?P<rule>%s)?", linter, rulePattern))
+
+		match := regex.FindStringSubmatch(comment.Text)
 
 		if match == nil {
 			continue
@@ -82,20 +90,6 @@ func containsDisabledLinterWithoutAnnotation(comments []*ast.Comment) bool {
 		}
 	}
 	return true
-}
-
-func findDisabledLinter(comments []*ast.Comment) (bool, string) {
-	for _, comment := range comments {
-		match := lintersRegex.FindStringSubmatch(comment.Text)
-
-		if match == nil {
-			continue
-		}
-
-		return true, match[1]
-	}
-
-	return false, ""
 }
 
 func containsAnnotationNotApproved(comments []*ast.Comment) bool {
@@ -133,17 +127,11 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			return
 		}
 
-		if linter == disableNoSec {
-			containsDisablingGosecWithNoRule := containsGosecDisableNoRule(comments.List)
+		switch linter {
+		case disableNoSec, disableStaticcheck:
+			missingDisabledRule := checkForDisabledRule(linter, comments.List)
 
-			if containsDisablingGosecWithNoRule {
-				pass.Reportf(node.Pos(), "Please provide the rule that is being disabled")
-				return
-			}
-		} else if linter == disableStaticcheck {
-			containsDisablingStaticcheckWithNoRule := containsStaticcheckDisableNoRule(comments.List)
-
-			if containsDisablingStaticcheckWithNoRule {
+			if missingDisabledRule {
 				pass.Reportf(node.Pos(), "Please provide the rule that is being disabled")
 				return
 			}
