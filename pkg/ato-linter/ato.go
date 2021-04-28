@@ -20,6 +20,13 @@ var ATOAnalyzer = &analysis.Analyzer{
 }
 
 const disableNoSec = "#nosec"
+const disableErrcheck = "nolint:errcheck"
+
+var linters = []string{disableNoSec, disableErrcheck}
+var lintersString = strings.Join(linters, "|")
+
+var lintersRegex = regexp.MustCompile(fmt.Sprintf("(?P<linterDisabled>%v)", lintersString))
+
 const validatorStatusLabel = "RA Validator Status:"
 
 var validatorStatuses = map[string]bool{
@@ -49,7 +56,7 @@ func containsGosecDisableNoRule(comments []*ast.Comment) bool {
 	return false
 }
 
-func containsGosecNoAnnotation(comments []*ast.Comment) bool {
+func containsDisabledLinterWithoutAnnotation(comments []*ast.Comment) bool {
 	for _, comment := range comments {
 		if strings.Contains(comment.Text, validatorStatusLabel) {
 			return false
@@ -58,13 +65,18 @@ func containsGosecNoAnnotation(comments []*ast.Comment) bool {
 	return true
 }
 
-func containsNosec(comments []*ast.Comment) bool {
+func findDisabledLinter(comments []*ast.Comment) (bool, string) {
 	for _, comment := range comments {
-		if strings.Contains(comment.Text, disableNoSec) {
-			return true
+		match := lintersRegex.FindStringSubmatch(comment.Text)
+
+		if match == nil {
+			continue
 		}
+
+		return true, match[1]
 	}
-	return false
+
+	return false, ""
 }
 
 func containsAnnotationNotApproved(comments []*ast.Comment) bool {
@@ -96,22 +108,24 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	inspector.Preorder(nodeFilter, func(node ast.Node) {
 		comments := node.(*ast.CommentGroup)
-		commentsContainNosec := containsNosec(comments.List)
+		linterDisabled, linter := findDisabledLinter(comments.List)
 
-		if !commentsContainNosec {
+		if !linterDisabled {
 			return
 		}
 
-		containsDisablingGosecWithNoReason := containsGosecDisableNoRule(comments.List)
+		if linter == disableNoSec {
+			containsDisablingGosecWithNoRule := containsGosecDisableNoRule(comments.List)
 
-		if containsDisablingGosecWithNoReason {
-			pass.Reportf(node.Pos(), "Please provide the gosec rule that is being disabled")
-			return
+			if containsDisablingGosecWithNoRule {
+				pass.Reportf(node.Pos(), "Please provide the rule that is being disabled")
+				return
+			}
 		}
 
-		containsDisablingGosecNoAnnotation := containsGosecNoAnnotation(comments.List)
-		if containsDisablingGosecNoAnnotation {
-			pass.Reportf(node.Pos(), "Disabling of gosec must have an annotation associated with it. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi")
+		containsDisabledLinterWithoutAnnotation := containsDisabledLinterWithoutAnnotation(comments.List)
+		if containsDisabledLinterWithoutAnnotation {
+			pass.Reportf(node.Pos(), "Disabling of linter must have an annotation associated with it. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi")
 			return
 		}
 
