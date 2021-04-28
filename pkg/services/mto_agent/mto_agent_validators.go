@@ -145,39 +145,39 @@ func (v *updateMTOAgentData) getVerrs() error {
 // setNewMTOAgent compares newAgent and oldAgent and updates a new MTOAgent instance with all data
 // (changed and unchanged) filled in. Does not return an error, data must be checked for validation before this step.
 func (v *updateMTOAgentData) setNewMTOAgent() *models.MTOAgent {
-	dbAgent := v.oldAgent
+	agent := v.oldAgent
 
 	if v.newAgent.MTOAgentType != "" {
-		dbAgent.MTOAgentType = v.newAgent.MTOAgentType
+		agent.MTOAgentType = v.newAgent.MTOAgentType
 	}
 	if v.newAgent.FirstName != nil {
-		dbAgent.FirstName = v.newAgent.FirstName
+		agent.FirstName = v.newAgent.FirstName
 
 		if *v.newAgent.FirstName == "" {
-			dbAgent.FirstName = nil
+			agent.FirstName = nil
 		}
 	}
 	if v.newAgent.LastName != nil {
-		dbAgent.LastName = v.newAgent.LastName
+		agent.LastName = v.newAgent.LastName
 
 		if *v.newAgent.LastName == "" {
-			dbAgent.LastName = nil
+			agent.LastName = nil
 		}
 	}
 	if v.newAgent.Email != nil {
-		dbAgent.Email = v.newAgent.Email
+		agent.Email = v.newAgent.Email
 
 		if *v.newAgent.Email == "" {
-			dbAgent.Email = nil
+			agent.Email = nil
 		}
 	}
 	if v.newAgent.Phone != nil {
-		dbAgent.Phone = v.newAgent.Phone
+		agent.Phone = v.newAgent.Phone
 
 		if *v.newAgent.Phone == "" {
-			dbAgent.Phone = nil
+			agent.Phone = nil
 		}
 	}
 
-	return &dbAgent
+	return &agent
 }
