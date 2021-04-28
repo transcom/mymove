@@ -111,9 +111,9 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
 		agentData := updateMTOAgentData{
-			updatedAgent: newAgent,
-			oldAgent:     oldAgent,
-			verrs:        validate.NewErrors(),
+			newAgent: newAgent,
+			oldAgent: oldAgent,
+			verrs:    validate.NewErrors(),
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBasicValidator)
 
@@ -129,9 +129,9 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			MTOShipmentID: oldAgent.ID, // bad value
 		}
 		agentData := updateMTOAgentData{
-			updatedAgent: newAgent,
-			oldAgent:     oldAgent,
-			verrs:        validate.NewErrors(),
+			newAgent: newAgent,
+			oldAgent: oldAgent,
+			verrs:    validate.NewErrors(),
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBasicValidator)
 
@@ -151,7 +151,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 		newAgentPrime.Email = &email
 
 		agentData := updateMTOAgentData{
-			updatedAgent:        newAgentPrime,
+			newAgent:            newAgentPrime,
 			oldAgent:            oldAgentPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
@@ -170,7 +170,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
 		agentData := updateMTOAgentData{
-			updatedAgent:        newAgent,
+			newAgent:            newAgent,
 			oldAgent:            oldAgent, // this agent should not be Prime-available
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
@@ -193,7 +193,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			Phone:         &emptyString,
 		}
 		agentData := updateMTOAgentData{
-			updatedAgent:        newAgent,
+			newAgent:            newAgent,
 			oldAgent:            oldAgentPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
@@ -217,9 +217,9 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
 		agentData := updateMTOAgentData{
-			updatedAgent: newAgent,
-			oldAgent:     oldAgent,
-			verrs:        validate.NewErrors(),
+			newAgent: newAgent,
+			oldAgent: oldAgent,
+			verrs:    validate.NewErrors(),
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, "")
 

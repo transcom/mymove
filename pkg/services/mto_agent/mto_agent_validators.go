@@ -76,7 +76,7 @@ func (v *PrimeUpdateMTOAgentValidator) Validate(agentData *updateMTOAgentData) e
 
 // updateMTOAgentData represents the data needed to validate an update on an MTOAgent
 type updateMTOAgentData struct {
-	updatedAgent        models.MTOAgent
+	newAgent            models.MTOAgent
 	oldAgent            models.MTOAgent
 	availabilityChecker services.MoveTaskOrderChecker
 	verrs               *validate.Errors
@@ -84,7 +84,7 @@ type updateMTOAgentData struct {
 
 // checkShipmentID checks that the user didn't attempt to change the agent's shipment ID
 func (v *updateMTOAgentData) checkShipmentID() error {
-	if v.updatedAgent.MTOShipmentID != uuid.Nil && v.updatedAgent.MTOShipmentID != v.oldAgent.MTOShipmentID {
+	if v.newAgent.MTOShipmentID != uuid.Nil && v.newAgent.MTOShipmentID != v.oldAgent.MTOShipmentID {
 		v.verrs.Add("mtoShipmentID", "cannot be updated")
 	}
 
@@ -96,7 +96,7 @@ func (v *updateMTOAgentData) checkPrimeAvailability() error {
 	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(v.oldAgent.MTOShipment.MoveTaskOrderID)
 
 	if !isAvailable || err != nil {
-		return services.NewNotFoundError(v.updatedAgent.ID, "while looking for Prime-available MTOAgent")
+		return services.NewNotFoundError(v.newAgent.ID, "while looking for Prime-available MTOAgent")
 	}
 
 	return nil
@@ -105,8 +105,8 @@ func (v *updateMTOAgentData) checkPrimeAvailability() error {
 // checkContactInfo checks that the new agent has the minimum required contact info: First Name and one of Email or Phone
 func (v *updateMTOAgentData) checkContactInfo() error {
 	firstName := v.oldAgent.FirstName
-	if v.updatedAgent.FirstName != nil {
-		firstName = v.updatedAgent.FirstName
+	if v.newAgent.FirstName != nil {
+		firstName = v.newAgent.FirstName
 	}
 
 	// Check that we have something in the FirstName field:
@@ -115,13 +115,13 @@ func (v *updateMTOAgentData) checkContactInfo() error {
 	}
 
 	email := v.oldAgent.Email
-	if v.updatedAgent.Email != nil {
-		email = v.updatedAgent.Email
+	if v.newAgent.Email != nil {
+		email = v.newAgent.Email
 	}
 
 	phone := v.oldAgent.Phone
-	if v.updatedAgent.Phone != nil {
-		phone = v.updatedAgent.Phone
+	if v.newAgent.Phone != nil {
+		phone = v.newAgent.Phone
 	}
 
 	// Check that we have one method of contacting the agent:
@@ -136,48 +136,48 @@ func (v *updateMTOAgentData) checkContactInfo() error {
 // Should only be called after the other check methods have been called.
 func (v *updateMTOAgentData) getVerrs() error {
 	if v.verrs.HasAny() {
-		return services.NewInvalidInputError(v.updatedAgent.ID, nil, v.verrs, "Invalid input found while validating the agent.")
+		return services.NewInvalidInputError(v.newAgent.ID, nil, v.verrs, "Invalid input found while validating the agent.")
 	}
 
 	return nil
 }
 
-// setNewMTOAgent compares updatedAgent and oldAgent and updates a new MTOAgent instance with all data
+// setNewMTOAgent compares newAgent and oldAgent and updates a new MTOAgent instance with all data
 // (changed and unchanged) filled in. Does not return an error, data must be checked for validation before this step.
 func (v *updateMTOAgentData) setNewMTOAgent() *models.MTOAgent {
-	newAgent := v.oldAgent
+	dbAgent := v.oldAgent
 
-	if v.updatedAgent.MTOAgentType != "" {
-		newAgent.MTOAgentType = v.updatedAgent.MTOAgentType
+	if v.newAgent.MTOAgentType != "" {
+		dbAgent.MTOAgentType = v.newAgent.MTOAgentType
 	}
-	if v.updatedAgent.FirstName != nil {
-		newAgent.FirstName = v.updatedAgent.FirstName
+	if v.newAgent.FirstName != nil {
+		dbAgent.FirstName = v.newAgent.FirstName
 
-		if *v.updatedAgent.FirstName == "" {
-			newAgent.FirstName = nil
+		if *v.newAgent.FirstName == "" {
+			dbAgent.FirstName = nil
 		}
 	}
-	if v.updatedAgent.LastName != nil {
-		newAgent.LastName = v.updatedAgent.LastName
+	if v.newAgent.LastName != nil {
+		dbAgent.LastName = v.newAgent.LastName
 
-		if *v.updatedAgent.LastName == "" {
-			newAgent.LastName = nil
+		if *v.newAgent.LastName == "" {
+			dbAgent.LastName = nil
 		}
 	}
-	if v.updatedAgent.Email != nil {
-		newAgent.Email = v.updatedAgent.Email
+	if v.newAgent.Email != nil {
+		dbAgent.Email = v.newAgent.Email
 
-		if *v.updatedAgent.Email == "" {
-			newAgent.Email = nil
+		if *v.newAgent.Email == "" {
+			dbAgent.Email = nil
 		}
 	}
-	if v.updatedAgent.Phone != nil {
-		newAgent.Phone = v.updatedAgent.Phone
+	if v.newAgent.Phone != nil {
+		dbAgent.Phone = v.newAgent.Phone
 
-		if *v.updatedAgent.Phone == "" {
-			newAgent.Phone = nil
+		if *v.newAgent.Phone == "" {
+			dbAgent.Phone = nil
 		}
 	}
 
-	return &newAgent
+	return &dbAgent
 }
