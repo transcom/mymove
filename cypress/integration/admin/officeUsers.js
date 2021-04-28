@@ -144,6 +144,13 @@ describe('Office Users Edit Page', function () {
 
     cy.get('input[id="firstName"]').clear().type('Edit');
     cy.get('input[id="lastName"]').clear().type('CypressUser');
+    cy.get('input[id="transportationOfficeId"]').type('Camp');
+    cy.wait(5000); // we have to wait for the autocomplete to give us something
+    cy.get('div[role="tooltip"] div[role="listbox"] li')
+      .first()
+      .then(($opt) => {
+        $opt.trigger('click');
+      });
 
     // set the user to the active status they did NOT have before
     cy.get('#active').click();
