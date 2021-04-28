@@ -1,3 +1,4 @@
+/* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
@@ -176,7 +177,13 @@ export class OfficeApp extends Component {
                     firstName={officeUser.first_name}
                     handleLogout={() => {
                       logOut();
-                      LogoutUser();
+                      LogoutUser().then((res) => {
+                        // eslint-disable-next-line react/prop-types
+                        this.props.history.replace({
+                          pathname: '/sign-in',
+                          state: { hasLoggedOut: true },
+                        });
+                      });
                     }}
                   >
                     {officeUser.transportation_office && (
