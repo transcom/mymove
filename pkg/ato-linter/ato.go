@@ -21,8 +21,9 @@ var ATOAnalyzer = &analysis.Analyzer{
 
 const disableNoSec = "#nosec"
 const disableErrcheck = "nolint:errcheck"
+const disableStaticcheck = "lint:ignore"
 
-var linters = []string{disableNoSec, disableErrcheck}
+var linters = []string{disableNoSec, disableErrcheck, disableStaticcheck}
 var lintersString = strings.Join(linters, "|")
 
 var lintersRegex = regexp.MustCompile(fmt.Sprintf("(?P<linterDisabled>%v)", lintersString))
@@ -42,6 +43,24 @@ var validatorStatuses = map[string]bool{
 func containsGosecDisableNoRule(comments []*ast.Comment) bool {
 	for _, comment := range comments {
 		noSecRegex := regexp.MustCompile(fmt.Sprintf("(?P<linter>%v) ?(?P<rule>G\\d{3})?", disableNoSec))
+
+		match := noSecRegex.FindStringSubmatch(comment.Text)
+
+		if match == nil {
+			return false
+		}
+
+		if match[2] == "" {
+			return true
+		}
+	}
+	return false
+}
+
+// check if comment group has disabling of staticcheck in it but it doesn't have a specific rule it is disabling
+func containsStaticcheckDisableNoRule(comments []*ast.Comment) bool {
+	for _, comment := range comments {
+		noSecRegex := regexp.MustCompile(fmt.Sprintf("(?P<linter>%v) ?(?P<rule>S[AT]?\\d{4})?", disableStaticcheck))
 
 		match := noSecRegex.FindStringSubmatch(comment.Text)
 
@@ -118,6 +137,13 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			containsDisablingGosecWithNoRule := containsGosecDisableNoRule(comments.List)
 
 			if containsDisablingGosecWithNoRule {
+				pass.Reportf(node.Pos(), "Please provide the rule that is being disabled")
+				return
+			}
+		} else if linter == disableStaticcheck {
+			containsDisablingStaticcheckWithNoRule := containsStaticcheckDisableNoRule(comments.List)
+
+			if containsDisablingStaticcheckWithNoRule {
 				pass.Reportf(node.Pos(), "Please provide the rule that is being disabled")
 				return
 			}
