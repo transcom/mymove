@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Footer from './index.jsx';
+import Footer from './index';
 
 export default {
   title: 'Customer Components / Page Footer',
