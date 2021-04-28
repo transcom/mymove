@@ -311,20 +311,6 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
 		}
 
-		//var roles []*adminmessages.OfficeUserRole
-		//for _, role := range officeUser.User.Roles {
-		//	roleName := string(role.RoleName)
-		//	roleType := string(role.RoleType)
-		//	userRole := adminmessages.OfficeUserRole{
-		//		Name: &roleName,
-		//		RoleType: &roleType,
-		//	}
-		//
-		//	fmt.Println(roleName)
-		//
-		//	roles = append(roles, &userRole)
-		//}
-
 		params := officeuserop.UpdateOfficeUserParams{
 			HTTPRequest:  request,
 			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
