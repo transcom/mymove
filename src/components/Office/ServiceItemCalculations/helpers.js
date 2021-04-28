@@ -62,17 +62,17 @@ const billableWeight = (params) => {
   return calculation(value, label, weightBilledActualDetail, weightEstimatedDetail);
 };
 
-// mileage calculation
-const mileageZIP3 = (params) => {
+// display the first 3 digits of the ZIP code
+const mileageFirstThreeZip = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
   const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress, // take the zip 3
+    SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress,
     params,
-  )?.slice(2)} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+  )?.slice(0, 3)} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ZipDestAddress,
     params,
-  )?.slice(2)}`;
+  )?.slice(0, 3)}`;
 
   return calculation(value, label, detail);
 };
@@ -279,7 +279,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DLH:
       result = [
         billableWeight(params),
-        mileageZIP3(params),
+        mileageFirstThreeZip(params),
         baselineLinehaulPrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
@@ -289,7 +289,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.FSC:
       result = [
         billableWeight(params),
-        mileageZIP3(params),
+        mileageFirstThreeZip(params),
         fuelSurchargePrice(params),
         totalAmountRequested(totalAmount),
       ];
