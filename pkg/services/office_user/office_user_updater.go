@@ -46,7 +46,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(id uuid.UUID, payload *adminmessage
 	}
 
 	transportationOfficeID := payload.TransportationOfficeID.String()
-	if transportationOfficeID != uuid.Nil.String() {
+	if transportationOfficeID != uuid.Nil.String() && transportationOfficeID != "" {
 		transportationIDFilter := []services.QueryFilter{
 			query.NewQueryFilter("id", "=", transportationOfficeID),
 		}
