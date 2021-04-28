@@ -242,6 +242,10 @@ const sitDeliveryPrice = (params, belowLonghaulDistance = false) => {
   return calculation(value, label, ...details);
 };
 
+const sitDeliveryPriceShorthaulDifferentZIP3 = (params) => {
+  return sitDeliveryPrice(params, true);
+};
+
 const daysInSIT = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.NumberDaysSIT, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.DaysInSIT;
@@ -282,7 +286,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
       if (mileage <= LONGHAUL_MIN_DISTANCE && startZip !== endZip) {
         result = [
           billableWeight(params),
-          sitDeliveryPrice(params, true), // Display under mileage threshold
+          sitDeliveryPriceShorthaulDifferentZIP3(params), // Display under mileage threshold
           priceEscalationFactor(params),
           totalAmountRequested(totalAmount),
         ];
