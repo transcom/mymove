@@ -7,7 +7,7 @@ import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as Yup from 'yup';
 
-import ordersStyles from '../Orders/Orders.module.scss';
+import documentWrapperStyles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
 import { updateOrder } from 'services/ghcApi';
@@ -24,6 +24,13 @@ const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 
 const validationSchema = Yup.object({
   authorizedWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
+  proGearWeight: Yup.number()
+    .min(0, 'Pro-gear weight must be greater than or equal to 0')
+    .max(2000, "Enter a weight that does not go over the customer's maximum allowance"),
+  proGearWeightSpouse: Yup.number()
+    .min(0, 'Spouse pro-gear weight must be greater than or equal to 0')
+    .max(500, "Enter a weight that does not go over the customer's maximum allowance"),
+  requiredMedicalEquipmentWeight: Yup.number().min(0, 'RME weight must be greater than or equal to 0'),
 });
 
 const ServicesCounselingMoveAllowances = () => {
@@ -34,7 +41,7 @@ const ServicesCounselingMoveAllowances = () => {
   const orderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(`/moves/${moveCode}/details`);
+    history.push(`/counseling/moves/${moveCode}/details`);
   };
 
   const [mutateOrders] = useMutation(updateOrder, {
@@ -69,7 +76,16 @@ const ServicesCounselingMoveAllowances = () => {
 
   const order = Object.values(orders)?.[0];
   const onSubmit = (values) => {
-    const { grade, authorizedWeight, agency, dependentsAuthorized } = values;
+    const {
+      grade,
+      authorizedWeight,
+      agency,
+      dependentsAuthorized,
+      proGearWeight,
+      proGearWeightSpouse,
+      requiredMedicalEquipmentWeight,
+      organizationalClothingAndIndividualEquipment,
+    } = values;
     const body = {
       issueDate: order.date_issued,
       newDutyStationId: order.destinationDutyStation.id,
@@ -81,24 +97,44 @@ const ServicesCounselingMoveAllowances = () => {
       authorizedWeight: Number(authorizedWeight),
       agency,
       dependentsAuthorized,
+      proGearWeight: Number(proGearWeight),
+      proGearWeightSpouse: Number(proGearWeightSpouse),
+      requiredMedicalEquipmentWeight: Number(requiredMedicalEquipmentWeight),
+      organizationalClothingAndIndividualEquipment,
     };
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
   const { entitlement, grade, agency } = order;
-  const { authorizedWeight, dependentsAuthorized } = entitlement;
+  const {
+    authorizedWeight,
+    dependentsAuthorized,
+    proGearWeight,
+    proGearWeightSpouse,
+    requiredMedicalEquipmentWeight,
+    organizationalClothingAndIndividualEquipment,
+  } = entitlement;
 
-  const initialValues = { authorizedWeight: `${authorizedWeight}`, grade, agency, dependentsAuthorized };
+  const initialValues = {
+    authorizedWeight: `${authorizedWeight}`,
+    grade,
+    agency,
+    dependentsAuthorized,
+    proGearWeight: `${proGearWeight}`,
+    proGearWeightSpouse: `${proGearWeightSpouse}`,
+    requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
+    organizationalClothingAndIndividualEquipment,
+  };
 
   return (
-    <div className={ordersStyles.sidebar}>
+    <div className={documentWrapperStyles.sidebar}>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => (
           <form onSubmit={formik.handleSubmit}>
-            <div className={ordersStyles.orderDetails}>
-              <div className={ordersStyles.top}>
+            <div className={documentWrapperStyles.orderDetails}>
+              <div className={documentWrapperStyles.top}>
                 <Button
-                  className={ordersStyles.closeButton}
+                  className={documentWrapperStyles.closeButton}
                   data-testid="closeSidebar"
                   type="button"
                   onClick={handleClose}
@@ -106,19 +142,20 @@ const ServicesCounselingMoveAllowances = () => {
                 >
                   <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                 </Button>
-                <h2 className={ordersStyles.header} data-testid="allowances-header">
+                <h2 className={documentWrapperStyles.header} data-testid="allowances-header">
                   View Allowances
                 </h2>
               </div>
-              <div className={ordersStyles.body}>
+              <div className={documentWrapperStyles.body}>
                 <AllowancesDetailForm
                   entitlements={order.entitlement}
                   rankOptions={rankDropdownOptions}
                   branchOptions={branchDropdownOption}
+                  header="Counseling"
                 />
               </div>
-              <div className={ordersStyles.bottom}>
-                <div className={ordersStyles.buttonGroup}>
+              <div className={documentWrapperStyles.bottom}>
+                <div className={documentWrapperStyles.buttonGroup}>
                   <Button disabled={formik.isSubmitting} type="submit">
                     Save
                   </Button>
