@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import ShipmentContainer from './ShipmentContainer';
-import AllowancesTable from './AllowancesTable/AllowancesTable';
+import AllowancesList from './DefinitionLists/AllowancesList';
 import CustomerInfoTable from './CustomerInfoTable';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -219,7 +219,7 @@ describe('Shipment preview modal', () => {
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
     expect(wrapper.find(ShipmentContainer).exists()).toBe(true);
-    expect(wrapper.find(AllowancesTable).exists()).toBe(true);
+    expect(wrapper.find(AllowancesList).exists()).toBe(true);
     expect(wrapper.find(CustomerInfoTable).exists()).toBe(true);
 
     expect(wrapper.find('h4').at(0).text()).toEqual('Household goods');
@@ -243,7 +243,7 @@ describe('Shipment preview modal', () => {
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
     expect(wrapper.find(ShipmentContainer).exists()).toBe(true);
-    expect(wrapper.find(AllowancesTable).exists()).toBe(true);
+    expect(wrapper.find(AllowancesList).exists()).toBe(true);
     expect(wrapper.find(CustomerInfoTable).exists()).toBe(true);
   });
 
