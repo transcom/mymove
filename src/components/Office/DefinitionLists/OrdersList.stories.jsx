@@ -25,7 +25,7 @@ export const Basic = () => (
   />
 );
 
-export const WithMissingInfo = () => (
+export const WithSomeMissingInfo = () => (
   <OrdersList
     ordersInfo={{
       currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
@@ -36,6 +36,23 @@ export const WithMissingInfo = () => (
       ordersNumber: text('ordersInfo.ordersNumber', '999999999'),
       ordersType: text('ordersInfo.ordersType', 'PERMANENT_CHANGE_OF_STATION'),
       ordersTypeDetail: text('ordersInfo.ordersTypeDetail', 'HHG_PERMITTED'),
+      tacMDC: '',
+      sacSDN: text('ordersInfo.sacSDN', '999 999999 999'),
+    }}
+  />
+);
+
+export const WithAllPotentialMissingInfo = () => (
+  <OrdersList
+    ordersInfo={{
+      currentDutyStation: object('ordersInfo.currentDutyStation', { name: 'JBSA Lackland' }),
+      newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
+      issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
+      reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
+      departmentIndicator: '',
+      ordersNumber: '',
+      ordersType: '',
+      ordersTypeDetail: '',
       tacMDC: '',
       sacSDN: text('ordersInfo.sacSDN', '999 999999 999'),
     }}
