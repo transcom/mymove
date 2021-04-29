@@ -79,7 +79,6 @@ const ServicesCounselingMoveAllowances = () => {
   const onSubmit = (values) => {
     const {
       grade,
-      authorizedWeight,
       agency,
       dependentsAuthorized,
       proGearWeight,
@@ -95,7 +94,6 @@ const ServicesCounselingMoveAllowances = () => {
       originDutyStationId: order.originDutyStation.id,
       reportByDate: order.report_by_date,
       grade,
-      authorizedWeight: Number(authorizedWeight),
       agency,
       dependentsAuthorized,
       proGearWeight: Number(proGearWeight),
@@ -108,7 +106,6 @@ const ServicesCounselingMoveAllowances = () => {
 
   const { entitlement, grade, agency } = order;
   const {
-    authorizedWeight,
     dependentsAuthorized,
     proGearWeight,
     proGearWeightSpouse,
@@ -117,7 +114,6 @@ const ServicesCounselingMoveAllowances = () => {
   } = entitlement;
 
   const initialValues = {
-    authorizedWeight: `${authorizedWeight}`,
     grade,
     agency,
     dependentsAuthorized,
