@@ -196,7 +196,7 @@ const ServiceItemCard = ({
                       aria-label="Clear status"
                     >
                       <span className="icon">
-                        <FontAwesomeIcon icon="times" title="Clear status" />
+                        <FontAwesomeIcon icon="times" title="Clear status" alt=" " />
                       </span>
                       <span aria-hidden="true">Clear selection</span>
                     </Button>
