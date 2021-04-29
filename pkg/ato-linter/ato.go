@@ -22,8 +22,9 @@ var ATOAnalyzer = &analysis.Analyzer{
 const disableNoSec = "#nosec"
 const disableErrcheck = "nolint:errcheck"
 const disableStaticcheck = "lint:ignore"
+const disableStaticcheckFile = "lint:file-ignore"
 
-var linters = []string{disableNoSec, disableErrcheck, disableStaticcheck}
+var linters = []string{disableNoSec, disableErrcheck, disableStaticcheck, disableStaticcheckFile}
 var lintersString = strings.Join(linters, "|")
 
 var lintersRegex = regexp.MustCompile(fmt.Sprintf("(?P<linterDisabled>%v)", lintersString))
@@ -59,7 +60,7 @@ func checkForDisabledRule(linter string, comments []*ast.Comment) bool {
 	switch linter {
 	case disableNoSec:
 		rulePattern = "G\\d{3}"
-	case disableStaticcheck:
+	case disableStaticcheck, disableStaticcheckFile:
 		rulePattern = "S[AT]?\\d{4}"
 	}
 
@@ -116,37 +117,41 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	// pass.ResultOf[inspect.Analyzer] will be set if we've added inspect.Analyzer to Requires.
 	inspector := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	nodeFilter := []ast.Node{ // filter needed nodes: visit only them
-		(*ast.CommentGroup)(nil),
+		(*ast.File)(nil),
 	}
 
 	inspector.Preorder(nodeFilter, func(node ast.Node) {
-		comments := node.(*ast.CommentGroup)
-		linterDisabled, linter := findDisabledLinter(comments.List)
+		file := node.(*ast.File)
+		comments := file.Comments
 
-		if !linterDisabled {
-			return
-		}
+		for _, commentGroup := range comments {
+			linterDisabled, linter := findDisabledLinter(commentGroup.List)
 
-		switch linter {
-		case disableNoSec, disableStaticcheck:
-			missingDisabledRule := checkForDisabledRule(linter, comments.List)
-
-			if missingDisabledRule {
-				pass.Reportf(node.Pos(), "Please provide the rule that is being disabled")
-				return
+			if !linterDisabled {
+				continue
 			}
-		}
 
-		containsDisabledLinterWithoutAnnotation := containsDisabledLinterWithoutAnnotation(comments.List)
-		if containsDisabledLinterWithoutAnnotation {
-			pass.Reportf(node.Pos(), "Disabling of linter must have an annotation associated with it. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi")
-			return
-		}
+			switch linter {
+			case disableNoSec, disableStaticcheck, disableStaticcheckFile:
+				missingDisabledRule := checkForDisabledRule(linter, commentGroup.List)
 
-		containsAnnotationNotApproved := containsAnnotationNotApproved(comments.List)
-		if containsAnnotationNotApproved {
-			pass.Reportf(node.Pos(), "Annotation needs approval from an ISSO")
-			return
+				if missingDisabledRule {
+					pass.Reportf(commentGroup.Pos(), "Please provide the rule that is being disabled")
+					continue
+				}
+			}
+
+			containsDisabledLinterWithoutAnnotation := containsDisabledLinterWithoutAnnotation(commentGroup.List)
+			if containsDisabledLinterWithoutAnnotation {
+				pass.Reportf(commentGroup.Pos(), "Disabling of linter must have an annotation associated with it. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi")
+				continue
+			}
+
+			containsAnnotationNotApproved := containsAnnotationNotApproved(commentGroup.List)
+			if containsAnnotationNotApproved {
+				pass.Reportf(commentGroup.Pos(), "Annotation needs approval from an ISSO")
+				continue
+			}
 		}
 	})
 
