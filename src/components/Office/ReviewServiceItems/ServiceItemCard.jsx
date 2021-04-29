@@ -160,7 +160,7 @@ const ServiceItemCard = ({
 
                     {values.status === DENIED && (
                       <FormGroup>
-                        <Label htmlFor="rejectReason">Reason for rejection</Label>
+                        <Label htmlFor={`rejectReason-${id}`}>Reason for rejection</Label>
                         <Textarea
                           id={`rejectReason-${id}`}
                           name="rejectionReason"
@@ -193,11 +193,12 @@ const ServiceItemCard = ({
                       data-testid="clearStatusButton"
                       className={styles.clearStatus}
                       onClick={handleFormReset}
+                      aria-label="Clear status"
                     >
                       <span className="icon">
-                        <FontAwesomeIcon icon="times" title="Clear status" aria-label="Clear status" />
+                        <FontAwesomeIcon icon="times" title="Clear status" alt=" " />
                       </span>
-                      Clear selection
+                      <span aria-hidden="true">Clear selection</span>
                     </Button>
                   )}
                 </Fieldset>

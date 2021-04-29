@@ -13,7 +13,7 @@ import BypassBlock from 'components/BypassBlock';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
 import CustomerLoggedInHeader from 'containers/Headers/CustomerLoggedInHeader';
 import Alert from 'shared/Alert';
-import Footer from 'shared/Footer';
+import Footer from 'components/Customer/Footer';
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import CustomerPrivateRoute from 'containers/CustomerPrivateRoute/CustomerPrivateRoute';
