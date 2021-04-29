@@ -14,9 +14,6 @@ const BasicAgentValidatorKey string = "BasicAgentValidatorKey"
 // PrimeAgentValidatorKey is the key for validating the Agent for the Prime contractor
 const PrimeAgentValidatorKey string = "PrimeAgentValidatorKey"
 
-// CreateMTOAgentPrimeValidator is the key for validating the MTO Agent for the Prime
-const CreateMTOAgentPrimeValidator = "CreateMTOAgentPrimeValidator"
-
 // agentValidators is the map connecting the constant keys to the correct validator
 var agentValidators = map[string]AgentValidator{
 	BasicAgentValidatorKey: new(BasicAgentValidator),

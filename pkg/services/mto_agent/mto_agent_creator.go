@@ -25,7 +25,7 @@ func NewMTOAgentCreator(db *pop.Connection, mtoAvailabilityChecker services.Move
 
 // CreateMTOAgentPrime passes the Prime validator key to CreateMTOAgent
 func (f *mtoAgentCreator) CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	return f.CreateMTOAgent(mtoAgent, CreateMTOAgentPrimeValidator)
+	return f.CreateMTOAgent(mtoAgent, PrimeAgentValidatorKey)
 
 }
 
@@ -39,7 +39,7 @@ func (f *mtoAgentCreator) CreateMTOAgent(mtoAgent *models.MTOAgent, validatorKey
 		return nil, services.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
 	}
 
-	if validatorKey == CreateMTOAgentPrimeValidator {
+	if validatorKey == PrimeAgentValidatorKey {
 		var isAvailable bool
 
 		isAvailable, err = f.mtoAvailabilityChecker.MTOAvailableToPrime(mtoShipment.MoveTaskOrderID)
