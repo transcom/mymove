@@ -8,10 +8,10 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// BasicAgentValidatorKey is the key for generic validation on the MTO Agent
+// BasicAgentValidatorKey is the key for generic validation on the Agent
 const BasicAgentValidatorKey string = "BasicAgentValidatorKey"
 
-// PrimeAgentValidatorKey is the key for validating the MTO Agent for the Prime contractor
+// PrimeAgentValidatorKey is the key for validating the Agent for the Prime contractor
 const PrimeAgentValidatorKey string = "PrimeAgentValidatorKey"
 
 // CreateMTOAgentPrimeValidator is the key for validating the MTO Agent for the Prime
@@ -23,7 +23,7 @@ var agentValidators = map[string]AgentValidator{
 	PrimeAgentValidatorKey: new(PrimeAgentValidator),
 }
 
-// AgentValidator is the base interface for all MTO Agent validator types
+// AgentValidator is the base interface for all Agent validator types
 type AgentValidator interface {
 	Validate(agentData *AgentValidationData) error
 }
@@ -156,9 +156,9 @@ func (v *AgentValidationData) getVerrs() error {
 	return nil
 }
 
-// setNewMTOAgent compares newAgent and oldAgent and updates a new MTOAgent instance with all data
+// setFullAgent compares newAgent and oldAgent and updates a new MTOAgent instance with all data
 // (changed and unchanged) filled in. Does not return an error, data must be checked for validation before this step.
-func (v *AgentValidationData) setNewMTOAgent() *models.MTOAgent {
+func (v *AgentValidationData) setFullAgent() *models.MTOAgent {
 	agent := v.newAgent
 	if v.oldAgent != nil {
 		agent = *v.oldAgent

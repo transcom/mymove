@@ -166,8 +166,8 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 		suite.True(agentData.verrs.HasAny())
 	})
 
-	// Test setNewMTOAgent for successful example
-	suite.T().Run("setNewMTOAgent - success", func(t *testing.T) {
+	// Test setFullAgent for successful example
+	suite.T().Run("setFullAgent - success", func(t *testing.T) {
 		firstName := "First"
 		email := "email@email.email"
 		phone := ""
@@ -182,7 +182,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
-		newAgent := agentData.setNewMTOAgent()
+		newAgent := agentData.setFullAgent()
 
 		suite.NoVerrs(agentData.verrs)
 		suite.Equal(*newAgent.FirstName, *successAgent.FirstName)

@@ -101,7 +101,7 @@ func ValidateUpdateMTOAgent(agentData *AgentValidationData, validatorKey string)
 		return nil, err
 	}
 
-	newAgent := agentData.setNewMTOAgent()
+	newAgent := agentData.setFullAgent()
 
 	return newAgent, nil
 }
