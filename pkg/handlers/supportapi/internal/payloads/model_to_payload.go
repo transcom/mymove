@@ -41,7 +41,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         moveTaskOrder.IsCanceled(),
 		Order:              Order(&moveTaskOrder.Orders),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
 		ContractorID:       handlers.FmtUUIDPtr(moveTaskOrder.ContractorID),
