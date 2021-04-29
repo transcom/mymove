@@ -5,7 +5,7 @@ import { queryCache, useMutation } from 'react-query';
 import classnames from 'classnames';
 
 import DetailsPanel from '../../../components/Office/DetailsPanel/DetailsPanel';
-import AllowancesInfoList from '../../../components/Office/DefinitionLists/AllowancesInfoList';
+import AllowancesList from '../../../components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from '../../../components/Office/DefinitionLists/CustomerInfoList';
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
@@ -102,7 +102,7 @@ const ServicesCounselingMoveDetails = () => {
           </Grid>
           <div className={styles.section} id="allowances">
             <DetailsPanel title="Allowances">
-              <AllowancesInfoList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

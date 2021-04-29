@@ -6,7 +6,7 @@ import styles from './OfficeDefinitionLists.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatWeight, formatDaysInTransit } from 'shared/formatters';
 
-const AllowancesInfoList = ({ info }) => {
+const AllowancesList = ({ info }) => {
   const titleCase = (input) => {
     if (input && input.length > 0) {
       const friendlyInput = input.toLowerCase().replace('_', ' ').split(' ');
@@ -74,7 +74,7 @@ const AllowancesInfoList = ({ info }) => {
   );
 };
 
-AllowancesInfoList.propTypes = {
+AllowancesList.propTypes = {
   info: PropTypes.shape({
     branch: PropTypes.string,
     rank: PropTypes.string,
@@ -89,4 +89,4 @@ AllowancesInfoList.propTypes = {
   }).isRequired,
 };
 
-export default AllowancesInfoList;
+export default AllowancesList;

@@ -17,7 +17,7 @@ import { useMoveDetailsQueries } from 'hooks/queries';
 import LeftNav from 'components/LeftNav';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
-import AllowancesInfoList from 'components/Office/DefinitionLists/AllowancesInfoList';
+import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -239,7 +239,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
                 </Link>
               }
             >
-              <AllowancesInfoList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
