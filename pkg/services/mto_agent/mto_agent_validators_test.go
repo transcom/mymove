@@ -59,7 +59,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 		agentData := AgentValidationData{
 			newAgent:            newAgentPrime,
 			oldAgent:            &oldAgentPrime,
-			moveID:              oldAgentPrime.MTOShipment.MoveTaskOrderID,
+			shipment:            &oldAgentPrime.MTOShipment,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
@@ -74,7 +74,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 		agentData := AgentValidationData{
 			newAgent:            errorAgent, // the default errorAgent should not be Prime-available
 			oldAgent:            &oldAgent,
-			moveID:              oldAgent.MTOShipment.MoveTaskOrderID,
+			shipment:            &oldAgent.MTOShipment,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}

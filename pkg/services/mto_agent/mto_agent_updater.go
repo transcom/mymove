@@ -39,17 +39,16 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 	oldAgent := models.MTOAgent{}
 
 	// Find the agent, return error if not found
-	err := f.db.Eager("MTOShipment").Find(&oldAgent, mtoAgent.ID)
+	err := f.db.Eager("MTOShipment.MTOAgents").Find(&oldAgent, mtoAgent.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoAgent.ID, "while looking for MTOAgent")
 	}
 
-	checker := movetaskorder.NewMoveTaskOrderChecker(f.db)
 	agentData := AgentValidationData{
 		newAgent:            *mtoAgent,
 		oldAgent:            &oldAgent,
-		moveID:              oldAgent.MTOShipment.MoveTaskOrderID,
-		availabilityChecker: checker,
+		shipment:            &oldAgent.MTOShipment,
+		availabilityChecker: movetaskorder.NewMoveTaskOrderChecker(f.db),
 		verrs:               validate.NewErrors(),
 	}
 

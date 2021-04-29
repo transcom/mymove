@@ -155,7 +155,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			oldAgent:            &oldAgentPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			moveID:              oldAgentPrime.MTOShipment.MoveTaskOrderID,
+			shipment:            &oldAgentPrime.MTOShipment,
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, PrimeAgentValidatorKey)
 
@@ -175,7 +175,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			oldAgent:            &oldAgent, // this agent should not be Prime-available
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			moveID:              oldAgent.MTOShipment.MoveTaskOrderID,
+			shipment:            &oldAgent.MTOShipment,
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, PrimeAgentValidatorKey)
 
@@ -199,7 +199,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			oldAgent:            &oldAgentPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			moveID:              oldAgentPrime.MTOShipment.MoveTaskOrderID,
+			shipment:            &oldAgentPrime.MTOShipment,
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, PrimeAgentValidatorKey)
 

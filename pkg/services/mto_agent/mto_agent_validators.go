@@ -1,6 +1,8 @@
 package mtoagent
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -75,7 +77,7 @@ func (v *PrimeAgentValidator) Validate(agentData *AgentValidationData) error {
 type AgentValidationData struct {
 	newAgent            models.MTOAgent
 	oldAgent            *models.MTOAgent // not required for create
-	moveID              uuid.UUID
+	shipment            *models.MTOShipment
 	availabilityChecker services.MoveTaskOrderChecker
 	verrs               *validate.Errors
 }
@@ -91,18 +93,20 @@ func (v *AgentValidationData) checkShipmentID() error {
 			v.verrs.Add("mtoShipmentID", "cannot be updated")
 		}
 	}
-
 	return nil
 }
 
 // checkPrimeAvailability checks that agent is connected to a Prime-available shipment
 func (v *AgentValidationData) checkPrimeAvailability() error {
-	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(v.moveID)
+	if v.shipment == nil {
+		return services.NewNotFoundError(v.newAgent.ID, "while looking for Prime-available shipment")
+	}
+	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(v.shipment.MoveTaskOrderID)
 
 	if !isAvailable || err != nil {
-		return services.NewNotFoundError(v.newAgent.ID, "while looking for Prime-available MTOAgent")
+		return services.NewNotFoundError(
+			v.newAgent.ID, fmt.Sprintf("while looking for Prime-available shipment with id: %s", v.shipment.ID))
 	}
-
 	return nil
 }
 
@@ -139,7 +143,6 @@ func (v *AgentValidationData) checkContactInfo() error {
 	if (email == nil || *email == "") && (phone == nil || *phone == "") {
 		v.verrs.Add("contactInfo", "agent must have at least one contact method provided")
 	}
-
 	return nil
 }
 
@@ -149,7 +152,6 @@ func (v *AgentValidationData) getVerrs() error {
 	if v.verrs.HasAny() {
 		return services.NewInvalidInputError(v.newAgent.ID, nil, v.verrs, "Invalid input found while validating the agent.")
 	}
-
 	return nil
 }
 
