@@ -890,7 +890,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	})
 
 	suite.Run("returns results matching SubmittedAt date", func() {
-		submittedAtDate := strfmt.Date(time.Date(2020, 10, 29, 0, 0, 0, 0, time.UTC))
+		submittedAtDate := strfmt.DateTime(time.Date(2020, 10, 29, 0, 0, 0, 0, time.UTC))
 
 		params := queues.GetPaymentRequestsQueueParams{
 			HTTPRequest: request,

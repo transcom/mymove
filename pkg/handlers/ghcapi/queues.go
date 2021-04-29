@@ -162,6 +162,12 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 		return queues.NewGetServicesCounselingQueueForbidden()
 	}
 
+	var submittedAt *string
+	if params.SubmittedAt != nil {
+		str := params.SubmittedAt.String()
+		submittedAt = &str
+	}
+
 	ListOrderParams := services.ListOrderParams{
 		Branch:                 params.Branch,
 		Locator:                params.Locator,
@@ -169,7 +175,7 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 		LastName:               params.LastName,
 		DestinationDutyStation: params.DestinationDutyStation,
 		OriginGBLOC:            params.OriginGBLOC,
-		SubmittedAt:            params.SubmittedAt,
+		SubmittedAt:            submittedAt,
 		RequestedMoveDate:      params.RequestedMoveDate,
 		Page:                   params.Page,
 		PerPage:                params.PerPage,

@@ -1766,6 +1766,7 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date-time",
             "description": "filters the date of when the service member submitted their move",
             "name": "submittedAt",
             "in": "query"
@@ -1981,7 +1982,7 @@ func init() {
           },
           {
             "type": "string",
-            "format": "date",
+            "format": "date-time",
             "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"
@@ -6196,6 +6197,7 @@ func init() {
           },
           {
             "type": "string",
+            "format": "date-time",
             "description": "filters the date of when the service member submitted their move",
             "name": "submittedAt",
             "in": "query"
@@ -6423,7 +6425,7 @@ func init() {
           },
           {
             "type": "string",
-            "format": "date",
+            "format": "date-time",
             "description": "limit results to those matching submitted at date",
             "name": "submittedAt",
             "in": "query"

@@ -264,7 +264,7 @@ func submittedAtFilter(submittedAt *string) QueryOption {
 
 			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
 			submittedAtEnd := submittedAtStart.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
-			query.Where("moves.created_at between ? and ?", submittedAtStart.Format(time.RFC3339), submittedAtEnd.Format(time.RFC3339))
+			query.Where("payment_requests.created_at between ? and ?", submittedAtStart.Format(time.RFC3339), submittedAtEnd.Format(time.RFC3339))
 		}
 	}
 }
