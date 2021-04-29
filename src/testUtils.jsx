@@ -4,7 +4,8 @@ import { Provider } from 'react-redux';
 import { createMemoryHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
 import { Router } from 'react-router-dom';
-import { render } from '@testing-library/react'; // eslint-disable-line import/no-extraneous-dependencies
+/* eslint-disable-next-line import/no-extraneous-dependencies */
+import { render } from '@testing-library/react';
 
 import { configureStore } from 'shared/store';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
