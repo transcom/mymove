@@ -258,7 +258,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 				TransportationOfficeID: strfmt.UUID(fakeTransportationOfficeID),
 			},
 		}
-		// Find a way to FAIL on the CREATOR
+
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := CreateOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
