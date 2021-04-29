@@ -25,14 +25,14 @@ var UpdateMTOAgentValidators = map[string]UpdateMTOAgentValidator{
 
 // UpdateMTOAgentValidator is the base interface for all MTO Agent validator types
 type UpdateMTOAgentValidator interface {
-	Validate(agentData *updateMTOAgentData) error
+	Validate(agentData *AgentValidationData) error
 }
 
 // BasicUpdateMTOAgentValidator is the type for validation that should happen no matter who uses this service object
 type BasicUpdateMTOAgentValidator struct{}
 
 // Validate performs the necessary functions for basic validation
-func (v *BasicUpdateMTOAgentValidator) Validate(agentData *updateMTOAgentData) error {
+func (v *BasicUpdateMTOAgentValidator) Validate(agentData *AgentValidationData) error {
 	err := agentData.checkShipmentID()
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (v *BasicUpdateMTOAgentValidator) Validate(agentData *updateMTOAgentData) e
 type PrimeUpdateMTOAgentValidator struct{}
 
 // Validate peforms the necessary functions to validate agent data from a Prime user
-func (v *PrimeUpdateMTOAgentValidator) Validate(agentData *updateMTOAgentData) error {
+func (v *PrimeUpdateMTOAgentValidator) Validate(agentData *AgentValidationData) error {
 	err := agentData.checkShipmentID()
 	if err != nil {
 		return err
@@ -74,8 +74,8 @@ func (v *PrimeUpdateMTOAgentValidator) Validate(agentData *updateMTOAgentData) e
 	return nil
 }
 
-// updateMTOAgentData represents the data needed to validate an update on an MTOAgent
-type updateMTOAgentData struct {
+// AgentValidationData represents the data needed to validate an update on an MTOAgent
+type AgentValidationData struct {
 	newAgent            models.MTOAgent
 	oldAgent            *models.MTOAgent // not required for create
 	moveID              uuid.UUID
@@ -84,7 +84,7 @@ type updateMTOAgentData struct {
 }
 
 // checkShipmentID checks that the user didn't attempt to change the agent's shipment ID
-func (v *updateMTOAgentData) checkShipmentID() error {
+func (v *AgentValidationData) checkShipmentID() error {
 	if v.oldAgent == nil {
 		if v.newAgent.MTOShipmentID == uuid.Nil {
 			v.verrs.Add("mtoShipmentID", "shipment ID is required")
@@ -99,7 +99,7 @@ func (v *updateMTOAgentData) checkShipmentID() error {
 }
 
 // checkPrimeAvailability checks that agent is connected to a Prime-available shipment
-func (v *updateMTOAgentData) checkPrimeAvailability() error {
+func (v *AgentValidationData) checkPrimeAvailability() error {
 	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(v.moveID)
 
 	if !isAvailable || err != nil {
@@ -110,7 +110,7 @@ func (v *updateMTOAgentData) checkPrimeAvailability() error {
 }
 
 // checkContactInfo checks that the new agent has the minimum required contact info: First Name and one of Email or Phone
-func (v *updateMTOAgentData) checkContactInfo() error {
+func (v *AgentValidationData) checkContactInfo() error {
 	var firstName *string
 	var email *string
 	var phone *string
@@ -146,7 +146,7 @@ func (v *updateMTOAgentData) checkContactInfo() error {
 
 // getVerrs looks for any validation errors and returns a formatted InvalidInputError if any are found.
 // Should only be called after the other check methods have been called.
-func (v *updateMTOAgentData) getVerrs() error {
+func (v *AgentValidationData) getVerrs() error {
 	if v.verrs.HasAny() {
 		return services.NewInvalidInputError(v.newAgent.ID, nil, v.verrs, "Invalid input found while validating the agent.")
 	}
@@ -156,7 +156,7 @@ func (v *updateMTOAgentData) getVerrs() error {
 
 // setNewMTOAgent compares newAgent and oldAgent and updates a new MTOAgent instance with all data
 // (changed and unchanged) filled in. Does not return an error, data must be checked for validation before this step.
-func (v *updateMTOAgentData) setNewMTOAgent() *models.MTOAgent {
+func (v *AgentValidationData) setNewMTOAgent() *models.MTOAgent {
 	agent := *v.oldAgent
 
 	if v.newAgent.MTOAgentType != "" {

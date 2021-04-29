@@ -86,7 +86,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 }
 
 func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
-	// Set up the data needed for updateMTOAgentData obj
+	// Set up the data needed for AgentValidationData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 	oldAgentPrime := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
@@ -95,7 +95,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 
 	// Test with bad string key
 	suite.T().Run("bad validatorKey - failure", func(t *testing.T) {
-		agentData := updateMTOAgentData{}
+		agentData := AgentValidationData{}
 		fakeKey := "FakeKey"
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, fakeKey)
 
@@ -110,7 +110,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			ID:            oldAgent.ID,
 			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
-		agentData := updateMTOAgentData{
+		agentData := AgentValidationData{
 			newAgent: newAgent,
 			oldAgent: &oldAgent,
 			verrs:    validate.NewErrors(),
@@ -128,7 +128,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			ID:            oldAgent.ID,
 			MTOShipmentID: oldAgent.ID, // bad value
 		}
-		agentData := updateMTOAgentData{
+		agentData := AgentValidationData{
 			newAgent: newAgent,
 			oldAgent: &oldAgent,
 			verrs:    validate.NewErrors(),
@@ -150,7 +150,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 		newAgentPrime.FirstName = &firstName
 		newAgentPrime.Email = &email
 
-		agentData := updateMTOAgentData{
+		agentData := AgentValidationData{
 			newAgent:            newAgentPrime,
 			oldAgent:            &oldAgentPrime,
 			verrs:               validate.NewErrors(),
@@ -170,7 +170,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			ID:            oldAgent.ID,
 			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
-		agentData := updateMTOAgentData{
+		agentData := AgentValidationData{
 			newAgent:            newAgent,
 			oldAgent:            &oldAgent, // this agent should not be Prime-available
 			verrs:               validate.NewErrors(),
@@ -194,7 +194,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			Email:         &emptyString,
 			Phone:         &emptyString,
 		}
-		agentData := updateMTOAgentData{
+		agentData := AgentValidationData{
 			newAgent:            newAgent,
 			oldAgent:            &oldAgentPrime,
 			verrs:               validate.NewErrors(),
@@ -219,7 +219,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 		newAgent := models.MTOAgent{
 			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
-		agentData := updateMTOAgentData{
+		agentData := AgentValidationData{
 			newAgent: newAgent,
 			oldAgent: &oldAgent,
 			verrs:    validate.NewErrors(),

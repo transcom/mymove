@@ -45,7 +45,7 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 	}
 
 	checker := movetaskorder.NewMoveTaskOrderChecker(f.db)
-	agentData := updateMTOAgentData{
+	agentData := AgentValidationData{
 		newAgent:            *mtoAgent,
 		oldAgent:            &oldAgent,
 		moveID:              oldAgent.MTOShipment.MoveTaskOrderID,
@@ -87,7 +87,7 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 // ValidateUpdateMTOAgent checks the provided agentData struct against the validator indicated by validatorKey.
 // Defaults to base validation if the empty string is entered as the key.
 // Returns an MTOAgent that has been set up for update.
-func ValidateUpdateMTOAgent(agentData *updateMTOAgentData, validatorKey string) (*models.MTOAgent, error) {
+func ValidateUpdateMTOAgent(agentData *AgentValidationData, validatorKey string) (*models.MTOAgent, error) {
 	if validatorKey == "" {
 		validatorKey = UpdateMTOAgentBasicValidator
 	}
