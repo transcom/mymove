@@ -26,11 +26,13 @@ const validationSchema = Yup.object({
   authorizedWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
   proGearWeight: Yup.number()
     .min(0, 'Pro-gear weight must be greater than or equal to 0')
-    .max(2000, "Enter a weight that does not go over the customer's maximum allowance"),
+    .max(2000, "Enter a weight that does not go over the customer's maximum allowance")
+    .notRequired(),
   proGearWeightSpouse: Yup.number()
     .min(0, 'Spouse pro-gear weight must be greater than or equal to 0')
-    .max(500, "Enter a weight that does not go over the customer's maximum allowance"),
-  requiredMedicalEquipmentWeight: Yup.number().min(0, 'RME weight must be greater than or equal to 0'),
+    .max(500, "Enter a weight that does not go over the customer's maximum allowance")
+    .notRequired(),
+  requiredMedicalEquipmentWeight: Yup.number().min(0, 'RME weight must be greater than or equal to 0').notRequired(),
 });
 
 const ServicesCounselingMoveAllowances = () => {
