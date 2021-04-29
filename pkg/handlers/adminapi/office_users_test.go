@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -277,13 +278,12 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	updater := officeuser.NewOfficeUserUpdater(queryBuilder)
+	mockUpdater := mocks.OfficeUserUpdater{}
 	handler := UpdateOfficeUserHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		updater,
+		&mockUpdater,
 		query.NewQueryFilter,
-		usersroles.NewUsersRolesCreator(suite.DB()),
+		usersroles.NewUsersRolesCreator(suite.DB()), // a special can of worms, TODO mocked tests
 	}
 
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
@@ -318,6 +318,16 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 
+		// Mock DB update:
+		expectedInput := *officeUserUpdates // make a copy so we can ensure our expected values don't change
+		expectedOfficeUser := officeUser
+		expectedOfficeUser.FirstName = *expectedInput.FirstName
+		expectedOfficeUser.MiddleInitials = expectedInput.MiddleInitials
+		expectedOfficeUser.Telephone = *expectedInput.Telephone
+		expectedOfficeUser.TransportationOfficeID = transportationOffice.ID
+
+		mockUpdater.On("UpdateOfficeUser", officeUser.ID, &expectedInput).Return(&expectedOfficeUser, nil, nil)
+
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
 
@@ -331,7 +341,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.Equal(officeUser.Email, *okResponse.Payload.Email)       // should not have been updated
 	})
 
-	suite.T().Run("Update failes due to bad Transportation Office", func(t *testing.T) {
+	suite.T().Run("Update fails due to bad Transportation Office", func(t *testing.T) {
 		officeUserUpdates := &adminmessages.OfficeUserUpdatePayload{
 			TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
 		}
@@ -342,6 +352,9 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			OfficeUser:   officeUserUpdates,
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+
+		expectedInput := *officeUserUpdates
+		mockUpdater.On("UpdateOfficeUser", officeUser.ID, &expectedInput).Return(nil, nil, sql.ErrNoRows)
 
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserInternalServerError{}, response)
