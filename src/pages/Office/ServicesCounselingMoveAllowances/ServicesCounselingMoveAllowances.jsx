@@ -23,7 +23,6 @@ const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 
 const validationSchema = Yup.object({
-  authorizedWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
   proGearWeight: Yup.number()
     .min(0, 'Pro-gear weight must be greater than or equal to 0')
     .max(2000, "Enter a weight that does not go over the customer's maximum allowance")
