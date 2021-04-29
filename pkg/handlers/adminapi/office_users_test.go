@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
-	transportationOfficeID, _ := uuid.NewV4()
+	transportationOfficeID, _ := uuid.FromString("9bcdf7fb-9bdc-4f1f-9d07-8b7520c9f3fd")
 	officeUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 	userID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
 	officeUser := models.OfficeUser{
