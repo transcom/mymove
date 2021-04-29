@@ -112,7 +112,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 		}
 		agentData := updateMTOAgentData{
 			newAgent: newAgent,
-			oldAgent: oldAgent,
+			oldAgent: &oldAgent,
 			verrs:    validate.NewErrors(),
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBasicValidator)
@@ -130,7 +130,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 		}
 		agentData := updateMTOAgentData{
 			newAgent: newAgent,
-			oldAgent: oldAgent,
+			oldAgent: &oldAgent,
 			verrs:    validate.NewErrors(),
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBasicValidator)
@@ -152,9 +152,10 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 
 		agentData := updateMTOAgentData{
 			newAgent:            newAgentPrime,
-			oldAgent:            oldAgentPrime,
+			oldAgent:            &oldAgentPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
+			moveID:              oldAgentPrime.MTOShipment.MoveTaskOrderID,
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentPrimeValidator)
 
@@ -171,9 +172,10 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 		}
 		agentData := updateMTOAgentData{
 			newAgent:            newAgent,
-			oldAgent:            oldAgent, // this agent should not be Prime-available
+			oldAgent:            &oldAgent, // this agent should not be Prime-available
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
+			moveID:              oldAgent.MTOShipment.MoveTaskOrderID,
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentPrimeValidator)
 
@@ -194,9 +196,10 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 		}
 		agentData := updateMTOAgentData{
 			newAgent:            newAgent,
-			oldAgent:            oldAgentPrime,
+			oldAgent:            &oldAgentPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
+			moveID:              oldAgentPrime.MTOShipment.MoveTaskOrderID,
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentPrimeValidator)
 
@@ -218,7 +221,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 		}
 		agentData := updateMTOAgentData{
 			newAgent: newAgent,
-			oldAgent: oldAgent,
+			oldAgent: &oldAgent,
 			verrs:    validate.NewErrors(),
 		}
 		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, "")

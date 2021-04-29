@@ -77,15 +77,22 @@ func (v *PrimeUpdateMTOAgentValidator) Validate(agentData *updateMTOAgentData) e
 // updateMTOAgentData represents the data needed to validate an update on an MTOAgent
 type updateMTOAgentData struct {
 	newAgent            models.MTOAgent
-	oldAgent            models.MTOAgent
+	oldAgent            *models.MTOAgent // not required for create
+	moveID              uuid.UUID
 	availabilityChecker services.MoveTaskOrderChecker
 	verrs               *validate.Errors
 }
 
 // checkShipmentID checks that the user didn't attempt to change the agent's shipment ID
 func (v *updateMTOAgentData) checkShipmentID() error {
-	if v.newAgent.MTOShipmentID != uuid.Nil && v.newAgent.MTOShipmentID != v.oldAgent.MTOShipmentID {
-		v.verrs.Add("mtoShipmentID", "cannot be updated")
+	if v.oldAgent == nil {
+		if v.newAgent.MTOShipmentID == uuid.Nil {
+			v.verrs.Add("mtoShipmentID", "shipment ID is required")
+		}
+	} else {
+		if v.newAgent.MTOShipmentID != uuid.Nil && v.newAgent.MTOShipmentID != v.oldAgent.MTOShipmentID {
+			v.verrs.Add("mtoShipmentID", "cannot be updated")
+		}
 	}
 
 	return nil
@@ -93,7 +100,7 @@ func (v *updateMTOAgentData) checkShipmentID() error {
 
 // checkPrimeAvailability checks that agent is connected to a Prime-available shipment
 func (v *updateMTOAgentData) checkPrimeAvailability() error {
-	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(v.oldAgent.MTOShipment.MoveTaskOrderID)
+	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(v.moveID)
 
 	if !isAvailable || err != nil {
 		return services.NewNotFoundError(v.newAgent.ID, "while looking for Prime-available MTOAgent")
@@ -104,24 +111,29 @@ func (v *updateMTOAgentData) checkPrimeAvailability() error {
 
 // checkContactInfo checks that the new agent has the minimum required contact info: First Name and one of Email or Phone
 func (v *updateMTOAgentData) checkContactInfo() error {
-	firstName := v.oldAgent.FirstName
+	var firstName *string
+	var email *string
+	var phone *string
+
+	if v.oldAgent != nil {
+		firstName = v.oldAgent.FirstName
+		email = v.oldAgent.Email
+		phone = v.oldAgent.Phone
+	}
+
 	if v.newAgent.FirstName != nil {
 		firstName = v.newAgent.FirstName
+	}
+	if v.newAgent.Email != nil {
+		email = v.newAgent.Email
+	}
+	if v.newAgent.Phone != nil {
+		phone = v.newAgent.Phone
 	}
 
 	// Check that we have something in the FirstName field:
 	if firstName == nil || *firstName == "" {
 		v.verrs.Add("firstName", "cannot be blank")
-	}
-
-	email := v.oldAgent.Email
-	if v.newAgent.Email != nil {
-		email = v.newAgent.Email
-	}
-
-	phone := v.oldAgent.Phone
-	if v.newAgent.Phone != nil {
-		phone = v.newAgent.Phone
 	}
 
 	// Check that we have one method of contacting the agent:
@@ -145,7 +157,7 @@ func (v *updateMTOAgentData) getVerrs() error {
 // setNewMTOAgent compares newAgent and oldAgent and updates a new MTOAgent instance with all data
 // (changed and unchanged) filled in. Does not return an error, data must be checked for validation before this step.
 func (v *updateMTOAgentData) setNewMTOAgent() *models.MTOAgent {
-	agent := v.oldAgent
+	agent := *v.oldAgent
 
 	if v.newAgent.MTOAgentType != "" {
 		agent.MTOAgentType = v.newAgent.MTOAgentType

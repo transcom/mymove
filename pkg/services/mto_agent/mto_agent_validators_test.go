@@ -23,7 +23,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 	suite.T().Run("checkShipmentID - success", func(t *testing.T) {
 		agentData := updateMTOAgentData{
 			newAgent:            successAgent, // as-is, should succeed
-			oldAgent:            oldAgent,
+			oldAgent:            &oldAgent,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
@@ -38,7 +38,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 		errorAgent.MTOShipmentID = oldAgent.ID // set an invalid ID value
 		agentData := updateMTOAgentData{
 			newAgent:            errorAgent,
-			oldAgent:            oldAgent,
+			oldAgent:            &oldAgent,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
@@ -58,7 +58,8 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 
 		agentData := updateMTOAgentData{
 			newAgent:            newAgentPrime,
-			oldAgent:            oldAgentPrime,
+			oldAgent:            &oldAgentPrime,
+			moveID:              oldAgentPrime.MTOShipment.MoveTaskOrderID,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
@@ -72,7 +73,8 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 	suite.T().Run("checkPrimeAvailability - failure", func(t *testing.T) {
 		agentData := updateMTOAgentData{
 			newAgent:            errorAgent, // the default errorAgent should not be Prime-available
-			oldAgent:            oldAgent,
+			oldAgent:            &oldAgent,
+			moveID:              oldAgent.MTOShipment.MoveTaskOrderID,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
@@ -97,7 +99,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 
 		agentData := updateMTOAgentData{
 			newAgent:            successAgent,
-			oldAgent:            oldAgent,
+			oldAgent:            &oldAgent,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
@@ -119,7 +121,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 
 		agentData := updateMTOAgentData{
 			newAgent:            errorAgent,
-			oldAgent:            oldAgent,
+			oldAgent:            &oldAgent,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
@@ -135,7 +137,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 	suite.T().Run("getVerrs - success", func(t *testing.T) {
 		agentData := updateMTOAgentData{
 			newAgent:            successAgent, // as-is, should succeed
-			oldAgent:            oldAgent,
+			oldAgent:            &oldAgent,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
@@ -151,7 +153,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 	suite.T().Run("getVerrs - failure", func(t *testing.T) {
 		agentData := updateMTOAgentData{
 			newAgent:            errorAgent, // as-is, should fail
-			oldAgent:            oldAgent,
+			oldAgent:            &oldAgent,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
@@ -176,7 +178,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 
 		agentData := updateMTOAgentData{
 			newAgent:            successAgent,
-			oldAgent:            oldAgent,
+			oldAgent:            &oldAgent,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}

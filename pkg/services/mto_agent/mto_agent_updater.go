@@ -47,7 +47,8 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 	checker := movetaskorder.NewMoveTaskOrderChecker(f.db)
 	agentData := updateMTOAgentData{
 		newAgent:            *mtoAgent,
-		oldAgent:            oldAgent,
+		oldAgent:            &oldAgent,
+		moveID:              oldAgent.MTOShipment.MoveTaskOrderID,
 		availabilityChecker: checker,
 		verrs:               validate.NewErrors(),
 	}
