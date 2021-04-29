@@ -248,10 +248,10 @@ func submittedAtFilter(submittedAt *string) QueryOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
 			submittedAtStart, _ := time.Parse(time.RFC3339, *submittedAt)
-			submittedAtEnd := submittedAtStart.AddDate(0, 0, 1)
-			query.Where("moves.created_at between ? and ?", submittedAtStart.Format(time.RFC3339), submittedAtEnd.Format(time.RFC3339))
-			// Use a timezone that is +UTC and at midnight
-			// Test endpoints of the ranges to make sure it excludes right before and right after
+
+			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
+			submittedAtEnd := submittedAtStart.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
+			query.Where("moves.submitted_at between ? and ?", submittedAtStart.Format(time.RFC3339), submittedAtEnd.Format(time.RFC3339))
 		}
 	}
 }
