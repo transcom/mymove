@@ -65,7 +65,7 @@ MaskedTextField.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   defaultValue: PropTypes.string,
-  mask: PropTypes.string,
+  mask: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   blocks: PropTypes.oneOfType([PropTypes.object]),
   lazy: PropTypes.bool,
   warning: PropTypes.string,
