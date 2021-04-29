@@ -841,7 +841,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		},
 	})
 
-	createdAtTime, _ := time.Parse("2006-01-02", "2020-10-29")
+	createdAtTime := time.Date(2020, 10, 29, 0, 0, 0, 0, time.UTC)
+	//createdAtTime, _ := time.Parse("2006-01-02", "2020-10-29")
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			CreatedAt: createdAtTime,
