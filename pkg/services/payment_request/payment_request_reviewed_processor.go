@@ -26,7 +26,7 @@ type GexSendError struct {
 }
 
 func (e GexSendError) Error() string {
-	return fmt.Sprintf("error sending the following EDI (PaymentRequest.ID: %s) to Syncada: %s", e.paymentRequestID, e.err.Error())
+	return fmt.Sprintf("error sending the following EDI (PaymentRequest.ID: %s) to GEX: %s", e.paymentRequestID, e.err.Error())
 }
 
 type paymentRequestReviewedProcessor struct {
