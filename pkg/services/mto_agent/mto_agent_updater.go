@@ -26,12 +26,12 @@ func NewMTOAgentUpdater(db *pop.Connection) services.MTOAgentUpdater {
 
 // UpdateMTOAgentBasic updates the MTO Agent using base validators
 func (f *mtoAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.UpdateMTOAgent(mtoAgent, eTag, UpdateMTOAgentBasicValidator)
+	return f.UpdateMTOAgent(mtoAgent, eTag, BasicAgentValidatorKey)
 }
 
 // UpdateMTOAgentPrime updates the MTO Agent using Prime API validators
 func (f *mtoAgentUpdater) UpdateMTOAgentPrime(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.UpdateMTOAgent(mtoAgent, eTag, UpdateMTOAgentPrimeValidator)
+	return f.UpdateMTOAgent(mtoAgent, eTag, PrimeAgentValidatorKey)
 }
 
 // UpdateMTOAgent updates the MTO Agent
@@ -89,9 +89,9 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 // Returns an MTOAgent that has been set up for update.
 func ValidateUpdateMTOAgent(agentData *AgentValidationData, validatorKey string) (*models.MTOAgent, error) {
 	if validatorKey == "" {
-		validatorKey = UpdateMTOAgentBasicValidator
+		validatorKey = BasicAgentValidatorKey
 	}
-	validator, ok := UpdateMTOAgentValidators[validatorKey]
+	validator, ok := agentValidators[validatorKey]
 	if !ok {
 		err := fmt.Errorf("validator key %s was not found in update MTO Agent validators", validatorKey)
 		return nil, err

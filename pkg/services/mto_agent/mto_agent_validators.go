@@ -8,31 +8,31 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// UpdateMTOAgentBasicValidator is the key for generic validation on the MTO Agent
-const UpdateMTOAgentBasicValidator string = "UpdateMTOAgentBasicValidator"
+// BasicAgentValidatorKey is the key for generic validation on the MTO Agent
+const BasicAgentValidatorKey string = "BasicAgentValidatorKey"
 
-// UpdateMTOAgentPrimeValidator is the key for validating the MTO Agent for the Prime contractor
-const UpdateMTOAgentPrimeValidator string = "UpdateMTOAgentPrimeValidator"
+// PrimeAgentValidatorKey is the key for validating the MTO Agent for the Prime contractor
+const PrimeAgentValidatorKey string = "PrimeAgentValidatorKey"
 
 // CreateMTOAgentPrimeValidator is the key for validating the MTO Agent for the Prime
 const CreateMTOAgentPrimeValidator = "CreateMTOAgentPrimeValidator"
 
-// UpdateMTOAgentValidators is the map connecting the constant keys to the correct validator
-var UpdateMTOAgentValidators = map[string]UpdateMTOAgentValidator{
-	UpdateMTOAgentBasicValidator: new(BasicUpdateMTOAgentValidator),
-	UpdateMTOAgentPrimeValidator: new(PrimeUpdateMTOAgentValidator),
+// agentValidators is the map connecting the constant keys to the correct validator
+var agentValidators = map[string]AgentValidator{
+	BasicAgentValidatorKey: new(BasicAgentValidator),
+	PrimeAgentValidatorKey: new(PrimeAgentValidator),
 }
 
-// UpdateMTOAgentValidator is the base interface for all MTO Agent validator types
-type UpdateMTOAgentValidator interface {
+// AgentValidator is the base interface for all MTO Agent validator types
+type AgentValidator interface {
 	Validate(agentData *AgentValidationData) error
 }
 
-// BasicUpdateMTOAgentValidator is the type for validation that should happen no matter who uses this service object
-type BasicUpdateMTOAgentValidator struct{}
+// BasicAgentValidator is the type for validation that should happen no matter who uses this service object
+type BasicAgentValidator struct{}
 
 // Validate performs the necessary functions for basic validation
-func (v *BasicUpdateMTOAgentValidator) Validate(agentData *AgentValidationData) error {
+func (v *BasicAgentValidator) Validate(agentData *AgentValidationData) error {
 	err := agentData.checkShipmentID()
 	if err != nil {
 		return err
@@ -46,11 +46,11 @@ func (v *BasicUpdateMTOAgentValidator) Validate(agentData *AgentValidationData) 
 	return nil
 }
 
-// PrimeUpdateMTOAgentValidator is the type for validation that is just for updates from the Prime contractor
-type PrimeUpdateMTOAgentValidator struct{}
+// PrimeAgentValidator is the type for validation that is just for updates from the Prime contractor
+type PrimeAgentValidator struct{}
 
 // Validate peforms the necessary functions to validate agent data from a Prime user
-func (v *PrimeUpdateMTOAgentValidator) Validate(agentData *AgentValidationData) error {
+func (v *PrimeAgentValidator) Validate(agentData *AgentValidationData) error {
 	err := agentData.checkShipmentID()
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func (v *PrimeUpdateMTOAgentValidator) Validate(agentData *AgentValidationData) 
 	return nil
 }
 
-// AgentValidationData represents the data needed to validate an update on an MTOAgent
+// AgentValidationData represents the data needed to validate an Agent before a create/update action
 type AgentValidationData struct {
 	newAgent            models.MTOAgent
 	oldAgent            *models.MTOAgent // not required for create
