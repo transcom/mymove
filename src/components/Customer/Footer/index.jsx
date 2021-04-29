@@ -1,7 +1,6 @@
 import React from 'react';
-import Link from 'react-router-dom';
-
 import transcomEmblem from 'shared/images/transcom-emblem.svg';
+import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
