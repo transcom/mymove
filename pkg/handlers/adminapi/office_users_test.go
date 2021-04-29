@@ -299,7 +299,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	request := suite.AuthenticateUserRequest(httptest.NewRequest("PUT", endpoint, nil), requestUser)
 
 	suite.T().Run("Office user is successfully updated", func(t *testing.T) {
-		transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+		transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{Stub: true})
 		firstName := "Riley"
 		middleInitials := "RB"
 		telephone := "865-555-5309"
