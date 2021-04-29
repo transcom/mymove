@@ -10,7 +10,15 @@ import '../src/icons';
 export const parameters = {
   options: {
     storySort: {
-      order: ['Global', 'Components', 'Office Components', 'Customer Components', 'Customer Pages', 'Samples', 'Scenes',],
+      order: [
+        'Global',
+        'Components',
+        'Office Components',
+        'Customer Components',
+        'Customer Pages',
+        'Samples',
+        'Scenes',
+      ],
     },
   },
 };
