@@ -181,13 +181,9 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
-	transportationOfficeID, _ := uuid.FromString("9bcdf7fb-9bdc-4f1f-9d07-8b7520c9f3fd")
-	officeUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
-	userID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
+	transportationOfficeID := testdatagen.MakeDefaultTransportationOffice(suite.DB()).ID
 	officeUser := models.OfficeUser{
-		ID:                     officeUserID,
 		TransportationOfficeID: transportationOfficeID,
-		UserID:                 &userID,
 		Active:                 true,
 	}
 
@@ -209,9 +205,10 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		params := officeuserop.CreateOfficeUserParams{
 			HTTPRequest: req,
 			OfficeUser: &adminmessages.OfficeUserCreatePayload{
-				FirstName: officeUser.FirstName,
-				LastName:  officeUser.LastName,
-				Telephone: officeUser.Telephone,
+				FirstName: "Sam",
+				LastName:  "Cook",
+				Telephone: "555-555-5555",
+				Email:     "fakeemail@gmail.com",
 				Roles: []*adminmessages.OfficeUserRole{
 					{
 						Name:     &tooRoleName,
@@ -222,10 +219,9 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 						RoleType: &tioRoleType,
 					},
 				},
-				TransportationOfficeID: strfmt.UUID(officeUser.TransportationOfficeID.String()),
+				TransportationOfficeID: strfmt.UUID(transportationOfficeID.String()),
 			},
 		}
-
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := CreateOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -233,7 +229,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			query.NewQueryFilter,
 			usersroles.NewUsersRolesCreator(suite.DB()),
 		}
-
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.CreateOfficeUserCreated{}, response)
 	})
