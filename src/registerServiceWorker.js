@@ -72,8 +72,8 @@ function registerValidSW(swUrl) {
       // RA: This console displays an error message when registering a valid service worker fails.
       // RA: TODO: The possible values of this error need to be investigated further to determine mitigation actions.
       // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5595
-      // RA Developer Status:
-      // RA Validator Status: Known Issue
+      // RA Developer Status: Known Issue
+      // RA Validator Status:
       // RA Modified Severity: CAT II
       // eslint-disable-next-line no-console
       console.error('Error during service worker registration:', error);
