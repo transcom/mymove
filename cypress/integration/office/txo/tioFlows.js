@@ -6,6 +6,9 @@ const completeServiceItemCard = ($serviceItem, approve = false) => {
     const inputEl = $serviceItem.find('input[data-testid="rejectRadio"]');
     const id = inputEl.attr('id');
     cy.get(`label[for="${id}"]`).click();
+
+    cy.get('textarea[data-testid="textarea"]').type('This is not a valid request');
+
     cy.wrap($serviceItem).contains('Save').click();
   } else {
     const inputEl = $serviceItem.find('input[data-testid="approveRadio"]');
@@ -38,20 +41,38 @@ describe('TIO user', () => {
   });
 
   // This test performs a mutation so it can only succeed on a fresh DB.
-  it('can review a payment request', () => {
+  it('can use a payment request page to update orders and review a payment request', () => {
     const paymentRequestId = 'ea945ab7-099a-4819-82de-6968efe131dc';
 
     // TIO Payment Requests queue
     cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
-    cy.get('[data-uuid="' + paymentRequestId + '"]').click();
+    cy.get('#locator').type('TIOFLO');
+    cy.get('th[data-testid="locator"]').first().click();
+    cy.get('[data-testid="locator-0"]').click();
 
     // Payment Requests page
     cy.url().should('include', `/payment-requests`);
     cy.wait(['@getMovePaymentRequests']);
     cy.get('[data-testid="MovePaymentRequests"]');
+
+    // View Orders page
+    cy.contains('View orders').click();
+
+    cy.get('form').within(($form) => {
+      cy.get('input[name="tac"]').click().clear().type('F123');
+      cy.get('input[name="sac"]').click().clear().type('4K988AS098F');
+      // Edit orders page | Save
+      cy.get('button').contains('Save').click();
+    });
+
+    cy.url().should('include', `/details`);
+
+    cy.contains('Payment requests').click();
+
+    // Payment Requests page
+    cy.url().should('include', `/payment-requests`);
     cy.contains('Review service items').click();
 
-    // Retaining these tests as comments so that they can be reactivated for service item review flow
     // Payment Request detail page
     cy.url().should('include', `/payment-requests/${paymentRequestId}`);
     cy.wait(['@getPaymentRequest']);
@@ -96,5 +117,51 @@ describe('TIO user', () => {
     cy.get('[data-uuid="' + paymentRequestId + '"]').within(() => {
       cy.get('td').eq(2).contains('Reviewed');
     });
+  });
+
+  // This test performs a mutation so it can only succeed on a fresh DB.
+  // This is a stripped down version of the above to build tests on for MB-7936
+  it('can review a payment request', () => {
+    const paymentRequestId = 'ea945ab7-099a-4819-82de-6968efe131dc';
+
+    // TIO Payment Requests queue
+    cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
+    cy.get('[data-uuid="' + paymentRequestId + '"]').click();
+
+    // Payment Requests page
+    cy.wait(['@getMovePaymentRequests']);
+    cy.contains('Review service items').click();
+
+    // Payment Request detail page
+    cy.wait(['@getPaymentRequest']);
+
+    // Approve the first service item
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, true);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.contains('Next').click();
+
+    // Reject the second
+    cy.get('[data-testid="ServiceItemCard"]').each((el) => {
+      completeServiceItemCard(el, false);
+    });
+    cy.wait('@patchPaymentServiceItemStatus');
+    cy.contains('Next').click();
+
+    // Complete Request
+    cy.contains('Complete request');
+
+    cy.contains('Authorize payment').click();
+    cy.wait('@patchPaymentRequestStatus');
+
+    // Returns to payment requests overview for move
+    cy.wait(['@getMovePaymentRequests']);
+    cy.get('[data-testid="MovePaymentRequests"]');
+
+    // Go back to queue
+    cy.get('a[title="Home"]').click();
+
+    cy.contains('Payment requests', { matchCase: false });
   });
 });

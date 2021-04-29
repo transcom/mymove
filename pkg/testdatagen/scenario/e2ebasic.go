@@ -1778,6 +1778,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	mto7 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
+			Locator:            "TIOFLO",
 			OrdersID:           orders7.ID,
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
