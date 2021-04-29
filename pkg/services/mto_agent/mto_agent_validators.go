@@ -115,12 +115,14 @@ func (v *AgentValidationData) checkContactInfo() error {
 	var email *string
 	var phone *string
 
+	// Set any pre-existing values as the baseline:
 	if v.oldAgent != nil {
 		firstName = v.oldAgent.FirstName
 		email = v.oldAgent.Email
 		phone = v.oldAgent.Phone
 	}
 
+	// Override pre-existing values with anything sent in for the update/create:
 	if v.newAgent.FirstName != nil {
 		firstName = v.newAgent.FirstName
 	}
@@ -157,7 +159,10 @@ func (v *AgentValidationData) getVerrs() error {
 // setNewMTOAgent compares newAgent and oldAgent and updates a new MTOAgent instance with all data
 // (changed and unchanged) filled in. Does not return an error, data must be checked for validation before this step.
 func (v *AgentValidationData) setNewMTOAgent() *models.MTOAgent {
-	agent := *v.oldAgent
+	agent := v.newAgent
+	if v.oldAgent != nil {
+		agent = *v.oldAgent
+	}
 
 	if v.newAgent.MTOAgentType != "" {
 		agent.MTOAgentType = v.newAgent.MTOAgentType
