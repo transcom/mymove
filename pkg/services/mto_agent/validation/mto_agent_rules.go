@@ -34,6 +34,34 @@ func (v *AgentValidationData) checkShipmentID() error {
 	return nil
 }
 
+// checkAgentType checks that there is, at most, one RELEASING and one RECEIVING agent (each) on a shipment.
+// It also checks that we're not adding more than the max number of agents.
+// NOTE: You need to make sure MTOShipment.MTOAgents is populated for the results of this check to be accurate.
+func (v *AgentValidationData) checkAgentType() error {
+	if v.NewAgent.MTOAgentType == "" {
+		return nil // We don't need to check the MTOAgentType if it's not being updated
+	}
+
+	agents := v.Shipment.MTOAgents
+	maxAgents := 2
+	if len(agents) >= maxAgents && v.NewAgent.ID == uuid.Nil { // a nil UUID here means we're creating a new agent
+		return services.NewConflictError(
+			v.Shipment.ID, fmt.Sprintf("This shipment already has %d agents - no more can be added.", maxAgents))
+	}
+
+	for _, agent := range agents {
+		if agent.ID == v.NewAgent.ID {
+			continue // since we're looking at the same agent, there's no need to check anything else here
+		}
+
+		if agent.MTOAgentType == v.NewAgent.MTOAgentType {
+			return services.NewConflictError(
+				v.NewAgent.ID, fmt.Sprintf("There is already an agent with type %s on the shipment", v.NewAgent.MTOAgentType))
+		}
+	}
+	return nil
+}
+
 // checkPrimeAvailability checks that agent is connected to a Prime-available Shipment
 func (v *AgentValidationData) checkPrimeAvailability() error {
 	if v.Shipment == nil {

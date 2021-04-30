@@ -3,6 +3,10 @@ package mtoagentvalidate
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -194,5 +198,108 @@ func (suite *MTOAgentValidationServiceSuite) TestAgentValidationData() {
 		suite.NotNil(oldAgent.Phone)
 		suite.NotNil(agentData.OldAgent.Phone)
 		suite.Equal(*oldAgent.Phone, *agentData.OldAgent.Phone)
+	})
+}
+
+func (suite *MTOAgentValidationServiceSuite) TestAgentValidationData_checkAgentType() {
+	// Set up - no need to create real DB records, we just need models:
+	randomUUID, _ := uuid.NewV4()
+	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Stub: true})
+	oldAgent := models.MTOAgent{
+		ID:            randomUUID,
+		MTOShipmentID: shipment.ID,
+		MTOShipment:   shipment,
+		MTOAgentType:  models.MTOAgentReceiving,
+	}
+	shipment.MTOAgents = models.MTOAgents{
+		oldAgent,
+	}
+
+	suite.T().Run("SUCCESS - MTOAgentType was not changed", func(t *testing.T) {
+		lastName := "Baker"
+		agentData := AgentValidationData{
+			NewAgent: models.MTOAgent{
+				LastName: &lastName,
+			},
+			Verrs: validate.NewErrors(),
+		}
+
+		err := agentData.checkAgentType()
+		suite.NoError(err, "Unexpected error from checkAgentType with unchanged MTOAgentType")
+
+		err = agentData.getVerrs()
+		suite.NoError(err, "Unexpected validation error with unchanged MTOAgentType")
+	})
+
+	suite.T().Run("SUCCESS - MTOAgentType was changed to valid type", func(t *testing.T) {
+		agentData := AgentValidationData{
+			NewAgent: models.MTOAgent{
+				ID:           oldAgent.ID,
+				MTOAgentType: models.MTOAgentReleasing, // oldAgent is RECEIVING, so we're switching types
+			},
+			OldAgent: &oldAgent,
+			Shipment: &shipment,
+			Verrs:    validate.NewErrors(),
+		}
+
+		err := agentData.checkAgentType()
+		suite.NoError(err, "Unexpected error from checkAgentType with new MTOAgentType")
+
+		err = agentData.getVerrs()
+		suite.NoError(err, "Unexpected validation error with new MTOAgentType")
+	})
+
+	suite.T().Run("FAIL - Shipment already has another agent with the same type", func(t *testing.T) {
+		agentData := AgentValidationData{
+			NewAgent: models.MTOAgent{
+				// No ID because we're simulating a create
+				MTOAgentType: models.MTOAgentReceiving, // oldAgent is RECEIVING, so this is the same type
+			},
+			// No old agent because this is for creating a new agent
+			Shipment: &shipment,
+			Verrs:    validate.NewErrors(),
+		}
+
+		err := agentData.checkAgentType()
+		suite.Error(err, "Unexpectedly no error from checkAgentType with duplicated MTOAgentType")
+		suite.IsType(services.ConflictError{}, err)
+		suite.NoVerrs(agentData.Verrs)
+
+		if err != nil {
+			suite.Contains(err.Error(), models.MTOAgentReceiving)
+		}
+	})
+
+	suite.T().Run("FAIL - Shipment already has the max number of agents", func(t *testing.T) {
+		maxedShipment := shipment // Copy the shipment so we don't affect other tests
+		secondAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+			MTOAgent: models.MTOAgent{
+				MTOShipmentID: maxedShipment.ID,
+				MTOShipment:   maxedShipment,
+				MTOAgentType:  models.MTOAgentReleasing,
+			},
+		})
+		maxedShipment.MTOAgents = append(maxedShipment.MTOAgents, secondAgent)
+		suite.Len(maxedShipment.MTOAgents, 2)
+
+		agentData := AgentValidationData{
+			NewAgent: models.MTOAgent{
+				// No ID because we're simulating a create
+				MTOAgentType: models.MTOAgentReceiving, // value doesn't matter, but we need one to validate
+			},
+			// No old agent because this is for creating a new agent
+			Shipment: &maxedShipment,
+			Verrs:    validate.NewErrors(),
+		}
+
+		err := agentData.checkAgentType()
+		suite.Error(err, "Unexpectedly no error from checkAgentType with max number of agents")
+		suite.IsType(services.ConflictError{}, err)
+		suite.NoVerrs(agentData.Verrs)
+
+		if err != nil {
+			suite.Contains(err.Error(), "This shipment already has 2 agents - no more can be added")
+		}
 	})
 }
