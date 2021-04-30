@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PropTypes, bool } from 'prop-types';
+import PropTypes from 'prop-types';
 import { Radio, Textarea, FormGroup, Fieldset, Label, Button, Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import classnames from 'classnames';
