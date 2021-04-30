@@ -62,6 +62,7 @@ export const EditContactInfo = ({
   };
 
   const handleSubmit = async (values) => {
+    // eslint-disable-next-line no-console
     const serviceMemberPayload = {
       id: serviceMember.id,
       telephone: values?.telephone,
@@ -76,6 +77,17 @@ export const EditContactInfo = ({
       serviceMemberPayload.secondary_telephone = values?.secondary_telephone;
     }
 
+    // RA Summary: eslint: no-console - System Information Leak: External
+    // RA: The linter flags any use of console.
+    // RA: This console serves to indicate the status of the swaggerRequest to a user for debugging purposes.
+    // RA: Given that this is a simple string with no interpolation
+    // RA: nor variable names, SQL strings, system path information, or source or program code,
+    // RA: this is not a finding.
+    // RA Developer Status: Mitigated
+    // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+    // RA Validator:
+    // RA Modified Severity: CAT III
+    // eslint-disable-next-line no-console
     const backupContactPayload = {
       id: currentBackupContacts[0].id,
       name: values[backupContactName.toString()]?.name || '',
@@ -94,6 +106,17 @@ export const EditContactInfo = ({
     // patchServiceMember even if no other service member data changed, since it returns the same data as
     // getServiceMember request would, and it makes our logic here simpler.
 
+    // RA Summary: eslint: no-console - System Information Leak: External
+    // RA: The linter flags any use of console.
+    // RA: This console serves to indicate the status of the swaggerRequest to a user for debugging purposes.
+    // RA: Given that this is a simple string with no interpolation
+    // RA: nor variable names, SQL strings, system path information, or source or program code,
+    // RA: this is not a finding.
+    // RA Developer Status: Mitigated
+    // RA Validator Status:
+    // RA Validator:
+    // RA Modified Severity: CAT III
+    // eslint-disable-next-line no-console
     if (backupContactChanged) {
       let error;
       const patchPromise = await patchBackupContact(backupContactPayload)
@@ -125,7 +148,7 @@ export const EditContactInfo = ({
         const { response } = e;
         const errorMessage = getResponseError(response, 'Failed to update service member due to server error');
 
-        setServerError(errorMessage);
+        setServerError(errorMessage); // eslint-disable-line no-console
       });
   };
 
