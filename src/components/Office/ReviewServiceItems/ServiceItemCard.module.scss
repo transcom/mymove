@@ -58,7 +58,6 @@
 
   .statusOption {
     @include u-padding(0);
-    @include u-shadow(2);
     @include u-border(1px);
     border-color: $base-light;
     border-radius: units(2px);
@@ -81,6 +80,10 @@
           margin-top: 0;
         }
       }
+    }
+
+    &.selected {
+      @include u-shadow(2);
     }
   }
 
