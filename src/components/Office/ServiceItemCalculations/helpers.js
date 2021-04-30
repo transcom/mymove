@@ -226,7 +226,7 @@ const additionalDayDestinationSITPrice = (params) => {
   return calculation(value, label, serviceAreaDest(params), requestedPickupDate(params), peak(params));
 };
 
-const sitDeliveryPrice = (params, belowLonghaulDistance = false) => {
+const sitDeliveryPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.SITDeliveryPrice;
 
@@ -234,16 +234,18 @@ const sitDeliveryPrice = (params, belowLonghaulDistance = false) => {
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.SITScheduleDest, params)}`;
 
-  const details = [sitScheduleDestination, requestedPickupDate(params), peak(params)];
-  if (belowLonghaulDistance) {
-    details.push('<=50 miles');
-  }
-
-  return calculation(value, label, ...details);
+  return calculation(value, label, sitScheduleDestination, requestedPickupDate(params), peak(params));
 };
 
 const sitDeliveryPriceShorthaulDifferentZIP3 = (params) => {
-  return sitDeliveryPrice(params, true);
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.SITDeliveryPrice;
+
+  const sitScheduleDestination = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.SITScheduleDest, params)}`;
+
+  return calculation(value, label, sitScheduleDestination, requestedPickupDate(params), peak(params), '<=50 miles');
 };
 
 const daysInSIT = (params) => {
