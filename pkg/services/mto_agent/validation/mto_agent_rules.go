@@ -148,34 +148,10 @@ func (v *AgentValidationData) setFullAgent() *models.MTOAgent {
 	if v.NewAgent.MTOAgentType != "" {
 		agent.MTOAgentType = v.NewAgent.MTOAgentType
 	}
-	if v.NewAgent.FirstName != nil {
-		agent.FirstName = v.NewAgent.FirstName
-
-		if *v.NewAgent.FirstName == "" {
-			agent.FirstName = nil
-		}
-	}
-	if v.NewAgent.LastName != nil {
-		agent.LastName = v.NewAgent.LastName
-
-		if *v.NewAgent.LastName == "" {
-			agent.LastName = nil
-		}
-	}
-	if v.NewAgent.Email != nil {
-		agent.Email = v.NewAgent.Email
-
-		if *v.NewAgent.Email == "" {
-			agent.Email = nil
-		}
-	}
-	if v.NewAgent.Phone != nil {
-		agent.Phone = v.NewAgent.Phone
-
-		if *v.NewAgent.Phone == "" {
-			agent.Phone = nil
-		}
-	}
+	agent.FirstName = services.SetOptionalStringField(v.NewAgent.FirstName, agent.FirstName)
+	agent.LastName = services.SetOptionalStringField(v.NewAgent.LastName, agent.LastName)
+	agent.Email = services.SetOptionalStringField(v.NewAgent.Email, agent.Email)
+	agent.Phone = services.SetOptionalStringField(v.NewAgent.Phone, agent.Phone)
 
 	return &agent
 }
