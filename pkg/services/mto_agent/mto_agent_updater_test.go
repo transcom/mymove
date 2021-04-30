@@ -97,7 +97,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 	suite.T().Run("bad validatorKey - failure", func(t *testing.T) {
 		agentData := AgentValidationData{}
 		fakeKey := "FakeKey"
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, fakeKey)
+		updatedAgent, err := ValidateAgent(&agentData, fakeKey)
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -115,7 +115,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			oldAgent: &oldAgent,
 			verrs:    validate.NewErrors(),
 		}
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, BasicAgentValidatorKey)
+		updatedAgent, err := ValidateAgent(&agentData, BasicAgentValidatorKey)
 
 		suite.NoError(err)
 		suite.NotNil(updatedAgent)
@@ -133,7 +133,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			oldAgent: &oldAgent,
 			verrs:    validate.NewErrors(),
 		}
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, BasicAgentValidatorKey)
+		updatedAgent, err := ValidateAgent(&agentData, BasicAgentValidatorKey)
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -157,7 +157,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			availabilityChecker: checker,
 			shipment:            &oldAgentPrime.MTOShipment,
 		}
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, PrimeAgentValidatorKey)
+		updatedAgent, err := ValidateAgent(&agentData, PrimeAgentValidatorKey)
 
 		suite.NoError(err)
 		suite.NotNil(updatedAgent)
@@ -177,7 +177,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			availabilityChecker: checker,
 			shipment:            &oldAgent.MTOShipment,
 		}
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, PrimeAgentValidatorKey)
+		updatedAgent, err := ValidateAgent(&agentData, PrimeAgentValidatorKey)
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -201,7 +201,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			availabilityChecker: checker,
 			shipment:            &oldAgentPrime.MTOShipment,
 		}
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, PrimeAgentValidatorKey)
+		updatedAgent, err := ValidateAgent(&agentData, PrimeAgentValidatorKey)
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -224,7 +224,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			oldAgent: &oldAgent,
 			verrs:    validate.NewErrors(),
 		}
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, "")
+		updatedAgent, err := ValidateAgent(&agentData, "")
 
 		suite.NoError(err)
 		suite.NotNil(updatedAgent)

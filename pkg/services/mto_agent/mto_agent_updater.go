@@ -52,7 +52,7 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 		verrs:               validate.NewErrors(),
 	}
 
-	newAgent, err := ValidateUpdateMTOAgent(&agentData, validatorKey)
+	newAgent, err := ValidateAgent(&agentData, validatorKey)
 	if err != nil {
 		return nil, err
 	}
@@ -81,26 +81,4 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 		return nil, services.NewQueryError("MTOAgent", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}
 	return &updatedAgent, nil
-}
-
-// ValidateUpdateMTOAgent checks the provided agentData struct against the validator indicated by validatorKey.
-// Defaults to base validation if the empty string is entered as the key.
-// Returns an MTOAgent that has been set up for update.
-func ValidateUpdateMTOAgent(agentData *AgentValidationData, validatorKey string) (*models.MTOAgent, error) {
-	if validatorKey == "" {
-		validatorKey = BasicAgentValidatorKey
-	}
-	validator, ok := agentValidators[validatorKey]
-	if !ok {
-		err := fmt.Errorf("validator key %s was not found in update MTO Agent validators", validatorKey)
-		return nil, err
-	}
-	err := validator.Validate(agentData)
-	if err != nil {
-		return nil, err
-	}
-
-	newAgent := agentData.setFullAgent()
-
-	return newAgent, nil
 }
