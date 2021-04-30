@@ -14,23 +14,23 @@ const CustomerInfoList = ({ customerInfo }) => {
       <dl className={descriptionListStyles.descriptionList}>
         <div className={descriptionListStyles.row}>
           <dt>Name</dt>
-          <dd>{customerInfo.name}</dd>
+          <dd data-testid="name">{customerInfo.name}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>DoD ID</dt>
-          <dd>{customerInfo.dodId}</dd>
+          <dd data-testid="dodId">{customerInfo.dodId}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Phone</dt>
-          <dd>{customerInfo.phone}</dd>
+          <dd data-testid="phone">{customerInfo.phone}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Email</dt>
-          <dd>{customerInfo.email}</dd>
+          <dd data-testid="email">{customerInfo.email}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Current Address</dt>
-          <dd>
+          <dd data-testid="currentAddress">
             {`${get(customerInfo, 'currentAddress.street_address_1')}, ${get(
               customerInfo,
               'currentAddress.city',
@@ -39,15 +39,17 @@ const CustomerInfoList = ({ customerInfo }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact name</dt>
-          <dd>{customerInfo.backupContact?.name}</dd>
+          <dd data-testid="backupContactName">{customerInfo.backupContact?.name}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact email</dt>
-          <dd>{customerInfo.backupContact?.email}</dd>
+          <dd data-testid="backupContactEmail">{customerInfo.backupContact?.email}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Backup contact phone</dt>
-          <dd>{customerInfo.backupContact?.phone ? `+1 ${customerInfo.backupContact.phone}` : ''}</dd>
+          <dd data-testid="backupContactPhone">
+            {customerInfo.backupContact?.phone ? `+1 ${customerInfo.backupContact.phone}` : ''}
+          </dd>
         </div>
       </dl>
     </div>
