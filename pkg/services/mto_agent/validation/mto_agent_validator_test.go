@@ -145,6 +145,7 @@ func (suite *MTOAgentValidationServiceSuite) TestValidateAgent() {
 	suite.T().Run("empty validatorKey - success", func(t *testing.T) {
 		newAgent := models.MTOAgent{
 			MTOShipmentID: oldAgent.MTOShipmentID,
+			ID:            oldAgent.ID,
 		}
 		agentData := AgentValidationData{
 			NewAgent: newAgent,

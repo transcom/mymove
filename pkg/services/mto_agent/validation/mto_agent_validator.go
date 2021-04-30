@@ -26,12 +26,16 @@ func basicValidate(agentData *AgentValidationData) error {
 	if err != nil {
 		return err
 	}
+	err = agentData.checkAgentID()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 // primeValidate peforms the necessary functions to validate agent data submitted by the Prime contractor
 func primeValidate(agentData *AgentValidationData) error {
-	err := agentData.checkShipmentID()
+	err := basicValidate(agentData) // I don't HAVE to extend the basic validation, but in this case, it's helpful
 	if err != nil {
 		return err
 	}
@@ -40,6 +44,10 @@ func primeValidate(agentData *AgentValidationData) error {
 		return err
 	}
 	err = agentData.checkContactInfo()
+	if err != nil {
+		return err
+	}
+	err = agentData.checkAgentType()
 	if err != nil {
 		return err
 	}
