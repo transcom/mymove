@@ -97,7 +97,7 @@ describe('ServiceItemCalculations', () => {
     {
       value: '210',
       label: 'Mileage',
-      details: ['ZIP 210 to ZIP 910'],
+      details: ['ZIP 322 to ZIP 919'],
     },
     {
       value: '1.71',

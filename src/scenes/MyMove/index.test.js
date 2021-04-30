@@ -5,7 +5,7 @@ import { render, waitFor } from '@testing-library/react';
 import ConnectedCustomerApp, { CustomerApp } from './index';
 
 import Header from 'shared/Header/MyMove';
-import Footer from 'shared/Footer';
+import Footer from 'components/Customer/Footer';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MockProviders } from 'testUtils';
 import { AppContext } from 'shared/AppContext';

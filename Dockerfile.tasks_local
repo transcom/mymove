@@ -19,6 +19,7 @@ RUN rm -f bin/milmove-tasks && make bin/milmove-tasks
 # FINAL #
 #########
 
+# hadolint ignore=DL3007
 FROM gcr.io/distroless/base:latest
 
 COPY --from=builder --chown=root:root /home/circleci/project/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b

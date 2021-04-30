@@ -185,11 +185,11 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 }
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := move_task_order.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
-		MoveTaskOrderID: moveTaskOrder.ID.String(),
+		MoveTaskOrderID: move.ID.String(),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -198,12 +198,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	}
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-	moveTaskOrdersResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
-	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+	suite.IsType(&move_task_order.GetMoveTaskOrderOK{}, response)
 
-	suite.Assertions.IsType(&move_task_order.GetMoveTaskOrderOK{}, response)
-	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.Nil(moveTaskOrdersPayload.AvailableToPrimeAt)
+	moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+	movePayload := moveResponse.Payload
+	suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
+	suite.Nil(movePayload.AvailableToPrimeAt)
 }
 
 // moveTaskOrderPopulated function spot checks a few values in the Move, Orders, and Customer to

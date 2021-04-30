@@ -37,7 +37,7 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(moveTaskOrd
 	var err error
 	var verrs *validate.Errors
 
-	searchParams := services.FetchMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: false,
 	}
 	move, err := o.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
@@ -88,7 +88,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 	var err error
 	var verrs *validate.Errors
 
-	searchParams := services.FetchMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: false,
 	}
 	move, err := o.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
@@ -229,7 +229,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 
 // ShowHide changes the value in the "Show" field for a Move. This can be either True or False and indicates if the move has been deactivated or not.
 func (o *moveTaskOrderUpdater) ShowHide(moveID uuid.UUID, show *bool) (*models.Move, error) {
-	searchParams := services.FetchMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true, // We need to search every move to change its status
 	}
 	move, err := o.FetchMoveTaskOrder(moveID, &searchParams)

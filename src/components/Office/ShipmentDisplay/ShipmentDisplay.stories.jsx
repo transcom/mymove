@@ -11,6 +11,7 @@ export default {
 
 const hhgInfo = {
   heading: 'HHG',
+  shipmentId: 'testShipmentId394',
   requestedMoveDate: '26 Mar 2020',
   currentAddress: {
     street_address_1: '812 S 129th St',
@@ -29,6 +30,7 @@ const hhgInfo = {
 const ntsInfo = {
   heading: 'NTS',
   requestedMoveDate: '26 Mar 2020',
+  shipmentId: 'testShipmentId394',
   currentAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
@@ -46,6 +48,7 @@ const ntsInfo = {
 const postalOnlyInfo = {
   heading: 'HHG',
   requestedMoveDate: '26 Mar 2020',
+  shipmentId: 'testShipmentId394',
   currentAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
