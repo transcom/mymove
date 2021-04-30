@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/go-openapi/swag"
 
@@ -256,10 +257,12 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	}
 }
 
-func submittedAtFilter(submittedAt *string) QueryOption {
+func submittedAtFilter(submittedAt *time.Time) QueryOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
-			query.Where("CAST(payment_requests.created_at AS DATE) = ?", *submittedAt)
+			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
+			submittedAtEnd := submittedAt.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
+			query.Where("payment_requests.created_at between ? and ?", submittedAt.Format(time.RFC3339), submittedAtEnd.Format(time.RFC3339))
 		}
 	}
 }
