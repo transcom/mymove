@@ -44,7 +44,12 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 	queryFilters := h.generateQueryFilters(params.Filter, logger)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
+	// FetchMany does an eager query of all associated data. By listing only ShippingOffice as an association we reduce
+	// the association fetching down to one. Ideally this should be zero, but the query builder does not support this
+	// at this time.
+	associations := query.NewQueryAssociations([]services.QueryAssociation{
+		query.NewQueryAssociation("ShippingOffice"),
+	})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
 	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, associations, pagination, ordering)
@@ -69,7 +74,7 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 
 func (h IndexOfficesHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
 	type Filter struct {
-		ID string `json:"id"`
+		Name string `json:"q"`
 	}
 
 	f := Filter{}
@@ -85,8 +90,9 @@ func (h IndexOfficesHandler) generateQueryFilters(filters *string, logger handle
 			zap.String("filters", fs))
 	}
 
-	if f.ID != "" {
-		queryFilters = append(queryFilters, query.NewQueryFilter("id", "=", f.ID))
+	if f.Name != "" {
+		queryName := fmt.Sprintf("%%%s%%", f.Name)
+		queryFilters = append(queryFilters, query.NewQueryFilter("name", "ILIKE", queryName))
 	}
 
 	return queryFilters
