@@ -27,10 +27,12 @@ const validationSchema = Yup.object({
   proGearWeight: Yup.number()
     .min(0, 'Pro-gear weight must be greater than or equal to 0')
     .max(2000, "Enter a weight that does not go over the customer's maximum allowance")
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
   proGearWeightSpouse: Yup.number()
     .min(0, 'Spouse pro-gear weight must be greater than or equal to 0')
     .max(500, "Enter a weight that does not go over the customer's maximum allowance")
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
     .notRequired(),
   requiredMedicalEquipmentWeight: Yup.number().min(0, 'RME weight must be greater than or equal to 0').notRequired(),
 });
