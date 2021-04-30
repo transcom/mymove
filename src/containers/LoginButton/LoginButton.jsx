@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { bool, func } from 'prop-types';
@@ -16,9 +16,15 @@ import { logOut as logOutFunction } from 'store/auth/actions';
 import ConnectedEulaModal from 'components/EulaModal';
 import { customerRoutes } from 'constants/routes';
 import { selectIsProfileComplete } from 'store/entities/selectors';
+import { HistoryShape } from 'types/customerShapes';
 
-const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete }) => {
+const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete, history }) => {
   const [showEula, setShowEula] = useState(false);
+  useEffect(() => {
+    return () => {
+      history.replace('', null);
+    };
+  });
 
   if (!isLoggedIn) {
     return (
@@ -58,7 +64,13 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete
   }
   const handleLogOut = () => {
     logOut();
-    LogoutUser();
+    LogoutUser().then(() => {
+      console.log('logoutuser then -- LoginButton.jsx');
+      history.replace({
+        pathname: '/sign-in',
+        state: { hasLoggedOut: true },
+      });
+    });
   };
 
   return (
@@ -80,7 +92,7 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete
           aria-label="Sign Out"
           className={styles.signOut}
           data-testid="signout"
-          onClick={handleLogOut}
+          onClick={() => handleLogOut}
           type="button"
         >
           Sign Out
@@ -95,6 +107,7 @@ LoginButton.propTypes = {
   logOut: func.isRequired,
   showDevlocalButton: bool.isRequired,
   isProfileComplete: bool.isRequired,
+  history: HistoryShape.isRequired,
 };
 
 function mapStateToProps(state) {

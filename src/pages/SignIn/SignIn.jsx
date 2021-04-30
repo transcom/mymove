@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import qs from 'query-string';
 import { bool, shape, string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
@@ -10,13 +10,19 @@ import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
 import { LocationShape } from 'types/index';
+import { HistoryShape } from 'types/customerShapes';
 
-const SignIn = ({ context, location }) => {
+const SignIn = ({ context, location, history }) => {
   const [showEula, setShowEula] = useState(false);
 
   const { error } = qs.parse(location.search);
   const hash = qs.parse(location.hash);
   const { siteName, showLoginWarning } = context;
+  useEffect(() => {
+    return () => {
+      history.replace('', null);
+    };
+  });
 
   return (
     <div className="grid-container usa-prose">
@@ -41,6 +47,13 @@ const SignIn = ({ context, location }) => {
             <div>
               <Alert type="error" heading="Logged out">
                 You have been logged out due to inactivity.
+              </Alert>
+            </div>
+          )}
+          {location.state && location.state.hasLoggedOut && (
+            <div>
+              <Alert type="success" heading="You have signed out of MilMove">
+                You have successfully signed out
               </Alert>
             </div>
           )}
@@ -85,6 +98,7 @@ SignIn.propTypes = {
     showLoginWarning: bool,
   }).isRequired,
   location: LocationShape.isRequired,
+  history: HistoryShape.isRequired,
 };
 
 export default withContext(SignIn);

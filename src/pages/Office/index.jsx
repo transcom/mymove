@@ -32,6 +32,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape, OfficeUserInfoShape } from 'types/index';
 import { LogoutUser } from 'utils/api';
+import { HistoryShape } from 'types/customerShapes';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -90,6 +91,7 @@ export class OfficeApp extends Component {
       officeUser,
       location: { pathname },
       logOut,
+      history,
     } = this.props;
     const selectedRole = userIsLoggedIn && activeRole;
 
@@ -176,7 +178,13 @@ export class OfficeApp extends Component {
                     firstName={officeUser.first_name}
                     handleLogout={() => {
                       logOut();
-                      LogoutUser();
+                      LogoutUser().then(() => {
+                        console.log('logoutuser then -- Office/index.jsx');
+                        history.push({
+                          pathname: '/sign-in',
+                          state: { hasLoggedOut: true },
+                        });
+                      });
                     }}
                   >
                     {officeUser.transportation_office && (
@@ -275,6 +283,7 @@ OfficeApp.propTypes = {
   activeRole: PropTypes.string,
   officeUser: OfficeUserInfoShape,
   logOut: PropTypes.func.isRequired,
+  history: HistoryShape.isRequired,
 };
 
 OfficeApp.defaultProps = {

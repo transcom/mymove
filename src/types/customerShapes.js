@@ -121,6 +121,7 @@ export const MatchShape = shape({
 export const HistoryShape = shape({
   goBack: func.isRequired,
   push: func.isRequired,
+  replace: func.isRequired,
 });
 
 export const PageListShape = arrayOf(string);
