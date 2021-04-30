@@ -31,19 +31,21 @@ const AllowancesList = ({ info }) => {
       <dl className={descriptionListStyles.descriptionList}>
         <div className={descriptionListStyles.row}>
           <dt>Branch, rank</dt>
-          <dd>{`${titleCase(info.branch)}, ${friendlyRankDisplay(info.rank)}`}</dd>
+          <dd data-testid="branchRank">{`${titleCase(info.branch)}, ${friendlyRankDisplay(info.rank)}`}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Weight allowance</dt>
-          <dd>{formatWeight(info.weightAllowance)}</dd>
+          <dd data-testid="weightAllowance">{formatWeight(info.weightAllowance)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Authorized weight</dt>
-          <dd>{formatWeight(info.authorizedWeight)}</dd>
+          <dd data-testid="authorizedWeight">{formatWeight(info.authorizedWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Storage in transit</dt>
-          <dd>{info.storageInTransit ? formatDaysInTransit(info.storageInTransit) : ''}</dd>
+          <dd data-testid="storageInTransit">
+            {info.storageInTransit ? formatDaysInTransit(info.storageInTransit) : ''}
+          </dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Dependents</dt>
@@ -51,15 +53,15 @@ const AllowancesList = ({ info }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Pro-gear</dt>
-          <dd>{formatWeight(info.progear)}</dd>
+          <dd data-testid="progear">{formatWeight(info.progear)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Spouse pro-gear</dt>
-          <dd>{formatWeight(info.spouseProgear)}</dd>
+          <dd data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>RME</dt>
-          <dd>{formatWeight(info.requiredMedicalEquipmentWeight)}</dd>
+          <dd data-testid="rme">{formatWeight(info.requiredMedicalEquipmentWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>OCIE</dt>
