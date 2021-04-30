@@ -164,13 +164,6 @@ func (suite *OrderServiceSuite) TestListMoves() {
 				SubmittedAt: &submittedAt,
 			},
 		})
-		createdSubmittedDate := submittedAt.Format(time.RFC3339Nano)
-		params := services.ListOrderParams{SubmittedAt: &createdSubmittedDate}
-
-		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
-
-		suite.FatalNoError(err)
-		suite.Equal(1, len(moves))
 
 		// Test edge cases
 		submittedAt2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
@@ -180,14 +173,6 @@ func (suite *OrderServiceSuite) TestListMoves() {
 			},
 		})
 
-		// Use previous date to search again
-		params = services.ListOrderParams{SubmittedAt: &createdSubmittedDate}
-
-		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
-
-		suite.FatalNoError(err)
-		suite.Equal(1, len(moves))
-
 		// Test edge cases
 		submittedAt3 := time.Date(2022, 03, 31, 23, 59, 59, 59, time.UTC)
 		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
@@ -196,10 +181,9 @@ func (suite *OrderServiceSuite) TestListMoves() {
 			},
 		})
 
-		// Use previous date to search again
-		params = services.ListOrderParams{SubmittedAt: &createdSubmittedDate}
+		params := services.ListOrderParams{SubmittedAt: &submittedAt}
 
-		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))

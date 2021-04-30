@@ -96,12 +96,6 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		return queues.NewGetPaymentRequestsQueueForbidden()
 	}
 
-	var submittedAt *string
-	if params.SubmittedAt != nil {
-		str := params.SubmittedAt.String()
-		submittedAt = &str
-	}
-
 	listPaymentRequestParams := services.FetchPaymentRequestListParams{
 		Branch:                 params.Branch,
 		Locator:                params.Locator,
@@ -111,7 +105,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		Status:                 params.Status,
 		Page:                   params.Page,
 		PerPage:                params.PerPage,
-		SubmittedAt:            submittedAt,
+		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
 		Sort:                   params.Sort,
 		Order:                  params.Order,
 	}
@@ -162,12 +156,6 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 		return queues.NewGetServicesCounselingQueueForbidden()
 	}
 
-	var submittedAt *string
-	if params.SubmittedAt != nil {
-		str := params.SubmittedAt.String()
-		submittedAt = &str
-	}
-
 	ListOrderParams := services.ListOrderParams{
 		Branch:                 params.Branch,
 		Locator:                params.Locator,
@@ -175,7 +163,7 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 		LastName:               params.LastName,
 		DestinationDutyStation: params.DestinationDutyStation,
 		OriginGBLOC:            params.OriginGBLOC,
-		SubmittedAt:            submittedAt,
+		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
 		RequestedMoveDate:      params.RequestedMoveDate,
 		Page:                   params.Page,
 		PerPage:                params.PerPage,
