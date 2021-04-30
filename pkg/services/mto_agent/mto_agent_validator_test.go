@@ -3,6 +3,8 @@ package mtoagent
 import (
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -10,189 +12,149 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
+func (suite *MTOAgentServiceSuite) TestValidateAgent() {
 	// Set up the data needed for AgentValidationData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
-
-	// Set up agent models for successful and unsuccessful tests
-	successAgent := oldAgent
-	errorAgent := oldAgent
-
-	// Test successful check for shipment ID
-	suite.T().Run("checkShipmentID - success", func(t *testing.T) {
-		agentData := AgentValidationData{
-			newAgent:            successAgent, // as-is, should succeed
-			oldAgent:            &oldAgent,
-			availabilityChecker: checker,
-			verrs:               validate.NewErrors(),
-		}
-		err := agentData.checkShipmentID()
-
-		suite.NoError(err)
-		suite.NoVerrs(agentData.verrs)
+	oldAgentPrime := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		Move: testdatagen.MakeAvailableMove(suite.DB()),
 	})
 
-	// Test unsuccessful check for shipment ID
-	suite.T().Run("checkShipmentID - failure", func(t *testing.T) {
-		errorAgent.MTOShipmentID = oldAgent.ID // set an invalid ID value
-		agentData := AgentValidationData{
-			newAgent:            errorAgent,
-			oldAgent:            &oldAgent,
-			availabilityChecker: checker,
-			verrs:               validate.NewErrors(),
-		}
-		err := agentData.checkShipmentID()
+	// Test with bad string key
+	suite.T().Run("bad validatorKey - failure", func(t *testing.T) {
+		agentData := AgentValidationData{}
+		fakeKey := "FakeKey"
+		updatedAgent, err := ValidateAgent(&agentData, fakeKey)
 
-		suite.NoError(err)
-		suite.True(agentData.verrs.HasAny())
-		suite.Contains(agentData.verrs.Keys(), "mtoShipmentID")
+		suite.Nil(updatedAgent)
+		suite.Error(err)
+		suite.Contains(err.Error(), fakeKey)
 	})
 
-	// Test successful check for prime availability
-	suite.T().Run("checkPrimeAvailability - success", func(t *testing.T) {
-		oldAgentPrime := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			Move: testdatagen.MakeAvailableMove(suite.DB()),
-		})
+	// Test successful Base validation
+	suite.T().Run("BasicAgentValidatorKey - success", func(t *testing.T) {
+		newAgent := models.MTOAgent{
+			ID:            oldAgent.ID,
+			MTOShipmentID: oldAgent.MTOShipmentID,
+		}
+		agentData := AgentValidationData{
+			newAgent: newAgent,
+			oldAgent: &oldAgent,
+			verrs:    validate.NewErrors(),
+		}
+		updatedAgent, err := ValidateAgent(&agentData, BasicAgentValidatorKey)
+
+		suite.NoError(err)
+		suite.NotNil(updatedAgent)
+		suite.IsType(models.MTOAgent{}, *updatedAgent)
+	})
+
+	// Test unsuccessful Base validation
+	suite.T().Run("BasicAgentValidatorKey - failure", func(t *testing.T) {
+		newAgent := models.MTOAgent{
+			ID:            oldAgent.ID,
+			MTOShipmentID: oldAgent.ID, // bad value
+		}
+		agentData := AgentValidationData{
+			newAgent: newAgent,
+			oldAgent: &oldAgent,
+			verrs:    validate.NewErrors(),
+		}
+		updatedAgent, err := ValidateAgent(&agentData, BasicAgentValidatorKey)
+
+		suite.Nil(updatedAgent)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
+
+	// Test successful Prime validation
+	suite.T().Run("PrimeAgentValidatorKey - success", func(t *testing.T) {
 		newAgentPrime := oldAgentPrime
+
+		// Ensure we have the minimum required contact info
+		firstName := "Carol"
+		email := "test@example.com"
+		newAgentPrime.FirstName = &firstName
+		newAgentPrime.Email = &email
 
 		agentData := AgentValidationData{
 			newAgent:            newAgentPrime,
 			oldAgent:            &oldAgentPrime,
-			shipment:            &oldAgentPrime.MTOShipment,
-			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+			shipment:            &oldAgentPrime.MTOShipment,
 		}
-		err := agentData.checkPrimeAvailability()
+		updatedAgent, err := ValidateAgent(&agentData, PrimeAgentValidatorKey)
 
 		suite.NoError(err)
-		suite.NoVerrs(agentData.verrs)
+		suite.NotNil(updatedAgent)
+		suite.IsType(models.MTOAgent{}, *updatedAgent)
 	})
 
-	// Test unsuccessful check for prime availability
-	suite.T().Run("checkPrimeAvailability - failure", func(t *testing.T) {
-		agentData := AgentValidationData{
-			newAgent:            errorAgent, // the default errorAgent should not be Prime-available
-			oldAgent:            &oldAgent,
-			shipment:            &oldAgent.MTOShipment,
-			availabilityChecker: checker,
-			verrs:               validate.NewErrors(),
+	// Test unsuccessful Prime validation - Not available to Prime
+	suite.T().Run("PrimeAgentValidatorKey - not available failure", func(t *testing.T) {
+		newAgent := models.MTOAgent{
+			ID:            oldAgent.ID,
+			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
-		err := agentData.checkPrimeAvailability()
+		agentData := AgentValidationData{
+			newAgent:            newAgent,
+			oldAgent:            &oldAgent, // this agent should not be Prime-available
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+			shipment:            &oldAgent.MTOShipment,
+		}
+		updatedAgent, err := ValidateAgent(&agentData, PrimeAgentValidatorKey)
 
+		suite.Nil(updatedAgent)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
-		suite.NoVerrs(agentData.verrs) // this check doesn't add a validation error
 	})
 
-	// Test successful check for contact info
-	suite.T().Run("checkContactInfo - success", func(t *testing.T) {
-		firstName := "Carol"
-		lastName := ""
-		email := ""
-		phone := "234-555-4567"
-
-		successAgent.FirstName = &firstName
-		successAgent.LastName = &lastName
-		successAgent.Email = &email
-		successAgent.Phone = &phone
-
-		agentData := AgentValidationData{
-			newAgent:            successAgent,
-			oldAgent:            &oldAgent,
-			availabilityChecker: checker,
-			verrs:               validate.NewErrors(),
+	// Test unsuccessful Prime validation - Invalid input
+	suite.T().Run("PrimeAgentValidatorKey - invalid input failure", func(t *testing.T) {
+		emptyString := ""
+		newAgent := models.MTOAgent{
+			ID:            oldAgentPrime.ID,
+			MTOShipmentID: oldAgentPrime.ID,
+			FirstName:     &emptyString,
+			Email:         &emptyString,
+			Phone:         &emptyString,
 		}
-		err := agentData.checkContactInfo()
-
-		suite.NoError(err)
-		suite.NoVerrs(agentData.verrs)
-	})
-
-	// Test unsuccessful check for contact info
-	suite.T().Run("checkContactInfo - failure", func(t *testing.T) {
-		firstName := ""
-		email := ""
-		phone := ""
-
-		errorAgent.FirstName = &firstName
-		errorAgent.Email = &email
-		errorAgent.Phone = &phone
-
 		agentData := AgentValidationData{
-			newAgent:            errorAgent,
-			oldAgent:            &oldAgent,
-			availabilityChecker: checker,
+			newAgent:            newAgent,
+			oldAgent:            &oldAgentPrime,
 			verrs:               validate.NewErrors(),
-		}
-		err := agentData.checkContactInfo()
-
-		suite.NoError(err)
-		suite.True(agentData.verrs.HasAny())
-		suite.Contains(agentData.verrs.Keys(), "firstName")
-		suite.Contains(agentData.verrs.Keys(), "contactInfo")
-	})
-
-	// Test getVerrs for successful example
-	suite.T().Run("getVerrs - success", func(t *testing.T) {
-		agentData := AgentValidationData{
-			newAgent:            successAgent, // as-is, should succeed
-			oldAgent:            &oldAgent,
 			availabilityChecker: checker,
-			verrs:               validate.NewErrors(),
+			shipment:            &oldAgentPrime.MTOShipment,
 		}
-		_ = agentData.checkShipmentID() // this test should pass regardless of potential errors here
-		_ = agentData.checkContactInfo()
-		err := agentData.getVerrs()
+		updatedAgent, err := ValidateAgent(&agentData, PrimeAgentValidatorKey)
 
-		suite.NoError(err)
-		suite.NoVerrs(agentData.verrs)
-	})
-
-	// Test getVerrs for unsuccessful example
-	suite.T().Run("getVerrs - failure", func(t *testing.T) {
-		agentData := AgentValidationData{
-			newAgent:            errorAgent, // as-is, should fail
-			oldAgent:            &oldAgent,
-			availabilityChecker: checker,
-			verrs:               validate.NewErrors(),
-		}
-		_ = agentData.checkShipmentID() // this test should pass regardless of potential errors here
-		_ = agentData.checkContactInfo()
-		err := agentData.getVerrs()
-
+		suite.Nil(updatedAgent)
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
-		suite.True(agentData.verrs.HasAny())
+
+		invalidInputError := err.(services.InvalidInputError)
+		suite.True(invalidInputError.ValidationErrors.HasAny())
+		suite.Contains(invalidInputError.ValidationErrors.Keys(), "mtoShipmentID")
+		suite.Contains(invalidInputError.ValidationErrors.Keys(), "firstName")
+		suite.Contains(invalidInputError.ValidationErrors.Keys(), "contactInfo")
 	})
 
-	// Test setFullAgent for successful example
-	suite.T().Run("setFullAgent - success", func(t *testing.T) {
-		firstName := "First"
-		email := "email@email.email"
-		phone := ""
-
-		successAgent.FirstName = &firstName
-		successAgent.Email = &email
-		successAgent.Phone = &phone
-
-		agentData := AgentValidationData{
-			newAgent:            successAgent,
-			oldAgent:            &oldAgent,
-			availabilityChecker: checker,
-			verrs:               validate.NewErrors(),
+	// Test with empty string key (successful Base validation)
+	suite.T().Run("empty validatorKey - success", func(t *testing.T) {
+		newAgent := models.MTOAgent{
+			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
-		newAgent := agentData.setFullAgent()
+		agentData := AgentValidationData{
+			newAgent: newAgent,
+			oldAgent: &oldAgent,
+			verrs:    validate.NewErrors(),
+		}
+		updatedAgent, err := ValidateAgent(&agentData, "")
 
-		suite.NoVerrs(agentData.verrs)
-		suite.Equal(*newAgent.FirstName, *successAgent.FirstName)
-		suite.Equal(*newAgent.Email, *successAgent.Email)
-		suite.Nil(newAgent.Phone)
-		// Checking that the old agent instances weren't changed:
-		suite.NotEqual(*newAgent.FirstName, *oldAgent.FirstName)
-		suite.NotEqual(*newAgent.FirstName, *agentData.oldAgent.FirstName)
-		suite.NotNil(oldAgent.Phone)
-		suite.NotNil(agentData.oldAgent.Phone)
-		suite.Equal(*oldAgent.Phone, *agentData.oldAgent.Phone)
+		suite.NoError(err)
+		suite.NotNil(updatedAgent)
+		suite.IsType(models.MTOAgent{}, *updatedAgent)
 	})
 }

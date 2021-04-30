@@ -13,7 +13,7 @@ const BasicAgentValidatorKey string = "BasicAgentValidatorKey"
 const PrimeAgentValidatorKey string = "PrimeAgentValidatorKey"
 
 // agentValidators is the map connecting the constant keys to the correct validator
-// NOTE: This and the following Validate functions are non-importable so that devs will be forced to call them through
+// NOTE: This and the following Validate functions are not exportable so that devs will be forced to call them through
 // the ValidateAgent function, which is more complete.
 var agentValidators = map[string]func(agentData *AgentValidationData) error{
 	BasicAgentValidatorKey: basicValidate,
