@@ -6,6 +6,7 @@ import styles from './OfficeDefinitionLists.module.scss';
 
 import { BackupContactShape } from 'types/backupContact';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
+import { ResidentialAddressShape } from 'types/address';
 
 const CustomerInfoList = ({ customerInfo }) => {
   return (
@@ -59,12 +60,7 @@ CustomerInfoList.propTypes = {
     dodId: PropTypes.string,
     phone: PropTypes.string,
     email: PropTypes.string,
-    currentAddress: PropTypes.shape({
-      street_address_1: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      postal_code: PropTypes.string,
-    }),
+    currentAddress: ResidentialAddressShape,
     backupContact: BackupContactShape,
   }).isRequired,
 };

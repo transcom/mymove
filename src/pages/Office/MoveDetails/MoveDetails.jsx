@@ -222,7 +222,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
             <DetailsPanel
               title="Orders"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-orders-info" to="orders">
+                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
                   Edit orders
                 </Link>
               }
@@ -234,7 +234,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
             <DetailsPanel
               title="Allowances"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-allowances-info" to="allowances">
+                <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
                   Edit Allowances
                 </Link>
               }
