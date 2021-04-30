@@ -38,7 +38,7 @@ describe('Allowances Table', () => {
 
   it('should be able to show edit btn', () => {
     const wrapper = shallow(<AllowancesTable info={info} showEditBtn />);
-    expect(wrapper.find('Link').text()).toMatch('Edit Allowances');
+    expect(wrapper.find('Link').text()).toMatch('Edit allowances');
     expect(wrapper.find('Link').prop('to')).toBe('allowances');
   });
 
