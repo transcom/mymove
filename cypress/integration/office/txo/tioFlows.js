@@ -59,7 +59,7 @@ describe('TIO user', () => {
     cy.contains('View orders').click();
 
     cy.get('form').within(($form) => {
-      cy.get('input[name="tac"]').click().clear().type('F123');
+      cy.get('input[name="tac"]').click().clear().type('E15A');
       cy.get('input[name="sac"]').click().clear().type('4K988AS098F');
       // Edit orders page | Save
       cy.get('button').contains('Save').click();
