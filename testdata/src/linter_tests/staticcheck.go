@@ -1,8 +1,8 @@
 // lint:file-ignore // want "Please provide the rule that is being disabled"
 
-// lint:file-ignore S1001 // want "Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi"
+// lint:file-ignore S1001 // want "Disabling of linter must have an annotation associated with it. Please visit https://github.com/transcom/mymove/wiki/guide-to-static-analysis-annotations-for-disabled-Linters#guide-to-static-analysis-annotations-for-disabled-linters"
 
-//RA Summary: [linter] - [linter type code] - [Linter summary] // want "Annotation needs approval from an ISSO"
+//RA Summary: [linter] - [linter type code] - [Linter summary] // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://github.com/transcom/mymove/wiki/guide-to-static-analysis-security-workflow#guide-to-static-analysis-security-workflow"
 //RA: <Why did the linter flag this line of code?>
 //RA: <Why is this line of code valuable?>
 //RA: <What mitigates the risk of negative impact?>
@@ -11,7 +11,7 @@
 //RA Modified Severity: CAT III
 // lint:file-ignore SA1017
 
-//RA Summary: staticcheck - SA2002 - Weak cryptographic hash  // want "Annotation needs approval from an ISSO"
+//RA Summary: staticcheck - SA2002 - Weak cryptographic hash  // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://github.com/transcom/mymove/wiki/guide-to-static-analysis-security-workflow#guide-to-static-analysis-security-workflow"
 //RA: This line was flagged because of the use of MD5 hashing
 //RA: This line of code hashes the AWS object to be able to verify data integrity
 //RA: Purpose of this hash is to protect against environmental risks, it does not
@@ -37,10 +37,10 @@ package linter_tests
 // lint:ignore // want "Please provide the rule that is being disabled"
 func staticcheckShouldProvideRule() {}
 
-// lint:ignore S1001 // want "Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi"
+// lint:ignore S1001 // want "Disabling of linter must have an annotation associated with it. Please visit https://github.com/transcom/mymove/wiki/guide-to-static-analysis-annotations-for-disabled-Linters#guide-to-static-analysis-annotations-for-disabled-linters"
 func staticcheckShouldHaveAnnotation() {}
 
-//RA Summary: [linter] - [linter type code] - [Linter summary] // want "Annotation needs approval from an ISSO"
+//RA Summary: [linter] - [linter type code] - [Linter summary] // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://github.com/transcom/mymove/wiki/guide-to-static-analysis-security-workflow#guide-to-static-analysis-security-workflow"
 //RA: <Why did the linter flag this line of code?>
 //RA: <Why is this line of code valuable?>
 //RA: <What mitigates the risk of negative impact?>
@@ -50,7 +50,7 @@ func staticcheckShouldHaveAnnotation() {}
 // lint:ignore SA1017
 func staticcheckAnnotationNotApprovedTemplate() {}
 
-//RA Summary: staticcheck - SA2002 - Weak cryptographic hash  // want "Annotation needs approval from an ISSO"
+//RA Summary: staticcheck - SA2002 - Weak cryptographic hash  // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://github.com/transcom/mymove/wiki/guide-to-static-analysis-security-workflow#guide-to-static-analysis-security-workflow"
 //RA: This line was flagged because of the use of MD5 hashing
 //RA: This line of code hashes the AWS object to be able to verify data integrity
 //RA: Purpose of this hash is to protect against environmental risks, it does not

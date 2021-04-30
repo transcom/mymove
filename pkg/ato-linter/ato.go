@@ -143,13 +143,13 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 			containsDisabledLinterWithoutAnnotation := containsDisabledLinterWithoutAnnotation(commentGroup.List)
 			if containsDisabledLinterWithoutAnnotation {
-				pass.Reportf(commentGroup.Pos(), "Disabling of linter must have an annotation associated with it. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi")
+				pass.Reportf(commentGroup.Pos(), "Disabling of linter must have an annotation associated with it. Please visit https://github.com/transcom/mymove/wiki/guide-to-static-analysis-annotations-for-disabled-Linters#guide-to-static-analysis-annotations-for-disabled-linters")
 				continue
 			}
 
 			containsAnnotationNotApproved := containsAnnotationNotApproved(commentGroup.List)
 			if containsAnnotationNotApproved {
-				pass.Reportf(commentGroup.Pos(), "Annotation needs approval from an ISSO")
+				pass.Reportf(commentGroup.Pos(), "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://github.com/transcom/mymove/wiki/guide-to-static-analysis-security-workflow#guide-to-static-analysis-security-workflow")
 				continue
 			}
 		}

@@ -1,9 +1,9 @@
 package linter_tests
 
-// nolint:errcheck // want "Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi"
+// nolint:errcheck // want "Disabling of linter must have an annotation associated with it. Please visit https://github.com/transcom/mymove/wiki/guide-to-static-analysis-annotations-for-disabled-Linters#guide-to-static-analysis-annotations-for-disabled-linters"
 func errcheckShouldHaveAnnotation() {}
 
-//RA Summary: [linter] - [linter type code] - [Linter summary] // want "Annotation needs approval from an ISSO"
+//RA Summary: [linter] - [linter type code] - [Linter summary] // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://github.com/transcom/mymove/wiki/guide-to-static-analysis-security-workflow#guide-to-static-analysis-security-workflow"
 //RA: <Why did the linter flag this line of code?>
 //RA: <Why is this line of code valuable?>
 //RA: <What mitigates the risk of negative impact?>
@@ -13,7 +13,7 @@ func errcheckShouldHaveAnnotation() {}
 // nolint:errcheck
 func errcheckAnnotationNotApprovedTemplate() {}
 
-//RA Summary: gosec - errcheck - Unchecked return value // want "Annotation needs approval from an ISSO"
+//RA Summary: gosec - errcheck - Unchecked return value // want "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://github.com/transcom/mymove/wiki/guide-to-static-analysis-security-workflow#guide-to-static-analysis-security-workflow"
 //RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
 //RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
 //RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
