@@ -5,33 +5,15 @@ import styles from './OfficeDefinitionLists.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatWeight, formatDaysInTransit } from 'shared/formatters';
+import friendlyBranchRank from 'utils/branchRankFormatters';
 
 const AllowancesList = ({ info }) => {
-  const titleCase = (input) => {
-    if (input && input.length > 0) {
-      const friendlyInput = input.toLowerCase().replace('_', ' ').split(' ');
-      return friendlyInput
-        .map((word) => {
-          return word.replace(word[0], word[0].toUpperCase());
-        })
-        .join(' ');
-    }
-    return input;
-  };
-  const friendlyRankDisplay = (rank) => {
-    if (rank) {
-      const friendlyRank = rank.split('_');
-      return `${friendlyRank[0]}-${friendlyRank[1]} ${titleCase(friendlyRank.slice(2).join(' '))}`;
-    }
-    return rank;
-  };
-
   return (
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
         <div className={descriptionListStyles.row}>
           <dt>Branch, rank</dt>
-          <dd data-testid="branchRank">{`${titleCase(info.branch)}, ${friendlyRankDisplay(info.rank)}`}</dd>
+          <dd data-testid="branchRank">{friendlyBranchRank(info.branch, info.rank)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Weight allowance</dt>
