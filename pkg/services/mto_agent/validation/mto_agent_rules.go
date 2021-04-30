@@ -66,8 +66,11 @@ func (v *AgentValidationData) checkAgentType() error {
 	}
 
 	for _, agent := range agents {
-		if agent.ID == v.NewAgent.ID {
-			continue // since we're looking at the same agent, there's no need to check anything else here
+		if agent.ID != uuid.Nil && agent.ID == v.NewAgent.ID {
+			// Since we're looking at the same agent, there's no need to check anything else here.
+			// Note that we might also have other agents with nil UUIDs if we're dealing with a bulk create -
+			// we DON'T want to skip validation in that case.
+			continue
 		}
 
 		if agent.MTOAgentType == v.NewAgent.MTOAgentType {
