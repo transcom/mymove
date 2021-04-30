@@ -34,6 +34,22 @@ func (v *AgentValidationData) checkShipmentID() error {
 	return nil
 }
 
+// checkAgentID checks that the new agent's ID matches the old agent's ID (or is nil)
+func (v *AgentValidationData) checkAgentID() error {
+	if v.OldAgent == nil {
+		if v.NewAgent.ID != uuid.Nil {
+			v.Verrs.Add("ID", "cannot manually set a new agent's UUID")
+		}
+	} else {
+		if v.NewAgent.ID != v.OldAgent.ID {
+			return services.NewImplementationError(
+				fmt.Sprintf("In AgentValidationData, the NewAgent's ID (%s) must match OldAgent's ID (%s).", v.NewAgent.ID, v.OldAgent.ID),
+			)
+		}
+	}
+	return nil
+}
+
 // checkAgentType checks that there is, at most, one RELEASING and one RECEIVING agent (each) on a shipment.
 // It also checks that we're not adding more than the max number of agents.
 // NOTE: You need to make sure MTOShipment.MTOAgents is populated for the results of this check to be accurate.

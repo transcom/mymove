@@ -201,6 +201,74 @@ func (suite *MTOAgentValidationServiceSuite) TestAgentValidationData() {
 	})
 }
 
+func (suite *MTOAgentValidationServiceSuite) TestAgentValidationData_checkAgentID() {
+	suite.T().Run("SUCCESS - When creating a new agent, ID should be nil", func(t *testing.T) {
+		agentData := AgentValidationData{
+			NewAgent: models.MTOAgent{
+				// No ID because of create
+			},
+			Verrs: validate.NewErrors(),
+		}
+
+		err := agentData.checkAgentID()
+		suite.NoError(err)
+		suite.NoVerrs(agentData.Verrs)
+	})
+
+	suite.T().Run("FAIL - ID is set when creating a new agent", func(t *testing.T) {
+		randomUUID, _ := uuid.NewV4()
+		agentData := AgentValidationData{
+			NewAgent: models.MTOAgent{
+				ID: randomUUID,
+			},
+			Verrs: validate.NewErrors(),
+		}
+
+		err := agentData.checkAgentID()
+		suite.NoError(err)
+		suite.NotEmpty(agentData.Verrs)
+
+		err = agentData.getVerrs()
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
+
+	suite.T().Run("SUCCESS - When updating an agent, old and new IDs should match", func(t *testing.T) {
+		randomUUID, _ := uuid.NewV4()
+		agentData := AgentValidationData{
+			NewAgent: models.MTOAgent{
+				ID: randomUUID,
+			},
+			OldAgent: &models.MTOAgent{
+				ID: randomUUID,
+			},
+			Verrs: validate.NewErrors(),
+		}
+
+		err := agentData.checkAgentID()
+		suite.NoError(err)
+		suite.NoVerrs(agentData.Verrs)
+	})
+
+	suite.T().Run("FAIL - Old and new IDs do not match for update", func(t *testing.T) {
+		randomUUID, _ := uuid.NewV4()
+		agentData := AgentValidationData{
+			NewAgent: models.MTOAgent{
+				// nil UUID, doesn't match
+			},
+			OldAgent: &models.MTOAgent{
+				ID: randomUUID,
+			},
+			Verrs: validate.NewErrors(),
+		}
+
+		err := agentData.checkAgentID()
+		suite.Error(err)
+		suite.IsType(services.ImplementationError{}, err)
+		suite.NoVerrs(agentData.Verrs)
+	})
+}
+
 func (suite *MTOAgentValidationServiceSuite) TestAgentValidationData_checkAgentType() {
 	// Set up - no need to create real DB records, we just need models:
 	randomUUID, _ := uuid.NewV4()
