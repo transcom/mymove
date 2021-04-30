@@ -112,7 +112,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         <dd data-testid="storageInTransit">{formatDaysInTransit(entitlements.storageInTransit)}</dd>
       </dl>
       <div className={styles.wrappedCheckbox}>
-        <CheckboxField id="dependentsAuthorizedInput" name="dependentsAuthorized" label="Dependents Authorized" />
+        <CheckboxField id="dependentsAuthorizedInput" name="dependentsAuthorized" label="Dependents authorized" />
       </div>
     </div>
   );

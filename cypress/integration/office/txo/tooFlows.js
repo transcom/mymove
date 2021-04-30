@@ -243,7 +243,7 @@ describe('TOO user', () => {
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // Navigate to Edit allowances page
-    cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+    cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
 
     // Toggle between Edit Allowances and Edit Orders page
     cy.get('[data-testid="view-orders"]').click();
@@ -285,7 +285,7 @@ describe('TOO user', () => {
     cy.get('[data-testid="dependents"]').contains('Unauthorized');
 
     // Edit allowances page | Cancel
-    cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+    cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
     cy.get('button').contains('Cancel').click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
   });
