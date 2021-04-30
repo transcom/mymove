@@ -1,9 +1,7 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { Suspense } from 'react';
 import { mount } from 'enzyme';
 
-import MoveAllowances from './MoveAllowances';
-
+import ServicesCounselingMoveDocumentWrapper from 'pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper';
 import { MockProviders } from 'testUtils';
 
 const mockOriginDutyStation = {
@@ -79,51 +77,53 @@ jest.mock('hooks/queries', () => ({
           sac: 'E2P3',
         },
       },
+      documents: {
+        2: {
+          id: '2',
+          uploads: [
+            {
+              id: 'z',
+              filename: 'test.pdf',
+              contentType: 'application/pdf',
+              url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+            },
+          ],
+        },
+      },
+      upload: {
+        z: {
+          id: 'z',
+          filename: 'test.pdf',
+          contentType: 'application/pdf',
+          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+        },
+      },
     };
   },
 }));
 
-describe('MoveAllowances page', () => {
+const testMoveId = '10000';
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn().mockReturnValue({ orderId: testMoveId }),
+}));
+
+describe('MoveDocumentWrapper', () => {
   const wrapper = mount(
-    <MockProviders initialEntries={['moves/1000/allowances']}>
-      <MoveAllowances />
+    <MockProviders initialEntries={[`/counseling/moves/${testMoveId}/orders`]}>
+      <Suspense fallback={<div>Loading</div>}>
+        <ServicesCounselingMoveDocumentWrapper />
+      </Suspense>
     </MockProviders>,
   );
 
-  it('renders the sidebar elements', () => {
-    expect(wrapper.find({ 'data-testid': 'allowances-header' }).text()).toBe('View Allowances');
-    // There is only 1 button, but mount-rendering react-uswds Button component has inner buttons
-    expect(wrapper.find({ 'data-testid': 'view-orders' }).at(0).text()).toBe('View Orders');
+  it('renders the orders document viewer', () => {
+    expect(wrapper.find('DocumentViewer').exists()).toBe(true);
   });
 
-  it('renders displays the allowances in the sidebar form', () => {
-    // Pro-gear
-    expect(wrapper.find(`input[data-testid="proGearWeightInput"]`).getDOMNode().value).toBe('2,000');
-
-    // Pro-gear spouse
-    expect(wrapper.find(`input[data-testid="proGearWeightSpouseInput"]`).getDOMNode().value).toBe('500');
-
-    // RME
-    expect(wrapper.find(`input[data-testid="rmeInput"]`).getDOMNode().value).toBe('1,000');
-
-    // Branch
-    expect(wrapper.find(`select[data-testid="branchInput"]`).getDOMNode().value).toBe('ARMY');
-
-    // Rank
-    expect(wrapper.find(`select[data-testid="rankInput"]`).getDOMNode().value).toBe('E_1');
-
-    // OCIE
-    expect(
-      wrapper.find(`input[name="organizationalClothingAndIndividualEquipment"]`).getDOMNode().checked,
-    ).toBeTruthy();
-
-    // Weight allowance
-    expect(wrapper.find('dd').at(0).text()).toBe('5,000 lbs');
-
-    // Storage in-transit
-    expect(wrapper.find('dd').at(1).text()).toBe('2 days');
-
-    // Dependents authorized
-    expect(wrapper.find(`input[name="dependentsAuthorized"]`).getDOMNode().checked).toBeTruthy();
+  it('renders the sidebar services counseling move allowances form', async () => {
+    await wrapper.update();
+    expect(wrapper.find('ServicesCounselingMoveAllowances').exists()).toBe(true);
   });
 });

@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { useField } from 'formik';
 import { IMaskInput } from 'react-imask';
@@ -9,6 +10,7 @@ import { ErrorMessage } from '../index';
 const MaskedTextField = ({
   label,
   labelClassName,
+  formGroupClassName,
   id,
   name,
   labelHint,
@@ -23,7 +25,7 @@ const MaskedTextField = ({
   const hasError = meta.touched && !!meta.error;
   const { value } = field;
   return (
-    <FormGroup className={!!warning && !hasError && `warning`} error={hasError}>
+    <FormGroup className={classnames(!!warning && !hasError && `warning`, formGroupClassName)} error={hasError}>
       <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
         {label}
       </Label>
@@ -56,13 +58,14 @@ const MaskedTextField = ({
 };
 
 MaskedTextField.propTypes = {
+  formGroupClassName: PropTypes.string,
   labelClassName: PropTypes.string,
   labelHint: PropTypes.string,
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   defaultValue: PropTypes.string,
-  mask: PropTypes.string,
+  mask: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   blocks: PropTypes.oneOfType([PropTypes.object]),
   lazy: PropTypes.bool,
   warning: PropTypes.string,
@@ -71,6 +74,7 @@ MaskedTextField.propTypes = {
 MaskedTextField.defaultProps = {
   labelHint: '',
   labelClassName: '',
+  formGroupClassName: '',
   defaultValue: '',
   mask: '',
   blocks: {},
