@@ -70,7 +70,7 @@
         margin: 0;
       }
 
-      .usa-radio__input:checked + .usa-radio__label {
+      .usa-radio__input:checked+.usa-radio__label {
         background-color: $link-light;
       }
 
@@ -84,7 +84,7 @@
     }
   }
 
-  .statusOption + .statusOption {
+  .statusOption+.statusOption {
     @include u-margin-top(1);
   }
 
@@ -94,7 +94,7 @@
     @include u-text('light');
   }
 
-  .statusOption + .clearStatus {
+  .statusOption+.clearStatus {
     margin-top: 3px;
   }
 
