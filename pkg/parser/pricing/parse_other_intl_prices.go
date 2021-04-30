@@ -56,7 +56,7 @@ var parseOtherIntlPrices processXlsxSheet = func(params ParamConfig, sheetIndex 
 			otherIntlPrice.SITGt50Miles = getCell(row.Cells, colIndex)
 			colIndex += 2
 
-			if params.ShowOutput == true {
+			if params.ShowOutput {
 				logger.Info("", zap.Any("StageOtherIntlPrice", otherIntlPrice))
 			}
 			otherIntlPrices = append(otherIntlPrices, otherIntlPrice)

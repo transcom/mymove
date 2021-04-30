@@ -74,7 +74,7 @@ func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMo
 	cost = rateengine.GetWinningCostMove(costDetails)
 	cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
 	sitZip3 := rateengine.Zip5ToZip3(destinationDutyStationZip)
-	if *ppm.HasSit == false {
+	if !*ppm.HasSit {
 		return sitCharge, cost, nil
 	}
 	sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)

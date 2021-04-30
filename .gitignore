@@ -12,7 +12,6 @@
 coverage.out
 __snapshots__
 cypress/cypress
-/puppeteer/reports
 
 # production
 /build
@@ -84,3 +83,9 @@ storybook-static
 
 # Certs
 *.srl
+
+# nix
+.nix-hash
+.nix-disable
+.npmglobal
+.gopath

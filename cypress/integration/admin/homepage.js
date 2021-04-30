@@ -17,7 +17,7 @@ describe('Admin Home Page', function () {
 
   it('redirects to the office users page after login', function () {
     cy.signInAsNewAdminUser();
-    cy.contains('Office users');
+    cy.contains('Office Users');
     cy.url().should('eq', adminBaseURL + '/system/office_users');
   });
 });

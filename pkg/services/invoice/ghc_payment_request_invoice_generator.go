@@ -108,6 +108,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	pr2icn := models.PaymentRequestToInterchangeControlNumber{
 		PaymentRequestID:         paymentRequest.ID,
 		InterchangeControlNumber: int(interchangeControlNumber),
+		EDIType:                  models.EDIType858,
 	}
 	verrs, err := g.db.ValidateAndSave(&pr2icn)
 	if err != nil {

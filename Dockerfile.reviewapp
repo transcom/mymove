@@ -1,0 +1,126 @@
+###########
+# BUILDER #
+###########
+
+# Base builder so the ci build image hash is referenced once
+FROM milmove/circleci-docker:milmove-app-eaef02734833321cab72652613f07651fc7c99f0 as builder
+ENV CIRCLECI=docker
+ENV REACT_APP_NODE_ENV=development
+# hadolint ignore=DL3002
+USER root
+WORKDIR /build
+COPY Makefile /build/
+COPY scripts /build/scripts
+
+# Install client deps and server deps first since they don't change as
+# often as code
+FROM builder as client_deps
+# js dep needs
+COPY .yarnrc \
+  config-overrides.js jsconfig.json package.json terser-rescript.js \
+  yarn.lock /build/
+COPY .eslintignore .eslintrc.js .prettierignore .prettierrc \
+  /build/
+COPY eslint-plugin-ato /build/eslint-plugin-ato
+RUN set -x \
+  && yarn
+
+FROM builder as server_deps
+ENV GOPATH=/go
+ENV PATH=/go/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin
+RUN mkdir /go
+
+## populate go module cache
+COPY go.mod go.sum /build/
+RUN go mod download
+
+# Build the server first as that is needed for migrations
+FROM server_deps as server_builder
+# set args after module cache so mod cache isn't invalidated when
+# changing branches
+ARG GIT_BRANCH
+ARG GIT_COMMIT
+
+# copy everything else
+COPY cmd /build/cmd
+COPY swagger /build/swagger
+COPY pkg /build/pkg
+
+# fake src dir to silence make
+RUN mkdir /build/src
+
+RUN set -x \
+  && make bin/rds-ca-2019-root.pem \
+  && rm -f pkg/assets/assets.go && make pkg/assets/assets.go \
+  && make server_generate \
+  && rm -f bin/milmove && make bin/milmove \
+  && make bin/generate-test-data
+
+# define migrations before client build since it doesn't need client
+FROM alpine:3.12.3 as migrate
+
+COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY --from=server_builder /build/bin/milmove /bin/milmove
+COPY --from=server_builder /build/bin/generate-test-data /bin/generate-test-data
+
+COPY migrations/app/schema /migrate/schema
+COPY migrations/app/secure /migrate/secure
+COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
+
+COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
+
+# While it's ok to have these certs copied locally, they should never be copied into Dockerfile.
+COPY config/tls/devlocal-ca.key /config/tls/devlocal-ca.key
+COPY config/tls/devlocal-ca.pem /config/tls/devlocal-ca.pem
+
+# test data for generate-test-data
+COPY pkg/testdatagen/testdata /pkg/testdatagen/testdata
+
+# Install tools needed in container
+# hadolint ignore=DL3018
+RUN apk update && apk add ca-certificates --no-cache
+
+WORKDIR /
+
+USER nobody
+
+ENTRYPOINT ["/bin/sh", "-c", \
+  "/bin/milmove migrate && /bin/generate-test-data --named-scenario='dev_seed' --db-env='development'" \
+]
+
+# build client after migrate since migrations don't need client
+FROM client_deps as client_builder
+# js build needs
+# copy directories separately
+COPY public /build/public
+COPY src /build/src
+RUN set -x \
+  && ./scripts/copy-swagger-ui \
+  && yarn build
+
+#########
+# FINAL #
+#########
+
+# hadolint ignore=DL3007
+FROM gcr.io/distroless/base:latest as milmove
+
+COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY --from=server_builder /build/bin/milmove /bin/milmove
+COPY --from=server_builder /build/swagger /swagger
+
+COPY --from=client_builder /build/build /build
+
+COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
+
+# While it's ok to have these certs copied locally, they should never be copied into Dockerfile.
+COPY config/tls/devlocal-ca.key /config/tls/devlocal-ca.key
+COPY config/tls/devlocal-ca.pem /config/tls/devlocal-ca.pem
+
+ENTRYPOINT ["/bin/milmove"]
+
+CMD ["serve", "--logging-level=debug"]
+
+EXPOSE 8080

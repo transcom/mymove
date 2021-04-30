@@ -16,7 +16,7 @@ describe('Office Users List Page', function () {
     // now we'll come back to the office users page:
     cy.get('a[href*="system/office_users"]').click();
     cy.url().should('eq', adminBaseURL + '/system/office_users');
-    cy.get('header').contains('Office users');
+    cy.get('header').contains('Office Users');
 
     const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'Transportation Office', 'User Id', 'Active'];
     columnLabels.forEach((label) => {

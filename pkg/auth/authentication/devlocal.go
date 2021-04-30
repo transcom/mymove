@@ -414,7 +414,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", "ppm_office_users").First(&role)
+		err = h.db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&role)
 		if err != nil {
 			h.logger.Error("could not fetch role ppm_office_users", zap.Error(err))
 		}
@@ -438,6 +438,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+			Gbloc:     "LKNQ",
 		}
 
 		verrs, err = h.db.ValidateAndSave(&office)
@@ -485,7 +486,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", "transportation_ordering_officer").First(&role)
+		err = h.db.Where("role_type = $1", roles.RoleTypeTOO).First(&role)
 		if err != nil {
 			h.logger.Error("could not fetch role transportation_ordering_officer", zap.Error(err))
 		}
@@ -509,6 +510,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+			Gbloc:     "LKNQ",
 		}
 
 		verrs, err = h.db.ValidateAndSave(&office)
@@ -556,7 +558,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 
 		role := roles.Role{}
-		err = h.db.Where("role_type = $1", "transportation_invoicing_officer").First(&role)
+		err = h.db.Where("role_type = $1", roles.RoleTypeTIO).First(&role)
 		if err != nil {
 			h.logger.Error("could not fetch role transporation_invoicing_officer", zap.Error(err))
 		}
@@ -579,6 +581,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Latitude:  37.7678355,
 			Longitude: -122.4199298,
 			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+			Gbloc:     "LKNQ",
 		}
 
 		verrs, err = h.db.ValidateAndSave(&office)
@@ -693,14 +696,13 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			h.logger.Error("validation errors creating dps user", zap.Stringer("errors", verrs))
 		}
 	case AdminUserType:
-		var role models.AdminRole = "SYSTEM_ADMIN"
 
 		adminUser := models.AdminUser{
 			UserID:    &user.ID,
 			Email:     user.LoginGovEmail,
 			FirstName: "Leo",
 			LastName:  "Spaceman",
-			Role:      role,
+			Role:      models.SystemAdminRole,
 		}
 		verrs, err := h.db.ValidateAndSave(&adminUser)
 
@@ -730,9 +732,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		return nil, errors.Wrapf(err, "Unable to fetch user identity from LoginGovUUID %s", lgUUID)
 	}
 
-	for _, role := range userIdentity.Roles {
-		session.Roles = append(session.Roles, role)
-	}
+	session.Roles = append(session.Roles, userIdentity.Roles...)
 
 	// Assign user identity to session
 	session.IDToken = "devlocal"

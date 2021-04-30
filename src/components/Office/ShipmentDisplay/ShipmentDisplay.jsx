@@ -25,10 +25,13 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
               name="shipments"
               label=""
               value={shipmentId}
+              aria-labelledby={`shipment-display-label-${shipmentId}`}
             />
           )}
           {!isSubmitted && <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />}
-          <h3>{displayInfo.heading}</h3>
+          <h3>
+            <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+          </h3>
           <FontAwesomeIcon icon="chevron-down" />
         </div>
         <dl>

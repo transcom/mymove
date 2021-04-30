@@ -24,7 +24,7 @@ type FetchMTOUpdatesHandler struct {
 func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	searchParams := services.ListMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IsAvailableToPrime: true,
 		Since:              params.Since,
 	}
@@ -46,6 +46,34 @@ type UpdateMTOPostCounselingInformationHandler struct {
 	services.Fetcher
 	services.MoveTaskOrderUpdater
 	mtoAvailabilityChecker services.MoveTaskOrderChecker
+}
+
+// GetMoveTaskOrderHandlerFunc returns the details for a particular Move Task Order
+type GetMoveTaskOrderHandlerFunc struct {
+	handlers.HandlerContext
+	moveTaskOrderFetcher services.MoveTaskOrderFetcher
+}
+
+// Handle fetches an MTO from the database using its UUID
+func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	searchParams := services.MoveTaskOrderFetcherParams{
+		IsAvailableToPrime: true,
+	}
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
+	if err != nil {
+		logger.Error("primeapi.GetMoveTaskOrderHandler error", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+		default:
+			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		}
+	}
+	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
 }
 
 // Handle updates to move task order post-counseling

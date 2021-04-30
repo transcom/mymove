@@ -32,8 +32,10 @@ func MakePaymentRequestToInterchangeControlNumber(db *pop.Connection, assertions
 	pr2icn := models.PaymentRequestToInterchangeControlNumber{
 		PaymentRequestID:         paymentRequestID,
 		InterchangeControlNumber: int(icn),
+		EDIType:                  models.EDIType858,
 	}
 
+	// Overwrite values with those from assertions
 	mergeModels(&pr2icn, assertions.PaymentRequestToInterchangeControlNumber)
 
 	mustCreate(db, &pr2icn, assertions.Stub)

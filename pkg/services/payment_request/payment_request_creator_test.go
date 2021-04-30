@@ -594,8 +594,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			InvalidMove: func() models.Move {
 				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 				sm := mtoInvalid.Orders.ServiceMember
-				var blank models.ServiceMemberRank
-				blank = ""
+				blank := models.ServiceMemberRank("")
 				sm.Rank = &blank
 				err := suite.DB().Update(&sm)
 				suite.FatalNoError(err)
@@ -628,8 +627,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			InvalidMove: func() models.Move {
 				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 				sm := mtoInvalid.Orders.ServiceMember
-				var blank models.ServiceMemberAffiliation
-				blank = ""
+				blank := models.ServiceMemberAffiliation("")
 				sm.Affiliation = &blank
 				err := suite.DB().Update(&sm)
 				suite.FatalNoError(err)

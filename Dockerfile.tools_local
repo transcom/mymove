@@ -21,6 +21,7 @@ RUN rm -f bin/prime-api-client && make bin/prime-api-client
 
 FROM alpine:3.12.3
 
+# hadolint ignore=DL3017
 RUN apk upgrade --no-cache busybox
 
 COPY --from=builder --chown=root:root /home/circleci/project/bin/generate-test-data /bin/generate-test-data
@@ -38,6 +39,7 @@ COPY pkg/testdatagen/testdata/update_mto_shipment.json /bin/pkg/testdatagen/test
 
 # Install tools needed in container
 RUN apk update
+# hadolint ignore=DL3018
 RUN apk add postgresql-client bash --no-cache
 
 WORKDIR /bin

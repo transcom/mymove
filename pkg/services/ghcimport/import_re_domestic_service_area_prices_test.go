@@ -1,7 +1,6 @@
 package ghcimport
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -51,7 +50,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() 
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFailures() {
 	suite.T().Run("stage_domestic_service_area_prices table missing", func(t *testing.T) {
-		renameQuery := fmt.Sprintf("ALTER TABLE stage_domestic_service_area_prices RENAME TO missing_stage_domestic_service_area_prices")
+		renameQuery := "ALTER TABLE stage_domestic_service_area_prices RENAME TO missing_stage_domestic_service_area_prices"
 		renameErr := suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
 
@@ -69,7 +68,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFai
 			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
 
-		renameQuery = fmt.Sprintf("ALTER TABLE missing_stage_domestic_service_area_prices RENAME TO stage_domestic_service_area_prices")
+		renameQuery = "ALTER TABLE missing_stage_domestic_service_area_prices RENAME TO stage_domestic_service_area_prices"
 		renameErr = suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
 	})

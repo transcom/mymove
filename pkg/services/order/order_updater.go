@@ -2,6 +2,7 @@ package order
 
 import (
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/etag"
 
@@ -42,8 +43,7 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 			}
 		}
 
-		if entitlement := order.Entitlement; entitlement != nil && (entitlement.DBAuthorizedWeight != nil || entitlement.DependentsAuthorized != nil) {
-
+		if entitlement := order.Entitlement; entitlement != nil {
 			if entitlement.DBAuthorizedWeight != nil {
 				existingOrder.Entitlement.DBAuthorizedWeight = entitlement.DBAuthorizedWeight
 			}
@@ -52,7 +52,18 @@ func (s *orderUpdater) UpdateOrder(eTag string, order models.Order) (*models.Ord
 				existingOrder.Entitlement.DependentsAuthorized = entitlement.DependentsAuthorized
 			}
 
-			err = tx.Save(existingOrder.Entitlement)
+			// TODO - Should we always update? Seems like we should consider fields that are not passed in for this Patch operation...
+			// TODO - Make these fields required since they're not nullable?
+			existingOrder.Entitlement.ProGearWeight = entitlement.ProGearWeight
+			existingOrder.Entitlement.ProGearWeightSpouse = entitlement.ProGearWeightSpouse
+			existingOrder.Entitlement.RequiredMedicalEquipmentWeight = entitlement.RequiredMedicalEquipmentWeight
+			existingOrder.Entitlement.OrganizationalClothingAndIndividualEquipment = entitlement.OrganizationalClothingAndIndividualEquipment
+
+			var verrs *validate.Errors
+			verrs, err = tx.ValidateAndUpdate(existingOrder.Entitlement)
+			if verrs != nil && verrs.HasAny() {
+				return services.NewInvalidInputError(order.ID, nil, verrs, "")
+			}
 			if err != nil {
 				return err
 			}

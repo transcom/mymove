@@ -405,6 +405,46 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 	suite.equalPaymentRequest(paymentRequest2, paymentRequest2Payload)
 }
 
+func (suite *HandlerSuite) TestGetMoveTaskOrder() {
+	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMoveTaskOrderHandlerFunc{context,
+		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+	}
+
+	suite.T().Run("Success with Prime-available move", func(t *testing.T) {
+		successMove := testdatagen.MakeAvailableMove(suite.DB())
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: successMove.ID.String(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+		suite.Equal(movePayload.ID.String(), successMove.ID.String())
+		suite.NotNil(movePayload.AvailableToPrimeAt)
+		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
+	})
+
+	suite.T().Run("Failure 'Not Found' for non-available move", func(t *testing.T) {
+		failureMove := testdatagen.MakeDefaultMove(suite.DB()) // default is not available to Prime
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: failureMove.ID.String(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderNotFound{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderNotFound)
+		movePayload := moveResponse.Payload
+		suite.Contains(*movePayload.Detail, failureMove.ID.String())
+	})
+}
+
 func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	mto := testdatagen.MakeAvailableMove(suite.DB())
 
