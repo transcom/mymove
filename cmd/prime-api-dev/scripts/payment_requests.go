@@ -221,11 +221,6 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 		fmt.Printf("AvailableToPrime: %s\n", mto.AvailableToPrimeAt.String())
 	}
 
-	// TODO: Use mto.Status after Status is added to the prime API
-	// if mto.IsCanceled != nil {
-	// 	fmt.Printf("Is Canceled: %s\n", strconv.FormatBool(*mto.IsCanceled))
-	// }
-
 	fmt.Printf("%s, %s\n", mto.Order.Customer.LastName, mto.Order.Customer.FirstName)
 
 	fmt.Printf("Dest. Duty Station: %s, %s, %s\n", *mto.Order.DestinationDutyStation.Address.City,
