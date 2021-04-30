@@ -76,7 +76,7 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 		return nil, services.NewQueryError("MTOAgent", err, "")
 	}
 
-	// Get the updated address and return
+	// Get the updated agent and return
 	updatedAgent := models.MTOAgent{}
 	err = f.db.Find(&updatedAgent, newAgent.ID)
 	if err != nil {
