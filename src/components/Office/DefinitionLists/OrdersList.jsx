@@ -14,19 +14,19 @@ const OrdersList = ({ ordersInfo }) => {
       <dl className={descriptionListStyles.descriptionList}>
         <div className={descriptionListStyles.row}>
           <dt>Current duty station</dt>
-          <dd>{ordersInfo.currentDutyStation?.name}</dd>
+          <dd data-testid="currentDutyStation">{ordersInfo.currentDutyStation?.name}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>New duty station</dt>
-          <dd>{ordersInfo.newDutyStation?.name}</dd>
+          <dd data-testid="newDutyStation">{ordersInfo.newDutyStation?.name}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Date issued</dt>
-          <dd>{formatDate(ordersInfo.issuedDate, 'DD MMM YYYY')}</dd>
+          <dd data-testid="issuedDate">{formatDate(ordersInfo.issuedDate, 'DD MMM YYYY')}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Report by date</dt>
-          <dd>{formatDate(ordersInfo.reportByDate, 'DD MMM YYYY')}</dd>
+          <dd data-testid="reportByDate">{formatDate(ordersInfo.reportByDate, 'DD MMM YYYY')}</dd>
         </div>
         <div
           className={classnames(descriptionListStyles.row, {
@@ -56,7 +56,7 @@ const OrdersList = ({ ordersInfo }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>SAC / SDN</dt>
-          <dd>{ordersInfo.sacSDN}</dd>
+          <dd data-testid="sacSDN">{ordersInfo.sacSDN}</dd>
         </div>
       </dl>
     </div>
