@@ -1,4 +1,4 @@
-package mtoagent
+package mtoagentvalidate
 
 import (
 	"testing"
@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MTOAgentServiceSuite) TestValidateAgent() {
+func (suite *MTOAgentValidationServiceSuite) TestValidateAgent() {
 	// Set up the data needed for AgentValidationData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
@@ -38,9 +38,9 @@ func (suite *MTOAgentServiceSuite) TestValidateAgent() {
 			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
 		agentData := AgentValidationData{
-			newAgent: newAgent,
-			oldAgent: &oldAgent,
-			verrs:    validate.NewErrors(),
+			NewAgent: newAgent,
+			OldAgent: &oldAgent,
+			Verrs:    validate.NewErrors(),
 		}
 		updatedAgent, err := ValidateAgent(&agentData, BasicAgentValidatorKey)
 
@@ -56,9 +56,9 @@ func (suite *MTOAgentServiceSuite) TestValidateAgent() {
 			MTOShipmentID: oldAgent.ID, // bad value
 		}
 		agentData := AgentValidationData{
-			newAgent: newAgent,
-			oldAgent: &oldAgent,
-			verrs:    validate.NewErrors(),
+			NewAgent: newAgent,
+			OldAgent: &oldAgent,
+			Verrs:    validate.NewErrors(),
 		}
 		updatedAgent, err := ValidateAgent(&agentData, BasicAgentValidatorKey)
 
@@ -78,11 +78,11 @@ func (suite *MTOAgentServiceSuite) TestValidateAgent() {
 		newAgentPrime.Email = &email
 
 		agentData := AgentValidationData{
-			newAgent:            newAgentPrime,
-			oldAgent:            &oldAgentPrime,
-			verrs:               validate.NewErrors(),
-			availabilityChecker: checker,
-			shipment:            &oldAgentPrime.MTOShipment,
+			NewAgent:            newAgentPrime,
+			OldAgent:            &oldAgentPrime,
+			Verrs:               validate.NewErrors(),
+			AvailabilityChecker: checker,
+			Shipment:            &oldAgentPrime.MTOShipment,
 		}
 		updatedAgent, err := ValidateAgent(&agentData, PrimeAgentValidatorKey)
 
@@ -98,11 +98,11 @@ func (suite *MTOAgentServiceSuite) TestValidateAgent() {
 			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
 		agentData := AgentValidationData{
-			newAgent:            newAgent,
-			oldAgent:            &oldAgent, // this agent should not be Prime-available
-			verrs:               validate.NewErrors(),
-			availabilityChecker: checker,
-			shipment:            &oldAgent.MTOShipment,
+			NewAgent:            newAgent,
+			OldAgent:            &oldAgent, // this agent should not be Prime-available
+			Verrs:               validate.NewErrors(),
+			AvailabilityChecker: checker,
+			Shipment:            &oldAgent.MTOShipment,
 		}
 		updatedAgent, err := ValidateAgent(&agentData, PrimeAgentValidatorKey)
 
@@ -122,11 +122,11 @@ func (suite *MTOAgentServiceSuite) TestValidateAgent() {
 			Phone:         &emptyString,
 		}
 		agentData := AgentValidationData{
-			newAgent:            newAgent,
-			oldAgent:            &oldAgentPrime,
-			verrs:               validate.NewErrors(),
-			availabilityChecker: checker,
-			shipment:            &oldAgentPrime.MTOShipment,
+			NewAgent:            newAgent,
+			OldAgent:            &oldAgentPrime,
+			Verrs:               validate.NewErrors(),
+			AvailabilityChecker: checker,
+			Shipment:            &oldAgentPrime.MTOShipment,
 		}
 		updatedAgent, err := ValidateAgent(&agentData, PrimeAgentValidatorKey)
 
@@ -147,9 +147,9 @@ func (suite *MTOAgentServiceSuite) TestValidateAgent() {
 			MTOShipmentID: oldAgent.MTOShipmentID,
 		}
 		agentData := AgentValidationData{
-			newAgent: newAgent,
-			oldAgent: &oldAgent,
-			verrs:    validate.NewErrors(),
+			NewAgent: newAgent,
+			OldAgent: &oldAgent,
+			Verrs:    validate.NewErrors(),
 		}
 		updatedAgent, err := ValidateAgent(&agentData, "")
 

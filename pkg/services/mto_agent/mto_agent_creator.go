@@ -5,6 +5,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	mtoagentvalidate "github.com/transcom/mymove/pkg/services/mto_agent/validation"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -25,7 +27,7 @@ func NewMTOAgentCreator(db *pop.Connection, mtoAvailabilityChecker services.Move
 
 // CreateMTOAgentPrime passes the Prime validator key to CreateMTOAgent
 func (f *mtoAgentCreator) CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	return f.CreateMTOAgent(mtoAgent, PrimeAgentValidatorKey)
+	return f.CreateMTOAgent(mtoAgent, mtoagentvalidate.PrimeAgentValidatorKey)
 
 }
 
@@ -39,7 +41,7 @@ func (f *mtoAgentCreator) CreateMTOAgent(mtoAgent *models.MTOAgent, validatorKey
 		return nil, services.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
 	}
 
-	if validatorKey == PrimeAgentValidatorKey {
+	if validatorKey == mtoagentvalidate.PrimeAgentValidatorKey {
 		var isAvailable bool
 
 		isAvailable, err = f.mtoAvailabilityChecker.MTOAvailableToPrime(mtoShipment.MoveTaskOrderID)
