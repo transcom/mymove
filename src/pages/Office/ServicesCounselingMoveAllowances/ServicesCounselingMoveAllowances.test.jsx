@@ -2,8 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import MoveAllowances from './MoveAllowances';
-
+import ServicesCounselingMoveAllowances from 'pages/Office/ServicesCounselingMoveAllowances/ServicesCounselingMoveAllowances';
 import { MockProviders } from 'testUtils';
 
 const mockOriginDutyStation = {
@@ -85,15 +84,14 @@ jest.mock('hooks/queries', () => ({
 
 describe('MoveAllowances page', () => {
   const wrapper = mount(
-    <MockProviders initialEntries={['moves/1000/allowances']}>
-      <MoveAllowances />
+    <MockProviders initialEntries={['/counseling/moves/1000/allowances']}>
+      <ServicesCounselingMoveAllowances />
     </MockProviders>,
   );
 
   it('renders the sidebar elements', () => {
     expect(wrapper.find({ 'data-testid': 'allowances-header' }).text()).toBe('View Allowances');
-    // There is only 1 button, but mount-rendering react-uswds Button component has inner buttons
-    expect(wrapper.find({ 'data-testid': 'view-orders' }).at(0).text()).toBe('View Orders');
+    expect(wrapper.find({ 'data-testid': 'header' }).text()).toBe('Counseling');
   });
 
   it('renders displays the allowances in the sidebar form', () => {
@@ -117,11 +115,14 @@ describe('MoveAllowances page', () => {
       wrapper.find(`input[name="organizationalClothingAndIndividualEquipment"]`).getDOMNode().checked,
     ).toBeTruthy();
 
-    // Weight allowance
+    // Authorized weight
     expect(wrapper.find('dd').at(0).text()).toBe('5,000 lbs');
 
+    // Weight allowance
+    expect(wrapper.find('dd').at(1).text()).toBe('5,000 lbs');
+
     // Storage in-transit
-    expect(wrapper.find('dd').at(1).text()).toBe('2 days');
+    expect(wrapper.find('dd').at(2).text()).toBe('2 days');
 
     // Dependents authorized
     expect(wrapper.find(`input[name="dependentsAuthorized"]`).getDOMNode().checked).toBeTruthy();

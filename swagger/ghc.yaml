@@ -1205,7 +1205,8 @@ paths:
         - in: query
           name: submittedAt
           type: string
-          description: filters the date of when the service member submitted their move
+          format: date-time
+          description: Start of the submitted at date in the user's local time zone converted to UTC
         - in: query
           name: originGBLOC
           type: string
@@ -1337,8 +1338,8 @@ paths:
         - in: query
           name: submittedAt
           type: string
-          format: date
-          description: limit results to those matching submitted at date
+          format: date-time
+          description: Start of the submitted at date in the user's local time zone converted to UTC
         - in: query
           name: branch
           type: string
@@ -2121,9 +2122,6 @@ definitions:
       availableToPrimeAt:
         format: date-time
         type: string
-        x-nullable: true
-      isCanceled:
-        type: boolean
         x-nullable: true
       updatedAt:
         format: date-time

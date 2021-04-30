@@ -6,7 +6,7 @@ import { Home } from './index';
 import { MockProviders } from 'testUtils';
 
 export default {
-  title: 'Customer Pages / Home',
+  title: 'Customer Components / Pages / Home',
 };
 
 const defaultProps = {

@@ -136,7 +136,7 @@ const ServiceItemCard = ({
                 </dl>
                 {toggleCalculations}
                 <Fieldset>
-                  <div className={styles.statusOption}>
+                  <div className={classnames(styles.statusOption, { [styles.selected]: values.status === APPROVED })}>
                     <Radio
                       id={`approve-${id}`}
                       checked={values.status === APPROVED}
@@ -147,7 +147,7 @@ const ServiceItemCard = ({
                       data-testid="approveRadio"
                     />
                   </div>
-                  <div className={styles.statusOption}>
+                  <div className={classnames(styles.statusOption, { [styles.selected]: values.status === DENIED })}>
                     <Radio
                       id={`reject-${id}`}
                       checked={values.status === DENIED}
