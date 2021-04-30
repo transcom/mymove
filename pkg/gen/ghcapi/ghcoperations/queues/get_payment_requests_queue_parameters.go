@@ -74,7 +74,7 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	Status []string
-	/*limit results to those matching submitted at date
+	/*Start of the submitted at date in the user's local time zone converted to UTC
 	  In: query
 	*/
 	SubmittedAt *strfmt.DateTime

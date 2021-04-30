@@ -68,7 +68,7 @@ const columns = (showBranchFilter = true) => [
       id: 'submittedAt',
       isFilterable: true,
       // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <DateSelectFilter {...props} />,
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
     },
   ),
   createHeader('Move Code', 'locator', {

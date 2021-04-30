@@ -1767,7 +1767,7 @@ func init() {
           {
             "type": "string",
             "format": "date-time",
-            "description": "filters the date of when the service member submitted their move",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
             "name": "submittedAt",
             "in": "query"
           },
@@ -1983,7 +1983,7 @@ func init() {
           {
             "type": "string",
             "format": "date-time",
-            "description": "limit results to those matching submitted at date",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
             "name": "submittedAt",
             "in": "query"
           },
@@ -6198,7 +6198,7 @@ func init() {
           {
             "type": "string",
             "format": "date-time",
-            "description": "filters the date of when the service member submitted their move",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
             "name": "submittedAt",
             "in": "query"
           },
@@ -6426,7 +6426,7 @@ func init() {
           {
             "type": "string",
             "format": "date-time",
-            "description": "limit results to those matching submitted at date",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
             "name": "submittedAt",
             "in": "query"
           },

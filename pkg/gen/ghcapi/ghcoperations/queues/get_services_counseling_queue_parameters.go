@@ -82,7 +82,7 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	Status []string
-	/*filters the date of when the service member submitted their move
+	/*Start of the submitted at date in the user's local time zone converted to UTC
 	  In: query
 	*/
 	SubmittedAt *strfmt.DateTime
