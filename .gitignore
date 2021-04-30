@@ -12,7 +12,6 @@
 coverage.out
 __snapshots__
 cypress/cypress
-/puppeteer/reports
 
 # production
 /build

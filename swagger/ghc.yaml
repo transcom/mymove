@@ -2122,9 +2122,6 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
-      isCanceled:
-        type: boolean
-        x-nullable: true
       updatedAt:
         format: date-time
         type: string

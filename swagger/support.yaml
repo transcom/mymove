@@ -945,11 +945,6 @@ definitions:
           Indicates this MoveTaskOrder is available for Prime API handling.
 
           In production, only MoveTaskOrders for which this is set will be available to the API.
-      isCanceled:
-        type: boolean
-        x-nullable: true
-        readOnly: true
-        description: Indicated this MoveTaskOrder has been canceled.
       contractorID:
         type: string
         format: uuid

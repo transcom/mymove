@@ -1073,10 +1073,6 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
-      isCanceled:
-        type: boolean
-        x-nullable: true
-        readOnly: true
       updatedAt:
         format: date-time
         type: string

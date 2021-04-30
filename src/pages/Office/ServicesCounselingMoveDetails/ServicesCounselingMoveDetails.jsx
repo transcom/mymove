@@ -104,7 +104,7 @@ const ServicesCounselingMoveDetails = () => {
             <GridContainer>
               <Grid row gap>
                 <Grid col>
-                  <AllowancesTable info={allowancesInfo} />
+                  <AllowancesTable info={allowancesInfo} showEditBtn />
                 </Grid>
               </Grid>
             </GridContainer>
