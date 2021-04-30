@@ -13,11 +13,11 @@ const StatusTimelineCodes = {
 };
 
 export default {
-  title: 'scenes/Landing',
+  title: 'Customer Components/StatusTimeLine',
   decorators: [(storyFn) => <div className="shipment_box_contents">{storyFn()}</div>],
 };
 
-export const StatusTimeLine = () => (
+export const Basic = () => (
   <StatusTimeline
     showEstimated={boolean('showEstimated', false)}
     statuses={[
