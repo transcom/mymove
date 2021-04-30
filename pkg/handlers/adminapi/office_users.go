@@ -197,7 +197,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 
 	_, err = h.UserRoleAssociator.UpdateUserRoles(*createdOfficeUser.UserID, updatedRoles)
 	if err != nil {
-		logger.Error("error updating user roles", zap.Error(err))
+		logger.Error("Error updating user roles", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
 
@@ -239,7 +239,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		updatedRoles := rolesPayloadToModel(payload.Roles)
 		_, err = h.UserRoleAssociator.UpdateUserRoles(*updatedOfficeUser.UserID, updatedRoles)
 		if err != nil {
-			logger.Error("error updating user roles", zap.Error(err))
+			logger.Error("Error updating user roles", zap.Error(err))
 			return officeuserop.NewUpdateOfficeUserInternalServerError()
 		}
 	}
