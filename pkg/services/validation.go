@@ -2,6 +2,11 @@ package services
 
 import "time"
 
+// ValidationData TODO consider if we need this interface type for flexibility (mocking, etc)...
+type ValidationData interface {
+	getVerrs() error
+}
+
 // SetOptionalDateTimeField sets the correct new value for the updated date field. Can be nil.
 func SetOptionalDateTimeField(newDate *time.Time, oldDate *time.Time) *time.Time {
 	// check if the user wanted to keep this field the same:
