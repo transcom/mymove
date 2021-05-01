@@ -144,6 +144,7 @@ describe('Office Users Edit Page', function () {
 
     cy.get('input[id="firstName"]').clear().type('Edit');
     cy.get('input[id="lastName"]').clear().type('CypressUser');
+    cy.get('input[id="transportationOfficeId"]').should('not.be.disabled');
 
     // set the user to the active status they did NOT have before
     cy.get('#active').click();

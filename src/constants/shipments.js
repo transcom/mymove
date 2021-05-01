@@ -26,3 +26,5 @@ export const shipmentStatuses = {
   REJECTED: 'REJECTED',
   CANCELLATION_REQUESTED: 'CANCELLATION_REQUESTED',
 };
+
+export const LONGHAUL_MIN_DISTANCE = 50;

@@ -1785,11 +1785,6 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "isCanceled": {
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
-        },
         "moveCode": {
           "type": "string",
           "readOnly": true,
@@ -4418,11 +4413,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
         },
         "moveCode": {
           "type": "string",

@@ -6,3 +6,16 @@ import '../src/index.scss';
 import '../src/ghc_index.scss';
 
 import '../src/icons';
+
+export const parameters = {
+  options: {
+    storySort: {
+      order: [
+        'Global',
+        'Components',
+        'Office Components',
+        'Customer Components',
+      ],
+    },
+  },
+};

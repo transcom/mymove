@@ -101,7 +101,14 @@ const ServicesCounselingMoveDetails = () => {
             </Grid>
           </Grid>
           <div className={styles.section} id="allowances">
-            <DetailsPanel title="Allowances">
+            <DetailsPanel
+              title="Allowances"
+              editButton={
+                <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                  Edit allowances
+                </Link>
+              }
+            >
               <AllowancesList info={allowancesInfo} />
             </DetailsPanel>
           </div>

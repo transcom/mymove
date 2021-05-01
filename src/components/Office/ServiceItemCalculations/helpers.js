@@ -1,4 +1,5 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
+import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
 import { formatWeight, formatCents, toDollarString } from 'shared/formatters';
 import { formatDate } from 'shared/dates';
 import { formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
@@ -228,11 +229,23 @@ const additionalDayDestinationSITPrice = (params) => {
 const sitDeliveryPrice = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.SITDeliveryPrice;
+
   const sitScheduleDestination = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.SITScheduleDest, params)}`;
 
   return calculation(value, label, sitScheduleDestination, requestedPickupDate(params), peak(params));
+};
+
+const sitDeliveryPriceShorthaulDifferentZIP3 = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.SITDeliveryPrice;
+
+  const sitScheduleDestination = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]
+  }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.SITScheduleDest, params)}`;
+
+  return calculation(value, label, sitScheduleDestination, requestedPickupDate(params), peak(params), '<=50 miles');
 };
 
 const daysInSIT = (params) => {
@@ -266,15 +279,30 @@ const makeCalculations = (itemCode, totalAmount, params) => {
   let result = [];
 
   switch (itemCode) {
-    case SERVICE_ITEM_CODES.DDDSIT:
-      result = [
-        billableWeight(params),
-        dddSITmileageZip5(params),
-        sitDeliveryPrice(params),
-        priceEscalationFactor(params),
-        totalAmountRequested(totalAmount),
-      ];
+    case SERVICE_ITEM_CODES.DDDSIT: {
+      const mileage = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
+      const startZip = getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipDestAddress, params)?.slice(0, 3);
+      const endZip = getParamValue(SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress, params)?.slice(0, 3);
+      // Mileage does not factor into the pricing for distances less than 50 miles and non-matching
+      // zip3, so we won't display mileage
+      if (mileage <= LONGHAUL_MIN_DISTANCE && startZip !== endZip) {
+        result = [
+          billableWeight(params),
+          sitDeliveryPriceShorthaulDifferentZIP3(params), // Display under mileage threshold
+          priceEscalationFactor(params),
+          totalAmountRequested(totalAmount),
+        ];
+      } else {
+        result = [
+          billableWeight(params),
+          dddSITmileageZip5(params),
+          sitDeliveryPrice(params),
+          priceEscalationFactor(params),
+          totalAmountRequested(totalAmount),
+        ];
+      }
       break;
+    }
     // Domestic longhaul
     case SERVICE_ITEM_CODES.DLH:
       result = [

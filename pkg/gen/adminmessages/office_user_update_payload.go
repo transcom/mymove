@@ -37,6 +37,10 @@ type OfficeUserUpdatePayload struct {
 	// telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone,omitempty"`
+
+	// transportation office Id
+	// Format: uuid
+	TransportationOfficeID strfmt.UUID `json:"transportationOfficeId,omitempty"`
 }
 
 // Validate validates this office user update payload
@@ -48,6 +52,10 @@ func (m *OfficeUserUpdatePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateTelephone(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTransportationOfficeID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -89,6 +97,19 @@ func (m *OfficeUserUpdatePayload) validateTelephone(formats strfmt.Registry) err
 	}
 
 	if err := validate.Pattern("telephone", "body", string(*m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *OfficeUserUpdatePayload) validateTransportationOfficeID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.TransportationOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("transportationOfficeId", "body", "uuid", m.TransportationOfficeID.String(), formats); err != nil {
 		return err
 	}
 

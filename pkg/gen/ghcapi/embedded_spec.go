@@ -1766,7 +1766,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the date of when the service member submitted their move",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
             "name": "submittedAt",
             "in": "query"
           },
@@ -1981,8 +1982,8 @@ func init() {
           },
           {
             "type": "string",
-            "format": "date",
-            "description": "limit results to those matching submitted at date",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
             "name": "submittedAt",
             "in": "query"
           },
@@ -3161,10 +3162,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "locator": {
           "type": "string",
@@ -6196,7 +6193,8 @@ func init() {
           },
           {
             "type": "string",
-            "description": "filters the date of when the service member submitted their move",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
             "name": "submittedAt",
             "in": "query"
           },
@@ -6423,8 +6421,8 @@ func init() {
           },
           {
             "type": "string",
-            "format": "date",
-            "description": "limit results to those matching submitted at date",
+            "format": "date-time",
+            "description": "Start of the submitted at date in the user's local time zone converted to UTC",
             "name": "submittedAt",
             "in": "query"
           },
@@ -7624,10 +7622,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "locator": {
           "type": "string",
