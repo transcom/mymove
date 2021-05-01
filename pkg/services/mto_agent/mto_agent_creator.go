@@ -5,7 +5,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	mtoagentvalidate "github.com/transcom/mymove/pkg/services/mto_agent/validation"
+	mtoagentvalidate "github.com/transcom/mymove/pkg/services/mto_agent/validate"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"

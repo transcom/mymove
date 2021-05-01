@@ -3,7 +3,7 @@ package mtoagent
 import (
 	"fmt"
 
-	mtoagentvalidate "github.com/transcom/mymove/pkg/services/mto_agent/validation"
+	mtoagentvalidate "github.com/transcom/mymove/pkg/services/mto_agent/validate"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
