@@ -1,7 +1,12 @@
 import React from 'react';
 import { object } from '@storybook/addon-knobs';
 
-import CustomerInfoTable from './CustomerInfoTable';
+import CustomerInfoList from './CustomerInfoList';
+
+export default {
+  title: 'Office Components/CustomerInfoList',
+  component: CustomerInfoList,
+};
 
 const info = {
   name: 'Smith, Kerry',
@@ -21,8 +26,4 @@ const info = {
   },
 };
 
-export default {
-  title: 'Office Components/CustomerInfoTable',
-};
-
-export const Default = () => <CustomerInfoTable customerInfo={object('customerInfo', info)} />;
+export const Basic = () => <CustomerInfoList customerInfo={object('info', info)} />;
