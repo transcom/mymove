@@ -49,12 +49,13 @@ export const WithAllPotentialMissingInfo = () => (
       newDutyStation: object('ordersInfo.newDutyStation', { name: 'JB Lewis-McChord' }),
       issuedDate: text('ordersInfo.issuedDate', '2020-03-08'),
       reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
-      departmentIndicator: '',
-      ordersNumber: '',
-      ordersType: '',
-      ordersTypeDetail: '',
-      tacMDC: '',
-      sacSDN: text('ordersInfo.sacSDN', '999 999999 999'),
+      departmentIndicator: undefined,
+      ordersNumber: undefined,
+      ordersType: undefined,
+      ordersTypeDetail: undefined,
+      tacMDC: undefined,
+      // TODO: missing styles/text are not added to SAC row, but they maybe should be
+      sacSDN: undefined,
     }}
   />
 );

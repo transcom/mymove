@@ -11,14 +11,14 @@ export default {
 };
 
 export const Basic = () => (
-  <DetailsPanel title="More details">
+  <DetailsPanel title="Details panel">
     <p>Child content!</p>
   </DetailsPanel>
 );
 
 export const WithEditButton = () => (
   <DetailsPanel
-    title="More details with edit button"
+    title="Details panel with edit button"
     editButton={
       <a href="#" className="usa-button usa-button--secondary">
         Edit
@@ -26,6 +26,12 @@ export const WithEditButton = () => (
     }
   >
     <p>Child content!</p>
+  </DetailsPanel>
+);
+
+export const WithClassname = () => (
+  <DetailsPanel title="Details panel with added CSS class" className="border-2px">
+    <p>I have a border class added via props!</p>
   </DetailsPanel>
 );
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
-import { get } from 'lodash';
 
 import styles from './OfficeDefinitionLists.module.scss';
 
@@ -29,12 +28,9 @@ const CustomerInfoList = ({ customerInfo }) => {
           <dd data-testid="email">{customerInfo.email}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>Current Address</dt>
+          <dt>Current address</dt>
           <dd data-testid="currentAddress">
-            {`${get(customerInfo, 'currentAddress.street_address_1')}, ${get(
-              customerInfo,
-              'currentAddress.city',
-            )}, ${get(customerInfo, 'currentAddress.state')} ${get(customerInfo, 'currentAddress.postal_code')}`}
+            {`${customerInfo.currentAddress?.street_address_1}, ${customerInfo.currentAddress?.city}, ${customerInfo.currentAddress?.state} ${customerInfo.currentAddress?.postal_code}`}
           </dd>
         </div>
         <div className={descriptionListStyles.row}>

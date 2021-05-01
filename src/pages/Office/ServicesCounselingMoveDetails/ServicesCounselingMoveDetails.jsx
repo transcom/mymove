@@ -110,7 +110,7 @@ const ServicesCounselingMoveDetails = () => {
               title="Customer info"
               editButton={
                 <Link className="usa-button usa-button--secondary" data-testid="edit=customer-info" to="#">
-                  Edit
+                  Edit customer info
                 </Link>
               }
             >
