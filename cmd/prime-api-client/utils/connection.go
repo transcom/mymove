@@ -229,6 +229,7 @@ func CreateSupportClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store
 		}
 	}
 
+	// #nosec G402
 	verbose := cli.LogLevelIsDebug(v)
 	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
 	myRuntime := runtimeClient.NewWithClient(hostWithPort, supportClient.DefaultBasePath, []string{"https"}, httpClient)
