@@ -42,7 +42,7 @@ const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAd
           </div>
           {/* This is where I need to add the destination information */}
           {/* <div>{shipmentAddress !== '' && <p data-testid="pickup-to-destination">{shipmentAddress}</p>}</div> */}
-          <div>
+          <div data-testid="pickup-to-destination">
             Departed {shipmentDepartureDate} {shipmentAddress}
           </div>
         </div>

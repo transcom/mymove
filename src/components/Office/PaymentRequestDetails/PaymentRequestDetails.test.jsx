@@ -159,6 +159,7 @@ const ntsrServiceItems = [
 const shipmentAddressBasic = '';
 const shipmentAddressHHG = 'Beverly Hills, CA 90210 to Fairfield, CA 94535';
 const shipmentAddressNTS = 'Boston, MA 02101 to Princeton, NJ 08540';
+const shipmentDepartureDate = '2020-12-01T00:00:00.000Z';
 
 const testMoveLocator = 'AF7K1P';
 
@@ -169,6 +170,7 @@ describe('PaymentRequestDetails', () => {
         <PaymentRequestDetails
           serviceItems={basicServiceItems}
           shipmentAddress={shipmentAddressBasic}
+          shipmentDepartureDate={shipmentDepartureDate}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
         />
       </MockProviders>,
@@ -230,6 +232,7 @@ describe('PaymentRequestDetails', () => {
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
           shipmentAddress={shipmentAddressHHG}
+          shipmentDepartureDate={shipmentDepartureDate}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -283,6 +286,7 @@ describe('PaymentRequestDetails', () => {
         <PaymentRequestDetails
           serviceItems={ntsrServiceItems}
           shipmentAddress={shipmentAddressNTS}
+          shipmentDepartureDate={shipmentDepartureDate}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -333,6 +337,7 @@ describe('PaymentRequestDetails', () => {
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
           shipmentAddress={shipmentAddressHHG}
+          shipmentDepartureDate={shipmentDepartureDate}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -348,6 +353,7 @@ describe('PaymentRequestDetails', () => {
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
           shipmentAddress={shipmentAddressHHG}
+          shipmentDepartureDate={shipmentDepartureDate}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
         />
       </MockProviders>,

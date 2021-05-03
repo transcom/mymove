@@ -80,7 +80,7 @@ jest.mock('hooks/queries', () => ({
   },
 }));
 
-const shipmentAddresses = [
+const shipmentInfo = [
   {
     mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
     shipmentAddress: 'Columbia, SC 29212 to Princeton, NJ 08540',
@@ -135,7 +135,7 @@ describe('PaymentRequestCard', () => {
     };
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentAddresses={shipmentAddresses} />
+        <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentInfo={shipmentInfo} />
       </MockProviders>,
     );
 
@@ -226,7 +226,7 @@ describe('PaymentRequestCard', () => {
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-        <PaymentRequestCard paymentRequest={reviewedPaymentRequest} shipmentAddresses={shipmentAddresses} />
+        <PaymentRequestCard paymentRequest={reviewedPaymentRequest} shipmentInfo={shipmentInfo} />
       </MockProviders>,
     );
 
@@ -267,7 +267,7 @@ describe('PaymentRequestCard', () => {
     it('shows only rejected if no service items are approved', () => {
       const rejected = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={rejectedPaymentRequest} shipmentAddresses={shipmentAddresses} />
+          <PaymentRequestCard paymentRequest={rejectedPaymentRequest} shipmentInfo={shipmentInfo} />
         </MockProviders>,
       );
 
@@ -312,7 +312,7 @@ describe('PaymentRequestCard', () => {
       };
       const sentToGex = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={sentToGexPaymentRequest} shipmentAddresses={shipmentAddresses} />
+          <PaymentRequestCard paymentRequest={sentToGexPaymentRequest} shipmentInfo={shipmentInfo} />
         </MockProviders>,
       );
       expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
@@ -346,7 +346,7 @@ describe('PaymentRequestCard', () => {
       };
       const receivedByGex = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={receivedByGexPaymentRequest} shipmentAddresses={shipmentAddresses} />
+          <PaymentRequestCard paymentRequest={receivedByGexPaymentRequest} shipmentInfo={shipmentInfo} />
         </MockProviders>,
       );
       expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
@@ -380,7 +380,7 @@ describe('PaymentRequestCard', () => {
       };
       const paid = mount(
         <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
-          <PaymentRequestCard paymentRequest={paidPaymentRequest} shipmentAddresses={shipmentAddresses} />
+          <PaymentRequestCard paymentRequest={paidPaymentRequest} shipmentInfo={shipmentInfo} />
         </MockProviders>,
       );
       expect(paid.find({ 'data-testid': 'tag' }).contains('Paid')).toBe(true);
