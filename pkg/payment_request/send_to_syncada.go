@@ -31,6 +31,7 @@ func SendToSyncada(edi string, icn int64, gexSender services.GexSender, sftpSend
 			return fmt.Errorf("GEX sender encountered an error: %w", err)
 		}
 		if resp == nil {
+			logger.Error("GEX Sender receieved no response from GEX")
 			return fmt.Errorf("no response when sending EDI to GEX")
 		}
 		if resp.StatusCode != http.StatusOK {
@@ -38,7 +39,7 @@ func SendToSyncada(edi string, icn int64, gexSender services.GexSender, sftpSend
 			return fmt.Errorf("received error response when sending EDI to GEX %v", resp)
 		}
 		logger.Info(
-			"SUCCESS: 858 Processor sent new file to syncada for Payment Request, using GEX",
+			"SUCCESS: EDI858 Processor sent a new file to syncada for Payment Request, using GEX",
 			zap.String("filename", syncadaFileName))
 	} else if sftpSender != nil {
 		// Send to Syncada via SFTP
@@ -49,7 +50,7 @@ func SendToSyncada(edi string, icn int64, gexSender services.GexSender, sftpSend
 		if err != nil {
 			return err
 		}
-		logger.Info("SUCCESS: 858 Processor sent new file to syncada for Payment Request", zap.String("syncadaFileName", syncadaFileName))
+		logger.Info("SUCCESS: EDI858 Processor sent new file to syncada for Payment Request", zap.String("syncadaFileName", syncadaFileName))
 	}
 	return nil
 }

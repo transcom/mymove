@@ -1,5 +1,6 @@
 FROM alpine:3.12.3
 
+# hadolint ignore=DL3017
 RUN apk upgrade --no-cache busybox
 
 COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
@@ -10,6 +11,7 @@ COPY migrations/app/schema /migrate/schema
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 
 # Install tools needed in container
+# hadolint ignore=DL3018
 RUN apk update && apk add ca-certificates --no-cache
 
 WORKDIR /

@@ -54,10 +54,6 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// Indicated this MoveTaskOrder has been canceled.
-	// Read Only: true
-	IsCanceled *bool `json:"isCanceled,omitempty"`
-
 	// Unique 6-character code the customer can use to refer to their move
 	// Read Only: true
 	MoveCode string `json:"moveCode,omitempty"`
@@ -128,8 +124,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
-		IsCanceled *bool `json:"isCanceled,omitempty"`
-
 		MoveCode string `json:"moveCode,omitempty"`
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
@@ -188,9 +182,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// id
 	result.ID = data.ID
 
-	// isCanceled
-	result.IsCanceled = data.IsCanceled
-
 	// moveCode
 	result.MoveCode = data.MoveCode
 
@@ -247,8 +238,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
-		IsCanceled *bool `json:"isCanceled,omitempty"`
-
 		MoveCode string `json:"moveCode,omitempty"`
 
 		MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
@@ -281,8 +270,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		ETag: m.ETag,
 
 		ID: m.ID,
-
-		IsCanceled: m.IsCanceled,
 
 		MoveCode: m.MoveCode,
 

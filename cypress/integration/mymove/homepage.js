@@ -15,7 +15,7 @@ describe('The Home Page', function () {
   it('successfully loads when not logged in', function () {
     cy.logout();
     cy.contains('Welcome');
-    cy.contains('Sign In');
+    cy.contains('Sign in');
   });
 
   it('contains the link to customer service', function () {

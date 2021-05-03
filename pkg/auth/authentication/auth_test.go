@@ -105,7 +105,8 @@ func setupScsSession(ctx context.Context, session *auth.Session, sessionManager 
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	sessionManager.Store.Commit("session_token", b, expiry) // nolint:errcheck
+	// nolint:errcheck
+	sessionManager.Store.Commit("session_token", b, expiry)
 	scsContext, _ := sessionManager.Load(ctx, "session_token")
 	//RA Summary: gosec - errcheck - Unchecked return value
 	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
@@ -115,7 +116,8 @@ func setupScsSession(ctx context.Context, session *auth.Session, sessionManager 
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	sessionManager.Commit(scsContext) // nolint:errcheck
+	// nolint:errcheck
+	sessionManager.Commit(scsContext)
 	return scsContext
 }
 

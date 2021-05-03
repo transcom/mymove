@@ -5,6 +5,7 @@
 FROM milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6 as builder
 
 # Prepare public DOD certificates.
+# hadolint ignore=DL3002
 USER root
 COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /tmp/all-public-dod-certs.der.p7b
 RUN openssl pkcs7 -print_certs -inform der -in /tmp/all-public-dod-certs.der.p7b -out /usr/local/share/ca-certificates/all-public-dod-certs.crt
@@ -13,6 +14,7 @@ RUN update-ca-certificates
 #########
 # FINAL #
 #########
+# hadolint ignore=DL3007
 FROM gcr.io/distroless/static:latest
 
 # Copy DOD certs from the builder.

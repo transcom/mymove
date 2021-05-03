@@ -10,8 +10,9 @@ import { withContext } from 'shared/AppContext';
 import Alert from 'shared/Alert';
 import ConnectedEulaModal from 'components/EulaModal';
 import { LocationShape } from 'types/index';
+import { isDevelopment } from 'shared/constants';
 
-const SignIn = ({ context, location }) => {
+const SignIn = ({ context, location, showLocalDevLogin }) => {
   const [showEula, setShowEula] = useState(false);
 
   const { error } = qs.parse(location.search);
@@ -72,6 +73,12 @@ const SignIn = ({ context, location }) => {
             >
               Sign in
             </Button>
+
+            {showLocalDevLogin && (
+              <a className="usa-button" data-testid="devlocal-signin" href="/devlocal-auth/login">
+                Local Sign In
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -85,6 +92,11 @@ SignIn.propTypes = {
     showLoginWarning: bool,
   }).isRequired,
   location: LocationShape.isRequired,
+  showLocalDevLogin: bool,
+};
+
+SignIn.defaultProps = {
+  showLocalDevLogin: isDevelopment,
 };
 
 export default withContext(SignIn);

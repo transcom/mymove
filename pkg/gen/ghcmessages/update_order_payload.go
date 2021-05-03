@@ -56,10 +56,21 @@ type UpdateOrderPayload struct {
 	// orders type detail
 	OrdersTypeDetail *OrdersTypeDetail `json:"ordersTypeDetail,omitempty"`
 
+	// only for Army
+	OrganizationalClothingAndIndividualEquipment *bool `json:"organizationalClothingAndIndividualEquipment,omitempty"`
+
 	// origin duty station Id
 	// Required: true
 	// Format: uuid
 	OriginDutyStationID *strfmt.UUID `json:"originDutyStationId"`
+
+	// unit is in lbs
+	// Minimum: 0
+	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
+
+	// unit is in lbs
+	// Minimum: 0
+	ProGearWeightSpouse *int64 `json:"proGearWeightSpouse,omitempty"`
 
 	// Report-by date
 	//
@@ -67,6 +78,10 @@ type UpdateOrderPayload struct {
 	// Required: true
 	// Format: date
 	ReportByDate *strfmt.Date `json:"reportByDate"`
+
+	// unit is in lbs
+	// Minimum: 0
+	RequiredMedicalEquipmentWeight *int64 `json:"requiredMedicalEquipmentWeight,omitempty"`
 
 	// SAC
 	Sac *string `json:"sac,omitempty"`
@@ -115,7 +130,19 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateProGearWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateProGearWeightSpouse(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRequiredMedicalEquipmentWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -255,6 +282,32 @@ func (m *UpdateOrderPayload) validateOriginDutyStationID(formats strfmt.Registry
 	return nil
 }
 
+func (m *UpdateOrderPayload) validateProGearWeight(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ProGearWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("proGearWeight", "body", int64(*m.ProGearWeight), 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) validateProGearWeightSpouse(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ProGearWeightSpouse) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("proGearWeightSpouse", "body", int64(*m.ProGearWeightSpouse), 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("reportByDate", "body", m.ReportByDate); err != nil {
@@ -262,6 +315,19 @@ func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) validateRequiredMedicalEquipmentWeight(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RequiredMedicalEquipmentWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("requiredMedicalEquipmentWeight", "body", int64(*m.RequiredMedicalEquipmentWeight), 0, false); err != nil {
 		return err
 	}
 

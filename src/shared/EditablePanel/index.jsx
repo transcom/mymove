@@ -46,7 +46,6 @@ export const PanelField = (props) => {
     </div>
   );
 
-  /* eslint-disable security/detect-object-injection */
   if (required && !(value || props.children)) {
     component = (
       <div className={'missing ' + classes}>
@@ -55,7 +54,6 @@ export const PanelField = (props) => {
       </div>
     );
   }
-  /* eslint-enable security/detect-object-injection */
 
   return component;
 };
@@ -71,7 +69,6 @@ export const SwaggerValue = (props) => {
   const { fieldName, schema, values } = props;
   let swaggerProps = {};
   if (schema.properties) {
-    /* eslint-disable security/detect-object-injection */
     swaggerProps = schema.properties[fieldName];
   }
   let value = values[fieldName] || '';
@@ -87,7 +84,6 @@ export const SwaggerValue = (props) => {
   if (value && swaggerProps['x-formatting'] === 'weight') {
     value = value.toLocaleString() + ' lbs';
   }
-  /* eslint-enable security/detect-object-injection */
   return <React.Fragment>{value || null}</React.Fragment>;
 };
 SwaggerValue.propTypes = {
@@ -107,7 +103,6 @@ export const PanelSwaggerField = (props) => {
     </PanelField>
   );
 
-  /* eslint-disable security/detect-object-injection */
   if (required && !values[fieldName]) {
     component = (
       <PanelField title={title} className={classes} required>
@@ -115,7 +110,6 @@ export const PanelSwaggerField = (props) => {
       </PanelField>
     );
   }
-  /* eslint-enable security/detect-object-injection */
 
   return component;
 };

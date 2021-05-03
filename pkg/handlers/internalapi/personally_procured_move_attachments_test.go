@@ -92,7 +92,8 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 			//RA Developer Status: Mitigated
 			//RA Validator Status: Mitigated
 			//RA Modified Severity: N/A
-			userUploader.CreateUserUploadForDocument(&expDoc.MoveDocument.DocumentID, *officeUser.UserID, uploader.File{File: f}, uploader.AllowedTypesServiceMember) // nolint:errcheck
+			// nolint:errcheck
+			userUploader.CreateUserUploadForDocument(&expDoc.MoveDocument.DocumentID, *officeUser.UserID, uploader.File{File: f}, uploader.AllowedTypesServiceMember)
 
 			request := httptest.NewRequest("POST", "/fake/path", nil)
 			request = suite.AuthenticateOfficeRequest(request, officeUser)
