@@ -70,7 +70,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	})
 
 	suite.T().Run("fetch return an empty list", func(t *testing.T) {
-		// TEST:	IndexOfficeUserHandler, Fetcher
+		// TEST:				IndexOfficeUserHandler, Fetcher
 		// Set up:				Provide an invalid search that won't be found
 		// Expected Outcome:	An empty list is returned and we get a 200 OK.
 		fakeFilter := "{\"search\":\"something\"}"
