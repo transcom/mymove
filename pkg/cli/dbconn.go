@@ -335,7 +335,7 @@ func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger Lo
 		IdlePool: dbConnDetails.IdlePool,
 	}
 
-	if useIam == true {
+	if useIam {
 		dbConnectionDetails.Password = iampg.GetCurrentPass()
 	}
 

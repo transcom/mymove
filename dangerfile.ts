@@ -178,7 +178,7 @@ const bypassingLinterChecks = async () => {
   if (dangerMsgSegment) {
     warn(
       `It looks like you are attempting to bypass a linter rule, which is not within
-      security compliance rules.\n** ${dangerMsgSegment} **\n Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
+      security compliance rules.\n** ${dangerMsgSegment} **\n Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-IS3`,
     );
   }
 };

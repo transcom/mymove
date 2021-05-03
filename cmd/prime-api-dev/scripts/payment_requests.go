@@ -221,10 +221,6 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 		fmt.Printf("AvailableToPrime: %s\n", mto.AvailableToPrimeAt.String())
 	}
 
-	if mto.IsCanceled != nil {
-		fmt.Printf("Is Canceled: %s\n", strconv.FormatBool(*mto.IsCanceled))
-	}
-
 	fmt.Printf("%s, %s\n", mto.Order.Customer.LastName, mto.Order.Customer.FirstName)
 
 	fmt.Printf("Dest. Duty Station: %s, %s, %s\n", *mto.Order.DestinationDutyStation.Address.City,
@@ -235,14 +231,14 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 		var sstrs []string
 		sstrs = append(sstrs, fmt.Sprintf("TOO approval date: %s\n", s.ApprovedDate.String()))
 		if s.PickupAddress == nil {
-			sstrs = append(sstrs, fmt.Sprint("Pickup address: <missing>\n"))
+			sstrs = append(sstrs, "Pickup address: <missing>\n")
 		} else {
 			sstrs = append(sstrs, fmt.Sprintf("Pickup address: %s, %s, %s\n", *s.PickupAddress.City,
 				*s.PickupAddress.State, *s.PickupAddress.PostalCode))
 		}
 
 		if s.DestinationAddress == nil {
-			sstrs = append(sstrs, fmt.Sprint("Dest. address: <missing>\n"))
+			sstrs = append(sstrs, "Dest. address: <missing>\n")
 		} else {
 			sstrs = append(sstrs, fmt.Sprintf("Dest. address: %s, %s, %s\n", *s.DestinationAddress.City,
 				*s.DestinationAddress.State, *s.DestinationAddress.PostalCode))
@@ -301,7 +297,7 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 
 	/*
 				AvailableToPrime:
-				isCanceled:
+				Status:
 				Branch:
 			 	Lasttname, Firstname
 				Dest Duty Station:
@@ -345,7 +341,7 @@ func (pr *paymentRequestsData) displayMTOS() {
 	// fill in new list of mtos
 	for _, mto := range pr.mtos {
 
-		if pr.printMTO(mto) == true {
+		if pr.printMTO(mto) {
 
 			description := fmt.Sprintf("%s|\t%s|\t%s,%s\n", mto.AvailableToPrimeAt.String(),
 				*mto.Order.DestinationDutyStation.Address.City,
@@ -453,20 +449,20 @@ func (pr *paymentRequestsData) updateShipmentsJSONToFile(f *os.File, shipmentUpd
 	***************************************************/
 
 	// {
-	strs = append(strs, fmt.Sprint("{\n"))
+	strs = append(strs, "{\n")
 	//		"mtoShipment": "ca9aeb58-e5a9-44b0-abe8-81d233dbdebf",
 	strs = append(strs, fmt.Sprintf("\"mtoShipmentID\": \"%s\",\n", pr.mtoShipmentDisplayList[shipmentIndex].mtoShipmentID))
 	//		"ifMatch": "MjAyMC0wOS0yOFQxNTo1OTozOC4zOTA0MjFa",
 	strs = append(strs, fmt.Sprintf("\"ifMatch\": \"%s\",\n", pr.mtoShipmentDisplayList[shipmentIndex].etag))
 	// 		"body": {
-	strs = append(strs, fmt.Sprint("\"body\": {\n"))
+	strs = append(strs, "\"body\": {\n")
 	last := len(shipmentUpdates)
 	counter := 0
 	for key, value := range shipmentUpdates {
 		counter++
 		var fieldUpdate string
 		//		"<field>": "<value>"
-		if value.isString == true {
+		if value.isString {
 			fieldUpdate = fmt.Sprintf("\"%s\": \"%s\"", key, value.value)
 		} else {
 			fieldUpdate = fmt.Sprintf("\"%s\": %s", key, value.value)
@@ -483,9 +479,9 @@ func (pr *paymentRequestsData) updateShipmentsJSONToFile(f *os.File, shipmentUpd
 	}
 
 	// 		}  # close body{
-	strs = append(strs, fmt.Sprint("}\n"))
+	strs = append(strs, "}\n")
 	// }  # close json
-	strs = append(strs, fmt.Sprint("}\n"))
+	strs = append(strs, "}\n")
 
 	text := []byte(strings.Join(strs, ""))
 
@@ -761,16 +757,16 @@ func (pr *paymentRequestsData) paymentRequestJSONToFile(f *os.File, serviceItems
 	***************************************************/
 
 	// {
-	strs = append(strs, fmt.Sprint("{\n"))
+	strs = append(strs, "{\n")
 	// 		"body": {
-	strs = append(strs, fmt.Sprint("\"body\": {\n"))
+	strs = append(strs, "\"body\": {\n")
 	//		    "isFinal": false,
 	strs = append(strs, fmt.Sprintf("\"isFinal\": %s,\n", serviceItems["isFinal"].value))
 	//		    "moveTaskOrderID": "49abcdbf-d4ed-4c9c-9ce1-677ee7653f77",
 	strs = append(strs, fmt.Sprintf("\"moveTaskOrderID\": \"%s\",\n", pr.currentMTO.ID.String()))
 
 	//"serviceItems": [
-	strs = append(strs, fmt.Sprint("\"serviceItems\": [\n"))
+	strs = append(strs, "\"serviceItems\": [\n")
 	last := len(serviceItems)
 	last-- // need to account for skipping over 'isFinal' key
 	counter := 0
@@ -798,11 +794,11 @@ func (pr *paymentRequestsData) paymentRequestJSONToFile(f *os.File, serviceItems
 	}
 
 	//          ]  # close "serviceItems": [
-	strs = append(strs, fmt.Sprint("]\n"))
+	strs = append(strs, "]\n")
 	// 		}  # close body{
-	strs = append(strs, fmt.Sprint("}\n"))
+	strs = append(strs, "}\n")
 	// }  # close json
-	strs = append(strs, fmt.Sprint("}\n"))
+	strs = append(strs, "}\n")
 
 	text := []byte(strings.Join(strs, ""))
 

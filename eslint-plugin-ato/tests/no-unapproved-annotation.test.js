@@ -4,6 +4,12 @@ const rule = require('../no-unapproved-annotation');
 
 const ruleTester = new RuleTester();
 
+const ERRORS = {
+  REQUIRES_APPROVAL_MSG: 'Requires annotation approval from an ISSO',
+  REQUIRES_ANNOTATION_MSG:
+    'Disabling of this rule requires an annotation. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit?usp=sharing',
+  NO_INLINE_DISABLE_MSG: 'Please use eslint-disable-next-line instead of eslint-disable-line',
+};
 ruleTester.run('no-unapproved-annotation', rule, {
   valid: [
     '// RA Validator Status: Mitigated\n// eslint-disable no-console',
@@ -62,18 +68,28 @@ ruleTester.run('no-unapproved-annotation', rule, {
     {
       code:
         '// RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}\n// eslint-disable no-console',
-      errors: [{ message: 'Requires annotation approval from an ISSO' }],
+      errors: [{ message: ERRORS.REQUIRES_APPROVAL_MSG }],
     },
     {
       code: '// RA Validator Status: \n// eslint-disable-next-line no-console',
-      errors: [{ message: 'Requires annotation approval from an ISSO' }],
+      errors: [{ message: ERRORS.REQUIRES_APPROVAL_MSG }],
     },
     {
       code: '// eslint-disable security/detect-unsafe-regex',
       errors: [
         {
-          message:
-            'Disabling of this rule requires an annotation. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit?usp=sharing',
+          message: ERRORS.REQUIRES_ANNOTATION_MSG,
+        },
+      ],
+    },
+    {
+      code: '// eslint-disable-line no-unused-vars',
+      errors: [
+        {
+          message: ERRORS.NO_INLINE_DISABLE_MSG,
+        },
+        {
+          message: ERRORS.REQUIRES_ANNOTATION_MSG,
         },
       ],
     },

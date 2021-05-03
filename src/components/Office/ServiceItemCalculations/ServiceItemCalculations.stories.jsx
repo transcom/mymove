@@ -27,6 +27,15 @@ export default {
 
 export const DDDSIT = (data) => (
   <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestinationSITDeliveryLonghaul}
+    totalAmountRequested={642}
+    itemCode="DDDSIT"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DDDSITShorthaulDifferentZIP3 = (data) => (
+  <ServiceItemCalculations
     serviceItemParams={testParams.DomesticDestinationSITDelivery}
     totalAmountRequested={642}
     itemCode="DDDSIT"

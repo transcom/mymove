@@ -44,8 +44,10 @@ type CreateMovingExpenseDocumentHandler struct {
 // Handle is the handler
 func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMovingExpenseDocumentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)

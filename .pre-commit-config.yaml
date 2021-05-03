@@ -115,7 +115,7 @@ repos:
         pass_filenames: false
 
   - repo: git://github.com/trussworks/pre-commit-hooks
-    rev: v1.0.1
+    rev: v1.1.0
     hooks:
       - id: gen-docs
         args: ['docs/adr']
@@ -128,11 +128,7 @@ repos:
             vendor/|
             docs/adr/index.md
           )$
-
-  - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
-    rev: v0.1.0
-    hooks:
-      - id: dockerfilelint
+      - id: hadolint
 
   - repo: local
     hooks:

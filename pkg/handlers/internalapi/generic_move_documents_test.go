@@ -65,7 +65,8 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	suite.DB().Find(&fetchedUpload, userUpload.ID) // nolint:errcheck
+	// nolint:errcheck
+	suite.DB().Find(&fetchedUpload, userUpload.ID)
 	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
 
 	// Next try the wrong user

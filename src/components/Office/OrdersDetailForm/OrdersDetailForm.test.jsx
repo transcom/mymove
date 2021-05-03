@@ -1,4 +1,4 @@
-/* eslint-disable  react/jsx-props-no-spreading */
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 import { Formik } from 'formik';

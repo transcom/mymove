@@ -105,7 +105,8 @@ func setupScsSession(ctx context.Context, session *auth.Session, sessionManager 
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	sessionManager.Store.Commit("session_token", b, expiry) // nolint:errcheck
+	// nolint:errcheck
+	sessionManager.Store.Commit("session_token", b, expiry)
 	scsContext, _ := sessionManager.Load(ctx, "session_token")
 	//RA Summary: gosec - errcheck - Unchecked return value
 	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
@@ -115,7 +116,8 @@ func setupScsSession(ctx context.Context, session *auth.Session, sessionManager 
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	sessionManager.Commit(scsContext) // nolint:errcheck
+	// nolint:errcheck
+	sessionManager.Commit(scsContext)
 	return scsContext
 }
 
@@ -224,8 +226,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
+	sessionManager := scs.New()
 	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.logger)(handler))
 
 	middleware.ServeHTTP(rr, req)
@@ -239,8 +240,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
 	req := httptest.NewRequest("GET", "/is_logged_in", nil)
 
 	rr := httptest.NewRecorder()
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
+	sessionManager := scs.New()
 	handler := sessionManager.LoadAndSave(IsLoggedInMiddleware(suite.logger))
 
 	handler.ServeHTTP(rr, req)
@@ -264,8 +264,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
 
 	req := httptest.NewRequest("GET", "/is_logged_in", nil)
 
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
+	sessionManager := scs.New()
 	// And: the context contains the auth values
 	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
 	ctx := auth.SetSessionInRequestContext(req, &session)
@@ -292,8 +291,7 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	req := httptest.NewRequest("GET", "/moves", nil)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
+	sessionManager := scs.New()
 	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.logger)(handler))
 
 	middleware.ServeHTTP(rr, req)

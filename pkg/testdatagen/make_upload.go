@@ -39,7 +39,7 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		upload.Filename = filename
 
 		bytes := int64(2202009)
-		if assertions.UploadUseZeroBytes == true {
+		if assertions.UploadUseZeroBytes {
 			bytes = 0
 		} else if assertions.Upload.Bytes > 0 {
 			bytes = assertions.Upload.Bytes

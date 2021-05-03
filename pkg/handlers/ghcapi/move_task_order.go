@@ -30,7 +30,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	searchParams := services.FetchMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: false,
 	}
 	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)

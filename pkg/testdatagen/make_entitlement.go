@@ -15,6 +15,8 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	rmeWeight := 1000
 	ocie := true
 	grade := assertions.Order.Grade
+	proGearWeight := 2000
+	proGearWeightSpouse := 500
 
 	if grade == nil || *grade == "" {
 		grade = stringPointer("E_1")
@@ -26,6 +28,8 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 		NonTemporaryStorage:                          &truePtr,
 		PrivatelyOwnedVehicle:                        &truePtr,
 		StorageInTransit:                             &storageInTransit,
+		ProGearWeight:                                proGearWeight,
+		ProGearWeightSpouse:                          proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight:               rmeWeight,
 		OrganizationalClothingAndIndividualEquipment: ocie,
 	}

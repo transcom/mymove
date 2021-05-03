@@ -15,6 +15,21 @@ export default {
       </div>
     ),
   ],
+  argTypes: {
+    editableAuthorizedWeight: {
+      defaultValue: false,
+      control: {
+        type: 'select',
+        options: [true, false],
+      },
+    },
+    header: {
+      defaultValue: null,
+      control: {
+        type: 'text',
+      },
+    },
+  },
 };
 
 const entitlement = {
@@ -22,14 +37,16 @@ const entitlement = {
   dependentsAuthorized: true,
   nonTemporaryStorage: true,
   privatelyOwnedVehicle: false,
-  proGearWeight: 1500,
-  proGearWeightSpouse: 1000,
+  proGearWeight: 2000,
+  proGearWeightSpouse: 500,
+  requiredMedicalEquipmentWeight: 1000,
+  organizationalClothingAndIndividualEquipment: true,
   storageInTransit: 90,
   totalWeight: 12875,
   totalDependents: 2,
 };
 
-export const Basic = () => {
+export const Basic = (data) => {
   return (
     <Formik
       initialValues={{
@@ -38,7 +55,11 @@ export const Basic = () => {
       onSubmit={() => {}}
     >
       <form>
-        <AllowancesDetailForm entitlements={object('entitlement', entitlement)} />
+        <AllowancesDetailForm
+          entitlements={object('entitlement', entitlement)}
+          editableAuthorizedWeight={data.editableAuthorizedWeight}
+          header={data.header}
+        />
       </form>
     </Formik>
   );

@@ -60,6 +60,38 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /move-task-orders/{moveTaskOrderID}:
+    get:
+      summary: getMoveTaskOrder
+      description: |
+        ### Functionality
+        This endpoint gets an individual MoveTaskOrder by ID.
+
+        It will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+      operationId: getMoveTaskOrder
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/json
+      parameters:
+        - description: UUID of move task order to use.
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieve an individual move task order.
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move task order to use.
@@ -1039,10 +1071,6 @@ definitions:
       availableToPrimeAt:
         format: date-time
         type: string
-        x-nullable: true
-        readOnly: true
-      isCanceled:
-        type: boolean
         x-nullable: true
         readOnly: true
       updatedAt:

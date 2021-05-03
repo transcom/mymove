@@ -51,7 +51,8 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	suite.DB().Q().Eager().All(&contacts) // nolint:errcheck
+	// nolint:errcheck
+	suite.DB().Q().Eager().All(&contacts)
 	if len(contacts) != 1 {
 		t.Errorf("Expected to find 1 result but found %v", len(contacts))
 	}

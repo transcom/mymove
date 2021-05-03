@@ -4,11 +4,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services"
-
-	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -165,8 +164,24 @@ func (suite *OrderServiceSuite) TestListMoves() {
 				SubmittedAt: &submittedAt,
 			},
 		})
-		createdSubmittedDate := submittedAt.Format(time.RFC3339Nano)
-		params := services.ListOrderParams{SubmittedAt: &createdSubmittedDate}
+
+		// Test edge cases
+		submittedAt2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &submittedAt2,
+			},
+		})
+
+		// Test edge cases
+		submittedAt3 := time.Date(2022, 03, 31, 23, 59, 59, 59, time.UTC)
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &submittedAt3,
+			},
+		})
+
+		params := services.ListOrderParams{SubmittedAt: &submittedAt}
 
 		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
 

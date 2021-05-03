@@ -82,10 +82,10 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	Status []string
-	/*filters the date of when the service member submitted their move
+	/*Start of the submitted at date in the user's local time zone converted to UTC
 	  In: query
 	*/
-	SubmittedAt *string
+	SubmittedAt *strfmt.DateTime
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -463,7 +463,25 @@ func (o *GetServicesCounselingQueueParams) bindSubmittedAt(rawData []string, has
 		return nil
 	}
 
-	o.SubmittedAt = &raw
+	// Format: date-time
+	value, err := formats.Parse("date-time", raw)
+	if err != nil {
+		return errors.InvalidType("submittedAt", "query", "strfmt.DateTime", raw)
+	}
+	o.SubmittedAt = (value.(*strfmt.DateTime))
 
+	if err := o.validateSubmittedAt(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateSubmittedAt carries on validations for parameter SubmittedAt
+func (o *GetServicesCounselingQueueParams) validateSubmittedAt(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("submittedAt", "query", "date-time", o.SubmittedAt.String(), formats); err != nil {
+		return err
+	}
 	return nil
 }

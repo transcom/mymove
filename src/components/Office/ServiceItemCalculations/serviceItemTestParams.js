@@ -190,6 +190,26 @@ const DistanceZipSITDest = {
   value: '29',
 };
 
+const DistanceZipSITDestMatchingZip3 = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
+  id: '45ede48b-364d-473a-8c61-0f520a6a4e04',
+  key: 'DistanceZipSITDest',
+  origin: 'SYSTEM',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'INTEGER',
+  value: '3',
+};
+
+const DistanceZipSITDestLonghaul = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
+  id: '45ede48b-364d-473a-8c61-0f520a6a4e04',
+  key: 'DistanceZipSITDest',
+  origin: 'SYSTEM',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'INTEGER',
+  value: '51',
+};
+
 const ZipSITOriginHHGOriginalAddress = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
@@ -218,6 +238,16 @@ const ZipSITDestHHGFinalAddress = {
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'STRING',
   value: '94535',
+};
+
+const ZipSITDestHHGFinalAddressMatchingZip3 = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
+  id: '70eecf7f-beae-4906-95ba-cbfe6797cf3a',
+  key: 'ZipSITDestHHGFinalAddress',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'STRING',
+  value: '91920',
 };
 
 const EIAFuelPrice = {
@@ -524,6 +554,39 @@ const testParams = {
     ZipDestAddress,
     ZipSITDestHHGFinalAddress,
   ],
+
+  DomesticDestinationSITDeliveryLonghaul: [
+    ContractCode,
+    ContractYearName,
+    DistanceZipSITDestLonghaul,
+    EscalationCompounded,
+    PriceRateOrFactor,
+    RequestedPickupDate,
+    ServiceAreaDest,
+    SITScheduleDest,
+    WeightActual,
+    WeightBilledActual,
+    WeightEstimated,
+    ZipDestAddress,
+    ZipSITDestHHGFinalAddress,
+  ],
+
+  DomesticDestinationSITDeliveryMachingZip3: [
+    ContractCode,
+    ContractYearName,
+    DistanceZipSITDestMatchingZip3,
+    EscalationCompounded,
+    PriceRateOrFactor,
+    RequestedPickupDate,
+    ServiceAreaDest,
+    SITScheduleDest,
+    WeightActual,
+    WeightBilledActual,
+    WeightEstimated,
+    ZipDestAddress,
+    ZipSITDestHHGFinalAddressMatchingZip3,
+  ],
+
   DomesticPacking: [
     ContractYearName,
     EscalationCompounded,

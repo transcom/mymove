@@ -27,7 +27,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 		MoveCode:           moveTaskOrder.Locator,
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         moveTaskOrder.IsCanceled(),
 		OrderID:            strfmt.UUID(moveTaskOrder.OrdersID.String()),
 		Order:              Order(&moveTaskOrder.Orders),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
@@ -379,8 +378,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.RequiredDeliveryDate = strfmt.Date(*mtoShipment.RequiredDeliveryDate)
 	}
 
-	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.PrimeEstimatedWeightRecordedDate != nil {
+	if mtoShipment.PrimeEstimatedWeight != nil {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
+	}
+
+	if mtoShipment.PrimeEstimatedWeightRecordedDate != nil && !mtoShipment.PrimeEstimatedWeightRecordedDate.IsZero() {
 		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
 	}
 

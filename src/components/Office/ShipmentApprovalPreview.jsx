@@ -8,8 +8,8 @@ import { MTOShipmentShape, OrdersInfoShape } from '../../types/order';
 import { formatAddress } from '../../utils/shipmentDisplay';
 
 import styles from './shipmentApprovalPreview.module.scss';
-import AllowancesTable from './AllowancesTable/AllowancesTable';
-import CustomerInfoTable from './CustomerInfoTable';
+import AllowancesList from './DefinitionLists/AllowancesList';
+import CustomerInfoList from './DefinitionLists/CustomerInfoList';
 import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 
@@ -146,8 +146,10 @@ const ShipmentApprovalPreview = ({
                 </table>
               </>
             )}
-            <AllowancesTable info={allowancesInfo} />
-            <CustomerInfoTable customerInfo={customerInfo} />
+            <h2>Allowances</h2>
+            <AllowancesList info={allowancesInfo} />
+            <h2>Customer info</h2>
+            <CustomerInfoList customerInfo={customerInfo} />
           </div>
         </Modal>
       </ModalContainer>

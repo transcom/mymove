@@ -10,7 +10,7 @@ describe('Admin Users List Page', function () {
     cy.signInAsNewAdminUser();
     cy.get('a[href*="system/admin_users"]').click();
     cy.url().should('eq', adminBaseURL + '/system/admin_users');
-    cy.get('header').contains('Admin users');
+    cy.get('header').contains('Admin Users');
 
     const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'User Id', 'Active'];
     columnLabels.forEach((label) => {
