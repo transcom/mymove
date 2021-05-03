@@ -1,16 +1,24 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
-@import 'shared/styles/_custom';
 
 .AllowancesDetailForm {
+  h3 {
+    @include u-margin-top(0);
+  }
+
   :global .usa-form-group {
-    @include u-margin-bottom(3);
+    @include u-margin-bottom(4);
   }
 
   label {
+    @include u-margin-top(4);
     @include u-margin-bottom(1);
     color: $base-darker;
+  }
+
+  input + label {
+    @include u-margin-top(1);
   }
 
   dt {
@@ -24,11 +32,21 @@
     @include u-margin-bottom(3);
   }
 
-  .DependentsAuthorized {
+  .wrappedCheckbox {
+    @include u-margin-top(4);
+    @include u-margin-bottom(4);
     @include u-padding-top(1);
     @include u-padding-bottom(1);
     @include u-padding-left(2);
     border: 1px solid $base-lighter;
     border-radius: 4px;
+  }
+
+  .wrappedCheckbox:last-of-type {
+    @include u-margin-bottom(0);
+  }
+
+  .fieldWithHint {
+    @include u-margin-bottom(0);
   }
 }

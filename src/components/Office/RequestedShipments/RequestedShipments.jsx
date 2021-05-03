@@ -10,7 +10,7 @@ import styles from './RequestedShipments.module.scss';
 
 import { shipmentTypeLabels } from 'content/shipments';
 import { serviceItemCodes } from 'content/serviceItems';
-import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/moveOrder';
+import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
 
@@ -24,6 +24,8 @@ const RequestedShipments = ({
   moveTaskOrder,
   approveMTO,
   approveMTOShipment,
+  handleAfterSuccess,
+  missingRequiredOrdersInfo,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -65,8 +67,7 @@ const RequestedShipments = ({
               ),
             )
               .then(() => {
-                // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
-                window.location.reload();
+                handleAfterSuccess('mto', { showMTOpostedMessage: true });
               })
               .catch(() => {
                 // TODO: Decide if we want to display an error notice, log error event, or retry
@@ -91,8 +92,7 @@ const RequestedShipments = ({
           ),
         )
           .then(() => {
-            // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
-            window.location.reload();
+            handleAfterSuccess('mto');
           })
           .catch(() => {
             // TODO: Decide if we want to display an error notice, log error event, or retry
@@ -107,11 +107,13 @@ const RequestedShipments = ({
     setIsModalVisible(true);
   };
 
-  // if showing service items, enable button when shipment and service item are selected
-  // if not showing service items, enable button if a shipment is selected
+  // if showing service items, enable button when shipment and service item are selected and there is no missing required Orders information
+  // if not showing service items, enable button if a shipment is selected and there is no missing required Orders information
   const isButtonEnabled = moveTaskOrder.availableToPrimeAt
-    ? formik.values.shipments.length > 0
-    : formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
+    ? formik.values.shipments.length > 0 && !missingRequiredOrdersInfo
+    : formik.values.shipments.length > 0 &&
+      (formik.values.counselingFee || formik.values.shipmentManagementFee) &&
+      !missingRequiredOrdersInfo;
 
   // eslint-disable-next-line camelcase
   const dutyStationPostal = { postal_code: ordersInfo.newDutyStation?.address?.postal_code };
@@ -134,7 +136,7 @@ const RequestedShipments = ({
           </div>
 
           <form onSubmit={formik.handleSubmit}>
-            <h4>Requested shipments</h4>
+            <h2>Requested shipments</h2>
             <div className={styles.shipmentCards}>
               {mtoShipments &&
                 mtoShipments.map((shipment) => (
@@ -158,7 +160,7 @@ const RequestedShipments = ({
             <div className={styles.serviceItems}>
               {!moveTaskOrder.availableToPrimeAt && (
                 <>
-                  <h4>Add service items to this move</h4>
+                  <h2>Add service items to this move</h2>
                   <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
                     <Checkbox
                       id="shipmentManagementFee"
@@ -191,7 +193,7 @@ const RequestedShipments = ({
 
       {shipmentsStatus === 'APPROVED' && (
         <>
-          <h4>Approved Shipments</h4>
+          <h2>Approved shipments</h2>
           <div className={styles.shipmentCards}>
             {mtoShipments &&
               mtoShipments.map((shipment) => (
@@ -214,7 +216,7 @@ const RequestedShipments = ({
 
       {shipmentsStatus === 'APPROVED' && (
         <div className={styles.serviceItems}>
-          <h4>Service Items</h4>
+          <h3>Service items</h3>
 
           <table className="table--stacked">
             <colgroup>
@@ -279,6 +281,8 @@ RequestedShipments.propTypes = {
   approveMTO: PropTypes.func,
   approveMTOShipment: PropTypes.func,
   moveTaskOrder: MoveTaskOrderShape,
+  missingRequiredOrdersInfo: PropTypes.bool,
+  handleAfterSuccess: PropTypes.func,
 };
 
 RequestedShipments.defaultProps = {
@@ -286,6 +290,8 @@ RequestedShipments.defaultProps = {
   moveTaskOrder: {},
   approveMTO: () => Promise.resolve(),
   approveMTOShipment: () => Promise.resolve(),
+  missingRequiredOrdersInfo: false,
+  handleAfterSuccess: () => {},
 };
 
 export default RequestedShipments;

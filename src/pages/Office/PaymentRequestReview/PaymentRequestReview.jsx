@@ -47,6 +47,8 @@ export const PaymentRequestReview = ({ history, match }) => {
       newPaymentServiceItem.mtoServiceItemName = oldPaymentServiceItem.mtoServiceItemName;
       newPaymentServiceItem.mtoShipmentType = oldPaymentServiceItem.mtoShipmentType;
       newPaymentServiceItem.mtoShipmentID = oldPaymentServiceItem.mtoShipmentID;
+      newPaymentServiceItem.mtoServiceItemCode = oldPaymentServiceItem.mtoServiceItemCode;
+      newPaymentServiceItem.paymentServiceItemParams = oldPaymentServiceItem.paymentServiceItemParams;
 
       queryCache.setQueryData([PAYMENT_REQUESTS, paymentRequestId], {
         paymentRequests,
@@ -102,11 +104,13 @@ export const PaymentRequestReview = ({ history, match }) => {
       id: item.id,
       mtoShipmentID: item.mtoShipmentID,
       mtoShipmentType: item.mtoShipmentType,
+      mtoServiceItemCode: item.mtoServiceItemCode,
       mtoServiceItemName: item.mtoServiceItemName,
       amount: item.priceCents ? item.priceCents / 100 : 0,
       createdAt: item.createdAt,
       status: item.status,
       rejectionReason: item.rejectionReason,
+      paymentServiceItemParams: item.paymentServiceItemParams,
     };
   });
 

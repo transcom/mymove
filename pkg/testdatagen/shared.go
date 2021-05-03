@@ -9,6 +9,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/gobuffalo/pop/v5"
@@ -55,8 +57,10 @@ type Assertions struct {
 	Organization                             models.Organization
 	OriginDutyStation                        models.DutyStation
 	PaymentRequest                           models.PaymentRequest
+	PaymentRequestToInterchangeControlNumber models.PaymentRequestToInterchangeControlNumber
 	PaymentServiceItem                       models.PaymentServiceItem
 	PaymentServiceItemParam                  models.PaymentServiceItemParam
+	PaymentServiceItemParams                 models.PaymentServiceItemParams
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	PickupAddress                            models.Address
 	PrimeUpload                              models.PrimeUpload
@@ -70,6 +74,7 @@ type Assertions struct {
 	ReRateArea                               models.ReRateArea
 	ReService                                models.ReService
 	ReZip3                                   models.ReZip3
+	Role                                     roles.Role
 	SecondaryPickupAddress                   models.Address
 	SecondaryDeliveryAddress                 models.Address
 	ServiceItemParamKey                      models.ServiceItemParamKey
@@ -82,6 +87,7 @@ type Assertions struct {
 	Tariff400ngItemRate                      models.Tariff400ngItemRate
 	Tariff400ngZip3                          models.Tariff400ngZip3
 	TrafficDistributionList                  models.TrafficDistributionList
+	TransportationAccountingCode             models.TransportationAccountingCode
 	TransportationOffice                     models.TransportationOffice
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
@@ -147,6 +153,11 @@ func mergeModels(dst, src interface{}) {
 	)
 }
 
+// MergeModels exposes the private function mergeModels
+func MergeModels(dst, src interface{}) {
+	mergeModels(dst, src)
+}
+
 // Source chars for random string
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
@@ -174,7 +185,6 @@ func Fixture(name string) afero.File {
 	}
 
 	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)
-	// #nosec This will only be using test data
 	file, err := os.Open(filepath.Clean(fixturePath))
 	if err != nil {
 		log.Panic(fmt.Errorf("Error opening local file: %v", err))

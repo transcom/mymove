@@ -237,7 +237,7 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	db.Transaction(func(db *pop.Connection) error {
+	transactionErr := db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		if ppm.HasRequestedAdvance {
@@ -245,6 +245,7 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 				// GTCC isn't a valid method of receipt for PPM Advances, so reject if that's the case.
 				if ppm.Advance.MethodOfReceipt == MethodOfReceiptGTCC {
 					responseVErrors.Add("MethodOfReceipt", "GTCC is not a valid receipt method for PPM Advances.")
+					responseError = errors.New("GTCC is not a valid receipt method for PPM advances")
 					return transactionError
 				}
 
@@ -290,6 +291,10 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 		return nil
 
 	})
+
+	if transactionErr != nil {
+		return responseVErrors, responseError
+	}
 
 	return responseVErrors, responseError
 }

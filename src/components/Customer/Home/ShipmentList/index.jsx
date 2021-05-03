@@ -1,4 +1,3 @@
-/* eslint-disable security/detect-object-injection */
 import React from 'react';
 import { string, arrayOf, shape, func, number, bool } from 'prop-types';
 import classnames from 'classnames';
@@ -10,15 +9,6 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 
 const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, showNumber }) => {
-  function handleEnterOrSpace(event) {
-    if (!canEdit) return;
-    const key = event.which || event.keyCode; // Use either which or keyCode, depending on browser support
-    // enter or space
-    if (key === 13 || key === 32) {
-      onShipmentClick();
-    }
-  }
-
   const shipmentClassName = classnames({
     [styles[`shipment-list-item-NTS-R`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
     [styles[`shipment-list-item-NTS`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTS,
@@ -27,15 +17,14 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, 
   });
 
   return (
-    <div
+    <button
+      type="button"
       className={`${styles['shipment-list-item-container']} ${shipmentClassName}`}
       data-testid="shipment-list-item-container"
       onClick={() => {
         if (!canEdit) return;
         onShipmentClick();
       }}
-      onKeyDown={(event) => handleEnterOrSpace(event)}
-      role="button"
       tabIndex="0"
     >
       <strong>
@@ -45,7 +34,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, 
       {/* use substring of the UUID until actual shipment code is available */}
       <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>{' '}
       {canEdit ? <FontAwesomeIcon icon="pen" className={styles.edit} /> : <div className={styles.noEdit} />}
-    </div>
+    </button>
   );
 };
 

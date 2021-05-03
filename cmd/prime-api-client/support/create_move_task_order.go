@@ -32,7 +32,7 @@ func CheckCreateMTOConfig(v *viper.Viper, args []string) error {
 	}
 
 	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
-		return errors.New("create-payment-request expects a file to be passed in")
+		return errors.New("create-move-task-order expects a file to be passed in")
 	}
 
 	return nil
@@ -72,7 +72,11 @@ func CreateMTO(cmd *cobra.Command, args []string) error {
 	}
 	// Defer closing the store until after the API call has completed
 	if cacStore != nil {
-		defer cacStore.Close()
+		defer func() {
+			if closeErr := cacStore.Close(); closeErr != nil {
+				logger.Fatal(closeErr)
+			}
+		}()
 	}
 
 	// Make the API Call

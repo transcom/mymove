@@ -1,6 +1,7 @@
 import {
   selectLoggedInUser,
   selectServiceMemberFromLoggedInUser,
+  selectServiceMemberProfileState,
   selectIsProfileComplete,
   selectBackupContacts,
   selectCurrentDutyStation,
@@ -14,7 +15,10 @@ import {
   selectPPMEstimateRange,
   selectPPMSitEstimate,
   selectReimbursementById,
+  selectEntitlementsForLoggedInUser,
 } from './selectors';
+
+import { profileStates } from 'constants/customerStates';
 
 describe('selectLoggedInUser', () => {
   it('returns the first user stored in entities', () => {
@@ -99,6 +103,316 @@ describe('selectServiceMemberFromLoggedInUser', () => {
     };
 
     expect(selectServiceMemberFromLoggedInUser(testState)).toEqual(null);
+  });
+});
+
+describe('selectServiceMemberProfileState', () => {
+  it('returns EMPTY_PROFILE if there is no DoD data', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+          },
+        },
+      },
+    };
+
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.EMPTY_PROFILE);
+  });
+
+  it('returns DOD_INFO_COMPLETE if there is no name data', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            affiliation: 'ARMY',
+            rank: 'O_4_W_4',
+            edipi: '1234567890',
+          },
+        },
+      },
+    };
+
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.DOD_INFO_COMPLETE);
+  });
+
+  it('returns NAME_COMPLETE if there is no contact info data', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            affiliation: 'ARMY',
+            rank: 'O_4_W_4',
+            edipi: '1234567890',
+            first_name: 'Erin',
+            last_name: 'Stanfill',
+            middle_name: '',
+          },
+        },
+      },
+    };
+
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.NAME_COMPLETE);
+  });
+
+  it('returns CONTACT_INFO_COMPLETE if there is no duty station data', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            affiliation: 'ARMY',
+            rank: 'O_4_W_4',
+            edipi: '1234567890',
+            first_name: 'Erin',
+            last_name: 'Stanfill',
+            middle_name: '',
+            personal_email: 'erin@truss.works',
+            phone_is_preferred: true,
+            telephone: '555-555-5556',
+            email_is_preferred: false,
+          },
+        },
+      },
+    };
+
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.CONTACT_INFO_COMPLETE);
+  });
+
+  it('returns DUTY_STATION_COMPLETE if there is no address data', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            affiliation: 'ARMY',
+            rank: 'O_4_W_4',
+            edipi: '1234567890',
+            first_name: 'Erin',
+            last_name: 'Stanfill',
+            middle_name: '',
+            personal_email: 'erin@truss.works',
+            phone_is_preferred: true,
+            telephone: '555-555-5556',
+            email_is_preferred: false,
+            current_station: {
+              id: 'testDutyStationId',
+              address: {
+                city: 'Colorado Springs',
+                country: 'United States',
+                postal_code: '80913',
+                state: 'CO',
+                street_address_1: 'n/a',
+              },
+            },
+          },
+        },
+      },
+    };
+
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.DUTY_STATION_COMPLETE);
+  });
+
+  it('returns ADDRESS_COMPLETE if there is no backup address data', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            affiliation: 'ARMY',
+            rank: 'O_4_W_4',
+            edipi: '1234567890',
+            first_name: 'Erin',
+            last_name: 'Stanfill',
+            middle_name: '',
+            personal_email: 'erin@truss.works',
+            phone_is_preferred: true,
+            telephone: '555-555-5556',
+            email_is_preferred: false,
+            current_station: {
+              id: 'testDutyStationId',
+              address: {
+                city: 'Colorado Springs',
+                country: 'United States',
+                postal_code: '80913',
+                state: 'CO',
+                street_address_1: 'n/a',
+              },
+            },
+            residential_address: {
+              city: 'Somewhere',
+              postal_code: '80913',
+              state: 'CO',
+              street_address_1: '123 Main',
+            },
+          },
+        },
+      },
+    };
+
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.ADDRESS_COMPLETE);
+  });
+
+  it('returns BACKUP_ADDRESS_COMPLETE if there is no backup contact data', () => {
+    const testState = {
+      entities: {
+        backupContacts: {
+          backupContact789: {
+            id: 'backupContact789',
+            service_member_id: 'serviceMemberId456',
+          },
+          backupContact8910: {
+            id: 'backupContact8910',
+            service_member_id: 'serviceMemberId456',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            affiliation: 'ARMY',
+            rank: 'O_4_W_4',
+            edipi: '1234567890',
+            first_name: 'Erin',
+            last_name: 'Stanfill',
+            middle_name: '',
+            personal_email: 'erin@truss.works',
+            phone_is_preferred: true,
+            telephone: '555-555-5556',
+            email_is_preferred: false,
+            current_station: {
+              id: 'testDutyStationId',
+              address: {
+                city: 'Colorado Springs',
+                country: 'United States',
+                postal_code: '80913',
+                state: 'CO',
+                street_address_1: 'n/a',
+              },
+            },
+            residential_address: {
+              city: 'Somewhere',
+              postal_code: '80913',
+              state: 'CO',
+              street_address_1: '123 Main',
+            },
+            backup_mailing_address: {
+              city: 'Washington',
+              postal_code: '20021',
+              state: 'DC',
+              street_address_1: '200 K St',
+            },
+          },
+        },
+      },
+    };
+
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.BACKUP_ADDRESS_COMPLETE);
+  });
+
+  it('returns BACKUP_CONTACTS_COMPLETE if all data is complete', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            affiliation: 'ARMY',
+            backup_mailing_address: {
+              city: 'Washington',
+              postal_code: '20021',
+              state: 'DC',
+              street_address_1: '200 K St',
+            },
+            created_at: '2018-05-25T15:48:49.918Z',
+            current_station: {
+              address: {
+                city: 'Colorado Springs',
+                country: 'United States',
+                postal_code: '80913',
+                state: 'CO',
+                street_address_1: 'n/a',
+              },
+              affiliation: 'ARMY',
+              created_at: '2018-05-20T18:36:45.034Z',
+              id: '28f63a9d-8fff-4a0f-84ef-661c5c8c354e',
+              name: 'Ft Carson',
+              updated_at: '2018-05-20T18:36:45.034Z',
+            },
+            edipi: '1234567890',
+            email_is_preferred: false,
+            first_name: 'Erin',
+            id: '1694e00e-17ff-43fe-af6d-ab0519a18ff2',
+            is_profile_complete: true,
+            last_name: 'Stanfill',
+            middle_name: '',
+            personal_email: 'erin@truss.works',
+            phone_is_preferred: true,
+            rank: 'O_4_W_4',
+            residential_address: {
+              city: 'Somewhere',
+              postal_code: '80913',
+              state: 'CO',
+              street_address_1: '123 Main',
+            },
+            telephone: '555-555-5556',
+            updated_at: '2018-05-25T21:39:10.484Z',
+            user_id: 'b46e651e-9d1c-4be5-bb88-bba58e817696',
+            backup_contacts: ['backupContact789', 'backupContact8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.BACKUP_CONTACTS_COMPLETE);
   });
 });
 
@@ -1266,5 +1580,141 @@ describe('selectReimbursementById', () => {
     };
 
     expect(selectReimbursementById(testState, 'testReimbursement123')).toEqual(null);
+  });
+});
+
+describe('selectEntitlementsForLoggedInUser', () => {
+  describe('when I have dependents', () => {
+    describe('when my spouse has pro gear', () => {
+      it('should include spouse progear', () => {
+        const testState = {
+          entities: {
+            orders: {
+              orders8910: {
+                id: 'orders8910',
+                service_member_id: 'serviceMemberId456',
+                moves: ['move2938'],
+                status: 'DRAFT',
+                has_dependents: true,
+                spouse_has_pro_gear: true,
+              },
+            },
+            user: {
+              userId123: {
+                id: 'userId123',
+                service_member: 'serviceMemberId456',
+              },
+            },
+            serviceMembers: {
+              serviceMemberId456: {
+                id: 'serviceMemberId456',
+                orders: ['orders8910'],
+                weight_allotment: {
+                  total_weight_self: 5000,
+                  total_weight_self_plus_dependents: 8000,
+                  pro_gear_weight: 2000,
+                  pro_gear_weight_spouse: 500,
+                },
+              },
+            },
+          },
+        };
+
+        expect(selectEntitlementsForLoggedInUser(testState)).toEqual({
+          pro_gear: 2000,
+          pro_gear_spouse: 500,
+          sum: 10500,
+          weight: 8000,
+        });
+      });
+    });
+
+    describe('when my spouse does not have pro gear', () => {
+      it('should not include spouse progear', () => {
+        const testState = {
+          entities: {
+            orders: {
+              orders8910: {
+                id: 'orders8910',
+                service_member_id: 'serviceMemberId456',
+                moves: ['move2938'],
+                status: 'DRAFT',
+                has_dependents: true,
+                spouse_has_pro_gear: false,
+              },
+            },
+            user: {
+              userId123: {
+                id: 'userId123',
+                service_member: 'serviceMemberId456',
+              },
+            },
+            serviceMembers: {
+              serviceMemberId456: {
+                id: 'serviceMemberId456',
+                orders: ['orders8910'],
+                weight_allotment: {
+                  total_weight_self: 5000,
+                  total_weight_self_plus_dependents: 8000,
+                  pro_gear_weight: 2000,
+                  pro_gear_weight_spouse: 500,
+                },
+              },
+            },
+          },
+        };
+
+        expect(selectEntitlementsForLoggedInUser(testState)).toEqual({
+          pro_gear: 2000,
+          pro_gear_spouse: 0,
+          sum: 10000,
+          weight: 8000,
+        });
+      });
+    });
+  });
+
+  describe("when I don't have dependents", () => {
+    it('should exclude spouse progear', () => {
+      const testState = {
+        entities: {
+          orders: {
+            orders8910: {
+              id: 'orders8910',
+              service_member_id: 'serviceMemberId456',
+              moves: ['move2938'],
+              status: 'DRAFT',
+              has_dependents: false,
+              spouse_has_pro_gear: false,
+            },
+          },
+          user: {
+            userId123: {
+              id: 'userId123',
+              service_member: 'serviceMemberId456',
+            },
+          },
+          serviceMembers: {
+            serviceMemberId456: {
+              id: 'serviceMemberId456',
+              orders: ['orders8910'],
+              weight_allotment: {
+                total_weight_self: 5000,
+                total_weight_self_plus_dependents: 8000,
+                pro_gear_weight: 2000,
+                pro_gear_weight_spouse: 500,
+              },
+            },
+          },
+        },
+      };
+
+      expect(selectEntitlementsForLoggedInUser(testState)).toEqual({
+        pro_gear: 2000,
+        pro_gear_spouse: 0,
+        sum: 7000,
+        weight: 5000,
+      });
+    });
   });
 });

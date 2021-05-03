@@ -1,30 +1,18 @@
 package webhook
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-// Message is the body of our request
-type Message struct {
-	ID              uuid.UUID       `json:"id"`
-	EventName       string          `json:"eventName"`
-	TriggeredAt     strfmt.DateTime `json:"triggeredAt"`
-	ObjectType      string          `json:"objectType"`
-	UpdatedObjectID uuid.UUID       `json:"updatedObjectID"`
-	Object          string          `json:"object"`
-}
 
 // Engine encapsulates the services used by the webhook notification engine
 type Engine struct {
@@ -35,6 +23,8 @@ type Engine struct {
 	PeriodInSeconds     int
 	MaxImmediateRetries int
 	SeverityThresholds  []int
+	QuitChannel         chan os.Signal
+	DoneChannel         chan bool
 }
 
 // processNotifications reads all the notifications and all the subscriptions and processes them one by one
@@ -91,21 +81,30 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				if errDB != nil {
 					eng.Logger.Error("Webhook Subscription update failed", zap.Error(err))
 				}
+
 				if stopLoop {
 					return
 				}
+
+				// Return out of loop if quit signal recieved, otherwise, keep going
+				select {
+				case <-eng.QuitChannel:
+					eng.Logger.Info("Interrupt signal recieved...")
+					eng.DoneChannel <- true
+					return
+				default:
+				}
 			}
 		}
-		if foundSub == false {
+		if !foundSub {
 			//If no subscription was found, update notification status to skipped.
-			eng.Logger.Debug("No subscription found for notification event, skipping.", zap.String("eventKey", notif.EventKey))
+			eng.Logger.Info("No subscription found for notification event, skipping.", zap.String("eventKey", notif.EventKey))
 			notif.Status = models.WebhookNotificationSkipped
 			err := eng.updateNotification(&notif)
 			if err != nil {
 				eng.Logger.Error("Notification update failed", zap.Error(err))
 			}
 		}
-
 	}
 }
 
@@ -178,23 +177,14 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 	logger := eng.Logger
 
 	// Construct notification to send
-	// message := fmt.Sprintf("There was a %s notification, id: %s, moveTaskOrderID: %s",
-	// 	string(notif.EventKey), notif.ID.String(), notif.MoveTaskOrderID.String())
-	message := &Message{
-		ID:          notif.ID,
-		EventName:   notif.EventKey,
-		TriggeredAt: strfmt.DateTime(notif.UpdatedAt),
-	}
-	if notif.Payload != nil {
-		message.Object = *notif.Payload
-	}
-	if notif.ObjectID != nil {
-		message.UpdatedObjectID = *notif.ObjectID
-	}
-	json, err := json.Marshal(message)
+	message := GetWebhookNotificationPayload(notif)
+	json, err := message.MarshalBinary()
 	if err != nil {
 		notif.Status = models.WebhookNotificationFailed
-		eng.updateNotification(notif)
+		updateNotificationErr := eng.updateNotification(notif)
+		if updateNotificationErr != nil {
+			eng.Logger.Error("Notification update failed", zap.Error(err))
+		}
 		logger.Error("Error creating payload:", zap.Error(err))
 		return err
 	}
@@ -216,25 +206,37 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		if err2 == nil && resp.StatusCode == 200 {
 			// Update notification
 			notif.Status = models.WebhookNotificationSent
-			eng.updateNotification(notif)
+			updateNotificationErr := eng.updateNotification(notif)
+			if updateNotificationErr != nil {
+				eng.Logger.Error("Notification update failed", zap.Error(err))
+			}
+			objectID := "<empty>"
+			if message.ObjectID != nil {
+				objectID = message.ObjectID.String()
+			}
+			mtoID := "<empty>"
+			if message.MoveTaskOrderID != nil {
+				mtoID = message.MoveTaskOrderID.String()
+			}
 			logger.Info("Notification successfully sent:",
-				zap.String("Status", resp.Status),
-				zap.String("EventName", message.EventName),
-				zap.String("NotificationID", message.ID.String()),
-				zap.String("UpdatedObjectID", message.UpdatedObjectID.String()),
+				zap.String("id", message.ID.String()),
+				zap.String("status", resp.Status),
+				zap.String("eventKey", message.EventKey),
+				zap.String("moveID", mtoID),
+				zap.String("objectID", objectID),
 			)
 			break // send was successful
 		}
 		// If there was an error sending, log error and continue
 		if err2 != nil {
-			logger.Debug("Failed to send, error sending webhook:", zap.Error(err2),
+			logger.Error("Failed to send, error sending webhook:", zap.Error(err2),
 				zap.String("notificationID", notif.ID.String()),
 				zap.Int("Retry #", try))
 			continue
 		}
 		// If there was an error response from server, log error and continue
 		if resp.StatusCode != 200 {
-			logger.Debug("Received error on sending notification",
+			logger.Error("Received error on sending notification",
 				zap.String("Response Status", resp.Status),
 				zap.String("Response Body", string(body)),
 				zap.String("notificationID", notif.ID.String()),
@@ -245,7 +247,10 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 	// Update Notification with failing if appropriate
 	if try == eng.MaxImmediateRetries {
 		notif.Status = models.WebhookNotificationFailing
-		eng.updateNotification(notif)
+		updateNotificationErr := eng.updateNotification(notif)
+		if updateNotificationErr != nil {
+			eng.Logger.Error("Notification update failed", zap.Error(err))
+		}
 
 		errmsg := fmt.Sprintf("Failed to send notification ID: %s after %d immediate retries", notif.ID, try)
 		err = errors.New(errmsg)
@@ -262,8 +267,8 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 // If a new notification or subscription were to be adding during the course of one run
 // by the Milmove server, it would only be processed on the next call of run().
 func (eng *Engine) run() error {
-
 	logger := eng.Logger
+
 	// Read all notifications
 	notifications := []models.WebhookNotification{}
 	err := eng.DB.Order("created_at asc").Where("status = ? OR status = ?", models.WebhookNotificationPending, models.WebhookNotificationFailing).All(&notifications)
@@ -272,7 +277,7 @@ func (eng *Engine) run() error {
 		logger.Error("Error:", zap.Error(err))
 		return err
 	}
-	logger.Debug("Notification Check:", zap.Int("Num notifications found", len(notifications)))
+	logger.Info("Notification Check:", zap.Int("Num notifications found", len(notifications)))
 
 	// If none, return
 	if len(notifications) == 0 {
@@ -287,7 +292,7 @@ func (eng *Engine) run() error {
 		logger.Error("Error:", zap.Error(err))
 		return err
 	}
-	logger.Debug("Subscription Check!", zap.Int("Num subscriptions found", len(subscriptions)))
+	logger.Info("Subscription Check!", zap.Int("Num subscriptions found", len(subscriptions)))
 
 	// If none, return
 	if len(notifications) == 0 {
@@ -304,14 +309,32 @@ func (eng *Engine) run() error {
 // The period is defined in the Engine.PeriodInSeconds
 func (eng *Engine) Start() error {
 
+	logger := eng.Logger
+	logger.Info("Starting engine", zap.Int("periodInSeconds", eng.PeriodInSeconds),
+		zap.Int("maxImmediateRetries", eng.MaxImmediateRetries),
+		zap.Any("SeverityThresholds", eng.SeverityThresholds))
+
 	// Set timer tick
 	t := time.Tick(time.Duration(eng.PeriodInSeconds) * time.Second)
 
 	// Run once prior to first wait period
-	eng.run()
+	err := eng.run()
+	if err != nil {
+		return err
+	}
+
 	// Run on each timer tick
 	for range t {
-		eng.run()
+		select {
+		case <-eng.QuitChannel:
+			eng.Logger.Info("Interrupt signal recieved...")
+			eng.DoneChannel <- true
+		default:
+			err = eng.run()
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil

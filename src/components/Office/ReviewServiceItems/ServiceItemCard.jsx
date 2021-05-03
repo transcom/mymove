@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Radio, Textarea, FormGroup, Fieldset, Label, Button, Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -12,19 +12,56 @@ import { toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { mtoShipmentTypes } from 'constants/shipments';
+import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
+import { PaymentServiceItemParam } from 'types/order';
+import { allowedServiceItemCalculations } from 'constants/serviceItems';
 
 /** This component represents a Payment Request Service Item */
 const ServiceItemCard = ({
   id,
   mtoShipmentType,
+  mtoServiceItemCode,
   mtoServiceItemName,
   amount,
   status,
   rejectionReason,
   patchPaymentServiceItem,
   requestComplete,
+  paymentServiceItemParams,
 }) => {
+  const [calculationsVisible, setCalulationsVisible] = useState(false);
+
   const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
+
+  const toggleCalculations =
+    allowedServiceItemCalculations.includes(mtoServiceItemCode) && paymentServiceItemParams.length > 0 ? (
+      <>
+        <Button
+          className={styles.toggleCalculations}
+          type="button"
+          data-testid="toggleCalculations"
+          aria-expanded={calculationsVisible}
+          unstyled
+          onClick={() => {
+            setCalulationsVisible((isVisible) => {
+              return !isVisible;
+            });
+          }}
+        >
+          {calculationsVisible ? 'Hide calculations' : 'Show calculations'}
+        </Button>
+        {calculationsVisible && (
+          <div className={styles.calculationsContainer}>
+            <ServiceItemCalculations
+              totalAmountRequested={amount * 100}
+              serviceItemParams={paymentServiceItemParams}
+              itemCode={mtoServiceItemCode}
+              tableSize="small"
+            />
+          </div>
+        )}
+      </>
+    ) : null;
 
   if (requestComplete) {
     return (
@@ -38,7 +75,7 @@ const ServiceItemCard = ({
             <dt>Amount</dt>
             <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
           </dl>
-
+          {toggleCalculations}
           <div data-testid="completeSummary" className={styles.completeContainer}>
             {status === APPROVED ? (
               <div data-testid="statusHeading" className={classnames(styles.statusHeading, styles.statusApproved)}>
@@ -97,8 +134,9 @@ const ServiceItemCard = ({
                   <dt>Amount</dt>
                   <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
                 </dl>
+                {toggleCalculations}
                 <Fieldset>
-                  <div className={styles.statusOption}>
+                  <div className={classnames(styles.statusOption, { [styles.selected]: values.status === APPROVED })}>
                     <Radio
                       id={`approve-${id}`}
                       checked={values.status === APPROVED}
@@ -109,7 +147,7 @@ const ServiceItemCard = ({
                       data-testid="approveRadio"
                     />
                   </div>
-                  <div className={styles.statusOption}>
+                  <div className={classnames(styles.statusOption, { [styles.selected]: values.status === DENIED })}>
                     <Radio
                       id={`reject-${id}`}
                       checked={values.status === DENIED}
@@ -122,7 +160,7 @@ const ServiceItemCard = ({
 
                     {values.status === DENIED && (
                       <FormGroup>
-                        <Label htmlFor="rejectReason">Reason for rejection</Label>
+                        <Label htmlFor={`rejectReason-${id}`}>Reason for rejection</Label>
                         <Textarea
                           id={`rejectReason-${id}`}
                           name="rejectionReason"
@@ -155,11 +193,12 @@ const ServiceItemCard = ({
                       data-testid="clearStatusButton"
                       className={styles.clearStatus}
                       onClick={handleFormReset}
+                      aria-label="Clear status"
                     >
                       <span className="icon">
-                        <FontAwesomeIcon icon="times" title="Clear status" aria-label="Clear status" />
+                        <FontAwesomeIcon icon="times" title="Clear status" alt=" " />
                       </span>
-                      Clear selection
+                      <span aria-hidden="true">Clear selection</span>
                     </Button>
                   )}
                 </Fieldset>
@@ -174,6 +213,7 @@ const ServiceItemCard = ({
 
 ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
+  mtoServiceItemCode: PropTypes.string.isRequired,
   mtoShipmentType: ShipmentOptionsOneOf,
   mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number.isRequired,
@@ -181,6 +221,7 @@ ServiceItemCard.propTypes = {
   rejectionReason: PropTypes.string,
   patchPaymentServiceItem: PropTypes.func.isRequired,
   requestComplete: PropTypes.bool,
+  paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
 };
 
 ServiceItemCard.defaultProps = {
@@ -189,6 +230,7 @@ ServiceItemCard.defaultProps = {
   status: undefined,
   rejectionReason: '',
   requestComplete: false,
+  paymentServiceItemParams: [],
 };
 
 export default ServiceItemCard;

@@ -7,6 +7,7 @@ import NTSShipmentCard from './NTSShipmentCard';
 import NTSRShipmentCard from './NTSRShipmentCard';
 
 const hhgDefaultProps = {
+  moveId: 'testMove123',
   shipmentNumber: 1,
   shipmentType: 'HHG',
   shipmentId: 'ABC123K',
@@ -36,6 +37,7 @@ const hhgDefaultProps = {
 };
 
 const ntsDefaultProps = {
+  moveId: 'testMove123',
   shipmentType: 'HHG_INTO_NTS_DOMESTIC',
   shipmentId: 'ABC123K',
   showEditBtn: true,
@@ -57,6 +59,7 @@ const ntsDefaultProps = {
 };
 
 const ntsrDefaultProps = {
+  moveId: 'testMove123',
   shipmentNumber: 1,
   shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
   shipmentId: 'ABC123K',
@@ -73,6 +76,7 @@ const ntsrDefaultProps = {
 };
 
 const ppmDefaultProps = {
+  moveId: 'testMove123',
   destinationZIP: '11111',
   estimatedWeight: '5,000',
   expectedDepartureDate: new Date('01/01/2020').toISOString(),

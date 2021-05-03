@@ -1,12 +1,16 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render, waitFor } from '@testing-library/react';
 
 import { Summary } from './index';
 
 import { MOVE_STATUSES } from 'shared/constants';
+import { validateEntitlement } from 'services/internalApi';
 
-const defaultProps = {
+jest.mock('services/internalApi', () => ({
+  validateEntitlement: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
+const testProps = {
   serviceMember: {
     id: '666',
     current_station: {
@@ -30,7 +34,14 @@ const defaultProps = {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
     has_dependents: false,
     issue_date: '2020-08-11',
+    grade: 'RANK',
     moves: ['123'],
+    origin_duty_station: {
+      name: 'Test Duty Station',
+      address: {
+        postal_code: '123456',
+      },
+    },
     new_duty_station: {
       name: 'New Test Duty Station',
       address: {
@@ -58,7 +69,6 @@ const defaultProps = {
     status: MOVE_STATUSES.DRAFT,
   },
   selectedMoveType: 'HHG',
-  currentPPM: {},
   moveIsApproved: false,
   entitlement: {},
   mtoShipment: {
@@ -91,23 +101,92 @@ const defaultProps = {
       updatedAt: '2020-09-02T21:08:38.392Z',
     },
   ],
-  reviewState: {
-    editSuccess: null,
-    entitlementChange: null,
-    error: null,
-  },
   onDidMount: jest.fn(),
-  onCheckEntitlement: jest.fn(),
   showLoggedInUser: jest.fn(),
 };
 
+const testPPM = {
+  advance_worksheet: {
+    id: '00000000-0000-0000-0000-000000000000',
+    service_member_id: '00000000-0000-0000-0000-000000000000',
+    uploads: [],
+  },
+  created_at: '2021-04-07T16:44:03.946Z',
+  destination_postal_code: '85309',
+  has_additional_postal_code: false,
+  has_pro_gear: 'NOT SURE',
+  has_pro_gear_over_thousand: 'YES',
+  has_requested_advance: false,
+  has_sit: false,
+  id: 'b3a8794b-0613-460d-9cac-092bbcf808bb',
+  incentive_estimate_max: 2135347,
+  incentive_estimate_min: 1931981,
+  mileage: 757,
+  move_id: '55a782e3-c4bb-4907-9f8d-b174c0a886f6',
+  original_move_date: '2021-04-28',
+  pickup_postal_code: '10002',
+  planned_sit_max: 0,
+  sit_max: 1104747,
+  status: 'DRAFT',
+  updated_at: '2021-04-07T17:05:15.522Z',
+  weight_estimate: 20000,
+};
+
+const testPropsWithPPM = {
+  ...testProps,
+  currentMove: {
+    ...testProps.currentMove,
+    personally_procured_moves: [testPPM.id],
+  },
+  currentPPM: testPPM,
+};
+
 describe('Summary page', () => {
-  const wrapper = shallow(<Summary {...defaultProps} />);
-  it('renders heading with existing mtoShipment', () => {
-    expect(wrapper.containsMatchingElement(<h3>Add another shipment</h3>)).toBe(true);
+  it('does not validate the entitlement if the user does not have a PPM', () => {
+    render(<Summary {...testProps} />);
+    expect(validateEntitlement).not.toHaveBeenCalled();
   });
-  it('add shipment button exists', () => {
-    const btn = wrapper.find('.usa-button--secondary');
-    expect(btn.props().children).toBe('Add another shipment');
+
+  it('validates the entitlement if the user has a PPM', () => {
+    render(<Summary {...testPropsWithPPM} />);
+    expect(validateEntitlement).toHaveBeenCalledWith(testProps.currentMove.id);
   });
+
+  describe('if the user can add another shipment', () => {
+    it('displays the Add Another Shipment section', () => {
+      const { queryByRole } = render(<Summary {...testProps} />);
+
+      expect(queryByRole('heading', { name: 'Add another shipment' })).toBeInTheDocument();
+      expect(queryByRole('button', { name: 'Add another shipment' })).toBeInTheDocument();
+    });
+  });
+
+  describe('if the weight estimate is above the allotted entitlement', () => {
+    it('displays the entitlement warning message', async () => {
+      validateEntitlement.mockImplementation(() =>
+        // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
+        // eslint-disable-next-line prefer-promise-reject-errors
+        Promise.reject({
+          response: {
+            status: 409,
+            body: {
+              message:
+                'Your estimated weight of 20,000 lbs is above your weight entitlement of 14,000 lbs. \n You will only be paid for the weight you move up to your weight entitlement',
+            },
+          },
+        }),
+      );
+
+      const { queryByText } = render(<Summary {...testPropsWithPPM} />);
+
+      await waitFor(() => {
+        expect(queryByText(/Your estimated weight is above your entitlement./)).toBeInTheDocument();
+        expect(
+          queryByText(/Your estimated weight of 20,000 lbs is above your weight entitlement of 14,000 lbs./),
+        ).toBeInTheDocument();
+      });
+    });
+  });
+
+  afterEach(jest.clearAllMocks);
 });

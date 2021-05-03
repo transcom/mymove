@@ -65,7 +65,7 @@ paths:
         Currently this will also create a number of nested objects but not all.
         It will currently create
         * MoveTaskOrder
-        * MoveOrder
+        * Order
         * Customer
         * User
         * Entitlement
@@ -270,7 +270,7 @@ paths:
     patch:
       summary: updatePaymentRequestStatus
       description: |
-        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, or PAID.
+        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.
 
         A status of REVIEWED can optionally have a `rejectionReason`.
 
@@ -326,7 +326,7 @@ paths:
     patch:
       summary: updateMTOServiceItemStatus
       description: |
-        Updates the status of a service item for a move order to APPROVED or REJECTED. <br />
+        Updates the status of a service item for a move to APPROVED or REJECTED. <br />
         <br />
         This is a support endpoint and will not be available in production.
       operationId: updateMTOServiceItemStatus
@@ -427,14 +427,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/webhook-notifications':
+    post:
+      summary: Test endpoint for creating webhook notifications
+      description: >
+        This endpoint creates a webhook notification in the database.
+        If the webhook client is running, it may send the notification soon after creation.
+      operationId: createWebhookNotification
+      tags:
+        - webhook
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The notification sent by webhook-client.
+          schema:
+            $ref: '#/definitions/WebhookNotification'
+      responses:
+        '201':
+          description: Successful creation
+          schema:
+            $ref: '#/definitions/WebhookNotification'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/webhook-notify':
     post:
-      summary: Test endpoint for sending messages via webhook
+      summary: Test endpoint for receiving messages from our own webhook-client
       description: >
-        This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow.
+        This endpoint receives a notification that matches the webhook notification model.
+        This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint.
+        In testing, this server accepts notifications at this endpoint and simply responds with success and logs them.
         The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and
         sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
-      operationId: postWebhookNotify
+      operationId: receiveWebhookNotification
       tags:
         - webhook
       produces:
@@ -445,64 +475,22 @@ paths:
         - in: body
           required: true
           name: body
-          description: The notification sent by webhook-client.
+          description: The webhook notification being sent
           schema:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-                example: c56a4180-65aa-42ec-a945-5fd21dec0538
-              eventName:
-                type: string
-                description: Name of event triggered
-                example: paymentRequest.updated
-              triggeredAt:
-                type: string
-                format: date-time
-                description: Time representing when the event was triggered
-              objectType:
-                type: string
-                description: The type of object that's being updated
-                example: paymentRequest
-              object:
-                type: string
-                format: object
+            $ref: '#/definitions/WebhookNotification'
       responses:
         '200':
-          description: Sent
+          description: Received notification
           schema:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-                example: c56a4180-65aa-42ec-a945-5fd21dec0538
-              eventName:
-                type: string
-                description: Name of event triggered
-                example: paymentRequest.updated
-              triggeredAt:
-                type: string
-                format: date-time
-                description: Time representing when the event was triggered
-              objectType:
-                type: string
-                description: The type of object that's being updated
-                example: paymentRequest
-              object:
-                type: string
-                format: object
+            $ref: '#/definitions/WebhookNotification'
         '400':
-          description: Bad request
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: must be authenticated to use this endpoint
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: Forbidden
-        '404':
-          description: No orders found
+          $ref: '#/responses/PermissionDenied'
         '500':
-          description: Server error
+          $ref: '#/responses/ServerError'
   '/payment-requests/{paymentRequestID}/edi':
     parameters:
       - description: UUID of the payment request for which EDI should be generated.
@@ -794,6 +782,20 @@ definitions:
       - dodID
       - rank
       - agency
+  DeptIndicator:
+    type: string
+    x-nullable: true
+    title: Dept. indicator
+    enum:
+      - NAVY_AND_MARINES
+      - ARMY
+      - AIR_FORCE
+      - COAST_GUARD
+    x-display-value:
+      NAVY_AND_MARINES: 17 Navy and Marine Corps
+      ARMY: 21 Army
+      AIR_FORCE: 57 Air Force
+      COAST_GUARD: 70 Coast Guard
   DimensionType:
     description: Describes a dimension type for a MTOServiceItemDimension.
     type: string
@@ -889,96 +891,6 @@ definitions:
       - title
       - detail
     type: object
-  MoveOrder:
-    properties:
-      id:
-        description: ID of the MoveOrder object.
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      customer:
-        $ref: '#/definitions/Customer'
-      customerID:
-        description: |
-          ID of the Customer this MoveOrder belongs to.
-
-          If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        x-nullable: true
-      entitlement:
-        $ref: '#/definitions/Entitlement'
-      destinationDutyStation:
-        $ref: '#/definitions/DutyStation'
-      destinationDutyStationID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        description: |
-          ID of the destination duty station.
-
-          If creating a MoveTaskOrder, this should match an existing duty station.
-      ordersType:
-        $ref: '#/definitions/OrdersType'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
-      originDutyStationID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        description: |
-          ID of the origin duty station.
-
-          If creating a MoveTaskOrder, this should match an existing duty station.
-      rank:
-        $ref: '#/definitions/Rank'
-      reportByDate:
-        description: Date that the service member must report to the new DutyStation by.
-        type: string
-        format: date
-      status:
-        $ref: '#/definitions/OrdersStatus'
-      tac:
-        type: string
-        title: TAC
-        example: 'F8J1'
-      uploadedOrders:
-        $ref: '#/definitions/Document'
-      uploadedOrdersID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        description: ID of the uploaded document.
-      orderNumber:
-        description: ID of the military orders associated with this move.
-        type: string
-        x-nullable: true
-        example: '030-00362'
-      issueDate:
-        description: The date the orders were issued.
-        type: string
-        format: date
-      eTag:
-        description: |
-          Uniquely identifies the state of the MoveOrder object (but not the nested objects)
-
-          It will change everytime the object is updated. Client should store the value.
-          Updates to this MoveOrder will require that this eTag be passed in with the If-Match header.
-        type: string
-        readOnly: true
-    type: object
-    required:
-      - orderNumber
-      - ordersType
-      - rank
-      - reportByDate
-      - issueDate
-      - status
-      - uploadedOrdersID
-      - tac
-      - originDutyStationID
-      - destinationDutyStationID
   MoveStatus:
     type: string
     description: Current status of this MoveTaskOrder
@@ -995,7 +907,7 @@ definitions:
   MoveTaskOrder:
     type: object
     required:
-      - moveOrder
+      - order
       - contractorID
     properties:
       id:
@@ -1009,19 +921,19 @@ definitions:
         type: string
         readOnly: true
         description: Date the MoveTaskOrder was created on.
-      moveOrderID:
+      orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-        description: ID of the MoveOrder object
-      moveOrder:
-        $ref: '#/definitions/MoveOrder'
+        description: ID of the Order object
+      order:
+        $ref: '#/definitions/Order'
       referenceId:
         example: 1001-3456
         type: string
         readOnly: true
         description: |
-          Unique ID associated with this MoveOrder.
+          Unique ID associated with this Order.
 
           No two MoveTaskOrders may have the same ID.
           Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
@@ -1033,11 +945,6 @@ definitions:
           Indicates this MoveTaskOrder is available for Prime API handling.
 
           In production, only MoveTaskOrders for which this is set will be available to the API.
-      isCanceled:
-        type: boolean
-        x-nullable: true
-        readOnly: true
-        description: Indicated this MoveTaskOrder has been canceled.
       contractorID:
         type: string
         format: uuid
@@ -1058,6 +965,8 @@ definitions:
           $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
+      selectedMoveType:
+        $ref: '#/definitions/SelectedMoveType'
       ppmType:
         description: If the move is a PPM, indicates whether it is full or partial.
         type: string
@@ -1508,6 +1417,102 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+  Order:
+    properties:
+      id:
+        description: ID of the Order object.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      customer:
+        $ref: '#/definitions/Customer'
+      customerID:
+        description: |
+          ID of the Customer this Order belongs to.
+
+          If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        x-nullable: true
+      entitlement:
+        $ref: '#/definitions/Entitlement'
+      destinationDutyStation:
+        $ref: '#/definitions/DutyStation'
+      destinationDutyStationID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: |
+          ID of the destination duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty station.
+      ordersType:
+        $ref: '#/definitions/OrdersType'
+      ordersTypeDetail:
+        $ref: '#/definitions/OrdersTypeDetail'
+      originDutyStation:
+        $ref: '#/definitions/DutyStation'
+      originDutyStationID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: |
+          ID of the origin duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty station.
+      rank:
+        $ref: '#/definitions/Rank'
+      reportByDate:
+        description: Date that the service member must report to the new DutyStation by.
+        type: string
+        format: date
+      status:
+        $ref: '#/definitions/OrdersStatus'
+      tac:
+        type: string
+        title: TAC
+        example: 'F8J1'
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      uploadedOrders:
+        $ref: '#/definitions/Document'
+      uploadedOrdersID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: ID of the uploaded document.
+      orderNumber:
+        description: ID of the military orders associated with this move.
+        type: string
+        x-nullable: true
+        example: '030-00362'
+      issueDate:
+        description: The date the orders were issued.
+        type: string
+        format: date
+      eTag:
+        description: |
+          Uniquely identifies the state of the Order object (but not the nested objects)
+
+          It will change everytime the object is updated. Client should store the value.
+          Updates to this Order will require that this eTag be passed in with the If-Match header.
+        type: string
+        readOnly: true
+    type: object
+    required:
+      - orderNumber
+      - ordersType
+      - ordersTypeDetail
+      - rank
+      - reportByDate
+      - issueDate
+      - status
+      - uploadedOrdersID
+      - tac
+      - originDutyStationID
+      - destinationDutyStationID
+      - departmentIndicator
   OrdersStatus:
     type: string
     title: Move status
@@ -1536,6 +1541,26 @@ definitions:
       SEPARATION: Separation
       GHC: GHC
       NTS: NTS
+  OrdersTypeDetail:
+    type: string
+    title: Orders type detail
+    enum:
+      - HHG_PERMITTED
+      - PCS_TDY
+      - HHG_RESTRICTED_PROHIBITED
+      - HHG_RESTRICTED_AREA
+      - INSTRUCTION_20_WEEKS
+      - HHG_PROHIBITED_20_WEEKS
+      - DELAYED_APPROVAL
+    x-display-value:
+      HHG_PERMITTED: Shipment of HHG Permitted
+      PCS_TDY: PCS with TDY Enroute
+      HHG_RESTRICTED_PROHIBITED: Shipment of HHG Restricted or Prohibited
+      HHG_RESTRICTED_AREA: HHG Restricted Area-HHG Prohibited
+      INSTRUCTION_20_WEEKS: Course of Instruction 20 Weeks or More
+      HHG_PROHIBITED_20_WEEKS: Shipment of HHG Prohibited but Authorized within 20 weeks
+      DELAYED_APPROVAL: Delayed Approval 20 Weeks or More
+    x-nullable: true
   PaymentRequest:
     properties:
       documentPackage:
@@ -1589,6 +1614,7 @@ definitions:
       - SENT_TO_GEX
       - RECEIVED_BY_GEX
       - PAID
+      - EDI_ERROR
     title: Payment Request Status
     type: string
   ProcessReviewedPaymentRequests:
@@ -1605,8 +1631,18 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      readFromSyncada:
+        example: true
+        type: boolean
+        x-nullable: true
+      deleteFromSyncada:
+        example: true
+        type: boolean
+        x-nullable: true
     required:
       - sendToSyncada
+      - readFromSyncada
+      - deleteFromSyncada
   ProofOfServicePackage:
     properties:
       id:
@@ -1708,6 +1744,18 @@ definitions:
       - MS
       - NSTH
       - NSTUB
+  SelectedMoveType:
+    type: string
+    title: Selected Move Type
+    enum:
+      - HHG
+      - PPM
+      - UB
+      - POV
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
+      - HHG_PPM
+    x-nullable: true
   UpdateMTOServiceItemStatus:
     properties:
       status:
@@ -1725,6 +1773,7 @@ definitions:
           - REJECTED
           - APPROVED
           - SUBMITTED
+          - CANCELLATION_REQUESTED
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
@@ -1797,6 +1846,64 @@ definitions:
             type: string
     required:
       - invalidFields
+  WebhookNotification:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      eventKey:
+        type: string
+        description: Name of event triggered
+        example: 'PaymentRequest.Update'
+      createdAt:
+        type: string
+        format: date-time
+        description: Time representing when the event was triggered
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        description: Time representing when the notification was last updated
+        readOnly: true
+      firstAttemptedAt:
+        type: string
+        format: date-time
+        description: Time representing when the system firstAttempted to send this notification
+        readOnly: true
+        x-nullable: true
+      traceID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      moveTaskOrderID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      objectID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      object:
+        type: string
+        format: JSON
+        x-nullable: true
+      status:
+        $ref: '#/definitions/WebhookNotificationStatus'
+  WebhookNotificationStatus:
+    description: Statuses available for a Webhook Notification
+    type: string
+    enum:
+      - PENDING
+      - SENT
+      - SKIPPED
+      - FAILING
+      - FAILED
 responses:
   InvalidRequest:
     description: The request payload is invalid.

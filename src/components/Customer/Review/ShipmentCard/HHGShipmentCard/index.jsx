@@ -1,14 +1,16 @@
 import React from 'react';
 import { string, shape, number, func, bool } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { generatePath } from 'react-router';
 
-import { AddressShape } from '../../../../../types/address';
 import styles from '../ShipmentCard.module.scss';
 import PickupDisplay from '../PickupDisplay';
 import DeliveryDisplay from '../DeliveryDisplay';
 
+import { AddressShape } from 'types/address';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
+import { customerRoutes } from 'constants/routes';
 
 const HHGShipmentCard = ({
   destinationLocation,
@@ -26,7 +28,11 @@ const HHGShipmentCard = ({
   shipmentType,
   showEditBtn,
 }) => {
-  const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment?shipmentNumber=${shipmentNumber}`;
+  const editPath = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
+    moveId,
+    mtoShipmentId: shipmentId,
+  })}?shipmentNumber=${shipmentNumber}`;
+
   return (
     <div className={styles.ShipmentCard} data-testid="hhg-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>

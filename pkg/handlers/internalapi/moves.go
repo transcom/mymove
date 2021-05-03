@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/certs"
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
@@ -86,7 +87,6 @@ type ShowMoveHandler struct {
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
@@ -116,7 +116,6 @@ type PatchMoveHandler struct {
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
@@ -154,13 +153,13 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 // SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
 type SubmitMoveHandler struct {
 	handlers.HandlerContext
+	services.MoveRouter
 }
 
-// Handle ... submit a move for approval
+// Handle ... submit a move to TOO for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
@@ -169,8 +168,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 	logger = logger.With(zap.String("moveLocator", move.Locator))
 
-	submitDate := time.Now()
-	err = move.Submit(submitDate)
+	err = h.MoveRouter.Submit(move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -223,7 +221,7 @@ func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs
 		newSignedCertification.PersonallyProcuredMoveID = &ppmID
 	}
 
-	db.Transaction(func(db *pop.Connection) error {
+	transactionErr := db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 		// TODO: move creation of signed certification into a service
 		verrs, err := db.ValidateAndCreate(&newSignedCertification)
@@ -263,6 +261,10 @@ func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs
 		}
 		return nil
 	})
+
+	if transactionErr != nil {
+		return responseVErrors, transactionErr
+	}
 
 	logger.Info("signedCertification created",
 		zap.String("id", newSignedCertification.ID.String()),

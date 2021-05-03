@@ -22,6 +22,8 @@ func initRootFlags(flag *pflag.FlagSet) {
 	flag.String(utils.HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(utils.PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(utils.InsecureFlag, false, "Skip TLS verification and validation")
+	flag.String(utils.FilenameFlag, "", "The name of the file being passed in")
+	flag.String(utils.IDFlag, "", "The UUID of the object being retrieved or updated")
 }
 
 func main() {
@@ -42,6 +44,22 @@ func main() {
 	prime.InitFetchMTOUpdatesFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
+	getMoveTaskOrder := &cobra.Command{
+		Use:   "get-move-task-order",
+		Short: "Get an individual mto",
+		Long: `
+  This command gets a single move by ID.
+  It will only find Prime-available moves.
+  It requires the caller to set a move ID using the --id arg.
+
+  Endpoint path: /move-task-orders/{moveTaskOrderID}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         prime.GetMTO,
+		SilenceUsage: true,
+	}
+	support.InitGetMTOFlags(getMoveTaskOrder.Flags())
+	root.AddCommand(getMoveTaskOrder)
+
 	listMTOsCommand := &cobra.Command{
 		Use:          "support-list-mtos",
 		Short:        "Fetch all MTOs",
@@ -51,6 +69,25 @@ func main() {
 	}
 	support.InitListMTOsFlags(listMTOsCommand.Flags())
 	root.AddCommand(listMTOsCommand)
+
+	createWebhookCommand := &cobra.Command{
+		Use:   "support-create-webhook-notification",
+		Short: "Create a WebhookNotification",
+		Long: `
+  This command creates a WebhookNotification object.
+  Passing in a file is optional, but when passed in a file the --filename param must be used.
+
+  Endpoint path: /webhook-notifications
+  The file should contain json as follows:
+    {
+      "body": <WebhookNotification>
+    }
+  Please see API documentation for full details on the WebhookNotification definition.`,
+		RunE:         support.CreateWebhookNotification,
+		SilenceUsage: true,
+	}
+	support.InitCreateWebhookNotificationFlags(createWebhookCommand.Flags())
+	root.AddCommand(createWebhookCommand)
 
 	createMTOCommand := &cobra.Command{
 		Use:   "support-create-move-task-order",
@@ -158,6 +195,27 @@ func main() {
 	prime.InitUpdateMTOAgentFlags(updateMTOAgentCommand.Flags())
 	root.AddCommand(updateMTOAgentCommand)
 
+	createMTOAgentCommand := &cobra.Command{
+		Use:   "create-mto-agent",
+		Short: "Create MTO agent",
+		Long: `
+  This command creates an agent associated with an MTO shipment.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and a body for the payload.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}/agents
+  The file should contain json as follows:
+  	{
+	  "mtoShipmentID": <uuid string>,
+      "body": <MTOAgent>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         prime.CreateMTOAgent,
+		SilenceUsage: true,
+	}
+	prime.InitCreateMTOAgentFlags(createMTOAgentCommand.Flags())
+	root.AddCommand(createMTOAgentCommand)
+
 	updatePostCounselingInfo := &cobra.Command{
 		Use:          "update-mto-post-counseling-information",
 		Short:        "update post counseling info",
@@ -233,26 +291,21 @@ func main() {
 	support.InitUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
 	root.AddCommand(updatePaymentRequestStatusCommand)
 
-	getMoveTaskOrder := &cobra.Command{
+	supportGetMoveTaskOrder := &cobra.Command{
 		Use:   "support-get-move-task-order",
 		Short: "Get an individual mto",
 		Long: `
-  This command gets a single move task order by ID
-  This is a support endpoint and is not available in production.
-  It requires the caller to pass in a file using the --filename arg.
-  The file should contain path parameters and headers.
+  This command gets a single move by ID.
+  This is a support endpoint and is not available in production. It can retrieve hidden and non-Prime available moves.
+  It requires the caller to set a move ID using the --id arg.
 
   Endpoint path: /move-task-orders/{moveTaskOrderID}
-  The file should contain json as follows:
-  	{
-  	"moveTaskOrderID": <uuid string>,
-  	}
   Please see API documentation for full details on the endpoint definition.`,
 		RunE:         support.GetMTO,
 		SilenceUsage: true,
 	}
-	support.InitGetMTOFlags(getMoveTaskOrder.Flags())
-	root.AddCommand(getMoveTaskOrder)
+	support.InitGetMTOFlags(supportGetMoveTaskOrder.Flags())
+	root.AddCommand(supportGetMoveTaskOrder)
 
 	updateMTOServiceItem := &cobra.Command{
 		Use:   "update-mto-service-item",

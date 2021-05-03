@@ -14,12 +14,9 @@ TASKS_DOCKER_CONTAINER = tasks
 WEBHOOK_CLIENT_DOCKER_CONTAINER = webhook-client
 export PGPASSWORD=mysecretpassword
 
-# if S3 or CDN access is enabled, wrap webserver in aws-vault command
+# if S3 access is enabled, wrap webserver in aws-vault command
 # to pass temporary AWS credentials to the binary.
 ifeq ($(STORAGE_BACKEND),s3)
-	USE_AWS:=true
-endif
-ifeq ($(STORAGE_BACKEND),cdn)
 	USE_AWS:=true
 endif
 ifeq ($(USE_AWS),true)
@@ -27,7 +24,10 @@ ifeq ($(USE_AWS),true)
 endif
 
 # Convenience for LDFLAGS
-WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
+GIT_BRANCH ?= $(shell git branch | grep \* | cut -d ' ' -f2)
+GIT_COMMIT ?= $(shell git rev-list -1 HEAD)
+export GIT_BRANCH GIT_COMMIT
+WEBSERVER_LDFLAGS=-X main.gitBranch=$(GIT_BRANCH) -X main.gitCommit=$(GIT_COMMIT)
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
 DB_PORT_TEST=5433
@@ -275,6 +275,9 @@ bin/send-to-gex: pkg/gen/ cmd/send-to-gex
 bin/send-to-syncada-via-sftp: pkg/gen/ cmd/send-to-syncada-via-sftp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-syncada-via-sftp ./cmd/send-to-syncada-via-sftp
 
+bin/fetch-from-syncada-via-sftp: pkg/gen/ cmd/fetch-from-syncada-via-sftp
+	go build -ldflags "$(LDFLAGS)" -o bin/fetch-from-syncada-via-sftp ./cmd/fetch-from-syncada-via-sftp
+
 bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
@@ -416,19 +419,11 @@ server_test_coverage_generate: db_test_reset db_test_migrate redis_reset server_
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
 	# Add coverage tracker via go cover
-	NO_DB=1 COVERAGE=1 scripts/run-server-test
+	NO_DB=1 SERVER_REPORT=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
-
-.PHONY: server_test_docker
-server_test_docker:
-	docker-compose -f docker-compose.circle.yml --compatibility up --remove-orphans --abort-on-container-exit
-
-.PHONY: server_test_docker_down
-server_test_docker_down:
-	docker-compose -f docker-compose.circle.yml --compatibility down
 
 #
 # ----- END SERVER TARGETS -----
@@ -532,7 +527,7 @@ db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-t
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
@@ -548,7 +543,7 @@ db_dev_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate dat
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
@@ -636,9 +631,8 @@ ifndef CIRCLECI
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p $(DB_PORT_TEST):$(DB_PORT_DOCKER)\
-			$(DB_DOCKER_CONTAINER_IMAGE)\
-			-c fsync=off\
-			-c full_page_writes=off
+			--mount type=tmpfs,destination=/var/lib/postgresql/data \
+			$(DB_DOCKER_CONTAINER_IMAGE)
 else
 	@echo "Relying on CircleCI's database setup to start the DB."
 endif
@@ -782,6 +776,44 @@ tasks_build_docker: server_generate bin/milmove-tasks ## Build Scheduled Task de
 tasks_build_linux_docker:  ## Build Scheduled Task binaries (linux) and Docker image (local)
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
+
+.PHONY: tasks_connect_to_gex_via_sftp
+tasks_connect_to_gex_via_sftp: tasks_build_linux_docker ## Run connect-to-gex-via-sftp from inside docker container
+	@echo "Connecting to GEX via SFTP with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		-e GEX_SFTP_HOST \
+		-e GEX_SFTP_HOST_KEY \
+		-e GEX_SFTP_IP_ADDRESS \
+		-e GEX_SFTP_PASSWORD \
+		-e GEX_SFTP_PORT \
+		-e GEX_SFTP_USER_ID \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		milmove-tasks connect-to-gex-via-sftp
+
+.PHONY: tasks_process_edis
+tasks_process_edis: tasks_build_linux_docker ## Run process-edis from inside docker container
+	@echo "Processing EDIs with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		milmove-tasks process-edis
 
 .PHONY: tasks_save_ghc_fuel_price_data
 tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-price-data from inside docker container
@@ -1009,7 +1041,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app
+	docker pull milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images
@@ -1069,6 +1101,20 @@ schemaspy: db_test_reset db_test_migrate ## Generates database documentation usi
 		-t pgsql11 -host host.docker.internal -port $(DB_PORT_TEST) -db $(DB_NAME_TEST) -u postgres -p $(PGPASSWORD) \
 		-norows -nopages
 	@echo "Schemaspy output can be found in $(SCHEMASPY_OUTPUT)"
+
+.PHONY: reviewapp_docker
+reviewapp_docker:
+	docker-compose -f docker-compose.reviewapp.yml up
+
+.PHONY: reviewapp_docker_build
+reviewapp_docker_build:
+# remove bin to maybe speed up docker builds by removing it from
+# docker context
+	rm -rf ./bin
+	docker-compose -f docker-compose.reviewapp.yml build
+
+reviewapp_docker_destroy:
+	docker-compose -f docker-compose.reviewapp.yml down
 
 #
 # ----- END RANDOM TARGETS -----

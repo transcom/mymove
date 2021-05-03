@@ -340,7 +340,10 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				h.logger.Error("failed to reset user's current_x_session_id")
 			}
-			h.sessionManager(session).Destroy(r.Context())
+			err = h.sessionManager(session).Destroy(r.Context())
+			if err != nil {
+				h.logger.Error("failed to destroy session")
+			}
 			auth.DeleteCSRFCookies(w)
 			h.logger.Info("user logged out")
 			fmt.Fprint(w, logoutURL)
@@ -480,8 +483,12 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		auth.DeleteCookie(w, StateCookieName(session))
 
 		// This operation will delete all cookies from the session
-		h.sessionManager(session).Destroy(r.Context())
-
+		err = h.sessionManager(session).Destroy(r.Context())
+		if err != nil {
+			h.logger.Error("Deleting login.gov state cookie", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
 		// set error query
 		landingQuery := landingURL.Query()
 		landingQuery.Add("error", "SIGNIN_ERROR")
@@ -544,9 +551,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
-	for _, role := range userIdentity.Roles {
-		session.Roles = append(session.Roles, role)
-	}
+	session.Roles = append(session.Roles, userIdentity.Roles...)
 	session.UserID = userIdentity.ID
 	if session.IsMilApp() && userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
@@ -736,9 +741,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 		session.AdminUserID = adminUser.ID
 	}
 
-	for _, role := range user.Roles {
-		session.Roles = append(session.Roles, role)
-	}
+	session.Roles = append(session.Roles, user.Roles...)
 
 	sessionManager := h.sessionManager(session)
 	authError := authenticateUser(r.Context(), sessionManager, session, h.logger, h.db)
@@ -764,7 +767,12 @@ func fetchToken(logger Logger, code string, clientID string, loginGovProvider Lo
 		return nil, err
 	}
 
-	defer response.Body.Close()
+	defer func() {
+		if closeErr := response.Body.Close(); closeErr != nil {
+			logger.Error("Error in closing response", zap.Error(closeErr))
+		}
+	}()
+
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		logger.Error("Reading Login.gov token response", zap.Error(err))

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/go-openapi/swag"
 
@@ -35,7 +36,7 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 	return &paymentRequestListFetcher{db}
 }
 
-// QueryOption defines the type for the functional arguments passed to ListMoveOrders
+// QueryOption defines the type for the functional arguments passed to ListOrders
 type QueryOption func(*pop.Query)
 
 // FetchPaymentRequestList returns a list of payment requests
@@ -103,6 +104,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		}
 	}
 
+	// Get the count
+	count := query.Paginator.TotalEntriesSize
+
 	for i := range paymentRequests {
 		// There appears to be a bug in Pop for EagerPreload when you have two or more eager paths with 3+ levels
 		// where the first 2 levels match.  For example:
@@ -120,9 +124,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		}
 	}
 
-	// Get the count
-	count := query.Paginator.TotalEntriesSize
-
 	return &paymentRequests, count, nil
 }
 
@@ -137,7 +138,12 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID u
 	paymentRequests := models.PaymentRequests{}
 
 	// Replaced EagerPreload due to nullable fka on Contractor
-	query := f.db.Q().Eager("PaymentServiceItems.MTOServiceItem.ReService", "PaymentServiceItems.MTOServiceItem.MTOShipment", "MoveTaskOrder.Contractor", "MoveTaskOrder.Orders").
+	query := f.db.Q().Eager(
+		"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+		"PaymentServiceItems.MTOServiceItem.ReService",
+		"PaymentServiceItems.MTOServiceItem.MTOShipment",
+		"MoveTaskOrder.Contractor",
+		"MoveTaskOrder.Orders").
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
@@ -251,10 +257,12 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	}
 }
 
-func submittedAtFilter(submittedAt *string) QueryOption {
+func submittedAtFilter(submittedAt *time.Time) QueryOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
-			query.Where("CAST(payment_requests.created_at AS DATE) = ?", *submittedAt)
+			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
+			submittedAtEnd := submittedAt.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
+			query.Where("payment_requests.created_at between ? and ?", submittedAt.Format(time.RFC3339), submittedAtEnd.Format(time.RFC3339))
 		}
 	}
 }

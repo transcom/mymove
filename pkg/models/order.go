@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -43,6 +44,8 @@ type Order struct {
 	OrdersTypeDetail    *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents       bool                               `json:"has_dependents" db:"has_dependents"`
 	SpouseHasProGear    bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
+	OriginDutyStation   *DutyStation                       `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
+	OriginDutyStationID *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 	NewDutyStationID    uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
 	NewDutyStation      DutyStation                        `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
 	UploadedOrders      Document                           `belongs_to:"documents"`
@@ -56,8 +59,6 @@ type Order struct {
 	Grade               *string                            `json:"grade" db:"grade"`
 	Entitlement         *Entitlement                       `belongs_to:"entitlements"`
 	EntitlementID       *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
-	OriginDutyStation   *DutyStation                       `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
-	OriginDutyStationID *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 }
 
 // Orders is not required by pop and may be deleted
@@ -79,6 +80,11 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
 		&OptionalUUIDIsPresent{Field: o.OriginDutyStationID, Name: "OriginDutyStationID"},
+		&StringIsPresentAfterSubmission{Name: "TransportationAccountingCode", Field: o.TAC, Order: *o, DB: tx},
+		&StringIsPresentAfterSubmission{Name: "DepartmentIndicator", Field: o.DepartmentIndicator, Order: *o, DB: tx},
+		&StringIsPresentAfterSubmission{Name: "OrdersNumber", Field: o.OrdersNumber, Order: *o, DB: tx},
+		&OrdersTypeDetailIsPresentAfterSubmission{Name: "OrdersTypeDetail", Field: o.OrdersTypeDetail, Order: *o, DB: tx},
+		&OptionalRegexMatch{Name: "TransportationAccountingCode", Field: o.TAC, Expr: `\A([A-Za-z0-9]){4}\z`, Message: "TAC must be exactly 4 alphanumeric characters."},
 	), nil
 }
 
@@ -94,16 +100,59 @@ func (o *Order) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
+// StringIsPresentAfterSubmission checks presence of fields after an order has been submitted
+type StringIsPresentAfterSubmission struct {
+	Name  string
+	Field *string
+	Order Order
+	DB    *pop.Connection
+}
+
+// IsValid adds an error if the field is blank
+func (v *StringIsPresentAfterSubmission) IsValid(errors *validate.Errors) {
+	order := v.Order
+
+	if len(order.Moves) <= 0 || order.Moves[0].Status == MoveStatusDRAFT || order.Moves[0].Status == MoveStatusNeedsServiceCounseling {
+		return
+	}
+
+	if v.Field == nil || *v.Field == "" {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s cannot be blank.", v.Name))
+	}
+}
+
+// OrdersTypeDetailIsPresentAfterSubmission validates that orders type field is present
+type OrdersTypeDetailIsPresentAfterSubmission struct {
+	Name  string
+	Field *internalmessages.OrdersTypeDetail
+	Order Order
+	DB    *pop.Connection
+}
+
+// IsValid adds an error if the string value is blank.
+func (v *OrdersTypeDetailIsPresentAfterSubmission) IsValid(errors *validate.Errors) {
+	order := v.Order
+
+	if len(order.Moves) <= 0 || order.Moves[0].Status == MoveStatusDRAFT || order.Moves[0].Status == MoveStatusNeedsServiceCounseling {
+		return
+	}
+
+	if v.Field == nil || string(*v.Field) == "" {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s cannot be blank.", v.Name))
+	}
+}
+
 // SaveOrder saves an order
 func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	db.Transaction(func(dbConnection *pop.Connection) error {
+	transactionErr := db.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		ppm, err := FetchPersonallyProcuredMoveByOrderID(db, order.ID)
 		if err != nil {
+			responseError = err
 			return transactionError
 		}
 
@@ -121,6 +170,11 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 		}
 		return nil
 	})
+
+	if transactionErr != nil {
+		return responseVErrors, responseError
+	}
+
 	return responseVErrors, responseError
 }
 
@@ -150,19 +204,28 @@ func (o *Order) Cancel() error {
 // FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
 func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
-	err := db.Q().Eager("ServiceMember.User",
+	err := db.Q().EagerPreload("ServiceMember.User",
+		"OriginDutyStation.Address",
+		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
 		"NewDutyStation.TransportationOffice",
-		"UploadedOrders.UserUploads.Upload",
+		"UploadedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
-		"Entitlement").
+		"Entitlement",
+		"OriginDutyStation").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
+		return Order{}, err
+	}
+
+	// Eager loading of nested has_many associations is broken
+	err = db.Load(&order.UploadedOrders, "UserUploads.Upload")
+	if err != nil {
 		return Order{}, err
 	}
 

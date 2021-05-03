@@ -21,6 +21,8 @@ import (
 const (
 	// FilenameFlag is the name of the file being passed in
 	FilenameFlag string = "filename"
+	// IDFlag is the UUID of the object being retrieved
+	IDFlag string = "id"
 	// ETagFlag is the etag for the mto shipment being updated
 	ETagFlag string = "etag"
 	// PaymentRequestIDFlag is the payment request ID

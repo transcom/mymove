@@ -1,7 +1,6 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
-@import 'shared/styles/_custom';
 
 .PaymentRequestDetails {
   :global .stackedtable-header {
@@ -31,66 +30,21 @@
     }
   }
 
-  .accepted {
-    svg {
-      @include u-margin-right(1);
-      height: 18px;
-      width: 18px;
-      display: inline-block;
-      position: relative;
-      top: 2px;
-
-      path {
-        fill: $success;
-      }
+  .shipmentType {
+    .basicServiceType {
+      width: 34px;
+      height: 6px;
+      background-color: $base-light;
     }
-  }
-
-  .rejected {
-    svg {
-      @include u-margin-right(1);
-      height: 18px;
-      width: 18px;
-      display: inline-block;
-      position: relative;
-      top: 2px;
-
-      path {
-        fill: $error;
-      }
+    .hhgShipmentType {
+      width: 34px;
+      height: 6px;
+      background-color: $accent-hhg;
     }
-  }
-
-  .needsReview {
-    svg {
-      @include u-margin-right(1);
-      height: 18px;
-      width: 18px;
-      display: inline-block;
-      position: relative;
-      top: 2px;
-
-      path {
-        fill: $warning;
-      }
+    .ntsrShipmentType {
+      width: 34px;
+      height: 6px;
+      background-color: $accent-ntsr;
     }
-  }
-}
-
-.shipmentType {
-  .basicServiceType {
-    width: 34px;
-    height: 6px;
-    background-color: $base-light;
-  }
-  .hhgShipmentType {
-    width: 34px;
-    height: 6px;
-    background-color: $accent-hhg;
-  }
-  .ntsrShipmentType {
-    width: 34px;
-    height: 6px;
-    background-color: $accent-ntsr;
   }
 }

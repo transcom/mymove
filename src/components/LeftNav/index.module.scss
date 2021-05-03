@@ -1,6 +1,4 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
+@import 'shared/styles/_basics';
 
 //Left Nav
 .LeftNav {
@@ -36,7 +34,8 @@
       border-top-left-radius: 0px;
     }
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       @include u-text('no-underline');
       @include u-text('primary-vivid');
     }
@@ -44,19 +43,19 @@
     &:active,
     &:global(.active) {
       @include u-text('bold');
-      @include u-text('black');
+      @include u-text('base-darker');
       @include u-border-left(0.5); //4px
       @include u-border-left('primary-vivid');
     }
 
     &:visited {
-      @include u-text('base');
+      @include u-text('base-darker');
     }
   }
 
   :global(.active) {
     @include u-text('bold');
-    @include u-text('black');
+    @include u-text('base-darker');
     @include u-border-left(0.5); //4px
     @include u-border-left('primary-vivid');
     @include u-padding-left(2);

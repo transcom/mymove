@@ -4789,7 +4789,8 @@ func init() {
         "DRAFT",
         "SUBMITTED",
         "APPROVED",
-        "CANCELED"
+        "CANCELED",
+        "NEEDS SERVICE COUNSELING"
       ],
       "x-display-value": {
         "APPROVED": "Approved",
@@ -4912,6 +4913,11 @@ func init() {
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
+        "grade": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "O-6"
+        },
         "has_dependents": {
           "type": "boolean",
           "title": "Are dependents included in your orders?"
@@ -4945,6 +4951,10 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "origin_duty_station": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DutyStationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -11287,7 +11297,8 @@ func init() {
         "DRAFT",
         "SUBMITTED",
         "APPROVED",
-        "CANCELED"
+        "CANCELED",
+        "NEEDS SERVICE COUNSELING"
       ],
       "x-display-value": {
         "APPROVED": "Approved",
@@ -11410,6 +11421,11 @@ func init() {
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
+        "grade": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "O-6"
+        },
         "has_dependents": {
           "type": "boolean",
           "title": "Are dependents included in your orders?"
@@ -11443,6 +11459,10 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "origin_duty_station": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DutyStationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",

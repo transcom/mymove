@@ -12,6 +12,7 @@ import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminCon
 import { detectFlags } from 'shared/featureFlags';
 
 import '../icons';
+import 'shared/shared.css';
 import './index.css';
 
 const Office = lazy(() => import('pages/Office'));
@@ -76,9 +77,11 @@ const App = () => {
   return (
     <Provider store={store}>
       <AppContext.Provider value={myMoveContext}>
-        <Suspense fallback={<LoadingPlaceholder />}>
-          <MyMove />
-        </Suspense>
+        <ConnectedRouter history={history}>
+          <Suspense fallback={<LoadingPlaceholder />}>
+            <MyMove />
+          </Suspense>
+        </ConnectedRouter>
       </AppContext.Provider>
     </Provider>
   );

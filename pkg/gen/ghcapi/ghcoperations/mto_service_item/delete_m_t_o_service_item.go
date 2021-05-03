@@ -31,9 +31,9 @@ func NewDeleteMTOServiceItem(ctx *middleware.Context, handler DeleteMTOServiceIt
 
 /*DeleteMTOServiceItem swagger:route DELETE /move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID} mtoServiceItem deleteMTOServiceItem
 
-Deletes a line item by ID for a move order by ID
+Deletes a line item by ID for a move by ID
 
-Deletes a line item by ID for a move order by ID
+Deletes a line item by ID for a move by ID
 
 */
 type DeleteMTOServiceItem struct {

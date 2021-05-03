@@ -1,7 +1,6 @@
 package event
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -120,7 +119,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		suite.Nil(unmarshalErr)
 		suite.Equal(mtoServiceItemDOFSIT.ID.String(), data.ID().String())
 		suite.Equal(mtoServiceItemDOFSIT.MTOShipmentID.String(), data.MtoShipmentID().String())
-		suite.Equal(fmt.Sprintf("%s", mtoServiceItemDOFSIT.ReService.Code), *data.ReServiceCode)
+		suite.Equal(string(mtoServiceItemDOFSIT.ReService.Code), *data.ReServiceCode)
 		suite.Equal(mtoServiceItemDOFSIT.Reason, data.Reason)
 	})
 
@@ -135,7 +134,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		suite.Nil(unmarshalErr)
 		suite.Equal(mtoServiceItemDDFSIT.ID.String(), data.ID().String())
 		suite.Equal(mtoServiceItemDDFSIT.MTOShipmentID.String(), data.MtoShipmentID().String())
-		suite.Equal(fmt.Sprintf("%s", mtoServiceItemDDFSIT.ReService.Code), *data.ReServiceCode)
+		suite.Equal(string(mtoServiceItemDDFSIT.ReService.Code), *data.ReServiceCode)
 		suite.Equal(customerContact1.FirstAvailableDeliveryDate.Format("2006-01-02"), data.FirstAvailableDeliveryDate1.String())
 		suite.Equal(customerContact2.FirstAvailableDeliveryDate.Format("2006-01-02"), data.FirstAvailableDeliveryDate2.String())
 
@@ -152,7 +151,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		suite.Nil(unmarshalErr)
 		suite.Equal(mtoServiceItemDCRT.ID.String(), data.ID().String())
 		suite.Equal(mtoServiceItemDCRT.MTOShipmentID.String(), data.MtoShipmentID().String())
-		suite.Equal(fmt.Sprintf("%s", mtoServiceItemDCRT.ReService.Code), *data.ReServiceCode)
+		suite.Equal(string(mtoServiceItemDCRT.ReService.Code), *data.ReServiceCode)
 		suite.Equal(float32(itemDimension1.Length), float32(*data.Item.Length))
 		suite.Equal(float32(crateDimension1.Length), float32(*data.Crate.Length))
 
@@ -169,35 +168,35 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		suite.Nil(unmarshalErr)
 		suite.Equal(mtoServiceItemDOSHUT.ID.String(), data.ID().String())
 		suite.Equal(mtoServiceItemDOSHUT.MTOShipmentID.String(), data.MtoShipmentID().String())
-		suite.Equal(fmt.Sprintf("%s", mtoServiceItemDOSHUT.ReService.Code), *data.ReServiceCode)
+		suite.Equal(string(mtoServiceItemDOSHUT.ReService.Code), *data.ReServiceCode)
 		suite.Equal(*mtoServiceItemDOSHUT.Description, *data.Description)
 		suite.Equal(*mtoServiceItemDOSHUT.Reason, *data.Reason)
 	})
 
 }
 
-func (suite *EventServiceSuite) TestAssembleMoveOrderPayload() {
-	moveOrder := testdatagen.MakeDefaultOrder(suite.DB())
+func (suite *EventServiceSuite) TestAssembleOrderPayload() {
+	order := testdatagen.MakeDefaultOrder(suite.DB())
 
-	suite.T().Run("Success with default MoveOrder", func(t *testing.T) {
-		payload, err := assembleMoveOrderPayload(suite.DB(), moveOrder.ID)
+	suite.T().Run("Success with default Order", func(t *testing.T) {
+		payload, err := assembleOrderPayload(suite.DB(), order.ID)
 
-		data := &primemessages.MoveOrder{}
+		data := &primemessages.Order{}
 		unmarshalErr := data.UnmarshalBinary(payload)
 
 		suite.Nil(err)
 		suite.Nil(unmarshalErr)
-		suite.Equal(moveOrder.ID.String(), data.ID.String())
-		suite.NotNil(moveOrder.ServiceMember)
-		suite.NotNil(moveOrder.Entitlement)
-		suite.NotNil(moveOrder.OriginDutyStation)
-		suite.NotEqual(moveOrder.ServiceMember.ID, uuid.Nil)
-		suite.NotEqual(moveOrder.Entitlement.ID, uuid.Nil)
-		suite.NotEqual(moveOrder.OriginDutyStation.ID, uuid.Nil)
+		suite.Equal(order.ID.String(), data.ID.String())
+		suite.NotNil(order.ServiceMember)
+		suite.NotNil(order.Entitlement)
+		suite.NotNil(order.OriginDutyStation)
+		suite.NotEqual(order.ServiceMember.ID, uuid.Nil)
+		suite.NotEqual(order.Entitlement.ID, uuid.Nil)
+		suite.NotEqual(order.OriginDutyStation.ID, uuid.Nil)
 
-		if moveOrder.OriginDutyStation != nil {
-			suite.NotNil(moveOrder.OriginDutyStation.Address)
-			suite.NotEqual(moveOrder.OriginDutyStation.Address.ID, uuid.Nil)
+		if order.OriginDutyStation != nil {
+			suite.NotNil(order.OriginDutyStation.Address)
+			suite.NotEqual(order.OriginDutyStation.Address.ID, uuid.Nil)
 		}
 	})
 }

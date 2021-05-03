@@ -81,6 +81,48 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}": {
+      "get": {
+        "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "getMoveTaskOrder",
+        "operationId": "getMoveTaskOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "UUID of move task order to use.",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieve an individual move task order.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
         "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
@@ -486,6 +528,69 @@ func init() {
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/agents": {
+      "post": {
+        "description": "### Functionality\nThis endpoint is used to **create** and add agents for an existing MTO Shipment. Only the fields being modified need to be sent in the request body.\n\n### Errors\nThe agent must always have a name and at least one method of contact (either ` + "`" + `email` + "`" + ` or ` + "`" + `phone` + "`" + `).\n\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Pime.\nIf the caller requests a new agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOAgent",
+        "operationId": "createMTOAgent",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully added the agent.",
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
           },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
@@ -1619,7 +1724,8 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -1651,7 +1757,87 @@ func init() {
         "$ref": "#/definitions/MTOShipment"
       }
     },
-    "MoveOrder": {
+    "MoveTaskOrder": {
+      "type": "object",
+      "required": [
+        "mtoShipments",
+        "mtoServiceItems",
+        "paymentRequests"
+      ],
+      "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "order": {
+          "$ref": "#/definitions/Order"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MoveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "Order": {
       "type": "object",
       "required": [
         "orderNumber",
@@ -1699,91 +1885,6 @@ func init() {
           "type": "string",
           "format": "date"
         }
-      }
-    },
-    "MoveTaskOrder": {
-      "type": "object",
-      "required": [
-        "mtoShipments",
-        "mtoServiceItems",
-        "paymentRequests"
-      ],
-      "properties": {
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "moveCode": {
-          "type": "string",
-          "readOnly": true,
-          "example": "HYXFJF"
-        },
-        "moveOrder": {
-          "$ref": "#/definitions/MoveOrder"
-        },
-        "moveOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "mtoServiceItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
-        },
-        "mtoShipments": {
-          "$ref": "#/definitions/MTOShipments"
-        },
-        "paymentRequests": {
-          "$ref": "#/definitions/PaymentRequests"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
-        "ppmType": {
-          "type": "string",
-          "enum": [
-            "FULL",
-            "PARTIAL"
-          ]
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "MoveTaskOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
       }
     },
     "PaymentRequest": {
@@ -1838,7 +1939,8 @@ func init() {
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentRequests": {
@@ -1941,7 +2043,8 @@ func init() {
         "APPROVED",
         "DENIED",
         "SENT_TO_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentServiceItems": {
@@ -2054,6 +2157,7 @@ func init() {
         "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
+        "ContractYearName",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -2061,7 +2165,11 @@ func init() {
         "DistanceZipSITDest",
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
+        "EscalationCompounded",
+        "FSCMultiplier",
+        "FSCPriceDifferenceInCents",
         "FSCWeightBasedDistanceMultiplier",
+        "IsPeak",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -2070,6 +2178,7 @@ func init() {
         "PriceAreaIntlDest",
         "PriceAreaIntlOrigin",
         "PriceAreaOrigin",
+        "PriceRateOrFactor",
         "PSI_LinehaulDom",
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
@@ -2102,14 +2211,17 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress"
+        "ZipSITDestHHGFinalAddress",
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
       "type": "string",
       "enum": [
         "PRIME",
-        "SYSTEM"
+        "SYSTEM",
+        "PRICER"
       ]
     },
     "ServiceItemParamType": {
@@ -2391,6 +2503,60 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}": {
+      "get": {
+        "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "getMoveTaskOrder",
+        "operationId": "getMoveTaskOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "UUID of move task order to use.",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieve an individual move task order.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
         "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
@@ -2907,6 +3073,90 @@ func init() {
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/agents": {
+      "post": {
+        "description": "### Functionality\nThis endpoint is used to **create** and add agents for an existing MTO Shipment. Only the fields being modified need to be sent in the request body.\n\n### Errors\nThe agent must always have a name and at least one method of contact (either ` + "`" + `email` + "`" + ` or ` + "`" + `phone` + "`" + `).\n\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Pime.\nIf the caller requests a new agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOAgent",
+        "operationId": "createMTOAgent",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully added the agent.",
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -4103,7 +4353,8 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -4135,7 +4386,87 @@ func init() {
         "$ref": "#/definitions/MTOShipment"
       }
     },
-    "MoveOrder": {
+    "MoveTaskOrder": {
+      "type": "object",
+      "required": [
+        "mtoShipments",
+        "mtoServiceItems",
+        "paymentRequests"
+      ],
+      "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "order": {
+          "$ref": "#/definitions/Order"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MoveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "Order": {
       "type": "object",
       "required": [
         "orderNumber",
@@ -4183,91 +4514,6 @@ func init() {
           "type": "string",
           "format": "date"
         }
-      }
-    },
-    "MoveTaskOrder": {
-      "type": "object",
-      "required": [
-        "mtoShipments",
-        "mtoServiceItems",
-        "paymentRequests"
-      ],
-      "properties": {
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "moveCode": {
-          "type": "string",
-          "readOnly": true,
-          "example": "HYXFJF"
-        },
-        "moveOrder": {
-          "$ref": "#/definitions/MoveOrder"
-        },
-        "moveOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "mtoServiceItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
-        },
-        "mtoShipments": {
-          "$ref": "#/definitions/MTOShipments"
-        },
-        "paymentRequests": {
-          "$ref": "#/definitions/PaymentRequests"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
-        "ppmType": {
-          "type": "string",
-          "enum": [
-            "FULL",
-            "PARTIAL"
-          ]
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "MoveTaskOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
       }
     },
     "PaymentRequest": {
@@ -4322,7 +4568,8 @@ func init() {
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentRequests": {
@@ -4425,7 +4672,8 @@ func init() {
         "APPROVED",
         "DENIED",
         "SENT_TO_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentServiceItems": {
@@ -4528,6 +4776,7 @@ func init() {
         "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
+        "ContractYearName",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -4535,7 +4784,11 @@ func init() {
         "DistanceZipSITDest",
         "DistanceZipSITOrigin",
         "EIAFuelPrice",
+        "EscalationCompounded",
+        "FSCMultiplier",
+        "FSCPriceDifferenceInCents",
         "FSCWeightBasedDistanceMultiplier",
+        "IsPeak",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -4544,6 +4797,7 @@ func init() {
         "PriceAreaIntlDest",
         "PriceAreaIntlOrigin",
         "PriceAreaOrigin",
+        "PriceRateOrFactor",
         "PSI_LinehaulDom",
         "PSI_LinehaulDomPrice",
         "PSI_LinehaulShort",
@@ -4576,14 +4830,17 @@ func init() {
         "WeightEstimated",
         "ZipDestAddress",
         "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress"
+        "ZipSITDestHHGFinalAddress",
+        "ZipSITOriginHHGActualAddress",
+        "ZipSITOriginHHGOriginalAddress"
       ]
     },
     "ServiceItemParamOrigin": {
       "type": "string",
       "enum": [
         "PRIME",
-        "SYSTEM"
+        "SYSTEM",
+        "PRICER"
       ]
     },
     "ServiceItemParamType": {

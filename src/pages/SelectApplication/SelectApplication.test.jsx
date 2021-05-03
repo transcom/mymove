@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-one-expression-per-line */
 import React from 'react';
 import { mount } from 'enzyme';
 
@@ -35,13 +34,20 @@ describe('SelectApplication component', () => {
     const mockSetActiveRole = jest.fn();
     const wrapper = mount(
       <SelectApplication
-        userRoles={[{ roleType: roleTypes.TOO }, { roleType: roleTypes.TIO }]}
+        userRoles={[
+          { roleType: roleTypes.TOO },
+          { roleType: roleTypes.TIO },
+          { roleType: roleTypes.SERVICES_COUNSELOR },
+        ]}
         setActiveRole={mockSetActiveRole}
       />,
     );
 
     expect(wrapper.containsMatchingElement(<button type="button">Select {roleTypes.TOO}</button>)).toEqual(true);
     expect(wrapper.containsMatchingElement(<button type="button">Select {roleTypes.TIO}</button>)).toEqual(true);
+    expect(
+      wrapper.containsMatchingElement(<button type="button">Select {roleTypes.SERVICES_COUNSELOR}</button>),
+    ).toEqual(true);
     expect(wrapper.containsMatchingElement(<button type="button">Select {roleTypes.PPM}</button>)).toEqual(false);
   });
 

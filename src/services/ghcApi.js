@@ -28,8 +28,8 @@ export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
 
-export async function getMoveOrder(key, orderID) {
-  return makeGHCRequest('order.getMoveOrder', { orderID });
+export async function getOrder(key, orderID) {
+  return makeGHCRequest('order.getOrder', { orderID });
 }
 
 export async function getMovePaymentRequests(key, locator) {
@@ -110,8 +110,13 @@ export async function patchPaymentServiceItemStatus({
   );
 }
 
-export async function updateMoveOrder({ orderID, ifMatchETag, body }) {
-  const operationPath = 'order.updateMoveOrder';
+export async function getTacValid({ tac }) {
+  const operationPath = 'order.tacValidation';
+  return makeGHCRequest(operationPath, { tac }, { normalize: false });
+}
+
+export async function updateOrder({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.updateOrder';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
@@ -123,6 +128,18 @@ export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServ
       moveTaskOrderID,
       'If-Match': ifMatchETag,
       serviceItemCodes: mtoApprovalServiceItemCodes,
+    },
+    { normalize },
+  );
+}
+
+export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, ifMatchETag, normalize = false }) {
+  const operationPath = 'moveTaskOrder.updateMTOStatusServiceCounselingCompleted';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      'If-Match': ifMatchETag,
     },
     { normalize },
   );
@@ -152,6 +169,22 @@ export function updateMTOShipmentStatus({
 
 export async function getMovesQueue(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
   const operationPath = 'queues.getMovesQueue';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    operationPath,
+    { sort, order, page: currentPage, perPage: currentPageSize, ...paramFilters },
+    { schemaKey: 'queueMovesResult', normalize: false },
+  );
+}
+
+export async function getServicesCounselingQueue(
+  key,
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20 },
+) {
+  const operationPath = 'queues.getServicesCounselingQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
     paramFilters[`${filter.id}`] = filter.value;

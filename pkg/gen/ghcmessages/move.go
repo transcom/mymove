@@ -43,7 +43,7 @@ type Move struct {
 	Locator string `json:"locator,omitempty"`
 
 	// orders
-	Orders *MoveOrder `json:"orders,omitempty"`
+	Orders *Order `json:"orders,omitempty"`
 
 	// orders Id
 	// Format: uuid
@@ -51,6 +51,10 @@ type Move struct {
 
 	// reference Id
 	ReferenceID *string `json:"referenceId,omitempty"`
+
+	// service counseling completed at
+	// Format: date-time
+	ServiceCounselingCompletedAt *strfmt.DateTime `json:"serviceCounselingCompletedAt,omitempty"`
 
 	// status
 	Status MoveStatus `json:"status,omitempty"`
@@ -93,6 +97,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOrdersID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateServiceCounselingCompletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -209,6 +217,19 @@ func (m *Move) validateOrdersID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("ordersId", "body", "uuid", m.OrdersID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateServiceCounselingCompletedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ServiceCounselingCompletedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("serviceCounselingCompletedAt", "body", "date-time", m.ServiceCounselingCompletedAt.String(), formats); err != nil {
 		return err
 	}
 

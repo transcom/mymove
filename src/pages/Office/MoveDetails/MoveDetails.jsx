@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import classnames from 'classnames';
-import { useParams } from 'react-router-dom';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { useParams, useHistory, Link } from 'react-router-dom';
+import { GridContainer, Tag } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
+import { func } from 'prop-types';
+import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
+import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
+import { shipmentStatuses } from 'constants/shipments';
+import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
-import LeftNav from 'components/LeftNav';
-import CustomerInfoTable from 'components/Office/CustomerInfoTable';
-import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
-import AllowancesTable from 'components/Office/AllowancesTable/AllowancesTable';
-import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import { useMoveDetailsQueries } from 'hooks/queries';
+import LeftNav from 'components/LeftNav';
+import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
+import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
+import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
+import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
+import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -26,12 +31,13 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-const MoveDetails = () => {
+const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount }) => {
   const { moveCode } = useParams();
+  const history = useHistory();
 
   const [activeSection, setActiveSection] = useState('');
 
-  const { move, moveOrder, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
   let sections = ['orders', 'allowances', 'customer-info'];
 
@@ -65,6 +71,8 @@ const MoveDetails = () => {
   const [mutateMoveStatus] = useMutation(updateMoveStatus, {
     onSuccess: (data) => {
       queryCache.setQueryData([MOVES, data.locator], data);
+      queryCache.invalidateQueries([MOVES, data.locator]);
+      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, data.id]);
     },
   });
 
@@ -72,16 +80,37 @@ const MoveDetails = () => {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
     },
   });
+
+  const submittedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.SUBMITTED);
+  const approvedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.APPROVED);
+
+  useEffect(() => {
+    const shipmentCount = submittedShipments?.length || 0;
+    setUnapprovedShipmentCount(shipmentCount);
+  }, [mtoShipments, submittedShipments, setUnapprovedShipmentCount]);
+
+  useEffect(() => {
+    let serviceItemCount = 0;
+    mtoServiceItems?.forEach((serviceItem) => {
+      if (
+        serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED &&
+        serviceItem.mtoShipmentID &&
+        approvedShipments?.find((shipment) => shipment.id === serviceItem.mtoShipmentID)
+      ) {
+        serviceItemCount += 1;
+      }
+    });
+    setUnapprovedServiceItemCount(serviceItemCount);
+  }, [approvedShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { customer, entitlement: allowances } = moveOrder;
-
-  const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
-  const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
+  const { customer, entitlement: allowances } = order;
 
   if (submittedShipments.length > 0 && approvedShipments.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];
@@ -92,26 +121,28 @@ const MoveDetails = () => {
   }
 
   const ordersInfo = {
-    newDutyStation: moveOrder.destinationDutyStation,
-    currentDutyStation: moveOrder.originDutyStation,
-    issuedDate: moveOrder.date_issued,
-    reportByDate: moveOrder.report_by_date,
-    departmentIndicator: moveOrder.department_indicator,
-    ordersNumber: moveOrder.order_number,
-    ordersType: moveOrder.order_type,
-    ordersTypeDetail: moveOrder.order_type_detail,
-    tacMDC: moveOrder.tac,
-    sacSDN: moveOrder.sac,
+    newDutyStation: order.destinationDutyStation,
+    currentDutyStation: order.originDutyStation,
+    issuedDate: order.date_issued,
+    reportByDate: order.report_by_date,
+    departmentIndicator: order.department_indicator,
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
+    sacSDN: order.sac,
   };
   const allowancesInfo = {
     branch: customer.agency,
-    rank: moveOrder.grade,
+    rank: order.grade,
     weightAllowance: allowances.totalWeight,
     authorizedWeight: allowances.authorizedWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
     dependents: allowances.dependentsAuthorized,
+    requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
+    organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
   };
   const customerInfo = {
     name: `${customer.last_name}, ${customer.first_name}`,
@@ -122,15 +153,33 @@ const MoveDetails = () => {
     backupContact: customer.backup_contact,
   };
 
+  const requiredOrdersInfo = {
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
+  };
+
+  const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
         <LeftNav className={styles.sidebar}>
           {sections.map((s) => {
-            const classes = classnames({ active: s === activeSection });
             return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
+              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
                 {sectionLabels[`${s}`]}
+                {s === 'orders' && hasMissingOrdersRequiredInfo && (
+                  <Tag className="usa-tag usa-tag--alert">
+                    <FontAwesomeIcon icon="exclamation" />
+                  </Tag>
+                )}
+                {s === 'requested-shipments' && (
+                  <Tag className={styles.tag} data-testid="requestedShipmentsTag">
+                    {submittedShipments?.length}
+                  </Tag>
+                )}
               </a>
             );
           })}
@@ -147,57 +196,66 @@ const MoveDetails = () => {
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
-                shipmentsStatus="SUBMITTED"
+                shipmentsStatus={shipmentStatuses.SUBMITTED}
                 approveMTO={mutateMoveStatus}
                 approveMTOShipment={mutateMTOShipmentStatus}
                 moveTaskOrder={move}
+                missingRequiredOrdersInfo={hasMissingOrdersRequiredInfo}
+                handleAfterSuccess={history.push}
               />
             </div>
           )}
           {approvedShipments.length > 0 && (
             <div className={styles.section} id="approved-shipments">
               <RequestedShipments
+                moveTaskOrder={move}
                 mtoShipments={approvedShipments}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
                 mtoServiceItems={mtoServiceItems}
-                shipmentsStatus="APPROVED"
-                moveTaskOrder={move}
+                shipmentsStatus={shipmentStatuses.APPROVED}
               />
             </div>
           )}
           <div className={styles.section} id="orders">
-            <GridContainer>
-              <Grid row gap>
-                <Grid col>
-                  <OrdersTable ordersInfo={ordersInfo} />
-                </Grid>
-              </Grid>
-            </GridContainer>
+            <DetailsPanel
+              title="Orders"
+              editButton={
+                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                  Edit orders
+                </Link>
+              }
+            >
+              <OrdersList ordersInfo={ordersInfo} />
+            </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">
-            <GridContainer>
-              <Grid row gap>
-                <Grid col>
-                  <AllowancesTable info={allowancesInfo} showEditBtn />
-                </Grid>
-              </Grid>
-            </GridContainer>
+            <DetailsPanel
+              title="Allowances"
+              editButton={
+                <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                  Edit allowances
+                </Link>
+              }
+            >
+              <AllowancesList info={allowancesInfo} />
+            </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
-            <GridContainer>
-              <Grid row gap>
-                <Grid col>
-                  <CustomerInfoTable customerInfo={customerInfo} />
-                </Grid>
-              </Grid>
-            </GridContainer>
+            <DetailsPanel title="Customer info">
+              <CustomerInfoList customerInfo={customerInfo} />
+            </DetailsPanel>
           </div>
         </GridContainer>
       </div>
     </div>
   );
+};
+
+MoveDetails.propTypes = {
+  setUnapprovedShipmentCount: func.isRequired,
+  setUnapprovedServiceItemCount: func.isRequired,
 };
 
 export default MoveDetails;

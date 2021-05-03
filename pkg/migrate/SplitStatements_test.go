@@ -1,3 +1,12 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to clean up file created for unit test
+//RA: Given the functions causing the lint errors are used to clean up local storage space after a unit test, it does not present a risk
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
+// #nosec G307
 package migrate
 
 import (
@@ -5,6 +14,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/stretchr/testify/require"
 )
@@ -14,10 +25,12 @@ func TestSplitStatementsCopyFromStdin(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdin.sql"
 	f, err := os.Open(fixture)
-	// #nosec G307 TODO needs review
-	defer f.Close()
+	defer func() {
+		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
+			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+		}
+	}()
 	require.Nil(t, err)
-
 	lines := make(chan string, 1000)
 	dropComments := true
 	dropSearchPath := true
@@ -61,8 +74,11 @@ func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdinMultiple.sql"
 	f, err := os.Open(fixture)
-	// #nosec G307 TODO needs review
-	defer f.Close()
+	defer func() {
+		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
+			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+		}
+	}()
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)
@@ -105,8 +121,12 @@ func TestSplitStatementsLoop(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/loop.sql"
 	f, err := os.Open(fixture)
-	// #nosec G307 TODO needs review
-	defer f.Close()
+
+	defer func() {
+		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
+			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
+		}
+	}()
 	require.Nil(t, err)
 
 	lines := make(chan string, 1000)

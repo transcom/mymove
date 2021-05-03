@@ -7,8 +7,9 @@ import classNames from 'classnames/bind';
 import { EditButton } from './IconButtons';
 import { Form } from './Form';
 import { ErrorMessage } from './ErrorMessage';
-import { TextInputMinimal } from './fields';
 import styles from './StackedTableRowForm.module.scss';
+
+import TextField from 'components/form/fields/TextField';
 
 const cx = classNames.bind(styles);
 
@@ -18,10 +19,8 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
   const errorCallback = (formErrors) => {
     setErrors(formErrors);
   };
-  /* eslint-disable security/detect-object-injection */
   const errorMsg = errors[name];
   const value = initialValues[name];
-  /* eslint-enable security/detect-object-injection */
 
   /* eslint-disable react/jsx-props-no-spreading */
   const content = show ? (
@@ -38,7 +37,7 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
       validationSchema={validationSchema}
     >
       <Form errorCallback={errorCallback}>
-        <TextInputMinimal name={name} {...props} />
+        <TextField name={name} {...props} />
         <div className={cx('form-buttons')}>
           <Button type="submit">Submit</Button>
           <Button type="reset" secondary>

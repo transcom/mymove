@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -113,7 +114,11 @@ func MakeActiveOfficeUser(db *pop.Connection) models.OfficeUser {
 
 	officeUser.Active = true
 
-	db.Update(&officeUser)
+	err := db.Update(&officeUser)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return officeUser
 }
@@ -141,6 +146,52 @@ func MakeTOOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 	return officeUser
 }
 
+// MakeServicesCounselorOfficeUser makes an OfficeUser with the ServicesCounselor role
+func MakeServicesCounselorOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	servicesRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeServicesCounselor,
+		RoleName: "Services Counselor",
+	}
+
+	servicesUser := models.User{
+		Roles: []roles.Role{servicesRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
+			User: servicesUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
+// MakePPMOfficeUser makes an OfficeUser with the PPM role
+func MakePPMOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	ppmRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypePPMOfficeUsers,
+		RoleName: "PPP Office User",
+	}
+
+	ppmUser := models.User{
+		Roles: []roles.Role{ppmRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
+			User: ppmUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
 // MakeOfficeUserWithUSMCGBLOC makes an OfficeUser tied to the USMC GBLOC
 func MakeOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
 	officeUUID, _ := uuid.NewV4()
@@ -151,8 +202,55 @@ func MakeOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
 		},
 	})
 
+	tooRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTOO,
+		RoleName: "Transportation Ordering Officer",
+	}
+
+	tioRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTIO,
+		RoleName: "Transportation Invoicing Officer",
+	}
+
+	txoUser := models.User{
+		Roles: []roles.Role{tooRole, tioRole},
+	}
+
 	return MakeOfficeUser(db, Assertions{
 		OfficeUser: models.OfficeUser{
+			ID:                   uuid.Must(uuid.NewV4()),
+			User:                 txoUser,
+			TransportationOffice: transportationOffice,
+		},
+	})
+}
+
+// MakeServicesCounselorOfficeUserWithUSMCGBLOC makes a Services Counselor tied to the USMC GBLOC
+func MakeServicesCounselorOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
+	officeUUID, _ := uuid.NewV4()
+	transportationOffice := MakeTransportationOffice(db, Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "USMC",
+			ID:    officeUUID,
+		},
+	})
+
+	servicesRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeServicesCounselor,
+		RoleName: "Services Counselor",
+	}
+
+	servicesUser := models.User{
+		Roles: []roles.Role{servicesRole},
+	}
+
+	return MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:                   uuid.Must(uuid.NewV4()),
+			User:                 servicesUser,
 			TransportationOffice: transportationOffice,
 		},
 	})

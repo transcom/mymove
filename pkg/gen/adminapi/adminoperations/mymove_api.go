@@ -132,6 +132,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UsersUpdateUserHandler: users.UpdateUserHandlerFunc(func(params users.UpdateUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.UpdateUser has not yet been implemented")
 		}),
+		WebhookSubscriptionsUpdateWebhookSubscriptionHandler: webhook_subscriptions.UpdateWebhookSubscriptionHandlerFunc(func(params webhook_subscriptions.UpdateWebhookSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook_subscriptions.UpdateWebhookSubscription has not yet been implemented")
+		}),
 	}
 }
 
@@ -217,6 +220,8 @@ type MymoveAPI struct {
 	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
 	// UsersUpdateUserHandler sets the operation handler for the update user operation
 	UsersUpdateUserHandler users.UpdateUserHandler
+	// WebhookSubscriptionsUpdateWebhookSubscriptionHandler sets the operation handler for the update webhook subscription operation
+	WebhookSubscriptionsUpdateWebhookSubscriptionHandler webhook_subscriptions.UpdateWebhookSubscriptionHandler
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -360,6 +365,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UsersUpdateUserHandler == nil {
 		unregistered = append(unregistered, "users.UpdateUserHandler")
+	}
+	if o.WebhookSubscriptionsUpdateWebhookSubscriptionHandler == nil {
+		unregistered = append(unregistered, "webhook_subscriptions.UpdateWebhookSubscriptionHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -553,6 +561,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/users/{userId}"] = users.NewUpdateUser(o.context, o.UsersUpdateUserHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/webhook_subscriptions/{webhookSubscriptionId}"] = webhook_subscriptions.NewUpdateWebhookSubscription(o.context, o.WebhookSubscriptionsUpdateWebhookSubscriptionHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

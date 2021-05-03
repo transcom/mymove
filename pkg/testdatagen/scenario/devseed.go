@@ -1,14 +1,41 @@
+//RA Summary: gosec - errcheck - Unchecked return value
+//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
+//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
+//RA: in which this would be considered a risk
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Modified Severity: N/A
+// nolint:errcheck
+// nolint:golint
 package scenario
 
 import (
 	"fmt"
 	"log"
+	"net/http/httptest"
 	"time"
+
+	"github.com/stretchr/testify/mock"
+
+	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/primeapi"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/route"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -30,6 +57,16 @@ var estimatedWeight = unit.Pound(1400)
 var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
+
+func mustSave(db *pop.Connection, model interface{}) {
+	verrs, err := db.ValidateAndSave(model)
+	if err != nil {
+		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
+	}
+	if verrs.HasAny() {
+		log.Panic(fmt.Errorf("Validation errors encountered saving %#v: %v", model, verrs))
+	}
+}
 
 func createPPMOfficeUser(db *pop.Connection) {
 	/*
@@ -109,8 +146,11 @@ func createPPMWithAdvance(db *pop.Connection, userUploader *uploader.UserUploade
 			ServiceMember:   ppm0.Move.Orders.ServiceMember,
 		},
 	})
-	ppm0.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppm0.Move)
+	ppm0.Move.Submit()
+	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploader) {
@@ -146,8 +186,11 @@ func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploa
 		},
 		UserUploader: userUploader,
 	})
-	ppmNoAdvance.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
+	ppmNoAdvance.Move.Submit()
+	verrs, err := models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader) {
@@ -181,7 +224,7 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("0a2580ef-180a-44b2-a40b-291fa9cc13cc"),
@@ -192,14 +235,17 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 		},
 		UserUploader: userUploader,
 	})
-	ppm2.Move.Submit(time.Now())
+	ppm2.Move.Submit()
 	ppm2.Move.Approve()
 
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(db, &ppm2.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm2.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader) {
@@ -235,10 +281,16 @@ func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader) 
 		},
 		UserUploader: userUploader,
 	})
-	ppmCanceled.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	ppmCanceled.Move.Submit()
+	verrs, err := models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 	ppmCanceled.Move.Cancel("reasons")
-	models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
 func createServiceMemberWithOrdersButNoMoveType(db *pop.Connection) {
@@ -335,6 +387,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
 			ServiceMember:   smWithCombo,
 		},
+		UserUploader: userUploader,
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
 			Locator:          "COMBOS",
@@ -393,8 +446,29 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 	})
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
-	move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &move)
+	move.Submit()
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
+func createMoveWithHHGMissingOrdersInfo(db *pop.Connection, userUploader *uploader.UserUploader) {
+	move := testdatagen.MakeHHGMoveWithShipment(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator: "REQINF",
+			Status:  models.MoveStatusDRAFT,
+		},
+	})
+	order := move.Orders
+	order.TAC = nil
+	order.OrdersNumber = nil
+	order.DepartmentIndicator = nil
+	order.OrdersTypeDetail = nil
+	mustSave(db, &order)
+
+	move.Submit()
+	mustSave(db, &move)
 }
 
 func createUnsubmittedHHGMove(db *pop.Connection) {
@@ -592,7 +666,7 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 			OrdersNumber:        models.StringPointer("62149"),
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("99"),
+			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("f9f10492-587e-43b3-af2a-9f67d2ac8757"),
@@ -603,104 +677,263 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 		},
 		UserUploader: userUploader,
 	})
-	ppm6.Move.Submit(time.Now())
+	ppm6.Move.Submit()
 	ppm6.Move.Approve()
 
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	models.SaveMoveDependencies(db, &ppm6.Move)
+	verrs, err := models.SaveMoveDependencies(db, &ppm6.Move)
+	if err != nil || verrs.HasAny() {
+		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
 }
 
-func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation) {
-	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			Affiliation: &affiliation,
-		},
-	})
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-		},
-		UserUploader: userUploader,
-	})
-	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVED,
-			OrdersID:           orders.ID,
-			Orders:             orders,
-			SelectedMoveType:   &hhgMoveType,
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
-	})
+func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation) {
+	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, affiliation, testdatagen.Assertions{})
+}
 
-	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+// Creates a payment request with domestic longhaul and shorthaul shipments with
+// service item pricing params for displaying cost calculations
+func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
+
+	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := issueDate.Add(31 * 24 * time.Hour)
+	longhaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
-			ApprovedDate:         swag.Time(time.Now()),
+			ActualPickupDate:     &actualPickupDate,
+		},
+		Move: models.Move{
+			Locator: "PARAMS",
+		},
+		Order: models.Order{
+			IssueDate:    issueDate,
+			ReportByDate: reportByDate,
+		},
+	})
+
+	move := longhaulShipment.MoveTaskOrder
+
+	shorthaulDestinationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			PostalCode: "90211",
+		},
+	})
+	shorthaulShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
 			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+			DestinationAddress:   &shorthaulDestinationAddress,
+			DestinationAddressID: &shorthaulDestinationAddress.ID,
 		},
-		Move: mto,
+		Move: move,
 	})
 
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   MTOShipment,
-			MTOShipmentID: MTOShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReleasing,
-		},
-	})
+	submissionErr := move.Submit()
+	if submissionErr != nil {
+		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
+	}
 
-	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			MoveTaskOrder: mto,
-			IsFinal:       false,
-			Status:        models.PaymentRequestStatusPending,
-		},
-		Move: mto,
-	})
+	verrs, err := models.SaveMoveDependencies(db, &move)
+	if err != nil || verrs.HasAny() {
+		logger.Fatal(fmt.Sprintf("Failed to save move and dependencies: %s", err))
+	}
 
-	dcrtCost := unit.Cents(99999)
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		Move:        mto,
-		MTOShipment: MTOShipment,
+	queryBuilder := query.NewQueryBuilder(db)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(db, queryBuilder, serviceItemCreator)
+	_, approveErr := mtoUpdater.MakeAvailableToPrime(move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+
+	if approveErr != nil {
+		logger.Fatal("Error approving move")
+	}
+
+	planner := &routemocks.Planner{}
+
+	// called using the addresses with origin zip of 90210 and destination zip of 94535
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(348, nil).Once()
+
+	// called using the addresses with origin zip of 90210 and destination zip of 90211
+	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(3, nil).Once()
+
+	// called for domestic linehaul service item
+	planner.On("Zip3TransitDistance", "94535", "94535").Return(348, nil).Once()
+
+	// called for domestic shorthaul service item
+	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Once()
+
+	// called for domestic origin SIT pickup service item
+	planner.On("Zip3TransitDistance", "90210", "94535").Return(348, nil).Once()
+
+	// called for domestic destination SIT delivery service item
+	planner.On("Zip3TransitDistance", "94535", "90210").Return(348, nil).Once()
+
+	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment} {
+		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(db, queryBuilder, serviceItemCreator, planner)
+		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error updating shipment status", zap.Error(updateErr))
+		}
+	}
+
+	// There is a minimum of 29 days period for a sit service item that doesn't
+	// have a departure date for the payment request param lookup to not encounter an error
+	originEntryDate := actualPickupDate
+
+	originSITAddress := testdatagen.MakeAddress2(db, testdatagen.Assertions{Stub: true})
+	originSITAddress.ID = uuid.Nil
+
+	originSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: longhaulShipment,
 		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating
+			Code: models.ReServiceCodeDOFSIT,
 		},
+		MTOServiceItem: models.MTOServiceItem{
+			Reason:                      models.StringPointer("Holiday break"),
+			SITEntryDate:                &originEntryDate,
+			SITPostalCode:               &originSITAddress.PostalCode,
+			SITOriginHHGActualAddress:   &originSITAddress,
+			SITOriginHHGActualAddressID: &originSITAddress.ID,
+		},
+		Stub: true,
 	})
 
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &dcrtCost,
-		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDCRT,
-	})
+	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(&originSIT)
+	if validErrs.HasAny() || createErr != nil {
+		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
+	}
 
-	ducrtCost := unit.Cents(99999)
-	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		Move:        mto,
-		MTOShipment: MTOShipment,
+	destEntryDate := actualPickupDate
+	destDepDate := actualPickupDate
+	destSITAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+	destSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: longhaulShipment,
 		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+			Code: models.ReServiceCodeDDFSIT,
 		},
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate:                 &destEntryDate,
+			SITDepartureDate:             &destDepDate,
+			SITPostalCode:                models.StringPointer("90210"),
+			SITDestinationFinalAddress:   &destSITAddress,
+			SITDestinationFinalAddressID: &destSITAddress.ID,
+		},
+		Stub: true,
 	})
 
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &ducrtCost,
-		},
-		PaymentRequest: paymentRequest,
-		MTOServiceItem: mtoServiceItemDUCRT,
-	})
+	createdDestServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(&destSIT)
+	if validErrs.HasAny() || createErr != nil {
+		logger.Fatal(fmt.Sprintf("error while creating destination sit service item: %v", verrs.Errors), zap.Error(createErr))
+	}
+
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
+
+	var originFirstDaySIT models.MTOServiceItem
+	var originAdditionalDaySIT models.MTOServiceItem
+	var originPickupSIT models.MTOServiceItem
+	for _, createdServiceItem := range *createdOriginServiceItems {
+		switch createdServiceItem.ReService.Code {
+		case models.ReServiceCodeDOFSIT:
+			originFirstDaySIT = createdServiceItem
+		case models.ReServiceCodeDOASIT:
+			originAdditionalDaySIT = createdServiceItem
+		case models.ReServiceCodeDOPSIT:
+			originPickupSIT = createdServiceItem
+		}
+	}
+
+	originDepartureDate := originEntryDate.Add(15 * 24 * time.Hour)
+	originPickupSIT.SITDepartureDate = &originDepartureDate
+
+	updatedDOPSIT, updateOriginErr := serviceItemUpdator.UpdateMTOServiceItemPrime(db, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
+
+	if updateOriginErr != nil {
+		logger.Fatal("Error updating DOPSIT with departure date")
+	}
+
+	originPickupSIT = *updatedDOPSIT
+
+	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
+		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
+		}
+	}
+
+	var serviceItemDDFSIT models.MTOServiceItem
+	var serviceItemDDASIT models.MTOServiceItem
+	var serviceItemDDDSIT models.MTOServiceItem
+	for _, createdDestServiceItem := range *createdDestServiceItems {
+		switch createdDestServiceItem.ReService.Code {
+		case models.ReServiceCodeDDFSIT:
+			serviceItemDDFSIT = createdDestServiceItem
+		case models.ReServiceCodeDDASIT:
+			serviceItemDDASIT = createdDestServiceItem
+		case models.ReServiceCodeDDDSIT:
+			serviceItemDDDSIT = createdDestServiceItem
+		}
+	}
+
+	destDepartureDate := destEntryDate.Add(15 * 24 * time.Hour)
+	serviceItemDDDSIT.SITDepartureDate = &destDepartureDate
+	serviceItemDDDSIT.SITDestinationFinalAddress = &destSITAddress
+	serviceItemDDDSIT.SITDestinationFinalAddressID = &destSITAddress.ID
+
+	updatedDDDSIT, updateDestErr := serviceItemUpdator.UpdateMTOServiceItemPrime(db, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
+
+	if updateDestErr != nil {
+		logger.Fatal("Error updating DDDSIT with departure date")
+	}
+
+	serviceItemDDDSIT = *updatedDDDSIT
+
+	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDFSIT, serviceItemDDASIT, serviceItemDDDSIT} {
+		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
+		}
+	}
+
+	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+		db,
+		planner,
+		ghcrateengine.NewServiceItemPricer(db),
+	)
+
+	paymentRequest := models.PaymentRequest{
+		MoveTaskOrderID: move.ID,
+	}
+
+	var serviceItems []models.MTOServiceItem
+	db.Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
+
+	paymentServiceItems := []models.PaymentServiceItem{}
+	for _, serviceItem := range serviceItems {
+		paymentItem := models.PaymentServiceItem{
+			MTOServiceItemID: serviceItem.ID,
+			MTOServiceItem:   serviceItem,
+		}
+		paymentServiceItems = append(paymentServiceItems, paymentItem)
+	}
+
+	paymentRequest.PaymentServiceItems = paymentServiceItems
+	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequest(&paymentRequest)
+
+	if createErr != nil {
+		logger.Fatal("Error creating payment request", zap.Error(createErr))
+	}
 
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
+		PaymentRequest: *newPaymentRequest,
 	})
 
 	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
@@ -709,20 +942,20 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 			ProofOfServiceDoc:   proofOfService,
 			ProofOfServiceDocID: proofOfService.ID,
 			Contractor: models.Contractor{
-				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+				ID: primeContractor,
 			},
-			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
+			ContractorID: primeContractor,
 		},
 		PrimeUploader: primeUploader,
 	})
 
 	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
-		PaymentRequest: paymentRequest,
+		PaymentRequest: *newPaymentRequest,
 	})
 
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
@@ -734,6 +967,126 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
 
+	logger.Info(fmt.Sprintf("New payment request with service item params created with locator %s", move.Locator))
+}
+
+func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
+	serviceMember := models.ServiceMember{
+		Affiliation: &affiliation,
+	}
+	testdatagen.MergeModels(&serviceMember, assertions.ServiceMember)
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: serviceMember,
+	})
+
+	order := models.Order{
+		ServiceMemberID: customer.ID,
+		ServiceMember:   customer,
+	}
+	testdatagen.MergeModels(&order, assertions.Order)
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order:        order,
+		UserUploader: userUploader,
+	})
+
+	move := models.Move{
+		Status:             models.MoveStatusAPPROVED,
+		OrdersID:           orders.ID,
+		Orders:             orders,
+		SelectedMoveType:   &hhgMoveType,
+		AvailableToPrimeAt: swag.Time(time.Now()),
+	}
+	testdatagen.MergeModels(&move, assertions.Move)
+	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: move,
+	})
+
+	shipment := models.MTOShipment{
+		PrimeEstimatedWeight: &estimatedWeight,
+		PrimeActualWeight:    &actualWeight,
+		ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+		ApprovedDate:         swag.Time(time.Now()),
+		Status:               models.MTOShipmentStatusSubmitted,
+	}
+	testdatagen.MergeModels(&shipment, assertions.MTOShipment)
+	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: shipment,
+		Move:        mto,
+	})
+
+	agent := models.MTOAgent{
+		MTOShipment:   MTOShipment,
+		MTOShipmentID: MTOShipment.ID,
+		FirstName:     swag.String("Test"),
+		LastName:      swag.String("Agent"),
+		Email:         swag.String("test@test.email.com"),
+		MTOAgentType:  models.MTOAgentReleasing,
+	}
+	testdatagen.MergeModels(&agent, assertions.MTOAgent)
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: agent,
+	})
+
+	// setup service item
+	reService := models.ReService{
+		ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating, Default
+	}
+	testdatagen.MergeModels(&reService, assertions.ReService)
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService:   reService,
+	})
+
+	// using handler to create service item params
+	req := httptest.NewRequest("POST", "/payment_requests", nil)
+
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(90210, nil)
+	planner.On("Zip3TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(910, nil)
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(90210, nil)
+
+	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
+		db,
+		planner,
+		ghcrateengine.NewServiceItemPricer(db),
+	)
+
+	handler := primeapi.CreatePaymentRequestHandler{
+		HandlerContext:        handlers.NewHandlerContext(db, logger),
+		PaymentRequestCreator: paymentRequestCreator,
+	}
+
+	params := paymentrequestop.CreatePaymentRequestParams{
+		HTTPRequest: req,
+		Body: &primemessages.CreatePaymentRequest{
+			IsFinal:         swag.Bool(false),
+			MoveTaskOrderID: handlers.FmtUUID(mto.ID),
+			ServiceItems: []*primemessages.ServiceItem{
+				{
+					ID: *handlers.FmtUUID(mtoServiceItem.ID),
+				},
+			},
+			PointOfContact: "user@prime.com",
+		},
+	}
+
+	response := handler.Handle(params)
+
+	showResponse, ok := response.(*paymentrequestop.CreatePaymentRequestCreated)
+	if !ok {
+		logger.Fatal("error while creating payment request:", zap.Any("", showResponse))
+	}
+	logger.Debug("Response of create payment request handler: ", zap.Any("", showResponse))
 }
 
 func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.UserUploader) {
@@ -871,7 +1224,7 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 	rejectionReason := "Customer no longer required this service"
 	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
+			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d4"),
 			Status:          models.MTOServiceItemStatusRejected,
 			RejectionReason: &rejectionReason,
 		},
@@ -1076,6 +1429,7 @@ func createHHGMoveWith2PaymentRequests(db *pop.Connection, userUploader *uploade
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusApproved,
 		},
 		Move: mto7,
 	})
@@ -1698,6 +2052,448 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 	})
 }
 
+func createMoveWith2ShipmentsAndPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
+	msCost := unit.Cents(10000)
+
+	customer := testdatagen.MakeDefaultServiceMember(db)
+
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.Must(uuid.NewV4()),
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+		},
+		UserUploader: userUploader,
+	})
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:                 uuid.Must(uuid.NewV4()),
+			OrdersID:           orders.ID,
+			Status:             models.MoveStatusAPPROVED,
+			SelectedMoveType:   &hhgMoveType,
+			AvailableToPrimeAt: swag.Time(time.Now()),
+			Locator:            "REQSRV",
+		},
+	})
+
+	// Create an HHG MTO Shipment
+	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	destinationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Princeton",
+			State:          "NJ",
+			PostalCode:     "08540",
+			Country:        swag.String("US"),
+		},
+	})
+
+	hhgShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.Must(uuid.NewV4()),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusApproved,
+			PickupAddress:        &pickupAddress,
+			PickupAddressID:      &pickupAddress.ID,
+			DestinationAddress:   &destinationAddress,
+			DestinationAddressID: &destinationAddress.ID,
+		},
+		Move: move,
+	})
+
+	// Create an NTSR MTO Shipment
+	ntsrShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.Must(uuid.NewV4()),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusApproved,
+		},
+		Move: move,
+	})
+
+	ntsrShipment.PickupAddressID = &pickupAddress.ID
+	ntsrShipment.PickupAddress = &pickupAddress
+	saveErr := db.Save(&ntsrShipment)
+	if saveErr != nil {
+		log.Panic("error saving NTSR shipment pickup address")
+	}
+
+	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:            uuid.FromStringOrNil("207216bf-0d60-4d91-957b-f0ddaeeb2dff"),
+			MoveTaskOrder: move,
+			IsFinal:       false,
+			Status:        models.PaymentRequestStatusPending,
+		},
+		Move: move,
+	})
+
+	serviceItemMS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:         uuid.Must(uuid.NewV4()),
+			Status:     models.MTOServiceItemStatusApproved,
+			ApprovedAt: swag.Time(time.Now()),
+		},
+		Move: move,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &msCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemMS,
+	})
+
+	csCost := unit.Cents(25000)
+	serviceItemCS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:         uuid.Must(uuid.NewV4()),
+			Status:     models.MTOServiceItemStatusApproved,
+			ApprovedAt: swag.Time(time.Now()),
+		},
+		Move: move,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &csCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemCS,
+	})
+
+	dlhCost := unit.Cents(99999)
+	serviceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: hhgShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dlhCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDLH,
+	})
+
+	serviceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: hhgShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		},
+	})
+
+	fscCost := unit.Cents(55555)
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &fscCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemFSC,
+	})
+
+	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: hhgShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+		},
+	})
+
+	dopCost := unit.Cents(3456)
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dopCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDOP,
+	})
+
+	ddpCost := unit.Cents(7890)
+	serviceItemDDP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: hhgShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &ddpCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDDP,
+	})
+
+	// Schedule 1 peak price
+	dpkCost := unit.Cents(6544)
+	serviceItemDPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: hhgShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK - Domestic Packing
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dpkCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDPK,
+	})
+
+	// Schedule 1 peak price
+	dupkCost := unit.Cents(8544)
+	serviceItemDUPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: hhgShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dupkCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDUPK,
+	})
+
+	dofsitPostal := "90210"
+	dofsitReason := "Storage items need to be picked up"
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:               uuid.Must(uuid.NewV4()),
+			Status:           models.MTOServiceItemStatusSubmitted,
+			PickupPostalCode: &dofsitPostal,
+			Reason:           &dofsitReason,
+		},
+		Move:        move,
+		MTOShipment: hhgShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("998beda7-e390-4a83-b15e-578a24326937"), // DOFSIT - Domestic Origin 1st Day SIT
+		},
+	})
+
+	serviceItemDDFSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusSubmitted,
+		},
+		Move:        move,
+		MTOShipment: hhgShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("d0561c49-e1a9-40b8-a739-3e639a9d77af"), // DDFSIT - Domestic Destination 1st Day SIT
+		},
+	})
+
+	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItem: serviceItemDDFSIT,
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.Must(uuid.NewV4()),
+			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			Type:                       models.CustomerContactTypeFirst,
+			TimeMilitary:               "0400Z",
+			FirstAvailableDeliveryDate: time.Now(),
+		},
+	})
+
+	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItem: serviceItemDDFSIT,
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.Must(uuid.NewV4()),
+			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			Type:                       models.CustomerContactTypeSecond,
+			TimeMilitary:               "1200Z",
+			FirstAvailableDeliveryDate: time.Now().Add(time.Hour * 24),
+		},
+	})
+
+	dcrtDescription := "Decorated horse head to be crated."
+	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:          uuid.Must(uuid.NewV4()),
+			Status:      models.MTOServiceItemStatusApproved,
+			Description: &dcrtDescription,
+		},
+		Move:        move,
+		MTOShipment: hhgShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
+		},
+	})
+
+	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
+		MTOServiceItem: serviceItemDCRT,
+		MTOServiceItemDimension: models.MTOServiceItemDimension{
+			Length: 10000,
+			Height: 5000,
+			Width:  2500,
+		},
+	})
+
+	dcrtCost := unit.Cents(55555)
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dcrtCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDCRT,
+	})
+
+	ntsrServiceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: ntsrShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dlhCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: ntsrServiceItemDLH,
+	})
+
+	ntsrServiceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: ntsrShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &fscCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: ntsrServiceItemFSC,
+	})
+
+	ntsrServiceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: ntsrShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dopCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: ntsrServiceItemDOP,
+	})
+
+	ntsrServiceItemDDP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        move,
+		MTOShipment: ntsrShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &ddpCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: ntsrServiceItemDDP,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusSubmitted,
+		},
+		Move:        move,
+		MTOShipment: ntsrShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+		},
+	})
+}
+
 func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db *pop.Connection, userUploader *uploader.UserUploader) {
 	/* Customer with two payment requests */
 	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
@@ -1960,6 +2756,36 @@ func createTIO(db *pop.Connection) {
 	})
 }
 
+func createServicesCounselor(db *pop.Connection) {
+	/* A user with services counselor role */
+	servicesCounselorRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+	}
+
+	email := "services_counselor_role@office.mil"
+	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            servicesCounselorUUID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{servicesCounselorRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
+			Email:  email,
+			Active: true,
+			UserID: &servicesCounselorUUID,
+		},
+	})
+}
+
 func createTXO(db *pop.Connection) {
 	/* A user with both too and tio roles */
 	email := "too_tio_role@office.mil"
@@ -2025,6 +2851,85 @@ func createTXO(db *pop.Connection) {
 			Email:                emailUSMC,
 			Active:               true,
 			UserID:               &tooTioWithUsmcUUID,
+			TransportationOffice: transportationOfficeUSMC,
+		},
+	})
+}
+
+func createTXOServicesCounselor(db *pop.Connection) {
+	/* A user with both too, tio, and services counselor roles */
+	email := "too_tio_services_counselor_role@office.mil"
+
+	officeUserRoleTypes := []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor}
+	var userRoles roles.Roles
+	err := db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find office user RoleType in the DB: %w", err))
+	}
+
+	tooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	// Make a user
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioServicesUUID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         userRoles,
+		},
+	})
+
+	// Make and office user associated with the previously created user
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
+			Email:  email,
+			Active: true,
+			UserID: &tooTioServicesUUID,
+		},
+	})
+}
+
+func createTXOServicesUSMCCounselor(db *pop.Connection) {
+
+	/* A user with both too, tio, and services counselor roles */
+	officeUserRoleTypes := []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor}
+	var userRoles roles.Roles
+	err := db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find office user RoleType in the DB: %w", err))
+	}
+
+	// Makes user with too, tio, services counselor role with USMC gbloc
+	transportationOfficeUSMC := models.TransportationOffice{}
+	err = db.Where("id = $1", "ccf50409-9d03-4cac-a931-580649f1647a").First(&transportationOfficeUSMC)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find transportation office USMC in the DB: %w", err))
+	}
+	emailUSMC := "too_tio_services_counselor_role_usmc@office.mil"
+	tooTioServicesWithUsmcUUID := uuid.Must(uuid.FromString("9aae1a83-6515-4c1d-84e8-f7b53dc3d5fc"))
+	loginGovWithUsmcUUID := uuid.Must(uuid.NewV4())
+
+	// Makes a user with all office roles that is associated with USMC
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioServicesWithUsmcUUID,
+			LoginGovUUID:  &loginGovWithUsmcUUID,
+			LoginGovEmail: emailUSMC,
+			Active:        true,
+			Roles:         userRoles,
+		},
+	})
+
+	// Makes an office user with the previously created user
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:                   uuid.FromStringOrNil("b23005d6-60ea-469f-91ab-a7daf4c686f5"),
+			Email:                emailUSMC,
+			Active:               true,
+			UserID:               &tooTioServicesWithUsmcUUID,
 			TransportationOffice: transportationOfficeUSMC,
 		},
 	})
@@ -2292,9 +3197,10 @@ func createMoveWithServiceItems(db *pop.Connection, userUploader *uploader.UserU
 
 	move9 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
-			OrdersID:           orders9.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
+			ID:               uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
+			OrdersID:         orders9.ID,
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
 		},
 	})
 
@@ -2470,10 +3376,12 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 		},
 	})
 
-	moveOrder := testdatagen.MakeOrder(db, testdatagen.Assertions{
+	order := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			NewDutyStationID: newDutyStation.ID,
 			NewDutyStation:   newDutyStation,
+			OrdersNumber:     models.StringPointer("ORDER3"),
+			TAC:              models.StringPointer("F8E1"),
 		},
 	})
 
@@ -2483,12 +3391,151 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 			AvailableToPrimeAt: swag.Time(time.Now()),
 			Status:             models.MoveStatusAPPROVED,
 		},
-		Order: moveOrder,
+		Order: order,
+	})
+}
+
+func createHHGNeedsServicesCounseling(db *pop.Connection) {
+	submittedAt := time.Now()
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{})
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "SRVCSL",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: orders,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
+func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uploader.UserUploader) {
+
+	marineCorps := models.AffiliationMARINES
+	submittedAt := time.Now()
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "USMCSS",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		ServiceMember: models.ServiceMember{
+			Affiliation: &marineCorps,
+			LastName:    swag.String("Marine"),
+			FirstName:   swag.String("Ted"),
+		},
+		UserUploader: userUploader,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
+func createHHGNeedsServicesCounselingUSMC2(db *pop.Connection, userUploader *uploader.UserUploader) {
+
+	marineCorps := models.AffiliationMARINES
+	submittedAt := time.Now()
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "USMCSC",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: models.Order{},
+		ServiceMember: models.ServiceMember{
+			Affiliation: &marineCorps,
+			LastName:    swag.String("Marine"),
+			FirstName:   swag.String("Barbara"),
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ZANY",
+		},
+		UserUploader: userUploader,
+	})
+
+	requestedPickupDate := submittedAt.Add(20 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(14 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+}
+
+func createHHGServicesCounselingCompleted(db *pop.Connection) {
+	servicesCounselingCompletedAt := time.Now()
+	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:                      "CSLCMP",
+			Status:                       models.MoveStatusServiceCounselingCompleted,
+			SubmittedAt:                  &submittedAt,
+			ServiceCounselingCompletedAt: &servicesCounselingCompletedAt,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeHHG,
+			Status:       models.MTOShipmentStatusSubmitted,
+		},
 	})
 }
 
 // Run does that data load thing
-func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
+func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
 	// PPM Office Queue
 	createPPMOfficeUser(db)
 	createPPMWithAdvance(db, userUploader)
@@ -2503,21 +3550,48 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createServiceMemberWithOrdersButNoMoveType(db)
 	createServiceMemberWithNoUploadedOrders(db)
 
+	// Services Counseling
+	createHHGNeedsServicesCounseling(db)
+	createHHGNeedsServicesCounselingUSMC(db, userUploader)
+	createHHGNeedsServicesCounselingUSMC2(db, userUploader)
+	createHHGServicesCounselingCompleted(db)
+
 	// TXO Queues
 	createTOO(db)
 	createTIO(db)
 	createTXO(db)
+	createServicesCounselor(db)
+	createTXOServicesCounselor(db)
+	createTXOServicesUSMCCounselor(db)
 	createNTSMove(db)
 	createNTSRMove(db)
 
 	// This allows testing the pagination feature in the TXO queues.
 	// Feel free to comment out the loop if you don't need this many moves.
 	for i := 1; i < 12; i++ {
-		createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE)
+		createDefaultHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE)
 	}
-	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationMARINES)
+	createDefaultHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationMARINES)
+	// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
+	createHHGMoveWithPaymentRequest(db, userUploader, primeUploader, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{
+		Move: models.Move{
+			Locator: "SidDLH",
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		ReService: models.ReService{
+			// DLH - Domestic line haul
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"),
+		},
+	})
+	createHHGWithPaymentServiceItems(db, userUploader, primeUploader, routePlanner, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{})
 
 	createMoveWithPPMAndHHG(db, userUploader)
+
+	// A move with missing required order fields
+	createMoveWithHHGMissingOrdersInfo(db, userUploader)
+
 	createHHGMoveWith10ServiceItems(db, userUploader)
 	createHHGMoveWith2PaymentRequests(db, userUploader)
 	createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db, userUploader)
@@ -2525,6 +3599,9 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// This one doesn't have submitted shipments. Can we get rid of it?
 	// createRecentlyUpdatedHHGMove(db, userUploader)
 	createMoveWithHHGAndNTSRPaymentRequest(db, userUploader, primeUploader, logger)
+	// This move will still have shipments with some unapproved service items
+	// without payment service items
+	createMoveWith2ShipmentsAndPaymentRequest(db, userUploader, primeUploader, logger)
 
 	// Prime API
 	createWebhookSubscriptionForPaymentRequestUpdate(db)

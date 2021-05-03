@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Set of flags used for GEX
 const (
 	// GEXBasicAuthUsernameFlag is the GEX Basic Auth Username Flag
 	GEXBasicAuthUsernameFlag string = "gex-basic-auth-username"
@@ -19,13 +20,19 @@ const (
 	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
-
-	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag #nosec G101
+	// #nosec G101
+	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag
 	GEXBasicAuthPasswordFlag string = "gex-basic-auth-password"
 	// GEXSendProdInvoiceFlag is the GEX Send Prod Invoice Flag
 	GEXSendProdInvoiceFlag string = "gex-send-prod-invoice"
 	// GEXURLFlag is the GEX URL FLag
 	GEXURLFlag string = "gex-url"
+	// SendToSyncada is the flag to control if we try sending files to syncada or not
+	SendToSyncada string = "send-to-syncada"
+	// GEXChannelInvoice is the URL query parameter that we use when sending EDI invoices to US Bank via GEX
+	GEXChannelInvoice string = "TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM"
+	// GEXChannelDataWarehouse is the URL query parameter that we use when sending data to the IGC data warehouse
+	GEXChannelDataWarehouse string = "TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM"
 )
 
 var gexHostnames = []string{
@@ -40,8 +47,8 @@ var gexPaths = []string{
 
 var gexChannels = []string{
 	"",
-	"TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM",
-	"TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM",
+	GEXChannelInvoice,
+	GEXChannelDataWarehouse,
 }
 
 // InitGEXFlags initializes GEX command line flags
@@ -49,6 +56,8 @@ func InitGEXFlags(flag *pflag.FlagSet) {
 	flag.String(GEXBasicAuthUsernameFlag, "", "GEX api auth username")
 	flag.String(GEXBasicAuthPasswordFlag, "", "GEX api auth password")
 	flag.Bool(GEXSendProdInvoiceFlag, false, "Flag (bool) for EDI Invoices to signify if they should be sent with Production or Test indicator")
+	flag.Bool(SendToSyncada, false, "Flag (bool) for turning on or off sending EDI 858s to syncada, default false")
+
 	flag.String(GEXURLFlag, "", "URL for sending an HTTP POST request to GEX")
 }
 

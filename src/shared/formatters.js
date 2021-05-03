@@ -8,7 +8,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS, DEPARTMENT_INDICATOR_LABELS } from 'const
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
-import { MOVE_STATUS_OPTIONS } from 'constants/queues';
+import { MOVE_STATUS_OPTIONS, SERVICE_COUNSELING_MOVE_STATUS_OPTIONS } from 'constants/queues';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -278,7 +278,6 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
 export const formatToOrdinal = (n) => {
   const s = ['th', 'st', 'nd', 'rd'];
   const v = n % 100;
-  // eslint-disable-next-line security/detect-object-injection
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
@@ -299,6 +298,9 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
 };
 
 export const departmentIndicatorReadable = (departmentIndicator) => {
+  if (!departmentIndicator) {
+    return 'Missing';
+  }
   return DEPARTMENT_INDICATOR_OPTIONS[`${departmentIndicator}`] || departmentIndicator;
 };
 
@@ -314,11 +316,21 @@ export const moveStatusLabel = (status) => {
   return MOVE_STATUS_OPTIONS.find((option) => option.value === `${status}`)?.label || status;
 };
 
+export const serviceCounselingMoveStatusLabel = (status) => {
+  return SERVICE_COUNSELING_MOVE_STATUS_OPTIONS.find((option) => option.value === `${status}`)?.label || status;
+};
+
 export const ordersTypeReadable = (ordersType) => {
+  if (!ordersType) {
+    return 'Missing';
+  }
   return ORDERS_TYPE_OPTIONS[`${ordersType}`] || ordersType;
 };
 
 export const ordersTypeDetailReadable = (ordersTypeDetail) => {
+  if (!ordersTypeDetail) {
+    return 'Missing';
+  }
   return ORDERS_TYPE_DETAILS_OPTIONS[`${ordersTypeDetail}`] || ordersTypeDetail;
 };
 

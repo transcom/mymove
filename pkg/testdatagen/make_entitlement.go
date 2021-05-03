@@ -12,18 +12,26 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	truePtr := true
 	dependents := 1
 	storageInTransit := 2
+	rmeWeight := 1000
+	ocie := true
 	grade := assertions.Order.Grade
+	proGearWeight := 2000
+	proGearWeightSpouse := 500
 
 	if grade == nil || *grade == "" {
 		grade = stringPointer("E_1")
 	}
 
 	entitlement := models.Entitlement{
-		DependentsAuthorized:  setDependentsAuthorized(assertions.Entitlement.DependentsAuthorized),
-		TotalDependents:       &dependents,
-		NonTemporaryStorage:   &truePtr,
-		PrivatelyOwnedVehicle: &truePtr,
-		StorageInTransit:      &storageInTransit,
+		DependentsAuthorized:                         setDependentsAuthorized(assertions.Entitlement.DependentsAuthorized),
+		TotalDependents:                              &dependents,
+		NonTemporaryStorage:                          &truePtr,
+		PrivatelyOwnedVehicle:                        &truePtr,
+		StorageInTransit:                             &storageInTransit,
+		ProGearWeight:                                proGearWeight,
+		ProGearWeightSpouse:                          proGearWeightSpouse,
+		RequiredMedicalEquipmentWeight:               rmeWeight,
+		OrganizationalClothingAndIndividualEquipment: ocie,
 	}
 	entitlement.SetWeightAllotment(*grade)
 	dBAuthorizedWeight := entitlement.AuthorizedWeight()

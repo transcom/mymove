@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -16,6 +17,12 @@ import (
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 )
 
+/*
+	NOTE: The GCN from GS06 and GE02 will match the ICN in ISA13 and IEA02,
+	which restricts the 858 to only ever have 1 functional group.
+	If multiple functional groups are needed, this will have to change.
+*/
+
 type ghcPaymentRequestInvoiceGenerator struct {
 	db           *pop.Connection
 	icnSequencer sequence.Sequencer
@@ -23,9 +30,8 @@ type ghcPaymentRequestInvoiceGenerator struct {
 }
 
 // NewGHCPaymentRequestInvoiceGenerator returns an implementation of the GHCPaymentRequestInvoiceGenerator interface
-func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection, icnSequencer sequence.Sequencer, clock clock.Clock) services.GHCPaymentRequestInvoiceGenerator {
+func NewGHCPaymentRequestInvoiceGenerator(icnSequencer sequence.Sequencer, clock clock.Clock) services.GHCPaymentRequestInvoiceGenerator {
 	return &ghcPaymentRequestInvoiceGenerator{
-		db:           db,
 		icnSequencer: icnSequencer,
 		clock:        clock,
 	}
@@ -36,8 +42,16 @@ const isaDateFormat = "060102"
 const timeFormat = "1504"
 const maxCityLength = 30
 
+// InitDB stores a database pop connection to the receiver instance
+func (g *ghcPaymentRequestInvoiceGenerator) InitDB(db *pop.Connection) {
+	g.db = db
+}
+
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
+	if g.db == nil {
+		return ediinvoice.Invoice858C{}, services.NewQueryError("pop.Connection", errors.New("database not initialized"), "DB pointer is nil, call ghcPaymentRequestInvoiceGenerator.InitDB()")
+	}
 	var moveTaskOrder models.Move
 	if paymentRequest.MoveTaskOrder.ID == uuid.Nil {
 		// load mto
@@ -90,6 +104,19 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to get next Interchange Control Number: %w", err)
 	}
 
+	// save ICN
+	pr2icn := models.PaymentRequestToInterchangeControlNumber{
+		PaymentRequestID:         paymentRequest.ID,
+		InterchangeControlNumber: int(interchangeControlNumber),
+		EDIType:                  models.EDIType858,
+	}
+	verrs, err := g.db.ValidateAndSave(&pr2icn)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %w", err)
+	} else if verrs != nil && verrs.HasAny() {
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Failed to save Interchange Control Number: %s", verrs.String())
+	}
+
 	var usageIndicator string
 	if sendProductionInvoice {
 		usageIndicator = "P"
@@ -123,7 +150,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		ApplicationReceiversCode: "8004171844",
 		Date:                     currentTime.Format(dateFormat),
 		Time:                     currentTime.Format(timeFormat),
-		GroupControlNumber:       100001251,
+		GroupControlNumber:       interchangeControlNumber,
 		ResponsibleAgencyCode:    "X",
 		Version:                  "004010",
 	}
@@ -137,7 +164,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		TransactionSetPurposeCode:    "00",
 		TransactionMethodTypeCode:    "J",
 		ShipmentMethodOfPayment:      "PP",
-		ShipmentIdentificationNumber: *moveTaskOrder.ReferenceID,
+		ShipmentIdentificationNumber: paymentRequest.PaymentRequestNumber,
 		StandardCarrierAlphaCode:     "TRUS",
 		ShipmentQualifier:            "4",
 	}
@@ -233,7 +260,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.GE = edisegment.GE{
 		NumberOfTransactionSetsIncluded: 1,
-		GroupControlNumber:              100001251,
+		GroupControlNumber:              interchangeControlNumber,
 	}
 
 	edi858.IEA = edisegment.IEA{

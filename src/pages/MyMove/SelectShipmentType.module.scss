@@ -1,0 +1,41 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+@import '../../shared/styles/_variables';
+
+.footer {
+  color: $base;
+  @include u-margin-top(3);
+  @include u-margin-bottom(3);
+}
+
+h1.selectTypeHeader.header {
+  margin-top: 0;
+  @include u-padding-top(1);
+  & + * {
+    margin-top: 0;
+  }
+}
+
+h3.longTermStorageHeader {
+  @include u-margin-top(6);
+}
+
+.gridContainer {
+  :global(.grid-row) {
+    @include u-padding-top(3);
+    .pSmall {
+      font-weight: normal;
+      color: $base;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+  }
+
+  h2 + p,
+  h3 + p {
+    @include u-margin-top('05');
+    @include u-margin-bottom(3);
+    color: $base-darkest;
+  }
+}

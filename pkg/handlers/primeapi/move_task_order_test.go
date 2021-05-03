@@ -286,7 +286,7 @@ func (suite *HandlerSuite) makeAvailableMoveWithAddress(addressToSet models.Addr
 		},
 	})
 
-	moveOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			NewDutyStationID: newDutyStation.ID,
 			NewDutyStation:   newDutyStation,
@@ -298,7 +298,7 @@ func (suite *HandlerSuite) makeAvailableMoveWithAddress(addressToSet models.Addr
 			AvailableToPrimeAt: swag.Time(time.Now()),
 			Status:             models.MoveStatusAPPROVED,
 		},
-		Order: moveOrder,
+		Order: order,
 	})
 
 	return move
@@ -387,8 +387,8 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 		move2Payload = moveTaskOrdersPayload[0]
 	}
 
-	suite.equalAddress(move1.Orders.NewDutyStation.Address, move1Payload.MoveOrder.DestinationDutyStation.Address)
-	suite.equalAddress(move2.Orders.NewDutyStation.Address, move2Payload.MoveOrder.DestinationDutyStation.Address)
+	suite.equalAddress(move1.Orders.NewDutyStation.Address, move1Payload.Order.DestinationDutyStation.Address)
+	suite.equalAddress(move2.Orders.NewDutyStation.Address, move2Payload.Order.DestinationDutyStation.Address)
 
 	// Check the two payment requests across the second move.
 	// NOTE: The payload isn't ordered, so I have to associate the correct payment request.
@@ -403,6 +403,46 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 
 	suite.equalPaymentRequest(paymentRequest1, paymentRequest1Payload)
 	suite.equalPaymentRequest(paymentRequest2, paymentRequest2Payload)
+}
+
+func (suite *HandlerSuite) TestGetMoveTaskOrder() {
+	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMoveTaskOrderHandlerFunc{context,
+		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+	}
+
+	suite.T().Run("Success with Prime-available move", func(t *testing.T) {
+		successMove := testdatagen.MakeAvailableMove(suite.DB())
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: successMove.ID.String(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+		suite.Equal(movePayload.ID.String(), successMove.ID.String())
+		suite.NotNil(movePayload.AvailableToPrimeAt)
+		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
+	})
+
+	suite.T().Run("Failure 'Not Found' for non-available move", func(t *testing.T) {
+		failureMove := testdatagen.MakeDefaultMove(suite.DB()) // default is not available to Prime
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest:     request,
+			MoveTaskOrderID: failureMove.ID.String(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderNotFound{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderNotFound)
+		movePayload := moveResponse.Payload
+		suite.Contains(*movePayload.Detail, failureMove.ID.String())
+	})
 }
 
 func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {

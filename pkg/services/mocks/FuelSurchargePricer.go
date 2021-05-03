@@ -18,29 +18,29 @@ type FuelSurchargePricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: contractCode, actualPickupDate, distance, weight, weightBasedDistanceMultiplier, fuelPrice
-func (_m *FuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier float64, fuelPrice unit.Millicents) (unit.Cents, services.PricingParams, error) {
-	ret := _m.Called(contractCode, actualPickupDate, distance, weight, weightBasedDistanceMultiplier, fuelPrice)
+// Price provides a mock function with given fields: actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice
+func (_m *FuelSurchargePricer) Price(actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(string, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) unit.Cents); ok {
-		r0 = rf(contractCode, actualPickupDate, distance, weight, weightBasedDistanceMultiplier, fuelPrice)
+	if rf, ok := ret.Get(0).(func(time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) unit.Cents); ok {
+		r0 = rf(actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingParams
-	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) services.PricingParams); ok {
-		r1 = rf(contractCode, actualPickupDate, distance, weight, weightBasedDistanceMultiplier, fuelPrice)
+	var r1 services.PricingDisplayParams
+	if rf, ok := ret.Get(1).(func(time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) services.PricingDisplayParams); ok {
+		r1 = rf(actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(services.PricingParams)
+			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) error); ok {
-		r2 = rf(contractCode, actualPickupDate, distance, weight, weightBasedDistanceMultiplier, fuelPrice)
+	if rf, ok := ret.Get(2).(func(time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) error); ok {
+		r2 = rf(actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -49,7 +49,7 @@ func (_m *FuelSurchargePricer) Price(contractCode string, actualPickupDate time.
 }
 
 // PriceUsingParams provides a mock function with given fields: params
-func (_m *FuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingParams, error) {
+func (_m *FuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(params)
 
 	var r0 unit.Cents
@@ -59,12 +59,12 @@ func (_m *FuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItem
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	var r1 services.PricingParams
-	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) services.PricingParams); ok {
+	var r1 services.PricingDisplayParams
+	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
 		r1 = rf(params)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(services.PricingParams)
+			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 

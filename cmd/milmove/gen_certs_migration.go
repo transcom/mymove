@@ -202,7 +202,12 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 		if errStore != nil {
 			return fmt.Errorf("Ensure CAC reader and card inserted: %w", errStore)
 		}
-		defer store.Close()
+
+		defer func() {
+			if closeErr := store.Close(); closeErr != nil {
+				fmt.Println("Failed to close CAC store")
+			}
+		}()
 
 		cert, errTLSCert := store.TLSCertificate()
 		if errTLSCert != nil {
@@ -228,7 +233,7 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 	var t1 *template.Template
 	updateMode := v.GetBool(UpdateFlag)
 
-	if updateMode == true {
+	if updateMode {
 		certsTemplate.ID = v.GetString(ClientCertIDFlag)
 		t1 = template.Must(template.New("certs_migration").Parse(updateCertsMigration))
 	} else {

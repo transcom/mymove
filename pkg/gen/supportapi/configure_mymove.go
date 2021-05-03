@@ -43,6 +43,11 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.CreateMoveTaskOrder has not yet been implemented")
 		})
 	}
+	if api.WebhookCreateWebhookNotificationHandler == nil {
+		api.WebhookCreateWebhookNotificationHandler = webhook.CreateWebhookNotificationHandlerFunc(func(params webhook.CreateWebhookNotificationParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook.CreateWebhookNotification has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		api.MoveTaskOrderGetMoveTaskOrderHandler = move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
@@ -73,14 +78,14 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.MakeMoveTaskOrderAvailable has not yet been implemented")
 		})
 	}
-	if api.WebhookPostWebhookNotifyHandler == nil {
-		api.WebhookPostWebhookNotifyHandler = webhook.PostWebhookNotifyHandlerFunc(func(params webhook.PostWebhookNotifyParams) middleware.Responder {
-			return middleware.NotImplemented("operation webhook.PostWebhookNotify has not yet been implemented")
-		})
-	}
 	if api.PaymentRequestProcessReviewedPaymentRequestsHandler == nil {
 		api.PaymentRequestProcessReviewedPaymentRequestsHandler = payment_request.ProcessReviewedPaymentRequestsHandlerFunc(func(params payment_request.ProcessReviewedPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.ProcessReviewedPaymentRequests has not yet been implemented")
+		})
+	}
+	if api.WebhookReceiveWebhookNotificationHandler == nil {
+		api.WebhookReceiveWebhookNotificationHandler = webhook.ReceiveWebhookNotificationHandlerFunc(func(params webhook.ReceiveWebhookNotificationParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook.ReceiveWebhookNotification has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {

@@ -1,9 +1,12 @@
 package movetaskorder
 
 import (
-	"errors"
 	"fmt"
 	"time"
+
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
@@ -29,40 +32,98 @@ func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQuer
 	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}, builder, serviceItemCreator}
 }
 
+// UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
+func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
+	var err error
+	var verrs *validate.Errors
+
+	searchParams := services.MoveTaskOrderFetcherParams{
+		IncludeHidden: false,
+	}
+	move, err := o.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
+	if err != nil {
+		return &models.Move{}, err
+	}
+
+	// check if status is in the right state
+	// needs to be in MoveStatusNeedsServiceCounseling
+	if move.Status != models.MoveStatusNeedsServiceCounseling {
+		err = errors.Wrap(models.ErrInvalidTransition,
+			fmt.Sprintf("Cannot move to Service Counseling Completed state when the Move is not in a Needs Service Counseling state for status: %s", move.Status))
+
+		return &models.Move{}, services.NewConflictError(move.ID, err.Error())
+	}
+
+	// update field for move
+	now := time.Now()
+	move.ServiceCounselingCompletedAt = &now
+	// set status to service counseling completed
+	move.Status = models.MoveStatusServiceCounselingCompleted
+
+	// Check the If-Match header against existing eTag before updating
+	encodedUpdatedAt := etag.GenerateEtag(move.UpdatedAt)
+	if encodedUpdatedAt != eTag {
+		return nil, services.NewPreconditionFailedError(move.ID, err)
+	}
+
+	verrs, err = o.db.ValidateAndSave(move)
+	if verrs != nil && verrs.HasAny() {
+		return &models.Move{}, services.NewInvalidInputError(move.ID, nil, verrs, "")
+	}
+	if err != nil {
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return nil, services.NewPreconditionFailedError(move.ID, err)
+		default:
+			return &models.Move{}, err
+		}
+	}
+
+	return move, nil
+}
+
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
 func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string,
 	includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
 	var err error
 	var verrs *validate.Errors
 
-	searchParams := services.FetchMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: false,
 	}
-	mto, err := o.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
+	move, err := o.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
 	if err != nil {
 		return &models.Move{}, err
 	}
 
-	if mto.AvailableToPrimeAt == nil {
-		// update field for mto
-		now := time.Now()
-		mto.AvailableToPrimeAt = &now
+	// Fail early if the Order is invalid due to missing required fields
+	order := move.Orders
+	err = o.db.Load(&order, "Moves")
+	if err != nil {
+		return &models.Move{}, err
+	}
+	if verrs, err = o.db.ValidateAndUpdate(&order); verrs.HasAny() || err != nil {
+		return &models.Move{}, services.NewInvalidInputError(move.ID, nil, verrs, "")
+	}
 
-		if mto.Status == models.MoveStatusSUBMITTED {
-			err = mto.Approve()
-			if err != nil {
-				return &models.Move{}, services.NewConflictError(mto.ID, err.Error())
-			}
+	if move.AvailableToPrimeAt == nil {
+		// update field for move
+		now := time.Now()
+		move.AvailableToPrimeAt = &now
+
+		err = move.Approve()
+		if err != nil {
+			return &models.Move{}, services.NewConflictError(move.ID, err.Error())
 		}
 
-		verrs, err = o.builder.UpdateOne(mto, &eTag)
+		verrs, err = o.builder.UpdateOne(move, &eTag)
 		if verrs != nil && verrs.HasAny() {
-			return &models.Move{}, services.NewInvalidInputError(mto.ID, nil, verrs, "")
+			return &models.Move{}, services.NewInvalidInputError(move.ID, nil, verrs, "")
 		}
 		if err != nil {
 			switch err.(type) {
 			case query.StaleIdentifierError:
-				return nil, services.NewPreconditionFailedError(mto.ID, err)
+				return nil, services.NewPreconditionFailedError(move.ID, err)
 			default:
 				return &models.Move{}, err
 			}
@@ -84,7 +145,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 
 		if err != nil {
 			if errors.Is(err, models.ErrInvalidTransition) {
-				return &models.Move{}, services.NewConflictError(mto.ID, err.Error())
+				return &models.Move{}, services.NewConflictError(move.ID, err.Error())
 			}
 			return &models.Move{}, err
 		}
@@ -105,7 +166,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 
 		if err != nil {
 			if errors.Is(err, models.ErrInvalidTransition) {
-				return &models.Move{}, services.NewConflictError(mto.ID, err.Error())
+				return &models.Move{}, services.NewConflictError(move.ID, err.Error())
 			}
 			return &models.Move{}, err
 		}
@@ -113,15 +174,15 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 			return &models.Move{}, verrs
 		}
 
-		// CreateMTOServiceItem may have updated the mto status so refetch as to not return incorrect status
+		// CreateMTOServiceItem may have updated the move status so refetch as to not return incorrect status
 		// TODO: Modify CreateMTOServiceItem to return the updated move or refactor to operate on the passed in reference
-		mto, err = o.FetchMoveTaskOrder(moveTaskOrderID, nil)
+		move, err = o.FetchMoveTaskOrder(moveTaskOrderID, nil)
 		if err != nil {
 			return &models.Move{}, err
 		}
 	}
 
-	return mto, nil
+	return move, nil
 }
 
 // UpdateMoveTaskOrderQueryBuilder is the query builder for updating MTO
@@ -129,6 +190,7 @@ type UpdateMoveTaskOrderQueryBuilder interface {
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
+// UpdatePostCounselingInfo updates the counseling info
 func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	var moveTaskOrder models.Move
 
@@ -167,7 +229,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 
 // ShowHide changes the value in the "Show" field for a Move. This can be either True or False and indicates if the move has been deactivated or not.
 func (o *moveTaskOrderUpdater) ShowHide(moveID uuid.UUID, show *bool) (*models.Move, error) {
-	searchParams := services.FetchMoveTaskOrderParams{
+	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true, // We need to search every move to change its status
 	}
 	move, err := o.FetchMoveTaskOrder(moveID, &searchParams)

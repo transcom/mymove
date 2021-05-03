@@ -81,6 +81,10 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	}
 
 	// mock weights
+	var estimatedWeight *unit.Pound
+	if assertions.MTOShipment.PrimeEstimatedWeight != nil {
+		estimatedWeight = assertions.MTOShipment.PrimeEstimatedWeight
+	}
 	actualWeight := unit.Pound(980)
 
 	// mock dates
@@ -103,6 +107,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		ActualPickupDate:      &actualPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 		CustomerRemarks:       swag.String("Please treat gently"),
+		PrimeEstimatedWeight:  estimatedWeight,
 		PrimeActualWeight:     &actualWeight,
 		ShipmentType:          shipmentType,
 		Status:                shipmentStatus,
@@ -179,4 +184,25 @@ func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MT
 // MakeDefaultMTOShipmentMinimal makes a minimal MTOShipment with default values
 func MakeDefaultMTOShipmentMinimal(db *pop.Connection) models.MTOShipment {
 	return MakeMTOShipmentMinimal(db, Assertions{})
+}
+
+// MakeMTOShipmentWithMove makes a shipment connected to a given move and updates the move's MTOShipments array
+func MakeMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions Assertions) models.MTOShipment {
+	if move != nil {
+		assertions.Move = *move
+		assertions.MTOShipment.MoveTaskOrder = *move
+		assertions.MTOShipment.MoveTaskOrderID = move.ID
+	}
+	shipment := MakeMTOShipment(db, assertions)
+	if move != nil {
+		// This will allow someone to easily create multiple test shipments for one move
+		move.MTOShipments = append(move.MTOShipments, shipment)
+	}
+	return shipment
+}
+
+// MakeSubmittedMTOShipmentWithMove makes a shipment with the "SUBMITTED" status and a specific move
+func MakeSubmittedMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions Assertions) models.MTOShipment {
+	assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
+	return MakeMTOShipmentWithMove(db, move, assertions)
 }

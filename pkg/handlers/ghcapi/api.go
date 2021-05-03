@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
-	moveorder "github.com/transcom/mymove/pkg/services/move_order"
+	order "github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
@@ -81,17 +81,22 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		context,
 		customer.NewCustomerFetcher(context.DB()),
 	}
-	ghcAPI.OrderGetMoveOrderHandler = GetMoveOrdersHandler{
+	ghcAPI.OrderGetOrderHandler = GetOrdersHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(context.DB()),
+		order.NewOrderFetcher(context.DB()),
 	}
-	ghcAPI.OrderUpdateMoveOrderHandler = UpdateMoveOrderHandler{
+	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{
 		context,
-		moveorder.NewOrderUpdater(context.DB()),
+		order.NewOrderUpdater(context.DB()),
 	}
 	ghcAPI.OrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
 
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+	}
+
+	ghcAPI.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler = UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
 		context,
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
 	}
@@ -117,12 +122,21 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(context.DB()),
+		order.NewOrderFetcher(context.DB()),
 	}
 
 	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{
 		context,
 		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
+	}
+
+	ghcAPI.QueuesGetServicesCounselingQueueHandler = GetServicesCounselingQueueHandler{
+		context,
+		order.NewOrderFetcher(context.DB()),
+	}
+
+	ghcAPI.TacTacValidationHandler = TacValidationHandler{
+		context,
 	}
 
 	return ghcAPI

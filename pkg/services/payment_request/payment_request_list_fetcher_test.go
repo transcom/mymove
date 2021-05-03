@@ -165,16 +165,14 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 	suite.T().Run("Returns only those payment requests with the exact status", func(t *testing.T) {
 		pendingPaymentRequests, pendingCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Payment requested"}})
-		var pending []models.PaymentRequest
-		pending = *pendingPaymentRequests
+		pending := *pendingPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, pendingCount)
 		suite.Equal(pendingPaymentRequest.ID, pending[0].ID)
 
 		reviewedPaymentRequests, reviewedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Reviewed"}})
-		var reviewed []models.PaymentRequest
-		reviewed = *reviewedPaymentRequests
+		reviewed := *reviewedPaymentRequests
 		suite.NoError(err)
 		suite.Equal(3, reviewedCount)
 
@@ -185,16 +183,14 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 
 		rejectedPaymentRequests, rejectedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Rejected"}})
-		var rejected []models.PaymentRequest
-		rejected = *rejectedPaymentRequests
+		rejected := *rejectedPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, rejectedCount)
 		suite.Equal(rejectedPaymentRequest.ID, rejected[0].ID)
 
 		paidPaymentRequests, paidCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
 			&services.FetchPaymentRequestListParams{Status: []string{"Paid"}})
-		var paid []models.PaymentRequest
-		paid = *paidPaymentRequests
+		paid := *paidPaymentRequests
 		suite.NoError(err)
 		suite.Equal(1, paidCount)
 		suite.Equal(paidPaymentRequest.ID, paid[0].ID)

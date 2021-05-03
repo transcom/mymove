@@ -1,4 +1,3 @@
-import 'raf/polyfill';
 import { getPagesInFlow, getNextIncompletePage } from './getWorkflowRoutes';
 import { NULL_UUID, SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -30,16 +29,16 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
         expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/orders',
+          '/service-member/dod-info',
+          '/service-member/name',
+          '/service-member/contact-info',
+          '/service-member/current-duty',
+          '/service-member/current-address',
+          '/service-member/backup-address',
+          '/service-member/backup-contact',
+          '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
@@ -53,9 +52,9 @@ describe('when getting the routes for the current workflow', () => {
       it('getPagesInFlow returns profile review, the order and move pages', () => {
         expect(pages).toEqual([
           '/profile-review',
-          '/orders',
+          '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
@@ -73,16 +72,16 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
         expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/orders',
+          '/service-member/dod-info',
+          '/service-member/name',
+          '/service-member/contact-info',
+          '/service-member/current-duty',
+          '/service-member/current-address',
+          '/service-member/backup-address',
+          '/service-member/backup-contact',
+          '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -97,20 +96,18 @@ describe('when getting the routes for the current workflow', () => {
         const pages = getPagesInFlow(props);
         it('getPagesInFlow returns service member, order and move pages', () => {
           expect(pages).toEqual([
-            '/service-member/:serviceMemberId/conus-status',
-            '/service-member/:serviceMemberId/create',
-            '/service-member/:serviceMemberId/name',
-            '/service-member/:serviceMemberId/contact-info',
-            '/service-member/:serviceMemberId/duty-station',
-            '/service-member/:serviceMemberId/residence-address',
-            '/service-member/:serviceMemberId/backup-mailing-address',
-            '/service-member/:serviceMemberId/backup-contacts',
+            '/service-member/conus-oconus',
+            '/service-member/dod-info',
+            '/service-member/name',
+            '/service-member/contact-info',
+            '/service-member/current-duty',
+            '/service-member/current-address',
+            '/service-member/backup-address',
+            '/service-member/backup-contact',
             '/',
-            '/orders',
+            '/orders/info',
             '/orders/upload',
-            '/moves/:moveId/moving-info',
-            '/moves/:moveId/select-type',
-
+            '/moves/:moveId/shipment-type',
             '/moves/:moveId/review',
             '/moves/:moveId/agreement',
           ]);
@@ -125,16 +122,16 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and PPM-specific move pages', () => {
         expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/orders',
+          '/service-member/dod-info',
+          '/service-member/name',
+          '/service-member/contact-info',
+          '/service-member/current-duty',
+          '/service-member/current-address',
+          '/service-member/backup-address',
+          '/service-member/backup-contact',
+          '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
@@ -150,17 +147,16 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and select move type page', () => {
         expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/orders',
+          '/service-member/dod-info',
+          '/service-member/name',
+          '/service-member/contact-info',
+          '/service-member/current-duty',
+          '/service-member/current-address',
+          '/service-member/backup-address',
+          '/service-member/backup-contact',
+          '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
-          '/moves/:moveId/hhg-start',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -174,17 +170,16 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and select move type page', () => {
         expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/orders',
+          '/service-member/dod-info',
+          '/service-member/name',
+          '/service-member/contact-info',
+          '/service-member/current-duty',
+          '/service-member/current-address',
+          '/service-member/backup-address',
+          '/service-member/backup-contact',
+          '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
-          '/moves/:moveId/nts-start',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -198,17 +193,16 @@ describe('when getting the routes for the current workflow', () => {
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and select move type page', () => {
         expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/orders',
+          '/service-member/dod-info',
+          '/service-member/name',
+          '/service-member/contact-info',
+          '/service-member/current-duty',
+          '/service-member/current-address',
+          '/service-member/backup-address',
+          '/service-member/backup-contact',
+          '/orders/info',
           '/orders/upload',
-          '/moves/:moveId/select-type',
-          '/moves/:moveId/ntsr-start',
+          '/moves/:moveId/shipment-type',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -226,7 +220,7 @@ describe('when getting the next incomplete page', () => {
         serviceMember,
         context: ppmContext,
       });
-      expect(result).toEqual('/service-member/foo/create');
+      expect(result).toEqual('/service-member/dod-info');
     });
     describe('when dod info is complete', () => {
       it('returns the next page of the user profile', () => {
@@ -240,7 +234,7 @@ describe('when getting the next incomplete page', () => {
           },
           context: ppmContext,
         });
-        expect(result).toEqual('/service-member/foo/name');
+        expect(result).toEqual('/service-member/name');
       });
     });
     describe('when name is complete', () => {
@@ -257,7 +251,7 @@ describe('when getting the next incomplete page', () => {
           },
           context: ppmContext,
         });
-        expect(result).toEqual('/service-member/foo/contact-info');
+        expect(result).toEqual('/service-member/contact-info');
       });
     });
     describe('when contact-info is complete', () => {
@@ -282,10 +276,10 @@ describe('when getting the next incomplete page', () => {
           },
           context: ppmContext,
         });
-        expect(result).toEqual('/service-member/foo/duty-station');
+        expect(result).toEqual('/service-member/current-duty');
       });
     });
-    describe('when duty-station is complete', () => {
+    describe('when duty station is complete', () => {
       it('returns the next page of the user profile', () => {
         const result = getNextIncompletePage({
           serviceMember: {
@@ -306,7 +300,7 @@ describe('when getting the next incomplete page', () => {
           },
           context: ppmContext,
         });
-        expect(result).toEqual('/service-member/foo/residence-address');
+        expect(result).toEqual('/service-member/current-address');
       });
     });
     describe('when residence address is complete', () => {
@@ -336,7 +330,7 @@ describe('when getting the next incomplete page', () => {
           },
           context: ppmContext,
         });
-        expect(result).toEqual('/service-member/foo/backup-mailing-address');
+        expect(result).toEqual('/service-member/backup-address');
       });
     });
     describe('when backup address is complete', () => {
@@ -372,7 +366,7 @@ describe('when getting the next incomplete page', () => {
           },
           context: ppmContext,
         });
-        expect(result).toEqual('/service-member/foo/backup-contacts');
+        expect(result).toEqual('/service-member/backup-contact');
       });
     });
     describe('when backup contacts is complete', () => {
@@ -420,7 +414,7 @@ describe('when getting the next incomplete page', () => {
           backupContacts,
           context: ppmContext,
         });
-        expect(result).toEqual('/orders');
+        expect(result).toEqual('/orders/info');
       });
     });
   });
@@ -433,7 +427,7 @@ describe('when getting the next incomplete page', () => {
         },
         context: ppmContext,
       });
-      expect(result).toEqual('/orders');
+      expect(result).toEqual('/orders/info');
     });
     describe('when orders info is complete', () => {
       it('returns the next page', () => {
@@ -481,7 +475,7 @@ describe('when getting the next incomplete page', () => {
           ],
           context: ppmContext,
         });
-        expect(result).toEqual('/moves/bar/select-type');
+        expect(result).toEqual('/moves/bar/shipment-type');
       });
     });
     describe('when ppm date is complete', () => {

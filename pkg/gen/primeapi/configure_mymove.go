@@ -38,6 +38,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.MtoShipmentCreateMTOAgentHandler == nil {
+		api.MtoShipmentCreateMTOAgentHandler = mto_shipment.CreateMTOAgentHandlerFunc(func(params mto_shipment.CreateMTOAgentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateMTOAgent has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemCreateMTOServiceItemHandler == nil {
 		api.MtoServiceItemCreateMTOServiceItemHandler = mto_service_item.CreateMTOServiceItemHandlerFunc(func(params mto_service_item.CreateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.CreateMTOServiceItem has not yet been implemented")
@@ -61,6 +66,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderFetchMTOUpdatesHandler == nil {
 		api.MoveTaskOrderFetchMTOUpdatesHandler = move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdates has not yet been implemented")
+		})
+	}
+	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
+		api.MoveTaskOrderGetMoveTaskOrderHandler = move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentUpdateMTOAgentHandler == nil {

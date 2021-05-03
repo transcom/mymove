@@ -146,7 +146,7 @@ func validateOrder(s services.QueryOrder, t reflect.Type) string {
 
 	_, ok := getDBColumn(t, *s.Column())
 	if !ok {
-		invalidField = fmt.Sprintf("%s", *s.Column())
+		invalidField = *s.Column()
 	}
 
 	return invalidField
@@ -156,7 +156,7 @@ func validateOrder(s services.QueryOrder, t reflect.Type) string {
 // by including a list of AND clauses, also via an array of QueryFilters. TODO: Add in functionality for OR when a use case for it comes up.
 func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.QueryFilter, andFilters *[]services.QueryFilter, t reflect.Type) (map[interface{}]int, error) {
 	invalidFields := make([]string, 0)
-	counts := make(map[interface{}]int, 0)
+	counts := make(map[interface{}]int)
 
 	for _, f := range filters {
 		// Set up an empty query for us to use to get the count
@@ -389,7 +389,10 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 
 			sqlString := fmt.Sprintf("SELECT updated_at from %s WHERE id = $1 FOR UPDATE", pq.QuoteIdentifier(tableName))
 			var updatedAt time.Time
-			tx.RawQuery(sqlString, id.String()).First(&updatedAt)
+			errExec := tx.RawQuery(sqlString, id.String()).First(&updatedAt)
+			if errExec != nil {
+				return errExec
+			}
 
 			encodedUpdatedAt := etag.GenerateEtag(updatedAt)
 

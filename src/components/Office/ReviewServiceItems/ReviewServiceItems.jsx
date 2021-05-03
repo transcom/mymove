@@ -106,11 +106,11 @@ const ReviewServiceItems = ({
 
   // Similar to component lifecycle methods
   useEffect(() => {
-    if (currentCard) {
+    if (!disableScrollIntoView && currentCard && isBasicServiceItem) {
       const { id } = sortedCards[parseInt(curCardIndex, 10)];
       const element = document.querySelector(`#card-${id}`);
       // scroll into element view
-      if (element && !disableScrollIntoView) {
+      if (element) {
         element.scrollIntoView();
       }
     }
@@ -120,8 +120,14 @@ const ReviewServiceItems = ({
     return (
       <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
         <div className={styles.top}>
-          <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-            <FontAwesomeIcon icon="times" title="Close Service Item review" aria-label="Close Service Item review" />
+          <Button
+            data-testid="closeSidebar"
+            type="button"
+            onClick={handleClose}
+            unstyled
+            aria-label="Close Service Item review"
+          >
+            <FontAwesomeIcon icon="times" title="Close Service Item review" alt=" " />
           </Button>
           <h2 className={styles.header}>Complete request</h2>
         </div>
@@ -157,8 +163,14 @@ const ReviewServiceItems = ({
   return (
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <div className={styles.top}>
-        <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-          <FontAwesomeIcon icon="times" aria-label="Close Service Item review" />
+        <Button
+          data-testid="closeSidebar"
+          type="button"
+          onClick={handleClose}
+          unstyled
+          aria-label="Close Service Item review"
+        >
+          <FontAwesomeIcon icon="times" alt=" " />
         </Button>
         <div data-testid="itemCount" className={styles.eyebrowTitle}>
           {curCardIndex + 1} OF {totalCards} ITEMS

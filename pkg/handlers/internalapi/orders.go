@@ -34,6 +34,11 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	if order.Entitlement != nil {
 		dBAuthorizedWeight = swag.Int64(int64(*order.Entitlement.AuthorizedWeight()))
 	}
+	var originDutyStation models.DutyStation
+	originDutyStation = models.DutyStation{}
+	if order.OriginDutyStation != nil {
+		originDutyStation = *order.OriginDutyStation
+	}
 
 	payload := &internalmessages.Orders{
 		ID:                  handlers.FmtUUID(order.ID),
@@ -44,6 +49,8 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		ReportByDate:        handlers.FmtDate(order.ReportByDate),
 		OrdersType:          order.OrdersType,
 		OrdersTypeDetail:    order.OrdersTypeDetail,
+		OriginDutyStation:   payloadForDutyStationModel(originDutyStation),
+		Grade:               order.Grade,
 		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
 		HasDependents:       handlers.FmtBool(order.HasDependents),
 		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
@@ -155,8 +162,11 @@ type ShowOrdersHandler struct {
 // Handle retrieves orders in the system belonging to the logged in user given order ID
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	// #nosec swagger verifies uuid format
-	orderID, _ := uuid.FromString(params.OrdersID.String())
+	orderID, err := uuid.FromString(params.OrdersID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
 	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

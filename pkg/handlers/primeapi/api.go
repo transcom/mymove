@@ -40,6 +40,11 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
 	}
 
+	primeAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
+	}
+
 	primeAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
 		context,
 		mtoserviceitem.NewMTOServiceItemCreator(builder),
@@ -89,6 +94,11 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 	primeAPI.MtoShipmentUpdateMTOShipmentAddressHandler = UpdateMTOShipmentAddressHandler{
 		context,
 		mtoshipment.NewMTOShipmentAddressUpdater(context.DB()),
+	}
+
+	primeAPI.MtoShipmentCreateMTOAgentHandler = CreateMTOAgentHandler{
+		context,
+		mtoagent.NewMTOAgentCreator(context.DB(), movetaskorder.NewMoveTaskOrderChecker(context.DB())),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOAgentHandler = UpdateMTOAgentHandler{

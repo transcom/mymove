@@ -1,27 +1,31 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
+import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
-import { getServiceMember, getOrdersForServiceMember, createOrders, patchOrders } from 'services/internalApi';
+import ScrollToTop from 'components/ScrollToTop';
+import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
+import {
+  getServiceMember,
+  getOrdersForServiceMember,
+  createOrders,
+  patchOrders,
+  getResponseError,
+} from 'services/internalApi';
 import {
   updateOrders as updateOrdersAction,
   updateServiceMember as updateServiceMemberAction,
 } from 'store/entities/actions';
 import { withContext } from 'shared/AppContext';
 import { formatDateForSwagger } from 'shared/dates';
-import SectionWrapper from 'components/Customer/SectionWrapper';
-import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
-import { WizardPage } from 'shared/WizardPage/index';
-import { HistoryShape, PageKeyShape, PageListShape, OrdersShape, MatchShape } from 'types/customerShapes';
+import { OrdersShape } from 'types/customerShapes';
 import { formatYesNoInputValue, formatYesNoAPIValue } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 import { DutyStationShape } from 'types';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 
 export class Orders extends Component {
   constructor(props) {
@@ -29,13 +33,14 @@ export class Orders extends Component {
 
     this.state = {
       isLoading: true,
+      serverError: null,
     };
   }
 
   componentDidMount() {
     const { serviceMemberId, currentOrders, updateOrders } = this.props;
 
-    if (isEmpty(currentOrders)) {
+    if (!currentOrders) {
       this.setState({ isLoading: false });
     } else {
       getOrdersForServiceMember(serviceMemberId).then((response) => {
@@ -49,18 +54,24 @@ export class Orders extends Component {
     const {
       context,
       currentStation,
-      match,
-      pages,
-      pageKey,
-      history,
+      push,
       serviceMemberId,
       currentOrders,
       updateOrders,
       updateServiceMember,
     } = this.props;
-    const { isLoading } = this.state;
+
+    const { isLoading, serverError } = this.state;
 
     if (isLoading) return <LoadingPlaceholder />;
+
+    const handleBack = () => {
+      push(generalRoutes.HOME_PATH);
+    };
+
+    const handleNext = () => {
+      push(customerRoutes.ORDERS_UPLOAD_PATH);
+    };
 
     const submitOrders = (values) => {
       const pendingValues = {
@@ -75,18 +86,29 @@ export class Orders extends Component {
 
       if (currentOrders?.id) {
         pendingValues.id = currentOrders.id;
-        return patchOrders(pendingValues).then((response) => {
-          updateOrders(response);
-        });
+        return patchOrders(pendingValues)
+          .then(updateOrders)
+          .then(handleNext)
+          .catch((e) => {
+            // TODO - error handling - below is rudimentary error handling to approximate existing UX
+            // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+            const { response } = e;
+            const errorMessage = getResponseError(response, 'failed to update orders due to server error');
+            this.setState({ serverError: errorMessage });
+          });
       }
 
       return createOrders(pendingValues)
-        .then((response) => {
-          updateOrders(response);
-        })
+        .then(updateOrders)
         .then(() => getServiceMember(serviceMemberId))
-        .then((response) => {
-          updateServiceMember(response);
+        .then(updateServiceMember)
+        .then(handleNext)
+        .catch((e) => {
+          // TODO - error handling - below is rudimentary error handling to approximate existing UX
+          // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+          const { response } = e;
+          const errorMessage = getResponseError(response, 'failed to create orders due to server error');
+          this.setState({ serverError: errorMessage });
         });
     };
 
@@ -106,47 +128,32 @@ export class Orders extends Component {
 
     const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
-    const ordersInfoSchema = Yup.object().shape({
-      orders_type: Yup.mixed()
-        .oneOf(ordersTypeOptions.map((i) => i.key))
-        .required('Required'),
-      issue_date: Yup.date()
-        .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-        .required('Required'),
-      report_by_date: Yup.date()
-        .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
-        .required('Required'),
-      has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-      new_duty_station: Yup.object()
-        .shape({
-          name: Yup.string().notOneOf(
-            [currentStation?.name],
-            'You entered the same duty station for your origin and destination. Please change one of them.',
-          ),
-        })
-        .nullable()
-        .required('Required'),
-    });
-
     return (
-      <Formik initialValues={initialValues} validateOnMount validationSchema={ordersInfoSchema} onSubmit={submitOrders}>
-        {({ isValid, dirty, values }) => (
-          <WizardPage
-            canMoveNext={isValid}
-            match={match}
-            pageKey={pageKey}
-            pageList={pages}
-            push={history.push}
-            handleSubmit={() => submitOrders(values)}
-            dirty={dirty}
-          >
-            <h1>Tell us about your move orders</h1>
-            <SectionWrapper>
-              <OrdersInfoForm ordersTypeOptions={ordersTypeOptions} />
-            </SectionWrapper>
-          </WizardPage>
+      <GridContainer>
+        <ScrollToTop otherDep={serverError} />
+
+        {serverError && (
+          <Grid row>
+            <Grid col desktop={{ col: 8, offset: 2 }}>
+              <Alert type="error" heading="An error occurred">
+                {serverError}
+              </Alert>
+            </Grid>
+          </Grid>
         )}
-      </Formik>
+
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <OrdersInfoForm
+              ordersTypeOptions={ordersTypeOptions}
+              initialValues={initialValues}
+              currentStation={currentStation}
+              onSubmit={submitOrders}
+              onBack={handleBack}
+            />
+          </Grid>
+        </Grid>
+      </GridContainer>
     );
   }
 }
@@ -157,24 +164,17 @@ Orders.propTypes = {
       allOrdersTypes: PropTypes.bool,
     }).isRequired,
   }).isRequired,
+  push: PropTypes.func.isRequired,
   serviceMemberId: PropTypes.string.isRequired,
   currentOrders: OrdersShape,
-  updateOrders: PropTypes.func,
-  updateServiceMember: PropTypes.func,
+  updateOrders: PropTypes.func.isRequired,
+  updateServiceMember: PropTypes.func.isRequired,
   currentStation: DutyStationShape,
-  match: MatchShape.isRequired,
-  history: HistoryShape.isRequired,
-  pages: PageListShape,
-  pageKey: PageKeyShape,
 };
 
 Orders.defaultProps = {
   currentOrders: null,
-  updateOrders: () => {},
-  updateServiceMember: () => {},
   currentStation: {},
-  pages: [],
-  pageKey: '',
 };
 
 const mapStateToProps = (state) => {

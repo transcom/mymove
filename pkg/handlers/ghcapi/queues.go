@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -20,10 +21,10 @@ import (
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
 type GetMovesQueueHandler struct {
 	handlers.HandlerContext
-	services.MoveOrderFetcher
+	services.OrderFetcher
 }
 
-// FilterOption defines the type for the functional arguments used for private functions in MoveOrderFetcher
+// FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
 type FilterOption func(*pop.Query)
 
 // Handle returns the paginated list of moves for the TOO user
@@ -35,7 +36,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueForbidden()
 	}
 
-	listMoveOrderParams := services.ListMoveOrderParams{
+	ListOrderParams := services.ListOrderParams{
 		Branch:                 params.Branch,
 		Locator:                params.Locator,
 		DodID:                  params.DodID,
@@ -51,28 +52,28 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 	// for perPage.
 	if params.Page == nil {
-		listMoveOrderParams.Page = swag.Int64(1)
+		ListOrderParams.Page = swag.Int64(1)
 	}
 	// Same for perPage
 	if params.PerPage == nil {
-		listMoveOrderParams.PerPage = swag.Int64(20)
+		ListOrderParams.PerPage = swag.Int64(20)
 	}
 
-	moves, count, err := h.MoveOrderFetcher.ListMoveOrders(
+	moves, count, err := h.OrderFetcher.ListOrders(
 		session.OfficeUserID,
-		&listMoveOrderParams,
+		&ListOrderParams,
 	)
 
 	if err != nil {
-		logger.Error("error fetching list of move orders for office user", zap.Error(err))
+		logger.Error("error fetching list of moves for office user", zap.Error(err))
 		return queues.NewGetMovesQueueInternalServerError()
 	}
 
 	queueMoves := payloads.QueueMoves(moves)
 
 	result := &ghcmessages.QueueMovesResult{
-		Page:       *listMoveOrderParams.Page,
-		PerPage:    *listMoveOrderParams.PerPage,
+		Page:       *ListOrderParams.Page,
+		PerPage:    *ListOrderParams.PerPage,
 		TotalCount: int64(count),
 		QueueMoves: *queueMoves,
 	}
@@ -95,12 +96,6 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		return queues.NewGetPaymentRequestsQueueForbidden()
 	}
 
-	var submittedAt *string
-	if params.SubmittedAt != nil {
-		str := params.SubmittedAt.String()
-		submittedAt = &str
-	}
-
 	listPaymentRequestParams := services.FetchPaymentRequestListParams{
 		Branch:                 params.Branch,
 		Locator:                params.Locator,
@@ -110,7 +105,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		Status:                 params.Status,
 		Page:                   params.Page,
 		PerPage:                params.PerPage,
-		SubmittedAt:            submittedAt,
+		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
 		Sort:                   params.Sort,
 		Order:                  params.Order,
 	}
@@ -144,4 +139,72 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	}
 
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+}
+
+// GetServicesCounselingQueueHandler returns the moves for the Service Counselor queue user via GET /queues/counselor
+type GetServicesCounselingQueueHandler struct {
+	handlers.HandlerContext
+	services.OrderFetcher
+}
+
+// Handle returns the paginated list of moves for the TOO user
+func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		logger.Error("user is not authenticated with an office role")
+		return queues.NewGetServicesCounselingQueueForbidden()
+	}
+
+	ListOrderParams := services.ListOrderParams{
+		Branch:                 params.Branch,
+		Locator:                params.Locator,
+		DodID:                  params.DodID,
+		LastName:               params.LastName,
+		DestinationDutyStation: params.DestinationDutyStation,
+		OriginGBLOC:            params.OriginGBLOC,
+		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
+		RequestedMoveDate:      params.RequestedMoveDate,
+		Page:                   params.Page,
+		PerPage:                params.PerPage,
+		Sort:                   params.Sort,
+		Order:                  params.Order,
+	}
+
+	if len(params.Status) == 0 {
+		ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
+	} else {
+		ListOrderParams.Status = params.Status
+	}
+
+	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+	// for perPage.
+	if params.Page == nil {
+		ListOrderParams.Page = swag.Int64(1)
+	}
+	// Same for perPage
+	if params.PerPage == nil {
+		ListOrderParams.PerPage = swag.Int64(20)
+	}
+
+	moves, count, err := h.OrderFetcher.ListOrders(
+		session.OfficeUserID,
+		&ListOrderParams,
+	)
+
+	if err != nil {
+		logger.Error("error fetching list of moves for office user", zap.Error(err))
+		return queues.NewGetServicesCounselingQueueInternalServerError()
+	}
+
+	queueMoves := payloads.QueueMoves(moves)
+
+	result := &ghcmessages.QueueMovesResult{
+		Page:       *ListOrderParams.Page,
+		PerPage:    *ListOrderParams.PerPage,
+		TotalCount: int64(count),
+		QueueMoves: *queueMoves,
+	}
+
+	return queues.NewGetServicesCounselingQueueOK().WithPayload(result)
 }

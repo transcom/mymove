@@ -129,7 +129,7 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 		}
 		toPhone := ""
 		if PaymentReminderEmailInfo.TOPhone != nil {
-			toPhone = fmt.Sprintf("%s", *PaymentReminderEmailInfo.TOPhone)
+			toPhone = *PaymentReminderEmailInfo.TOPhone
 		}
 		htmlBody, textBody, err := m.renderTemplates(PaymentReminderEmailData{
 			DestinationDutyStation: PaymentReminderEmailInfo.NewDutyStationName,

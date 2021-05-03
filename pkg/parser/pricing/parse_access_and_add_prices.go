@@ -36,7 +36,7 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 			break
 		}
 
-		if params.ShowOutput == true {
+		if params.ShowOutput {
 			logger.Info("", zap.Any("StageDomesticMoveAccessorialPrice", price))
 		}
 		prices = append(prices, price)
@@ -71,7 +71,7 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 			break
 		}
 
-		if params.ShowOutput == true {
+		if params.ShowOutput {
 			logger.Info("", zap.Any("StageInternationalMoveAccessorialPrice", price))
 		}
 		prices = append(prices, price)
@@ -106,7 +106,7 @@ var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params Pa
 			break
 		}
 
-		if params.ShowOutput == true {
+		if params.ShowOutput {
 			logger.Info("", zap.Any("StageDomesticInternationalAdditionalPrice", price))
 		}
 		prices = append(prices, price)

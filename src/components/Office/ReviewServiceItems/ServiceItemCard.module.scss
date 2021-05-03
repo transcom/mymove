@@ -12,6 +12,10 @@
     }
   }
 
+  dl {
+    @include u-margin-bottom(1);
+  }
+
   dt {
     @include u-font-size('base', 2);
     @include u-font-weight('bold');
@@ -21,6 +25,16 @@
   dd {
     margin-left: 0;
     @include u-margin-y(1);
+  }
+
+  .toggleCalculations {
+    @include u-padding-x(0);
+    @include u-margin-bottom(1);
+    @include u-font-size(body, '3xs');
+  }
+
+  .calculationsContainer {
+    @include u-margin-top(2);
   }
 
   .form {
@@ -44,7 +58,6 @@
 
   .statusOption {
     @include u-padding(0);
-    @include u-shadow(2);
     @include u-border(1px);
     border-color: $base-light;
     border-radius: units(2px);
@@ -56,7 +69,7 @@
         margin: 0;
       }
 
-      .usa-radio__input:checked + .usa-radio__label {
+      .usa-radio__input:checked+.usa-radio__label {
         background-color: $link-light;
       }
 
@@ -68,9 +81,13 @@
         }
       }
     }
+
+    &.selected {
+      @include u-shadow(2);
+    }
   }
 
-  .statusOption + .statusOption {
+  .statusOption+.statusOption {
     @include u-margin-top(1);
   }
 
@@ -80,7 +97,7 @@
     @include u-text('light');
   }
 
-  .statusOption + .clearStatus {
+  .statusOption+.clearStatus {
     margin-top: 3px;
   }
 

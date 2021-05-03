@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"errors"
+	"fmt"
 	"net/http/httptest"
 	"time"
 
@@ -16,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	moveorder "github.com/transcom/mymove/pkg/services/move_order"
+	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -68,7 +69,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -90,7 +91,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
-	suite.Run("displays move attributes for all move types returned by ListMoveOrders", func() {
+	suite.Run("displays move attributes for all move types returned by ListOrders", func() {
 		stub := testdatagen.Assertions{Stub: true}
 
 		// Stub HHG move
@@ -110,8 +111,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), stub)
 
-		moveOrderFetcher := mocks.MoveOrderFetcher{}
-		moveOrderFetcher.On("ListMoveOrders", officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
+		orderFetcher := mocks.OrderFetcher{}
+		orderFetcher.On("ListOrders", officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -121,7 +122,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		handler := GetMovesQueueHandler{
 			context,
-			&moveOrderFetcher,
+			&orderFetcher,
 		}
 		response := handler.Handle(params)
 		payload := response.(*queues.GetMovesQueueOK).Payload
@@ -177,7 +178,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -244,7 +245,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -360,7 +361,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	suite.Run("loads results with all STATUSes selected", func() {
@@ -564,7 +565,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	suite.Run("returns unfiltered results", func() {
@@ -678,7 +679,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -701,7 +702,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -742,7 +743,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		moveorder.NewMoveOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -840,7 +841,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		},
 	})
 
-	createdAtTime, _ := time.Parse("2006-01-02", "2020-10-29")
+	createdAtTime := time.Date(2020, 10, 29, 0, 0, 0, 0, time.UTC)
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			CreatedAt: createdAtTime,
@@ -888,9 +889,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	})
 
 	suite.Run("returns results matching SubmittedAt date", func() {
-		submittedAtDate := strfmt.Date{}
-		err := submittedAtDate.UnmarshalText([]byte("2020-10-29"))
-		suite.NoError(err)
+		submittedAtDate := strfmt.DateTime(time.Date(2020, 10, 29, 0, 0, 0, 0, time.UTC))
 
 		params := queues.GetPaymentRequestsQueueParams{
 			HTTPRequest: request,
@@ -984,4 +983,259 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 
 	suite.Len(payload.QueuePaymentRequests, 0)
 	suite.Equal(int64(0), payload.TotalCount)
+}
+
+func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
+	officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
+	// Default Origin Duty Station GBLOC is LKNQ
+	needsCounselingMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt:      &submittedAt,
+		},
+	})
+
+	requestedPickupDate := time.Date(2021, 04, 01, 0, 0, 0, 0, time.UTC)
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: needsCounselingMove,
+		MTOShipment: models.MTOShipment{
+			RequestedPickupDate: &requestedPickupDate,
+			Status:              models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	earlierRequestedPickup := requestedPickupDate.Add(-7 * 24 * time.Hour)
+	needsCounselingEarliestShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: needsCounselingMove,
+		MTOShipment: models.MTOShipment{
+			RequestedPickupDate: &earlierRequestedPickup,
+			Status:              models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	earlierSubmittedAt := submittedAt.Add(-1 * 24 * time.Hour)
+	counselingCompletedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusServiceCounselingCompleted,
+			SubmittedAt:      &earlierSubmittedAt,
+		},
+	})
+
+	counselingCompletedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: counselingCompletedMove,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	// Create a move with an origin duty station outside of office user GBLOC
+	excludedGBLOCMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusNeedsServiceCounseling,
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "AGFM",
+		},
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: excludedGBLOCMove,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	// Create a move with an origin duty station outside of office user GBLOC
+	excludedStatusMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "AGFM",
+		},
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: excludedStatusMove,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	marineCorpsAffiliation := models.AffiliationMARINES
+	marineCorpsMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt:      &submittedAt,
+		},
+		ServiceMember: models.ServiceMember{
+			Affiliation: &marineCorpsAffiliation,
+		},
+	})
+
+	fmt.Printf("marine corps move locator %s affiliation %s", marineCorpsMove.Locator, marineCorpsMove.Orders.ServiceMember.Affiliation)
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: marineCorpsMove,
+		MTOShipment: models.MTOShipment{
+			RequestedPickupDate: &requestedPickupDate,
+			Status:              models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/queues/counseling", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetServicesCounselingQueueHandler{
+		context,
+		order.NewOrderFetcher(suite.DB()),
+	}
+
+	suite.Run("returns moves in the needs counseling status by default", func() {
+		params := queues.GetServicesCounselingQueueParams{
+			HTTPRequest: request,
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&queues.GetServicesCounselingQueueOK{}, response)
+		payload := response.(*queues.GetServicesCounselingQueueOK).Payload
+
+		order := needsCounselingMove.Orders
+		result := payload.QueueMoves[0]
+
+		suite.Len(payload.QueueMoves, 1)
+		suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
+		suite.Equal(*order.ServiceMember.Edipi, result.Customer.DodID)
+		suite.Equal(needsCounselingMove.Locator, result.Locator)
+		suite.EqualValues(needsCounselingMove.Status, result.Status)
+		suite.Equal(needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
+		suite.Equal(needsCounselingMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
+		suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
+		suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
+		suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
+	})
+
+	suite.Run("returns moves in the needs counseling and services counseling complete statuses", func() {
+		params := queues.GetServicesCounselingQueueParams{
+			HTTPRequest: request,
+			Status:      []string{string(models.MoveStatusNeedsServiceCounseling), string(models.MoveStatusServiceCounselingCompleted)},
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&queues.GetServicesCounselingQueueOK{}, response)
+		payload := response.(*queues.GetServicesCounselingQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 2)
+
+		// default sort should be date submitted ascending
+		for index, move := range []models.Move{counselingCompletedMove, needsCounselingMove} {
+			order := move.Orders
+			result := payload.QueueMoves[index]
+
+			suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
+			suite.Equal(*order.ServiceMember.Edipi, result.Customer.DodID)
+			suite.Equal(move.Locator, result.Locator)
+			suite.EqualValues(move.Status, result.Status)
+			suite.Equal(move.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
+			suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
+			suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
+			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
+
+			if move.Status == models.MoveStatusNeedsServiceCounseling {
+				suite.Equal(needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
+			} else {
+				suite.Equal(counselingCompletedShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
+			}
+		}
+	})
+
+	suite.Run("returns moves in the needs counseling and services counseling complete statuses when both filters are selected", func() {
+		params := queues.GetServicesCounselingQueueParams{
+			HTTPRequest: request,
+			Status:      []string{string(models.MoveStatusNeedsServiceCounseling), string(models.MoveStatusServiceCounselingCompleted)},
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&queues.GetServicesCounselingQueueOK{}, response)
+		payload := response.(*queues.GetServicesCounselingQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 2)
+
+		// default sort should be date submitted ascending
+		for index, move := range []models.Move{counselingCompletedMove, needsCounselingMove} {
+			order := move.Orders
+			result := payload.QueueMoves[index]
+
+			suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
+			suite.Equal(*order.ServiceMember.Edipi, result.Customer.DodID)
+			suite.Equal(move.Locator, result.Locator)
+			suite.EqualValues(move.Status, result.Status)
+			suite.Equal(move.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
+			suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
+			suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
+			suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
+
+			if move.Status == models.MoveStatusNeedsServiceCounseling {
+				suite.Equal(needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
+			} else {
+				suite.Equal(counselingCompletedShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result.RequestedMoveDate).Format(time.RFC3339Nano))
+			}
+		}
+	})
+
+	suite.Run("returns move only from marine corps service member for USMC office user", func() {
+		marineCorpsOfficeUser := testdatagen.MakeServicesCounselorOfficeUserWithUSMCGBLOC(suite.DB())
+
+		usmcRequest := httptest.NewRequest("GET", "/queues/counseling", nil)
+		usmcRequest = suite.AuthenticateOfficeRequest(usmcRequest, marineCorpsOfficeUser)
+
+		params := queues.GetServicesCounselingQueueParams{
+			HTTPRequest: usmcRequest,
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&queues.GetServicesCounselingQueueOK{}, response)
+		payload := response.(*queues.GetServicesCounselingQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 1)
+
+		order := marineCorpsMove.Orders
+		result := payload.QueueMoves[0]
+
+		suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
+		suite.Equal(*order.ServiceMember.Edipi, result.Customer.DodID)
+		suite.Equal(marineCorpsMove.Locator, result.Locator)
+		suite.EqualValues(marineCorpsMove.Status, result.Status)
+		suite.Equal(marineCorpsMove.SubmittedAt.Format(time.RFC3339Nano), (time.Time)(*result.SubmittedAt).Format(time.RFC3339Nano))
+		suite.Equal(order.ServiceMember.Affiliation.String(), result.Customer.Agency)
+		suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
+		suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
+	})
+
+	suite.Run("responds with forbidden error when user is not an office user", func() {
+		ppmOfficeUser := testdatagen.MakePPMOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
+		request := httptest.NewRequest("GET", "/queues/counseling", nil)
+		request = suite.AuthenticateOfficeRequest(request, ppmOfficeUser)
+
+		params := queues.GetServicesCounselingQueueParams{
+			HTTPRequest: request,
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&queues.GetServicesCounselingQueueForbidden{}, response)
+	})
 }

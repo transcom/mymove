@@ -132,7 +132,7 @@ type OptionalDateNotBefore struct {
 func (v *OptionalDateNotBefore) IsValid(errors *validate.Errors) {
 	if v.Field != nil {
 		if v.MinDate == nil {
-			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("cannot create this date without a no-earlier-than date"))
+			errors.Add(validators.GenerateKey(v.Name), "cannot create this date without a no-earlier-than date")
 		} else if (*v.Field).Before(*v.MinDate) {
 			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be on or after %s", *v.Field, *v.MinDate))
 		}
@@ -220,6 +220,22 @@ type MustBeBothNilOrBothHaveValue struct {
 func (v *MustBeBothNilOrBothHaveValue) IsValid(errors *validate.Errors) {
 	if (v.FieldValue1 == nil && v.FieldValue2 != nil) || (v.FieldValue1 != nil && v.FieldValue2 == nil) {
 		errors.Add(validators.GenerateKey(v.FieldName1), fmt.Sprintf("%s can not be nil if %s has a value and vice versa", v.FieldName1, v.FieldName2))
+	}
+}
+
+// AtLeastOneNotNil validates that at least one of two fields are not nil
+type AtLeastOneNotNil struct {
+	FieldName1  string
+	FieldValue1 *string
+	FieldName2  string
+	FieldValue2 *string
+}
+
+// IsValid adds an error if fieldValue1 and fieldValue2 are nil
+func (v *AtLeastOneNotNil) IsValid(errors *validate.Errors) {
+	if v.FieldValue1 == nil && v.FieldValue2 == nil {
+		errors.Add(validators.GenerateKey(v.FieldName1), fmt.Sprintf("Both %s and %s cannot be nil, one must be valid", v.FieldName1, v.FieldName2))
+		errors.Add(validators.GenerateKey(v.FieldName2), fmt.Sprintf("Both %s and %s cannot be nil, one must be valid", v.FieldName2, v.FieldName1))
 	}
 }
 

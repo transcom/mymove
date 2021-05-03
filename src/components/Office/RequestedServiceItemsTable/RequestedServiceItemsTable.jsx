@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { MTOServiceItemDimensionShape, MTOServiceItemCustomerContactShape } from '../../../types/moveOrder';
+import { MTOServiceItemDimensionShape, MTOServiceItemCustomerContactShape } from '../../../types/order';
 import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
 import styles from './RequestedServiceItemsTable.module.scss';
@@ -31,12 +31,12 @@ const RequestedServiceItemsTable = ({
 
   return (
     <div className={styles.RequestedServiceItemsTable} data-testid={`${statusTitleText}ServiceItemsTable`}>
-      <h4>
+      <h3>
         {statusTitleText} service items&nbsp;
         <span>
           ({serviceItems.length} {serviceItems.length === 1 ? 'item' : 'items'})
         </span>
-      </h4>
+      </h3>
       <ServiceItemTableHasImg
         serviceItems={serviceItems}
         handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
@@ -54,6 +54,7 @@ RequestedServiceItemsTable.propTypes = {
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
+      mtoShipmentID: PropTypes.string,
       createdAt: PropTypes.string,
       approvedAt: PropTypes.string,
       rejectedAt: PropTypes.string,

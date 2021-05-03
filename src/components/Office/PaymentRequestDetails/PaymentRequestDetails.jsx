@@ -1,12 +1,13 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import ExpandableServiceItemRow from '../ExpandableServiceItemRow/ExpandableServiceItemRow';
 
 import styles from './PaymentRequestDetails.module.scss';
 
-import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatCents, toDollarString } from 'shared/formatters';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
+import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 
 const shipmentHeadingAndStyle = (mtoShipmentType) => {
   switch (mtoShipmentType) {
@@ -26,10 +27,9 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
+const PaymentRequestDetails = ({ serviceItems, shipmentAddress, paymentRequestStatus }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
-
   return (
     serviceItems.length > 0 && (
       <div className={styles.PaymentRequestDetails}>
@@ -56,32 +56,14 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
             </tr>
           </thead>
           <tbody>
-            {serviceItems.map((item) => {
+            {serviceItems.map((item, index) => {
               return (
-                <tr key={item.id}>
-                  <td data-testid="serviceItemName">{item.mtoServiceItemName}</td>
-                  <td data-testid="serviceItemAmount">{toDollarString(formatCents(item.priceCents))}</td>
-                  <td data-testid="serviceItemStatus">
-                    {item.status === PAYMENT_SERVICE_ITEM_STATUS.REQUESTED && (
-                      <div className={styles.needsReview}>
-                        <FontAwesomeIcon icon="exclamation-circle" />
-                        <span>Needs review</span>
-                      </div>
-                    )}
-                    {item.status === PAYMENT_SERVICE_ITEM_STATUS.APPROVED && (
-                      <div className={styles.accepted}>
-                        <FontAwesomeIcon icon="check" />
-                        <span>Accepted</span>
-                      </div>
-                    )}
-                    {item.status === PAYMENT_SERVICE_ITEM_STATUS.DENIED && (
-                      <div className={styles.rejected}>
-                        <FontAwesomeIcon icon="times" />
-                        <span>Rejected</span>
-                      </div>
-                    )}
-                  </td>
-                </tr>
+                <ExpandableServiceItemRow
+                  serviceItem={item}
+                  key={item.id}
+                  index={index}
+                  disableExpansion={paymentRequestStatus === PAYMENT_REQUEST_STATUSES.PENDING}
+                />
               );
             })}
           </tbody>
@@ -94,6 +76,7 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
   shipmentAddress: PropTypes.string,
+  paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
 };
 
 PaymentRequestDetails.defaultProps = {
