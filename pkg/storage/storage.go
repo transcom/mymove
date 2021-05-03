@@ -55,7 +55,8 @@ func ComputeChecksum(data io.ReadSeeker) (string, error) {
 	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
-	hash := md5.New() // #nosec G401
+	// #nosec G401
+	hash := md5.New()
 	if _, err := io.Copy(hash, data); err != nil {
 		return "", errors.Wrap(err, "could not read file")
 	}

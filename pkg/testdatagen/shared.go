@@ -185,7 +185,6 @@ func Fixture(name string) afero.File {
 	}
 
 	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)
-	// #nosec This will only be using test data
 	file, err := os.Open(filepath.Clean(fixturePath))
 	if err != nil {
 		log.Panic(fmt.Errorf("Error opening local file: %v", err))

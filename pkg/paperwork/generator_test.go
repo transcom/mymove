@@ -36,7 +36,8 @@ func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	defer file.Close() // nolint:errcheck
+	// nolint:errcheck
+	defer file.Close()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
@@ -229,7 +230,8 @@ func (suite *PaperworkSuite) TestCleanup() {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	generator.Cleanup() // nolint:errcheck
+	// nolint:errcheck
+	generator.Cleanup()
 
 	fs := suite.userUploader.FileSystem()
 	exists, existsErr := fs.DirExists(generator.workDir)
