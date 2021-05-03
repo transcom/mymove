@@ -84,8 +84,13 @@ const shipmentAddresses = [
   {
     mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
     shipmentAddress: 'Columbia, SC 29212 to Princeton, NJ 08540',
+    departureDate: '2020-12-03T00:00:00.000Z',
   },
-  { mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d', shipmentAddress: 'TBD to Fairfield, CA 94535' },
+  {
+    mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
+    shipmentAddress: 'TBD to Fairfield, CA 94535',
+    departureDate: '2020-12-02T00:00:00.000Z',
+  },
 ];
 const testMoveLocator = 'AF7K1P';
 

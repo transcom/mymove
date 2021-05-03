@@ -27,7 +27,7 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const PaymentRequestDetails = ({ serviceItems, shipmentAddress, paymentRequestStatus }) => {
+const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAddress, paymentRequestStatus }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
   return (
@@ -40,7 +40,11 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress, paymentRequestSt
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
             </h3>
           </div>
-          {shipmentAddress !== '' && <p data-testid="pickup-to-destination">{shipmentAddress}</p>}
+          {/* This is where I need to add the destination information */}
+          {/* <div>{shipmentAddress !== '' && <p data-testid="pickup-to-destination">{shipmentAddress}</p>}</div> */}
+          <div>
+            Departed {shipmentDepartureDate} {shipmentAddress}
+          </div>
         </div>
         <table className="table--stacked">
           <colgroup>
@@ -75,11 +79,13 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress, paymentRequestSt
 
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
+  shipmentDepartureDate: PropTypes.string,
   shipmentAddress: PropTypes.string,
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
 };
 
 PaymentRequestDetails.defaultProps = {
+  shipmentDepartureDate: '',
   shipmentAddress: '',
 };
 
