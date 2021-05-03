@@ -10,7 +10,7 @@ describe('The document viewer', function () {
     it('shows page not found', function () {
       cy.patientVisit('/moves/foo/documents');
       cy.contains('Welcome');
-      cy.contains('Sign In');
+      cy.contains('Sign in');
     });
   });
 
