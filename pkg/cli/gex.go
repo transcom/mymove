@@ -69,7 +69,15 @@ func CheckGEX(v *viper.Viper) error {
 		return nil
 	}
 
-	// Parse the URL and check it
+	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	//RA: This line was flagged because of use of the word "password"
+	//RA: This line is used to identify the name of the flag. GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag.
+	//RA: This value of this variable does not store an application password.
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity: CAT III
+	// #nosec G101
 	u, parseErr := url.Parse(gexURL)
 	if parseErr != nil {
 		return parseErr

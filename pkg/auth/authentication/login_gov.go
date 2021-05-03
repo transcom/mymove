@@ -120,6 +120,7 @@ func (p LoginGovProvider) AuthorizationURL(r *http.Request) (*LoginGovData, erro
 		p.logger.Error("Get Goth provider", zap.Error(err))
 		return nil, err
 	}
+	// #nosec G404
 	state := generateNonce()
 	sess, err := provider.BeginAuth(state)
 	if err != nil {
