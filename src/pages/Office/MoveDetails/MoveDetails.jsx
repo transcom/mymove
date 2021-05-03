@@ -140,6 +140,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
     dependents: allowances.dependentsAuthorized,
+    requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
+    organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
   };
   const customerInfo = {
     name: `${customer.last_name}, ${customer.first_name}`,

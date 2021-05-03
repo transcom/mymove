@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Set of flags used for authentication
 const (
 	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	//RA: This line was flagged because of use of the word "secret"
@@ -19,8 +20,8 @@ const (
 	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
-
-	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag // #nosec G101
+	// #nosec G101
+	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag
 	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
 	// LoginGovCallbackProtocolFlag is the Login.gov Callback Protocol Flag
 	LoginGovCallbackProtocolFlag string = "login-gov-callback-protocol"

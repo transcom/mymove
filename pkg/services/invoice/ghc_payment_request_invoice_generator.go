@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -29,9 +30,8 @@ type ghcPaymentRequestInvoiceGenerator struct {
 }
 
 // NewGHCPaymentRequestInvoiceGenerator returns an implementation of the GHCPaymentRequestInvoiceGenerator interface
-func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection, icnSequencer sequence.Sequencer, clock clock.Clock) services.GHCPaymentRequestInvoiceGenerator {
+func NewGHCPaymentRequestInvoiceGenerator(icnSequencer sequence.Sequencer, clock clock.Clock) services.GHCPaymentRequestInvoiceGenerator {
 	return &ghcPaymentRequestInvoiceGenerator{
-		db:           db,
 		icnSequencer: icnSequencer,
 		clock:        clock,
 	}
@@ -42,8 +42,16 @@ const isaDateFormat = "060102"
 const timeFormat = "1504"
 const maxCityLength = 30
 
+// InitDB stores a database pop connection to the receiver instance
+func (g *ghcPaymentRequestInvoiceGenerator) InitDB(db *pop.Connection) {
+	g.db = db
+}
+
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
+	if g.db == nil {
+		return ediinvoice.Invoice858C{}, services.NewQueryError("pop.Connection", errors.New("database not initialized"), "DB pointer is nil, call ghcPaymentRequestInvoiceGenerator.InitDB()")
+	}
 	var moveTaskOrder models.Move
 	if paymentRequest.MoveTaskOrder.ID == uuid.Nil {
 		// load mto
@@ -100,6 +108,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	pr2icn := models.PaymentRequestToInterchangeControlNumber{
 		PaymentRequestID:         paymentRequest.ID,
 		InterchangeControlNumber: int(interchangeControlNumber),
+		EDIType:                  models.EDIType858,
 	}
 	verrs, err := g.db.ValidateAndSave(&pr2icn)
 	if err != nil {

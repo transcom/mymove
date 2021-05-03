@@ -37,7 +37,7 @@ var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetI
 			break
 		}
 
-		if params.ShowOutput == true {
+		if params.ShowOutput {
 			logger.Info("", zap.Any("StageDomesticServiceArea", domServArea))
 		}
 		domServAreas = append(domServAreas, domServArea)
@@ -71,7 +71,7 @@ var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, s
 			break
 		}
 
-		if params.ShowOutput == true {
+		if params.ShowOutput {
 			logger.Info("", zap.Any("StageInternationalServiceArea", intlServArea))
 		}
 		intlServAreas = append(intlServAreas, intlServArea)

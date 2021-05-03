@@ -86,7 +86,7 @@ func (h IndexNotificationsHandler) generateQueryFilters(filters *string, logger 
 			zap.String("filters", fs))
 	}
 	if f.ServiceMemberID != "" {
-		queryFilters = append(queryFilters, query.NewQueryFilter("service_member_id", "=", fmt.Sprintf("%s", f.ServiceMemberID)))
+		queryFilters = append(queryFilters, query.NewQueryFilter("service_member_id", "=", f.ServiceMemberID))
 	}
 
 	return queryFilters

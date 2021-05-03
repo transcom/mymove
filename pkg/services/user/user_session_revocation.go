@@ -44,15 +44,15 @@ func deleteSessionIDFromRedis(user models.User, payload *adminmessages.UserUpdat
 	var currentAdminSessionID, currentOfficeSessionID, currentMilSessionID string
 	userID := user.ID
 
-	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession == true {
+	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession {
 		currentAdminSessionID = user.CurrentAdminSessionID
 	}
 
-	if payload.RevokeOfficeSession != nil && *payload.RevokeOfficeSession == true {
+	if payload.RevokeOfficeSession != nil && *payload.RevokeOfficeSession {
 		currentOfficeSessionID = user.CurrentOfficeSessionID
 	}
 
-	if payload.RevokeMilSession != nil && *payload.RevokeMilSession == true {
+	if payload.RevokeMilSession != nil && *payload.RevokeMilSession {
 		currentMilSessionID = user.CurrentMilSessionID
 	}
 
@@ -85,15 +85,15 @@ func deleteSessionIDFromRedis(user models.User, payload *adminmessages.UserUpdat
 }
 
 func deleteSessionIDFromDB(o *userSessionRevocation, user models.User, payload *adminmessages.UserUpdatePayload) (*models.User, *validate.Errors, error) {
-	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession == true {
+	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession {
 		user.CurrentAdminSessionID = ""
 	}
 
-	if payload.RevokeOfficeSession != nil && *payload.RevokeOfficeSession == true {
+	if payload.RevokeOfficeSession != nil && *payload.RevokeOfficeSession {
 		user.CurrentOfficeSessionID = ""
 	}
 
-	if payload.RevokeMilSession != nil && *payload.RevokeMilSession == true {
+	if payload.RevokeMilSession != nil && *payload.RevokeMilSession {
 		user.CurrentMilSessionID = ""
 	}
 

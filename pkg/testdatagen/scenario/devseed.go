@@ -1039,7 +1039,7 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	})
 
 	// using handler to create service item params
-	req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+	req := httptest.NewRequest("POST", "/payment_requests", nil)
 
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
@@ -2756,6 +2756,36 @@ func createTIO(db *pop.Connection) {
 	})
 }
 
+func createServicesCounselor(db *pop.Connection) {
+	/* A user with services counselor role */
+	servicesCounselorRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+	}
+
+	email := "services_counselor_role@office.mil"
+	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            servicesCounselorUUID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{servicesCounselorRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
+			Email:  email,
+			Active: true,
+			UserID: &servicesCounselorUUID,
+		},
+	})
+}
+
 func createTXO(db *pop.Connection) {
 	/* A user with both too and tio roles */
 	email := "too_tio_role@office.mil"
@@ -2821,6 +2851,85 @@ func createTXO(db *pop.Connection) {
 			Email:                emailUSMC,
 			Active:               true,
 			UserID:               &tooTioWithUsmcUUID,
+			TransportationOffice: transportationOfficeUSMC,
+		},
+	})
+}
+
+func createTXOServicesCounselor(db *pop.Connection) {
+	/* A user with both too, tio, and services counselor roles */
+	email := "too_tio_services_counselor_role@office.mil"
+
+	officeUserRoleTypes := []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor}
+	var userRoles roles.Roles
+	err := db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find office user RoleType in the DB: %w", err))
+	}
+
+	tooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	// Make a user
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioServicesUUID,
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         userRoles,
+		},
+	})
+
+	// Make and office user associated with the previously created user
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
+			Email:  email,
+			Active: true,
+			UserID: &tooTioServicesUUID,
+		},
+	})
+}
+
+func createTXOServicesUSMCCounselor(db *pop.Connection) {
+
+	/* A user with both too, tio, and services counselor roles */
+	officeUserRoleTypes := []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor}
+	var userRoles roles.Roles
+	err := db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find office user RoleType in the DB: %w", err))
+	}
+
+	// Makes user with too, tio, services counselor role with USMC gbloc
+	transportationOfficeUSMC := models.TransportationOffice{}
+	err = db.Where("id = $1", "ccf50409-9d03-4cac-a931-580649f1647a").First(&transportationOfficeUSMC)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find transportation office USMC in the DB: %w", err))
+	}
+	emailUSMC := "too_tio_services_counselor_role_usmc@office.mil"
+	tooTioServicesWithUsmcUUID := uuid.Must(uuid.FromString("9aae1a83-6515-4c1d-84e8-f7b53dc3d5fc"))
+	loginGovWithUsmcUUID := uuid.Must(uuid.NewV4())
+
+	// Makes a user with all office roles that is associated with USMC
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioServicesWithUsmcUUID,
+			LoginGovUUID:  &loginGovWithUsmcUUID,
+			LoginGovEmail: emailUSMC,
+			Active:        true,
+			Roles:         userRoles,
+		},
+	})
+
+	// Makes an office user with the previously created user
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:                   uuid.FromStringOrNil("b23005d6-60ea-469f-91ab-a7daf4c686f5"),
+			Email:                emailUSMC,
+			Active:               true,
+			UserID:               &tooTioServicesWithUsmcUUID,
 			TransportationOffice: transportationOfficeUSMC,
 		},
 	})
@@ -3324,29 +3433,22 @@ func createHHGNeedsServicesCounseling(db *pop.Connection) {
 }
 
 func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uploader.UserUploader) {
+
 	marineCorps := models.AffiliationMARINES
-	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			Affiliation: &marineCorps,
-		},
-	})
-
-	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: customer.ID,
-			ServiceMember:   customer,
-		},
-		UserUploader: userUploader,
-	})
-
 	submittedAt := time.Now()
+
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Locator:     "USMCSC",
+			Locator:     "USMCSS",
 			Status:      models.MoveStatusNeedsServiceCounseling,
 			SubmittedAt: &submittedAt,
 		},
-		Order: orders,
+		ServiceMember: models.ServiceMember{
+			Affiliation: &marineCorps,
+			LastName:    swag.String("Marine"),
+			FirstName:   swag.String("Ted"),
+		},
+		UserUploader: userUploader,
 	})
 
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
@@ -3372,6 +3474,43 @@ func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uplo
 			RequestedDeliveryDate: &requestedDeliveryDate,
 		},
 	})
+}
+
+func createHHGNeedsServicesCounselingUSMC2(db *pop.Connection, userUploader *uploader.UserUploader) {
+
+	marineCorps := models.AffiliationMARINES
+	submittedAt := time.Now()
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "USMCSC",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: models.Order{},
+		ServiceMember: models.ServiceMember{
+			Affiliation: &marineCorps,
+			LastName:    swag.String("Marine"),
+			FirstName:   swag.String("Barbara"),
+		},
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ZANY",
+		},
+		UserUploader: userUploader,
+	})
+
+	requestedPickupDate := submittedAt.Add(20 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(14 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
 }
 
 func createHHGServicesCounselingCompleted(db *pop.Connection) {
@@ -3414,12 +3553,16 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// Services Counseling
 	createHHGNeedsServicesCounseling(db)
 	createHHGNeedsServicesCounselingUSMC(db, userUploader)
+	createHHGNeedsServicesCounselingUSMC2(db, userUploader)
 	createHHGServicesCounselingCompleted(db)
 
 	// TXO Queues
 	createTOO(db)
 	createTIO(db)
 	createTXO(db)
+	createServicesCounselor(db)
+	createTXOServicesCounselor(db)
+	createTXOServicesUSMCCounselor(db)
 	createNTSMove(db)
 	createNTSRMove(db)
 

@@ -36,26 +36,26 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	}
 
 	t, err := validateInterface(model)
-	if err == nil && reflect.ValueOf(model).IsValid() == true && reflect.ValueOf(model).IsNil() == false && reflect.ValueOf(model).IsZero() == false {
+	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
 		recordType := parseRecordType(t.String())
 		elem := reflect.ValueOf(model).Elem()
 
 		var createdAt string
-		if elem.FieldByName("CreatedAt").IsValid() == true {
+		if elem.FieldByName("CreatedAt").IsValid() {
 			createdAt = elem.FieldByName("CreatedAt").Interface().(time.Time).String()
 		} else {
 			createdAt = time.Now().String()
 		}
 
 		var updatedAt string
-		if elem.FieldByName("updatedAt").IsValid() == true {
+		if elem.FieldByName("updatedAt").IsValid() {
 			updatedAt = elem.FieldByName("updatedAt").Interface().(time.Time).String()
 		} else {
 			updatedAt = time.Now().String()
 		}
 
 		var id string
-		if elem.FieldByName("ID").IsValid() == true {
+		if elem.FieldByName("ID").IsValid() {
 			id = elem.FieldByName("ID").Interface().(uuid.UUID).String()
 		} else {
 			id = ""
@@ -135,7 +135,7 @@ func validateInterface(thing interface{}) (reflect.Type, error) {
 
 func extractEventType(request *http.Request) string {
 	path := request.URL.Path
-	apiRegex := regexp.MustCompile("\\/[a-zA-Z]+\\/v1")
+	apiRegex := regexp.MustCompile(`\/[a-zA-Z]+\/v1`)
 	uuidRegex := regexp.MustCompile("/([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}){1}") // https://adamscheller.com/regular-expressions/uuid-regex/
 	cleanPath := uuidRegex.ReplaceAllString(apiRegex.ReplaceAllString(path, ""), "")
 	return fmt.Sprintf("audit_%s_%s", strings.ToLower(request.Method), flect.Underscore(cleanPath))

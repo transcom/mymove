@@ -602,6 +602,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}))
 		gexRequester = invoice.NewGexSenderHTTP(
 			server.URL,
+			"",
 			false,
 			&tls.Config{MinVersion: tls.VersionTLS12},
 			"",
@@ -610,6 +611,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	} else {
 		gexRequester = invoice.NewGexSenderHTTP(
 			gexURL,
+			cli.GEXChannelInvoice,
 			true,
 			gexTLSConfig,
 			v.GetString(cli.GEXBasicAuthUsernameFlag),
@@ -740,7 +742,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		// Log the number of headers, which can be used for finding abnormal requests
 		fields = append(fields, zap.Int("headers", len(r.Header)))
 
-		logger.Info("Request", fields...)
+		logger.Info("Request health", fields...)
 
 	})
 

@@ -30,7 +30,7 @@ func NewEDI824Processor(db *pop.Connection,
 
 //ProcessFile parses an EDI 824 response and updates the payment request status
 func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
-	fmt.Printf(path)
+	fmt.Print(path)
 
 	edi824 := ediResponse824.EDI{}
 	err := edi824.Parse(stringEDI824)
@@ -81,6 +81,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		prToICN := models.PaymentRequestToInterchangeControlNumber{
 			InterchangeControlNumber: int(icn),
 			PaymentRequestID:         paymentRequest.ID,
+			EDIType:                  models.EDIType824,
 		}
 		err = tx.Save(&prToICN)
 		if err != nil {
@@ -114,17 +115,13 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 			return fmt.Errorf("unable to find move with associated payment request: %w", err)
 		}
 
-		// The BGN02 Reference Identification field from the 824 stores the reference identification used in the 858.
-		// For MilMove we use the MTO Reference ID in the 858 (which used to the field for the GBLOC, but is not relevant for GHC MilMove).
+		// The BGN02 Reference Identification field from the 824 stores the payment request number used in the 858.
+		// For MilMove we use the Payment Request Number in the 858
 		bgnRefIdentification := bgn.ReferenceIdentification
-		mtoRefID := move.ReferenceID
-		if mtoRefID == nil {
-			e.logger.Error(fmt.Sprintf("An associated move with mto.ReferenceID: %s was not found", *mtoRefID), zap.Error(err))
-			return fmt.Errorf("An associated move with mto.ReferenceID: %s was not found", *mtoRefID)
-		}
-		if bgnRefIdentification != *mtoRefID {
-			e.logger.Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID), zap.Error(err))
-			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %v of the associated move", bgnRefIdentification, *mtoRefID)
+		paymentRequestNumber := paymentRequest.PaymentRequestNumber
+		if bgnRefIdentification != paymentRequestNumber {
+			e.logger.Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %s of the associated payment request", bgnRefIdentification, paymentRequestNumber), zap.Error(err))
+			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %v of the associated payment request", bgnRefIdentification, paymentRequestNumber)
 		}
 
 		teds := fetchTEDSegments(edi824)

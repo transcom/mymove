@@ -73,7 +73,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 		// Service Item Param Cache
 		serviceParamCache := serviceparamlookups.ServiceParamsCache{}
-		serviceParamCache.Initialize(p.db)
+		serviceParamCache.Initialize(tx)
 
 		// Run the pricer within this transactional context
 		txPricer := p.pricer.UsingConnection(tx)
@@ -173,7 +173,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			// the payment request
 			//
 			validParamList, validateMessage := paymentHelper.ValidServiceParamList(mtoServiceItem, reServiceParams, paymentServiceItem.PaymentServiceItemParams)
-			if validParamList == false {
+			if !validParamList {
 				errMessage := "service item param list is not valid (will not be able to price the item) " + validateMessage + " for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)
 			}
@@ -222,7 +222,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			msg := fmt.Sprint("for Move")
+			msg := "for Move"
 			return nil, services.NewNotFoundError(paymentRequest.MoveTaskOrderID, msg)
 		}
 		return nil, fmt.Errorf("could not retrieve Move with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
@@ -295,7 +295,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	// Create the payment request for the database
 	verrs, err := tx.ValidateAndCreate(paymentRequest)
 	if verrs.HasAny() {
-		msg := fmt.Sprint("validation error creating payment request")
+		msg := "validation error creating payment request"
 		return nil, services.NewInvalidCreateInputError(verrs, msg)
 	}
 	if err != nil {
@@ -311,7 +311,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	err := tx.Eager("ReService").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			msg := fmt.Sprint("for MTO Service Item")
+			msg := "for MTO Service Item"
 			return models.PaymentServiceItem{}, models.MTOServiceItem{}, services.NewNotFoundError(paymentServiceItem.MTOServiceItemID, msg)
 		}
 		return paymentServiceItem, models.MTOServiceItem{}, fmt.Errorf("could not fetch MTOServiceItem with ID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)
@@ -327,7 +327,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 
 	verrs, err := tx.ValidateAndCreate(&paymentServiceItem)
 	if verrs.HasAny() {
-		msg := fmt.Sprint("validation error creating payment request service item in payment request creation")
+		msg := "validation error creating payment request service item in payment request creation"
 		return paymentServiceItem, mtoServiceItem, services.NewInvalidCreateInputError(verrs, msg)
 	}
 	if err != nil {
@@ -373,7 +373,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		err := tx.Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
 		if err != nil {
 			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				msg := fmt.Sprintf("Service Item Param Key ID")
+				msg := "Service Item Param Key ID"
 				return models.PaymentServiceItemParam{}, nil, nil, services.NewNotFoundError(paymentServiceItemParam.ServiceItemParamKeyID, msg)
 			}
 			return models.PaymentServiceItemParam{}, nil, nil, fmt.Errorf("could not fetch ServiceItemParamKey with ID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
@@ -405,7 +405,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		var err error
 		verrs, err := tx.ValidateAndCreate(&paymentServiceItemParam)
 		if verrs.HasAny() {
-			msg := fmt.Sprint("validation error creating payment service item param in payment request creation")
+			msg := "validation error creating payment service item param in payment request creation"
 			return models.PaymentServiceItemParam{}, nil, nil, services.NewInvalidCreateInputError(verrs, msg)
 		}
 		if err != nil {

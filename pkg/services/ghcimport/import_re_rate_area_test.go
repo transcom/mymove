@@ -1,7 +1,6 @@
 package ghcimport
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -186,14 +185,14 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 	})
 
 	suite.T().Run("Fail to run import, missing staging table", func(t *testing.T) {
-		renameQuery := fmt.Sprintf("ALTER TABLE stage_conus_to_oconus_prices RENAME TO missing_stage_conus_to_oconus_prices")
+		renameQuery := "ALTER TABLE stage_conus_to_oconus_prices RENAME TO missing_stage_conus_to_oconus_prices"
 		renameErr := suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
 
 		err = gre.importRERateArea(suite.DB())
 		suite.Error(err)
 
-		renameQuery = fmt.Sprintf("ALTER TABLE missing_stage_conus_to_oconus_prices RENAME TO stage_conus_to_oconus_prices")
+		renameQuery = "ALTER TABLE missing_stage_conus_to_oconus_prices RENAME TO stage_conus_to_oconus_prices"
 		renameErr = suite.DB().RawQuery(renameQuery).Exec()
 		suite.NoError(renameErr)
 	})

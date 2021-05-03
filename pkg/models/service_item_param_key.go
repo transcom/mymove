@@ -24,6 +24,8 @@ const (
 	ServiceItemParamNameCanStandAlone ServiceItemParamName = "CanStandAlone"
 	// ServiceItemParamNameContractCode is the param key name ContractCode
 	ServiceItemParamNameContractCode ServiceItemParamName = "ContractCode"
+	// ServiceItemParamNameContractYearName is the param key name ContractYearName
+	ServiceItemParamNameContractYearName ServiceItemParamName = "ContractYearName"
 	// ServiceItemParamNameCubicFeetBilled is the param key name CubicFeetBilled
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
 	// ServiceItemParamNameCubicFeetCrating is the param key name CubicFeetCrating
@@ -38,6 +40,16 @@ const (
 	ServiceItemParamNameDistanceZipSITOrigin ServiceItemParamName = "DistanceZipSITOrigin"
 	// ServiceItemParamNameEIAFuelPrice is the param key name EIAFuelPrice
 	ServiceItemParamNameEIAFuelPrice ServiceItemParamName = "EIAFuelPrice"
+	// ServiceItemParamNameEscalationCompounded is the param key name EscalationCompounded
+	ServiceItemParamNameEscalationCompounded ServiceItemParamName = "EscalationCompounded"
+	// ServiceItemParamNameFSCMultiplier is the param key name FSCMultipilier
+	ServiceItemParamNameFSCMultiplier ServiceItemParamName = "FSCMultiplier"
+	// ServiceItemParamNameFSCPriceDifferenceInCents is the param key name FSCPriceDifferenceInCents
+	ServiceItemParamNameFSCPriceDifferenceInCents ServiceItemParamName = "FSCPriceDifferenceInCents"
+	// ServiceItemParamNameFSCWeightBasedDistanceMultiplier is the param key name FSCWeightBasedDistanceMultiplier
+	ServiceItemParamNameFSCWeightBasedDistanceMultiplier ServiceItemParamName = "FSCWeightBasedDistanceMultiplier"
+	// ServiceItemParamNameIsPeak is the param key name IsPeak
+	ServiceItemParamNameIsPeak ServiceItemParamName = "IsPeak"
 	// ServiceItemParamNameMarketDest is the param key name MarketDest
 	ServiceItemParamNameMarketDest ServiceItemParamName = "MarketDest"
 	// ServiceItemParamNameMarketOrigin is the param key name MarketOrigin
@@ -54,6 +66,8 @@ const (
 	ServiceItemParamNamePriceAreaIntlOrigin ServiceItemParamName = "PriceAreaIntlOrigin"
 	// ServiceItemParamNamePriceAreaOrigin is the param key name PriceAreaOrigin
 	ServiceItemParamNamePriceAreaOrigin ServiceItemParamName = "PriceAreaOrigin"
+	// ServiceItemParamNamePriceRateOrFactor is the param key name PriceRateOrFactor
+	ServiceItemParamNamePriceRateOrFactor ServiceItemParamName = "PriceRateOrFactor"
 	// ServiceItemParamNamePSILinehaulDom is the param key name PSI_LinehaulDom
 	ServiceItemParamNamePSILinehaulDom ServiceItemParamName = "PSI_LinehaulDom"
 	// ServiceItemParamNamePSILinehaulDomPrice is the param key name PSI_LinehaulDomPrice
@@ -110,8 +124,6 @@ const (
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
 	// ServiceItemParamNameWeightActual is the param key name WeightActual
 	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
-	// ServiceItemParamNameFSCWeightBasedDistanceMultiplier is the param key name WeightBasedDistanceMultiplier
-	ServiceItemParamNameFSCWeightBasedDistanceMultiplier ServiceItemParamName = "FSCWeightBasedDistanceMultiplier"
 	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
 	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
 	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
@@ -120,22 +132,12 @@ const (
 	ServiceItemParamNameZipDestAddress ServiceItemParamName = "ZipDestAddress"
 	// ServiceItemParamNameZipPickupAddress is the param key name ZipPickupAddress
 	ServiceItemParamNameZipPickupAddress ServiceItemParamName = "ZipPickupAddress"
-	// ServiceItemParamNameZipSITAddress is the param key name ZipSITAddress
-	ServiceItemParamNameZipSITAddress ServiceItemParamName = "ZipSITAddress"
 	// ServiceItemParamNameZipSITDestHHGFinalAddress is the param key name ZipSITDestHHGFinalAddress
 	ServiceItemParamNameZipSITDestHHGFinalAddress ServiceItemParamName = "ZipSITDestHHGFinalAddress"
-	// ServiceItemParamNameZipSITOriginHHGOriginalAddress is the param key name ZipSITOriginHHGOriginalAddress
-	ServiceItemParamNameZipSITOriginHHGOriginalAddress ServiceItemParamName = "ZipSITOriginHHGOriginalAddress"
 	// ServiceItemParamNameZipSITOriginHHGActualAddress is the param key name ZipSITOriginHHGActualAddress
 	ServiceItemParamNameZipSITOriginHHGActualAddress ServiceItemParamName = "ZipSITOriginHHGActualAddress"
-	// ServiceItemParamNamePriceRateOrFactor is the param key name PriceRateOrFactor
-	ServiceItemParamNamePriceRateOrFactor ServiceItemParamName = "PriceRateOrFactor"
-	// ServiceItemParamNameEscalationCompounded is the param key name EscalationCompounded
-	ServiceItemParamNameEscalationCompounded ServiceItemParamName = "EscalationCompounded"
-	// ServiceItemParamNameIsPeak is the param key name IsPeak
-	ServiceItemParamNameIsPeak ServiceItemParamName = "IsPeak"
-	// ServiceItemParamNameContractYearName is the param key name ContractYearName
-	ServiceItemParamNameContractYearName ServiceItemParamName = "ContractYearName"
+	// ServiceItemParamNameZipSITOriginHHGOriginalAddress is the param key name ZipSITOriginHHGOriginalAddress
+	ServiceItemParamNameZipSITOriginHHGOriginalAddress ServiceItemParamName = "ZipSITOriginHHGOriginalAddress"
 )
 
 // ServiceItemParamType is a type of service item parameter
@@ -182,8 +184,10 @@ const (
 
 // ValidServiceItemParamNames lists all valid service item param key names
 var ValidServiceItemParamNames = []ServiceItemParamName{
+	ServiceItemParamNameActualPickupDate,
 	ServiceItemParamNameCanStandAlone,
 	ServiceItemParamNameContractCode,
+	ServiceItemParamNameContractYearName,
 	ServiceItemParamNameCubicFeetBilled,
 	ServiceItemParamNameCubicFeetCrating,
 	ServiceItemParamNameDistanceZip3,
@@ -191,6 +195,11 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameDistanceZipSITDest,
 	ServiceItemParamNameDistanceZipSITOrigin,
 	ServiceItemParamNameEIAFuelPrice,
+	ServiceItemParamNameEscalationCompounded,
+	ServiceItemParamNameFSCMultiplier,
+	ServiceItemParamNameFSCPriceDifferenceInCents,
+	ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+	ServiceItemParamNameIsPeak,
 	ServiceItemParamNameMarketDest,
 	ServiceItemParamNameMarketOrigin,
 	ServiceItemParamNameMTOAvailableToPrimeAt,
@@ -199,6 +208,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNamePriceAreaIntlDest,
 	ServiceItemParamNamePriceAreaIntlOrigin,
 	ServiceItemParamNamePriceAreaOrigin,
+	ServiceItemParamNamePriceRateOrFactor,
 	ServiceItemParamNamePSILinehaulDom,
 	ServiceItemParamNamePSILinehaulDomPrice,
 	ServiceItemParamNamePSILinehaulShort,
@@ -220,7 +230,6 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameRateAreaNonStdDest,
 	ServiceItemParamNameRateAreaNonStdOrigin,
 	ServiceItemParamNameRequestedPickupDate,
-	ServiceItemParamNameActualPickupDate,
 	ServiceItemParamNameServiceAreaDest,
 	ServiceItemParamNameServiceAreaOrigin,
 	ServiceItemParamNameServicesScheduleDest,
@@ -228,25 +237,21 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
 	ServiceItemParamNameWeightActual,
-	ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
 	ServiceItemParamNameWeightBilledActual,
 	ServiceItemParamNameWeightEstimated,
 	ServiceItemParamNameZipDestAddress,
 	ServiceItemParamNameZipPickupAddress,
-	ServiceItemParamNameZipSITAddress,
 	ServiceItemParamNameZipSITDestHHGFinalAddress,
-	ServiceItemParamNameZipSITOriginHHGOriginalAddress,
 	ServiceItemParamNameZipSITOriginHHGActualAddress,
-	ServiceItemParamNamePriceRateOrFactor,
-	ServiceItemParamNameEscalationCompounded,
-	ServiceItemParamNameIsPeak,
-	ServiceItemParamNameContractYearName,
+	ServiceItemParamNameZipSITOriginHHGOriginalAddress,
 }
 
 // ValidServiceItemParamNameStrings lists all valid service item param key names
 var ValidServiceItemParamNameStrings = []string{
+	string(ServiceItemParamNameActualPickupDate),
 	string(ServiceItemParamNameCanStandAlone),
 	string(ServiceItemParamNameContractCode),
+	string(ServiceItemParamNameContractYearName),
 	string(ServiceItemParamNameCubicFeetBilled),
 	string(ServiceItemParamNameCubicFeetCrating),
 	string(ServiceItemParamNameDistanceZip3),
@@ -254,6 +259,11 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameDistanceZipSITDest),
 	string(ServiceItemParamNameDistanceZipSITOrigin),
 	string(ServiceItemParamNameEIAFuelPrice),
+	string(ServiceItemParamNameEscalationCompounded),
+	string(ServiceItemParamNameFSCMultiplier),
+	string(ServiceItemParamNameFSCPriceDifferenceInCents),
+	string(ServiceItemParamNameFSCWeightBasedDistanceMultiplier),
+	string(ServiceItemParamNameIsPeak),
 	string(ServiceItemParamNameMarketDest),
 	string(ServiceItemParamNameMarketOrigin),
 	string(ServiceItemParamNameMTOAvailableToPrimeAt),
@@ -262,6 +272,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNamePriceAreaIntlDest),
 	string(ServiceItemParamNamePriceAreaIntlOrigin),
 	string(ServiceItemParamNamePriceAreaOrigin),
+	string(ServiceItemParamNamePriceRateOrFactor),
 	string(ServiceItemParamNamePSILinehaulDom),
 	string(ServiceItemParamNamePSILinehaulDomPrice),
 	string(ServiceItemParamNamePSILinehaulShort),
@@ -283,7 +294,6 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameRateAreaNonStdDest),
 	string(ServiceItemParamNameRateAreaNonStdOrigin),
 	string(ServiceItemParamNameRequestedPickupDate),
-	string(ServiceItemParamNameActualPickupDate),
 	string(ServiceItemParamNameServiceAreaDest),
 	string(ServiceItemParamNameServiceAreaOrigin),
 	string(ServiceItemParamNameServicesScheduleDest),
@@ -291,19 +301,13 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
 	string(ServiceItemParamNameWeightActual),
-	string(ServiceItemParamNameFSCWeightBasedDistanceMultiplier),
 	string(ServiceItemParamNameWeightBilledActual),
 	string(ServiceItemParamNameWeightEstimated),
 	string(ServiceItemParamNameZipDestAddress),
 	string(ServiceItemParamNameZipPickupAddress),
-	string(ServiceItemParamNameZipSITAddress),
 	string(ServiceItemParamNameZipSITDestHHGFinalAddress),
-	string(ServiceItemParamNameZipSITOriginHHGOriginalAddress),
 	string(ServiceItemParamNameZipSITOriginHHGActualAddress),
-	string(ServiceItemParamNamePriceRateOrFactor),
-	string(ServiceItemParamNameEscalationCompounded),
-	string(ServiceItemParamNameIsPeak),
-	string(ServiceItemParamNameContractYearName),
+	string(ServiceItemParamNameZipSITOriginHHGOriginalAddress),
 }
 
 // ValidServiceItemParamTypes lists all valid service item param types

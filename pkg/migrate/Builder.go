@@ -95,7 +95,7 @@ func (b *Builder) Compile(s3Client *s3.S3, wait time.Duration) (*pop.Migration, 
 			})
 			if errGetObject != nil {
 				if aerr, ok := errGetObject.(awserr.Error); ok {
-					fmt.Println(fmt.Sprintf("AWS Error Code: %q, %q, %q", aerr.Code(), aerr.Message(), aerr.OrigErr()))
+					fmt.Printf("AWS Error Code: %q, %q, %q \n", aerr.Code(), aerr.Message(), aerr.OrigErr())
 				}
 				return errors.Wrap(errGetObject, fmt.Sprintf("error reading migration file at %q", m.Path))
 			}

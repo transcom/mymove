@@ -59,7 +59,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 				}
 
 				// these are domestic rates
-				if rateArea.IsOconus != false {
+				if rateArea.IsOconus {
 					rateArea.IsOconus = false
 					update = true
 				}
@@ -134,7 +134,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 				}
 
 				// these are domestic rates
-				if rateArea.IsOconus != false {
+				if rateArea.IsOconus {
 					rateArea.IsOconus = false
 					update = true
 				}
@@ -207,7 +207,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 			if rateArea != nil {
 				update := false
 
-				if rateArea.IsOconus != true {
+				if !rateArea.IsOconus {
 					rateArea.IsOconus = true
 					update = true
 				}

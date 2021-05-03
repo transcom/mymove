@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"testing"
@@ -42,33 +43,24 @@ func (suite *ProcessEDI824Suite) TestParsingEDI824() {
 	edi824Processor := NewEDI824Processor(suite.DB(), suite.logger)
 
 	suite.T().Run("successfully proccesses a valid EDI824", func(t *testing.T) {
-		sample824EDIString := `
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
-BGN*11*1126-9404*20210217
-OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
+BGN*11*%s*20210217
+OTI*TR*BM*%s*MILMOVE*8004171844*20210217**100001251*0001
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 SE*5*000000001
 GE*1*1
 IEA*1*000000995
-`
-		refID := "1126-9404"
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ReferenceID: &refID,
-			},
-		})
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: move.ID,
-			},
-		})
+`, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001251,
 				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi824Processor.ProcessFile("", sample824EDIString)
@@ -76,16 +68,17 @@ IEA*1*000000995
 	})
 
 	suite.T().Run("throw an error when edi824 is missing an OTI segment", func(t *testing.T) {
-		sample824EDIString := `
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
-BGN*11*1126-9404*20210217
+BGN*11*%s*20210217
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 SE*5*000000001
 GE*1*1
 IEA*1*000000995
-`
+`, paymentRequest.PaymentRequestNumber)
 		err := edi824Processor.ProcessFile("", sample824EDIString)
 		suite.Contains(err.Error(), "Validation error(s) detected with the EDI824. EDI Errors could not be saved")
 	})
@@ -102,49 +95,46 @@ IEA*1*000000995
 	})
 
 	suite.T().Run("throw an error when a payment request cannot be found with the OTI.GroupControlNumber", func(t *testing.T) {
-		sample824EDIString := `
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
-BGN*11*1126-9404*20210217
-OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001252*0001
+BGN*11*%s*20210217
+OTI*TR*BM*%s*MILMOVE*8004171844*20210217**100001252*0001
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 SE*5*000000001
 GE*1*1
 IEA*1*000000995
-`
+`, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
 		err := edi824Processor.ProcessFile("", sample824EDIString)
 		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
 	})
 
-	suite.T().Run("throw an error when a the BGN02 ref identification doesn't match the mto.RefID", func(t *testing.T) {
+	suite.T().Run("throw an error when a the BGN02 ref identification doesn't match the PaymentRequestNumber", func(t *testing.T) {
 		sample824EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
-BGN*11*1126-9404*20210217
+BGN*11*1126-9404-2*20210217
 OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001253*0001
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 SE*5*000000001
 GE*1*1
 IEA*1*000000995
 `
-		refID := "1126-9407"
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ReferenceID: &refID,
-			},
-		})
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001253,
 				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi824Processor.ProcessFile("", sample824EDIString)
-		suite.Contains(err.Error(), "The BGN02 Reference Identification field: 1126-9404 doesn't match the Reference ID")
+		suite.NotNil(err)
+		suite.Contains(err.Error(), fmt.Sprintf("The BGN02 Reference Identification field: 1126-9404-2 doesn't match the PaymentRequestNumber %s of the associated payment request", paymentRequest.PaymentRequestNumber))
 	})
 
 	suite.T().Run("throw error when parsing an EDI997 when an EDI824 is expected", func(t *testing.T) {
@@ -166,33 +156,24 @@ IEA*1*000000022
 	})
 
 	suite.T().Run("successfully updates a payment request status after processing a valid EDI824", func(t *testing.T) {
-		sample824EDIString := `
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000996*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
-BGN*11*1126-9414*20210217
-OTI*TR*BM*1126-9414*MILMOVE*8004171844*20210217**100001255*0001
+BGN*11*%s*20210217
+OTI*TR*BM*%s*MILMOVE*8004171844*20210217**100001255*0001
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 SE*5*000000001
 GE*1*1
 IEA*1*000000996
-`
-		refID := "1126-9414"
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ReferenceID: &refID,
-			},
-		})
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: move.ID,
-			},
-		})
+`, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001255,
 				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi824Processor.ProcessFile("", sample824EDIString)
@@ -209,17 +190,18 @@ IEA*1*000000996
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*0000005*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
-BGN*11*1126-9404*20210217
+BGN*11*1126-9404-1*20210217
 OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 SE*5*000000001
 GE*1*1
 IEA*1*00000005
 `
+
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 
 		err := edi824Processor.ProcessFile("", sample824EDIString)
-		suite.NoError(err)
+		suite.NotNil(err)
 
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
@@ -228,34 +210,25 @@ IEA*1*00000005
 	})
 
 	suite.T().Run("Save TED errors to the database", func(t *testing.T) {
-		sample824EDIString := `
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000997*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
-BGN*11*1126-9444*20210217
-OTI*TR*BM*1126-9444*MILMOVE*8004171844*20210217**100001252*0001
+BGN*11*%s*20210217
+OTI*TR*BM*%s*MILMOVE*8004171844*20210217**100001252*0001
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 TED*K*MISSING DATA
 SE*5*000000001
 GE*1*1
 IEA*1*000000997
-	`
-		refID := "1126-9444"
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ReferenceID: &refID,
-			},
-		})
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: move.ID,
-			},
-		})
+`, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001252,
 				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi824Processor.ProcessFile("", sample824EDIString)
@@ -282,33 +255,24 @@ func (suite *ProcessEDI824Suite) TestValidatingEDI824() {
 	edi824Processor := NewEDI824Processor(suite.DB(), suite.logger)
 
 	suite.T().Run("fails when there are validation errors on the EDI", func(t *testing.T) {
-		sample824EDIString := `
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *210217*1530*U*00401*2000000000*8*A*|
 GS*SA*MILMOVE*8004171844*20190903*1617*2000000000*X*004010
 ST*824*000000001
-BGN*19*1126-9444*20211313
-OTI*VA*MM*1126-9444*X*X*20211311**100001252*AB
+BGN*19*%s*20211313
+OTI*VA*MM*%s*X*X*20211311**100001252*AB
 TED*007*Missing Data
 SE*5*000000001
 GE*2*1
 IEA*1*000000001
-`
-		refID := "1126-9444"
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				ReferenceID: &refID,
-			},
-		})
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: move.ID,
-			},
-		})
+`, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001252,
 				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType858,
 			},
 		})
 

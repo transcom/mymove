@@ -96,7 +96,7 @@ func (s *NamedServer) IsReady() bool {
 func (s *NamedServer) WaitUntilReady() {
 	times := 0
 	// Wait for server to be ready
-	for s.IsReady() != true && times < 4 {
+	for !s.IsReady() && times < 4 {
 		times++
 		time.Sleep(500 * time.Millisecond)
 	}

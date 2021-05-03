@@ -1737,6 +1737,8 @@ definitions:
       - DistanceZipSITOrigin
       - EIAFuelPrice
       - EscalationCompounded
+      - FSCMultiplier
+      - FSCPriceDifferenceInCents
       - FSCWeightBasedDistanceMultiplier
       - IsPeak
       - MarketDest
@@ -1781,6 +1783,8 @@ definitions:
       - ZipDestAddress
       - ZipPickupAddress
       - ZipSITDestHHGFinalAddress
+      - ZipSITOriginHHGActualAddress
+      - ZipSITOriginHHGOriginalAddress
   ServiceItemParamOrigin:
     type: string
     enum:
