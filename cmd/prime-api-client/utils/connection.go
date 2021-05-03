@@ -81,6 +81,7 @@ func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (
 		}
 	}
 
+	// #nosec G402
 	verbose := cli.LogLevelIsDebug(v)
 	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
 	myRuntime := runtimeClient.NewWithClient(hostWithPort, primeClient.DefaultBasePath, []string{"https"}, httpClient)
@@ -145,6 +146,16 @@ func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, er
 		certPath := v.GetString(CertPathFlag)
 		keyPath := v.GetString(KeyPathFlag)
 
+		//RA Summary: gosec - G402 - Look for bad TLS connection settings
+		//RA: The linter is flagging this line of code because we are passing in a boolean value which can set InsecureSkipVerify to true.
+		//RA: In production, the value of this flag is always false. We are, however, using
+		//RA: this flag during local development to test the Prime API as further specified in the following docs:
+		//RA: * https://github.com/transcom/prime_api_deliverable/wiki/Getting-Started#run-prime-api-client
+		//RA: * https://github.com/transcom/mymove/wiki/How-to-Test-the-Prime-API-(Local,-Staging,-and-Experimental)#testing-locally
+		//RA Developer Status: Mitigated
+		//RA Validator Status: Mitigated
+		//RA Modified Severity: CAT III
+		// #nosec G402
 		var errRuntimeClientTLS error
 		httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{
 			Key:                keyPath,
