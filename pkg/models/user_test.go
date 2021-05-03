@@ -72,7 +72,8 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	suite.DB().Create(&newUser) // nolint:errcheck
+	// nolint:errcheck
+	suite.DB().Create(&newUser)
 	err := suite.DB().Create(&sameUser)
 
 	suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "constraint_name"), "Db should have errored on unique constraint for UUID")
