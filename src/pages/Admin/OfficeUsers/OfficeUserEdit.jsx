@@ -1,5 +1,15 @@
 import React from 'react';
-import { Edit, SimpleForm, TextInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
+import {
+  Edit,
+  SimpleForm,
+  TextInput,
+  SelectInput,
+  required,
+  Toolbar,
+  SaveButton,
+  AutocompleteInput,
+  ReferenceInput,
+} from 'react-admin';
 
 import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
@@ -28,6 +38,15 @@ const OfficeUserEdit = (props) => (
         ]}
       />
       <RolesCheckboxInput source="roles" />
+      <ReferenceInput
+        label="Transportation Office"
+        reference="offices"
+        source="transportationOfficeId"
+        perPage={500}
+        validate={required()}
+      >
+        <AutocompleteInput optionText="name" />
+      </ReferenceInput>
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />
     </SimpleForm>

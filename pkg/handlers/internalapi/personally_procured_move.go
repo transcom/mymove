@@ -97,8 +97,10 @@ type CreatePersonallyProcuredMoveHandler struct {
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
@@ -149,10 +151,11 @@ type IndexPersonallyProcuredMovesHandler struct {
 
 // Handle handles the request
 func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
-	// #nosec User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
@@ -267,10 +270,15 @@ type UpdatePersonallyProcuredMoveEstimateHandler struct {
 func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdatePersonallyProcuredMoveEstimateParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
-	// #nosec UUID is pattern matched by swagger and will be ok
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {
@@ -334,10 +342,15 @@ type PatchPersonallyProcuredMoveHandler struct {
 func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
-	// #nosec UUID is pattern matched by swagger and will be ok
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {
@@ -372,11 +385,12 @@ type SubmitPersonallyProcuredMoveHandler struct {
 func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonallyProcuredMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	// #nosec UUID is pattern matched by swagger and will be ok
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
-
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -413,8 +427,10 @@ type RequestPPMPaymentHandler struct {
 func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	// #nosec UUID is pattern matched by swagger and will be ok
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {
