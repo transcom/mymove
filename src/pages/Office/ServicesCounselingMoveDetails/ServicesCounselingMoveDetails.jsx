@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { GridContainer, Grid, Button, Alert } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import classnames from 'classnames';
 
-import DetailsTable from '../../../components/Office/DetailsTable/DetailsTable';
-import CustomerInfo from '../../../components/Office/CustomerInfo';
+import DetailsPanel from '../../../components/Office/DetailsPanel/DetailsPanel';
+import AllowancesList from '../../../components/Office/DefinitionLists/AllowancesList';
+import CustomerInfoList from '../../../components/Office/DefinitionLists/CustomerInfoList';
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
@@ -17,7 +18,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MOVES } from 'constants/queryKeys';
 import { MOVE_STATUSES } from 'shared/constants';
-import AllowancesTable from 'components/Office/AllowancesTable/AllowancesTable';
 
 const ServicesCounselingMoveDetails = () => {
   const { moveCode } = useParams();
@@ -101,24 +101,28 @@ const ServicesCounselingMoveDetails = () => {
             </Grid>
           </Grid>
           <div className={styles.section} id="allowances">
-            <GridContainer>
-              <Grid row gap>
-                <Grid col>
-                  <AllowancesTable info={allowancesInfo} showEditBtn />
-                </Grid>
-              </Grid>
-            </GridContainer>
+            <DetailsPanel
+              title="Allowances"
+              editButton={
+                <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                  Edit allowances
+                </Link>
+              }
+            >
+              <AllowancesList info={allowancesInfo} />
+            </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
-            <DetailsTable
+            <DetailsPanel
               title="Customer info"
-              editable
-              editTitle="Edit customer info"
-              editTestLabel="edit-customer-info"
-              editLinkLocation="#"
+              editButton={
+                <Link className="usa-button usa-button--secondary" data-testid="edit=customer-info" to="#">
+                  Edit customer info
+                </Link>
+              }
             >
-              <CustomerInfo customerInfo={customerInfo} />
-            </DetailsTable>
+              <CustomerInfoList customerInfo={customerInfo} />
+            </DetailsPanel>
           </div>
         </GridContainer>
       </div>

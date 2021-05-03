@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -27,7 +29,7 @@ type ListOrderParams struct {
 	LastName               *string
 	DestinationDutyStation *string
 	OriginGBLOC            *string
-	SubmittedAt            *string
+	SubmittedAt            *time.Time
 	RequestedMoveDate      *string
 	Status                 []string
 	Page                   *int64
