@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { bool, func } from 'prop-types';
@@ -20,11 +20,6 @@ import { HistoryShape } from 'types/customerShapes';
 
 const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete, history }) => {
   const [showEula, setShowEula] = useState(false);
-  useEffect(() => {
-    return () => {
-      history.replace('', null);
-    };
-  });
 
   if (!isLoggedIn) {
     return (
@@ -66,7 +61,7 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete
     logOut();
     LogoutUser().then(() => {
       console.log('logoutuser then -- LoginButton.jsx');
-      history.replace({
+      history.push({
         pathname: '/sign-in',
         state: { hasLoggedOut: true },
       });
@@ -92,7 +87,7 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete
           aria-label="Sign Out"
           className={styles.signOut}
           data-testid="signout"
-          onClick={() => handleLogOut}
+          onClick={handleLogOut}
           type="button"
         >
           Sign Out
@@ -107,7 +102,11 @@ LoginButton.propTypes = {
   logOut: func.isRequired,
   showDevlocalButton: bool.isRequired,
   isProfileComplete: bool.isRequired,
-  history: HistoryShape.isRequired,
+  history: HistoryShape,
+};
+
+LoginButton.defaultProps = {
+  history: { goBack: () => {}, push: () => {}, replace: () => {} },
 };
 
 function mapStateToProps(state) {

@@ -30,6 +30,34 @@ export async function GetIsLoggedIn() {
   return response.body;
 }
 
+/*
+export async function LogoutUser(timedout) {
+  const logoutEndpoint = '/auth/logout';
+  const req = {
+    url: logoutEndpoint,
+    method: 'POST',
+    credentials: 'same-origin', // Passes through CSRF cookies
+    requestInterceptor,
+  };
+  console.log('return swagger.http from LogoutUser');
+
+  try {
+    // Successful logout should return a redirect url
+    const resp = await Swagger.http(req);
+    console.log('LogoutUser after Swagger.http call');
+    history.replace({
+      pathname: '/sign-in',
+      state: { hasLoggedOut: true },
+    });
+    const redirectUrl = timedout ? qs.stringifyUrl({ url: resp.text, fragmentIdentifier: 'timedout' }) : resp.text;
+    window.location.href = redirectUrl;
+  } catch (err) {
+    // Failure to logout should return user to homepage
+    window.location.href = '/';
+  }
+}
+ */
+
 export function LogoutUser() {
   const logoutEndpoint = '/auth/logout';
   const req = {
@@ -40,16 +68,4 @@ export function LogoutUser() {
   };
   console.log('return swagger.http from LogoutUser');
   return Swagger.http(req);
-  /*
- TODO: timeout modification will be needed
- try {
-    // Successful logout should return a redirect url
-    const resp = await Swagger.http(req);
-    const redirectUrl = timedout ? qs.stringifyUrl({ url: resp.text, fragmentIdentifier: 'timedout' }) : resp.text;
-    window.location.href = redirectUrl;
-  } catch (err) {
-    // Failure to logout should return user to homepage
-    window.location.href = '/';
-  }
-  */
 }
