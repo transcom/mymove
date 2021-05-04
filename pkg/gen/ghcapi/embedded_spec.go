@@ -2933,6 +2933,11 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "approvedDate": {
           "type": "string",
           "format": "date"
@@ -7393,6 +7398,11 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "approvedDate": {
           "type": "string",
           "format": "date"

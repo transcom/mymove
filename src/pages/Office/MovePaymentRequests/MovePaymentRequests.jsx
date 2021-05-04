@@ -58,9 +58,7 @@ const MovePaymentRequests = ({
       shipmentsInfo.push({
         mtoShipmentID: shipment.id,
         shipmentAddress: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
-
-        // TODO Update with actual pickup date once it is returned
-        departureDate: shipment.scheduledPickupDate,
+        departureDate: shipment.actualPickupDate,
       });
     });
   }
