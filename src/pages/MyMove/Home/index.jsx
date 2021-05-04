@@ -4,6 +4,7 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -430,9 +431,11 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => ({
 });
 
 export default withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-    mergeProps,
-  )(requireCustomerState(Home, profileStates.BACKUP_CONTACTS_COMPLETE)),
+  withRouter(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps,
+      mergeProps,
+    )(requireCustomerState(Home, profileStates.BACKUP_CONTACTS_COMPLETE)),
+  ),
 );
