@@ -1478,6 +1478,7 @@ definitions:
           - SUBMITTED
           - REJECTED
           - CANCELLATION_REQUESTED
+          - DIVERSION_REQUESTED
       rejectionReason:
         type: string
         readOnly: true
