@@ -66,9 +66,9 @@
     "redux-thunk": "^2.2.0",
     "regenerator-runtime": "^0.13.7",
     "reselect": "^4.0.0",
+    "swagger-client": "^3.13.2",
     "swagger-ui-dist": "^3.47.1",
     "uswds": "2.10.3",
-    "swagger-client": "^3.13.2",
     "uuid": "^8.3.2",
     "yup": "^0.32.9"
   },
@@ -102,7 +102,9 @@
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions",
     "spellcheck": "mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions",
-    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts"
+    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
+    "zeplin-connect": "zeplin connect",
+    "zeplin-connect-dev-mode": "zeplin connect --dev"
   },
   "version": "0.1.0",
   "devDependencies": {
@@ -121,6 +123,9 @@
     "@testing-library/react-hooks": "^5.1.2",
     "@testing-library/user-event": "^13.1.5",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.1",
+    "@zeplin/cli": "1.1.11",
+    "@zeplin/cli-connect-react-plugin": "1.1.1",
+    "@zeplin/cli-connect-storybook-plugin": "0.5.3",
     "cypress": "^7.2.0",
     "cypress-audit": "^0.3.0",
     "cypress-wait-until": "^1.7.1",
