@@ -28,8 +28,8 @@ describe('Office App', () => {
       expect(wrapper.find('SomethingWentWrong')).toHaveLength(0);
     });
 
-    it('renders the basic header by default', () => {
-      expect(wrapper.find('QueueHeader')).toHaveLength(1);
+    it('renders the logged out header by default', () => {
+      expect(wrapper.find('LoggedOutHeader')).toHaveLength(1);
     });
 
     it('fetches initial data', () => {

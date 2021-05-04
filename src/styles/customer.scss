@@ -2,8 +2,16 @@
 
 .my-move-container,
 .my-move .usa-footer {
-    background-color: $bg-white;
-    @media (min-width:$tablet) {
-        background-color: $bg-gray;
-    }
+  background-color: $bg-white;
+  @media (min-width: $tablet) {
+    background-color: $bg-gray;
+  }
+}
+
+@media print {
+  .my-move header,
+  .my-move nav,
+  .my-move footer {
+    display: none;
+  }
 }

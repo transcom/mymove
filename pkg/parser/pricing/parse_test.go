@@ -412,5 +412,6 @@ func (suite *PricingParserSuite) helperTestExpectedFileOutput(goldenFilename str
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	os.Remove(currentOutputFilename) // nolint:errcheck
+	// nolint:errcheck
+	os.Remove(currentOutputFilename)
 }
