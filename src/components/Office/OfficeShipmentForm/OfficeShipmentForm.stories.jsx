@@ -45,7 +45,8 @@ const defaultProps = {
 const mockMtoShipment = {
   id: 'mock id',
   moveTaskOrderId: 'mock move id',
-  customerRemarks: 'mock remarks',
+  customerRemarks: 'mock customer remarks',
+  counselorRemarks: 'mock counselor remarks',
   requestedPickupDate: '2020-03-01',
   requestedDeliveryDate: '2020-03-30',
   agents: [

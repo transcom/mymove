@@ -2,7 +2,17 @@ import React from 'react';
 import { bool, string, func, shape, number } from 'prop-types';
 import { Formik, Field } from 'formik';
 import { generatePath } from 'react-router';
-import { Fieldset, Radio, Checkbox, Alert, FormGroup, Textarea, GridContainer, Grid } from '@trussworks/react-uswds';
+import {
+  Fieldset,
+  Radio,
+  Checkbox,
+  Alert,
+  FormGroup,
+  Label,
+  Textarea,
+  GridContainer,
+  Grid,
+} from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import styles from '../../Customer/MtoShipmentForm/MtoShipmentForm.module.scss';
@@ -252,14 +262,12 @@ const OfficeShipmentForm = ({
                               <AddressFields name="delivery.address" render={(fields) => <>{fields}</>} />
                             ) : (
                               <p>
-                                We can use the zip of your new duty station.
+                                We can use the zip of their new duty station:
                                 <br />
                                 <strong>
                                   {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
                                   {newDutyStationAddress.postal_code}{' '}
                                 </strong>
-                                <br />
-                                You can add the specific delivery address later, once you know it.
                               </p>
                             )}
                           </Fieldset>
@@ -292,6 +300,7 @@ const OfficeShipmentForm = ({
 
                     <SectionWrapper className={styles.formSection}>
                       <Fieldset legend={<div className={styles.legendContent}>Remarks {optionalLabel}</div>}>
+                        <Label htmlFor="customerRemarks">Customer remarks</Label>
                         <Field
                           as={Textarea}
                           data-testid="remarks"
@@ -305,6 +314,7 @@ const OfficeShipmentForm = ({
                           <p>500 characters</p>
                         </Hint>
 
+                        <Label htmlFor="counselorRemarks">Counselor remarks</Label>
                         <Field
                           as={Textarea}
                           data-testid="counselor-remarks"
@@ -323,7 +333,7 @@ const OfficeShipmentForm = ({
                     <div className={styles.formActions}>
                       <WizardNavigation
                         disableNext={isSubmitting || !isValid}
-                        editMode={!isCreatePage}
+                        editMode
                         onNextClick={handleSubmit}
                         onBackClick={history.goBack}
                         onCancelClick={history.goBack}
@@ -368,6 +378,7 @@ OfficeShipmentForm.defaultProps = {
   mtoShipment: {
     id: '',
     customerRemarks: '',
+    counselorRemarks: '',
     requestedPickupDate: '',
     requestedDeliveryDate: '',
     destinationAddress: {

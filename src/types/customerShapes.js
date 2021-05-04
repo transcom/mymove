@@ -84,6 +84,7 @@ export const MtoShipmentFormValuesShape = shape({
 export const MtoShipmentShape = shape({
   agents: arrayOf(MtoAgentShape),
   customerRemarks: string,
+  counselorRemarks: string,
   shipmentType: string,
   requestedPickupDate: string,
   pickupAddress: AddressShape,
