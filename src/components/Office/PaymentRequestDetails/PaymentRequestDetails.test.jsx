@@ -204,6 +204,7 @@ describe('PaymentRequestDetails', () => {
 
     it('does not render the Depature Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' }).length).toBe(0);
+      expect(wrapper.find('.stackedtable-header p').contains('Departed')).toBe(false);
     });
   });
 
@@ -239,7 +240,7 @@ describe('PaymentRequestDetails', () => {
     );
 
     it('renders the expected table title', () => {
-      expect(wrapper.text().includes('Household goods (6 items)')).toBeTruthy();
+      expect(wrapper.text().includes('HHG (6 items)')).toBeTruthy();
     });
 
     it('does renders the Departure Date, Pickup Address, and Destination Address', async () => {
