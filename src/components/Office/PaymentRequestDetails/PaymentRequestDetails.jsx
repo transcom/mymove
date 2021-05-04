@@ -7,6 +7,7 @@ import styles from './PaymentRequestDetails.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
+import { formatDateFromIso } from 'shared/formatters';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 
 const shipmentHeadingAndStyle = (mtoShipmentType) => {
@@ -17,7 +18,7 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
     case SHIPMENT_OPTIONS.HHG:
     case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
     case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
-      return ['Household goods', styles.hhgShipmentType];
+      return ['HHG', styles.hhgShipmentType];
     case SHIPMENT_OPTIONS.NTS:
       return ['Non-temp storage', styles.ntsrShipmentType];
     case SHIPMENT_OPTIONS.NTSR:
@@ -40,12 +41,12 @@ const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAd
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
             </h3>
           </div>
-          {/* This is where I need to add the destination information */}
-          {/* <div>{shipmentAddress !== '' && <p data-testid="pickup-to-destination">{shipmentAddress}</p>}</div> */}
           <div>
             {shipmentAddress !== '' && (
               <p data-testid="pickup-to-destination">
-                Departed {shipmentDepartureDate} {shipmentAddress}
+                <small>
+                  <b>Departed {formatDateFromIso(shipmentDepartureDate, 'DD MMM YYYY')}</b> {shipmentAddress}
+                </small>
               </p>
             )}
           </div>
