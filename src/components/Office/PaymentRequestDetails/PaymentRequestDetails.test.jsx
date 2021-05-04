@@ -160,6 +160,7 @@ const shipmentAddressBasic = '';
 const shipmentAddressHHG = 'Beverly Hills, CA 90210 to Fairfield, CA 94535';
 const shipmentAddressNTS = 'Boston, MA 02101 to Princeton, NJ 08540';
 const shipmentDepartureDate = '2020-12-01T00:00:00.000Z';
+const shipmentDepartureDateBasic = '';
 
 const testMoveLocator = 'AF7K1P';
 
@@ -170,7 +171,7 @@ describe('PaymentRequestDetails', () => {
         <PaymentRequestDetails
           serviceItems={basicServiceItems}
           shipmentAddress={shipmentAddressBasic}
-          shipmentDepartureDate={shipmentDepartureDate}
+          shipmentDepartureDate={shipmentDepartureDateBasic}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
         />
       </MockProviders>,
@@ -202,9 +203,9 @@ describe('PaymentRequestDetails', () => {
       expect(serviceItemStatuses.at(1).text().includes('Rejected')).toBeTruthy();
     });
 
-    it('does not render the Depature Date, Pickup Address, and Destination Address', async () => {
+    it('does not render the Departure Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' }).length).toBe(0);
-      expect(wrapper.find('.stackedtable-header p').contains('Departed')).toBe(false);
+      expect(wrapper.find({ 'data-testid': 'departure-date' }).length).toBe(0);
     });
   });
 
@@ -224,6 +225,7 @@ describe('PaymentRequestDetails', () => {
 
     it('does not render the Departure Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' }).length).toBe(0);
+      expect(wrapper.find({ 'data-testid': 'departure-date' }).length).toBe(0);
     });
   });
 
@@ -248,6 +250,7 @@ describe('PaymentRequestDetails', () => {
       expect(
         wrapper.find({ 'data-testid': 'pickup-to-destination' }).at(0).text().includes('Fairfield, CA 94535'),
       ).toBeTruthy();
+      expect(wrapper.find({ 'data-testid': 'departure-date' }).text().includes('Departed')).toBeTruthy();
     });
 
     it('renders the service item names', () => {
@@ -302,6 +305,7 @@ describe('PaymentRequestDetails', () => {
       expect(
         wrapper.find({ 'data-testid': 'pickup-to-destination' }).at(0).text().includes('Princeton, NJ 08540'),
       ).toBeTruthy();
+      expect(wrapper.find({ 'data-testid': 'departure-date' }).text().includes('Departed')).toBeTruthy();
     });
 
     it('renders the service item names', () => {

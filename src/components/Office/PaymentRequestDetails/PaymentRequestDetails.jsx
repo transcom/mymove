@@ -45,7 +45,7 @@ const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAd
             <p>
               <small>
                 {shipmentDepartureDate !== '' && (
-                  <b>Departed {formatDateFromIso(shipmentDepartureDate, 'DD MMM YYYY')}</b>
+                  <b data-testid="departure-date">Departed {formatDateFromIso(shipmentDepartureDate, 'DD MMM YYYY')}</b>
                 )}{' '}
                 {shipmentAddress !== '' && <span data-testid="pickup-to-destination">{shipmentAddress}</span>}
               </small>

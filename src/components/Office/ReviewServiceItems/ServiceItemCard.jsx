@@ -20,6 +20,9 @@ import { allowedServiceItemCalculations } from 'constants/serviceItems';
 const ServiceItemCard = ({
   id,
   mtoShipmentType,
+  mtoShipmentDepartureDate,
+  mtoShipmentPickupAddress,
+  mtoShipmentDestinationAddress,
   mtoServiceItemCode,
   mtoServiceItemName,
   amount,
@@ -68,6 +71,13 @@ const ServiceItemCard = ({
       <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
         <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
           <h6 className={styles.cardHeader}>{mtoShipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
+          <p>
+            <small>
+              Departed {mtoShipmentDepartureDate}
+              From {mtoShipmentPickupAddress}
+              To {mtoShipmentDestinationAddress}
+            </small>
+          </p>
           <dl>
             <dt>Service item</dt>
             <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
@@ -215,6 +225,9 @@ ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
   mtoServiceItemCode: PropTypes.string.isRequired,
   mtoShipmentType: ShipmentOptionsOneOf,
+  mtoShipmentDepartureDate: PropTypes.string,
+  mtoShipmentDestinationAddress: PropTypes.string,
+  mtoShipmentPickupAddress: PropTypes,
   mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number.isRequired,
   status: PropTypes.string,
@@ -226,6 +239,9 @@ ServiceItemCard.propTypes = {
 
 ServiceItemCard.defaultProps = {
   mtoShipmentType: null,
+  mtoShipmentDepartureDate: '',
+  mtoShipmentDestinationAddress: '',
+  mtoShipmentPickupAddress: '',
   mtoServiceItemName: null,
   status: undefined,
   rejectionReason: '',

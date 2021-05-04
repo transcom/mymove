@@ -17,9 +17,14 @@ import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 export const PaymentRequestReview = ({ history, match }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
   const { paymentRequestId, moveCode } = match.params;
-  const { paymentRequest, paymentRequests, paymentServiceItems, isLoading, isError } = usePaymentRequestQueries(
-    paymentRequestId,
-  );
+  const {
+    paymentRequest,
+    paymentRequests,
+    paymentServiceItems,
+    mtoShipments,
+    isLoading,
+    isError,
+  } = usePaymentRequestQueries(paymentRequestId);
 
   const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
     onSuccess: (data, variables) => {
@@ -99,20 +104,27 @@ export const PaymentRequestReview = ({ history, match }) => {
     history.push(`/moves/${moveCode}/payment-requests`);
   };
 
-  const serviceItemCards = paymentServiceItemsArr.map((item) => {
-    return {
-      id: item.id,
-      mtoShipmentID: item.mtoShipmentID,
-      mtoShipmentType: item.mtoShipmentType,
-      mtoServiceItemCode: item.mtoServiceItemCode,
-      mtoServiceItemName: item.mtoServiceItemName,
-      amount: item.priceCents ? item.priceCents / 100 : 0,
-      createdAt: item.createdAt,
-      status: item.status,
-      rejectionReason: item.rejectionReason,
-      paymentServiceItemParams: item.paymentServiceItemParams,
-    };
-  });
+  const serviceItemCards = () => {
+    paymentServiceItemsArr.map((item) => {
+      const selectedShipment = mtoShipments.find((shipment) => shipment.id === item.mtoShipmentID);
+
+      return {
+        id: item.id,
+        mtoShipmentID: item.mtoShipmentID,
+        mtoShipmentType: item.mtoShipmentType,
+        mtoShipmentDepartureDate: selectedShipment.actualPickupDate,
+        mtoShipmentPickupAddress: selectedShipment.pickupAddress,
+        mtoShipmentDestinationAddress: selectedShipment.destinationAddress,
+        mtoServiceItemCode: item.mtoServiceItemCode,
+        mtoServiceItemName: item.mtoServiceItemName,
+        amount: item.priceCents ? item.priceCents / 100 : 0,
+        createdAt: item.createdAt,
+        status: item.status,
+        rejectionReason: item.rejectionReason,
+        paymentServiceItemParams: item.paymentServiceItemParams,
+      };
+    });
+  };
 
   return (
     <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>
