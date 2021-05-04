@@ -2,18 +2,12 @@ package move
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
 
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
-
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -53,17 +47,7 @@ func (router moveRouter) Submit(move *models.Move) error {
 // You'll need to update the test setup in TestSubmitMoveForServiceCounselingHandler
 // so that the move's origin duty station will trigger service counseling.
 func (router moveRouter) needsServiceCounseling() bool {
-	logger := zap.NewNop()
-	flag := pflag.CommandLine
-	v := viper.New()
-	err := v.BindPFlags(flag)
-	if err != nil {
-		logger.Fatal("could not bind flags", zap.Error(err))
-	}
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-
-	return v.GetBool(cli.FeatureFlagServiceCounseling)
+	return false
 }
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
