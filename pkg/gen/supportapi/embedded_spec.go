@@ -2231,7 +2231,8 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "DIVERSION_REQUESTED"
           ]
         }
       }
@@ -4915,7 +4916,8 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "DIVERSION_REQUESTED"
           ]
         }
       }
