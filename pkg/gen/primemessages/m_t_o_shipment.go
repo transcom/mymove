@@ -47,6 +47,9 @@ type MTOShipment struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+	// diversion
+	Diversion bool `json:"diversion,omitempty"`
+
 	// e tag
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
@@ -147,6 +150,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+		Diversion bool `json:"diversion,omitempty"`
+
 		ETag string `json:"eTag,omitempty"`
 
 		FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
@@ -221,6 +226,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 	// destinationAddress
 	result.DestinationAddress = data.DestinationAddress
+
+	// diversion
+	result.Diversion = data.Diversion
 
 	// eTag
 	result.ETag = data.ETag
@@ -301,6 +309,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+		Diversion bool `json:"diversion,omitempty"`
+
 		ETag string `json:"eTag,omitempty"`
 
 		FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
@@ -349,6 +359,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		CustomerRemarks: m.CustomerRemarks,
 
 		DestinationAddress: m.DestinationAddress,
+
+		Diversion: m.Diversion,
 
 		ETag: m.ETag,
 

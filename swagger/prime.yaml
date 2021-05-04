@@ -1479,6 +1479,8 @@ definitions:
           - REJECTED
           - CANCELLATION_REQUESTED
           - DIVERSION_REQUESTED
+      diversion:
+        type: boolean
       rejectionReason:
         type: string
         readOnly: true

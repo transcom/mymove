@@ -1644,6 +1644,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -4273,6 +4276,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean"
         },
         "eTag": {
           "type": "string",

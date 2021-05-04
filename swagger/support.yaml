@@ -1393,6 +1393,8 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+      diversion:
+        type: boolean
       rejectionReason:
         type: string
         readOnly: true
@@ -1775,6 +1777,8 @@ definitions:
           - SUBMITTED
           - CANCELLATION_REQUESTED
           - DIVERSION_REQUESTED
+      diversion:
+        type: boolean
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
