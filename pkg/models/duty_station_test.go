@@ -16,42 +16,37 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	suite.MustSave(&address)
 
 	station1 := models.DutyStation{
-		Name:                       "Fort Bragg",
-		Affiliation:                internalmessages.AffiliationARMY,
-		AddressID:                  address.ID,
-		RequiresServicesCounseling: false,
+		Name:        "Fort Bragg",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.MustSave(&station1)
 
 	station2 := models.DutyStation{
-		Name:                       "Fort Belvoir",
-		Affiliation:                internalmessages.AffiliationARMY,
-		AddressID:                  address.ID,
-		RequiresServicesCounseling: false,
+		Name:        "Fort Belvoir",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.MustSave(&station2)
 
 	station3 := models.DutyStation{
-		Name:                       "Davis Monthan AFB",
-		Affiliation:                internalmessages.AffiliationARMY,
-		AddressID:                  address.ID,
-		RequiresServicesCounseling: false,
+		Name:        "Davis Monthan AFB",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.MustSave(&station3)
 
 	station4 := models.DutyStation{
-		Name:                       "JB Elmendorf-Richardson",
-		Affiliation:                internalmessages.AffiliationARMY,
-		AddressID:                  address.ID,
-		RequiresServicesCounseling: false,
+		Name:        "JB Elmendorf-Richardson",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.MustSave(&station4)
 
 	station5 := models.DutyStation{
-		Name:                       "NAS Fallon",
-		Affiliation:                internalmessages.AffiliationARMY,
-		AddressID:                  address.ID,
-		RequiresServicesCounseling: false,
+		Name:        "NAS Fallon",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.MustSave(&station5)
 
@@ -62,10 +57,9 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	suite.MustSave(&s5)
 
 	station6 := models.DutyStation{
-		Name:                       "NAS Fort Worth JRB",
-		Affiliation:                internalmessages.AffiliationARMY,
-		AddressID:                  address.ID,
-		RequiresServicesCounseling: false,
+		Name:        "NAS Fort Worth JRB",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.MustSave(&station6)
 	s6 := models.DutyStationName{
