@@ -7,6 +7,21 @@ type ValidationData interface {
 	getVerrs() error
 }
 
+// ValidationFunc is a type representing the signature for a function that validates a service/model
+type ValidationFunc func() error
+
+// CheckValidationData runs through a list of ValidationFuncs to check for errors
+func CheckValidationData(checks []ValidationFunc) error {
+	var err error
+	for _, check := range checks {
+		err = check()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // SetOptionalDateTimeField sets the correct new value for the updated date field. Can be nil.
 func SetOptionalDateTimeField(newDate *time.Time, oldDate *time.Time) *time.Time {
 	// check if the user wanted to keep this field the same:

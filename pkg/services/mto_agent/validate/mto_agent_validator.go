@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // BasicAgentValidatorKey is the key for generic validation on the Agent
@@ -12,50 +13,51 @@ const BasicAgentValidatorKey string = "BasicAgentValidatorKey"
 // PrimeAgentValidatorKey is the key for validating the Agent for the Prime contractor
 const PrimeAgentValidatorKey string = "PrimeAgentValidatorKey"
 
+// PrimeAvailableAgentValidatorKey is the key for validating an Agent that we already know is Prime-available
+const PrimeAvailableAgentValidatorKey string = "PrimeAvailableAgentValidatorKey"
+
 // agentValidators is the map connecting the constant keys to the correct validator
-// NOTE: This and the following Validate functions are not exportable so that devs will be forced to call them through
+// NOTE: This and the following validate functions are not exportable so that devs will be forced to call them through
 // the ValidateAgent function, which is more complete.
-var agentValidators = map[string]func(agentData *AgentValidationData) error{
-	BasicAgentValidatorKey: basicValidate,
-	PrimeAgentValidatorKey: primeValidate,
+var agentValidators = map[string]agentValidator{
+	BasicAgentValidatorKey:          new(basicAgentValidator),
+	PrimeAgentValidatorKey:          new(primeAgentValidator),
+	PrimeAvailableAgentValidatorKey: primeAgentValidator{isAvailableToPrime: true},
 }
 
-// basicValidate performs the necessary checks for validation that should happen no matter who uses this service object
-func basicValidate(agentData *AgentValidationData) error {
-	err := agentData.checkShipmentID()
-	if err != nil {
-		return err
-	}
-	err = agentData.checkAgentID()
-	if err != nil {
-		return err
-	}
-	return nil
+type agentValidator interface {
+	validate(agentData *AgentValidationData) error
 }
 
-// primeValidate peforms the necessary functions to validate agent data submitted by the Prime contractor
-func primeValidate(agentData *AgentValidationData) error {
-	err := basicValidate(agentData) // I don't HAVE to extend the basic validation, but in this case, it's helpful
-	if err != nil {
-		return err
+// basicAgentValidator is the type for validation that should happen no matter who uses this service object
+type basicAgentValidator struct{}
+
+func (v basicAgentValidator) validate(agentData *AgentValidationData) error {
+	checks := []services.ValidationFunc{
+		agentData.checkShipmentID,
+		agentData.checkAgentID,
 	}
-	err = agentData.checkPrimeAvailability()
-	if err != nil {
-		return err
+	return services.CheckValidationData(checks)
+}
+
+// primeAgentValidator is the type for validation of agent data submitted by the Prime contractor
+type primeAgentValidator struct {
+	// isAvailableToPrime allows us to tell the validator if we already know the agent's availability to the Prime.
+	// checkPrimeAvailability hits the DB, so it's convenient to skip that check if we already know its status.
+	isAvailableToPrime bool
+}
+
+func (v primeAgentValidator) validate(agentData *AgentValidationData) error {
+	checks := []services.ValidationFunc{
+		agentData.checkShipmentID,
+		agentData.checkAgentID,
+		agentData.checkContactInfo,
+		agentData.checkAgentType,
 	}
-	err = agentData.checkContactInfo()
-	if err != nil {
-		return err
+	if !v.isAvailableToPrime {
+		checks = append(checks, agentData.checkPrimeAvailability)
 	}
-	err = agentData.checkAgentType()
-	if err != nil {
-		return err
-	}
-	err = agentData.getVerrs()
-	if err != nil {
-		return err
-	}
-	return nil
+	return services.CheckValidationData(checks)
 }
 
 // ValidateAgent checks the provided agentData struct against the validator indicated by validatorKey.
@@ -70,7 +72,7 @@ func ValidateAgent(agentData *AgentValidationData, validatorKey string) (*models
 		err := fmt.Errorf("could not find agent validator with key %s", validatorKey)
 		return nil, err
 	}
-	err := validator(agentData)
+	err := validator.validate(agentData)
 	if err != nil {
 		return nil, err
 	}
