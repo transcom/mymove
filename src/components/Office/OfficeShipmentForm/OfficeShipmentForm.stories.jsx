@@ -3,7 +3,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import OfficeHHGShipmentForm from './OfficeHHGShipmentForm';
+import OfficeShipmentForm from './OfficeShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { history, store } from 'shared/store';
@@ -86,7 +86,7 @@ function renderStory(props) {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <OfficeHHGShipmentForm {...defaultProps} {...props} />
+        <OfficeShipmentForm {...defaultProps} {...props} />
       </ConnectedRouter>
     </Provider>
   );

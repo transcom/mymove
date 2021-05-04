@@ -2,17 +2,7 @@ import React from 'react';
 import { bool, string, func, shape, number } from 'prop-types';
 import { Formik, Field } from 'formik';
 import { generatePath } from 'react-router';
-import {
-  Fieldset,
-  Radio,
-  Checkbox,
-  Alert,
-  FormGroup,
-  Label,
-  Textarea,
-  GridContainer,
-  Grid,
-} from '@trussworks/react-uswds';
+import { Fieldset, Radio, Checkbox, Alert, FormGroup, Textarea, GridContainer, Grid } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import styles from '../../Customer/MtoShipmentForm/MtoShipmentForm.module.scss';
@@ -23,7 +13,6 @@ import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MatchShape, HistoryShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 import { createMTOShipment, patchMTOShipment, getResponseError } from 'services/internalApi';
-import { shipmentForm } from 'content/shipments';
 import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
@@ -34,7 +23,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 
-const OfficeHHGSHipmentForm = ({
+const OfficeShipmentForm = ({
   match,
   history,
   newDutyStationAddress,
@@ -173,12 +162,14 @@ const OfficeHHGSHipmentForm = ({
                 <div className={styles.MTOShipmentForm}>
                   <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
 
-                  <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
+                  <h1>Edit shipment details</h1>
 
-                  <Alert type="info" noIcon>
-                    Remember: You can move {serviceMember.weight_allotment.total_weight_self} lbs total. You’ll be
-                    billed for any excess weight you move.
-                  </Alert>
+                  <SectionWrapper className={styles.formSection}>
+                    <p>
+                      <strong>Weight Allowance: </strong>
+                      {serviceMember.weight_allotment.total_weight_self} lbs
+                    </p>
+                  </SectionWrapper>
 
                   <Form className={styles.form}>
                     {showPickupFields && (
@@ -192,12 +183,6 @@ const OfficeHHGSHipmentForm = ({
                               id="requestedPickupDate"
                               validate={validateDate}
                             />
-                            <Hint id="pickupDateHint">
-                              <p>
-                                Movers will contact you to schedule the actual pickup date. That date should fall within
-                                7 days of your requested date. Tip: Avoid scheduling multiple shipments on the same day.
-                              </p>
-                            </Hint>
                           </Fieldset>
 
                           <AddressFields
@@ -213,12 +198,6 @@ const OfficeHHGSHipmentForm = ({
                                   id="useCurrentResidenceCheckbox"
                                 />
                                 {fields}
-                                <Hint>
-                                  <p>
-                                    If you have more things at another pickup location, you can schedule a shipment for
-                                    them later.
-                                  </p>
-                                </Hint>
                               </>
                             )}
                           />
@@ -226,12 +205,7 @@ const OfficeHHGSHipmentForm = ({
                           <ContactInfoFields
                             name="pickup.agent"
                             legend={<div className={styles.legendContent}>Releasing agent {optionalLabel}</div>}
-                            render={(fields) => (
-                              <>
-                                <p>Who can let the movers pick up your things if you’re not there?</p>
-                                {fields}
-                              </>
-                            )}
+                            render={(fields) => <>{fields}</>}
                           />
                         </SectionWrapper>
                       </>
@@ -248,17 +222,11 @@ const OfficeHHGSHipmentForm = ({
                               id="requestedDeliveryDate"
                               validate={validateDate}
                             />
-                            <Hint>
-                              <p>
-                                Shipments can take several weeks to arrive, depending on how far they’re going. Your
-                                movers will contact you close to the date you select to coordinate delivery.
-                              </p>
-                            </Hint>
                           </Fieldset>
 
                           <Fieldset legend="Delivery location">
                             <FormGroup>
-                              <p>Do you know your delivery address yet?</p>
+                              <p>Does the customer know their delivery address yet?</p>
                               <div className={styles.radioGroup}>
                                 <Field
                                   as={Radio}
@@ -281,20 +249,7 @@ const OfficeHHGSHipmentForm = ({
                               </div>
                             </FormGroup>
                             {hasDeliveryAddress === 'yes' ? (
-                              <AddressFields
-                                name="delivery.address"
-                                render={(fields) => (
-                                  <>
-                                    {fields}
-                                    <Hint>
-                                      <p>
-                                        If you have more things to go to another destination, you can schedule a
-                                        shipment for them later.
-                                      </p>
-                                    </Hint>
-                                  </>
-                                )}
-                              />
+                              <AddressFields name="delivery.address" render={(fields) => <>{fields}</>} />
                             ) : (
                               <p>
                                 We can use the zip of your new duty station.
@@ -312,12 +267,7 @@ const OfficeHHGSHipmentForm = ({
                           <ContactInfoFields
                             name="delivery.agent"
                             legend={<div className={styles.legendContent}>Receiving agent {optionalLabel}</div>}
-                            render={(fields) => (
-                              <>
-                                <p>Who can take delivery for you if the movers arrive and you’re not there?</p>
-                                {fields}
-                              </>
-                            )}
+                            render={(fields) => <>{fields}</>}
                           />
                         </SectionWrapper>
                       </>
@@ -342,41 +292,33 @@ const OfficeHHGSHipmentForm = ({
 
                     <SectionWrapper className={styles.formSection}>
                       <Fieldset legend={<div className={styles.legendContent}>Remarks {optionalLabel}</div>}>
-                        <Label htmlFor="customerRemarks">
-                          Is there anything special about this shipment that the movers should know?
-                        </Label>
-
-                        <div className={styles.remarksExamples}>
-                          Examples
-                          <ul>
-                            <li>Things that might need special handling</li>
-                            <li>Access info for a location</li>
-                            <li>Weapons or alcohol</li>
-                          </ul>
-                        </div>
-
                         <Field
                           as={Textarea}
                           data-testid="remarks"
                           name="customerRemarks"
                           className={`${styles.remarks}`}
-                          placeholder="You don’t need to list all your belongings here. Your mover will get those details later."
+                          placeholder=""
                           id="customerRemarks"
-                          maxLength={250}
+                          maxLength={500}
                         />
                         <Hint>
-                          <p>250 characters</p>
+                          <p>500 characters</p>
+                        </Hint>
+
+                        <Field
+                          as={Textarea}
+                          data-testid="counselor-remarks"
+                          name="counselorRemarks"
+                          className={`${styles.remarks}`}
+                          placeholder=""
+                          id="counselorRemarks"
+                          maxLength={500}
+                        />
+                        <Hint>
+                          <p>500 characters</p>
                         </Hint>
                       </Fieldset>
                     </SectionWrapper>
-
-                    <Hint>
-                      <p>
-                        You can change details for your shipment when you talk to your move counselor or the person
-                        who’s your point of contact with the movers. You can also edit in MilMove up to 24 hours before
-                        your final pickup date.
-                      </p>
-                    </Hint>
 
                     <div className={styles.formActions}>
                       <WizardNavigation
@@ -398,7 +340,7 @@ const OfficeHHGSHipmentForm = ({
   );
 };
 
-OfficeHHGSHipmentForm.propTypes = {
+OfficeShipmentForm.propTypes = {
   match: MatchShape,
   history: HistoryShape,
   updateMTOShipment: func.isRequired,
@@ -414,7 +356,7 @@ OfficeHHGSHipmentForm.propTypes = {
   }).isRequired,
 };
 
-OfficeHHGSHipmentForm.defaultProps = {
+OfficeShipmentForm.defaultProps = {
   isCreatePage: false,
   match: { isExact: false, params: { moveID: '' } },
   history: { goBack: () => {}, push: () => {} },
@@ -437,4 +379,4 @@ OfficeHHGSHipmentForm.defaultProps = {
   },
 };
 
-export default OfficeHHGSHipmentForm;
+export default OfficeShipmentForm;
