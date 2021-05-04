@@ -202,7 +202,7 @@ describe('PaymentRequestDetails', () => {
       expect(serviceItemStatuses.at(1).text().includes('Rejected')).toBeTruthy();
     });
 
-    it('does not render the Pickup Address and Destination Address', async () => {
+    it('does not render the Depature Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' }).length).toBe(0);
     });
   });
@@ -221,7 +221,7 @@ describe('PaymentRequestDetails', () => {
       expect(wrapper.text().includes('Basic service items (1 item)')).toBeTruthy();
     });
 
-    it('does not render the Pickup Address and Destination Address', async () => {
+    it('does not render the Departure Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' }).length).toBe(0);
     });
   });
@@ -242,7 +242,7 @@ describe('PaymentRequestDetails', () => {
       expect(wrapper.text().includes('Household goods (6 items)')).toBeTruthy();
     });
 
-    it('does renders the Pickup Address and Destination Address', async () => {
+    it('does renders the Departure Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' })).toBeTruthy();
       expect(
         wrapper.find({ 'data-testid': 'pickup-to-destination' }).at(0).text().includes('Fairfield, CA 94535'),
@@ -296,7 +296,7 @@ describe('PaymentRequestDetails', () => {
       expect(wrapper.text().includes('Non-temp storage release (5 items)')).toBeTruthy();
     });
 
-    it('does renders the Pickup Address and Destination Address', async () => {
+    it('does renders the Departure Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' })).toBeTruthy();
       expect(
         wrapper.find({ 'data-testid': 'pickup-to-destination' }).at(0).text().includes('Princeton, NJ 08540'),
