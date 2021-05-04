@@ -15,7 +15,8 @@ import {
 } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
-import styles from '../../Customer/MtoShipmentForm/MtoShipmentForm.module.scss';
+
+import styles from './OfficeShipmentForm.module.scss';
 
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -169,12 +170,12 @@ const OfficeShipmentForm = ({
                   </Alert>
                 )}
 
-                <div className={styles.MTOShipmentForm}>
+                <div className={styles.OfficeShipmentForm}>
                   <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
 
                   <h1>Edit shipment details</h1>
 
-                  <SectionWrapper className={styles.formSection}>
+                  <SectionWrapper className={styles.weightAllowance}>
                     <p>
                       <strong>Weight Allowance: </strong>
                       {serviceMember.weight_allotment.total_weight_self} lbs
