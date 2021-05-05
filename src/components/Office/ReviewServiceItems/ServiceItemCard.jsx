@@ -30,6 +30,7 @@ const ServiceItemCard = ({
   paymentServiceItemParams,
 }) => {
   const [calculationsVisible, setCalulationsVisible] = useState(false);
+  const [canEditRejection, setCanEditRejection] = useState(!rejectionReason);
 
   const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
 
