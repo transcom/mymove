@@ -182,12 +182,11 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
 	}
-	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{})
 
 	queryOrder := query.NewQueryOrder(swag.String("created_at"), swag.Bool(true))
 
 	var shipments models.MTOShipments
-	err = h.ListFetcher.FetchRecordList(&shipments, queryFilters, queryAssociations, nil, queryOrder)
+	err = h.ListFetcher.FetchRecordList(&shipments, queryFilters, nil, nil, queryOrder)
 	// return any errors
 	if err != nil {
 		logger.Error("Error fetching mto shipments : ", zap.Error(err))

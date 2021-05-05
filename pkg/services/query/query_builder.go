@@ -459,6 +459,9 @@ func (p *Builder) QueryForAssociations(model interface{}, associations services.
 }
 
 func associatedQuery(query *pop.Query, associations services.QueryAssociations, model interface{}) *pop.Query {
+	if associations == nil {
+		return query
+	}
 	return query.Eager(associations.StringGetAssociations()...)
 }
 
