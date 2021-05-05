@@ -111,7 +111,7 @@ const ServiceItemCard = ({
         }}
         enableReinitialize
       >
-        {({ handleChange, submitForm, values, setValues }) => {
+        {({ initialValues, handleReset, handleChange, submitForm, values, setValues }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
             submitForm();
