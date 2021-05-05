@@ -108,6 +108,7 @@ const ServiceItemCard = ({
         onSubmit={(values) => {
           patchPaymentServiceItem(id, values);
         }}
+        enableReinitialize
       >
         {({ handleChange, submitForm, values, setValues }) => {
           const handleApprovalChange = (event) => {
