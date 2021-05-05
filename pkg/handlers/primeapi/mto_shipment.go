@@ -140,9 +140,6 @@ func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MT
 	if payload.Status != "" {
 		fieldsInError.Add("status", "cannot be updated")
 	}
-	if payload.Diversion {
-		fieldsInError.Add("diversion", "cannot be updated")
-	}
 	if payload.RejectionReason != nil {
 		fieldsInError.Add("rejectionReason", "cannot be updated")
 	}
