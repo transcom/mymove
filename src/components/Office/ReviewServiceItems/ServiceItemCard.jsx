@@ -133,9 +133,10 @@ const ServiceItemCard = ({
           };
 
           const handleFormReset = () => {
+            setCanEditRejection(true);
             setValues({
               status: 'REQUESTED',
-              rejectionReason: undefined,
+              rejectionReason: '',
             });
             submitForm();
           };
