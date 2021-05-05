@@ -16,6 +16,7 @@
     h3 {
       font-weight: normal;
       @include u-margin(0);
+      @include u-margin-left(1);
       flex-grow: 1;
     }
 
@@ -77,5 +78,17 @@
         @include u-border-bottom('base-lighter');
       }
     }
+  }
+
+
+  .noIcon {
+    dl {
+      @include u-margin-x(3);
+      @include u-padding-y(1.5);
+    }
+  }
+
+  .noIcon .editButton {
+    @include u-margin-x(3);
   }
 }

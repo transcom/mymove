@@ -18,6 +18,7 @@ const info = {
     state: 'WA',
     postal_code: '98421',
   },
+  counselorRemarks: 'counselor approved',
 };
 
 const postalOnly = {
@@ -46,5 +47,23 @@ describe('Shipment Container', () => {
       <ShipmentDisplay shipmentId="1" displayInfo={postalOnly} onChange={jest.fn()} isSubmitted={false} />,
     );
     expect(wrapper.find('div[data-testid="shipment-display"]').exists()).toBe(true);
+  });
+  it('renders with comments', () => {
+    const wrapper = mount(
+      <ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />,
+    );
+    expect(wrapper.find('dd[data-testid="counselorRemarks"]').exists()).toBe(true);
+  });
+  it('renders with edit button', () => {
+    const wrapper = mount(
+      <ShipmentDisplay shipmentId="1" displayInfo={info} editURL="url" onChange={jest.fn()} isSubmitted={false} />,
+    );
+    expect(wrapper.find('button[data-testid="editButton"]').exists()).toBe(true);
+  });
+  it('renders without edit button', () => {
+    const wrapper = mount(
+      <ShipmentDisplay shipmentId="1" displayInfo={postalOnly} onChange={jest.fn()} isSubmitted={false} />,
+    );
+    expect(wrapper.find('button[data-testid="editButton"]').exists()).toBe(false);
   });
 });
