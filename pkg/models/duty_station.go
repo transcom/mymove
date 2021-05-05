@@ -23,7 +23,7 @@ type DutyStation struct {
 	Address                    Address                      `belongs_to:"address"`
 	TransportationOfficeID     *uuid.UUID                   `json:"transportation_office_id" db:"transportation_office_id"`
 	TransportationOffice       TransportationOffice         `belongs_to:"transportation_offices"`
-	RequiresServicesCounseling bool                         `json:"requires_services_counseling" db:"requires_services_counseling"`
+	ProvidesServicesCounseling bool                         `json:"provides_services_counseling" db:"provides_services_counseling"`
 }
 
 // DutyStations is not required by pop and may be deleted
