@@ -4,11 +4,9 @@ import { MenuItemLink, getResources } from 'react-admin';
 import { withRouter } from 'react-router-dom';
 import ExitIcon from '@material-ui/icons/PowerSettingsNew';
 import { LogoutUser } from 'utils/api';
-import { createBrowserHistory } from 'history';
 
 const Menu = (props) => {
   const resources = props.resources;
-  const history = createBrowserHistory({ basename: '' });
   return (
     <div>
       {resources
@@ -27,11 +25,8 @@ const Menu = (props) => {
         onClick={(e) => {
           e.preventDefault();
           LogoutUser().then(() => {
-            console.log('logoutuser then -- Menu.jsx');
-            history.push({
-              pathname: '/sign-in',
-              state: { hasLoggedOut: true },
-            });
+            window.localStorage.setItem('hasLoggedOut', true);
+            window.location.href = '/';
           });
         }}
       />
