@@ -15,13 +15,15 @@ import { isDevelopment } from 'shared/constants';
 
 const SignIn = ({ context, location, showLocalDevLogin }) => {
   const [showEula, setShowEula] = useState(false);
-
   const history = useHistory();
+
   useEffect(() => {
-    return () => {
+    function unload() {
       history.replace('', null);
-    };
-  });
+    }
+    window.addEventListener('beforeunload', unload);
+    return () => window.removeEventListener('beforeunload', unload);
+  }, [history]);
 
   const { error } = qs.parse(location.search);
   const { siteName, showLoginWarning } = context;
