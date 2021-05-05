@@ -4,6 +4,7 @@ import { useMutation, queryCache } from 'react-query';
 
 import styles from './PaymentRequestReview.module.scss';
 
+import { formatPaymentRequestReviewAddressString } from 'utils/shipmentDisplay';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MatchShape, HistoryShape } from 'types/router';
@@ -104,27 +105,24 @@ export const PaymentRequestReview = ({ history, match }) => {
     history.push(`/moves/${moveCode}/payment-requests`);
   };
 
-  const serviceItemCards = () => {
-    paymentServiceItemsArr.map((item) => {
-      const selectedShipment = mtoShipments.find((shipment) => shipment.id === item.mtoShipmentID);
-
-      return {
-        id: item.id,
-        mtoShipmentID: item.mtoShipmentID,
-        mtoShipmentType: item.mtoShipmentType,
-        mtoShipmentDepartureDate: selectedShipment.actualPickupDate,
-        mtoShipmentPickupAddress: selectedShipment.pickupAddress,
-        mtoShipmentDestinationAddress: selectedShipment.destinationAddress,
-        mtoServiceItemCode: item.mtoServiceItemCode,
-        mtoServiceItemName: item.mtoServiceItemName,
-        amount: item.priceCents ? item.priceCents / 100 : 0,
-        createdAt: item.createdAt,
-        status: item.status,
-        rejectionReason: item.rejectionReason,
-        paymentServiceItemParams: item.paymentServiceItemParams,
-      };
-    });
-  };
+  const serviceItemCards = paymentServiceItemsArr.map((item) => {
+    const selectedShipment = mtoShipments.find((shipment) => shipment.id === item.mtoShipmentID);
+    return {
+      id: item.id,
+      mtoShipmentID: item.mtoShipmentID,
+      mtoShipmentType: item.mtoShipmentType,
+      mtoShipmentDepartureDate: selectedShipment.actualPickupDate,
+      mtoShipmentPickupAddress: formatPaymentRequestReviewAddressString(selectedShipment.pickupAddress),
+      mtoShipmentDestinationAddress: formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress),
+      mtoServiceItemCode: item.mtoServiceItemCode,
+      mtoServiceItemName: item.mtoServiceItemName,
+      amount: item.priceCents ? item.priceCents / 100 : 0,
+      createdAt: item.createdAt,
+      status: item.status,
+      rejectionReason: item.rejectionReason,
+      paymentServiceItemParams: item.paymentServiceItemParams,
+    };
+  });
 
   return (
     <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>

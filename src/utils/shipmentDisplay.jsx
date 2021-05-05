@@ -55,3 +55,11 @@ export function formatPaymentRequestAddressString(pickupAddress, destinationAddr
   }
   return ``;
 }
+
+export function formatPaymentRequestReviewAddressString(address) {
+  return (
+    <>
+      {address.city}, {address.state} {address.postal_code}
+    </>
+  );
+}
