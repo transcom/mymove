@@ -1663,7 +1663,9 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED"
           ],
           "readOnly": true
         },
@@ -2231,7 +2233,8 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "CANCELED"
           ]
         }
       }
@@ -4347,7 +4350,9 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED"
           ],
           "readOnly": true
         },
@@ -4915,7 +4920,8 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "CANCELED"
           ]
         }
       }

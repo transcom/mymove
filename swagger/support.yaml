@@ -1393,6 +1393,8 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+          - CANCELLATION_REQUESTED
+          - CANCELED
       rejectionReason:
         type: string
         readOnly: true
@@ -1774,6 +1776,7 @@ definitions:
           - APPROVED
           - SUBMITTED
           - CANCELLATION_REQUESTED
+          - CANCELED
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
