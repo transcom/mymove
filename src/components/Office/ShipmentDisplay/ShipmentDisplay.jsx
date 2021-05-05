@@ -1,6 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
-import { Checkbox, Button } from '@trussworks/react-uswds';
+import { Checkbox } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
@@ -8,21 +8,13 @@ import ShipmentContainer from '../ShipmentContainer';
 
 import styles from './ShipmentDisplay.module.scss';
 
+import { EditButton } from 'components/form/IconButtons';
 import { AddressShape } from 'types/address';
 import { formatAddress } from 'utils/shipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDate } from 'shared/dates';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted, showIcon, editURL }) => {
-  const editButtonClasses = classnames(
-    'usa-button',
-    'usa-button--secondary',
-    'usa-button--small',
-    'usa-button--icon',
-    'margin-left-1',
-    styles.editButton,
-  );
-
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
 
   return (
@@ -62,12 +54,13 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
           </div>
         </dl>
         {editURL && (
-          <Button to={editURL} className={editButtonClasses} data-testid="editButton">
-            <span className="icon">
-              <FontAwesomeIcon icon="pen" alt=" " inverse />
-            </span>
-            <span>Edit shipment</span>
-          </Button>
+          <EditButton
+            to={editURL}
+            className={styles.editButton}
+            data-testid="editButton"
+            label="Edit shipment"
+            secondary
+          />
         )}
       </ShipmentContainer>
     </div>
