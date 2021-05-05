@@ -11,7 +11,7 @@ import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { mtoShipmentTypes } from 'constants/shipments';
+import { shipmentTypes } from 'constants/shipments';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 import { PaymentServiceItemParam } from 'types/order';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
@@ -70,14 +70,26 @@ const ServiceItemCard = ({
     return (
       <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
         <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
-          <h6 className={styles.cardHeader}>{mtoShipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
-          {/* <p>
-            <small>
-              Departed {mtoShipmentDepartureDate}
-              From {mtoShipmentPickupAddress}
-              To {mtoShipmentDestinationAddress}
+          <div className={styles.cardHeader}>
+            <h6 className={styles.cardTitle}>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
+            <small className={styles.addressBlock}>
+              {mtoShipmentDepartureDate !== '' && (
+                <div>
+                  <span>Departed</span> {mtoShipmentDepartureDate}
+                </div>
+              )}
+              {mtoShipmentPickupAddress !== '' && (
+                <div>
+                  <span>From</span> {mtoShipmentPickupAddress}
+                </div>
+              )}
+              {mtoShipmentPickupAddress !== '' && (
+                <div>
+                  <span>To</span> {mtoShipmentDestinationAddress}
+                </div>
+              )}
             </small>
-          </p> */}
+          </div>
           <dl>
             <dt>Service item</dt>
             <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
@@ -136,14 +148,26 @@ const ServiceItemCard = ({
           return (
             <Form className={styles.form} onSubmit={submitForm}>
               <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
-                <h6 className={styles.cardHeader}>{mtoShipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
-                <p>
-                  <small>
-                    Departed {mtoShipmentDepartureDate}
-                    From {mtoShipmentPickupAddress}
-                    To {mtoShipmentDestinationAddress}
+                <div className={styles.cardHeader}>
+                  <h6 className={styles.cardTitle}>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
+                  <small className={styles.addressBlock}>
+                    {mtoShipmentDepartureDate !== '' && (
+                      <div>
+                        <span>Departed</span> {mtoShipmentDepartureDate}
+                      </div>
+                    )}
+                    {mtoShipmentPickupAddress !== '' && (
+                      <div>
+                        <span>From</span> {mtoShipmentPickupAddress}
+                      </div>
+                    )}
+                    {mtoShipmentPickupAddress !== '' && (
+                      <div>
+                        <span>To</span> {mtoShipmentDestinationAddress}
+                      </div>
+                    )}
                   </small>
-                </p>
+                </div>
                 <dl>
                   <dt>Service item</dt>
                   <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
