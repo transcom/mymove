@@ -134,6 +134,7 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 	model := &models.MTOShipment{
 		ID:           uuid.FromStringOrNil(mtoShipment.ID.String()),
 		ShipmentType: models.MTOShipmentType(mtoShipment.ShipmentType),
+		Diversion:    bool(mtoShipment.Diversion),
 	}
 
 	scheduledPickupDate := time.Time(mtoShipment.ScheduledPickupDate)
