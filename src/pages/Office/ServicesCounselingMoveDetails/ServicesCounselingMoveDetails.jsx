@@ -111,9 +111,11 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Allowances"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
-                  Edit allowances
-                </Link>
+                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                    Edit allowances
+                  </Link>
+                )
               }
             >
               <AllowancesList info={allowancesInfo} />
@@ -123,9 +125,11 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Customer info"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit=customer-info" to="#">
-                  Edit customer info
-                </Link>
+                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                  <Link className="usa-button usa-button--secondary" data-testid="edit=customer-info" to="#">
+                    Edit customer info
+                  </Link>
+                )
               }
             >
               <CustomerInfoList customerInfo={customerInfo} />
