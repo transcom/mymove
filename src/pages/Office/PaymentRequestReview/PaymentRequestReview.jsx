@@ -111,9 +111,13 @@ export const PaymentRequestReview = ({ history, match }) => {
       id: item.id,
       mtoShipmentID: item.mtoShipmentID,
       mtoShipmentType: item.mtoShipmentType,
-      mtoShipmentDepartureDate: selectedShipment.actualPickupDate,
-      mtoShipmentPickupAddress: formatPaymentRequestReviewAddressString(selectedShipment.pickupAddress),
-      mtoShipmentDestinationAddress: formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress),
+      mtoShipmentDepartureDate: selectedShipment?.actualPickupDate,
+      mtoShipmentPickupAddress: selectedShipment
+        ? formatPaymentRequestReviewAddressString(selectedShipment.pickupAddress)
+        : undefined,
+      mtoShipmentDestinationAddress: selectedShipment
+        ? formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress)
+        : undefined,
       mtoServiceItemCode: item.mtoServiceItemCode,
       mtoServiceItemName: item.mtoServiceItemName,
       amount: item.priceCents ? item.priceCents / 100 : 0,

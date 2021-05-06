@@ -57,9 +57,8 @@ export function formatPaymentRequestAddressString(pickupAddress, destinationAddr
 }
 
 export function formatPaymentRequestReviewAddressString(address) {
-  return (
-    <>
-      {address.city}, {address.state} {address.postal_code}
-    </>
-  );
+  if (address) {
+    return `${address.city}, ${address.state} ${address.postal_code}`;
+  }
+  return '';
 }

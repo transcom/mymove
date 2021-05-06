@@ -86,14 +86,13 @@ const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAd
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
   shipmentDepartureDate: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
-  shipmentAddress: PropTypes.object,
+  shipmentAddress: PropTypes.node,
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
 };
 
 PaymentRequestDetails.defaultProps = {
   shipmentDepartureDate: '',
-  shipmentAddress: {},
+  shipmentAddress: '',
 };
 
 export default PaymentRequestDetails;
