@@ -462,6 +462,10 @@ func associatedQuery(query *pop.Query, associations services.QueryAssociations, 
 	if associations == nil {
 		return query
 	}
+
+	if associations.Preload() {
+		return query.EagerPreload(associations.StringGetAssociations()...)
+	}
 	return query.Eager(associations.StringGetAssociations()...)
 }
 

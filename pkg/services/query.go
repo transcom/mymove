@@ -27,6 +27,7 @@ type NewQueryAssociation func(field string) QueryAssociation
 //go:generate mockery -name QueryAssociations
 type QueryAssociations interface {
 	StringGetAssociations() []string
+	Preload() bool
 }
 
 // NewQueryAssociations is a function type definition for building a QueryAssociations
