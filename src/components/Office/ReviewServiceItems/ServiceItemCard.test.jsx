@@ -73,7 +73,7 @@ describe('ServiceItemCard component', () => {
     });
 
     // using react testing library to test dom interactions
-    it('save button is disabled when rejection reason is empty', () => {
+    it('disables the save button when rejection reason is empty', () => {
       render(<ServiceItemCard {...basicServiceItemCard} />);
 
       fireEvent.click(screen.getByTestId('rejectRadio'));
@@ -84,7 +84,7 @@ describe('ServiceItemCard component', () => {
     });
 
     // using react testing library to test dom interactions
-    it('edit reason button link show after saving', async () => {
+    it('shows edit reason link after saving', async () => {
       render(<ServiceItemCard {...basicServiceItemCard} />);
 
       // Click on reject radio and fill in text area
@@ -103,7 +103,7 @@ describe('ServiceItemCard component', () => {
     });
 
     // using react testing library to test dom interactions
-    it('edit existing rejection reason', async () => {
+    it('edits the rejection reason', async () => {
       const data = {
         ...basicServiceItemCard,
         status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
