@@ -3911,9 +3911,6 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "eTag": {
-          "type": "string"
-        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -3924,11 +3921,6 @@ func init() {
           "type": "string",
           "example": "John"
         },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "last_name": {
           "type": "string",
           "example": "Doe"
@@ -3938,11 +3930,6 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
-        },
-        "userID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -8509,9 +8496,6 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "eTag": {
-          "type": "string"
-        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -8522,11 +8506,6 @@ func init() {
           "type": "string",
           "example": "John"
         },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "last_name": {
           "type": "string",
           "example": "Doe"
@@ -8536,11 +8515,6 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
-        },
-        "userID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
