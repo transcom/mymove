@@ -1,3 +1,5 @@
+import { officeBaseURL } from '../../support/constants';
+
 describe('setting up service member profile requiring an access code', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -113,4 +115,18 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.get('input[name="telephone"]').type('555-555-3333');
   cy.nextPage();
+}
+
+function serviceMemberLogsOut() {
+  // service member user can logout and see logout success message
+  cy.contains('Sign out').click();
+  cy.url().should('eq', '/sign-in');
+  cy.get('.usa-alert--success').contains('You have signed out of MilMove').should('exist');
+
+  // service member user is already logged out and revisits sign-in page, logout success message should not exist
+  /*
+  cy.patientVisit('/sign-in');
+  cy.url().should('eq', '/sign-in');
+  cy.get('.usa-alert--success').contains('You have signed out of MilMove').should('not.exist');
+  */
 }
