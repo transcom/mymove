@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, fireEvent, act, waitFor } from '@testing-library/react';
+import { render, fireEvent, act, waitFor, screen } from '@testing-library/react';
 import { mount } from 'enzyme';
 
 import testParams from '../ServiceItemCalculations/serviceItemTestParams';
@@ -74,41 +74,32 @@ describe('ServiceItemCard component', () => {
 
     // using react testing library to test dom interactions
     it('save button is disabled when rejection reason is empty', () => {
-      const { getByTestId } = render(<ServiceItemCard {...basicServiceItemCard} />);
-      const rejectRadio = getByTestId('rejectRadio');
+      render(<ServiceItemCard {...basicServiceItemCard} />);
+
+      fireEvent.click(screen.getByTestId('rejectRadio'));
 
       waitFor(() => {
-        fireEvent.click(rejectRadio);
+        expect(screen.getByTestId('rejectionSaveButton')).toHaveAttribute('disabled');
       });
-
-      expect(getByTestId('rejectionSaveButton')).toHaveAttribute('disabled');
     });
 
     // using react testing library to test dom interactions
     it('edit reason button link show after saving', async () => {
-      const { getByTestId } = render(<ServiceItemCard {...basicServiceItemCard} />);
-      const rejectRadio = getByTestId('rejectRadio');
+      render(<ServiceItemCard {...basicServiceItemCard} />);
 
       // Click on reject radio and fill in text area
-      await waitFor(() => {
-        fireEvent.click(rejectRadio);
+      fireEvent.click(screen.getByTestId('rejectRadio'));
+      fireEvent.change(screen.getByTestId('textarea'), {
+        target: { value: 'Rejected just because.' },
       });
 
-      await waitFor(() => {
-        fireEvent.change(getByTestId('textarea'), {
-          target: { value: 'Rejected just because.' },
-        });
-      });
-
-      expect(getByTestId('rejectionSaveButton').hasAttribute('disabled')).toBeFalsy();
+      expect(screen.getByTestId('rejectionSaveButton').hasAttribute('disabled')).toBeFalsy();
 
       // Save
-      await waitFor(() => {
-        fireEvent.click(getByTestId('rejectionSaveButton'));
-      });
+      fireEvent.click(screen.getByTestId('rejectionSaveButton'));
 
-      expect(getByTestId('editReasonButton')).toBeTruthy();
-      expect(getByTestId('rejectionReasonReadOnly').textContent).toBe('Rejected just because.');
+      expect(screen.getByTestId('editReasonButton')).toBeTruthy();
+      expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Rejected just because.');
     });
 
     // using react testing library to test dom interactions
@@ -118,28 +109,20 @@ describe('ServiceItemCard component', () => {
         status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
         rejectionReason: 'Rejected just because.',
       };
-      const { getByTestId } = render(<ServiceItemCard {...data} />);
+      render(<ServiceItemCard {...data} />);
 
-      expect(getByTestId('editReasonButton')).toBeTruthy();
-      expect(getByTestId('rejectionReasonReadOnly').textContent).toBe('Rejected just because.');
+      expect(screen.getByTestId('editReasonButton')).toBeTruthy();
+      expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Rejected just because.');
 
       // Click on Edit reason button, edit text area and save
-      await waitFor(() => {
-        fireEvent.click(getByTestId('editReasonButton'));
+      fireEvent.click(screen.getByTestId('editReasonButton'));
+      fireEvent.change(screen.getByTestId('textarea'), {
+        target: { value: 'Edited rejection reason.' },
       });
+      fireEvent.click(screen.getByTestId('rejectionSaveButton'));
 
-      await waitFor(() => {
-        fireEvent.change(getByTestId('textarea'), {
-          target: { value: 'Edited rejection reason.' },
-        });
-      });
-
-      await waitFor(() => {
-        fireEvent.click(getByTestId('rejectionSaveButton'));
-      });
-
-      expect(getByTestId('editReasonButton')).toBeTruthy();
-      expect(getByTestId('rejectionReasonReadOnly').textContent).toBe('Edited rejection reason.');
+      expect(screen.getByTestId('editReasonButton')).toBeTruthy();
+      expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Edited rejection reason.');
     });
   });
 
