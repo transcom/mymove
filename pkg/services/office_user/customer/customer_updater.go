@@ -1,8 +1,6 @@
 package customer
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -28,33 +26,37 @@ func (s *customerUpdater) UpdateCustomer(eTag string, customer models.ServiceMem
 		return nil, services.NewNotFoundError(customer.ID, "while looking for customer")
 	}
 
-	fmt.Println("updated ---->")
-	fmt.Println(existingCustomer.UpdatedAt)
-
-	// TODO: I can't get postman to actually get past this, maybe this is wrong, or I'm sending
-	// incorrect If-Match header locally?
 	existingETag := etag.GenerateEtag(existingCustomer.UpdatedAt)
 	if existingETag != eTag {
 		return nil, services.NewPreconditionFailedError(customer.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	transactionError := s.db.Transaction(func(tx *pop.Connection) error {
-		// TODO: save backup contact as well
-		// TODO: this causes 'reflect: call of reflect.Value.FieldByName on ptr Value' panic
-		// if residentialAddress := customer.ResidentialAddress; residentialAddress != nil {
-		// 	existingCustomer.ResidentialAddress.StreetAddress1 = residentialAddress.StreetAddress1
-		// 	existingCustomer.ResidentialAddress.City = residentialAddress.City
-		// 	existingCustomer.ResidentialAddress.State = residentialAddress.State
-		// 	existingCustomer.ResidentialAddress.PostalCode = residentialAddress.PostalCode
-		// 	if residentialAddress.StreetAddress2 != nil {
-		// 		existingCustomer.ResidentialAddress.StreetAddress2 = residentialAddress.StreetAddress2
-		// 	}
+		if residentialAddress := customer.ResidentialAddress; residentialAddress != nil {
+			existingCustomer.ResidentialAddress.StreetAddress1 = residentialAddress.StreetAddress1
+			existingCustomer.ResidentialAddress.City = residentialAddress.City
+			existingCustomer.ResidentialAddress.State = residentialAddress.State
+			existingCustomer.ResidentialAddress.PostalCode = residentialAddress.PostalCode
+			if residentialAddress.StreetAddress2 != nil {
+				existingCustomer.ResidentialAddress.StreetAddress2 = residentialAddress.StreetAddress2
+			}
 
-		// 	err = tx.Save(&existingCustomer.ResidentialAddress)
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// }
+			err = tx.Save(existingCustomer.ResidentialAddress)
+			if err != nil {
+				return err
+			}
+		}
+
+		if backupContacts := customer.BackupContacts; backupContacts != nil {
+			existingCustomer.BackupContacts[0].Name = backupContacts[0].Name
+			existingCustomer.BackupContacts[0].Email = backupContacts[0].Email
+			existingCustomer.BackupContacts[0].Phone = backupContacts[0].Phone
+
+			err = tx.Save(existingCustomer.BackupContacts)
+			if err != nil {
+				return err
+			}
+		}
 
 		if customer.FirstName != nil {
 			existingCustomer.FirstName = customer.FirstName
